@@ -1,0 +1,46 @@
+# AGENTS.md — Workout Log
+
+A personal Android app (.NET 10 MAUI Blazor Hybrid) that replaces a paper workout notebook. One user, sideloaded, offline.
+
+## Source of truth
+`docs/` holds the requirements, decisions and backlog. Read [docs/README.md](docs/README.md) first.
+
+| Need | Doc |
+|---|---|
+| Requirements (FR-xx, NFR-xx) | [02](docs/02-requirements.md) |
+| Data model, validation | [03](docs/03-data-model.md) |
+| Exercise list and metrics | [04](docs/04-exercise-list.md), [exercises.json](docs/exercises.json) |
+| Solution layout, packages | [05](docs/05-architecture.md) |
+| Screens and navigation | [06](docs/06-screens-ux.md) |
+| Tests | [07](docs/07-testing.md) |
+| Setup, build, run | [08](docs/08-dev-setup-build.md) |
+| Decisions (D-xx, T-xx) | [10](docs/10-decisions-log.md) |
+| Definition of Done | [12](docs/12-product-goal.md) |
+| Backlog (EP-xx, US-xx) | [13](docs/13-backlog.md) |
+| Design system | [14](docs/14-design-system.md) |
+
+## Layout
+| Path | What |
+|---|---|
+| `WorkoutLog.slnx` | Solution |
+| `src/WorkoutLog.UI/` | Razor class library: pages, components, design tokens |
+| `src/WorkoutLog.UI.Stories/` | BlazingStory app: stories for UI components |
+
+The App, Core and test projects are planned in [05](docs/05-architecture.md) and created in US-04.
+
+## Commands
+| Task | Command |
+|---|---|
+| Build | `dotnet build WorkoutLog.slnx` |
+| Run the stories | `dotnet run --project src/WorkoutLog.UI.Stories` → http://localhost:5056 |
+
+## Rules
+- Ask about any ambiguity. Don't pick a default.
+- No new packages without approval. Approved packages and versions are in [05](docs/05-architecture.md#dependencies).
+- Every decision goes in [10](docs/10-decisions-log.md) with the next free ID. Story and decision IDs never change.
+- A story is done when it meets the Definition of Done in [12](docs/12-product-goal.md).
+- UI components follow the Design System pages in the stories site ([14](docs/14-design-system.md)): tokens only, data in through parameters, a story for each component, `data-testid` on interactive elements.
+- The UI never touches the database; it calls services only.
+- Local git only, no remote. Commits use Conventional Commits.
+- Docs are short and factual.
+- Ignore `bin/`, `obj/`, `.vs/` and `TestResults/`.

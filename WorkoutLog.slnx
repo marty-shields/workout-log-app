@@ -1,0 +1,6 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/WorkoutLog.UI.Stories/WorkoutLog.UI.Stories.csproj" />
+    <Project Path="src/WorkoutLog.UI/WorkoutLog.UI.csproj" />
+  </Folder>
+</Solution>

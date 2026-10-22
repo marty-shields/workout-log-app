@@ -1,0 +1,7057 @@
+[
+  {
+    "id": 1,
+    "name": "Ab Wheel Rollout",
+    "type": "Strength",
+    "aliases": [
+      "Ab Roller"
+    ],
+    "primaryMuscle": "Abdominals",
+    "equipment": "Other",
+    "mechanic": "Compound",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 2,
+    "name": "Back Extension",
+    "type": "Strength",
+    "aliases": [
+      "Hyperextension"
+    ],
+    "primaryMuscle": "LowerBack",
+    "equipment": "Bodyweight",
+    "mechanic": "Isolation",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 3,
+    "name": "Band Monster Walk",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Abductors",
+    "equipment": "Band",
+    "mechanic": "Compound",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 4,
+    "name": "Band Pull-Apart",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Shoulders",
+    "equipment": "Band",
+    "mechanic": "Isolation",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 5,
+    "name": "Barbell Ab Rollout",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Abdominals",
+    "equipment": "Barbell",
+    "mechanic": "Compound",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 6,
+    "name": "Barbell Back Squat",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Quadriceps",
+    "equipment": "Barbell",
+    "mechanic": "Compound",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 7,
+    "name": "Barbell Behind-the-Neck Press",
+    "type": "Strength",
+    "aliases": [
+      "BTN Press"
+    ],
+    "primaryMuscle": "Shoulders",
+    "equipment": "Barbell",
+    "mechanic": "Compound",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 8,
+    "name": "Barbell Bench Press",
+    "type": "Strength",
+    "aliases": [
+      "Flat Bench Press"
+    ],
+    "primaryMuscle": "Chest",
+    "equipment": "Barbell",
+    "mechanic": "Compound",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 9,
+    "name": "Barbell Bent-Over Row",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "MiddleBack",
+    "equipment": "Barbell",
+    "mechanic": "Compound",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 10,
+    "name": "Barbell Box Squat",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Quadriceps",
+    "equipment": "Barbell",
+    "mechanic": "Compound",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 11,
+    "name": "Barbell Bulgarian Split Squat",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Quadriceps",
+    "equipment": "Barbell",
+    "mechanic": "Compound",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 12,
+    "name": "Barbell Calf Raise",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Calves",
+    "equipment": "Barbell",
+    "mechanic": "Isolation",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 13,
+    "name": "Barbell Close-Grip Bench Press",
+    "type": "Strength",
+    "aliases": [
+      "CGBP"
+    ],
+    "primaryMuscle": "Triceps",
+    "equipment": "Barbell",
+    "mechanic": "Compound",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 14,
+    "name": "Barbell Close-Grip Curl",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Biceps",
+    "equipment": "Barbell",
+    "mechanic": "Isolation",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 15,
+    "name": "Barbell Curl",
+    "type": "Strength",
+    "aliases": [
+      "Barbell Biceps Curl"
+    ],
+    "primaryMuscle": "Biceps",
+    "equipment": "Barbell",
+    "mechanic": "Isolation",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 16,
+    "name": "Barbell Decline Bench Press",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Chest",
+    "equipment": "Barbell",
+    "mechanic": "Compound",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 17,
+    "name": "Barbell Drag Curl",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Biceps",
+    "equipment": "Barbell",
+    "mechanic": "Isolation",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 18,
+    "name": "Barbell Floor Press",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Chest",
+    "equipment": "Barbell",
+    "mechanic": "Compound",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 19,
+    "name": "Barbell Front Raise",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Shoulders",
+    "equipment": "Barbell",
+    "mechanic": "Isolation",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 20,
+    "name": "Barbell Front Squat",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Quadriceps",
+    "equipment": "Barbell",
+    "mechanic": "Compound",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 21,
+    "name": "Barbell Glute Bridge",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Glutes",
+    "equipment": "Barbell",
+    "mechanic": "Compound",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 22,
+    "name": "Barbell Good Morning",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "LowerBack",
+    "equipment": "Barbell",
+    "mechanic": "Compound",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 23,
+    "name": "Barbell Hack Squat",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Quadriceps",
+    "equipment": "Barbell",
+    "mechanic": "Compound",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 24,
+    "name": "Barbell Hip Thrust",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Glutes",
+    "equipment": "Barbell",
+    "mechanic": "Compound",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 25,
+    "name": "Barbell Incline Bench Press",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Chest",
+    "equipment": "Barbell",
+    "mechanic": "Compound",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 26,
+    "name": "Barbell JM Press",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Triceps",
+    "equipment": "Barbell",
+    "mechanic": "Compound",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 27,
+    "name": "Barbell Lateral Lunge",
+    "type": "Strength",
+    "aliases": [
+      "Barbell Side Lunge"
+    ],
+    "primaryMuscle": "Quadriceps",
+    "equipment": "Barbell",
+    "mechanic": "Compound",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 28,
+    "name": "Barbell Lunge",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Quadriceps",
+    "equipment": "Barbell",
+    "mechanic": "Compound",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 29,
+    "name": "Barbell Overhead Squat",
+    "type": "Strength",
+    "aliases": [
+      "OHS"
+    ],
+    "primaryMuscle": "Quadriceps",
+    "equipment": "Barbell",
+    "mechanic": "Compound",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 30,
+    "name": "Barbell Overhead Tricep Extension",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Triceps",
+    "equipment": "Barbell",
+    "mechanic": "Isolation",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 31,
+    "name": "Barbell Preacher Curl",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Biceps",
+    "equipment": "Barbell",
+    "mechanic": "Isolation",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 32,
+    "name": "Barbell Pullover",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Chest",
+    "equipment": "Barbell",
+    "mechanic": "Compound",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 33,
+    "name": "Barbell Rack Pull",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "LowerBack",
+    "equipment": "Barbell",
+    "mechanic": "Compound",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 34,
+    "name": "Barbell Rear Delt Row",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Shoulders",
+    "equipment": "Barbell",
+    "mechanic": "Compound",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 35,
+    "name": "Barbell Reverse Curl",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Forearms",
+    "equipment": "Barbell",
+    "mechanic": "Isolation",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 36,
+    "name": "Barbell Reverse Lunge",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Quadriceps",
+    "equipment": "Barbell",
+    "mechanic": "Compound",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 37,
+    "name": "Barbell Reverse Wrist Curl",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Forearms",
+    "equipment": "Barbell",
+    "mechanic": "Isolation",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 38,
+    "name": "Barbell Reverse-Grip Bench Press",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Chest",
+    "equipment": "Barbell",
+    "mechanic": "Compound",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 39,
+    "name": "Barbell Reverse-Grip Bent-Over Row",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "MiddleBack",
+    "equipment": "Barbell",
+    "mechanic": "Compound",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 40,
+    "name": "Barbell Romanian Deadlift",
+    "type": "Strength",
+    "aliases": [
+      "RDL"
+    ],
+    "primaryMuscle": "Hamstrings",
+    "equipment": "Barbell",
+    "mechanic": "Compound",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 41,
+    "name": "Barbell Shoulder Press",
+    "type": "Strength",
+    "aliases": [
+      "Military Press",
+      "OHP",
+      "Overhead Press"
+    ],
+    "primaryMuscle": "Shoulders",
+    "equipment": "Barbell",
+    "mechanic": "Compound",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 42,
+    "name": "Barbell Shrug",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Traps",
+    "equipment": "Barbell",
+    "mechanic": "Isolation",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 43,
+    "name": "Barbell Side Bend",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Abdominals",
+    "equipment": "Barbell",
+    "mechanic": "Isolation",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 44,
+    "name": "Barbell Skull Crusher",
+    "type": "Strength",
+    "aliases": [
+      "Skullcrusher",
+      "French Press"
+    ],
+    "primaryMuscle": "Triceps",
+    "equipment": "Barbell",
+    "mechanic": "Isolation",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 45,
+    "name": "Barbell Step-up",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Quadriceps",
+    "equipment": "Barbell",
+    "mechanic": "Compound",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 46,
+    "name": "Barbell Stiff-Leg Deadlift",
+    "type": "Strength",
+    "aliases": [
+      "SLDL",
+      "Straight Leg Deadlift"
+    ],
+    "primaryMuscle": "Hamstrings",
+    "equipment": "Barbell",
+    "mechanic": "Compound",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 47,
+    "name": "Barbell Sumo Deadlift",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Hamstrings",
+    "equipment": "Barbell",
+    "mechanic": "Compound",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 48,
+    "name": "Barbell Sumo Squat",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Quadriceps",
+    "equipment": "Barbell",
+    "mechanic": "Compound",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 49,
+    "name": "Barbell Twist",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Abdominals",
+    "equipment": "Barbell",
+    "mechanic": "Isolation",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 50,
+    "name": "Barbell Upright Row",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Shoulders",
+    "equipment": "Barbell",
+    "mechanic": "Compound",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 51,
+    "name": "Barbell Walking Lunge",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Quadriceps",
+    "equipment": "Barbell",
+    "mechanic": "Compound",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 52,
+    "name": "Barbell Wide-Grip Bench Press",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Chest",
+    "equipment": "Barbell",
+    "mechanic": "Compound",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 53,
+    "name": "Barbell Wide-Grip Curl",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Biceps",
+    "equipment": "Barbell",
+    "mechanic": "Isolation",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 54,
+    "name": "Barbell Wrist Curl",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Forearms",
+    "equipment": "Barbell",
+    "mechanic": "Isolation",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 55,
+    "name": "Barbell Zercher Squat",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Quadriceps",
+    "equipment": "Barbell",
+    "mechanic": "Compound",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 56,
+    "name": "Bench Dip",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Triceps",
+    "equipment": "Bodyweight",
+    "mechanic": "Compound",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 57,
+    "name": "Bicycle Crunch",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Abdominals",
+    "equipment": "Bodyweight",
+    "mechanic": "Compound",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 58,
+    "name": "Bulgarian Split Squat",
+    "type": "Strength",
+    "aliases": [
+      "RFESS",
+      "Rear Foot Elevated Split Squat",
+      "Bodyweight Bulgarian Split Squat"
+    ],
+    "primaryMuscle": "Quadriceps",
+    "equipment": "Bodyweight",
+    "mechanic": "Compound",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 59,
+    "name": "Cable Bench Fly",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Chest",
+    "equipment": "Cable",
+    "mechanic": "Isolation",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 60,
+    "name": "Cable Calf Raise",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Calves",
+    "equipment": "Cable",
+    "mechanic": "Isolation",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 61,
+    "name": "Cable Chest Press",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Chest",
+    "equipment": "Cable",
+    "mechanic": "Compound",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 62,
+    "name": "Cable Close-Grip Lat Pulldown",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Lats",
+    "equipment": "Cable",
+    "mechanic": "Compound",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 63,
+    "name": "Cable Crossover",
+    "type": "Strength",
+    "aliases": [
+      "Cross Over"
+    ],
+    "primaryMuscle": "Chest",
+    "equipment": "Cable",
+    "mechanic": "Isolation",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 64,
+    "name": "Cable Crunch",
+    "type": "Strength",
+    "aliases": [
+      "Rope Crunch"
+    ],
+    "primaryMuscle": "Abdominals",
+    "equipment": "Cable",
+    "mechanic": "Isolation",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 65,
+    "name": "Cable Curl",
+    "type": "Strength",
+    "aliases": [
+      "Cable Biceps Curl"
+    ],
+    "primaryMuscle": "Biceps",
+    "equipment": "Cable",
+    "mechanic": "Isolation",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 66,
+    "name": "Cable Decline Fly",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Chest",
+    "equipment": "Cable",
+    "mechanic": "Isolation",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 67,
+    "name": "Cable Face Pull",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Shoulders",
+    "equipment": "Cable",
+    "mechanic": "Compound",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 68,
+    "name": "Cable Fly",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Chest",
+    "equipment": "Cable",
+    "mechanic": "Isolation",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 69,
+    "name": "Cable Front Raise",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Shoulders",
+    "equipment": "Cable",
+    "mechanic": "Isolation",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 70,
+    "name": "Cable Glute Kickback",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Glutes",
+    "equipment": "Cable",
+    "mechanic": "Isolation",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 71,
+    "name": "Cable Hip Abduction",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Abductors",
+    "equipment": "Cable",
+    "mechanic": "Isolation",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 72,
+    "name": "Cable Hip Adduction",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Adductors",
+    "equipment": "Cable",
+    "mechanic": "Isolation",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 73,
+    "name": "Cable Incline Chest Press",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Chest",
+    "equipment": "Cable",
+    "mechanic": "Compound",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 74,
+    "name": "Cable Incline Fly",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Chest",
+    "equipment": "Cable",
+    "mechanic": "Isolation",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 75,
+    "name": "Cable Lat Pulldown",
+    "type": "Strength",
+    "aliases": [
+      "Lat Pull Down"
+    ],
+    "primaryMuscle": "Lats",
+    "equipment": "Cable",
+    "mechanic": "Compound",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 76,
+    "name": "Cable Lateral Raise",
+    "type": "Strength",
+    "aliases": [
+      "Cable Side Raise"
+    ],
+    "primaryMuscle": "Shoulders",
+    "equipment": "Cable",
+    "mechanic": "Isolation",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 77,
+    "name": "Cable Leg Curl",
+    "type": "Strength",
+    "aliases": [
+      "Cable Hamstring Curl"
+    ],
+    "primaryMuscle": "Hamstrings",
+    "equipment": "Cable",
+    "mechanic": "Isolation",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 78,
+    "name": "Cable Low-to-High Fly",
+    "type": "Strength",
+    "aliases": [
+      "Low Cable Crossover"
+    ],
+    "primaryMuscle": "Chest",
+    "equipment": "Cable",
+    "mechanic": "Isolation",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 79,
+    "name": "Cable Low-to-High Wood Chop",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Abdominals",
+    "equipment": "Cable",
+    "mechanic": "Compound",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 80,
+    "name": "Cable Lying Pullover",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Chest",
+    "equipment": "Cable",
+    "mechanic": "Compound",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 81,
+    "name": "Cable Lying Tricep Extension",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Triceps",
+    "equipment": "Cable",
+    "mechanic": "Isolation",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 82,
+    "name": "Cable Oblique Crunch",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Abdominals",
+    "equipment": "Cable",
+    "mechanic": "Isolation",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 83,
+    "name": "Cable One-Arm Tricep Extension",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Triceps",
+    "equipment": "Cable",
+    "mechanic": "Isolation",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 84,
+    "name": "Cable Pallof Press",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Abdominals",
+    "equipment": "Cable",
+    "mechanic": "Isolation",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 85,
+    "name": "Cable Preacher Curl",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Biceps",
+    "equipment": "Cable",
+    "mechanic": "Isolation",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 86,
+    "name": "Cable Pull Through",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Glutes",
+    "equipment": "Cable",
+    "mechanic": "Compound",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 87,
+    "name": "Cable Rear Delt Fly",
+    "type": "Strength",
+    "aliases": [
+      "Cable Reverse Fly"
+    ],
+    "primaryMuscle": "Shoulders",
+    "equipment": "Cable",
+    "mechanic": "Isolation",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 88,
+    "name": "Cable Reverse Curl",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Forearms",
+    "equipment": "Cable",
+    "mechanic": "Isolation",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 89,
+    "name": "Cable Reverse-Grip Tricep Pushdown",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Triceps",
+    "equipment": "Cable",
+    "mechanic": "Isolation",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 90,
+    "name": "Cable Rope Hammer Curl",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Biceps",
+    "equipment": "Cable",
+    "mechanic": "Isolation",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 91,
+    "name": "Cable Rope Overhead Tricep Extension",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Triceps",
+    "equipment": "Cable",
+    "mechanic": "Isolation",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 92,
+    "name": "Cable Rope Tricep Pushdown",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Triceps",
+    "equipment": "Cable",
+    "mechanic": "Isolation",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 93,
+    "name": "Cable Russian Twist",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Abdominals",
+    "equipment": "Cable",
+    "mechanic": "Isolation",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 94,
+    "name": "Cable Seated Row",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "MiddleBack",
+    "equipment": "Cable",
+    "mechanic": "Compound",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 95,
+    "name": "Cable Shoulder Press",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Shoulders",
+    "equipment": "Cable",
+    "mechanic": "Compound",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 96,
+    "name": "Cable Shrug",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Traps",
+    "equipment": "Cable",
+    "mechanic": "Isolation",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 97,
+    "name": "Cable Side Bend",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Abdominals",
+    "equipment": "Cable",
+    "mechanic": "Isolation",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 98,
+    "name": "Cable Straight-Arm Pulldown",
+    "type": "Strength",
+    "aliases": [
+      "Straight Arm Lat Pulldown",
+      "Lat Pushdown"
+    ],
+    "primaryMuscle": "Lats",
+    "equipment": "Cable",
+    "mechanic": "Isolation",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 99,
+    "name": "Cable Tricep Kickback",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Triceps",
+    "equipment": "Cable",
+    "mechanic": "Isolation",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 100,
+    "name": "Cable Tricep Pushdown",
+    "type": "Strength",
+    "aliases": [
+      "Pressdown"
+    ],
+    "primaryMuscle": "Triceps",
+    "equipment": "Cable",
+    "mechanic": "Isolation",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 101,
+    "name": "Cable Underhand Lat Pulldown",
+    "type": "Strength",
+    "aliases": [
+      "Reverse Grip Lat Pulldown"
+    ],
+    "primaryMuscle": "Lats",
+    "equipment": "Cable",
+    "mechanic": "Compound",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 102,
+    "name": "Cable Upright Row",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Shoulders",
+    "equipment": "Cable",
+    "mechanic": "Compound",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 103,
+    "name": "Cable V-Bar Lat Pulldown",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Lats",
+    "equipment": "Cable",
+    "mechanic": "Compound",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 104,
+    "name": "Cable V-Bar Tricep Pushdown",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Triceps",
+    "equipment": "Cable",
+    "mechanic": "Isolation",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 105,
+    "name": "Cable Wood Chop",
+    "type": "Strength",
+    "aliases": [
+      "Woodchopper"
+    ],
+    "primaryMuscle": "Abdominals",
+    "equipment": "Cable",
+    "mechanic": "Compound",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 106,
+    "name": "Cable Wrist Curl",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Forearms",
+    "equipment": "Cable",
+    "mechanic": "Isolation",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 107,
+    "name": "Calf Raise",
+    "type": "Strength",
+    "aliases": [
+      "Bodyweight Calf Raise"
+    ],
+    "primaryMuscle": "Calves",
+    "equipment": "Bodyweight",
+    "mechanic": "Isolation",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 108,
+    "name": "Chin-up",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Lats",
+    "equipment": "Bodyweight",
+    "mechanic": "Compound",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 109,
+    "name": "Close-Grip Pull-up",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Lats",
+    "equipment": "Bodyweight",
+    "mechanic": "Compound",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 110,
+    "name": "Close-Grip Push-up",
+    "type": "Strength",
+    "aliases": [
+      "Diamond Push-up"
+    ],
+    "primaryMuscle": "Triceps",
+    "equipment": "Bodyweight",
+    "mechanic": "Compound",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 111,
+    "name": "Cross-Body Crunch",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Abdominals",
+    "equipment": "Bodyweight",
+    "mechanic": "Isolation",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 112,
+    "name": "Crunch",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Abdominals",
+    "equipment": "Bodyweight",
+    "mechanic": "Isolation",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 113,
+    "name": "Dead Bug",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Abdominals",
+    "equipment": "Bodyweight",
+    "mechanic": "Compound",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 114,
+    "name": "Dead Hang",
+    "type": "Strength",
+    "aliases": [
+      "Bar Hang"
+    ],
+    "primaryMuscle": "Forearms",
+    "equipment": "Bodyweight",
+    "mechanic": "Isolation",
+    "metrics": [
+      {
+        "metric": "Duration",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 115,
+    "name": "Deadlift",
+    "type": "Strength",
+    "aliases": [
+      "Barbell Deadlift",
+      "Conventional Deadlift"
+    ],
+    "primaryMuscle": "LowerBack",
+    "equipment": "Barbell",
+    "mechanic": "Compound",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 116,
+    "name": "Decline Crunch",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Abdominals",
+    "equipment": "Bodyweight",
+    "mechanic": "Isolation",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 117,
+    "name": "Decline Leg Raise",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Abdominals",
+    "equipment": "Bodyweight",
+    "mechanic": "Isolation",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 118,
+    "name": "Decline Oblique Crunch",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Abdominals",
+    "equipment": "Bodyweight",
+    "mechanic": "Isolation",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 119,
+    "name": "Decline Push-up",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Chest",
+    "equipment": "Bodyweight",
+    "mechanic": "Compound",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 120,
+    "name": "Decline Reverse Crunch",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Abdominals",
+    "equipment": "Bodyweight",
+    "mechanic": "Isolation",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 121,
+    "name": "Decline Sit-up",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Abdominals",
+    "equipment": "Bodyweight",
+    "mechanic": "Isolation",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 122,
+    "name": "Dip",
+    "type": "Strength",
+    "aliases": [
+      "Parallel Bar Dip",
+      "Chest Dip"
+    ],
+    "primaryMuscle": "Chest",
+    "equipment": "Bodyweight",
+    "mechanic": "Compound",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 123,
+    "name": "Donkey Calf Raise",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Calves",
+    "equipment": "Bodyweight",
+    "mechanic": "Isolation",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 124,
+    "name": "Dumbbell Arnold Press",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Shoulders",
+    "equipment": "Dumbbell",
+    "mechanic": "Compound",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 125,
+    "name": "Dumbbell Bench Press",
+    "type": "Strength",
+    "aliases": [
+      "Flat Dumbbell Press"
+    ],
+    "primaryMuscle": "Chest",
+    "equipment": "Dumbbell",
+    "mechanic": "Compound",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 126,
+    "name": "Dumbbell Bent-Over Row",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "MiddleBack",
+    "equipment": "Dumbbell",
+    "mechanic": "Compound",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 127,
+    "name": "Dumbbell Bulgarian Split Squat",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Quadriceps",
+    "equipment": "Dumbbell",
+    "mechanic": "Compound",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 128,
+    "name": "Dumbbell Calf Raise",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Calves",
+    "equipment": "Dumbbell",
+    "mechanic": "Isolation",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 129,
+    "name": "Dumbbell Close-Grip Press",
+    "type": "Strength",
+    "aliases": [
+      "Crush Press"
+    ],
+    "primaryMuscle": "Chest",
+    "equipment": "Dumbbell",
+    "mechanic": "Compound",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 130,
+    "name": "Dumbbell Concentration Curl",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Biceps",
+    "equipment": "Dumbbell",
+    "mechanic": "Isolation",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 131,
+    "name": "Dumbbell Cross-Body Hammer Curl",
+    "type": "Strength",
+    "aliases": [
+      "Pinwheel Curl"
+    ],
+    "primaryMuscle": "Biceps",
+    "equipment": "Dumbbell",
+    "mechanic": "Isolation",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 132,
+    "name": "Dumbbell Curl",
+    "type": "Strength",
+    "aliases": [
+      "Dumbbell Biceps Curl"
+    ],
+    "primaryMuscle": "Biceps",
+    "equipment": "Dumbbell",
+    "mechanic": "Isolation",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 133,
+    "name": "Dumbbell Decline Fly",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Chest",
+    "equipment": "Dumbbell",
+    "mechanic": "Isolation",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 134,
+    "name": "Dumbbell Decline Press",
+    "type": "Strength",
+    "aliases": [
+      "Decline Dumbbell Bench Press"
+    ],
+    "primaryMuscle": "Chest",
+    "equipment": "Dumbbell",
+    "mechanic": "Compound",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 135,
+    "name": "Dumbbell Floor Press",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Chest",
+    "equipment": "Dumbbell",
+    "mechanic": "Compound",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 136,
+    "name": "Dumbbell Fly",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Chest",
+    "equipment": "Dumbbell",
+    "mechanic": "Isolation",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 137,
+    "name": "Dumbbell Front Raise",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Shoulders",
+    "equipment": "Dumbbell",
+    "mechanic": "Isolation",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 138,
+    "name": "Dumbbell Goblet Squat",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Quadriceps",
+    "equipment": "Dumbbell",
+    "mechanic": "Compound",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 139,
+    "name": "Dumbbell Hammer Curl",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Biceps",
+    "equipment": "Dumbbell",
+    "mechanic": "Isolation",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 140,
+    "name": "Dumbbell Hammer Preacher Curl",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Biceps",
+    "equipment": "Dumbbell",
+    "mechanic": "Isolation",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 141,
+    "name": "Dumbbell Incline Curl",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Biceps",
+    "equipment": "Dumbbell",
+    "mechanic": "Isolation",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 142,
+    "name": "Dumbbell Incline Fly",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Chest",
+    "equipment": "Dumbbell",
+    "mechanic": "Isolation",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 143,
+    "name": "Dumbbell Incline Hammer Curl",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Biceps",
+    "equipment": "Dumbbell",
+    "mechanic": "Isolation",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 144,
+    "name": "Dumbbell Incline Press",
+    "type": "Strength",
+    "aliases": [
+      "Incline Dumbbell Bench Press"
+    ],
+    "primaryMuscle": "Chest",
+    "equipment": "Dumbbell",
+    "mechanic": "Compound",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 145,
+    "name": "Dumbbell Incline Rear Delt Fly",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Shoulders",
+    "equipment": "Dumbbell",
+    "mechanic": "Isolation",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 146,
+    "name": "Dumbbell Incline Row",
+    "type": "Strength",
+    "aliases": [
+      "Chest Supported Row"
+    ],
+    "primaryMuscle": "MiddleBack",
+    "equipment": "Dumbbell",
+    "mechanic": "Compound",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 147,
+    "name": "Dumbbell Lateral Lunge",
+    "type": "Strength",
+    "aliases": [
+      "Dumbbell Side Lunge"
+    ],
+    "primaryMuscle": "Quadriceps",
+    "equipment": "Dumbbell",
+    "mechanic": "Compound",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 148,
+    "name": "Dumbbell Lateral Raise",
+    "type": "Strength",
+    "aliases": [
+      "Side Raise"
+    ],
+    "primaryMuscle": "Shoulders",
+    "equipment": "Dumbbell",
+    "mechanic": "Isolation",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 149,
+    "name": "Dumbbell Leg Curl",
+    "type": "Strength",
+    "aliases": [
+      "Dumbbell Hamstring Curl"
+    ],
+    "primaryMuscle": "Hamstrings",
+    "equipment": "Dumbbell",
+    "mechanic": "Isolation",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 150,
+    "name": "Dumbbell Lunge",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Quadriceps",
+    "equipment": "Dumbbell",
+    "mechanic": "Compound",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 151,
+    "name": "Dumbbell Lying Tricep Extension",
+    "type": "Strength",
+    "aliases": [
+      "Dumbbell Skullcrusher",
+      "Dumbbell Skull Crusher"
+    ],
+    "primaryMuscle": "Triceps",
+    "equipment": "Dumbbell",
+    "mechanic": "Isolation",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 152,
+    "name": "Dumbbell Neutral-Grip Bench Press",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Chest",
+    "equipment": "Dumbbell",
+    "mechanic": "Compound",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 153,
+    "name": "Dumbbell Neutral-Grip Incline Press",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Chest",
+    "equipment": "Dumbbell",
+    "mechanic": "Compound",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 154,
+    "name": "Dumbbell Neutral-Grip Shoulder Press",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Shoulders",
+    "equipment": "Dumbbell",
+    "mechanic": "Compound",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 155,
+    "name": "Dumbbell One-Arm Row",
+    "type": "Strength",
+    "aliases": [
+      "Single Arm Dumbbell Row"
+    ],
+    "primaryMuscle": "MiddleBack",
+    "equipment": "Dumbbell",
+    "mechanic": "Compound",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 156,
+    "name": "Dumbbell Overhead Tricep Extension",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Triceps",
+    "equipment": "Dumbbell",
+    "mechanic": "Isolation",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 157,
+    "name": "Dumbbell Preacher Curl",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Biceps",
+    "equipment": "Dumbbell",
+    "mechanic": "Isolation",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 158,
+    "name": "Dumbbell Prone Incline Curl",
+    "type": "Strength",
+    "aliases": [
+      "Dumbbell Spider Curl"
+    ],
+    "primaryMuscle": "Biceps",
+    "equipment": "Dumbbell",
+    "mechanic": "Isolation",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 159,
+    "name": "Dumbbell Pullover",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Chest",
+    "equipment": "Dumbbell",
+    "mechanic": "Compound",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 160,
+    "name": "Dumbbell Rear Delt Fly",
+    "type": "Strength",
+    "aliases": [
+      "Reverse Fly"
+    ],
+    "primaryMuscle": "Shoulders",
+    "equipment": "Dumbbell",
+    "mechanic": "Isolation",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 161,
+    "name": "Dumbbell Reverse Curl",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Forearms",
+    "equipment": "Dumbbell",
+    "mechanic": "Isolation",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 162,
+    "name": "Dumbbell Reverse Lunge",
+    "type": "Strength",
+    "aliases": [
+      "Dumbbell Rear Lunge"
+    ],
+    "primaryMuscle": "Quadriceps",
+    "equipment": "Dumbbell",
+    "mechanic": "Compound",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 163,
+    "name": "Dumbbell Reverse Wrist Curl",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Forearms",
+    "equipment": "Dumbbell",
+    "mechanic": "Isolation",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 164,
+    "name": "Dumbbell Romanian Deadlift",
+    "type": "Strength",
+    "aliases": [
+      "Dumbbell RDL"
+    ],
+    "primaryMuscle": "Hamstrings",
+    "equipment": "Dumbbell",
+    "mechanic": "Compound",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 165,
+    "name": "Dumbbell Shoulder Press",
+    "type": "Strength",
+    "aliases": [
+      "Dumbbell Overhead Press"
+    ],
+    "primaryMuscle": "Shoulders",
+    "equipment": "Dumbbell",
+    "mechanic": "Compound",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 166,
+    "name": "Dumbbell Shrug",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Traps",
+    "equipment": "Dumbbell",
+    "mechanic": "Isolation",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 167,
+    "name": "Dumbbell Side Bend",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Abdominals",
+    "equipment": "Dumbbell",
+    "mechanic": "Isolation",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 168,
+    "name": "Dumbbell Split Squat",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Quadriceps",
+    "equipment": "Dumbbell",
+    "mechanic": "Compound",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 169,
+    "name": "Dumbbell Squat",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Quadriceps",
+    "equipment": "Dumbbell",
+    "mechanic": "Compound",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 170,
+    "name": "Dumbbell Step-up",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Quadriceps",
+    "equipment": "Dumbbell",
+    "mechanic": "Compound",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 171,
+    "name": "Dumbbell Stiff-Leg Deadlift",
+    "type": "Strength",
+    "aliases": [
+      "Dumbbell Straight Leg Deadlift"
+    ],
+    "primaryMuscle": "Hamstrings",
+    "equipment": "Dumbbell",
+    "mechanic": "Compound",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 172,
+    "name": "Dumbbell Sumo Squat",
+    "type": "Strength",
+    "aliases": [
+      "Plie Squat"
+    ],
+    "primaryMuscle": "Quadriceps",
+    "equipment": "Dumbbell",
+    "mechanic": "Compound",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 173,
+    "name": "Dumbbell Tricep Kickback",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Triceps",
+    "equipment": "Dumbbell",
+    "mechanic": "Isolation",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 174,
+    "name": "Dumbbell Upright Row",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Shoulders",
+    "equipment": "Dumbbell",
+    "mechanic": "Compound",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 175,
+    "name": "Dumbbell Walking Lunge",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Quadriceps",
+    "equipment": "Dumbbell",
+    "mechanic": "Compound",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 176,
+    "name": "Dumbbell Wrist Curl",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Forearms",
+    "equipment": "Dumbbell",
+    "mechanic": "Isolation",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 177,
+    "name": "Dumbbell Zottman Curl",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Biceps",
+    "equipment": "Dumbbell",
+    "mechanic": "Isolation",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 178,
+    "name": "Exercise Ball Knee Tuck",
+    "type": "Strength",
+    "aliases": [
+      "Swiss Ball Knee Tuck",
+      "Stability Ball Knee Tuck"
+    ],
+    "primaryMuscle": "Abdominals",
+    "equipment": "Other",
+    "mechanic": "Compound",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 179,
+    "name": "Exercise Ball Leg Curl",
+    "type": "Strength",
+    "aliases": [
+      "Swiss Ball Leg Curl",
+      "Stability Ball Leg Curl",
+      "Physio Ball Leg Curl"
+    ],
+    "primaryMuscle": "Hamstrings",
+    "equipment": "Other",
+    "mechanic": "Isolation",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 180,
+    "name": "EZ-Bar Close-Grip Curl",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Biceps",
+    "equipment": "EzBar",
+    "mechanic": "Isolation",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 181,
+    "name": "EZ-Bar Curl",
+    "type": "Strength",
+    "aliases": [
+      "EZ Bar Biceps Curl"
+    ],
+    "primaryMuscle": "Biceps",
+    "equipment": "EzBar",
+    "mechanic": "Isolation",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 182,
+    "name": "EZ-Bar Preacher Curl",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Biceps",
+    "equipment": "EzBar",
+    "mechanic": "Isolation",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 183,
+    "name": "EZ-Bar Reverse Curl",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Forearms",
+    "equipment": "EzBar",
+    "mechanic": "Isolation",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 184,
+    "name": "EZ-Bar Skull Crusher",
+    "type": "Strength",
+    "aliases": [
+      "EZ Bar Skullcrusher",
+      "EZ Bar French Press"
+    ],
+    "primaryMuscle": "Triceps",
+    "equipment": "EzBar",
+    "mechanic": "Isolation",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 185,
+    "name": "EZ-Bar Spider Curl",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Biceps",
+    "equipment": "EzBar",
+    "mechanic": "Isolation",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 186,
+    "name": "EZ-Bar Wide-Grip Curl",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Biceps",
+    "equipment": "EzBar",
+    "mechanic": "Isolation",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 187,
+    "name": "Farmer's Walk",
+    "type": "Strength",
+    "aliases": [
+      "Farmer's Carry"
+    ],
+    "primaryMuscle": "Forearms",
+    "equipment": "Other",
+    "mechanic": "Compound",
+    "metrics": [
+      {
+        "metric": "Distance",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      },
+      {
+        "metric": "Duration",
+        "required": false
+      }
+    ],
+    "distanceUnit": "Metres",
+    "rateUnit": null
+  },
+  {
+    "id": 188,
+    "name": "Glute Bridge",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Glutes",
+    "equipment": "Bodyweight",
+    "mechanic": "Isolation",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 189,
+    "name": "Glute Kickback",
+    "type": "Strength",
+    "aliases": [
+      "Donkey Kick",
+      "Glute Kick Back"
+    ],
+    "primaryMuscle": "Glutes",
+    "equipment": "Bodyweight",
+    "mechanic": "Isolation",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 190,
+    "name": "Hamstring Slide",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Hamstrings",
+    "equipment": "Bodyweight",
+    "mechanic": "Isolation",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 191,
+    "name": "Handstand Push-up",
+    "type": "Strength",
+    "aliases": [
+      "HSPU"
+    ],
+    "primaryMuscle": "Shoulders",
+    "equipment": "Bodyweight",
+    "mechanic": "Compound",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 192,
+    "name": "Hanging Knee Raise",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Abdominals",
+    "equipment": "Bodyweight",
+    "mechanic": "Isolation",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 193,
+    "name": "Hanging Leg Raise",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Abdominals",
+    "equipment": "Bodyweight",
+    "mechanic": "Isolation",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 194,
+    "name": "Head Harness Neck Extension",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Neck",
+    "equipment": "Other",
+    "mechanic": "Isolation",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 195,
+    "name": "Heel Touch",
+    "type": "Strength",
+    "aliases": [
+      "Heel Taps"
+    ],
+    "primaryMuscle": "Abdominals",
+    "equipment": "Bodyweight",
+    "mechanic": "Isolation",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 196,
+    "name": "Incline Push-up",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Chest",
+    "equipment": "Bodyweight",
+    "mechanic": "Compound",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 197,
+    "name": "Inverted Row",
+    "type": "Strength",
+    "aliases": [
+      "Bodyweight Row",
+      "Australian Pull-up",
+      "TRX Row"
+    ],
+    "primaryMuscle": "MiddleBack",
+    "equipment": "Bodyweight",
+    "mechanic": "Compound",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 198,
+    "name": "Isometric Neck Hold",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Neck",
+    "equipment": "Bodyweight",
+    "mechanic": "Isolation",
+    "metrics": [
+      {
+        "metric": "Duration",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 199,
+    "name": "Jackknife Sit-up",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Abdominals",
+    "equipment": "Bodyweight",
+    "mechanic": "Compound",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 200,
+    "name": "Kettlebell Floor Press",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Chest",
+    "equipment": "Kettlebell",
+    "mechanic": "Compound",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 201,
+    "name": "Kettlebell Goblet Squat",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Quadriceps",
+    "equipment": "Kettlebell",
+    "mechanic": "Compound",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 202,
+    "name": "Kettlebell Row",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "MiddleBack",
+    "equipment": "Kettlebell",
+    "mechanic": "Compound",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 203,
+    "name": "Kettlebell Shoulder Press",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Shoulders",
+    "equipment": "Kettlebell",
+    "mechanic": "Compound",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 204,
+    "name": "Kettlebell Single-Leg Deadlift",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Hamstrings",
+    "equipment": "Kettlebell",
+    "mechanic": "Compound",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 205,
+    "name": "Kettlebell Swing",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Hamstrings",
+    "equipment": "Kettlebell",
+    "mechanic": "Compound",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 206,
+    "name": "Kettlebell Windmill",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Abdominals",
+    "equipment": "Kettlebell",
+    "mechanic": "Compound",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 207,
+    "name": "Knee Push-up",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Chest",
+    "equipment": "Bodyweight",
+    "mechanic": "Compound",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 208,
+    "name": "Landmine Press",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Shoulders",
+    "equipment": "Landmine",
+    "mechanic": "Compound",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 209,
+    "name": "Landmine T-Bar Row",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "MiddleBack",
+    "equipment": "Landmine",
+    "mechanic": "Compound",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 210,
+    "name": "Landmine Twist",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Abdominals",
+    "equipment": "Landmine",
+    "mechanic": "Compound",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 211,
+    "name": "Lateral Lunge",
+    "type": "Strength",
+    "aliases": [
+      "Side Lunge",
+      "Bodyweight Lateral Lunge"
+    ],
+    "primaryMuscle": "Quadriceps",
+    "equipment": "Bodyweight",
+    "mechanic": "Compound",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 212,
+    "name": "Lunge",
+    "type": "Strength",
+    "aliases": [
+      "Bodyweight Lunge"
+    ],
+    "primaryMuscle": "Quadriceps",
+    "equipment": "Bodyweight",
+    "mechanic": "Compound",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 213,
+    "name": "Lying Knee Raise",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Abdominals",
+    "equipment": "Bodyweight",
+    "mechanic": "Isolation",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 214,
+    "name": "Lying Leg Raise",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Abdominals",
+    "equipment": "Bodyweight",
+    "mechanic": "Isolation",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 215,
+    "name": "Machine Ab Crunch",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Abdominals",
+    "equipment": "Machine",
+    "mechanic": "Isolation",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 216,
+    "name": "Machine Assisted Chin-up",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Lats",
+    "equipment": "Machine",
+    "mechanic": "Compound",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false,
+        "label": "Assist (kg)"
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 217,
+    "name": "Machine Assisted Dip",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Chest",
+    "equipment": "Machine",
+    "mechanic": "Compound",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false,
+        "label": "Assist (kg)"
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 218,
+    "name": "Machine Assisted Pull-up",
+    "type": "Strength",
+    "aliases": [
+      "Gravitron"
+    ],
+    "primaryMuscle": "Lats",
+    "equipment": "Machine",
+    "mechanic": "Compound",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false,
+        "label": "Assist (kg)"
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 219,
+    "name": "Machine Belt Squat",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Quadriceps",
+    "equipment": "Machine",
+    "mechanic": "Compound",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 220,
+    "name": "Machine Bicep Curl",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Biceps",
+    "equipment": "Machine",
+    "mechanic": "Isolation",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 221,
+    "name": "Machine Chest Fly",
+    "type": "Strength",
+    "aliases": [
+      "Pec Deck",
+      "Butterfly",
+      "Pec Fly"
+    ],
+    "primaryMuscle": "Chest",
+    "equipment": "Machine",
+    "mechanic": "Isolation",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 222,
+    "name": "Machine Chest Press",
+    "type": "Strength",
+    "aliases": [
+      "Machine Bench Press",
+      "Hammer Strength"
+    ],
+    "primaryMuscle": "Chest",
+    "equipment": "Machine",
+    "mechanic": "Compound",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 223,
+    "name": "Machine Deadlift",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Quadriceps",
+    "equipment": "Machine",
+    "mechanic": "Compound",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 224,
+    "name": "Machine Decline Chest Press",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Chest",
+    "equipment": "Machine",
+    "mechanic": "Compound",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 225,
+    "name": "Machine Dip",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Triceps",
+    "equipment": "Machine",
+    "mechanic": "Compound",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 226,
+    "name": "Machine Glute Kickback",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Glutes",
+    "equipment": "Machine",
+    "mechanic": "Isolation",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 227,
+    "name": "Machine Glute-Ham Raise",
+    "type": "Strength",
+    "aliases": [
+      "GHR"
+    ],
+    "primaryMuscle": "Hamstrings",
+    "equipment": "Machine",
+    "mechanic": "Compound",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 228,
+    "name": "Machine Hack Squat",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Quadriceps",
+    "equipment": "Machine",
+    "mechanic": "Compound",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 229,
+    "name": "Machine High Row",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "MiddleBack",
+    "equipment": "Machine",
+    "mechanic": "Compound",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 230,
+    "name": "Machine Hip Abduction",
+    "type": "Strength",
+    "aliases": [
+      "Abductor Machine",
+      "Thigh Abductor"
+    ],
+    "primaryMuscle": "Abductors",
+    "equipment": "Machine",
+    "mechanic": "Isolation",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 231,
+    "name": "Machine Hip Adduction",
+    "type": "Strength",
+    "aliases": [
+      "Adductor Machine",
+      "Thigh Adductor"
+    ],
+    "primaryMuscle": "Adductors",
+    "equipment": "Machine",
+    "mechanic": "Isolation",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 232,
+    "name": "Machine Hip Flexion",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Quadriceps",
+    "equipment": "Machine",
+    "mechanic": "Isolation",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 233,
+    "name": "Machine Incline Chest Press",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Chest",
+    "equipment": "Machine",
+    "mechanic": "Compound",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 234,
+    "name": "Machine Iso-Lateral Row",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Lats",
+    "equipment": "Machine",
+    "mechanic": "Compound",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 235,
+    "name": "Machine Lateral Raise",
+    "type": "Strength",
+    "aliases": [
+      "Machine Side Raise"
+    ],
+    "primaryMuscle": "Shoulders",
+    "equipment": "Machine",
+    "mechanic": "Isolation",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 236,
+    "name": "Machine Leg Extension",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Quadriceps",
+    "equipment": "Machine",
+    "mechanic": "Isolation",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 237,
+    "name": "Machine Leg Press",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Quadriceps",
+    "equipment": "Machine",
+    "mechanic": "Compound",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 238,
+    "name": "Machine Leg Press Calf Raise",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Calves",
+    "equipment": "Machine",
+    "mechanic": "Isolation",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 239,
+    "name": "Machine Lying Leg Curl",
+    "type": "Strength",
+    "aliases": [
+      "Lying Hamstring Curl"
+    ],
+    "primaryMuscle": "Hamstrings",
+    "equipment": "Machine",
+    "mechanic": "Isolation",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 240,
+    "name": "Machine Pendulum Squat",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Quadriceps",
+    "equipment": "Machine",
+    "mechanic": "Compound",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 241,
+    "name": "Machine Preacher Curl",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Biceps",
+    "equipment": "Machine",
+    "mechanic": "Isolation",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 242,
+    "name": "Machine Rear Delt Fly",
+    "type": "Strength",
+    "aliases": [
+      "Reverse Pec Deck"
+    ],
+    "primaryMuscle": "Shoulders",
+    "equipment": "Machine",
+    "mechanic": "Isolation",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 243,
+    "name": "Machine Reverse Hyperextension",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Hamstrings",
+    "equipment": "Machine",
+    "mechanic": "Isolation",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 244,
+    "name": "Machine Row",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "MiddleBack",
+    "equipment": "Machine",
+    "mechanic": "Compound",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 245,
+    "name": "Machine Seated Calf Raise",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Calves",
+    "equipment": "Machine",
+    "mechanic": "Isolation",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 246,
+    "name": "Machine Seated Leg Curl",
+    "type": "Strength",
+    "aliases": [
+      "Seated Hamstring Curl"
+    ],
+    "primaryMuscle": "Hamstrings",
+    "equipment": "Machine",
+    "mechanic": "Isolation",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 247,
+    "name": "Machine Seated Leg Press",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Quadriceps",
+    "equipment": "Machine",
+    "mechanic": "Compound",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 248,
+    "name": "Machine Shoulder Press",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Shoulders",
+    "equipment": "Machine",
+    "mechanic": "Compound",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 249,
+    "name": "Machine Shrug",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Traps",
+    "equipment": "Machine",
+    "mechanic": "Isolation",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 250,
+    "name": "Machine Standing Calf Raise",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Calves",
+    "equipment": "Machine",
+    "mechanic": "Isolation",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 251,
+    "name": "Machine Standing Leg Curl",
+    "type": "Strength",
+    "aliases": [
+      "Standing Hamstring Curl"
+    ],
+    "primaryMuscle": "Hamstrings",
+    "equipment": "Machine",
+    "mechanic": "Isolation",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 252,
+    "name": "Machine T-Bar Row",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "MiddleBack",
+    "equipment": "Machine",
+    "mechanic": "Compound",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 253,
+    "name": "Machine Tricep Extension",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Triceps",
+    "equipment": "Machine",
+    "mechanic": "Isolation",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 254,
+    "name": "Neutral-Grip Pull-up",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Lats",
+    "equipment": "Bodyweight",
+    "mechanic": "Compound",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 255,
+    "name": "Nordic Hamstring Curl",
+    "type": "Strength",
+    "aliases": [
+      "Nordics"
+    ],
+    "primaryMuscle": "Hamstrings",
+    "equipment": "Bodyweight",
+    "mechanic": "Isolation",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 256,
+    "name": "Oblique Crunch",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Abdominals",
+    "equipment": "Bodyweight",
+    "mechanic": "Isolation",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 257,
+    "name": "Overhead Carry",
+    "type": "Strength",
+    "aliases": [
+      "Waiter's Walk"
+    ],
+    "primaryMuscle": "Shoulders",
+    "equipment": "Other",
+    "mechanic": "Compound",
+    "metrics": [
+      {
+        "metric": "Distance",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      },
+      {
+        "metric": "Duration",
+        "required": false
+      }
+    ],
+    "distanceUnit": "Metres",
+    "rateUnit": null
+  },
+  {
+    "id": 258,
+    "name": "Plank",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Abdominals",
+    "equipment": "Bodyweight",
+    "mechanic": "Isolation",
+    "metrics": [
+      {
+        "metric": "Duration",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 259,
+    "name": "Plate Front Raise",
+    "type": "Strength",
+    "aliases": [
+      "Weight Plate Front Raise"
+    ],
+    "primaryMuscle": "Shoulders",
+    "equipment": "Other",
+    "mechanic": "Isolation",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 260,
+    "name": "Plate Neck Extension",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Neck",
+    "equipment": "Other",
+    "mechanic": "Isolation",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 261,
+    "name": "Plate Neck Flexion",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Neck",
+    "equipment": "Other",
+    "mechanic": "Isolation",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 262,
+    "name": "Plate Pinch",
+    "type": "Strength",
+    "aliases": [
+      "Weight Plate Pinch"
+    ],
+    "primaryMuscle": "Forearms",
+    "equipment": "Other",
+    "mechanic": "Isolation",
+    "metrics": [
+      {
+        "metric": "Duration",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 263,
+    "name": "Pull-up",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Lats",
+    "equipment": "Bodyweight",
+    "mechanic": "Compound",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 264,
+    "name": "Push-up",
+    "type": "Strength",
+    "aliases": [
+      "Press-up"
+    ],
+    "primaryMuscle": "Chest",
+    "equipment": "Bodyweight",
+    "mechanic": "Compound",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 265,
+    "name": "Reverse Crunch",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Abdominals",
+    "equipment": "Bodyweight",
+    "mechanic": "Isolation",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 266,
+    "name": "Reverse Lunge",
+    "type": "Strength",
+    "aliases": [
+      "Bodyweight Reverse Lunge",
+      "Rear Lunge"
+    ],
+    "primaryMuscle": "Quadriceps",
+    "equipment": "Bodyweight",
+    "mechanic": "Compound",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 267,
+    "name": "Roman Chair Knee Raise",
+    "type": "Strength",
+    "aliases": [
+      "Captains Chair Knee Raise"
+    ],
+    "primaryMuscle": "Abdominals",
+    "equipment": "Bodyweight",
+    "mechanic": "Isolation",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 268,
+    "name": "Roman Chair Leg Raise",
+    "type": "Strength",
+    "aliases": [
+      "Captains Chair Leg Raise"
+    ],
+    "primaryMuscle": "Abdominals",
+    "equipment": "Bodyweight",
+    "mechanic": "Isolation",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 269,
+    "name": "Russian Twist",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Abdominals",
+    "equipment": "Bodyweight",
+    "mechanic": "Isolation",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 270,
+    "name": "Seated Knee Tuck",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Abdominals",
+    "equipment": "Bodyweight",
+    "mechanic": "Isolation",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 271,
+    "name": "Side Plank",
+    "type": "Strength",
+    "aliases": [
+      "Side Bridge"
+    ],
+    "primaryMuscle": "Abdominals",
+    "equipment": "Bodyweight",
+    "mechanic": "Isolation",
+    "metrics": [
+      {
+        "metric": "Duration",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 272,
+    "name": "Sissy Squat",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Quadriceps",
+    "equipment": "Bodyweight",
+    "mechanic": "Compound",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 273,
+    "name": "Sit-up",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Abdominals",
+    "equipment": "Bodyweight",
+    "mechanic": "Isolation",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 274,
+    "name": "Sled Pull",
+    "type": "Strength",
+    "aliases": [
+      "Sled Drag"
+    ],
+    "primaryMuscle": "Hamstrings",
+    "equipment": "Other",
+    "mechanic": "Compound",
+    "metrics": [
+      {
+        "metric": "Distance",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      },
+      {
+        "metric": "Duration",
+        "required": false
+      }
+    ],
+    "distanceUnit": "Metres",
+    "rateUnit": null
+  },
+  {
+    "id": 275,
+    "name": "Sled Push",
+    "type": "Strength",
+    "aliases": [
+      "Prowler Push"
+    ],
+    "primaryMuscle": "Quadriceps",
+    "equipment": "Other",
+    "mechanic": "Compound",
+    "metrics": [
+      {
+        "metric": "Distance",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      },
+      {
+        "metric": "Duration",
+        "required": false
+      }
+    ],
+    "distanceUnit": "Metres",
+    "rateUnit": null
+  },
+  {
+    "id": 276,
+    "name": "Smith Machine Bench Press",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Chest",
+    "equipment": "SmithMachine",
+    "mechanic": "Compound",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 277,
+    "name": "Smith Machine Bent-Over Row",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "MiddleBack",
+    "equipment": "SmithMachine",
+    "mechanic": "Compound",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 278,
+    "name": "Smith Machine Bulgarian Split Squat",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Quadriceps",
+    "equipment": "SmithMachine",
+    "mechanic": "Compound",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 279,
+    "name": "Smith Machine Calf Raise",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Calves",
+    "equipment": "SmithMachine",
+    "mechanic": "Isolation",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 280,
+    "name": "Smith Machine Close-Grip Bench Press",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Triceps",
+    "equipment": "SmithMachine",
+    "mechanic": "Compound",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 281,
+    "name": "Smith Machine Deadlift",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "LowerBack",
+    "equipment": "SmithMachine",
+    "mechanic": "Compound",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 282,
+    "name": "Smith Machine Decline Bench Press",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Chest",
+    "equipment": "SmithMachine",
+    "mechanic": "Compound",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 283,
+    "name": "Smith Machine Front Squat",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Quadriceps",
+    "equipment": "SmithMachine",
+    "mechanic": "Compound",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 284,
+    "name": "Smith Machine Incline Bench Press",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Chest",
+    "equipment": "SmithMachine",
+    "mechanic": "Compound",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 285,
+    "name": "Smith Machine Lunge",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Quadriceps",
+    "equipment": "SmithMachine",
+    "mechanic": "Compound",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 286,
+    "name": "Smith Machine Shoulder Press",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Shoulders",
+    "equipment": "SmithMachine",
+    "mechanic": "Compound",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 287,
+    "name": "Smith Machine Shrug",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Traps",
+    "equipment": "SmithMachine",
+    "mechanic": "Isolation",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 288,
+    "name": "Smith Machine Squat",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Quadriceps",
+    "equipment": "SmithMachine",
+    "mechanic": "Compound",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 289,
+    "name": "Smith Machine Stiff-Leg Deadlift",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Hamstrings",
+    "equipment": "SmithMachine",
+    "mechanic": "Compound",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 290,
+    "name": "Smith Machine Upright Row",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Shoulders",
+    "equipment": "SmithMachine",
+    "mechanic": "Compound",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 291,
+    "name": "Squat",
+    "type": "Strength",
+    "aliases": [
+      "Bodyweight Squat",
+      "Air Squat",
+      "Prisoner Squat"
+    ],
+    "primaryMuscle": "Quadriceps",
+    "equipment": "Bodyweight",
+    "mechanic": "Compound",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 292,
+    "name": "Step-up",
+    "type": "Strength",
+    "aliases": [
+      "Bodyweight Step Up"
+    ],
+    "primaryMuscle": "Quadriceps",
+    "equipment": "Bodyweight",
+    "mechanic": "Compound",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 293,
+    "name": "Suitcase Carry",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Abdominals",
+    "equipment": "Other",
+    "mechanic": "Compound",
+    "metrics": [
+      {
+        "metric": "Distance",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      },
+      {
+        "metric": "Duration",
+        "required": false
+      }
+    ],
+    "distanceUnit": "Metres",
+    "rateUnit": null
+  },
+  {
+    "id": 294,
+    "name": "Trap Bar Deadlift",
+    "type": "Strength",
+    "aliases": [
+      "Hex Bar Deadlift"
+    ],
+    "primaryMuscle": "Quadriceps",
+    "equipment": "TrapBar",
+    "mechanic": "Compound",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 295,
+    "name": "Walking Lunge",
+    "type": "Strength",
+    "aliases": [
+      "Bodyweight Walking Lunge"
+    ],
+    "primaryMuscle": "Quadriceps",
+    "equipment": "Bodyweight",
+    "mechanic": "Compound",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 296,
+    "name": "Wall Sit",
+    "type": "Strength",
+    "aliases": [
+      "Wall Squat"
+    ],
+    "primaryMuscle": "Quadriceps",
+    "equipment": "Bodyweight",
+    "mechanic": "Compound",
+    "metrics": [
+      {
+        "metric": "Duration",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 297,
+    "name": "Wide-Grip Pull-up",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Lats",
+    "equipment": "Bodyweight",
+    "mechanic": "Compound",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 298,
+    "name": "Wrist Roller",
+    "type": "Strength",
+    "aliases": [],
+    "primaryMuscle": "Forearms",
+    "equipment": "Other",
+    "mechanic": "Isolation",
+    "metrics": [
+      {
+        "metric": "Reps",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  },
+  {
+    "id": 299,
+    "name": "Yoke Walk",
+    "type": "Strength",
+    "aliases": [
+      "Yoke Carry"
+    ],
+    "primaryMuscle": "Quadriceps",
+    "equipment": "Other",
+    "mechanic": "Compound",
+    "metrics": [
+      {
+        "metric": "Distance",
+        "required": true
+      },
+      {
+        "metric": "WeightKg",
+        "required": false
+      },
+      {
+        "metric": "Duration",
+        "required": false
+      }
+    ],
+    "distanceUnit": "Metres",
+    "rateUnit": null
+  },
+  {
+    "id": 300,
+    "name": "Treadmill",
+    "type": "Cardio",
+    "aliases": [
+      "Running Machine"
+    ],
+    "primaryMuscle": null,
+    "equipment": null,
+    "mechanic": null,
+    "metrics": [
+      {
+        "metric": "Duration",
+        "required": true
+      },
+      {
+        "metric": "Distance",
+        "required": false
+      },
+      {
+        "metric": "Incline",
+        "required": false
+      },
+      {
+        "metric": "Calories",
+        "required": false
+      },
+      {
+        "metric": "Rate",
+        "required": false
+      }
+    ],
+    "distanceUnit": "Km",
+    "rateUnit": "KmPerHour"
+  },
+  {
+    "id": 301,
+    "name": "Exercise Bike",
+    "type": "Cardio",
+    "aliases": [
+      "Upright Bike",
+      "Stationary Bike"
+    ],
+    "primaryMuscle": null,
+    "equipment": null,
+    "mechanic": null,
+    "metrics": [
+      {
+        "metric": "Duration",
+        "required": true
+      },
+      {
+        "metric": "Distance",
+        "required": false
+      },
+      {
+        "metric": "Level",
+        "required": false,
+        "label": "Resistance"
+      },
+      {
+        "metric": "Calories",
+        "required": false
+      },
+      {
+        "metric": "Rate",
+        "required": false
+      }
+    ],
+    "distanceUnit": "Km",
+    "rateUnit": "Rpm"
+  },
+  {
+    "id": 302,
+    "name": "Recumbent Bike",
+    "type": "Cardio",
+    "aliases": [],
+    "primaryMuscle": null,
+    "equipment": null,
+    "mechanic": null,
+    "metrics": [
+      {
+        "metric": "Duration",
+        "required": true
+      },
+      {
+        "metric": "Distance",
+        "required": false
+      },
+      {
+        "metric": "Level",
+        "required": false,
+        "label": "Resistance"
+      },
+      {
+        "metric": "Calories",
+        "required": false
+      },
+      {
+        "metric": "Rate",
+        "required": false
+      }
+    ],
+    "distanceUnit": "Km",
+    "rateUnit": "Rpm"
+  },
+  {
+    "id": 303,
+    "name": "Spin Bike",
+    "type": "Cardio",
+    "aliases": [
+      "Indoor Cycle",
+      "Spinning"
+    ],
+    "primaryMuscle": null,
+    "equipment": null,
+    "mechanic": null,
+    "metrics": [
+      {
+        "metric": "Duration",
+        "required": true
+      },
+      {
+        "metric": "Distance",
+        "required": false
+      },
+      {
+        "metric": "Level",
+        "required": false,
+        "label": "Resistance"
+      },
+      {
+        "metric": "Calories",
+        "required": false
+      },
+      {
+        "metric": "Rate",
+        "required": false
+      }
+    ],
+    "distanceUnit": "Km",
+    "rateUnit": "Rpm"
+  },
+  {
+    "id": 304,
+    "name": "Air Bike",
+    "type": "Cardio",
+    "aliases": [
+      "Assault Bike",
+      "Echo Bike",
+      "Fan Bike",
+      "Attack Bike"
+    ],
+    "primaryMuscle": null,
+    "equipment": null,
+    "mechanic": null,
+    "metrics": [
+      {
+        "metric": "Duration",
+        "required": true
+      },
+      {
+        "metric": "Distance",
+        "required": false
+      },
+      {
+        "metric": "Calories",
+        "required": false
+      },
+      {
+        "metric": "Rate",
+        "required": false
+      }
+    ],
+    "distanceUnit": "Km",
+    "rateUnit": "Rpm"
+  },
+  {
+    "id": 305,
+    "name": "Rowing Machine",
+    "type": "Cardio",
+    "aliases": [
+      "Rower",
+      "Erg",
+      "Concept2"
+    ],
+    "primaryMuscle": null,
+    "equipment": null,
+    "mechanic": null,
+    "metrics": [
+      {
+        "metric": "Duration",
+        "required": true
+      },
+      {
+        "metric": "Distance",
+        "required": false
+      },
+      {
+        "metric": "Level",
+        "required": false,
+        "label": "Damper"
+      },
+      {
+        "metric": "Calories",
+        "required": false
+      },
+      {
+        "metric": "Rate",
+        "required": false
+      }
+    ],
+    "distanceUnit": "Metres",
+    "rateUnit": "StrokesPerMin"
+  },
+  {
+    "id": 306,
+    "name": "Ski Erg",
+    "type": "Cardio",
+    "aliases": [
+      "SkiErg"
+    ],
+    "primaryMuscle": null,
+    "equipment": null,
+    "mechanic": null,
+    "metrics": [
+      {
+        "metric": "Duration",
+        "required": true
+      },
+      {
+        "metric": "Distance",
+        "required": false
+      },
+      {
+        "metric": "Level",
+        "required": false,
+        "label": "Damper"
+      },
+      {
+        "metric": "Calories",
+        "required": false
+      },
+      {
+        "metric": "Rate",
+        "required": false
+      }
+    ],
+    "distanceUnit": "Metres",
+    "rateUnit": "StrokesPerMin"
+  },
+  {
+    "id": 307,
+    "name": "Cross Trainer",
+    "type": "Cardio",
+    "aliases": [
+      "Elliptical"
+    ],
+    "primaryMuscle": null,
+    "equipment": null,
+    "mechanic": null,
+    "metrics": [
+      {
+        "metric": "Duration",
+        "required": true
+      },
+      {
+        "metric": "Distance",
+        "required": false
+      },
+      {
+        "metric": "Level",
+        "required": false,
+        "label": "Resistance"
+      },
+      {
+        "metric": "Incline",
+        "required": false
+      },
+      {
+        "metric": "Calories",
+        "required": false
+      },
+      {
+        "metric": "Rate",
+        "required": false
+      }
+    ],
+    "distanceUnit": "Km",
+    "rateUnit": "StridesPerMin"
+  },
+  {
+    "id": 308,
+    "name": "Arc Trainer",
+    "type": "Cardio",
+    "aliases": [],
+    "primaryMuscle": null,
+    "equipment": null,
+    "mechanic": null,
+    "metrics": [
+      {
+        "metric": "Duration",
+        "required": true
+      },
+      {
+        "metric": "Distance",
+        "required": false
+      },
+      {
+        "metric": "Level",
+        "required": false,
+        "label": "Resistance"
+      },
+      {
+        "metric": "Incline",
+        "required": false
+      },
+      {
+        "metric": "Calories",
+        "required": false
+      },
+      {
+        "metric": "Rate",
+        "required": false
+      }
+    ],
+    "distanceUnit": "Km",
+    "rateUnit": "StridesPerMin"
+  },
+  {
+    "id": 309,
+    "name": "Stair Climber",
+    "type": "Cardio",
+    "aliases": [
+      "StairMaster",
+      "StepMill",
+      "Stepper"
+    ],
+    "primaryMuscle": null,
+    "equipment": null,
+    "mechanic": null,
+    "metrics": [
+      {
+        "metric": "Duration",
+        "required": true
+      },
+      {
+        "metric": "Floors",
+        "required": false
+      },
+      {
+        "metric": "Level",
+        "required": false,
+        "label": "Speed level"
+      },
+      {
+        "metric": "Calories",
+        "required": false
+      },
+      {
+        "metric": "Rate",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": "StepsPerMin"
+  },
+  {
+    "id": 310,
+    "name": "VersaClimber",
+    "type": "Cardio",
+    "aliases": [
+      "Vertical Climber"
+    ],
+    "primaryMuscle": null,
+    "equipment": null,
+    "mechanic": null,
+    "metrics": [
+      {
+        "metric": "Duration",
+        "required": true
+      },
+      {
+        "metric": "Distance",
+        "required": false
+      },
+      {
+        "metric": "Calories",
+        "required": false
+      },
+      {
+        "metric": "Rate",
+        "required": false
+      }
+    ],
+    "distanceUnit": "Feet",
+    "rateUnit": "FeetPerMin"
+  },
+  {
+    "id": 311,
+    "name": "Outdoor Run",
+    "type": "Cardio",
+    "aliases": [
+      "Running",
+      "Jog",
+      "Jogging"
+    ],
+    "primaryMuscle": null,
+    "equipment": null,
+    "mechanic": null,
+    "metrics": [
+      {
+        "metric": "Duration",
+        "required": true
+      },
+      {
+        "metric": "Distance",
+        "required": false
+      },
+      {
+        "metric": "Calories",
+        "required": false
+      },
+      {
+        "metric": "Rate",
+        "required": false
+      }
+    ],
+    "distanceUnit": "Km",
+    "rateUnit": "MinPerKm"
+  },
+  {
+    "id": 312,
+    "name": "Outdoor Walk",
+    "type": "Cardio",
+    "aliases": [
+      "Walking",
+      "Hike"
+    ],
+    "primaryMuscle": null,
+    "equipment": null,
+    "mechanic": null,
+    "metrics": [
+      {
+        "metric": "Duration",
+        "required": true
+      },
+      {
+        "metric": "Distance",
+        "required": false
+      },
+      {
+        "metric": "Calories",
+        "required": false
+      },
+      {
+        "metric": "Rate",
+        "required": false
+      }
+    ],
+    "distanceUnit": "Km",
+    "rateUnit": "MinPerKm"
+  },
+  {
+    "id": 313,
+    "name": "Outdoor Cycle",
+    "type": "Cardio",
+    "aliases": [
+      "Cycling",
+      "Bike Ride",
+      "Road Bike"
+    ],
+    "primaryMuscle": null,
+    "equipment": null,
+    "mechanic": null,
+    "metrics": [
+      {
+        "metric": "Duration",
+        "required": true
+      },
+      {
+        "metric": "Distance",
+        "required": false
+      },
+      {
+        "metric": "Calories",
+        "required": false
+      },
+      {
+        "metric": "Rate",
+        "required": false
+      }
+    ],
+    "distanceUnit": "Km",
+    "rateUnit": "KmPerHour"
+  },
+  {
+    "id": 314,
+    "name": "Swimming",
+    "type": "Cardio",
+    "aliases": [
+      "Swim"
+    ],
+    "primaryMuscle": null,
+    "equipment": null,
+    "mechanic": null,
+    "metrics": [
+      {
+        "metric": "Duration",
+        "required": true
+      },
+      {
+        "metric": "Distance",
+        "required": false
+      },
+      {
+        "metric": "Calories",
+        "required": false
+      }
+    ],
+    "distanceUnit": "Metres",
+    "rateUnit": null
+  },
+  {
+    "id": 315,
+    "name": "Jump Rope",
+    "type": "Cardio",
+    "aliases": [
+      "Skipping",
+      "Skipping Rope"
+    ],
+    "primaryMuscle": null,
+    "equipment": null,
+    "mechanic": null,
+    "metrics": [
+      {
+        "metric": "Duration",
+        "required": true
+      },
+      {
+        "metric": "Calories",
+        "required": false
+      }
+    ],
+    "distanceUnit": null,
+    "rateUnit": null
+  }
+]
