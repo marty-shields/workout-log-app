@@ -1,6 +1,6 @@
 # 03 — Data Model
 
-SQLite on the device, accessed with sqlite-net-pcl. The field names here are a proposal and get confirmed when coding starts.
+SQLite on the device, accessed with sqlite-net-pcl through `IWorkoutRepository`, `IExerciseSeeder` and `IDatabaseInitializer` (T22). Their calls run one at a time (T27).
 
 ## Approach: hybrid tables per exercise type
 - Strength and cardio data live in **separate tables**: `StrengthSet` and `CardioEntry`.
@@ -24,7 +24,7 @@ SQLite on the device, accessed with sqlite-net-pcl. The field names here are a p
 
 No metric has a maximum value.
 
-sqlite-net stores `decimal` as REAL (floating point).
+sqlite-net stores `decimal` as REAL (floating point), `TimeSpan` as ticks and `DateTimeOffset` as UTC ticks.
 
 ## Exercise definition (Core project)
 The definitions are an embedded JSON file in Core, from [exercises.json](../src/WorkoutLog.Core/Domain/Exercises/exercises.json). It is loaded once at startup into `IExerciseCatalog`, a singleton that every screen and service uses.
@@ -63,8 +63,8 @@ The `Exercise` database table stores only Id, Name and Type, so other tables can
 | Field | Type | Notes |
 |---|---|---|
 | Id | int | Auto-increment |
-| StartedAt | DateTime (UTC) | Set when New Workout opens. Never changes after save. |
-| FinishedAt | DateTime (UTC) | Set on first save. Never changes after save. |
+| StartedAt | DateTimeOffset (UTC) | Set when New Workout opens. Never changes after save. |
+| FinishedAt | DateTimeOffset (UTC) | Set on first save. Never changes after save. |
 
 Date, day of week and total time are calculated from these and shown in the phone's current time zone. They are not stored.
 
@@ -72,16 +72,16 @@ Date, day of week and total time are calculated from these and shown in the phon
 | Field | Type | Notes |
 |---|---|---|
 | Id | int | Auto-increment |
-| WorkoutId | int | → Workout |
+| WorkoutId | int | → Workout, indexed |
 | ExerciseId | int | → Exercise |
-| Position | int | Order added |
+| Position | int | Order added, from 0 |
 
 ### StrengthSet
 | Field | Type |
 |---|---|
 | Id | int |
-| WorkoutExerciseId | int → WorkoutExercise |
-| Position | int (order added) |
+| WorkoutExerciseId | int → WorkoutExercise, indexed |
+| Position | int (order added, from 0) |
 | Reps | int? |
 | WeightKg | decimal? |
 | Duration | TimeSpan? |
@@ -115,6 +115,8 @@ erDiagram
 - A set or entry is valid when every metric the exercise marks as required is filled. Metrics the exercise doesn't declare stay null. Every set and entry must be valid to save (FR-09).
 - The exercise type decides which child table is used.
 - Deleting a workout deletes its WorkoutExercises, sets and entries. sqlite-net creates no foreign keys or cascades, so the repository does these deletes in one transaction.
+- Saving an edited workout replaces its WorkoutExercises, sets and entries in one transaction. The times are not changed (T23).
+- Positions come from the order of the lists passed to the repository.
 - The `→` references above are enforced in code, not by the database.
 - Exercises are never deleted or hidden from the picker.
 
@@ -123,9 +125,15 @@ erDiagram
 - A changed name or type in a later app version updates the row by Id (D123).
 
 ## Schema upgrades
-- The database stores a schema version number (e.g. SQLite `user_version`).
-- On startup, sqlite-net creates any missing tables and columns.
-- Any other change (rename, move or transform data) is a numbered upgrade step in code. Steps run in order, from the stored version up to the app's version.
+- The database stores its schema version in SQLite `user_version`. The app's version is `DatabaseInitializer.CurrentVersion`.
+- Upgrade steps (`ISchemaUpgrade`) are numbered from 2; there is exactly one for each version up to the app's.
+- On startup, `IDatabaseInitializer.InitializeAsync()` (T25, T28):
+  1. Fails, changing nothing, if the stored version is newer than the app's, or the steps are not exactly one for each version from 2 to the app's.
+  2. A new database (version 0): sqlite-net creates the tables, and the version is set to the app's. No steps run.
+  3. An existing database: runs each step after the stored version, each in its own transaction with its version bump. Then sqlite-net creates any missing tables and columns.
+  4. Seeds the exercise list (T21).
+- A step sees the schema left by the previous step. Tables and columns sqlite-net adds from the row classes appear only after the last step.
+- Any change sqlite-net can't make itself (rename, move or transform data) is a numbered upgrade step.
 
 ## Rate entry format
 The entry format follows the rate unit:

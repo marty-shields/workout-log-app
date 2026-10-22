@@ -12,10 +12,11 @@ public class ExerciseSeederTests
     private ExerciseSeeder seeder = null!;
 
     [SetUp]
-    public void SetUp()
+    public async Task SetUp()
     {
         databasePath = TempDatabase.NewPath();
         connection = new SQLiteAsyncConnection(databasePath);
+        await connection.CreateTableAsync<Exercise>();
         seeder = new ExerciseSeeder(connection, catalog);
     }
 
@@ -47,7 +48,6 @@ public class ExerciseSeederTests
     public async Task SeedAsync_ChangedNameAndType_UpdatesThemById()
     {
         var first = catalog.All[0];
-        await connection.CreateTableAsync<Exercise>();
         await connection.InsertAsync(new Exercise { Id = first.Id, Name = "Old name", Type = ExerciseType.Cardio });
 
         await seeder.SeedAsync();
@@ -59,7 +59,6 @@ public class ExerciseSeederTests
     public async Task SeedAsync_RowNotInTheFile_IsKept()
     {
         var extra = new Exercise { Id = catalog.All.Count + 1, Name = "Retired", Type = ExerciseType.Strength };
-        await connection.CreateTableAsync<Exercise>();
         await connection.InsertAsync(extra);
 
         await seeder.SeedAsync();

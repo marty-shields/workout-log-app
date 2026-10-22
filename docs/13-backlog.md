@@ -49,7 +49,7 @@ As the developer, I want the solution created in local git, so that features hav
 - **Links:** T06, T13, NFR-02, [05](05-architecture.md)
 - **Extra ACs:**
   - The App and `WorkoutLog.E2E.Tests` projects exist as in [05](05-architecture.md). `WorkoutLog.slnx`, `WorkoutLog.UI`, local git and `.gitignore` already exist ([US-29](#us-29-stories-project-setup)); `WorkoutLog.UI.Tests` already exists ([US-30](#us-30-wireframes)); `WorkoutLog.Core` and `WorkoutLog.Core.Tests` already exist ([US-07](#us-07-exercise-definitions-and-seeding), T17).
-  - `MauiProgram` calls `AddCore` with a database path in the app data directory, and awaits `IExerciseSeeder.SeedAsync()` at startup (T18, T19).
+  - `MauiProgram` calls `AddCore` with a database path in the app data directory, and awaits `IDatabaseInitializer.InitializeAsync()` at startup (T19, T25).
   - `.gitignore` matches [08](08-dev-setup-build.md).
   - A blank page shows on the phone.
   - Debug builds use the `.debug` package id and the name "Workout Log (Dev)" ([08](08-dev-setup-build.md)).
@@ -70,7 +70,7 @@ As the developer, I want to prove a Blazor page can intercept the Android back b
 | [US-05](#us-05-review-the-exercise-list) | Review the exercise list | Open item 1 | XS | Done (D79–D94) |
 | [US-06](#us-06-decide-the-pace-entry-format) | Decide the pace entry format | Open item 5 | XS | Done (D95) |
 | [US-07](#us-07-exercise-definitions-and-seeding) | Exercise definitions and seeding | FR-40, FR-41, FR-42 | M | Done |
-| [US-08](#us-08-sqlite-schema-and-repositories) | SQLite schema and repositories | NFR-05 | L | To do |
+| [US-08](#us-08-sqlite-schema-and-repositories) | SQLite schema and repositories | NFR-05 | L | Done |
 | [US-09](#us-09-workout-service) | Workout service | FR-09, FR-10, FR-11 | M | To do |
 
 ### US-05 Review the exercise list
@@ -103,7 +103,7 @@ As the developer, I want the exercise definitions in code and seeded into SQLite
 
 ### US-08 SQLite schema and repositories
 As the developer, I want the SQLite schema and repositories, so that workouts are stored on the phone.
-- **Links:** NFR-05, [03](03-data-model.md)
+- **Links:** NFR-05, [03](03-data-model.md), T22–T28
 - **Extra ACs:**
   - Tables match [03](03-data-model.md). The `Exercise` table and its seeder already exist ([US-07](#us-07-exercise-definitions-and-seeding), T18).
   - Seeding runs after the schema upgrade steps (T21).
@@ -111,7 +111,7 @@ As the developer, I want the SQLite schema and repositories, so that workouts ar
   - A workout exercise has at most one cardio entry.
   - Times are stored in UTC (NFR-06).
   - The schema version is stored and upgrade steps run on startup ([03](03-data-model.md#schema-upgrades)).
-- **Size:** L · **Status:** To do
+- **Size:** L · **Status:** Done
 
 ### US-09 Workout service
 As the developer, I want a workout service that validates and saves workouts and captures start and finish times, so that the screens hold no business rules.

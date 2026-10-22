@@ -9,7 +9,6 @@ public sealed class ExerciseSeeder(SQLiteAsyncConnection connection, IExerciseCa
     /// <inheritdoc />
     public async Task SeedAsync()
     {
-        await connection.CreateTableAsync<Exercise>();
         var existing = (await connection.Table<Exercise>().ToListAsync()).ToDictionary(e => e.Id);
 
         await connection.RunInTransactionAsync(db =>

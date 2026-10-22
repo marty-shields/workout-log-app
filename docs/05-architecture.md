@@ -55,7 +55,7 @@ flowchart LR
 - **Exercise definitions** are an embedded JSON file in Core, loaded once at startup into the `IExerciseCatalog` singleton. The catalog also runs the picker search in memory (see [03](03-data-model.md#exercise-search), [04](04-exercise-list.md)).
 
 ## Dependency injection
-Everything is registered in `MauiProgram.CreateMauiApp()` using the built-in `IServiceCollection`. Core registers its own types through `AddCore(databasePath)` (T19). The database connection is an `SQLiteAsyncConnection` singleton. Services and repositories are registered by interface.
+Everything is registered in `MauiProgram.CreateMauiApp()` using the built-in `IServiceCollection`. Core registers its own types through `AddCore(databasePath)` (T19). The database connection is an `SQLiteAsyncConnection` singleton. Services and repositories are registered by interface. At startup the App awaits `IDatabaseInitializer.InitializeAsync()`, which upgrades and creates the schema, then seeds the exercise list (T25, T28). The initializer and repository are decorators that run each call through one `DatabaseGate`, so database calls run one at a time (T27).
 
 ## Navigation
 Blazor routing (`@page`). The routes are proposed:

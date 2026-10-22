@@ -15,8 +15,13 @@ public class CoreServiceCollectionExtensionsTests
         Assert.That(services.Select(s => (s.ServiceType, s.ImplementationType, s.Lifetime)), Is.EquivalentTo(new[]
         {
             (typeof(SQLiteAsyncConnection), (Type?)null, ServiceLifetime.Singleton),
+            (typeof(DatabaseGate), typeof(DatabaseGate), ServiceLifetime.Singleton),
             (typeof(IExerciseCatalog), typeof(ExerciseCatalog), ServiceLifetime.Singleton),
             (typeof(IExerciseSeeder), typeof(ExerciseSeeder), ServiceLifetime.Singleton),
+            (typeof(DatabaseInitializer), typeof(DatabaseInitializer), ServiceLifetime.Singleton),
+            (typeof(IDatabaseInitializer), typeof(GatedDatabaseInitializer), ServiceLifetime.Singleton),
+            (typeof(WorkoutRepository), typeof(WorkoutRepository), ServiceLifetime.Singleton),
+            (typeof(IWorkoutRepository), typeof(GatedWorkoutRepository), ServiceLifetime.Singleton),
         }));
     }
 
