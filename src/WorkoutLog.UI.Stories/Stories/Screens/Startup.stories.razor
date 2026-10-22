@@ -1,0 +1,17 @@
+@attribute [Stories("Screens/Startup")]
+
+<Stories TComponent="StartupView" Layout="typeof(PhoneLayout)">
+
+    <Story Name="Loading">
+        <Template>
+            <StartupView />
+        </Template>
+    </Story>
+
+    <Story Name="Error">
+        <Template>
+            <StartupView Failed />
+        </Template>
+    </Story>
+
+</Stories>

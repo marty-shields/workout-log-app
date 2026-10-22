@@ -34,7 +34,14 @@
     JavaScript files for canvas views of your Stories, 
     YOU SHOULD PLACE THEM HERE, not in the "index.html" file.
     -->
-    <script src="_framework/blazor.webassembly#[.{fingerprint}].js"></script>
+    <script src="_framework/blazor.webassembly#[.{fingerprint}].js" autostart="false"></script>
+    <script>
+        // XML doc files have no fingerprint, so they are fetched past the browser cache.
+        Blazor.start({
+            loadBootResource: (type, name, defaultUri, integrity) =>
+                name.endsWith('.xml') ? fetch(defaultUri, { cache: 'reload', integrity }) : undefined
+        });
+    </script>
 </body>
 
 </html>

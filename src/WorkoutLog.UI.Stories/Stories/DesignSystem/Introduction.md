@@ -52,16 +52,16 @@ Text and controls meet WCAG AA in both themes.
 ### Other tokens
 - Most colour tokens are `light-dark()` pairs. `data-theme="light"` or `"dark"` forces a theme on an element; phone-frame stories have a System / Light / Dark switch (D111).
 - Danger buttons are filled red, the same red as errors (D112).
-- System font; body 16px, number and duration inputs 20px; radius 8 / 12 / 20px; spacing 4–32px (D113).
+- System font; body 16px, number and duration inputs 20px; radius 8 / 12 / 20px, plus round; spacing 4–32px (D113). Every token is on the [Tokens](/?path=/story/design-system-tokens--all-tokens) story.
 - Some components override tokens inside them: the top bar sets text, muted text and focus; the picker bar sets focus; the open set sets muted text, input border and focus to the text colour.
 
 ## Components
-One page per group: [Actions](/?path=/custom/design-system-components-actions) · [Inputs](/?path=/custom/design-system-components-inputs) · [Layout](/?path=/custom/design-system-components-layout) · [Lists](/?path=/custom/design-system-components-lists) · [Overlays](/?path=/custom/design-system-components-overlays) · [Workout](/?path=/custom/design-system-components-workout)
+One page per group: [Actions](/?path=/custom/design-system-components-actions) · [Feedback](/?path=/custom/design-system-components-feedback) · [Inputs](/?path=/custom/design-system-components-inputs) · [Layout](/?path=/custom/design-system-components-layout) · [Lists](/?path=/custom/design-system-components-lists) · [Overlays](/?path=/custom/design-system-components-overlays) · [Workout](/?path=/custom/design-system-components-workout)
 
 Component stories have a System / Light / Dark switch.
 
 ## Screens
-Screens are built from the components only. One page per screen, each with its states as stories in the phone frame: [Dashboard](/?path=/custom/design-system-screens-dashboard) · [New Workout](/?path=/custom/design-system-screens-new-workout) · [Edit Workout](/?path=/custom/design-system-screens-edit-workout) · [Exercise Picker](/?path=/custom/design-system-screens-exercise-picker) · [History](/?path=/custom/design-system-screens-history)
+Screens are built from the components only. One page per screen, each with its states as stories in the phone frame: [Startup](/?path=/custom/design-system-screens-startup) · [Dashboard](/?path=/custom/design-system-screens-dashboard) · [New Workout](/?path=/custom/design-system-screens-new-workout) · [Edit Workout](/?path=/custom/design-system-screens-edit-workout) · [Exercise Picker](/?path=/custom/design-system-screens-exercise-picker) · [History](/?path=/custom/design-system-screens-history)
 
 ## Checks
 Tests in `WorkoutLog.UI.Tests` fail when:

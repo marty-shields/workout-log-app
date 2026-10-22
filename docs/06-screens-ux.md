@@ -2,6 +2,10 @@
 
 ## Screens
 
+### Startup
+- Shown while the database opens, before the Dashboard (T36)
+- Spinner with "Loading…" (D134), or "Couldn't open the workout database." if it fails (D133)
+
 ### Dashboard (home)
 - **New Workout** button
 - Last workout: date + day, or an empty state

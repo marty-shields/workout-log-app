@@ -23,6 +23,9 @@ public static class ScreenStates
 {
     public static IReadOnlyList<ScreenState> All { get; } =
     [
+        new("Screens/Startup", "Loading", c => c.Render<StartupView>().FindAll("*")),
+        new("Screens/Startup", "Error", c => c.Render<StartupView>(p => p.Add(x => x.Failed, true)).FindAll("*")),
+
         new("Screens/Dashboard", "Empty", c => Dashboard(c, new DashboardSummary(null, 0, 0))),
         new("Screens/Dashboard", "With workouts", c => Dashboard(c, new DashboardSummary(SampleData.Started, 2, 9))),
 

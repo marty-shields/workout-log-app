@@ -45,6 +45,7 @@
     --radius-sm: 8px;
     --radius-md: 12px;
     --radius-lg: 20px;
+    --radius-round: 50%;
 
     --touch-target: 48px;
     --border-width: 1px;
@@ -54,6 +55,9 @@
     --opacity-disabled: 0.5;
     --set-number-width: 2rem;
     --dialog-max-width: 22rem;
+    --spinner-size: 40px;
+    --spinner-width: 4px;
+    --spinner-duration: 1s;
 }
 
 /* Forces a theme on an element and its children. */

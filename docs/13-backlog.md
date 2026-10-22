@@ -16,9 +16,10 @@ Goal and Definition of Done: [12](12-product-goal.md).
 |---|---|---|---|---|
 | [US-01](#us-01-review-the-draft-roadmap) | Review the draft roadmap | Open item 2 | XS | Done |
 | [US-02](#us-02-confirm-package-versions) | Confirm package versions | Open item 3 | XS | Done |
-| [US-03](#us-03-tooling-and-phone-setup) | Tooling and phone setup | [08](08-dev-setup-build.md) | S | To do |
-| [US-04](#us-04-create-the-solution) | Create the solution | T06, T13, NFR-02 | M | To do |
+| [US-03](#us-03-tooling-and-phone-setup) | Tooling and phone setup | [08](08-dev-setup-build.md) | S | Done |
+| [US-04](#us-04-create-the-solution) | Create the solution | T06, T13, NFR-02 | M | Done |
 | [US-28](#us-28-spike-back-button-on-android-16) | Spike: back button on Android 16 | FR-12, FR-23 | S | To do |
+| [US-35](#us-35-diagnostic-logging) | Diagnostic logging | D129, T32, D133, D61 | L | To do |
 
 ### US-01 Review the draft roadmap
 As the developer, I want the draft roadmap reviewed, so that the milestones are agreed before coding starts.
@@ -42,19 +43,19 @@ As the developer, I want the tooling installed and the phone set up for USB debu
 - **Extra ACs:**
   - The prerequisites in [08](08-dev-setup-build.md) are installed.
   - `adb devices` lists the phone.
-- **Size:** S · **Status:** To do
+- **Size:** S · **Status:** Done (D132)
 
 ### US-04 Create the solution
 As the developer, I want the solution created in local git, so that features have a place to go.
 - **Links:** T06, T13, NFR-02, [05](05-architecture.md)
 - **Extra ACs:**
   - The App and `WorkoutLog.E2E.Tests` projects exist as in [05](05-architecture.md). `WorkoutLog.slnx`, `WorkoutLog.UI`, local git and `.gitignore` already exist ([US-29](#us-29-stories-project-setup)); `WorkoutLog.UI.Tests` already exists ([US-30](#us-30-wireframes)); `WorkoutLog.Core` and `WorkoutLog.Core.Tests` already exist ([US-07](#us-07-exercise-definitions-and-seeding), T17).
-  - `MauiProgram` calls `AddCore` with a database path in the app data directory, and awaits `IDatabaseInitializer.InitializeAsync()` at startup (T19, T25).
+  - `MauiProgram` calls `AddCore` with a database path in the app data directory, and the App awaits `IDatabaseInitializer.InitializeAsync()` at startup (T19, T25, T36).
   - `.gitignore` matches [08](08-dev-setup-build.md).
   - A blank page shows on the phone.
   - Debug builds use the `.debug` package id and the name "Workout Log (Dev)" ([08](08-dev-setup-build.md)).
   - A test runs and passes with NUnit 5.0.0, NUnit3TestAdapter 6.3.1 and NUnit.Analyzers 4.15.0. If not, fall back to NUnit 4.6.1 and update [05](05-architecture.md) and D75.
-- **Size:** M · **Status:** To do
+- **Size:** M · **Status:** Done (D133–D138, T36–T40)
 
 ### US-28 Spike: back button on Android 16
 As the developer, I want to prove a Blazor page can intercept the Android back button on API 36, so that the Discard prompts (FR-12, FR-23) can be built.
@@ -63,6 +64,38 @@ As the developer, I want to prove a Blazor page can intercept the Android back b
   - On the phone, back on a test page shows a prompt, and Cancel keeps the page open.
   - The approach is recorded in [05](05-architecture.md).
 - **Size:** S · **Status:** To do
+
+### US-35 Diagnostic logging
+As the developer, I want errors and unexpected events logged on the phone, in Debug and Release, so that I can find out what went wrong without a debugger attached.
+- **Links:** D129, T32, D133, D61, NFR-01, [05](05-architecture.md), [08](08-dev-setup-build.md)
+- **Notes:**
+  - Microsoft.Extensions.Logging.Debug logs nothing unless a debugger is attached (`DebugLogger.IsEnabled` checks `Debugger.IsAttached`), so it is not used (T38).
+  - `ILogger<T>` is already available in the App (Microsoft.Extensions.Logging via MAUI) and UI (Abstractions via Components.Web). Core has no logging abstractions.
+  - Release is not debuggable, so `adb run-as` can only read the Debug app's files. Logcat works for both builds.
+  - The App's `index.html` has no Blazor error UI, so an unhandled rendering error currently fails silently.
+- **Extra ACs:**
+  - Packages approved and added to [05](05-architecture.md): Microsoft.Extensions.Logging.Console (App), Microsoft.Extensions.Logging.Abstractions (Core). Versions confirmed at the start of the story.
+  - **Logcat:** the Console provider writes to logcat in Debug and Release. The logcat tag and filter command are checked on the phone and recorded in [08](08-dev-setup-build.md).
+  - **File:** a size-capped log file in app-private storage, in Debug and Release. Location, size cap and rotation are decided and recorded in [10](10-decisions-log.md). No new network access (NFR-01).
+  - Minimum log level per build is decided and recorded in [10](10-decisions-log.md).
+  - Logs never contain workout contents (exercises, sets, entries, notes). Ids, counts, versions and exception details only.
+  - **Logged — .NET:**
+    - Startup failure caught by `StartupGate` (D133).
+    - The repository exception behind `WorkoutError.SaveFailed` in `WorkoutService` (T32).
+    - The clock earlier than the start on first save (D129).
+    - Schema upgrade steps run, and the stored and current schema versions (`DatabaseInitializer`, T25, T28).
+    - Exercise seeding: how many exercises were added (`ExerciseSeeder`).
+    - Unhandled exceptions: `AppDomain.UnhandledException`, `TaskScheduler.UnobservedTaskException` and `AndroidEnvironment.UnhandledExceptionRaiser`.
+    - Unhandled Blazor rendering errors. What the user sees is designed in the stories first (D131).
+  - **Logged — Android:**
+    - App lifecycle: process start, activity created, stopped and destroyed.
+    - Memory pressure (`OnTrimMemory`, `OnLowMemory`), to help with D61.
+    - On start, why the previous process ended (`ActivityManager.GetHistoricalProcessExitReasons`: low memory, crash, ANR, user).
+    - The WebView render process ending, if the BlazorWebView handler allows it; otherwise recorded as not possible.
+  - Validation errors from user input (FR-09) are not logged.
+  - Unit tests cover each logged Core and UI event.
+  - [08](08-dev-setup-build.md) says how to read the logs: logcat command, and pulling the Debug app's log file.
+- **Size:** L · **Status:** To do
 
 ## EP-02 Exercises & data (M1)
 | ID | Story | Links | Size | Status |
@@ -321,6 +354,7 @@ As the developer, I want the v1 UI flows automated, so that regressions are caug
 | [US-25](#us-25-decide-the-keystore-backup-location) | Decide the keystore backup location | Open item 4 | XS | To do |
 | [US-26](#us-26-signed-release-apk) | Signed release APK | [08](08-dev-setup-build.md) | M | To do |
 | [US-27](#us-27-manual-phone-checklist) | Manual phone checklist | [07](07-testing.md) | S | To do |
+| [US-34](#us-34-app-icon-and-splash-screen) | App icon and splash screen | D137, [14](14-design-system.md) | S | To do |
 
 ### US-25 Decide the keystore backup location
 As the developer, I want a backup location for the keystore, so that future APKs can still be signed if the original is lost.
@@ -335,6 +369,7 @@ As the user, I want a signed release APK installed on my phone, so that I can us
 - **Links:** [08](08-dev-setup-build.md)
 - **Extra ACs:**
   - Signing passwords come from environment variables only.
+  - Only APKs signed with the release keystore are installed on the phone. A Release build without signing uses the debug key and would block later updates.
   - A newer APK installs over the old one and the data survives.
   - The version code is higher than the previous APK's ([08](08-dev-setup-build.md)).
 - **Size:** M · **Status:** To do
@@ -344,4 +379,11 @@ As the developer, I want the manual checklist run on the phone, so that v1 is ch
 - **Links:** [07](07-testing.md)
 - **Extra ACs:**
   - Every item in the manual checklist in [07](07-testing.md) is ticked.
+- **Size:** S · **Status:** To do
+
+### US-34 App icon and splash screen
+As the user, I want the app's own icon and splash screen, so that I can find it on the phone and it doesn't look like a template.
+- **Links:** D137, [14](14-design-system.md)
+- **Extra ACs:**
+  - Designed in the stories first and approved (D131).
 - **Size:** S · **Status:** To do

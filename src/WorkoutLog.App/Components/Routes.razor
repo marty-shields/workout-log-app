@@ -1,0 +1,12 @@
+@using Microsoft.AspNetCore.Components.Routing
+@using WorkoutLog.Core.Data
+@using WorkoutLog.UI.Components.Layout
+@inject IDatabaseInitializer DatabaseInitializer
+
+<StartupGate Initialize="DatabaseInitializer.InitializeAsync">
+    <Router AppAssembly="typeof(MauiProgram).Assembly">
+        <Found Context="routeData">
+            <RouteView RouteData="routeData" />
+        </Found>
+    </Router>
+</StartupGate>

@@ -1,0 +1,36 @@
+@using WorkoutLog.UI.Screens
+@if (_state == State.Ready)
+{
+    @ChildContent
+}
+else
+{
+    <StartupView Failed="_state == State.Failed" />
+}
+
+@code {
+    private enum State { Loading, Ready, Failed }
+
+    private State _state;
+
+    /// <summary>Startup work run once before the content shows.</summary>
+    [Parameter, EditorRequired]
+    public Func<Task> Initialize { get; set; } = () => Task.CompletedTask;
+
+    /// <summary>Content shown once <see cref="Initialize"/> completes.</summary>
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            await Initialize();
+            _state = State.Ready;
+        }
+        catch
+        {
+            _state = State.Failed;
+        }
+    }
+}

@@ -1,0 +1,14 @@
+<div class="spinner" role="status" data-testid="@TestId">
+    <span class="ring" aria-hidden="true"></span>
+    <span class="label">@Label</span>
+</div>
+
+@code {
+    /// <summary>Text under the spinner, e.g. Loading…</summary>
+    [Parameter, EditorRequired]
+    public string Label { get; set; } = "";
+
+    /// <summary>Value of the data-testid attribute.</summary>
+    [Parameter]
+    public string? TestId { get; set; }
+}

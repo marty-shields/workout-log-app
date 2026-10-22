@@ -23,13 +23,13 @@ A personal Android app (.NET 10 MAUI Blazor Hybrid) that replaces a paper workou
 | Path | What |
 |---|---|
 | `WorkoutLog.slnx` | Solution |
+| `src/WorkoutLog.App/` | MAUI Blazor Hybrid host (Android): DI, startup, routing |
 | `src/WorkoutLog.UI/` | Razor class library: pages, components, design tokens |
 | `src/WorkoutLog.UI.Stories/` | BlazingStory app: stories for UI components |
 | `src/WorkoutLog.Core/` | Class library: exercise definitions (embedded `exercises.json`), SQLite data, `AddCore` registration |
 | `tests/WorkoutLog.UI.Tests/` | bUnit tests for UI components and screens; plays the prototype scenarios |
 | `tests/WorkoutLog.Core.Tests/` | NUnit tests for Core |
-
-The App and E2E.Tests projects are planned in [05](docs/05-architecture.md) and created in US-04.
+| `tests/WorkoutLog.E2E.Tests/` | NUnit + Appium tests on a device; `[Explicit]` until M6 |
 
 ## Commands
 | Task | Command |
@@ -38,6 +38,7 @@ The App and E2E.Tests projects are planned in [05](docs/05-architecture.md) and 
 | Run the UI tests | `dotnet test tests/WorkoutLog.UI.Tests` |
 | Run the Core tests | `dotnet test tests/WorkoutLog.Core.Tests` |
 | Run the stories | `dotnet run --project src/WorkoutLog.UI.Stories` → http://localhost:5056 |
+| Run on the phone | `dotnet build src/WorkoutLog.App -t:Run -f net10.0-android` ([08](docs/08-dev-setup-build.md)) |
 
 ## Rules
 - Ask about any ambiguity. Don't pick a default.
@@ -45,6 +46,7 @@ The App and E2E.Tests projects are planned in [05](docs/05-architecture.md) and 
 - Every decision goes in [10](docs/10-decisions-log.md) with the next free ID. Story and decision IDs never change.
 - A story is done when it meets the Definition of Done in [12](docs/12-product-goal.md).
 - UI components follow the Design System pages in the stories site ([14](docs/14-design-system.md)): tokens only, data in through parameters, a story for each component, `data-testid` on interactive elements.
+- Front-end work is stories first: build each new or changed screen or component in the stories site, get Martin's approval there, then use it in the App ([14](docs/14-design-system.md#process)).
 - The UI never touches the database; it calls services only.
 - Local git only, no remote. Commits use Conventional Commits.
 - Never commit without review. When a story's work is ready, stop, summarise the changes and ask Martin to review. Commit only after he approves.

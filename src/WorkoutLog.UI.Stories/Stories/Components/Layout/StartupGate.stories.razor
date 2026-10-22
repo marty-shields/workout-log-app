@@ -1,0 +1,32 @@
+@using WorkoutLog.UI.Components.Layout
+@attribute [Stories("Components/Layout/StartupGate")]
+
+<Stories TComponent="StartupGate" Layout="typeof(PhoneLayout)">
+
+    <Story Name="Loading">
+        <Template>
+            <StartupGate Initialize="() => new TaskCompletionSource().Task">
+                <p>App content.</p>
+            </StartupGate>
+        </Template>
+    </Story>
+
+    <Story Name="Error">
+        <Template>
+            <StartupGate Initialize="() => Task.FromException(new InvalidOperationException())">
+                <p>App content.</p>
+            </StartupGate>
+        </Template>
+    </Story>
+
+    <Story Name="Ready">
+        <Template>
+            <StartupGate Initialize="() => Task.CompletedTask">
+                <AppScreen Title="Workout Log">
+                    <p>App content.</p>
+                </AppScreen>
+            </StartupGate>
+        </Template>
+    </Story>
+
+</Stories>

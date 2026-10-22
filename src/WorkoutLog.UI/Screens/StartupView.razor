@@ -1,0 +1,19 @@
+@using WorkoutLog.UI.Components.Feedback
+<AppScreen Title="Workout Log">
+    <div class="centre">
+        @if (Failed)
+        {
+            <p class="message" data-testid="startup-error">Couldn't open the workout database.</p>
+        }
+        else
+        {
+            <Spinner Label="Loading…" TestId="startup-loading" />
+        }
+    </div>
+</AppScreen>
+
+@code {
+    /// <summary>Shows the error message instead of the spinner.</summary>
+    [Parameter]
+    public bool Failed { get; set; }
+}

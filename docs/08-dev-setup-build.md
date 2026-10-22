@@ -8,11 +8,10 @@
 
 ## Prerequisites (Windows)
 - .NET 10 SDK
-- MAUI workload: `dotnet workload install maui-android`
-- Android SDK with platform API 36, plus build tools and platform tools (`adb`)
-- JDK (the version required by the .NET 10 Android workload)
-- VS Code with the **.NET MAUI** extension (brings C# Dev Kit)
-- Optional: an Android emulator image for API 36 (needed for the Appium runs)
+- One of (D132):
+  - **Visual Studio** with the **.NET Multi-platform App UI development** workload. It installs the MAUI workloads, the Android SDK (`C:\Program Files (x86)\Android\android-sdk`) and OpenJDK.
+  - **VS Code** with the **.NET MAUI** extension (brings C# Dev Kit), plus `dotnet workload install maui-android`, the Android SDK (platform API 36, build tools, platform tools) and the JDK the .NET 10 Android workload needs.
+- Optional: an Android emulator image for API 36 (needed for the Appium runs). Creating one needs admin rights when the SDK is in Program Files.
 - For Appium (M6): Node.js, the Appium server, the UiAutomator2 driver, and a Chromedriver that matches the WebView version
 - Git (local repo only)
 - Optional: BlazingStory templates, to add story files with `dotnet new bstories`: `dotnet new install BlazingStory.ProjectTemplates::1.0.0-preview.96`
@@ -30,15 +29,21 @@ The stories need only the .NET 10 SDK. They don't need the MAUI workload, Androi
 3. Connect the phone by USB and accept the RSA prompt.
 4. `adb devices` should list the phone.
 
-## Development: run on the phone over USB
-- Pick the phone as the target device in VS Code and run/debug.
-- Or from the CLI: `dotnet build -t:Run -f net10.0-android`
+Without USB, use wireless debugging (phone and PC on the same Wi-Fi):
+1. Developer options → turn on **Wireless debugging**.
+2. **Pair device with pairing code**, then on the PC: `adb pair <ip>:<pairing port> <code>`
+3. `adb connect <ip>:<port>`, using the port on the main Wireless debugging screen. The port changes when wireless debugging restarts.
+
+## Development: run on the phone
+- Pick the phone as the target device in Visual Studio or VS Code and run/debug.
+- Or from the CLI: `dotnet build src/WorkoutLog.App -t:Run -f net10.0-android`
+- Debug builds install as "Workout Log (Dev)".
 
 ## Release: signed APK
 1. Create a keystore once (`keytool -genkey ...`).
 2. Set the signing properties in the app `.csproj` (`AndroidKeyStore`, `AndroidSigningKeyStore`, `AndroidSigningKeyAlias`). Passwords come from environment variables and are never stored in the repo.
 3. Bump the version code (and the display version if needed).
-4. `dotnet publish -f net10.0-android -c Release -p:AndroidPackageFormat=apk`
+4. `dotnet publish src/WorkoutLog.App -f net10.0-android -c Release -p:AndroidPackageFormat=apk`
 5. Copy the signed `.apk` to the phone and install it (allow "install unknown apps" for the file manager).
 
 **The same keystore must sign every future APK.** If it's lost, updates can't be installed over the existing app. The only way back is to uninstall, which wipes all workout data.
@@ -49,5 +54,6 @@ The stories need only the .NET 10 SDK. They don't need the MAUI workload, Androi
 
 ## Source control
 - `git init` locally. No remote.
-- `.gitignore`: `bin/`, `obj/`, `.vs/`, `TestResults/`, `*.keystore`, `*.jks`
+- `.gitignore` (T39): build output and logs, test results, IDE and per-user files (`*.user`), APKs, signing keys and secrets (`*.apk`, `*.aab`, `*.keystore`, `*.jks`, `*.pfx`, `*.p12`, `*.pem`, `*.key`, `.env`), tool output and OS files.
+- `nuget.config` restores from nuget.org only (T40).
 - Commit messages: Conventional Commits.

@@ -13,3 +13,10 @@ The design system is documented in the stories site, under **Design System** (D1
 | Component tests and design-system checks (bUnit) | `tests/WorkoutLog.UI.Tests/` (D117) |
 
 Run the stories: see [08](08-dev-setup-build.md#stories-design-system-and-prototypes).
+
+## Process
+Every new or changed screen or component goes through these steps (D131):
+1. Build it in `WorkoutLog.UI` with its story and its design-system page.
+2. Run the stories and take Playwright screenshots of each state, light and dark, at phone width.
+3. Stop for Martin's review. Change it until he approves.
+4. Only then use it in the App or in other screens.

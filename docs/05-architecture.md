@@ -21,7 +21,7 @@
 WorkoutLog.slnx
 ├─ src/
 │  ├─ WorkoutLog.App/          MAUI Blazor Hybrid host (net10.0-android)
-│  │   ├─ wwwroot/             index.html, CSS
+│  │   ├─ wwwroot/             index.html
 │  │   └─ MauiProgram.cs       DI registration
 │  ├─ WorkoutLog.UI/           Razor Class Library (net10.0): pages and components
 │  │   └─ wwwroot/css/         Design tokens and shared CSS ([14](14-design-system.md))
@@ -55,7 +55,7 @@ flowchart LR
 - **Exercise definitions** are an embedded JSON file in Core, loaded once at startup into the `IExerciseCatalog` singleton. The catalog also runs the picker search in memory (see [03](03-data-model.md#exercise-search), [04](04-exercise-list.md)).
 
 ## Dependency injection
-Everything is registered in `MauiProgram.CreateMauiApp()` using the built-in `IServiceCollection`. Core registers its own types through `AddCore(databasePath)` (T19). Of the services, only `IWorkoutService` is public; the repository and validator are internal (T33). The database connection is an `SQLiteAsyncConnection` singleton. Services and repositories are registered by interface. At startup the App awaits `IDatabaseInitializer.InitializeAsync()`, which upgrades and creates the schema, then seeds the exercise list (T25, T28). The initializer and repository are decorators that run each call through one `DatabaseGate`, so database calls run one at a time (T27).
+Everything is registered in `MauiProgram.CreateMauiApp()` using the built-in `IServiceCollection`. Core registers its own types through `AddCore(databasePath)` (T19); the App passes `workoutlog.db3` in `FileSystem.AppDataDirectory`. Of the services, only `IWorkoutService` is public; the repository and validator are internal (T33). The database connection is an `SQLiteAsyncConnection` singleton. Services and repositories are registered by interface. At startup the App's `Routes` component wraps the router in `StartupGate`, which awaits `IDatabaseInitializer.InitializeAsync()` and shows the Startup screen until it completes, or its error if it throws (T36, D133). The initializer upgrades and creates the schema, then seeds the exercise list (T25, T28). The initializer and repository are decorators that run each call through one `DatabaseGate`, so database calls run one at a time (T27).
 
 ## Navigation
 Blazor routing (`@page`). The routes are proposed:
@@ -100,11 +100,10 @@ Confirmed in US-02 (D75).
 | Microsoft.Extensions.TimeProvider.Testing | 10.11.0 | Core.Tests | `FakeTimeProvider` (T31) |
 | bunit | 2.12.5 | UI.Tests | Component tests |
 | Appium.WebDriver | 9.0.0 | E2E.Tests | UI automation (Selenium 4.46). Check against the Appium server version in M6 |
-
 | BlazingStory | 1.0.0-preview.96 | UI.Stories | Component stories and prototyping (D99). Prerelease only; no stable version exists |
 | MD2RazorGenerator | 1.2.4 | UI.Stories | Build-time only. Turns the design-system Markdown pages into BlazingStory pages (D100) |
 
-MAUI packages (`Microsoft.Maui.Controls`, `Microsoft.AspNetCore.Components.WebView.Maui`, 10.0.120) come from the MAUI workload and template.
+MAUI packages (`Microsoft.Maui.Controls`, `Microsoft.AspNetCore.Components.WebView.Maui`) come from the template, pinned to 10.0.120 with `MauiVersion` in the App project (T38).
 
 Blazor packages (`Microsoft.AspNetCore.Components.Web` in UI; `Microsoft.AspNetCore.Components.WebAssembly` and `.DevServer` in UI.Stories; 10.0.13) come from the project templates.
 
