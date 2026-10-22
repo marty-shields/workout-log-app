@@ -98,6 +98,15 @@ public class WorkoutRepositoryTests
     }
 
     [Test]
+    public async Task AddAsync_CardioEntryWithNoDuration_ThrowsAndWritesNothing()
+    {
+        Assert.That(() => repository.AddAsync(new NewWorkout(Start, Finish, [new CardioExercise(300, Entry() with { Duration = null })])),
+            Throws.ArgumentException);
+
+        Assert.That(await RowCounts(), Is.EqualTo((0, 0, 0, 0)));
+    }
+
+    [Test]
     public async Task GetAsync_MissingId_ReturnsNull()
     {
         Assert.That(await repository.GetAsync(1), Is.Null);

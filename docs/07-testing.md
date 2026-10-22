@@ -9,7 +9,7 @@
 | UI (automated) | `WorkoutLog.E2E.Tests` | NUnit + Appium (UiAutomator2) | End-to-end flows on an emulator or the Debug build on the phone |
 | Manual | — | Checklist below | Real-phone checks before each release APK |
 
-Time is injected through `IClock`, so tests never depend on the real clock.
+Time is injected through .NET `TimeProvider`; tests use `FakeTimeProvider`, so they never depend on the real clock (T31).
 
 ## Appium + Blazor Hybrid
 - The UI is HTML inside an Android WebView. Appium must switch from the `NATIVE_APP` context to the `WEBVIEW_<package>` context to find elements.

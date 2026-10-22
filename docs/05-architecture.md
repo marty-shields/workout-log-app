@@ -44,18 +44,18 @@ flowchart LR
     UI --> S[Services<br/>Core]
     S --> R[Repositories<br/>Core]
     R --> DB[(SQLite file<br/>app data dir)]
-    S --> C[IClock<br/>Core]
+    S --> C[TimeProvider<br/>.NET]
     S --> X[Exercise definitions<br/>Core]
 ```
 - **App** hosts the BlazorWebView, registers DI and handles the Android back button.
 - **UI** renders and calls services only. It never touches the database. Form fields come from the exercise's metric definition.
 - **Services** hold the rules: save validation, start/finish capture, dashboard counts.
 - **Repositories** handle sqlite-net access. They sit behind interfaces so services can be unit-tested with Moq.
-- **IClock** supplies the current time, so start/finish, the live timer and week/month counts can be tested.
+- **TimeProvider** (.NET) supplies the current time, so start/finish, the live timer and week/month counts can be tested with `FakeTimeProvider` (T31).
 - **Exercise definitions** are an embedded JSON file in Core, loaded once at startup into the `IExerciseCatalog` singleton. The catalog also runs the picker search in memory (see [03](03-data-model.md#exercise-search), [04](04-exercise-list.md)).
 
 ## Dependency injection
-Everything is registered in `MauiProgram.CreateMauiApp()` using the built-in `IServiceCollection`. Core registers its own types through `AddCore(databasePath)` (T19). The database connection is an `SQLiteAsyncConnection` singleton. Services and repositories are registered by interface. At startup the App awaits `IDatabaseInitializer.InitializeAsync()`, which upgrades and creates the schema, then seeds the exercise list (T25, T28). The initializer and repository are decorators that run each call through one `DatabaseGate`, so database calls run one at a time (T27).
+Everything is registered in `MauiProgram.CreateMauiApp()` using the built-in `IServiceCollection`. Core registers its own types through `AddCore(databasePath)` (T19). Of the services, only `IWorkoutService` is public; the repository and validator are internal (T33). The database connection is an `SQLiteAsyncConnection` singleton. Services and repositories are registered by interface. At startup the App awaits `IDatabaseInitializer.InitializeAsync()`, which upgrades and creates the schema, then seeds the exercise list (T25, T28). The initializer and repository are decorators that run each call through one `DatabaseGate`, so database calls run one at a time (T27).
 
 ## Navigation
 Blazor routing (`@page`). The routes are proposed:
@@ -74,15 +74,15 @@ The Android back button is passed to the current page:
 - Dashboard: leave the app.
 
 ## Start / finish capture
-- The New Workout page asks the service for a draft workout. The service stamps `StartedAt` (UTC) from `IClock`.
+- The New Workout page asks `IWorkoutService.StartNew()` for a `WorkoutDraft`. The service stamps `StartedAt` (UTC) from `TimeProvider` (T29).
 - The page shows a live elapsed timer based on `StartedAt`.
 - The draft stays in memory only (FR-12: lost if the app is killed). Android may kill the app while the phone is locked; this is accepted (D61).
-- On the first save, the service stamps `FinishedAt`, validates (FR-09) and writes everything in one transaction.
+- On the first save, the service validates (FR-09), stamps `FinishedAt` and writes everything in one transaction. If the clock is earlier than `StartedAt`, `FinishedAt` is set to `StartedAt` (D129).
 - Later saves update the exercises, sets and entries only. They never change the times.
 
 ## Error handling
-- Validation failures are shown inline on the page. Nothing is written.
-- Database errors are shown as a simple error message. The draft stays on screen.
+- Validation failures are shown inline on the page. Nothing is written. The service returns error codes; the page words them (T30).
+- Database errors are shown as a simple error message ("Couldn't save the workout. Try again."). The service turns any repository exception into `WorkoutError.SaveFailed` (T32). The draft stays on screen.
 
 ## Dependencies
 Confirmed in US-02 (D75).
@@ -97,6 +97,7 @@ Confirmed in US-02 (D75).
 | Microsoft.NET.Test.Sdk | 18.11.0 | tests | Test host |
 | Moq | 4.21.0 | tests | Mocks |
 | AutoFixture, AutoFixture.AutoMoq | 4.18.1 | tests | Test data |
+| Microsoft.Extensions.TimeProvider.Testing | 10.11.0 | Core.Tests | `FakeTimeProvider` (T31) |
 | bunit | 2.12.5 | UI.Tests | Component tests |
 | Appium.WebDriver | 9.0.0 | E2E.Tests | UI automation (Selenium 4.46). Check against the Appium server version in M6 |
 

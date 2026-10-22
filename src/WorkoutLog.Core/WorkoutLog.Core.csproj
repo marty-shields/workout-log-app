@@ -15,6 +15,7 @@
   <ItemGroup>
     <EmbeddedResource Include="Domain\Exercises\exercises.json" LogicalName="WorkoutLog.Core.exercises.json" />
     <InternalsVisibleTo Include="WorkoutLog.Core.Tests" />
+    <InternalsVisibleTo Include="DynamicProxyGenAssembly2" />
   </ItemGroup>
 
 </Project>

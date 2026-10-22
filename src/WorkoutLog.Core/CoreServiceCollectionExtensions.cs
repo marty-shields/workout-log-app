@@ -2,6 +2,8 @@ using Microsoft.Extensions.DependencyInjection;
 using SQLite;
 using WorkoutLog.Core.Data;
 using WorkoutLog.Core.Domain.Exercises;
+using WorkoutLog.Core.Domain.Workouts.Validation;
+using WorkoutLog.Core.Services;
 
 namespace WorkoutLog.Core;
 
@@ -9,7 +11,8 @@ namespace WorkoutLog.Core;
 public static class CoreServiceCollectionExtensions
 {
     /// <summary>
-    /// Registers the database connection, exercise catalog, exercise seeder, database initializer and workout repository as singletons.
+    /// Registers the database connection, exercise catalog, exercise seeder, database initializer, workout repository,
+    /// system time, workout validator and workout service as singletons.
     /// The initializer and repository run through one <see cref="DatabaseGate"/>.
     /// </summary>
     /// <param name="services">Service collection.</param>
@@ -23,5 +26,8 @@ public static class CoreServiceCollectionExtensions
             .AddSingleton<DatabaseInitializer>()
             .AddSingleton<IDatabaseInitializer, GatedDatabaseInitializer>()
             .AddSingleton<WorkoutRepository>()
-            .AddSingleton<IWorkoutRepository, GatedWorkoutRepository>();
+            .AddSingleton<IWorkoutRepository, GatedWorkoutRepository>()
+            .AddSingleton(TimeProvider.System)
+            .AddSingleton<IWorkoutValidator, WorkoutValidator>()
+            .AddSingleton<IWorkoutService, WorkoutService>();
 }

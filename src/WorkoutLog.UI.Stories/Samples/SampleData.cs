@@ -1,3 +1,4 @@
+using System.Globalization;
 using WorkoutLog.UI.Models.Dashboard;
 using WorkoutLog.UI.Models.Fields;
 using WorkoutLog.UI.Models.History;
@@ -245,28 +246,70 @@ public static class SampleData
             return field.Required ? $"Enter {field.Label.ToLowerInvariant()}" : null;
         }
 
-        return field.Kind switch
+        if (field.Kind is FieldKind.Duration or FieldKind.Pace)
         {
-            FieldKind.Duration or FieldKind.Pace => TimeError(field, value!),
-            _ when field.Key == "reps" && decimal.TryParse(value, out var reps) && reps <= 0 => $"{field.Label} must be more than 0",
-            _ => null,
-        };
+            return TimeError(field, value!);
+        }
+
+        if (!decimal.TryParse(value, out var number))
+        {
+            return $"{field.Label} must be a number";
+        }
+
+        if (field.Kind == FieldKind.Whole && number != decimal.Truncate(number))
+        {
+            return $"{field.Label} must be a whole number";
+        }
+
+        // Reps and required distance more than 0; other numbers 0 or more; none above the limit in Core's MetricLimits.
+        if ((field.Key == "reps" || (field.Key == "distance" && field.Required)) && number <= 0)
+        {
+            return $"{field.Label} must be more than 0";
+        }
+
+        if (number < 0)
+        {
+            return $"{field.Label} must be 0 or more";
+        }
+
+        var max = Max(field);
+        return number > max ? $"{field.Label} must be {max.ToString("#,0", CultureInfo.InvariantCulture)} or less" : null;
     }
 
-    // Duration (h:mm:ss): minutes and seconds 00–59, total more than 0. Pace (m:ss): seconds 00–59.
+    private static decimal Max(FieldSpec field) => (field.Key, field.Unit) switch
+    {
+        ("distance", "km") => 1_000,
+        ("distance", _) => 100_000,
+        ("level", _) or ("incline", _) => 100,
+        ("calories", _) => 10_000,
+        ("rate", "km/h") => 100,
+        ("rate", "strokes/min") => 200,
+        ("rate", "feet/min") => 1_000,
+        ("rate", _) => 300,
+        _ => 1_000,
+    };
+
+    // Duration (h:mm:ss): minutes and seconds 00–59, at most 23:59:59, more than 0 when required. Pace (m:ss): seconds 00–59, at most 60:00.
     private static string? TimeError(FieldSpec field, string value)
     {
         var parts = value.Split(':').Select(p => int.TryParse(p, out var n) ? n : 0).ToArray();
-        if (field.Kind == FieldKind.Pace)
+        var pace = field.Kind == FieldKind.Pace;
+        if (parts.Skip(1).Any(p => p is < 0 or > 59))
         {
-            return parts[^1] > 59 ? $"{field.Label} seconds must be 00–59" : null;
+            return pace ? $"{field.Label} seconds must be 00–59" : $"{field.Label} minutes and seconds must be 00–59";
         }
 
-        if (parts.Skip(1).Any(p => p > 59))
+        if (parts[0] < 0)
         {
-            return $"{field.Label} minutes and seconds must be 00–59";
+            return $"{field.Label} must be 0 or more";
         }
 
-        return parts.All(p => p == 0) ? $"{field.Label} must be more than 0" : null;
+        var seconds = parts.Aggregate(0L, (total, part) => total * 60 + part);
+        if (seconds > (pace ? 3_600 : 86_399))
+        {
+            return $"{field.Label} must be {(pace ? "60:00" : "23:59:59")} or less";
+        }
+
+        return field.Required && seconds == 0 ? $"{field.Label} must be more than 0" : null;
     }
 }

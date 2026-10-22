@@ -3,7 +3,7 @@ using WorkoutLog.Core.Domain.Workouts;
 namespace WorkoutLog.Core.Data;
 
 /// <summary>Stores workouts with their exercises, sets and entries. Each write is one transaction.</summary>
-public interface IWorkoutRepository
+internal interface IWorkoutRepository
 {
     /// <summary>Inserts the workout and its exercises, sets and entries. Returns the new workout id.</summary>
     Task<int> AddAsync(NewWorkout workout);

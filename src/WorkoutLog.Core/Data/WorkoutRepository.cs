@@ -4,7 +4,7 @@ using WorkoutLog.Core.Domain.Workouts;
 namespace WorkoutLog.Core.Data;
 
 /// <summary>Stores workouts in SQLite and deletes child rows in code.</summary>
-public sealed class WorkoutRepository(SQLiteAsyncConnection connection) : IWorkoutRepository
+internal sealed class WorkoutRepository(SQLiteAsyncConnection connection) : IWorkoutRepository
 {
     /// <inheritdoc />
     public async Task<int> AddAsync(NewWorkout workout)
@@ -112,7 +112,7 @@ public sealed class WorkoutRepository(SQLiteAsyncConnection connection) : IWorko
     private static CardioEntryRow ToRow(CardioEntry entry, int workoutExerciseId) => new()
     {
         WorkoutExerciseId = workoutExerciseId,
-        Duration = entry.Duration,
+        Duration = entry.Duration ?? throw new ArgumentException("Cardio entry has no duration", nameof(entry)),
         Distance = entry.Distance,
         Floors = entry.Floors,
         Level = entry.Level,

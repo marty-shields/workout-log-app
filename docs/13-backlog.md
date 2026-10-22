@@ -71,7 +71,7 @@ As the developer, I want to prove a Blazor page can intercept the Android back b
 | [US-06](#us-06-decide-the-pace-entry-format) | Decide the pace entry format | Open item 5 | XS | Done (D95) |
 | [US-07](#us-07-exercise-definitions-and-seeding) | Exercise definitions and seeding | FR-40, FR-41, FR-42 | M | Done |
 | [US-08](#us-08-sqlite-schema-and-repositories) | SQLite schema and repositories | NFR-05 | L | Done |
-| [US-09](#us-09-workout-service) | Workout service | FR-09, FR-10, FR-11 | M | To do |
+| [US-09](#us-09-workout-service) | Workout service | FR-09, FR-10, FR-11 | M | Done |
 
 ### US-05 Review the exercise list
 As the user, I want to review the draft exercise list and metrics, so that the app ships with the exercises I use.
@@ -117,8 +117,9 @@ As the developer, I want the SQLite schema and repositories, so that workouts ar
 As the developer, I want a workout service that validates and saves workouts and captures start and finish times, so that the screens hold no business rules.
 - **Links:** FR-09, FR-10, FR-11
 - **Extra ACs:**
-  - Times come from `IClock`.
-- **Size:** M · **Status:** To do
+  - Times come from `TimeProvider` (T31).
+  - Save rules as in [03](03-data-model.md#validation) (D126–D129, T29–T32).
+- **Size:** M · **Status:** Done
 
 ## EP-09 UX & design system (M1.5)
 | ID | Story | Links | Size | Status |

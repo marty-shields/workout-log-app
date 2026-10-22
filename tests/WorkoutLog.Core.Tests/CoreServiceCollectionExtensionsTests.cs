@@ -2,6 +2,8 @@ using Microsoft.Extensions.DependencyInjection;
 using SQLite;
 using WorkoutLog.Core.Data;
 using WorkoutLog.Core.Domain.Exercises;
+using WorkoutLog.Core.Domain.Workouts.Validation;
+using WorkoutLog.Core.Services;
 
 namespace WorkoutLog.Core.Tests;
 
@@ -22,6 +24,9 @@ public class CoreServiceCollectionExtensionsTests
             (typeof(IDatabaseInitializer), typeof(GatedDatabaseInitializer), ServiceLifetime.Singleton),
             (typeof(WorkoutRepository), typeof(WorkoutRepository), ServiceLifetime.Singleton),
             (typeof(IWorkoutRepository), typeof(GatedWorkoutRepository), ServiceLifetime.Singleton),
+            (typeof(TimeProvider), (Type?)null, ServiceLifetime.Singleton),
+            (typeof(IWorkoutValidator), typeof(WorkoutValidator), ServiceLifetime.Singleton),
+            (typeof(IWorkoutService), typeof(WorkoutService), ServiceLifetime.Singleton),
         }));
     }
 
@@ -35,5 +40,14 @@ public class CoreServiceCollectionExtensionsTests
         var connection = (SQLiteAsyncConnection)factory(null!);
 
         Assert.That(connection.DatabasePath, Is.EqualTo(path));
+    }
+
+    [Test]
+    public void AddCore_TimeIsTheSystemClock()
+    {
+        var time = new ServiceCollection().AddCore("workoutlog.db3")
+            .Single(s => s.ServiceType == typeof(TimeProvider)).ImplementationInstance;
+
+        Assert.That(time, Is.SameAs(TimeProvider.System));
     }
 }

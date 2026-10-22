@@ -11,6 +11,7 @@ These are not in v1. Nothing here is committed.
 | Export (CSV/JSON) | Manual copy of the data |
 | Backup / sync | See below |
 | Log a past session | Enter start and finish by hand for a session that wasn't logged live |
+| Debug logging | Log unexpected events, e.g. the clock going back during a workout (D129) and the exceptions behind a failed save (T32) |
 
 ## Backup / sync — things to consider
 These matter mainly when changing phone.
