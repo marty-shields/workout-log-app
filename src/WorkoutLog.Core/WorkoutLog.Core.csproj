@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.13" />
+    <PackageReference Include="sqlite-net-pcl" Version="1.11.285" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Domain\Exercises\exercises.json" LogicalName="WorkoutLog.Core.exercises.json" />
+    <InternalsVisibleTo Include="WorkoutLog.Core.Tests" />
+  </ItemGroup>
+
+</Project>

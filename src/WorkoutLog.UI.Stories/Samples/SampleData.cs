@@ -5,7 +5,7 @@ using WorkoutLog.UI.Models.Workout;
 
 namespace WorkoutLog.UI.Stories.Samples;
 
-/// <summary>An exercise from docs/exercises.json, as the UI shows it.</summary>
+/// <summary>An exercise from src/WorkoutLog.Core/Domain/Exercises/exercises.json, as the UI shows it.</summary>
 /// <param name="Id">Exercise id.</param>
 /// <param name="Name">Exercise name.</param>
 /// <param name="Kind">Strength or cardio.</param>

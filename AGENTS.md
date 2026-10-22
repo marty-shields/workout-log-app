@@ -9,7 +9,7 @@ A personal Android app (.NET 10 MAUI Blazor Hybrid) that replaces a paper workou
 |---|---|
 | Requirements (FR-xx, NFR-xx) | [02](docs/02-requirements.md) |
 | Data model, validation | [03](docs/03-data-model.md) |
-| Exercise list and metrics | [04](docs/04-exercise-list.md), [exercises.json](docs/exercises.json) |
+| Exercise list and metrics | [04](docs/04-exercise-list.md), [exercises.json](src/WorkoutLog.Core/Domain/Exercises/exercises.json) |
 | Solution layout, packages | [05](docs/05-architecture.md) |
 | Screens and navigation | [06](docs/06-screens-ux.md) |
 | Tests | [07](docs/07-testing.md) |
@@ -25,15 +25,18 @@ A personal Android app (.NET 10 MAUI Blazor Hybrid) that replaces a paper workou
 | `WorkoutLog.slnx` | Solution |
 | `src/WorkoutLog.UI/` | Razor class library: pages, components, design tokens |
 | `src/WorkoutLog.UI.Stories/` | BlazingStory app: stories for UI components |
+| `src/WorkoutLog.Core/` | Class library: exercise definitions (embedded `exercises.json`), SQLite data, `AddCore` registration |
 | `tests/WorkoutLog.UI.Tests/` | bUnit tests for UI components and screens; plays the prototype scenarios |
+| `tests/WorkoutLog.Core.Tests/` | NUnit tests for Core |
 
-The App, Core, Core.Tests and E2E.Tests projects are planned in [05](docs/05-architecture.md) and created in US-04.
+The App and E2E.Tests projects are planned in [05](docs/05-architecture.md) and created in US-04.
 
 ## Commands
 | Task | Command |
 |---|---|
 | Build | `dotnet build WorkoutLog.slnx` |
 | Run the UI tests | `dotnet test tests/WorkoutLog.UI.Tests` |
+| Run the Core tests | `dotnet test tests/WorkoutLog.Core.Tests` |
 | Run the stories | `dotnet run --project src/WorkoutLog.UI.Stories` → http://localhost:5056 |
 
 ## Rules

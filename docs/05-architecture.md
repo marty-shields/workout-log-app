@@ -55,7 +55,7 @@ flowchart LR
 - **Exercise definitions** are an embedded JSON file in Core, loaded once at startup into the `IExerciseCatalog` singleton. The catalog also runs the picker search in memory (see [03](03-data-model.md#exercise-search), [04](04-exercise-list.md)).
 
 ## Dependency injection
-Everything is registered in `MauiProgram.CreateMauiApp()` using the built-in `IServiceCollection`. The database connection is a singleton. Services and repositories are registered by interface.
+Everything is registered in `MauiProgram.CreateMauiApp()` using the built-in `IServiceCollection`. Core registers its own types through `AddCore(databasePath)` (T19). The database connection is an `SQLiteAsyncConnection` singleton. Services and repositories are registered by interface.
 
 ## Navigation
 Blazor routing (`@page`). The routes are proposed:
@@ -90,6 +90,7 @@ Confirmed in US-02 (D75).
 | Package | Version | Project | Purpose |
 |---|---|---|---|
 | sqlite-net-pcl | 1.11.285 | Core | ORM. Brings in SQLitePCLRaw 3.0.3 and the native SQLite library (SourceGear.sqlite3 3.53.3) |
+| Microsoft.Extensions.DependencyInjection.Abstractions | 10.0.13 | Core | `IServiceCollection` for `AddCore` (T19) |
 | NUnit | 5.0.0 | tests | Test framework. Fallback: 4.6.1 (see [US-04](13-backlog.md#us-04-create-the-solution)) |
 | NUnit3TestAdapter | 6.3.1 | tests | Test adapter |
 | NUnit.Analyzers | 4.15.0 | tests | Build-time NUnit checks |

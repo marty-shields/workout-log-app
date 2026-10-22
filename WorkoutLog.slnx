@@ -1,9 +1,11 @@
 <Solution>
   <Folder Name="/src/">
+    <Project Path="src/WorkoutLog.Core/WorkoutLog.Core.csproj" />
     <Project Path="src/WorkoutLog.UI.Stories/WorkoutLog.UI.Stories.csproj" />
     <Project Path="src/WorkoutLog.UI/WorkoutLog.UI.csproj" />
   </Folder>
   <Folder Name="/tests/">
+    <Project Path="tests/WorkoutLog.Core.Tests/WorkoutLog.Core.Tests.csproj" />
     <Project Path="tests/WorkoutLog.UI.Tests/WorkoutLog.UI.Tests.csproj" />
   </Folder>
 </Solution>

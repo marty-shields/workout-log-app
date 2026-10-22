@@ -48,7 +48,8 @@ As the developer, I want the tooling installed and the phone set up for USB debu
 As the developer, I want the solution created in local git, so that features have a place to go.
 - **Links:** T06, T13, NFR-02, [05](05-architecture.md)
 - **Extra ACs:**
-  - The App, UI, Core and three test projects exist as in [05](05-architecture.md). `WorkoutLog.slnx`, `WorkoutLog.UI`, local git and `.gitignore` already exist ([US-29](#us-29-stories-project-setup)); `WorkoutLog.UI.Tests` already exists ([US-30](#us-30-wireframes)).
+  - The App and `WorkoutLog.E2E.Tests` projects exist as in [05](05-architecture.md). `WorkoutLog.slnx`, `WorkoutLog.UI`, local git and `.gitignore` already exist ([US-29](#us-29-stories-project-setup)); `WorkoutLog.UI.Tests` already exists ([US-30](#us-30-wireframes)); `WorkoutLog.Core` and `WorkoutLog.Core.Tests` already exist ([US-07](#us-07-exercise-definitions-and-seeding), T17).
+  - `MauiProgram` calls `AddCore` with a database path in the app data directory, and awaits `IExerciseSeeder.SeedAsync()` at startup (T18, T19).
   - `.gitignore` matches [08](08-dev-setup-build.md).
   - A blank page shows on the phone.
   - Debug builds use the `.debug` package id and the name "Workout Log (Dev)" ([08](08-dev-setup-build.md)).
@@ -68,7 +69,7 @@ As the developer, I want to prove a Blazor page can intercept the Android back b
 |---|---|---|---|---|
 | [US-05](#us-05-review-the-exercise-list) | Review the exercise list | Open item 1 | XS | Done (D79–D94) |
 | [US-06](#us-06-decide-the-pace-entry-format) | Decide the pace entry format | Open item 5 | XS | Done (D95) |
-| [US-07](#us-07-exercise-definitions-and-seeding) | Exercise definitions and seeding | FR-40, FR-41, FR-42 | M | To do |
+| [US-07](#us-07-exercise-definitions-and-seeding) | Exercise definitions and seeding | FR-40, FR-41, FR-42 | M | Done |
 | [US-08](#us-08-sqlite-schema-and-repositories) | SQLite schema and repositories | NFR-05 | L | To do |
 | [US-09](#us-09-workout-service) | Workout service | FR-09, FR-10, FR-11 | M | To do |
 
@@ -92,16 +93,20 @@ As the user, I want to choose how pace (min/km, Outdoor Run) is entered (`5.5` o
 As the developer, I want the exercise definitions in code and seeded into SQLite, so that every screen uses the same fixed list.
 - **Links:** FR-40, FR-41, FR-42, FR-43, [03](03-data-model.md), [04](04-exercise-list.md)
 - **Extra ACs:**
-  - [exercises.json](exercises.json) is moved into Core as an embedded file and loaded once at startup into the `IExerciseCatalog` singleton.
+  - [exercises.json](../src/WorkoutLog.Core/Domain/Exercises/exercises.json) is moved into Core as an embedded file and loaded once at startup into the `IExerciseCatalog` singleton.
   - A unit test checks the file: unique Ids, names and aliases; valid enum values; strength exercises have muscle, equipment and mechanic, cardio exercises don't; cardio always requires Duration.
-  - Seeding follows the rules in [03](03-data-model.md).
-- **Size:** M · **Status:** To do
+  - The test also checks: Ids run 1…N without gaps; 315 exercises (299 strength, 16 cardio); metrics fit the type ([03](03-data-model.md#metrics)); a distance unit only with Distance and a rate unit only with Rate (D124).
+  - `IExerciseCatalog` exposes the list only; search comes in [US-11](#us-11-add-and-remove-exercises) (D122).
+  - Core creates the `Exercise` table and seeds it through `IExerciseSeeder` on an `SQLiteAsyncConnection` (T18). Seeding follows the rules in [03](03-data-model.md#seeding-the-exercise-list).
+  - `AddCore(databasePath)` registers the connection, catalog and seeder as singletons (T19).
+- **Size:** M · **Status:** Done
 
 ### US-08 SQLite schema and repositories
 As the developer, I want the SQLite schema and repositories, so that workouts are stored on the phone.
 - **Links:** NFR-05, [03](03-data-model.md)
 - **Extra ACs:**
-  - Tables match [03](03-data-model.md).
+  - Tables match [03](03-data-model.md). The `Exercise` table and its seeder already exist ([US-07](#us-07-exercise-definitions-and-seeding), T18).
+  - Seeding runs after the schema upgrade steps (T21).
   - Deleting a workout removes its exercises, sets and entries.
   - A workout exercise has at most one cardio entry.
   - Times are stored in UTC (NFR-06).
@@ -193,6 +198,7 @@ As the user, I want to add exercises from the list and remove them, so that the 
 - **Extra ACs:**
   - The picker is an overlay, grouped Strength / Cardio; back closes it ([06](06-screens-ux.md)).
   - Search matches names and nicknames as in [03](03-data-model.md#exercise-search), including ranking and word normalisation.
+  - The search is added to `IExerciseCatalog` in Core, with unit tests (D122).
 - **Size:** S · **Status:** To do
 
 ### US-12 Log strength sets

@@ -3,7 +3,7 @@
 ## Layers
 | Type | Project | Tools | Covers |
 |---|---|---|---|
-| Unit | `WorkoutLog.Core.Tests` | NUnit, Moq, AutoFixture | Metric validation per exercise definition (FR-06, FR-07, FR-09), start/finish capture (FR-01, FR-10, FR-11), dashboard counts (FR-33, FR-34), exercise seeding, definition file checks (unique Ids, names and aliases; valid values; strength/cardio fields match the type), search normalisation and ranking (FR-03) |
+| Unit | `WorkoutLog.Core.Tests` | NUnit, Moq, AutoFixture | Metric validation per exercise definition (FR-06, FR-07, FR-09), start/finish capture (FR-01, FR-10, FR-11), dashboard counts (FR-33, FR-34), exercise seeding, definition file checks (unique Ids, names and aliases; Ids 1…N without gaps; the documented counts; valid values; unknown fields fail to load; strength/cardio fields and metrics match the type; units only with their metric), search normalisation and ranking (FR-03) |
 | Repository | `WorkoutLog.Core.Tests` | NUnit + temp SQLite file | Save, load, edit, cascade delete, one CardioEntry per exercise |
 | Component | `WorkoutLog.UI.Tests` | bUnit | Fields and labels shown per exercise definition, picker search, add/remove set, live timer, inline validation, Discard/Cancel prompts; every prototype scenario step finds its target; design-system checks (D117): tokens only, WCAG AA token pairs, touch targets, `data-testid` on every interactive element, screen stories match the tests' list of screen states, a Design System page for every component and screen |
 | UI (automated) | `WorkoutLog.E2E.Tests` | NUnit + Appium (UiAutomator2) | End-to-end flows on an emulator or the Debug build on the phone |

@@ -2,7 +2,7 @@
 
 A personal Android app that replaces a paper workout notebook.
 
-**Status:** Planning. The solution has the UI, Stories and UI.Tests projects; the prototype, design tokens, components and final screen designs are in the stories site (US-29 to US-33).
+**Status:** Planning. The solution has the UI, Stories, UI.Tests, Core and Core.Tests projects; the prototype, design tokens, components and final screen designs are in the stories site (US-29 to US-33); Core holds the exercise definitions and seeding (US-07).
 
 ## Documents
 
@@ -11,7 +11,7 @@ A personal Android app that replaces a paper workout notebook.
 | [01 Vision & scope](01-vision-scope.md) | What the app is for, what's in v1 and what's out |
 | [02 Requirements](02-requirements.md) | Functional and non-functional requirements with acceptance criteria |
 | [03 Data model](03-data-model.md) | Entities, metrics, validation rules |
-| [04 Exercise list](04-exercise-list.md) | How the exercise list was built, and metrics per activity type. Full list: [exercises.json](exercises.json) |
+| [04 Exercise list](04-exercise-list.md) | How the exercise list was built, and metrics per activity type. Full list: [exercises.json](../src/WorkoutLog.Core/Domain/Exercises/exercises.json) |
 | [05 Architecture](05-architecture.md) | Solution layout, layers, tech stack |
 | [06 Screens & UX](06-screens-ux.md) | Screen inventory and navigation |
 | [07 Testing](07-testing.md) | Test strategy and manual checklist |

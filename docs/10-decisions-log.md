@@ -83,7 +83,7 @@ All decisions were made on 2026-10-21 and have status **Accepted** unless noted.
 | D76 | Removing a cardio entry | Not removable on its own; removed only with its exercise (FR-08) | Add entry button after removal |
 | D77 | New exercise contents | Starts with one empty set (strength) or its empty entry (cardio) (FR-03) | Starts empty |
 | D78 | Back on Edit with no unsaved changes | History, no prompt (FR-23) | Dashboard |
-| D79 | Must-have exercises (US-05) | 44, all in [exercises.json](exercises.json): Machine Chest Press; Machine Shoulder Press; Cable Lat Pulldown; Cable Close-Grip Lat Pulldown; Cable Underhand Lat Pulldown; Cable V-Bar Lat Pulldown; Cable Seated Row; Machine Row; Barbell Bent-Over Row; Dumbbell One-Arm Row; Machine Leg Extension; Machine Lying Leg Curl; Machine Seated Leg Curl; Barbell Back Squat; Machine Hack Squat; Machine Pendulum Squat; Barbell Curl; EZ-Bar Curl; Dumbbell Curl; Dumbbell Hammer Curl; Cable Curl; Cable Rope Hammer Curl; Cable Rope Overhead Tricep Extension; Dumbbell Overhead Tricep Extension; Barbell Skull Crusher; EZ-Bar Skull Crusher; Machine Tricep Extension; Cable Tricep Pushdown; Cable V-Bar Tricep Pushdown; Cable Rope Tricep Pushdown; Dumbbell Incline Press; Dumbbell Shoulder Press; Machine Chest Fly; Machine Rear Delt Fly; Machine Leg Press; Machine Seated Leg Press; Machine Bicep Curl; Dip; Machine Assisted Dip; Pull-up; Wide-Grip Pull-up; Chin-up; Machine Assisted Pull-up; Machine Assisted Chin-up | — |
+| D79 | Must-have exercises (US-05) | 44, all in [exercises.json](../src/WorkoutLog.Core/Domain/Exercises/exercises.json): Machine Chest Press; Machine Shoulder Press; Cable Lat Pulldown; Cable Close-Grip Lat Pulldown; Cable Underhand Lat Pulldown; Cable V-Bar Lat Pulldown; Cable Seated Row; Machine Row; Barbell Bent-Over Row; Dumbbell One-Arm Row; Machine Leg Extension; Machine Lying Leg Curl; Machine Seated Leg Curl; Barbell Back Squat; Machine Hack Squat; Machine Pendulum Squat; Barbell Curl; EZ-Bar Curl; Dumbbell Curl; Dumbbell Hammer Curl; Cable Curl; Cable Rope Hammer Curl; Cable Rope Overhead Tricep Extension; Dumbbell Overhead Tricep Extension; Barbell Skull Crusher; EZ-Bar Skull Crusher; Machine Tricep Extension; Cable Tricep Pushdown; Cable V-Bar Tricep Pushdown; Cable Rope Tricep Pushdown; Dumbbell Incline Press; Dumbbell Shoulder Press; Machine Chest Fly; Machine Rear Delt Fly; Machine Leg Press; Machine Seated Leg Press; Machine Bicep Curl; Dip; Machine Assisted Dip; Pull-up; Wide-Grip Pull-up; Chin-up; Machine Assisted Pull-up; Machine Assisted Chin-up | — |
 | D80 | Exercise source | free-exercise-db (public domain) plus hand-added exercises; muscleandstrength.com names used only to find gaps | Hand-built only |
 | D81 | Exercise scope | Strength + powerlifting, plus 6 carries and 16 cardio: 315 in total. No stretching, plyometrics, Olympic lifts or other strongman | Add plyometrics, Olympic, stretching; restore rarely used variants; pad to 1000 |
 | D82 | Variant rules | Alternating, one-arm, seated/standing and stance variants fold into the base exercise; equipment, bench angle, grip and attachment stay separate ([04](04-exercise-list.md#selection-rules)) | Keep one-arm; keep every variant; separate stances |
@@ -98,7 +98,7 @@ All decisions were made on 2026-10-21 and have status **Accepted** unless noted.
 | D91 | Picker search | Search box; matches every word in any order against name and nicknames; hyphens as spaces; plurals and joined words (triceps, flies, pullup) normalised. Empty search shows the full list A–Z, grouped Strength / Cardio | Exact phrase; name only; nothing until you type |
 | D92 | Search engine | In memory: definitions loaded once at startup into `IExerciseCatalog`; ranked by name prefix, then name, then nickname | SQLite FTS5 |
 | D93 | Dumbbell weight | Per dumbbell | Total; undefined |
-| D94 | Exercise list file | [docs/exercises.json](exercises.json) until the code repo exists; it becomes Core's embedded file in US-07 | CSV; Excel; tables in 04 |
+| D94 | Exercise list file | [exercises.json](../src/WorkoutLog.Core/Domain/Exercises/exercises.json) until the code repo exists; it becomes Core's embedded file in US-07 | CSV; Excel; tables in 04 |
 | D95 | Pace entry format (US-06) | Entry follows the unit: min/km as `m:ss` (`5:30`), stored as decimal minutes; other rates as decimals ([03](03-data-model.md#rate-entry-format)) | Decimal (`5.5`) |
 | D96 | Design system timing (2026-10-22) | Wireframes and design system before M2, as M1.5 ([EP-09](13-backlog.md#ep-09-ux--design-system-m15)). Supersedes D32 | Wireframes now, visual design after v1; explore only |
 | D97 | Themes (2026-10-22) | Light and dark; the app follows the phone's setting | Dark only; light only for now |
@@ -126,6 +126,10 @@ All decisions were made on 2026-10-21 and have status **Accepted** unless noted.
 | D119 | Confirm dialogs (2026-10-22) | Anchored to the bottom, inside the safe area, with Cancel (secondary) and the confirm button full width side by side | Centred, with a text Cancel |
 | D120 | Remove exercise (2026-10-22) | Small muted text, so the exercise name leads the card header | Same weight as the name |
 | D121 | Leaving unsaved edits: wording (2026-10-22) | Title "Discard changes?", buttons **Discard / Cancel**. Amends D42; FR-23 updated | Keep "Discard your changes?" / **Discard changes** |
+| D122 | Exercise search timing (2026-10-22) | `IExerciseCatalog` exposes the list only in US-07; search is added in US-11 | Build search in US-07 |
+| D123 | Seeding renamed or retyped exercises (2026-10-22) | Seeding updates Name and Type by Id ([03](03-data-model.md#seeding-the-exercise-list)) | Name only |
+| D124 | Exercise file checks (2026-10-22) | As well as the US-07 checks: Ids 1…N without gaps; 315 / 299 / 16; metrics fit the type; a distance unit only with Distance and a rate unit only with Rate | US-07 checks only |
+| D125 | Exercise file location (2026-10-22) | Moved to [src/WorkoutLog.Core/Domain/Exercises/exercises.json](../src/WorkoutLog.Core/Domain/Exercises/exercises.json); docs link to it. Completes D94 | `Domain/` or `Resources/`; keep a copy in docs; embed from docs |
 
 ## Technical
 | # | Decision | Choice | Alternatives offered |
@@ -146,6 +150,11 @@ All decisions were made on 2026-10-21 and have status **Accepted** unless noted.
 | T14 | Appium test project | `WorkoutLog.E2E.Tests`, NUnit | `WorkoutLog.UiTests`; `WorkoutLog.Appium.Tests`; xUnit |
 | T15 | Solution file (2026-10-22) | `WorkoutLog.slnx` | `WorkoutLog.sln` |
 | T16 | UI test project (2026-10-22) | `tests/WorkoutLog.UI.Tests` (bUnit, NUnit) is created in US-30, with the components it tests | Create it in US-04 with the other projects |
+| T17 | Core projects (2026-10-22) | `WorkoutLog.Core` and `WorkoutLog.Core.Tests` are created in US-07; US-04 adds the App and E2E.Tests | Do US-04 first; a separate story |
+| T18 | Exercise table and seeder (2026-10-22) | Created in US-07 with sqlite-net-pcl on an `SQLiteAsyncConnection`; `IExerciseSeeder.SeedAsync()`. US-08 adds the other tables | Seeder behind a repository interface; seeding in US-08; `SQLiteConnection`; seeder without an interface |
+| T19 | Core registration (2026-10-22) | `AddCore(databasePath)` registers the connection, catalog and seeder as singletons. Adds Microsoft.Extensions.DependencyInjection.Abstractions 10.0.13 | Register everything in `MauiProgram`; connection registered by the App |
+| T20 | Moq and AutoFixture in Core.Tests (2026-10-22) | Added with the first test that uses them | Add them in US-07 |
+| T21 | Seeding order (2026-10-22) | Exercise seeding runs after the schema upgrade steps | Seeding before the upgrade steps |
 
 ## Pending
 See [README open items](README.md#open-items).

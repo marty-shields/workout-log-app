@@ -27,7 +27,7 @@ No metric has a maximum value.
 sqlite-net stores `decimal` as REAL (floating point).
 
 ## Exercise definition (Core project)
-The definitions are an embedded JSON file in Core, from [exercises.json](exercises.json). It is loaded once at startup into `IExerciseCatalog`, a singleton that every screen and service uses.
+The definitions are an embedded JSON file in Core, from [exercises.json](../src/WorkoutLog.Core/Domain/Exercises/exercises.json). It is loaded once at startup into `IExerciseCatalog`, a singleton that every screen and service uses.
 
 | Field | Type | Notes |
 |---|---|---|
@@ -119,8 +119,8 @@ erDiagram
 - Exercises are never deleted or hidden from the picker.
 
 ## Seeding the exercise list
-- On startup, the app inserts any exercise Id from the definition file that is missing from the database. It never removes rows.
-- Renaming an exercise in a later app version updates the name by Id.
+- On startup, `IExerciseSeeder` inserts any exercise Id from the definition file that is missing from the database. It never removes rows.
+- A changed name or type in a later app version updates the row by Id (D123).
 
 ## Schema upgrades
 - The database stores a schema version number (e.g. SQLite `user_version`).
