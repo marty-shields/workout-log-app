@@ -1,3 +1,30 @@
+.frame {
+    margin: 16px auto;
+    width: fit-content;
+}
+
+.themes {
+    display: flex;
+    justify-content: center;
+    gap: var(--space-1);
+    margin-bottom: var(--space-2);
+}
+
+.theme {
+    padding: var(--space-1) var(--space-3);
+    border: var(--border-width) solid var(--color-border-strong);
+    border-radius: var(--radius-sm);
+    background: transparent;
+    font-size: var(--font-size-sm);
+    cursor: pointer;
+}
+
+.theme[aria-pressed="true"] {
+    background: var(--color-primary);
+    border-color: var(--color-primary);
+    color: var(--color-on-primary);
+}
+
 .phone {
     --inset-top: 32px;
     --inset-bottom: 32px;
@@ -5,11 +32,11 @@
     box-sizing: content-box;
     width: 412px;
     height: 915px;
-    margin: 16px auto;
     overflow: hidden;
     border: 8px solid #111;
     border-radius: 40px;
     background: var(--color-bg);
+    color: var(--color-text);
     transform: translateZ(0);
 }
 
@@ -35,6 +62,8 @@
     top: 0;
     height: var(--inset-top);
     padding: 0 24px;
+    background: var(--color-bar);
+    color: var(--color-on-bar);
 }
 
 .nav-bar {
@@ -47,7 +76,7 @@
     width: 108px;
     height: 4px;
     border-radius: 2px;
-    background: #111;
+    background: currentColor;
 }
 
 .system-back {

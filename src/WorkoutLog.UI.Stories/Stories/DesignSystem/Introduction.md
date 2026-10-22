@@ -23,10 +23,16 @@ Tokens, components and layout rules for the Workout Log app.
 - Interactive elements have a `data-testid`.
 
 ## Tokens
-To be defined in US-31.
+Defined in `tokens.css`; the **Tokens** story shows each one in light and dark.
+
+- Palette: [coolors.co/palette/77878b-305252-373e40-488286-b7d5d4](https://coolors.co/palette/77878b-305252-373e40-488286-b7d5d4), plus a derived background, card border, muted text and red (D110). Placeholders use muted text.
+- Most colour tokens are `light-dark()` pairs. `data-theme="light"` or `"dark"` forces a theme on an element; phone-frame stories have a System / Light / Dark switch (D111).
+- Danger buttons are filled red, the same red as errors (D112).
+- System font; body 16px, number and duration inputs 20px; radius 8 / 12 / 20px; spacing 4–32px (D113).
+- Some components override tokens inside them: the top bar sets text, muted text and focus; the picker bar sets focus; the open set sets muted text, input border and focus to the text colour.
 
 ## Components
-Wireframe versions on greyscale tokens (US-30). US-32 finishes them on the final tokens.
+Built on the final tokens (US-31, US-32).
 
 | Group | Components |
 |---|---|

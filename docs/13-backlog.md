@@ -120,8 +120,8 @@ As the developer, I want a workout service that validates and saves workouts and
 |---|---|---|---|---|
 | [US-29](#us-29-stories-project-setup) | Stories project setup | D99, T15 | S | Done |
 | [US-30](#us-30-wireframes) | Wireframes | [06](06-screens-ux.md), D98 | M | Done |
-| [US-31](#us-31-design-tokens) | Design tokens | D97, [14](14-design-system.md) | M | To do |
-| [US-32](#us-32-components) | Components | [14](14-design-system.md) | L | In progress |
+| [US-31](#us-31-design-tokens) | Design tokens | D97, D110–D113, [14](14-design-system.md) | M | Done |
+| [US-32](#us-32-components) | Components | [14](14-design-system.md) | L | Done |
 | [US-33](#us-33-final-screen-designs) | Final screen designs | [06](06-screens-ux.md), [14](14-design-system.md) | M | To do |
 
 ### US-29 Stories project setup
@@ -145,13 +145,13 @@ As the user, I want greyscale wireframes of every screen and state, so that layo
 
 ### US-31 Design tokens
 As the user, I want the colours, type and spacing defined once, so that every screen looks consistent in light and dark.
-- **Links:** D97, [14](14-design-system.md)
+- **Links:** D97, D110–D113, [14](14-design-system.md)
 - **Extra ACs:**
   - Tokens are CSS custom properties in `WorkoutLog.UI/wwwroot/css/tokens.css`: colour, type, spacing, radius, touch-target size.
   - Dark values apply under `prefers-color-scheme: dark`.
   - Error text and error borders are red (D102).
   - A story shows every token in light and dark.
-- **Size:** M · **Status:** To do
+- **Size:** M · **Status:** Done
 
 ### US-32 Components
 As the developer, I want the shared UI components built on the tokens, so that M2–M5 assemble screens from them.
@@ -160,7 +160,7 @@ As the developer, I want the shared UI components built on the tokens, so that M
   - Each component is in `WorkoutLog.UI`, takes its data as parameters and has stories.
   - Components use tokens only; no hard-coded colours or sizes.
   - Interactive elements have `data-testid` ([07](07-testing.md)).
-- **Size:** L · **Status:** In progress
+- **Size:** L · **Status:** Done
 
 ### US-33 Final screen designs
 As the user, I want the wireframes rebuilt with the design system, so that M2–M5 build screens to an agreed design.

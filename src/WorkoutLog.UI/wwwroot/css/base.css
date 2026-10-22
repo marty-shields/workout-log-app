@@ -30,6 +30,15 @@ input {
     color: inherit;
 }
 
+::placeholder {
+    color: var(--color-text-muted);
+}
+
+:focus-visible {
+    outline: var(--focus-width) solid var(--color-focus);
+    outline-offset: var(--focus-offset);
+}
+
 .visually-hidden {
     position: absolute;
     width: 1px;

@@ -14,7 +14,7 @@
     max-width: var(--dialog-max-width);
     padding: var(--space-6);
     border-radius: var(--radius-lg);
-    background: var(--color-bg);
+    background: var(--color-surface);
 }
 
 .title {

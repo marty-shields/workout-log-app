@@ -6,7 +6,7 @@ The design system is documented in the stories site, under **Design System** (D1
 |---|---|
 | Design-system pages (Markdown) | `src/WorkoutLog.UI.Stories/Stories/DesignSystem/` |
 | Component stories | `src/WorkoutLog.UI.Stories/Stories/` (`*.stories.razor`) |
-| Tokens | `src/WorkoutLog.UI/wwwroot/css/tokens.css` |
+| Tokens | `src/WorkoutLog.UI/wwwroot/css/tokens.css`; shown in the **Design System / Tokens** story |
 | Components | `src/WorkoutLog.UI/Components/` |
 | Screens | `src/WorkoutLog.UI/Screens/` |
 | Component tests (bUnit) | `tests/WorkoutLog.UI.Tests/` |

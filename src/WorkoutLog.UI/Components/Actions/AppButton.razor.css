@@ -1,10 +1,10 @@
 .btn {
     min-height: var(--touch-target);
     padding: 0 var(--space-4);
-    border: var(--border-width) solid var(--color-border-strong);
+    border: var(--border-width) solid transparent;
     border-radius: var(--radius-md);
-    background: var(--color-surface);
-    color: var(--color-text);
+    background: var(--color-secondary);
+    color: var(--color-on-secondary);
     font-size: var(--font-size-md);
     font-weight: var(--font-weight-bold);
     cursor: pointer;
@@ -15,19 +15,18 @@
 }
 
 .primary {
-    border-color: var(--color-primary);
     background: var(--color-primary);
     color: var(--color-on-primary);
 }
 
 .danger {
-    border-color: var(--color-danger);
-    color: var(--color-danger);
+    background: var(--color-danger);
+    color: var(--color-on-danger);
 }
 
 .text {
-    border-color: transparent;
     background: transparent;
+    color: var(--color-text);
 }
 
 .btn:disabled {

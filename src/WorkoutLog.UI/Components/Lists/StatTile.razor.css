@@ -9,6 +9,7 @@
 }
 
 .value {
+    color: var(--color-accent);
     font-size: var(--font-size-xxl);
     font-weight: var(--font-weight-bold);
     font-variant-numeric: tabular-nums;

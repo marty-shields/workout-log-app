@@ -1,10 +1,13 @@
 .panel {
+    --color-text-muted: var(--color-text);
+    --color-border-strong: var(--color-text);
+    --color-focus: var(--color-text);
     display: flex;
     flex-direction: column;
     gap: var(--space-3);
     padding: var(--space-3);
     border-radius: var(--radius-md);
-    background: var(--color-surface);
+    background: var(--color-selected);
 }
 
 .panel-header {

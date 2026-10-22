@@ -1,24 +1,38 @@
-@* Phone-sized frame (412 × 915) with simulated status and navigation bars. Stories only. *@
-<div class="phone">
-    <div class="viewport">
-        @ChildContent
-    </div>
-    <div class="status-bar" aria-hidden="true">
-        <span>9:41</span>
-    </div>
-    <div class="nav-bar">
-        @if (OnSystemBack.HasDelegate)
+@* Phone-sized frame (412 × 915) with simulated status and navigation bars, and a theme switch. Stories only. *@
+<div class="frame">
+    <div class="themes" role="group" aria-label="Theme">
+        @foreach (var (label, theme) in Themes)
         {
-            <button type="button" class="system-back" data-testid="system-back" @onclick="OnSystemBack">&#x25C1; Android back</button>
+            <button type="button"
+                    class="theme"
+                    aria-pressed="@(Theme == theme ? "true" : "false")"
+                    data-testid="@($"theme-{label.ToLowerInvariant()}")"
+                    @onclick="() => Theme = theme">@label</button>
         }
-        else
-        {
-            <span class="handle" aria-hidden="true"></span>
-        }
+    </div>
+    <div class="phone" data-theme="@Theme" data-testid="phone">
+        <div class="viewport">
+            @ChildContent
+        </div>
+        <div class="status-bar" aria-hidden="true">
+            <span>9:41</span>
+        </div>
+        <div class="nav-bar">
+            @if (OnSystemBack.HasDelegate)
+            {
+                <button type="button" class="system-back" data-testid="system-back" @onclick="OnSystemBack">&#x25C1; Android back</button>
+            }
+            else
+            {
+                <span class="handle" aria-hidden="true"></span>
+            }
+        </div>
     </div>
 </div>
 
 @code {
+    private static readonly (string Label, string? Theme)[] Themes = [("System", null), ("Light", "light"), ("Dark", "dark")];
+
     /// <summary>Screen shown inside the frame.</summary>
     [Parameter]
     public RenderFragment? ChildContent { get; set; }
@@ -26,4 +40,6 @@
     /// <summary>Raised by the simulated Android back button. The bar shows a gesture handle when unset.</summary>
     [Parameter]
     public EventCallback OnSystemBack { get; set; }
+
+    private string? Theme { get; set; }
 }
