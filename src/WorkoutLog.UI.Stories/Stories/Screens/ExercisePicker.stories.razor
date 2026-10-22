@@ -1,0 +1,35 @@
+@attribute [Stories("Screens/Exercise Picker")]
+
+<Stories TComponent="ExercisePicker" Layout="typeof(PhoneLayout)">
+
+    <Story Name="No search text">
+        <Template>
+            <WorkoutView Mode="WorkoutMode.New" StartedAt="SampleData.Started" Time="new TimeSpan(0, 34, 12)" Exercises="SampleData.StrengthWorkout()" OnBack="() => { }">
+                <Overlay>
+                    <ExercisePicker Items="SampleData.Search(null)" />
+                </Overlay>
+            </WorkoutView>
+        </Template>
+    </Story>
+
+    <Story Name="Results">
+        <Template>
+            <WorkoutView Mode="WorkoutMode.New" StartedAt="SampleData.Started" Time="new TimeSpan(0, 34, 12)" Exercises="SampleData.StrengthWorkout()" OnBack="() => { }">
+                <Overlay>
+                    <ExercisePicker Query="dumbbell" Items="@SampleData.Search("dumbbell")" />
+                </Overlay>
+            </WorkoutView>
+        </Template>
+    </Story>
+
+    <Story Name="No match">
+        <Template>
+            <WorkoutView Mode="WorkoutMode.New" StartedAt="SampleData.Started" Time="new TimeSpan(0, 34, 12)" Exercises="SampleData.StrengthWorkout()" OnBack="() => { }">
+                <Overlay>
+                    <ExercisePicker Query="zumba" Items="@SampleData.Search("zumba")" />
+                </Overlay>
+            </WorkoutView>
+        </Template>
+    </Story>
+
+</Stories>

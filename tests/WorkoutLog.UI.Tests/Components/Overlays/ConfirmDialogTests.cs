@@ -95,4 +95,18 @@ public class ConfirmDialogTests : ComponentTestBase
 
         Assert.That(cut.Find("[data-testid=confirm-dialog-confirm]").ClassList, Does.Contain("danger"));
     }
+
+    [Test]
+    public void Buttons_AreFullWidthWithSecondaryCancel()
+    {
+        var cut = Context.Render<ConfirmDialog>(p => p
+            .Add(x => x.Title, "Discard this workout?")
+            .Add(x => x.ConfirmText, "Discard"));
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.Find("[data-testid=confirm-dialog-cancel]").ClassList, Does.Contain("secondary").And.Contain("full"));
+            Assert.That(cut.Find("[data-testid=confirm-dialog-confirm]").ClassList, Does.Contain("full"));
+        });
+    }
 }

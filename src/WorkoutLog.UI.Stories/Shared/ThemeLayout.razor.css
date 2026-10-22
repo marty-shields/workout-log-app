@@ -1,0 +1,10 @@
+.layout {
+    padding: var(--space-4);
+}
+
+.preview {
+    padding: var(--space-4);
+    border-radius: var(--radius-md);
+    background: var(--color-bg);
+    color: var(--color-text);
+}

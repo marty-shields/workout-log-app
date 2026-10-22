@@ -1,0 +1,21 @@
+.themes {
+    display: flex;
+    justify-content: center;
+    gap: var(--space-1);
+    margin-bottom: var(--space-2);
+}
+
+.theme {
+    padding: var(--space-1) var(--space-3);
+    border: var(--border-width) solid var(--color-border-strong);
+    border-radius: var(--radius-sm);
+    background: transparent;
+    font-size: var(--font-size-sm);
+    cursor: pointer;
+}
+
+.theme[aria-pressed="true"] {
+    background: var(--color-primary);
+    border-color: var(--color-primary);
+    color: var(--color-on-primary);
+}

@@ -19,6 +19,11 @@
     cursor: pointer;
 }
 
+.invalid {
+    border: var(--border-width-error) solid var(--color-error);
+    border-radius: var(--radius-sm);
+}
+
 .number {
     color: var(--color-text-muted);
     font-variant-numeric: tabular-nums;

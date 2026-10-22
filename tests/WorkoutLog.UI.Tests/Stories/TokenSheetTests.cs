@@ -36,13 +36,7 @@ public partial class TokenSheetTests : ComponentTestBase
 
     private static IEnumerable<string> TokensInCss()
     {
-        var directory = new DirectoryInfo(AppContext.BaseDirectory);
-        while (!File.Exists(Path.Combine(directory.FullName, "WorkoutLog.slnx")))
-        {
-            directory = directory.Parent!;
-        }
-
-        var css = File.ReadAllText(Path.Combine(directory.FullName, "src", "WorkoutLog.UI", "wwwroot", "css", "tokens.css"));
+        var css = RepoFiles.Read("src", "WorkoutLog.UI", "wwwroot", "css", "tokens.css");
         return TokenName().Matches(css).Select(m => m.Groups[1].Value);
     }
 

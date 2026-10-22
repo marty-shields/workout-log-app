@@ -6,8 +6,8 @@
             <p id="@messageId" class="message">@Message</p>
         }
         <div class="actions">
-            <AppButton @ref="cancel" Variant="ButtonVariant.Text" TestId="@($"{TestId}-cancel")" OnClick="OnCancel">@CancelText</AppButton>
-            <AppButton Variant="@(Danger ? ButtonVariant.Danger : ButtonVariant.Primary)" TestId="@($"{TestId}-confirm")" OnClick="OnConfirm">@ConfirmText</AppButton>
+            <AppButton @ref="cancel" Variant="ButtonVariant.Secondary" FullWidth TestId="@($"{TestId}-cancel")" OnClick="OnCancel">@CancelText</AppButton>
+            <AppButton Variant="@(Danger ? ButtonVariant.Danger : ButtonVariant.Primary)" FullWidth TestId="@($"{TestId}-confirm")" OnClick="OnConfirm">@ConfirmText</AppButton>
         </div>
     </div>
 </div>

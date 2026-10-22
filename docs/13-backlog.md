@@ -122,7 +122,7 @@ As the developer, I want a workout service that validates and saves workouts and
 | [US-30](#us-30-wireframes) | Wireframes | [06](06-screens-ux.md), D98 | M | Done |
 | [US-31](#us-31-design-tokens) | Design tokens | D97, D110–D113, [14](14-design-system.md) | M | Done |
 | [US-32](#us-32-components) | Components | [14](14-design-system.md) | L | Done |
-| [US-33](#us-33-final-screen-designs) | Final screen designs | [06](06-screens-ux.md), [14](14-design-system.md) | M | To do |
+| [US-33](#us-33-final-screen-designs) | Final screen designs | [06](06-screens-ux.md), [14](14-design-system.md), D114–D121 | M | Done |
 
 ### US-29 Stories project setup
 As the developer, I want a BlazingStory project for the UI components, so that screens can be designed and prototyped before M2.
@@ -164,11 +164,11 @@ As the developer, I want the shared UI components built on the tokens, so that M
 
 ### US-33 Final screen designs
 As the user, I want the wireframes rebuilt with the design system, so that M2–M5 build screens to an agreed design.
-- **Links:** [06](06-screens-ux.md), [14](14-design-system.md)
+- **Links:** [06](06-screens-ux.md), [14](14-design-system.md), D114–D121
 - **Extra ACs:**
   - Every US-30 story uses the tokens and components, in light and dark.
   - [06](06-screens-ux.md) and the Design System pages ([14](14-design-system.md)) are updated.
-- **Size:** M · **Status:** To do
+- **Size:** M · **Status:** Done
 
 ## EP-03 Workout logging (M2)
 | ID | Story | Links | Size | Status |
@@ -254,7 +254,7 @@ As the user, I want to open a saved workout and change it, so that I can fix mis
 As the user, I want the back button to ask before dropping my edits, so that I don't lose them by accident.
 - **Links:** FR-23
 - **Extra ACs:**
-  - Discard changes returns to History ([06](06-screens-ux.md)).
+  - Discard returns to History ([06](06-screens-ux.md)).
 - **Size:** S · **Status:** To do
 
 ### US-19 Delete a workout

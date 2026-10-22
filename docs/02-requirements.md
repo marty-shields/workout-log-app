@@ -26,7 +26,7 @@
 | FR-20 | History list | All saved workouts, newest first. Each row shows date, day of week and start time (e.g. *Tue 21 Oct 2026 · 18:05*). With no workouts it shows "No workouts yet". |
 | FR-21 | Open | Tapping a row opens the workout in edit mode. |
 | FR-22 | Edit | Exercises and sets can be added, changed and removed; cardio entries can be changed (FR-08). FR-09 still applies. Times do not change (FR-11). |
-| FR-23 | Leave unsaved edits | If there are unsaved changes, the back button asks **Discard changes / Cancel**. With no unsaved changes, back returns to History with no prompt. |
+| FR-23 | Leave unsaved edits | If there are unsaved changes, the back button asks **Discard / Cancel**. With no unsaved changes, back returns to History with no prompt. |
 | FR-24 | Delete | A confirm dialog appears ("Delete this workout?"). On confirm the workout is permanently removed. |
 
 ### Dashboard

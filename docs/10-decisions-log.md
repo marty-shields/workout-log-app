@@ -46,7 +46,7 @@ All decisions were made on 2026-10-21 and have status **Accepted** unless noted.
 | D39 | Rate | Generic Rate column; unit declared per exercise; entered from the machine | Derive from duration/distance; both |
 | D40 | Units storage | Nullable enums on the exercise definition (distance unit, rate unit); no lookup table | Lookup table + FK |
 | D41 | Invalid save | Stay on the page, show an error, nothing saved | — |
-| D42 | Leaving unsaved edits | Prompt: Discard changes / Cancel | Drop silently |
+| D42 | Leaving unsaved edits | Prompt: Discard changes / Cancel. Amended by D121 | Drop silently |
 | D43 | Live timer | Elapsed h:mm:ss shown on New Workout | No timer |
 | D44 | After save | Always return to the Dashboard | New → Dashboard, Edit → History; stay on the workout |
 | D45 | App name | Workout Log | Gym Log |
@@ -77,7 +77,7 @@ All decisions were made on 2026-10-21 and have status **Accepted** unless noted.
 | D70 | Metric limits | Level, Calories, Rate ≥ 0; no maximums | Level ≥ 1, Rate > 0; all > 0; sanity caps |
 | D71 | History empty state, total time | "No workouts yet"; total as h:mm:ss | + New Workout button; "1h 2m" |
 | D72 | Retiring exercises | Never; exercises stay in the picker | Hidden flag; decide later |
-| D73 | Roadmap (US-01) | Accepted, with History and editing split: M3 History (list only, rows not tappable), M4 Edit workouts (edit, Discard changes, delete), then M5 Dashboard and M6 Tests + release | One History milestone; delete in M3; read-only view in M3 |
+| D73 | Roadmap (US-01) | Accepted, with History and editing split: M3 History (list only, rows not tappable), M4 Edit workouts (edit, Discard changes, delete; wording amended by D121), then M5 Dashboard and M6 Tests + release | One History milestone; delete in M3; read-only view in M3 |
 | D74 | Backlog | Accepted as drafted, including story sizes | — |
 | D75 | Package versions (US-02) | Latest stable as listed in [05](05-architecture.md#dependencies); NUnit 5.0.0 with 4.6.1 as fallback; NUnit.Analyzers added; `SQLitePCLRaw.bundle_green` dropped | NUnit 4.6.1; only versions ≥ 2 weeks old; no analyzers |
 | D76 | Removing a cardio entry | Not removable on its own; removed only with its exercise (FR-08) | Add entry button after removal |
@@ -118,6 +118,14 @@ All decisions were made on 2026-10-21 and have status **Accepted** unless noted.
 | D111 | Theme switching (2026-10-22) | Most colour tokens are `light-dark()` pairs; `color-scheme` follows the phone (D97). `data-theme="light"` or `"dark"` forces a theme on an element; the stories phone frame has a System / Light / Dark switch | Follow the OS setting only, with no switch in the stories |
 | D112 | Danger buttons (2026-10-22) | Filled red, the same red as errors (#a8231c light, #f2b8b5 dark) | Red outline; same as primary |
 | D113 | Type and shape (2026-10-22) | System font. Body 16px; number and duration inputs 20px. Radius 8 / 12 / 20px (inputs / buttons and open set / cards and dialogs). Spacing stays 4–32px | Bundled font; current sizes or everything one step up; radius 4 / 8 / 16 or pill buttons; more generous or tighter spacing |
+| D114 | Screen stories (2026-10-22) | One stories section per screen: Dashboard, New Workout, Edit Workout, Exercise Picker, History. Dialogs are states of the screen they belong to | One Workout section for New, Edit, picker and dialogs; a separate Dialogs section |
+| D115 | Design System pages (2026-10-22) | One page per component group and one per screen, under Design System | One Components page and one Screens page; Introduction only |
+| D116 | Component story themes (2026-10-22) | Component stories without the phone frame use `ThemeLayout`: the System / Light / Dark switch above the story on the app background | Light and dark side by side; screens only |
+| D117 | Design-system checks (2026-10-22) | bUnit/NUnit tests fail on: literal colours (hex, colour functions, named colours) or sizes (units, percentages other than 100%) and unknown tokens in UI CSS; token pairs below WCAG AA; buttons and inputs under the touch target; interactive elements without `data-testid`; screen stories that differ from the tests' list of screen states; components and screens without a Design System page. Story names are read from the `.stories.razor` files, as BlazingStory can't render stories outside its host | Review by hand; render stories through BlazingStory internals; a shared state catalogue rendered by stories and tests |
+| D118 | Closed set with errors (2026-10-22) | The set's summary line gets the red error outline, as well as its messages underneath | Messages only |
+| D119 | Confirm dialogs (2026-10-22) | Anchored to the bottom, inside the safe area, with Cancel (secondary) and the confirm button full width side by side | Centred, with a text Cancel |
+| D120 | Remove exercise (2026-10-22) | Small muted text, so the exercise name leads the card header | Same weight as the name |
+| D121 | Leaving unsaved edits: wording (2026-10-22) | Title "Discard changes?", buttons **Discard / Cancel**. Amends D42; FR-23 updated | Keep "Discard your changes?" / **Discard changes** |
 
 ## Technical
 | # | Decision | Choice | Alternatives offered |

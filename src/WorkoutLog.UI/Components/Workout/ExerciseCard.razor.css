@@ -26,6 +26,11 @@
     font-weight: var(--font-weight-bold);
 }
 
+.card-header ::deep .btn {
+    color: var(--color-text-muted);
+    font-size: var(--font-size-sm);
+}
+
 .sets {
     display: flex;
     flex-direction: column;

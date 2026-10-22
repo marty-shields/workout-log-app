@@ -5,13 +5,13 @@
 
     <Story Name="Empty">
         <Template>
-            <DashboardView Summary="@(new DashboardSummary(null, 0, 0))" />
+            <DashboardView Summary="@(new DashboardSummary(null, 0, 0))" OnNewWorkout="() => { }" OnHistory="() => { }" />
         </Template>
     </Story>
 
     <Story Name="With workouts">
         <Template>
-            <DashboardView Summary="@(new DashboardSummary(SampleData.Started, 2, 9))" />
+            <DashboardView Summary="@(new DashboardSummary(SampleData.Started, 2, 9))" OnNewWorkout="() => { }" OnHistory="() => { }" />
         </Template>
     </Story>
 

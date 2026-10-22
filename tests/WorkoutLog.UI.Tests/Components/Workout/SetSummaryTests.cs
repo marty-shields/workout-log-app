@@ -40,6 +40,33 @@ public class SetSummaryTests : ComponentTestBase
     }
 
     [Test]
+    public void Errors_OutlineTheSummary()
+    {
+        var entry = Entry(("weight", "32"));
+        entry.Errors["distance"] = "Enter distance";
+
+        var cut = Context.Render<SetSummary>(p => p
+            .Add(x => x.Number, 1)
+            .Add(x => x.Fields, Carry)
+            .Add(x => x.Entry, entry)
+            .Add(x => x.TestId, "set"));
+
+        Assert.That(cut.Find("[data-testid=set-open]").ClassList, Does.Contain("invalid"));
+    }
+
+    [Test]
+    public void NoErrors_LeaveTheSummaryUnmarked()
+    {
+        var cut = Context.Render<SetSummary>(p => p
+            .Add(x => x.Number, 1)
+            .Add(x => x.Fields, Carry)
+            .Add(x => x.Entry, Entry(("distance", "40")))
+            .Add(x => x.TestId, "set"));
+
+        Assert.That(cut.Find("[data-testid=set-open]").ClassList, Does.Not.Contain("invalid"));
+    }
+
+    [Test]
     public void EmptyFields_AreLeftOut()
     {
         var cut = Context.Render<SetSummary>(p => p

@@ -3,28 +3,6 @@
     width: fit-content;
 }
 
-.themes {
-    display: flex;
-    justify-content: center;
-    gap: var(--space-1);
-    margin-bottom: var(--space-2);
-}
-
-.theme {
-    padding: var(--space-1) var(--space-3);
-    border: var(--border-width) solid var(--color-border-strong);
-    border-radius: var(--radius-sm);
-    background: transparent;
-    font-size: var(--font-size-sm);
-    cursor: pointer;
-}
-
-.theme[aria-pressed="true"] {
-    background: var(--color-primary);
-    border-color: var(--color-primary);
-    color: var(--color-on-primary);
-}
-
 .phone {
     --inset-top: 32px;
     --inset-bottom: 32px;
@@ -85,4 +63,9 @@
     background: transparent;
     font-size: 0.75rem;
     cursor: pointer;
+}
+
+/* Hides scrollbars inside the phone, as on Android. */
+.viewport ::deep * {
+    scrollbar-width: none;
 }

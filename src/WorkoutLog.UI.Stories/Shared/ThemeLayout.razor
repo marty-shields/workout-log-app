@@ -1,0 +1,12 @@
+@inherits LayoutComponentBase
+@* Story layout that shows the story on the app background, with a theme switch. Stories only. *@
+<div class="layout">
+    <ThemeSwitch @bind-Theme="Theme" />
+    <div class="preview" data-theme="@Theme" data-testid="preview">
+        @Body
+    </div>
+</div>
+
+@code {
+    private string? Theme { get; set; }
+}

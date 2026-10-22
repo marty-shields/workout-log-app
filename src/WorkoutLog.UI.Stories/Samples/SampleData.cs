@@ -98,6 +98,25 @@ public static class SampleData
         Exercise(187, ["40", "32", null]),
     ];
 
+    /// <summary>A squat with two sets, and a carry with three sets: two filled, the last one partly filled.</summary>
+    public static List<ExerciseState> CarryWorkout() =>
+    [
+        Exercise(6, ["8", "60"], ["8", "60"]),
+        Exercise(187, ["40", "32", "0:00:45"], ["40", "32", "0:00:50"], ["30", "32", null]),
+    ];
+
+    /// <summary>A saved workout after a failed save: a set missing reps, a carry set missing distance.</summary>
+    public static List<ExerciseState> EditWorkoutWithErrors()
+    {
+        List<ExerciseState> exercises =
+        [
+            Exercise(6, ["8", "60"], [null, "60"]),
+            Exercise(187, ["40", "32", "0:00:45"], [null, "32", "0:00:40"]),
+        ];
+        Validate(exercises, out _);
+        return exercises;
+    }
+
     /// <summary>Cardio exercises with filled entries, including pace.</summary>
     public static List<ExerciseState> CardioWorkout() =>
     [

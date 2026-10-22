@@ -5,7 +5,7 @@
 |---|---|---|---|
 | Unit | `WorkoutLog.Core.Tests` | NUnit, Moq, AutoFixture | Metric validation per exercise definition (FR-06, FR-07, FR-09), start/finish capture (FR-01, FR-10, FR-11), dashboard counts (FR-33, FR-34), exercise seeding, definition file checks (unique Ids, names and aliases; valid values; strength/cardio fields match the type), search normalisation and ranking (FR-03) |
 | Repository | `WorkoutLog.Core.Tests` | NUnit + temp SQLite file | Save, load, edit, cascade delete, one CardioEntry per exercise |
-| Component | `WorkoutLog.UI.Tests` | bUnit | Fields and labels shown per exercise definition, picker search, add/remove set, live timer, inline validation, Discard/Cancel prompts; every prototype scenario step finds its target |
+| Component | `WorkoutLog.UI.Tests` | bUnit | Fields and labels shown per exercise definition, picker search, add/remove set, live timer, inline validation, Discard/Cancel prompts; every prototype scenario step finds its target; design-system checks (D117): tokens only, WCAG AA token pairs, touch targets, `data-testid` on every interactive element, screen stories match the tests' list of screen states, a Design System page for every component and screen |
 | UI (automated) | `WorkoutLog.E2E.Tests` | NUnit + Appium (UiAutomator2) | End-to-end flows on an emulator or the Debug build on the phone |
 | Manual | — | Checklist below | Real-phone checks before each release APK |
 
@@ -23,7 +23,7 @@ Time is injected through `IClock`, so tests never depend on the real clock.
 3. Add Stair Climber: duration, floors, level, calories and steps/min are shown; save with duration only.
 4. Save with no exercises. It is blocked and an error shows.
 5. Back on a new workout → Cancel: still on the page. Back → Discard: nothing is saved.
-6. Edit a saved workout, change a set, press back → Discard changes. The change is not saved.
+6. Edit a saved workout, change a set, press back → Discard. The change is not saved.
 7. Edit a saved workout and add a set, save. The times are unchanged.
 8. Delete a workout and confirm. It is gone from History.
 
@@ -41,7 +41,7 @@ Time is injected through `IClock`, so tests never depend on the real clock.
 - [ ] Remove a set and an exercise
 - [ ] Save blocked when there's no exercise, an exercise has no set/entry, or a set/entry misses a required metric; the error shows on the item at fault
 - [ ] Back on a new workout shows Discard / Cancel
-- [ ] Back on an edited workout shows Discard changes / Cancel; with no changes it goes straight to History
+- [ ] Back on an edited workout shows Discard / Cancel; with no changes it goes straight to History
 - [ ] Save returns to the Dashboard
 - [ ] History is newest first and shows date, day and start time; empty state shows "No workouts yet"
 - [ ] Back: picker closes; History → Dashboard; Dashboard leaves the app

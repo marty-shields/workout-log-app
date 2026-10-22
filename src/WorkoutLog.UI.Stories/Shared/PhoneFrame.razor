@@ -1,15 +1,6 @@
 @* Phone-sized frame (412 × 915) with simulated status and navigation bars, and a theme switch. Stories only. *@
 <div class="frame">
-    <div class="themes" role="group" aria-label="Theme">
-        @foreach (var (label, theme) in Themes)
-        {
-            <button type="button"
-                    class="theme"
-                    aria-pressed="@(Theme == theme ? "true" : "false")"
-                    data-testid="@($"theme-{label.ToLowerInvariant()}")"
-                    @onclick="() => Theme = theme">@label</button>
-        }
-    </div>
+    <ThemeSwitch @bind-Theme="Theme" />
     <div class="phone" data-theme="@Theme" data-testid="phone">
         <div class="viewport">
             @ChildContent
@@ -31,8 +22,6 @@
 </div>
 
 @code {
-    private static readonly (string Label, string? Theme)[] Themes = [("System", null), ("Light", "light"), ("Dark", "dark")];
-
     /// <summary>Screen shown inside the frame.</summary>
     [Parameter]
     public RenderFragment? ChildContent { get; set; }

@@ -1,0 +1,51 @@
+@attribute [Stories("Screens/New Workout")]
+
+<Stories TComponent="WorkoutView" Layout="typeof(PhoneLayout)">
+
+    <Story Name="Empty">
+        <Template>
+            <WorkoutView Mode="WorkoutMode.New" StartedAt="SampleData.Started" Time="TimeSpan.FromSeconds(42)" Exercises="[]" OnBack="() => { }" />
+        </Template>
+    </Story>
+
+    <Story Name="Strength sets">
+        <Template>
+            <WorkoutView Mode="WorkoutMode.New" StartedAt="SampleData.Started" Time="new TimeSpan(0, 34, 12)" Exercises="SampleData.StrengthWorkout()" OnBack="() => { }" />
+        </Template>
+    </Story>
+
+    <Story Name="Carry sets">
+        <Template>
+            <WorkoutView Mode="WorkoutMode.New" StartedAt="SampleData.Started" Time="new TimeSpan(0, 28, 3)" Exercises="SampleData.CarryWorkout()" OnBack="() => { }" />
+        </Template>
+    </Story>
+
+    <Story Name="Cardio entries">
+        <Template>
+            <WorkoutView Mode="WorkoutMode.New" StartedAt="SampleData.Started" Time="new TimeSpan(1, 2, 5)" Exercises="SampleData.CardioWorkout()" OnBack="() => { }" />
+        </Template>
+    </Story>
+
+    <Story Name="Save errors">
+        <Template>
+            <WorkoutView Mode="WorkoutMode.New" StartedAt="SampleData.Started" Time="new TimeSpan(0, 21, 40)" Exercises="SampleData.WorkoutWithErrors()" OnBack="() => { }" />
+        </Template>
+    </Story>
+
+    <Story Name="Save with no exercises">
+        <Template>
+            <WorkoutView Mode="WorkoutMode.New" StartedAt="SampleData.Started" Time="TimeSpan.FromSeconds(42)" Exercises="[]" Error="Add at least one exercise" OnBack="() => { }" />
+        </Template>
+    </Story>
+
+    <Story Name="Discard prompt">
+        <Template>
+            <WorkoutView Mode="WorkoutMode.New" StartedAt="SampleData.Started" Time="new TimeSpan(0, 34, 12)" Exercises="SampleData.StrengthWorkout()" OnBack="() => { }">
+                <Overlay>
+                    <ConfirmDialog Title="Discard this workout?" ConfirmText="Discard" Danger />
+                </Overlay>
+            </WorkoutView>
+        </Template>
+    </Story>
+
+</Stories>

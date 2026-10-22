@@ -1,0 +1,23 @@
+@* System / Light / Dark switch for story previews. Stories only. *@
+<div class="themes" role="group" aria-label="Theme">
+    @foreach (var (label, theme) in Themes)
+    {
+        <button type="button"
+                class="theme"
+                aria-pressed="@(Theme == theme ? "true" : "false")"
+                data-testid="@($"theme-{label.ToLowerInvariant()}")"
+                @onclick="() => ThemeChanged.InvokeAsync(theme)">@label</button>
+    }
+</div>
+
+@code {
+    private static readonly (string Label, string? Theme)[] Themes = [("System", null), ("Light", "light"), ("Dark", "dark")];
+
+    /// <summary>Selected theme: "light", "dark", or null to follow the system.</summary>
+    [Parameter]
+    public string? Theme { get; set; }
+
+    /// <summary>Raised when a theme button is pressed.</summary>
+    [Parameter]
+    public EventCallback<string?> ThemeChanged { get; set; }
+}

@@ -15,7 +15,7 @@
   - Edit: total time (h:mm:ss)
 - List of added exercises, in the order added. Each one shows the fields its definition declares ([04](04-exercise-list.md)):
   - Strength: rows of sets (e.g. reps + weight, duration for Plank, distance for carries), **Add set**, remove set. Starts with one empty set. Add set does nothing while the last set (or the open set, below) is empty or has errors; the errors show on that set (D106).
-    - Exercises with more than two fields, one of them a duration (carries): one set is open, with every field labelled; the others show as a summary line (e.g. *40 m · 32 kg · 0:00:45*). Tap a summary to open it, once the open set is valid; Add set opens the new set. A new workout opens the last set; an edited workout starts with all sets closed. Errors on a closed set show under its summary (D105).
+    - Exercises with more than two fields, one of them a duration (carries): one set is open, with every field labelled; the others show as a summary line (e.g. *40 m · 32 kg · 0:00:45*). Tap a summary to open it, once the open set is valid; Add set opens the new set. A new workout opens the last set; an edited workout starts with all sets closed. Errors on a closed set show under its summary, which gets a red outline (D105, D118).
   - Cardio: one entry (duration + the exercise's other metrics, with units). Starts empty; not removable on its own.
   - Fields use the exercise's label where it has one (e.g. Assist (kg), Resistance, Damper).
   - A partly filled duration or pace fills in when focus leaves it: empty boxes become 0, minutes and seconds two digits (e.g. *1:00:00*, *0:00:22*, *5:03*) (D107).
@@ -25,7 +25,7 @@
 - Edit only: **Delete** (confirm dialog)
 - Back:
   - New workout: **Discard / Cancel**
-  - Edit with unsaved changes: **Discard changes / Cancel**
+  - Edit with unsaved changes: **Discard / Cancel**
   - Edit with no unsaved changes: History, no prompt
 
 ### Exercise picker
@@ -58,14 +58,24 @@ flowchart TD
     W -->|Save| D
     W -->|Back: Discard| D
     E -->|Save| D
-    E -->|Back: Discard changes| H
+    E -->|Back: Discard| H
     E -->|Back: no changes| H
     E -->|Delete confirmed| H
 ```
 
 ## Design system & prototyping
 Done in M1.5, before the screens are built in M2 (D96). Details: [14 Design system](14-design-system.md).
-- Wireframes and designs are stories in `WorkoutLog.UI.Stories` (BlazingStory, D99).
+- The final designs are stories in `WorkoutLog.UI.Stories` (BlazingStory, D99), built from the design-system components. Each screen has its own stories section and Design System page (D114, D115):
+
+| Screen | Stories (`Screens/…`) | Page (`Design System/Screens/…`) |
+|---|---|---|
+| Dashboard | Empty · With workouts | Dashboard |
+| New Workout | Empty · Strength sets · Carry sets · Cardio entries · Save errors · Save with no exercises · Discard prompt | New Workout |
+| Edit Workout | Saved · Carry sets closed · Save errors · Discard prompt · Delete prompt | Edit Workout |
+| Exercise Picker | No search text · Results · No match | Exercise Picker |
+| History | Empty · With workouts · Rows not tappable | History |
+
+- Confirm dialogs sit at the bottom of the screen, in thumb reach (D119).
 - Light and dark themes; the app follows the phone's setting (D97).
 - Numbers use the phone's numeric keyboard. Duration is three boxes: h, mm, ss (D98).
 - Layout suits one-handed use in the gym.

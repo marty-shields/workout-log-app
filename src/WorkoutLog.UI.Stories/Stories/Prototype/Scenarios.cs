@@ -202,7 +202,7 @@ public static class Scenarios
             Click("No changes: back goes straight to History", "back"),
         ]);
 
-    /// <summary>Discard changes prompt on an edit: cancel, then discard.</summary>
+    /// <summary>Discard prompt on an edit: cancel, then discard.</summary>
     public static readonly Scenario DiscardEdits = new(
         "Discard edits",
         "Back asks before dropping unsaved changes.",
@@ -211,10 +211,10 @@ public static class Scenarios
             Click("Open the cardio workout", "history-row-2"),
             Enter("Treadmill distance: 4 km", "exercise-1-distance", "4"),
             Click("Back", "back"),
-            Show("Discard your changes?", "confirm-dialog"),
+            Show("Discard changes?", "confirm-dialog"),
             Click("Cancel keeps editing", "confirm-dialog-cancel"),
             Back("Android back asks again"),
-            Click("Discard changes", "confirm-dialog-confirm"),
+            Click("Discard", "confirm-dialog-confirm"),
             Show("Back on History", "history-row-2"),
             Click("Reopen the workout", "history-row-2"),
             Show("The distance is unchanged", "exercise-1-distance"),
