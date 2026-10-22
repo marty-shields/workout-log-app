@@ -1,0 +1,15 @@
+@attribute [Stories("Components/Lists/StatTile")]
+
+<Stories TComponent="StatTile">
+
+    <Story Name="Default">
+        <Arguments>
+            <Arg For="_ => _.Label" Value='"This week"' />
+            <Arg For="_ => _.Value" Value="3" />
+        </Arguments>
+        <Template>
+            <StatTile @attributes="context.Args" />
+        </Template>
+    </Story>
+
+</Stories>

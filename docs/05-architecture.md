@@ -35,7 +35,7 @@ WorkoutLog.slnx
    ├─ WorkoutLog.UI.Tests/         bUnit
    └─ WorkoutLog.E2E.Tests/        NUnit + Appium
 ```
-References: App → UI → Core. UI.Stories → UI. The App never references UI.Stories.
+References: App → UI → Core. UI.Stories → UI. UI.Tests → UI, UI.Stories (to play the prototype scenarios). The App never references UI.Stories.
 
 ## Layers
 ```mermaid

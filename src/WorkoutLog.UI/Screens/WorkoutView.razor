@@ -1,0 +1,96 @@
+@using WorkoutLog.UI.Components.Workout
+<AppScreen Title="@DisplayFormat.Date(StartedAt)" Subtitle="@TimeText" OnBack="OnBack">
+    <Actions>
+        @if (Mode == WorkoutMode.Edit)
+        {
+            <AppButton Variant="ButtonVariant.Text" TestId="delete-workout" OnClick="OnDelete">Delete</AppButton>
+        }
+    </Actions>
+    <ChildContent>
+        <div class="exercises">
+            @if (Error is not null)
+            {
+                <p class="error" role="alert" data-testid="workout-error">@Error</p>
+            }
+            @if (Exercises.Count == 0)
+            {
+                <EmptyState Message="No exercises yet" TestId="no-exercises" />
+            }
+            @for (var i = 0; i < Exercises.Count; i++)
+            {
+                var exercise = Exercises[i];
+                var number = i + 1;
+                <ExerciseCard @key="exercise"
+                              Exercise="exercise"
+                              OpenLastSet="@(Mode == WorkoutMode.New)"
+                              ValidateSet="ValidateSet"
+                              OnChanged="OnChanged"
+                              OnRemove="() => OnRemoveExercise.InvokeAsync(exercise)"
+                              TestId="@($"exercise-{number}")" />
+            }
+        </div>
+    </ChildContent>
+    <BottomBar>
+        <AppButton Variant="ButtonVariant.Secondary" FullWidth TestId="add-exercise" OnClick="OnAddExercise">Add exercise</AppButton>
+        <AppButton FullWidth TestId="save-workout" OnClick="OnSave">Save</AppButton>
+    </BottomBar>
+</AppScreen>
+@Overlay
+
+@code {
+    /// <summary>New workout or edit of a saved one.</summary>
+    [Parameter]
+    public WorkoutMode Mode { get; set; }
+
+    /// <summary>Start time in the phone's time zone.</summary>
+    [Parameter, EditorRequired]
+    public DateTime StartedAt { get; set; }
+
+    /// <summary>Elapsed time (new) or total time (edit).</summary>
+    [Parameter]
+    public TimeSpan Time { get; set; }
+
+    /// <summary>Exercises in the order added.</summary>
+    [Parameter, EditorRequired]
+    public IReadOnlyList<ExerciseState> Exercises { get; set; } = [];
+
+    /// <summary>Workout-level validation message, e.g. when there are no exercises.</summary>
+    [Parameter]
+    public string? Error { get; set; }
+
+    /// <summary>Raised after a value, set or entry changes.</summary>
+    [Parameter]
+    public EventCallback OnChanged { get; set; }
+
+    /// <summary>Checks a set or entry before moving on, and re-checks one showing errors; see <see cref="Components.Workout.ExerciseCard.ValidateSet"/>.</summary>
+    [Parameter]
+    public Func<ExerciseState, EntryState, bool>? ValidateSet { get; set; }
+
+    /// <summary>Raised by Add exercise.</summary>
+    [Parameter]
+    public EventCallback OnAddExercise { get; set; }
+
+    /// <summary>Raised by an exercise's Remove.</summary>
+    [Parameter]
+    public EventCallback<ExerciseState> OnRemoveExercise { get; set; }
+
+    /// <summary>Raised by Save.</summary>
+    [Parameter]
+    public EventCallback OnSave { get; set; }
+
+    /// <summary>Raised by the back arrow.</summary>
+    [Parameter]
+    public EventCallback OnBack { get; set; }
+
+    /// <summary>Raised by Delete. Edit mode only.</summary>
+    [Parameter]
+    public EventCallback OnDelete { get; set; }
+
+    /// <summary>Overlays shown above the screen: the exercise picker or a confirm dialog.</summary>
+    [Parameter]
+    public RenderFragment? Overlay { get; set; }
+
+    private string TimeText => Mode == WorkoutMode.New
+        ? $"Elapsed {DisplayFormat.Duration(Time)}"
+        : $"Total {DisplayFormat.Duration(Time)}";
+}

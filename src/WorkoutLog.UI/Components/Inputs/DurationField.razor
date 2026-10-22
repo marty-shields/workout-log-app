@@ -1,0 +1,115 @@
+<div class="field" role="group" aria-label="@Label" @onfocusin="() => focused = true" @onfocusout="OnFocusOut">
+    <span class="label @(ShowLabel ? null : "visually-hidden")" aria-hidden="true">
+        @Label
+        @if (Required)
+        {
+            <span class="required"> *</span>
+        }
+    </span>
+    <span class="parts">
+        @for (var i = 0; i < Parts.Length; i++)
+        {
+            var index = i;
+            if (index > 0)
+            {
+                <span class="separator" aria-hidden="true">:</span>
+            }
+            <input type="text"
+                   inputmode="numeric"
+                   autocomplete="off"
+                   maxlength="2"
+                   class="input @(Invalid ? "invalid" : null)"
+                   placeholder="@Parts[index].Placeholder"
+                   aria-label="@Parts[index].Name"
+                   aria-required="@(Required ? "true" : null)"
+                   aria-invalid="@(Invalid ? "true" : null)"
+                   value="@PartValue(index)"
+                   data-testid="@($"{TestId}-{Parts[index].Placeholder}")"
+                   @oninput="e => OnPartInput(index, e)" />
+        }
+    </span>
+</div>
+
+@code {
+    private static readonly Part[] HourParts = [new("Hours", "h"), new("Minutes", "mm"), new("Seconds", "ss")];
+    private static readonly Part[] MinuteParts = [new("Minutes", "m"), new("Seconds", "ss")];
+
+    /// <summary>Field label, with its unit.</summary>
+    [Parameter, EditorRequired]
+    public string Label { get; set; } = "";
+
+    /// <summary>Shows the label. When false it is kept for screen readers only.</summary>
+    [Parameter]
+    public bool ShowLabel { get; set; } = true;
+
+    /// <summary>Marks the field as required.</summary>
+    [Parameter]
+    public bool Required { get; set; }
+
+    /// <summary>Shows h, mm, ss boxes (duration). When false shows m, ss (pace).</summary>
+    [Parameter]
+    public bool ShowHours { get; set; } = true;
+
+    /// <summary>Shows every box as failing validation.</summary>
+    [Parameter]
+    public bool Invalid { get; set; }
+
+    /// <summary>Entered text as h:mm:ss or m:ss, or null when every box is empty.</summary>
+    [Parameter]
+    public string? Value { get; set; }
+
+    /// <summary>Raised on each keystroke with the new text, or null when every box is empty. Also raised when focus leaves a partly filled field: empty boxes become 0 and minutes and seconds two digits, e.g. 1:00:00.</summary>
+    [Parameter]
+    public EventCallback<string?> ValueChanged { get; set; }
+
+    /// <summary>Prefix of each box's data-testid; the box placeholder is appended, e.g. duration-mm.</summary>
+    [Parameter]
+    public string? TestId { get; set; }
+
+    private static readonly TimeSpan FocusMoveWait = TimeSpan.FromMilliseconds(10);
+
+    private bool focused;
+
+    private Part[] Parts => ShowHours ? HourParts : MinuteParts;
+
+    private string[] SplitValue()
+    {
+        var values = (Value ?? "").Split(':');
+        return Enumerable.Range(0, Parts.Length).Select(i => i < values.Length ? values[i] : "").ToArray();
+    }
+
+    private string PartValue(int index) => SplitValue()[index];
+
+    private Task OnPartInput(int index, ChangeEventArgs e)
+    {
+        var values = SplitValue();
+        values[index] = e.Value as string ?? "";
+        var joined = values.All(string.IsNullOrEmpty) ? null : string.Join(':', values);
+        return ValueChanged.InvokeAsync(joined);
+    }
+
+    // Moving between boxes raises focusout then focusin; only fill in once focus has left every box.
+    private async Task OnFocusOut()
+    {
+        focused = false;
+        await Task.Delay(FocusMoveWait);
+        if (focused)
+        {
+            return;
+        }
+
+        var values = SplitValue();
+        if (values.All(string.IsNullOrEmpty))
+        {
+            return;
+        }
+
+        var filled = values.Select((v, i) => i == 0 ? (v.Length == 0 ? "0" : v) : v.PadLeft(2, '0')).ToArray();
+        if (!filled.SequenceEqual(values))
+        {
+            await ValueChanged.InvokeAsync(string.Join(':', filled));
+        }
+    }
+
+    private sealed record Part(string Name, string Placeholder);
+}

@@ -1,0 +1,29 @@
+@* Phone-sized frame (412 × 915) with simulated status and navigation bars. Stories only. *@
+<div class="phone">
+    <div class="viewport">
+        @ChildContent
+    </div>
+    <div class="status-bar" aria-hidden="true">
+        <span>9:41</span>
+    </div>
+    <div class="nav-bar">
+        @if (OnSystemBack.HasDelegate)
+        {
+            <button type="button" class="system-back" data-testid="system-back" @onclick="OnSystemBack">&#x25C1; Android back</button>
+        }
+        else
+        {
+            <span class="handle" aria-hidden="true"></span>
+        }
+    </div>
+</div>
+
+@code {
+    /// <summary>Screen shown inside the frame.</summary>
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    /// <summary>Raised by the simulated Android back button. The bar shows a gesture handle when unset.</summary>
+    [Parameter]
+    public EventCallback OnSystemBack { get; set; }
+}

@@ -1,0 +1,18 @@
+<div class="tile" data-testid="@TestId">
+    <span class="value">@Value</span>
+    <span class="label">@Label</span>
+</div>
+
+@code {
+    /// <summary>What the number counts, e.g. This week.</summary>
+    [Parameter, EditorRequired]
+    public string Label { get; set; } = "";
+
+    /// <summary>The number shown.</summary>
+    [Parameter]
+    public int Value { get; set; }
+
+    /// <summary>Value of the data-testid attribute.</summary>
+    [Parameter]
+    public string? TestId { get; set; }
+}

@@ -1,0 +1,55 @@
+@using WorkoutLog.UI.Models.Fields
+@if (Field.Kind is FieldKind.Duration or FieldKind.Pace)
+{
+    <DurationField Label="@Field.DisplayLabel"
+                   ShowLabel="ShowLabel"
+                   Required="Field.Required"
+                   ShowHours="@(Field.Kind == FieldKind.Duration)"
+                   Invalid="Invalid"
+                   Value="@CurrentValue"
+                   ValueChanged="OnValueChanged"
+                   TestId="@TestId" />
+}
+else
+{
+    <NumberField Label="@Field.DisplayLabel"
+                 ShowLabel="ShowLabel"
+                 Required="Field.Required"
+                 AllowDecimal="@(Field.Kind == FieldKind.Decimal)"
+                 Invalid="Invalid"
+                 Value="@CurrentValue"
+                 ValueChanged="OnValueChanged"
+                 TestId="@TestId" />
+}
+
+@code {
+    /// <summary>Field to show.</summary>
+    [Parameter, EditorRequired]
+    public FieldSpec Field { get; set; } = null!;
+
+    /// <summary>Set or entry the value is read from and written to.</summary>
+    [Parameter, EditorRequired]
+    public EntryState Entry { get; set; } = null!;
+
+    /// <summary>Shows the label. When false it is kept for screen readers only.</summary>
+    [Parameter]
+    public bool ShowLabel { get; set; } = true;
+
+    /// <summary>Raised after the value changes.</summary>
+    [Parameter]
+    public EventCallback OnChanged { get; set; }
+
+    /// <summary>data-testid of the input, or the prefix for duration boxes.</summary>
+    [Parameter]
+    public string? TestId { get; set; }
+
+    private string? CurrentValue => Entry.Values.GetValueOrDefault(Field.Key);
+
+    private bool Invalid => Entry.Errors.ContainsKey(Field.Key);
+
+    private Task OnValueChanged(string? value)
+    {
+        Entry.Values[Field.Key] = value;
+        return OnChanged.InvokeAsync();
+    }
+}

@@ -22,8 +22,7 @@ The stories need only the .NET 10 SDK. They don't need the MAUI workload, Androi
 ## Stories (design system and prototypes)
 - `dotnet run --project src/WorkoutLog.UI.Stories`, then open http://localhost:5056
 - Story files are `*.stories.razor` in `src/WorkoutLog.UI.Stories/Stories/`.
-
-The project folder is in OneDrive, so `bin/` and `obj/` sync between devices. If a build fails with locked files, wait for OneDrive to finish syncing or delete `bin/` and `obj/`.
+- Component tests: `dotnet test tests/WorkoutLog.UI.Tests`
 
 ## Phone setup (Android 16)
 1. Settings → About phone → tap **Build number** 7 times to enable Developer options.

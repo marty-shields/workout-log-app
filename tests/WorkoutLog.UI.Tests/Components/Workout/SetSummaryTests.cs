@@ -1,0 +1,118 @@
+using WorkoutLog.UI.Components.Workout;
+using WorkoutLog.UI.Models.Fields;
+using WorkoutLog.UI.Models.Workout;
+
+namespace WorkoutLog.UI.Tests.Components.Workout;
+
+public class SetSummaryTests : ComponentTestBase
+{
+    private static readonly FieldSpec[] Carry =
+    [
+        new("distance", "Distance", FieldKind.Decimal, Required: true, Unit: "m"),
+        new("weight", "Weight", FieldKind.Decimal, Unit: "kg"),
+        new("duration", "Duration", FieldKind.Duration),
+    ];
+
+    private static EntryState Entry(params (string Key, string? Value)[] values)
+    {
+        var entry = new EntryState();
+        foreach (var (key, value) in values)
+        {
+            entry.Values[key] = value;
+        }
+
+        return entry;
+    }
+
+    [Test]
+    public void FilledSet_ShowsValuesWithUnitsAndDuration()
+    {
+        var cut = Context.Render<SetSummary>(p => p
+            .Add(x => x.Number, 1)
+            .Add(x => x.Fields, Carry)
+            .Add(x => x.Entry, Entry(("distance", "40"), ("weight", "32"), ("duration", "0:00:45"))));
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.Find(".number").TextContent, Is.EqualTo("1"));
+            Assert.That(cut.Find(".text").TextContent, Is.EqualTo("40 m · 32 kg · 0:00:45"));
+        });
+    }
+
+    [Test]
+    public void EmptyFields_AreLeftOut()
+    {
+        var cut = Context.Render<SetSummary>(p => p
+            .Add(x => x.Number, 1)
+            .Add(x => x.Fields, Carry)
+            .Add(x => x.Entry, Entry(("distance", "30"), ("weight", null), ("duration", "::"))));
+
+        Assert.That(cut.Find(".text").TextContent, Is.EqualTo("30 m"));
+    }
+
+    [Test]
+    public void FieldWithoutUnit_UsesLabel()
+    {
+        FieldSpec[] fields = [new("reps", "Reps", FieldKind.Whole, Required: true)];
+        var cut = Context.Render<SetSummary>(p => p
+            .Add(x => x.Number, 1)
+            .Add(x => x.Fields, fields)
+            .Add(x => x.Entry, Entry(("reps", "8"))));
+
+        Assert.That(cut.Find(".text").TextContent, Is.EqualTo("8 reps"));
+    }
+
+    [Test]
+    public void NothingEntered_ShowsEmpty()
+    {
+        var cut = Context.Render<SetSummary>(p => p
+            .Add(x => x.Number, 2)
+            .Add(x => x.Fields, Carry)
+            .Add(x => x.Entry, new EntryState()));
+
+        Assert.That(cut.Find(".text").TextContent, Is.EqualTo("Empty"));
+    }
+
+    [Test]
+    public void Errors_ShowUnderSummaryInFieldOrder()
+    {
+        var entry = new EntryState { Errors = { ["duration"] = "Duration error", ["distance"] = "Enter distance" } };
+        var cut = Context.Render<SetSummary>(p => p
+            .Add(x => x.Number, 1)
+            .Add(x => x.Fields, Carry)
+            .Add(x => x.Entry, entry)
+            .Add(x => x.TestId, "set-1"));
+
+        var lines = cut.FindAll("[data-testid=set-1-error] .error").Select(e => e.TextContent);
+
+        Assert.That(lines, Is.EqualTo(new[] { "Enter distance", "Duration error" }));
+    }
+
+    [Test]
+    public void Button_ReadsAsSetNumberAndValues()
+    {
+        var cut = Context.Render<SetSummary>(p => p
+            .Add(x => x.Number, 2)
+            .Add(x => x.Fields, Carry)
+            .Add(x => x.Entry, Entry(("distance", "40")))
+            .Add(x => x.TestId, "set-2"));
+
+        Assert.That(TestText.Normalise(cut.Find("[data-testid=set-2-open]").TextContent), Is.EqualTo("Set 2 40 m ›"));
+    }
+
+    [Test]
+    public void Tap_RaisesOnOpen()
+    {
+        var opened = false;
+        var cut = Context.Render<SetSummary>(p => p
+            .Add(x => x.Number, 1)
+            .Add(x => x.Fields, Carry)
+            .Add(x => x.Entry, new EntryState())
+            .Add(x => x.OnOpen, () => opened = true)
+            .Add(x => x.TestId, "set-1"));
+
+        cut.Find("[data-testid=set-1-open]").Click();
+
+        Assert.That(opened, Is.True);
+    }
+}

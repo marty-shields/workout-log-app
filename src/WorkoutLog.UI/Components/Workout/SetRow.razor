@@ -1,0 +1,48 @@
+@using WorkoutLog.UI.Components.Inputs
+@using WorkoutLog.UI.Models.Fields
+<div class="set-row" style="grid-template-columns: @SetGrid.Columns(Fields)" data-testid="@TestId">
+    <span class="number">@Number</span>
+    @foreach (var field in Fields)
+    {
+        <FieldInput Field="field" Entry="Entry" ShowLabel="false" OnChanged="OnChanged" TestId="@($"{TestId}-{field.Key}")" />
+    }
+    <button type="button" class="remove" aria-label="@RemoveLabel" data-testid="@($"{TestId}-remove")" @onclick="OnRemove">&#x2715;</button>
+</div>
+@if (Entry.Errors.Count > 0)
+{
+    <div class="indent">
+        <EntryErrors Fields="Fields" Entry="Entry" TestId="@($"{TestId}-error")" />
+    </div>
+}
+
+@code {
+    /// <summary>Set number, from 1.</summary>
+    [Parameter, EditorRequired]
+    public int Number { get; set; }
+
+    /// <summary>Name of the exercise, read out by the remove button, e.g. Remove Squat set 2.</summary>
+    [Parameter]
+    public string? ExerciseName { get; set; }
+
+    /// <summary>Fields of the set, one column each.</summary>
+    [Parameter, EditorRequired]
+    public IReadOnlyList<FieldSpec> Fields { get; set; } = [];
+
+    /// <summary>Values of the set.</summary>
+    [Parameter, EditorRequired]
+    public EntryState Entry { get; set; } = null!;
+
+    /// <summary>Raised after a value changes.</summary>
+    [Parameter]
+    public EventCallback OnChanged { get; set; }
+
+    /// <summary>Raised by the remove button.</summary>
+    [Parameter]
+    public EventCallback OnRemove { get; set; }
+
+    /// <summary>Value of the data-testid attribute.</summary>
+    [Parameter]
+    public string? TestId { get; set; }
+
+    private string RemoveLabel => ExerciseName is null ? $"Remove set {Number}" : $"Remove {ExerciseName} set {Number}";
+}

@@ -1,0 +1,71 @@
+@attribute [Stories("Prototype/Workout Log")]
+
+<Stories TComponent="PrototypeApp">
+
+    <Story Name="Click through">
+        <Template>
+            <PrototypeApp />
+        </Template>
+    </Story>
+
+    <Story Name="First use">
+        <Template>
+            <ScenarioPlayer Scenario="Scenarios.FirstUse" />
+        </Template>
+    </Story>
+
+    <Story Name="Log a strength workout">
+        <Template>
+            <ScenarioPlayer Scenario="Scenarios.LogStrength" />
+        </Template>
+    </Story>
+
+    <Story Name="Log a cardio workout">
+        <Template>
+            <ScenarioPlayer Scenario="Scenarios.LogCardio" />
+        </Template>
+    </Story>
+
+    <Story Name="Save with mistakes">
+        <Template>
+            <ScenarioPlayer Scenario="Scenarios.SaveWithMistakes" />
+        </Template>
+    </Story>
+
+    <Story Name="Find an exercise">
+        <Template>
+            <ScenarioPlayer Scenario="Scenarios.FindExercise" />
+        </Template>
+    </Story>
+
+    <Story Name="Abandon a new workout">
+        <Template>
+            <ScenarioPlayer Scenario="Scenarios.AbandonWorkout" />
+        </Template>
+    </Story>
+
+    <Story Name="View history">
+        <Template>
+            <ScenarioPlayer Scenario="Scenarios.ViewHistory" />
+        </Template>
+    </Story>
+
+    <Story Name="Edit a workout">
+        <Template>
+            <ScenarioPlayer Scenario="Scenarios.EditWorkout" />
+        </Template>
+    </Story>
+
+    <Story Name="Discard edits">
+        <Template>
+            <ScenarioPlayer Scenario="Scenarios.DiscardEdits" />
+        </Template>
+    </Story>
+
+    <Story Name="Delete a workout">
+        <Template>
+            <ScenarioPlayer Scenario="Scenarios.DeleteWorkout" />
+        </Template>
+    </Story>
+
+</Stories>

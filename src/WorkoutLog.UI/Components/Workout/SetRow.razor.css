@@ -1,0 +1,25 @@
+.set-row {
+    display: grid;
+    align-items: center;
+    gap: var(--space-2);
+}
+
+.number {
+    color: var(--color-text-muted);
+    font-variant-numeric: tabular-nums;
+    text-align: center;
+}
+
+.remove {
+    min-width: var(--touch-target);
+    min-height: var(--touch-target);
+    border: none;
+    background: transparent;
+    color: var(--color-text-muted);
+    font-size: var(--font-size-lg);
+    cursor: pointer;
+}
+
+.indent {
+    margin-left: calc(var(--set-number-width) + var(--space-2));
+}

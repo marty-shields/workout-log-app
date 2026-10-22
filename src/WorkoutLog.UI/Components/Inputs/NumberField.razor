@@ -1,0 +1,58 @@
+<label class="field">
+    <span class="label @(ShowLabel ? null : "visually-hidden")">
+        @Label
+        @if (Required)
+        {
+            <span class="required" aria-hidden="true"> *</span>
+        }
+    </span>
+    <input type="text"
+           inputmode="@(AllowDecimal ? "decimal" : "numeric")"
+           autocomplete="off"
+           class="input @(Invalid ? "invalid" : null)"
+           value="@Value"
+           aria-required="@(Required ? "true" : null)"
+           aria-invalid="@(Invalid ? "true" : null)"
+           data-testid="@TestId"
+           @oninput="OnInput" />
+</label>
+
+@code {
+    /// <summary>Field label, with its unit.</summary>
+    [Parameter, EditorRequired]
+    public string Label { get; set; } = "";
+
+    /// <summary>Shows the label. When false it is kept for screen readers only.</summary>
+    [Parameter]
+    public bool ShowLabel { get; set; } = true;
+
+    /// <summary>Marks the field as required.</summary>
+    [Parameter]
+    public bool Required { get; set; }
+
+    /// <summary>Uses the decimal keyboard instead of the numeric one.</summary>
+    [Parameter]
+    public bool AllowDecimal { get; set; }
+
+    /// <summary>Shows the field as failing validation.</summary>
+    [Parameter]
+    public bool Invalid { get; set; }
+
+    /// <summary>Entered text, or null when empty.</summary>
+    [Parameter]
+    public string? Value { get; set; }
+
+    /// <summary>Raised on each keystroke with the new text, or null when empty.</summary>
+    [Parameter]
+    public EventCallback<string?> ValueChanged { get; set; }
+
+    /// <summary>Value of the input's data-testid attribute.</summary>
+    [Parameter]
+    public string? TestId { get; set; }
+
+    private Task OnInput(ChangeEventArgs e)
+    {
+        var text = e.Value as string;
+        return ValueChanged.InvokeAsync(string.IsNullOrEmpty(text) ? null : text);
+    }
+}

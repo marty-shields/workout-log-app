@@ -1,0 +1,27 @@
+@using WorkoutLog.UI.Components.Layout
+@attribute [Stories("Components/Layout/AppScreen")]
+
+<Stories TComponent="AppScreen" Layout="typeof(PhoneLayout)">
+
+    <Story Name="Back and bottom bar">
+        <Template>
+            <AppScreen Title="Screen title" Subtitle="Subtitle" OnBack="() => { }">
+                <ChildContent>
+                    <p>Scrolling content.</p>
+                </ChildContent>
+                <BottomBar>
+                    <AppButton FullWidth>Main action</AppButton>
+                </BottomBar>
+            </AppScreen>
+        </Template>
+    </Story>
+
+    <Story Name="Title only">
+        <Template>
+            <AppScreen Title="Screen title">
+                <p>Scrolling content.</p>
+            </AppScreen>
+        </Template>
+    </Story>
+
+</Stories>

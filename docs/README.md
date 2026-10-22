@@ -2,7 +2,7 @@
 
 A personal Android app that replaces a paper workout notebook.
 
-**Status:** Planning. The solution has the UI and Stories projects (US-29).
+**Status:** Planning. The solution has the UI, Stories and UI.Tests projects; the wireframes and prototype are in the stories site (US-29, US-30).
 
 ## Documents
 

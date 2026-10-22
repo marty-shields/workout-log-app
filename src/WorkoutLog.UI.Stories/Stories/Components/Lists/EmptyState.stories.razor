@@ -1,0 +1,14 @@
+@attribute [Stories("Components/Lists/EmptyState")]
+
+<Stories TComponent="EmptyState">
+
+    <Story Name="Default">
+        <Arguments>
+            <Arg For="_ => _.Message" Value='"No workouts yet"' />
+        </Arguments>
+        <Template>
+            <EmptyState @attributes="context.Args" />
+        </Template>
+    </Story>
+
+</Stories>

@@ -48,7 +48,7 @@ As the developer, I want the tooling installed and the phone set up for USB debu
 As the developer, I want the solution created in local git, so that features have a place to go.
 - **Links:** T06, T13, NFR-02, [05](05-architecture.md)
 - **Extra ACs:**
-  - The App, UI, Core and three test projects exist as in [05](05-architecture.md). `WorkoutLog.slnx`, `WorkoutLog.UI`, local git and `.gitignore` already exist ([US-29](#us-29-stories-project-setup)).
+  - The App, UI, Core and three test projects exist as in [05](05-architecture.md). `WorkoutLog.slnx`, `WorkoutLog.UI`, local git and `.gitignore` already exist ([US-29](#us-29-stories-project-setup)); `WorkoutLog.UI.Tests` already exists ([US-30](#us-30-wireframes)).
   - `.gitignore` matches [08](08-dev-setup-build.md).
   - A blank page shows on the phone.
   - Debug builds use the `.debug` package id and the name "Workout Log (Dev)" ([08](08-dev-setup-build.md)).
@@ -119,9 +119,9 @@ As the developer, I want a workout service that validates and saves workouts and
 | ID | Story | Links | Size | Status |
 |---|---|---|---|---|
 | [US-29](#us-29-stories-project-setup) | Stories project setup | D99, T15 | S | Done |
-| [US-30](#us-30-wireframes) | Wireframes | [06](06-screens-ux.md), D98 | M | To do |
+| [US-30](#us-30-wireframes) | Wireframes | [06](06-screens-ux.md), D98 | M | Done |
 | [US-31](#us-31-design-tokens) | Design tokens | D97, [14](14-design-system.md) | M | To do |
-| [US-32](#us-32-components) | Components | [14](14-design-system.md) | L | To do |
+| [US-32](#us-32-components) | Components | [14](14-design-system.md) | L | In progress |
 | [US-33](#us-33-final-screen-designs) | Final screen designs | [06](06-screens-ux.md), [14](14-design-system.md) | M | To do |
 
 ### US-29 Stories project setup
@@ -135,12 +135,13 @@ As the developer, I want a BlazingStory project for the UI components, so that s
 
 ### US-30 Wireframes
 As the user, I want greyscale wireframes of every screen and state, so that layout and flow are agreed before the screens are built.
-- **Links:** [06](06-screens-ux.md), D98
+- **Links:** [06](06-screens-ux.md), D98, D101–D107, T16
 - **Extra ACs:**
   - One story per screen state: Dashboard (empty, with workouts); New Workout (empty, strength sets, cardio entry, save errors); Edit Workout; Exercise picker (no search text, results); History (empty, with workouts); Discard, Discard changes and Delete dialogs.
   - Stories render at phone size.
   - Content stays inside the safe-area insets.
-- **Size:** M · **Status:** To do
+  - The prototype has an auto-play story for each main user task (D101).
+- **Size:** M · **Status:** Done
 
 ### US-31 Design tokens
 As the user, I want the colours, type and spacing defined once, so that every screen looks consistent in light and dark.
@@ -148,6 +149,7 @@ As the user, I want the colours, type and spacing defined once, so that every sc
 - **Extra ACs:**
   - Tokens are CSS custom properties in `WorkoutLog.UI/wwwroot/css/tokens.css`: colour, type, spacing, radius, touch-target size.
   - Dark values apply under `prefers-color-scheme: dark`.
+  - Error text and error borders are red (D102).
   - A story shows every token in light and dark.
 - **Size:** M · **Status:** To do
 
@@ -158,8 +160,7 @@ As the developer, I want the shared UI components built on the tokens, so that M
   - Each component is in `WorkoutLog.UI`, takes its data as parameters and has stories.
   - Components use tokens only; no hard-coded colours or sizes.
   - Interactive elements have `data-testid` ([07](07-testing.md)).
-  - bUnit tests need `WorkoutLog.UI.Tests` from [US-04](#us-04-create-the-solution).
-- **Size:** L · **Status:** To do
+- **Size:** L · **Status:** In progress
 
 ### US-33 Final screen designs
 As the user, I want the wireframes rebuilt with the design system, so that M2–M5 build screens to an agreed design.

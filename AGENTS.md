@@ -25,13 +25,15 @@ A personal Android app (.NET 10 MAUI Blazor Hybrid) that replaces a paper workou
 | `WorkoutLog.slnx` | Solution |
 | `src/WorkoutLog.UI/` | Razor class library: pages, components, design tokens |
 | `src/WorkoutLog.UI.Stories/` | BlazingStory app: stories for UI components |
+| `tests/WorkoutLog.UI.Tests/` | bUnit tests for UI components and screens; plays the prototype scenarios |
 
-The App, Core and test projects are planned in [05](docs/05-architecture.md) and created in US-04.
+The App, Core, Core.Tests and E2E.Tests projects are planned in [05](docs/05-architecture.md) and created in US-04.
 
 ## Commands
 | Task | Command |
 |---|---|
 | Build | `dotnet build WorkoutLog.slnx` |
+| Run the UI tests | `dotnet test tests/WorkoutLog.UI.Tests` |
 | Run the stories | `dotnet run --project src/WorkoutLog.UI.Stories` → http://localhost:5056 |
 
 ## Rules
@@ -42,5 +44,6 @@ The App, Core and test projects are planned in [05](docs/05-architecture.md) and
 - UI components follow the Design System pages in the stories site ([14](docs/14-design-system.md)): tokens only, data in through parameters, a story for each component, `data-testid` on interactive elements.
 - The UI never touches the database; it calls services only.
 - Local git only, no remote. Commits use Conventional Commits.
+- Never commit without review. When a story's work is ready, stop, summarise the changes and ask Martin to review. Commit only after he approves.
 - Docs are short and factual.
 - Ignore `bin/`, `obj/`, `.vs/` and `TestResults/`.

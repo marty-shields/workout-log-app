@@ -1,2 +1,7 @@
-﻿<BlazingStoryApp Assemblies="[typeof(App).Assembly]" DefaultLayout="typeof(DefaultLayout)">
+﻿@using static BlazingStory.Types.NavigationTreeOrderBuilder
+
+<BlazingStoryApp Title="Workout Log"
+                 Assemblies="[typeof(App).Assembly]"
+                 DefaultLayout="typeof(DefaultLayout)"
+                 NavigationTreeOrder="@N["Design System", "Prototype", "Screens", "Components"]">
 </BlazingStoryApp>

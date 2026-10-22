@@ -1,0 +1,18 @@
+@using WorkoutLog.UI.Models.History
+@attribute [Stories("Screens/History")]
+
+<Stories TComponent="HistoryView" Layout="typeof(PhoneLayout)">
+
+    <Story Name="Empty">
+        <Template>
+            <HistoryView Rows="[]" OnBack="() => { }" />
+        </Template>
+    </Story>
+
+    <Story Name="With workouts">
+        <Template>
+            <HistoryView Rows="SampleData.HistoryRows" OnBack="() => { }" OnOpen="(HistoryRow _) => { }" />
+        </Template>
+    </Story>
+
+</Stories>

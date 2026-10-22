@@ -1,0 +1,35 @@
+@using WorkoutLog.UI.Models.History
+<AppScreen Title="History" OnBack="OnBack">
+    @if (Rows.Count == 0)
+    {
+        <EmptyState Message="No workouts yet" TestId="history-empty" />
+    }
+    else
+    {
+        <ul class="rows">
+            @foreach (var row in Rows)
+            {
+                <li>
+                    <ListRow Text="@DisplayFormat.DateAndTime(row.StartedAt)" OnClick="RowClick(row)" TestId="@($"history-row-{row.Id}")" />
+                </li>
+            }
+        </ul>
+    }
+</AppScreen>
+
+@code {
+    /// <summary>Saved workouts, newest first.</summary>
+    [Parameter, EditorRequired]
+    public IReadOnlyList<HistoryRow> Rows { get; set; } = [];
+
+    /// <summary>Raised when a row is tapped. Rows are not tappable when unset.</summary>
+    [Parameter]
+    public EventCallback<HistoryRow> OnOpen { get; set; }
+
+    /// <summary>Raised by the back arrow.</summary>
+    [Parameter]
+    public EventCallback OnBack { get; set; }
+
+    private EventCallback RowClick(HistoryRow row) =>
+        OnOpen.HasDelegate ? EventCallback.Factory.Create(this, () => OnOpen.InvokeAsync(row)) : default;
+}

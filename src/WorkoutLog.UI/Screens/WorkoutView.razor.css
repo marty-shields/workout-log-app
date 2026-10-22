@@ -1,0 +1,14 @@
+.exercises {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+}
+
+.error {
+    margin: 0;
+    padding: var(--space-3);
+    border: var(--border-width-error) solid var(--color-error);
+    border-radius: var(--radius-md);
+    color: var(--color-error);
+    font-weight: var(--font-weight-bold);
+}

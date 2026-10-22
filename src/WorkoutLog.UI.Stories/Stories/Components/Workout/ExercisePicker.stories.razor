@@ -1,0 +1,23 @@
+@attribute [Stories("Components/Workout/ExercisePicker")]
+
+<Stories TComponent="ExercisePicker" Layout="typeof(PhoneLayout)">
+
+    <Story Name="No search text">
+        <Template>
+            <ExercisePicker Items="SampleData.Search(null)" />
+        </Template>
+    </Story>
+
+    <Story Name="Results">
+        <Template>
+            <ExercisePicker Query="pec" Items="@SampleData.Search("pec")" />
+        </Template>
+    </Story>
+
+    <Story Name="No match">
+        <Template>
+            <ExercisePicker Query="zzz" Items="@SampleData.Search("zzz")" />
+        </Template>
+    </Story>
+
+</Stories>

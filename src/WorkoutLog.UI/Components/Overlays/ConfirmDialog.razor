@@ -1,0 +1,59 @@
+<div class="scrim" data-testid="@TestId">
+    <div class="dialog" role="alertdialog" aria-modal="true" aria-labelledby="@titleId" aria-describedby="@(Message is not null ? messageId : null)">
+        <h2 id="@titleId" class="title">@Title</h2>
+        @if (Message is not null)
+        {
+            <p id="@messageId" class="message">@Message</p>
+        }
+        <div class="actions">
+            <AppButton @ref="cancel" Variant="ButtonVariant.Text" TestId="@($"{TestId}-cancel")" OnClick="OnCancel">@CancelText</AppButton>
+            <AppButton Variant="@(Danger ? ButtonVariant.Danger : ButtonVariant.Primary)" TestId="@($"{TestId}-confirm")" OnClick="OnConfirm">@ConfirmText</AppButton>
+        </div>
+    </div>
+</div>
+
+@code {
+    private readonly string titleId = $"dialog-title-{Guid.NewGuid():N}";
+    private readonly string messageId = $"dialog-message-{Guid.NewGuid():N}";
+    private AppButton cancel = null!;
+
+    /// <summary>Question asked, e.g. Delete this workout?</summary>
+    [Parameter, EditorRequired]
+    public string Title { get; set; } = "";
+
+    /// <summary>Extra text under the title.</summary>
+    [Parameter]
+    public string? Message { get; set; }
+
+    /// <summary>Text of the confirm button.</summary>
+    [Parameter, EditorRequired]
+    public string ConfirmText { get; set; } = "";
+
+    /// <summary>Text of the cancel button.</summary>
+    [Parameter]
+    public string CancelText { get; set; } = "Cancel";
+
+    /// <summary>Styles the confirm button as destructive.</summary>
+    [Parameter]
+    public bool Danger { get; set; }
+
+    /// <summary>Raised by the confirm button.</summary>
+    [Parameter]
+    public EventCallback OnConfirm { get; set; }
+
+    /// <summary>Raised by the cancel button.</summary>
+    [Parameter]
+    public EventCallback OnCancel { get; set; }
+
+    /// <summary>Value of the scrim's data-testid; also the prefix for the buttons.</summary>
+    [Parameter]
+    public string TestId { get; set; } = "confirm-dialog";
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await cancel.FocusAsync();
+        }
+    }
+}

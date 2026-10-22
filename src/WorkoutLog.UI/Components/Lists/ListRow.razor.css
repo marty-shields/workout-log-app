@@ -1,0 +1,25 @@
+.row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    min-height: var(--touch-target);
+    padding: 0 var(--space-1);
+    border: none;
+    border-bottom: var(--border-width) solid var(--color-border);
+    background: transparent;
+    text-align: left;
+}
+
+.clickable {
+    cursor: pointer;
+}
+
+.text {
+    font-variant-numeric: tabular-nums;
+}
+
+.chevron {
+    color: var(--color-text-muted);
+    font-size: var(--font-size-xl);
+}

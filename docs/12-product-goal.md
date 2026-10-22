@@ -16,4 +16,4 @@ A story in the [backlog](13-backlog.md) is Done when all of these are true:
 | Code | Builds with no errors or new warnings. No new packages without approval. |
 | Tests | New behaviour has unit or bUnit tests. All tests pass. |
 | Verified on phone | Where the story changes the app, its acceptance criteria have been checked by hand on the real phone. |
-| Docs + commit | Affected docs are updated. The change is committed to local git as a Conventional Commit. |
+| Docs + commit | Affected docs are updated. Martin has reviewed the change and approved the commit. The change is committed to local git as a Conventional Commit. |

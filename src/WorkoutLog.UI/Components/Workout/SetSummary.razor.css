@@ -1,0 +1,40 @@
+.summary {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+}
+
+.open {
+    display: grid;
+    grid-template-columns: var(--set-number-width) minmax(0, 1fr) var(--touch-target);
+    align-items: center;
+    gap: var(--space-2);
+    width: 100%;
+    min-height: var(--touch-target);
+    padding: 0;
+    border: none;
+    border-bottom: var(--border-width) solid var(--color-border);
+    background: transparent;
+    text-align: left;
+    cursor: pointer;
+}
+
+.number {
+    color: var(--color-text-muted);
+    font-variant-numeric: tabular-nums;
+    text-align: center;
+}
+
+.text {
+    font-variant-numeric: tabular-nums;
+}
+
+.chevron {
+    color: var(--color-text-muted);
+    font-size: var(--font-size-lg);
+    text-align: center;
+}
+
+.indent {
+    margin-left: calc(var(--set-number-width) + var(--space-2));
+}

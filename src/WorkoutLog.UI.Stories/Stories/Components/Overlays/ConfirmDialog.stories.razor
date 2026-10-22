@@ -1,0 +1,23 @@
+@attribute [Stories("Components/Overlays/ConfirmDialog")]
+
+<Stories TComponent="ConfirmDialog" Layout="typeof(PhoneLayout)">
+
+    <Story Name="Discard">
+        <Template>
+            <ConfirmDialog Title="Discard this workout?" ConfirmText="Discard" Danger />
+        </Template>
+    </Story>
+
+    <Story Name="Discard changes">
+        <Template>
+            <ConfirmDialog Title="Discard your changes?" ConfirmText="Discard changes" Danger />
+        </Template>
+    </Story>
+
+    <Story Name="Delete">
+        <Template>
+            <ConfirmDialog Title="Delete this workout?" ConfirmText="Delete" Danger />
+        </Template>
+    </Story>
+
+</Stories>

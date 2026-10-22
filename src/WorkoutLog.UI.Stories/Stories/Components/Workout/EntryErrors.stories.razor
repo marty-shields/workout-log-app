@@ -1,0 +1,19 @@
+@attribute [Stories("Components/Workout/EntryErrors")]
+
+<Stories TComponent="EntryErrors">
+
+    <Story Name="One error">
+        <Template>
+            @{ var exercise = SampleData.Exercise(132, ["0", "12"]); SampleData.Validate([exercise], out _); }
+            <EntryErrors Fields="exercise.Fields" Entry="exercise.Entries[0]" />
+        </Template>
+    </Story>
+
+    <Story Name="Several errors">
+        <Template>
+            @{ var exercise = SampleData.Exercise(187, [null, "32", "0:00:75"]); SampleData.Validate([exercise], out _); }
+            <EntryErrors Fields="exercise.Fields" Entry="exercise.Entries[0]" />
+        </Template>
+    </Story>
+
+</Stories>

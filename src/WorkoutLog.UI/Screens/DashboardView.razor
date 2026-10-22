@@ -1,0 +1,38 @@
+@using WorkoutLog.UI.Models.Dashboard
+<AppScreen Title="Workout Log">
+    <ChildContent>
+        <section class="section">
+            <h2 class="heading">Last workout</h2>
+            @if (Summary.LastWorkoutStartedAt is { } lastWorkout)
+            {
+                <p class="last" data-testid="last-workout">@DisplayFormat.Date(lastWorkout)</p>
+            }
+            else
+            {
+                <EmptyState Message="No workouts yet" TestId="last-workout-empty" />
+            }
+        </section>
+        <div class="stats">
+            <StatTile Label="This week" Value="Summary.ThisWeek" TestId="count-week" />
+            <StatTile Label="This month" Value="Summary.ThisMonth" TestId="count-month" />
+        </div>
+        <ListRow Text="History" OnClick="OnHistory" TestId="history-link" />
+    </ChildContent>
+    <BottomBar>
+        <AppButton FullWidth TestId="new-workout" OnClick="OnNewWorkout">New Workout</AppButton>
+    </BottomBar>
+</AppScreen>
+
+@code {
+    /// <summary>Last workout and counts.</summary>
+    [Parameter, EditorRequired]
+    public DashboardSummary Summary { get; set; } = null!;
+
+    /// <summary>Raised by New Workout.</summary>
+    [Parameter]
+    public EventCallback OnNewWorkout { get; set; }
+
+    /// <summary>Raised by the History link.</summary>
+    [Parameter]
+    public EventCallback OnHistory { get; set; }
+}

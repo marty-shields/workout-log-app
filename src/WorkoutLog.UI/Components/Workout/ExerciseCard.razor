@@ -1,0 +1,170 @@
+@using WorkoutLog.UI.Components.Inputs
+<section class="card @(Exercise.Error is not null ? "has-error" : null)" data-testid="@TestId">
+    <header class="card-header">
+        <h2 class="name">@Exercise.Name</h2>
+        <AppButton Variant="ButtonVariant.Text" TestId="@($"{TestId}-remove")" OnClick="OnRemove">Remove<span class="visually-hidden">@($" {Exercise.Name}")</span></AppButton>
+    </header>
+    @if (Exercise.Error is not null)
+    {
+        <p class="error" role="alert" data-testid="@($"{TestId}-error")">@Exercise.Error</p>
+    }
+    @if (Exercise.Kind == ExerciseKind.Strength)
+    {
+        <div class="sets">
+            @if (SetGrid.Collapses(Exercise.Fields))
+            {
+                @for (var i = 0; i < Exercise.Entries.Count; i++)
+                {
+                    var entry = Exercise.Entries[i];
+                    var number = i + 1;
+                    if (entry == open)
+                    {
+                        <SetPanel @key="entry"
+                                  Number="number"
+                                  ExerciseName="@Exercise.Name"
+                                  Fields="Exercise.Fields"
+                                  Entry="entry"
+                                  OnChanged="() => EntryChanged(entry)"
+                                  OnRemove="() => RemoveSet(entry)"
+                                  TestId="@($"{TestId}-set-{number}")" />
+                    }
+                    else
+                    {
+                        <SetSummary @key="entry"
+                                    Number="number"
+                                    Fields="Exercise.Fields"
+                                    Entry="entry"
+                                    OnOpen="() => OpenSet(entry)"
+                                    TestId="@($"{TestId}-set-{number}")" />
+                    }
+                }
+            }
+            else
+            {
+                @if (Exercise.Entries.Count > 0)
+                {
+                    <div class="set-header" style="grid-template-columns: @SetGrid.Columns(Exercise.Fields)" aria-hidden="true">
+                        <span>Set</span>
+                        @foreach (var field in Exercise.Fields)
+                        {
+                            <span>@field.DisplayLabel@(field.Required ? " *" : null)</span>
+                        }
+                        <span></span>
+                    </div>
+                }
+                @for (var i = 0; i < Exercise.Entries.Count; i++)
+                {
+                    var entry = Exercise.Entries[i];
+                    var number = i + 1;
+                    <SetRow @key="entry"
+                            Number="number"
+                            ExerciseName="@Exercise.Name"
+                            Fields="Exercise.Fields"
+                            Entry="entry"
+                            OnChanged="() => EntryChanged(entry)"
+                            OnRemove="() => RemoveSet(entry)"
+                            TestId="@($"{TestId}-set-{number}")" />
+                }
+            }
+        </div>
+        <AppButton Variant="ButtonVariant.Secondary" FullWidth TestId="@($"{TestId}-add-set")" OnClick="AddSet">Add set</AppButton>
+    }
+    else if (Exercise.Entries.Count > 0)
+    {
+        var entry = Exercise.Entries[0];
+        <div class="cardio">
+            @foreach (var field in Exercise.Fields)
+            {
+                <FieldInput Field="field" Entry="entry" OnChanged="() => EntryChanged(entry)" TestId="@($"{TestId}-{field.Key}")" />
+            }
+        </div>
+        <EntryErrors Fields="Exercise.Fields" Entry="entry" TestId="@($"{TestId}-entry-error")" />
+    }
+</section>
+
+@code {
+    /// <summary>The exercise and its sets or entry. Adding and removing sets changes it directly.</summary>
+    [Parameter, EditorRequired]
+    public ExerciseState Exercise { get; set; } = null!;
+
+    /// <summary>Raised after a value, set or entry changes.</summary>
+    [Parameter]
+    public EventCallback OnChanged { get; set; }
+
+    /// <summary>Raised by Remove.</summary>
+    [Parameter]
+    public EventCallback OnRemove { get; set; }
+
+    /// <summary>Value of the card's data-testid; also the prefix for its controls.</summary>
+    [Parameter]
+    public string? TestId { get; set; }
+
+    /// <summary>For sets that collapse: opens the last set when the card is given an exercise. An empty last set opens either way.</summary>
+    [Parameter]
+    public bool OpenLastSet { get; set; } = true;
+
+    /// <summary>Checks a set before Add set or opening another set: the open set, or the last row. Sets the set's errors and returns false to block. Also re-checks a set or entry showing errors each time its values change. Unset: nothing is blocked or re-checked.</summary>
+    [Parameter]
+    public Func<ExerciseState, EntryState, bool>? ValidateSet { get; set; }
+
+    private ExerciseState? shown;
+    private EntryState? open;
+
+    protected override void OnParametersSet()
+    {
+        if (Exercise == shown)
+        {
+            return;
+        }
+
+        shown = Exercise;
+        var last = Exercise.Entries.LastOrDefault();
+        open = last is not null && (OpenLastSet || last.Values.Values.All(string.IsNullOrEmpty)) ? last : null;
+    }
+
+    private bool CanLeave(EntryState? entry) => entry is null || ValidateSet is null || ValidateSet(Exercise, entry);
+
+    private void OpenSet(EntryState entry)
+    {
+        if (CanLeave(open))
+        {
+            open = entry;
+        }
+    }
+
+    private Task AddSet()
+    {
+        var current = SetGrid.Collapses(Exercise.Fields) ? open : Exercise.Entries.LastOrDefault();
+        if (!CanLeave(current))
+        {
+            return Task.CompletedTask;
+        }
+
+        var entry = new EntryState();
+        Exercise.Entries.Add(entry);
+        Exercise.Error = null;
+        open = entry;
+        return OnChanged.InvokeAsync();
+    }
+
+    private Task EntryChanged(EntryState entry)
+    {
+        if (entry.Errors.Count > 0)
+        {
+            ValidateSet?.Invoke(Exercise, entry);
+        }
+
+        return OnChanged.InvokeAsync();
+    }
+
+    private Task RemoveSet(EntryState entry)
+    {
+        Exercise.Entries.Remove(entry);
+        if (entry == open)
+        {
+            open = null;
+        }
+
+        return OnChanged.InvokeAsync();
+    }
+}

@@ -1,0 +1,87 @@
+<div class="overlay" role="dialog" aria-modal="true" aria-label="Add exercise" data-testid="exercise-picker">
+    <header class="picker-bar">
+        <button type="button" class="back" aria-label="Back" data-testid="picker-back" @onclick="OnClose">&#x2190;</button>
+        <input @ref="search"
+               type="search"
+               class="search"
+               placeholder="Search exercises"
+               aria-label="Search exercises"
+               autocomplete="off"
+               value="@Query"
+               data-testid="picker-search"
+               @oninput="OnInput" />
+    </header>
+    <div class="results">
+        @if (Items.Count == 0)
+        {
+            <p class="none" data-testid="picker-none">No exercises match</p>
+        }
+        else if (string.IsNullOrWhiteSpace(Query))
+        {
+            @foreach (var kind in Enum.GetValues<ExerciseKind>())
+            {
+                <h2 class="group" data-testid="@($"picker-group-{kind}")">@kind</h2>
+                <ul class="list">
+                    @foreach (var item in Items.Where(item => item.Kind == kind))
+                    {
+                        @RenderItem(item)
+                    }
+                </ul>
+            }
+        }
+        else
+        {
+            <ul class="list">
+                @foreach (var item in Items)
+                {
+                    @RenderItem(item)
+                }
+            </ul>
+        }
+    </div>
+</div>
+
+@code {
+    /// <summary>Search text.</summary>
+    [Parameter]
+    public string? Query { get; set; }
+
+    /// <summary>Raised on each keystroke with the new search text.</summary>
+    [Parameter]
+    public EventCallback<string> QueryChanged { get; set; }
+
+    /// <summary>Exercises to list, already filtered and ordered for <see cref="Query"/>. With no search text they are grouped Strength / Cardio.</summary>
+    [Parameter, EditorRequired]
+    public IReadOnlyList<PickerItem> Items { get; set; } = [];
+
+    /// <summary>Raised when an exercise is tapped.</summary>
+    [Parameter]
+    public EventCallback<PickerItem> OnPick { get; set; }
+
+    /// <summary>Raised by the back arrow.</summary>
+    [Parameter]
+    public EventCallback OnClose { get; set; }
+
+    private ElementReference search;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await search.FocusAsync();
+        }
+    }
+
+    private Task OnInput(ChangeEventArgs e) => QueryChanged.InvokeAsync(e.Value as string ?? "");
+
+    private RenderFragment RenderItem(PickerItem item) =>
+        @<li>
+            <button type="button" class="item" data-testid="@($"picker-item-{item.Id}")" @onclick="() => OnPick.InvokeAsync(item)">
+                <span>@item.Name</span>
+                @if (!string.IsNullOrWhiteSpace(Query))
+                {
+                    <span class="kind">@item.Kind</span>
+                }
+            </button>
+        </li>;
+}

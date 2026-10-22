@@ -1,0 +1,59 @@
+.phone {
+    --inset-top: 32px;
+    --inset-bottom: 32px;
+    position: relative;
+    box-sizing: content-box;
+    width: 412px;
+    height: 915px;
+    margin: 16px auto;
+    overflow: hidden;
+    border: 8px solid #111;
+    border-radius: 40px;
+    background: var(--color-bg);
+    transform: translateZ(0);
+}
+
+.viewport {
+    position: absolute;
+    inset: 0;
+}
+
+.status-bar,
+.nav-bar {
+    position: absolute;
+    left: 0;
+    right: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    pointer-events: none;
+    background: rgb(0 0 0 / 0.06);
+    font-size: 0.75rem;
+}
+
+.status-bar {
+    top: 0;
+    height: var(--inset-top);
+    padding: 0 24px;
+}
+
+.nav-bar {
+    bottom: 0;
+    height: var(--inset-bottom);
+    justify-content: center;
+}
+
+.handle {
+    width: 108px;
+    height: 4px;
+    border-radius: 2px;
+    background: #111;
+}
+
+.system-back {
+    pointer-events: auto;
+    border: none;
+    background: transparent;
+    font-size: 0.75rem;
+    cursor: pointer;
+}

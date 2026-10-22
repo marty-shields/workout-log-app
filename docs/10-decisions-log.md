@@ -105,6 +105,15 @@ All decisions were made on 2026-10-21 and have status **Accepted** unless noted.
 | D98 | Number entry (2026-10-22) | Phone's numeric keyboard (`inputmode` numeric/decimal). Duration as three boxes: h, mm, ss | Keyboard + steppers; custom in-app keypad |
 | D99 | Prototyping tool (2026-10-22) | BlazingStory 1.0.0-preview.96, WebAssembly, in `WorkoutLog.UI.Stories`; stories render the real `WorkoutLog.UI` components | Static HTML/CSS prototype; Storybook (HTML); Penpot; Figma (no access); BlazingStory Server |
 | D100 | Design system docs (2026-10-22) | Markdown pages in the stories site (MD2RazorGenerator 1.2.4); [14](14-design-system.md) points to them | Markdown in `docs/` only |
+| D101 | Prototype scenarios (2026-10-22) | One auto-play story per main user task: the player outlines each step's target, then taps it or types into it | Numbered steps beside or above the phone, clicked through by hand |
+| D102 | Error colour (2026-10-22) | Error text and error borders are red, from US-31. The wireframes stay greyscale | Red now in the wireframe tokens, for errors only or for errors and danger buttons |
+| D103 | Validation display (2026-10-22) | Each faulty field gets an error border; one message per problem under its set or entry, in field order | One combined message per set or entry; field border plus one combined message |
+| D104 | Set rows with more than two fields (2026-10-22) | Duration moves to its own labelled line under the set, so its boxes fit the text and the touch target. Superseded by D105 | Squeeze into one row; two-column grid per set; shorter placeholders (h : m : s) |
+| D105 | Sets with more than two fields, one a duration (2026-10-22) | One open set with every field labelled, duration full width; other sets show as a summary line and open on tap, one at a time. New workout opens the last set; edit starts all closed; removing the open set leaves all closed. Errors on a closed set show under its summary | Shaded set blocks; dividers between sets; duration in the column header. Collapse for all strength exercises. Several open sets. Errors open their sets |
+| D106 | Set validation before moving on (2026-10-22) | Add set, and opening another set, are blocked while the current set (open set, or last row) is empty or has errors; its errors show on it. All strength exercises. Remove, Add exercise, Back and Save are not blocked. The screen supplies the rules | Check without blocking (errors on the summary line); validate on Save only; block Add set only; let empty sets close; collapsing sets only |
+| D107 | Partly filled duration and pace (2026-10-22) | When focus leaves the field, empty boxes become 0 and minutes and seconds are padded to two digits (1:: → 1:00:00, ::22 → 0:00:22, :30 → 0:30). An empty field stays empty | Fill in when the set closes or Save runs; on Save only; no padding; duration only |
+| D108 | When errors clear (2026-10-22) | A set or entry showing errors is re-checked on each change: fixed errors go, new ones show. Add set clears the exercise error; adding an exercise clears the workout error | Clear a field's error when it is edited; leave errors until the next Save |
+| D109 | Overlay focus (2026-10-22) | When it opens, a confirm dialog focuses Cancel and the Exercise picker focuses its search box | Focus the dialog or picker container; leave focus where it was |
 
 ## Technical
 | # | Decision | Choice | Alternatives offered |
@@ -119,11 +128,12 @@ All decisions were made on 2026-10-21 and have status **Accepted** unless noted.
 | T08 | IDE | VS Code + .NET MAUI extension | Visual Studio 2026; Rider |
 | T09 | Source control | Local git only | Personal GitHub; decide later |
 | T10 | Install | USB debugging for dev + signed APK for real use | One or the other |
-| T11 | Docs | 15 markdown files in `Desktop\workout-log-app\docs` (14 until 2026-10-22) | Fewer, larger docs |
+| T11 | Docs | 15 markdown files in the repo's `docs/` folder (14 until 2026-10-22) | Fewer, larger docs |
 | T12 | Roadmap | Milestones, drafted for review | v1 vs future only |
 | T13 | Component location | Razor Class Library `WorkoutLog.UI` (net10.0) so bUnit can test it; App → UI → Core | Keep in App and drop bUnit |
 | T14 | Appium test project | `WorkoutLog.E2E.Tests`, NUnit | `WorkoutLog.UiTests`; `WorkoutLog.Appium.Tests`; xUnit |
 | T15 | Solution file (2026-10-22) | `WorkoutLog.slnx` | `WorkoutLog.sln` |
+| T16 | UI test project (2026-10-22) | `tests/WorkoutLog.UI.Tests` (bUnit, NUnit) is created in US-30, with the components it tests | Create it in US-04 with the other projects |
 
 ## Pending
 See [README open items](README.md#open-items).

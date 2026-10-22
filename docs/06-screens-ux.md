@@ -14,12 +14,14 @@
   - New: live elapsed timer (h:mm:ss)
   - Edit: total time (h:mm:ss)
 - List of added exercises, in the order added. Each one shows the fields its definition declares ([04](04-exercise-list.md)):
-  - Strength: rows of sets (e.g. reps + weight, duration for Plank, distance for carries), **Add set**, remove set. Starts with one empty set.
+  - Strength: rows of sets (e.g. reps + weight, duration for Plank, distance for carries), **Add set**, remove set. Starts with one empty set. Add set does nothing while the last set (or the open set, below) is empty or has errors; the errors show on that set (D106).
+    - Exercises with more than two fields, one of them a duration (carries): one set is open, with every field labelled; the others show as a summary line (e.g. *40 m · 32 kg · 0:00:45*). Tap a summary to open it, once the open set is valid; Add set opens the new set. A new workout opens the last set; an edited workout starts with all sets closed. Errors on a closed set show under its summary (D105).
   - Cardio: one entry (duration + the exercise's other metrics, with units). Starts empty; not removable on its own.
   - Fields use the exercise's label where it has one (e.g. Assist (kg), Resistance, Damper).
+  - A partly filled duration or pace fills in when focus leaves it: empty boxes become 0, minutes and seconds two digits (e.g. *1:00:00*, *0:00:22*, *5:03*) (D107).
   - Remove exercise
 - **Add exercise** opens the Exercise picker
-- **Save** button: validates (FR-09) and returns to the Dashboard. Errors show on the exercise or set at fault.
+- **Save** button: validates (FR-09) and returns to the Dashboard. Errors show on the exercise, set or entry at fault: each faulty field is outlined, with one message per problem under its set or entry (D103). A set or entry showing errors is re-checked on each change; adding a set clears "Add at least one set" and adding an exercise clears the workout error (D108).
 - Edit only: **Delete** (confirm dialog)
 - Back:
   - New workout: **Discard / Cancel**
@@ -67,4 +69,5 @@ Done in M1.5, before the screens are built in M2 (D96). Details: [14 Design syst
 - Light and dark themes; the app follows the phone's setting (D97).
 - Numbers use the phone's numeric keyboard. Duration is three boxes: h, mm, ss (D98).
 - Layout suits one-handed use in the gym.
+- Focus moves into overlays when they open: a confirm dialog focuses Cancel, the Exercise picker focuses its search box (D109).
 - Content stays inside the Android 16 safe-area insets (see [05](05-architecture.md#android-16-platform-notes)).

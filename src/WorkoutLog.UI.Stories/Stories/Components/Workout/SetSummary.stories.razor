@@ -1,0 +1,26 @@
+@attribute [Stories("Components/Workout/SetSummary")]
+
+<Stories TComponent="SetSummary">
+
+    <Story Name="Filled">
+        <Template>
+            @{ var exercise = SampleData.Exercise(187, ["40", "32", "0:00:45"]); }
+            <SetSummary Number="1" Fields="exercise.Fields" Entry="exercise.Entries[0]" />
+        </Template>
+    </Story>
+
+    <Story Name="Empty">
+        <Template>
+            @{ var exercise = SampleData.NewExercise(187); }
+            <SetSummary Number="2" Fields="exercise.Fields" Entry="exercise.Entries[0]" />
+        </Template>
+    </Story>
+
+    <Story Name="Errors">
+        <Template>
+            @{ var exercise = SampleData.Exercise(187, [null, "32", "0:00:75"]); SampleData.Validate([exercise], out _); }
+            <SetSummary Number="1" Fields="exercise.Fields" Entry="exercise.Entries[0]" />
+        </Template>
+    </Story>
+
+</Stories>

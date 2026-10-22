@@ -1,0 +1,18 @@
+@using WorkoutLog.UI.Models.Dashboard
+@attribute [Stories("Screens/Dashboard")]
+
+<Stories TComponent="DashboardView" Layout="typeof(PhoneLayout)">
+
+    <Story Name="Empty">
+        <Template>
+            <DashboardView Summary="@(new DashboardSummary(null, 0, 0))" />
+        </Template>
+    </Story>
+
+    <Story Name="With workouts">
+        <Template>
+            <DashboardView Summary="@(new DashboardSummary(SampleData.Started, 2, 9))" />
+        </Template>
+    </Story>
+
+</Stories>

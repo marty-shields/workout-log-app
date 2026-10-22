@@ -1,0 +1,27 @@
+@using WorkoutLog.UI.Models.Fields
+@if (Entry.Errors.Count > 0)
+{
+    <div class="errors" role="alert" data-testid="@TestId">
+        @foreach (var field in Fields)
+        {
+            if (Entry.Errors.TryGetValue(field.Key, out var message))
+            {
+                <p class="error">@message</p>
+            }
+        }
+    </div>
+}
+
+@code {
+    /// <summary>Fields of the set or entry, in display order.</summary>
+    [Parameter, EditorRequired]
+    public IReadOnlyList<FieldSpec> Fields { get; set; } = [];
+
+    /// <summary>Set or entry whose validation messages are shown, one line each.</summary>
+    [Parameter, EditorRequired]
+    public EntryState Entry { get; set; } = null!;
+
+    /// <summary>Value of the data-testid attribute.</summary>
+    [Parameter]
+    public string? TestId { get; set; }
+}
