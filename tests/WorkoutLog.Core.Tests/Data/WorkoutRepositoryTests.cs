@@ -126,6 +126,58 @@ public class WorkoutRepositoryTests
     }
 
     [Test]
+    public async Task ListAsync_NoWorkouts_ReturnsEmpty()
+    {
+        Assert.That(await repository.ListAsync(), Is.Empty);
+    }
+
+    [Test]
+    public async Task ListAsync_OrdersByStartTimeNewestFirstNotById()
+    {
+        var middle = await repository.AddAsync(new NewWorkout(Start, Finish, Exercises()));
+        var oldest = await repository.AddAsync(new NewWorkout(Start.AddDays(-2), Finish.AddDays(-2), Exercises()));
+        var newest = await repository.AddAsync(new NewWorkout(Start.AddHours(3), Finish.AddHours(3), []));
+
+        Assert.That(await repository.ListAsync(), Is.EqualTo(new[]
+        {
+            new WorkoutSummary(newest, Start.AddHours(3)),
+            new WorkoutSummary(middle, Start),
+            new WorkoutSummary(oldest, Start.AddDays(-2)),
+        }));
+    }
+
+    [Test]
+    public async Task ListAsync_SameStartTime_NewestIdFirst()
+    {
+        var first = await repository.AddAsync(new NewWorkout(Start, Finish, Exercises()));
+        var second = await repository.AddAsync(new NewWorkout(Start, Finish, Exercises()));
+
+        Assert.That((await repository.ListAsync()).Select(w => w.Id), Is.EqualTo(new[] { second, first }));
+    }
+
+    [Test]
+    public async Task ListAsync_TimesWithAnOffset_ReadBackAsUtc()
+    {
+        await repository.AddAsync(new NewWorkout(Start.ToOffset(TimeSpan.FromHours(1)), Finish, Exercises()));
+
+        var started = (await repository.ListAsync()).Single().StartedAt;
+
+        Assert.That(started.Offset, Is.EqualTo(TimeSpan.Zero));
+        Assert.That(started.UtcDateTime, Is.EqualTo(Start.UtcDateTime));
+    }
+
+    [Test]
+    public async Task StartedAtIndex_ServesTheListOrderWithoutASort()
+    {
+        var plan = (await connection.QueryAsync<QueryPlanRow>(
+                "EXPLAIN QUERY PLAN SELECT * FROM Workout ORDER BY StartedAt DESC, Id DESC"))
+            .Select(r => r.Detail).ToList();
+
+        Assert.That(plan, Has.Some.Contains("USING INDEX Workout_StartedAt"));
+        Assert.That(plan, Has.None.Contains("TEMP B-TREE"));
+    }
+
+    [Test]
     public async Task ReplaceExercisesAsync_ReplacesTheChildrenAndKeepsTheTimes()
     {
         var id = await repository.AddAsync(new NewWorkout(Start, Finish, Exercises()));
@@ -210,4 +262,10 @@ public class WorkoutRepositoryTests
         await connection.Table<CardioEntryRow>().CountAsync());
 
     private sealed record OtherExercise(int ExerciseId) : WorkoutExercise(ExerciseId);
+
+    private sealed class QueryPlanRow
+    {
+        [Column("detail")]
+        public string Detail { get; set; } = "";
+    }
 }

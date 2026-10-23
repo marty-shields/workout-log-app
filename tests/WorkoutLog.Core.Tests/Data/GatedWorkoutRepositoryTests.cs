@@ -38,6 +38,7 @@ public class GatedWorkoutRepositoryTests
         await repository.ReplaceExercisesAsync(id, []);
 
         Assert.That(await repository.GetAsync(id), Is.EqualTo(new Workout(id, Start, Start, [])).UsingPropertiesComparer());
+        Assert.That(await repository.ListAsync(), Is.EqualTo(new[] { new WorkoutSummary(id, Start) }));
 
         await repository.DeleteAsync(id);
 
@@ -47,6 +48,7 @@ public class GatedWorkoutRepositoryTests
     [TestCase("Add")]
     [TestCase("Replace")]
     [TestCase("Get")]
+    [TestCase("List")]
     [TestCase("Delete")]
     public async Task Call_WhileTheGateIsHeld_WaitsForIt(string call)
     {
@@ -59,6 +61,7 @@ public class GatedWorkoutRepositoryTests
             "Add" => repository.AddAsync(new NewWorkout(Start, Start, Exercises)),
             "Replace" => repository.ReplaceExercisesAsync(id, []),
             "Get" => repository.GetAsync(id),
+            "List" => repository.ListAsync(),
             _ => repository.DeleteAsync(id),
         };
 

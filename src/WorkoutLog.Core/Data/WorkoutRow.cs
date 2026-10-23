@@ -11,6 +11,7 @@ internal sealed class WorkoutRow
     public int Id { get; set; }
 
     /// <summary>Start time. Stored as UTC ticks.</summary>
+    [Indexed]
     public DateTimeOffset StartedAt { get; set; }
 
     /// <summary>Finish time. Stored as UTC ticks.</summary>

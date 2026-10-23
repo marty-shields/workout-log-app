@@ -44,10 +44,12 @@
 - Exercises already in the workout are still shown. Picking one goes to its card instead of adding it again: strength adds a set, cardio focuses its entry (FR-04, D154)
 
 ### History
-- Saved workouts, newest first
+- Saved workouts, newest first by start time; same start, newest saved first (D182). All load at once (D183)
 - Row: date, day of week and start time (e.g. *Tue 21 Oct 2026 · 18:05*)
 - Tap opens the workout in edit mode
 - Empty state: "No workouts yet"
+- While loading: spinner "Loading…" (D181)
+- Load failed: "Couldn't load your history." and **Try again**, which reloads. Focus moves to Try again (D180)
 - Back: Dashboard
 
 Back on the Dashboard leaves the app.
@@ -81,7 +83,7 @@ Done in M1.5, before the screens are built in M2 (D96). Details: [14 Design syst
 | New Workout | Empty · Live timer · Strength sets · Carry sets · Cardio entries · Save errors · Save with no exercises · Save failed · Discard prompt | New Workout |
 | Edit Workout | Saved · Carry sets closed · Save errors · Discard prompt · Delete prompt | Edit Workout |
 | Exercise Picker | No search text · Results · No match | Exercise Picker |
-| History | Empty · With workouts · Rows not tappable | History |
+| History | Empty · With workouts · Rows not tappable · Loading · Load failed | History |
 
 - Confirm dialogs sit at the bottom of the screen, in thumb reach (D119).
 - Light and dark themes; the app follows the phone's setting (D97).

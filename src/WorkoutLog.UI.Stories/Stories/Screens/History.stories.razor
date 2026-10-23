@@ -21,4 +21,16 @@
         </Template>
     </Story>
 
+    <Story Name="Loading">
+        <Template>
+            <HistoryView Rows="[]" Loading OnBack="() => { }" />
+        </Template>
+    </Story>
+
+    <Story Name="Load failed">
+        <Template>
+            <HistoryView Rows="[]" Failed OnRetry="() => { }" OnBack="() => { }" />
+        </Template>
+    </Story>
+
 </Stories>

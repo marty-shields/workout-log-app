@@ -296,7 +296,7 @@ As the user, I want the back button to ask before dropping a new workout, so tha
 ## EP-04 History (M3)
 | ID | Story | Links | Size | Status |
 |---|---|---|---|---|
-| [US-16](#us-16-view-history) | View history | FR-20 | S | To do |
+| [US-16](#us-16-view-history) | View history | FR-20 | S | Done |
 
 ### US-16 View history
 As the user, I want a list of my saved workouts, newest first, so that I can look back.
@@ -305,8 +305,9 @@ As the user, I want a list of my saved workouts, newest first, so that I can loo
   - Back goes to the Dashboard ([06](06-screens-ux.md)).
   - Rows are not tappable. Opening a workout (FR-21) comes in [US-17](#us-17-edit-a-saved-workout).
   - Replaces the placeholder History page from [US-28](#us-28-back-button-on-android-16).
-  - **Logging:** Error: loading the history failed (exception). Debug: rows loaded (count).
-- **Size:** S · **Status:** To do
+  - A failed load shows "Couldn't load your history." and Try again; a spinner shows while loading (D180, D181).
+  - **Logging:** Error 1302: loading the history failed (exception). Debug 1301: rows loaded (count). Warning 2801: focusing Try again failed (exception).
+- **Size:** S · **Status:** Done (D180–D183, T60–T62)
 
 ## EP-05 Edit workouts (M4)
 | ID | Story | Links | Size | Status |
@@ -399,6 +400,7 @@ As the developer, I want the v1 UI flows automated, so that regressions are caug
 | [US-26](#us-26-signed-release-apk) | Signed release APK | [08](08-dev-setup-build.md) | M | To do |
 | [US-27](#us-27-manual-phone-checklist) | Manual phone checklist | [07](07-testing.md) | S | To do |
 | [US-34](#us-34-app-icon-and-splash-screen) | App icon and splash screen | D137, [14](14-design-system.md) | S | To do |
+| [US-36](#us-36-gated-decorators-wrap-the-interface) | Gated decorators wrap the interface | T27 | S | To do |
 
 ### US-25 Decide the keystore backup location
 As the developer, I want a backup location for the keystore, so that future APKs can still be signed if the original is lost.
@@ -434,4 +436,18 @@ As the user, I want the app's own icon and splash screen, so that I can find it 
 - **Extra ACs:**
   - Designed in the stories first and approved (D131).
   - **Logging:** none. No code that can fail.
+- **Size:** S · **Status:** To do
+
+### US-36 Gated decorators wrap the interface
+As the developer, I want the gated repository and initializer to be true decorators, so that nothing can reach the database without the gate.
+- **Links:** T27, T33
+- **Notes:**
+  - `GatedWorkoutRepository` and `GatedDatabaseInitializer` take the concrete `WorkoutRepository` and `DatabaseInitializer`, and `AddCore` registers those concrete types as services too, so they can be injected and bypass the `DatabaseGate`.
+- **Extra ACs:**
+  - The gated classes take `IWorkoutRepository` and `IDatabaseInitializer`.
+  - `AddCore` registers only the interfaces for these; the inner instances are built in the registration factory (e.g. `ActivatorUtilities.CreateInstance`). No new packages.
+  - Resolving `WorkoutRepository` or `DatabaseInitializer` from the container fails; a test checks it.
+  - The gated classes are unit tested against a mocked inner as well as SQLite.
+  - The decision is recorded in [10](10-decisions-log.md), amending T27.
+  - **Logging:** none new.
 - **Size:** S · **Status:** To do

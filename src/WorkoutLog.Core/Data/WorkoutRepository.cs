@@ -54,6 +54,12 @@ internal sealed class WorkoutRepository(SQLiteAsyncConnection connection) : IWor
     }
 
     /// <inheritdoc />
+    public async Task<IReadOnlyList<WorkoutSummary>> ListAsync() =>
+        (await connection.Table<WorkoutRow>().OrderByDescending(w => w.StartedAt).ThenByDescending(w => w.Id).ToListAsync())
+        .Select(w => new WorkoutSummary(w.Id, w.StartedAt))
+        .ToList();
+
+    /// <inheritdoc />
     public Task DeleteAsync(int id) =>
         connection.RunInTransactionAsync(db =>
         {

@@ -1,0 +1,36 @@
+@using WorkoutLog.Core.Services
+@using WorkoutLog.UI.Models.History
+@inject IHistoryService History
+@inject TimeProvider Clock
+
+<HistoryView Rows="rows" Loading="loading" Failed="failed" OnRetry="LoadAsync" OnBack="OnBack" />
+
+@code {
+    private IReadOnlyList<HistoryRow> rows = [];
+    private bool loading;
+    private bool failed;
+
+    /// <summary>Raised by the back arrow and the Android back button.</summary>
+    [Parameter]
+    public EventCallback OnBack { get; set; }
+
+    protected override Task OnInitializedAsync() => LoadAsync();
+
+    /// <summary>Loads the saved workouts, with each start in the phone's time zone. Shows the spinner until it finishes (D181).</summary>
+    private async Task LoadAsync()
+    {
+        if (loading)
+        {
+            return;
+        }
+
+        loading = true;
+        StateHasChanged();
+        var result = await History.GetAllAsync();
+        rows = result.Workouts
+            .Select(w => new HistoryRow(w.Id, TimeZoneInfo.ConvertTime(w.StartedAt, Clock.LocalTimeZone).DateTime))
+            .ToList();
+        failed = result.Failed;
+        loading = false;
+    }
+}

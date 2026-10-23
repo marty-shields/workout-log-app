@@ -77,7 +77,7 @@ The `Exercise` database table stores only Id, Name and Type, so other tables can
 | Field | Type | Notes |
 |---|---|---|
 | Id | int | Auto-increment |
-| StartedAt | DateTimeOffset (UTC) | Set when New Workout opens. Never changes after save. |
+| StartedAt | DateTimeOffset (UTC) | Set when New Workout opens. Never changes after save. Indexed (T61). |
 | FinishedAt | DateTimeOffset (UTC) | Set on first save. Never changes after save. |
 
 Date, day of week and total time are calculated from these and shown in the phone's current time zone. They are not stored.

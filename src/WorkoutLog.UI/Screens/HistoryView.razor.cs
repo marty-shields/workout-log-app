@@ -1,0 +1,13 @@
+using Microsoft.Extensions.Logging;
+
+namespace WorkoutLog.UI.Screens;
+
+/// <summary>Logs a failed focus on Try again; the screen stays as it is.</summary>
+public partial class HistoryView
+{
+    private static partial class Log
+    {
+        [LoggerMessage(2801, LogLevel.Warning, "Focusing Try again failed")]
+        public static partial void RetryFocusFailed(ILogger logger, Exception exception);
+    }
+}

@@ -1,6 +1,22 @@
+@using Microsoft.Extensions.Logging
+@using WorkoutLog.UI.Components.Feedback
 @using WorkoutLog.UI.Models.History
+@inject ILogger<HistoryView> Logger
 <AppScreen Title="History" OnBack="OnBack">
-    @if (Rows.Count == 0)
+    @if (Loading)
+    {
+        <div class="centre">
+            <Spinner Label="Loading…" TestId="history-loading" />
+        </div>
+    }
+    else if (Failed)
+    {
+        <div class="failed">
+            <p class="error" role="alert" data-testid="history-error">Couldn't load your history.</p>
+            <AppButton @ref="retry" Variant="ButtonVariant.Secondary" FullWidth TestId="history-retry" OnClick="OnRetry">Try again</AppButton>
+        </div>
+    }
+    else if (Rows.Count == 0)
     {
         <EmptyState Message="No workouts yet" TestId="history-empty" />
     }
@@ -22,6 +38,18 @@
     [Parameter, EditorRequired]
     public IReadOnlyList<HistoryRow> Rows { get; set; } = [];
 
+    /// <summary>Shows a spinner instead of the content while the workouts load.</summary>
+    [Parameter]
+    public bool Loading { get; set; }
+
+    /// <summary>Shows the load error and Try again instead of the rows, and moves focus to Try again.</summary>
+    [Parameter]
+    public bool Failed { get; set; }
+
+    /// <summary>Raised by Try again.</summary>
+    [Parameter]
+    public EventCallback OnRetry { get; set; }
+
     /// <summary>Raised when a row is tapped. Rows are not tappable when unset.</summary>
     [Parameter]
     public EventCallback<HistoryRow> OnOpen { get; set; }
@@ -29,6 +57,35 @@
     /// <summary>Raised by the back arrow and the Android back button.</summary>
     [Parameter]
     public EventCallback OnBack { get; set; }
+
+    private AppButton? retry;
+    private bool shownFailed;
+    private bool focusRetry;
+
+    protected override void OnParametersSet()
+    {
+        var showsFailed = Failed && !Loading;
+        focusRetry |= showsFailed && !shownFailed;
+        shownFailed = showsFailed;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!focusRetry || retry is null)
+        {
+            return;
+        }
+
+        focusRetry = false;
+        try
+        {
+            await retry.FocusAsync();
+        }
+        catch (Exception exception)
+        {
+            Log.RetryFocusFailed(Logger, exception);
+        }
+    }
 
     private EventCallback RowClick(HistoryRow row) =>
         OnOpen.HasDelegate ? EventCallback.Factory.Create(this, () => OnOpen.InvokeAsync(row)) : default;

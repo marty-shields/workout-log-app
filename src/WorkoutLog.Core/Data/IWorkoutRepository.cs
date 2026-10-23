@@ -14,6 +14,9 @@ internal interface IWorkoutRepository
     /// <summary>Returns the workout, or null if it doesn't exist.</summary>
     Task<Workout?> GetAsync(int id);
 
+    /// <summary>Returns every workout without its exercises, by start time newest first, then by id newest first.</summary>
+    Task<IReadOnlyList<WorkoutSummary>> ListAsync();
+
     /// <summary>Deletes the workout and its exercises, sets and entries. Throws <see cref="KeyNotFoundException"/> if the workout doesn't exist.</summary>
     Task DeleteAsync(int id);
 }

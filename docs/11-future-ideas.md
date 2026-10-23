@@ -11,6 +11,8 @@ These are not in v1. Nothing here is committed.
 | Export (CSV/JSON) | Manual copy of the data |
 | Backup / sync | See below |
 | Log a past session | Enter start and finish by hand for a session that wasn't logged live |
+| Page or virtualise History | If History gets slow with many workouts: load in pages, or render only the visible rows (D183) |
+| Filter History by date | E.g. by month or a date range |
 
 ## Backup / sync — things to consider
 These matter mainly when changing phone.

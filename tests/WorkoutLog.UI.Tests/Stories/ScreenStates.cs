@@ -55,6 +55,8 @@ public static class ScreenStates
         new("Screens/History", "Empty", c => History(c, [], tappable: true)),
         new("Screens/History", "With workouts", c => History(c, SampleData.HistoryRows, tappable: true)),
         new("Screens/History", "Rows not tappable", c => History(c, SampleData.HistoryRows, tappable: false)),
+        new("Screens/History", "Loading", c => History(c, [], tappable: false, loading: true)),
+        new("Screens/History", "Load failed", c => History(c, [], tappable: false, failed: true)),
 
         new("Screens/Error", "Rendering error", c => c.Render<ErrorView>(p => p.Add(x => x.OnRestart, () => { })).FindAll("*")),
     ];
@@ -124,10 +126,15 @@ public static class ScreenStates
             }
         }).FindAll("*");
 
-    private static IReadOnlyList<IElement> History(BunitContext context, IReadOnlyList<HistoryRow> rows, bool tappable) =>
+    private static IReadOnlyList<IElement> History(
+        BunitContext context, IReadOnlyList<HistoryRow> rows, bool tappable, bool loading = false, bool failed = false) =>
         context.Render<HistoryView>(p =>
         {
-            p.Add(x => x.Rows, rows).Add(x => x.OnBack, () => { });
+            p.Add(x => x.Rows, rows)
+                .Add(x => x.Loading, loading)
+                .Add(x => x.Failed, failed)
+                .Add(x => x.OnRetry, () => { })
+                .Add(x => x.OnBack, () => { });
             if (tappable)
             {
                 p.Add(x => x.OnOpen, (HistoryRow _) => { });

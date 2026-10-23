@@ -73,6 +73,7 @@ public class DatabaseInitializerTests
         {
             ("CardioEntry", "WorkoutExerciseId", true),
             ("StrengthSet", "WorkoutExerciseId", false),
+            ("Workout", "StartedAt", false),
             ("WorkoutExercise", "WorkoutId", false),
         }));
     }
@@ -135,6 +136,23 @@ public class DatabaseInitializerTests
         {
             Assert.That(await Columns(), Does.Contain(("CardioEntry", "Pace", "bigint")));
             Assert.That(await connection.Table<CardioEntryRow>().CountAsync(), Is.EqualTo(1));
+        });
+    }
+
+    [Test]
+    public async Task InitializeAsync_CurrentDatabaseWithoutStartedAtIndex_AddsTheIndexAndKeepsTheWorkouts()
+    {
+        await connection.ExecuteAsync(
+            "CREATE TABLE Workout (Id integer primary key autoincrement not null, StartedAt bigint not null, FinishedAt bigint not null)");
+        await connection.ExecuteAsync("INSERT INTO Workout (StartedAt, FinishedAt) VALUES (1, 2)");
+        await SetVersion(DatabaseInitializer.CurrentVersion);
+
+        await Initializer(DatabaseInitializer.CurrentVersion).InitializeAsync();
+
+        Assert.Multiple(async () =>
+        {
+            Assert.That(await Indexes(), Does.Contain(("Workout", "StartedAt", false)));
+            Assert.That(await connection.Table<WorkoutRow>().CountAsync(), Is.EqualTo(1));
         });
     }
 
