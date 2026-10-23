@@ -29,7 +29,7 @@ else
                  OnAddExercise="OpenPicker"
                  OnRemoveExercise="RemoveExercise"
                  OnBack="BackAsync"
-                 OnDelete="() => { }">
+                 OnDelete="OpenDelete">
         <Overlay>
             @if (pickerOpen)
             {
@@ -38,6 +38,10 @@ else
             @if (discardOpen)
             {
                 <ConfirmDialog Title="Discard changes?" ConfirmText="Discard" Danger OnConfirm="DiscardAsync" OnCancel="CloseDiscard" />
+            }
+            @if (deleteOpen)
+            {
+                <ConfirmDialog Title="Delete this workout?" ConfirmText="Delete" Danger OnConfirm="DeleteAsync" OnCancel="CloseDelete" />
             }
         </Overlay>
     </WorkoutView>
@@ -61,6 +65,8 @@ else
     private bool changed;
     private bool discardOpen;
     private bool discarded;
+    private bool deleteOpen;
+    private bool deleting;
 
     /// <summary>Id of the saved workout.</summary>
     [Parameter, EditorRequired]
@@ -69,6 +75,10 @@ else
     /// <summary>Raised after the workout is saved.</summary>
     [Parameter]
     public EventCallback OnSaved { get; set; }
+
+    /// <summary>Raised after the workout is deleted (FR-24).</summary>
+    [Parameter]
+    public EventCallback OnDeleted { get; set; }
 
     /// <summary>
     /// Raised by back while the workout is loading, failed to load or doesn't exist; on a loaded workout with no changes; and after
@@ -126,11 +136,12 @@ else
 
     /// <summary>
     /// With changes, asks Discard / Cancel (FR-23); without, raises <see cref="OnBack"/>. Ignored while a save runs, after one
-    /// succeeds and after a discard (D189). The picker takes back first while it is open.
+    /// succeeds and after a discard (D189), and while a delete runs and after one succeeds (D191). The picker takes back first
+    /// while it is open.
     /// </summary>
     private async Task BackAsync()
     {
-        if (saving || discarded)
+        if (saving || discarded || deleting)
         {
             return;
         }
@@ -147,12 +158,12 @@ else
     private void CloseDiscard() => discardOpen = false;
 
     /// <summary>
-    /// Logs the workout id only (D142) and raises <see cref="OnBack"/>, once. While a save runs or after one succeeds, closes
-    /// the prompt and does nothing else (D189).
+    /// Logs the workout id only (D142) and raises <see cref="OnBack"/>, once. While a save or delete runs or after one succeeds,
+    /// closes the prompt and does nothing else (D189, D191).
     /// </summary>
     private async Task DiscardAsync()
     {
-        if (saving)
+        if (saving || deleting)
         {
             discardOpen = false;
             return;
@@ -166,6 +177,57 @@ else
         discarded = true;
         Log.EditsDiscarded(Logger, loadedId);
         await OnBack.InvokeAsync();
+    }
+
+    /// <summary>Asks Delete / Cancel (FR-24). Ignored while a save or delete runs, after one succeeds and after a discard (D191).</summary>
+    private void OpenDelete()
+    {
+        if (saving || deleting || discarded)
+        {
+            return;
+        }
+
+        deleteOpen = true;
+    }
+
+    /// <summary>Closes the prompt. Ignored while a delete runs and after one succeeds (D191).</summary>
+    private void CloseDelete()
+    {
+        if (!deleting)
+        {
+            deleteOpen = false;
+        }
+    }
+
+    /// <summary>
+    /// Deletes the workout under the id it was loaded with and raises <see cref="OnDeleted"/>, once. If nothing was deleted,
+    /// closes the prompt, shows DeleteFailed and focuses Delete. While a save runs or after one succeeds, closes the prompt and
+    /// does nothing else; after a discard, does nothing (D191).
+    /// </summary>
+    private async Task DeleteAsync()
+    {
+        if (saving)
+        {
+            deleteOpen = false;
+            return;
+        }
+
+        if (deleting || discarded)
+        {
+            return;
+        }
+
+        deleting = true;
+        if (await Workouts.DeleteAsync(loadedId) == WorkoutDelete.Failed)
+        {
+            deleting = false;
+            deleteOpen = false;
+            error = WorkoutChecker.DeleteFailed;
+            errorFocus = new ErrorFocus(ErrorFocusTarget.Delete);
+            return;
+        }
+
+        await OnDeleted.InvokeAsync();
     }
 
     private void OpenPicker()
@@ -192,11 +254,12 @@ else
 
     /// <summary>
     /// Checks the workout (FR-09) and moves focus to the first error. A valid workout is saved under the id it was loaded with and raises <see cref="OnSaved"/>;
-    /// if nothing was saved, shows SaveFailed and focuses Save (D176). Ignored while a save runs and after one succeeds (D177).
+    /// if nothing was saved, shows SaveFailed and focuses Save (D176). Ignored while a save or delete runs and after one succeeds
+    /// (D177, D191).
     /// </summary>
     private async Task SaveAsync()
     {
-        if (saving)
+        if (saving || deleting)
         {
             return;
         }
@@ -215,7 +278,7 @@ else
         if (result.WorkoutId is null)
         {
             error = WorkoutChecker.SaveFailed;
-            errorFocus = new ErrorFocus(focusSave: true);
+            errorFocus = new ErrorFocus(ErrorFocusTarget.Save);
             return;
         }
 

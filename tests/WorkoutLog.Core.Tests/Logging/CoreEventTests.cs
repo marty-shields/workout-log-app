@@ -29,6 +29,8 @@ public class CoreEventTests
             [CoreEvent.WorkoutNotFound] = 1207,
             [CoreEvent.WorkoutLoadFailed] = 1208,
             [CoreEvent.WorkoutLoaded] = 1209,
+            [CoreEvent.WorkoutDeleted] = 1210,
+            [CoreEvent.WorkoutDeleteFailed] = 1211,
             [CoreEvent.HistoryLoaded] = 1301,
             [CoreEvent.HistoryLoadFailed] = 1302,
         }));

@@ -151,7 +151,7 @@
         if (result.WorkoutId is null)
         {
             error = WorkoutChecker.SaveFailed;
-            errorFocus = new ErrorFocus(focusSave: true);
+            errorFocus = new ErrorFocus(ErrorFocusTarget.Save);
             return;
         }
 

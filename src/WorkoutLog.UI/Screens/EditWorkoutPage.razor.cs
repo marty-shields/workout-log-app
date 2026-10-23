@@ -3,7 +3,7 @@ using WorkoutLog.UI.Logging;
 
 namespace WorkoutLog.UI.Screens;
 
-/// <summary>Logs a saved workout that can't be opened, and discarded edits with the workout id only.</summary>
+/// <summary>Logs a saved workout that can't be opened, and discarded edits with the workout id only. Deletes are logged by Core.</summary>
 public partial class EditWorkoutPage
 {
     private static partial class Log

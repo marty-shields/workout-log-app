@@ -565,5 +565,7 @@ public class SetCheckerTests
         public Task<WorkoutResult> GetAsync(int workoutId) => inner.GetAsync(workoutId);
 
         public Task<SaveResult> SaveAsync(int workoutId, IReadOnlyList<WorkoutExercise> exercises) => inner.SaveAsync(workoutId, exercises);
+
+        public Task<WorkoutDelete> DeleteAsync(int workoutId) => inner.DeleteAsync(workoutId);
     }
 }

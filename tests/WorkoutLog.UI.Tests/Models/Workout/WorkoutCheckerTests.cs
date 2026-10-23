@@ -44,6 +44,12 @@ public class WorkoutCheckerTests
     }
 
     [Test]
+    public void DeleteFailed_CouldntDeleteTheWorkout()
+    {
+        Assert.That(checker.DeleteFailed, Is.EqualTo("Couldn't delete the workout. Try again."));
+    }
+
+    [Test]
     public void Check_ValidWorkout_IsValidAndClearsOldErrors()
     {
         var squat = SampleData.Exercise(Catalog, Squat, ["8", "60"]);

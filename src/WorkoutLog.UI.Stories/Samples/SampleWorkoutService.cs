@@ -9,6 +9,7 @@ namespace WorkoutLog.UI.Stories.Samples;
 /// <see cref="IWorkoutService"/> for the stories. Starts workouts and checks workouts, sets and entries with Core's validator.
 /// <see cref="GetAsync"/> returns <see cref="SampleData.SavedStrengthWorkout"/> with the asked id.
 /// <see cref="SaveNewAsync"/> and <see cref="SaveAsync"/> store nothing and return an id when valid.
+/// <see cref="DeleteAsync"/> deletes nothing and returns <see cref="WorkoutDelete.Deleted"/>.
 /// </summary>
 public sealed class SampleWorkoutService(TimeProvider time, IExerciseCatalog catalog) : IWorkoutService
 {
@@ -43,4 +44,7 @@ public sealed class SampleWorkoutService(TimeProvider time, IExerciseCatalog cat
         var errors = validator.Validate(exercises);
         return Task.FromResult(new SaveResult(errors.IsValid ? workoutId : null, errors));
     }
+
+    /// <inheritdoc />
+    public Task<WorkoutDelete> DeleteAsync(int workoutId) => Task.FromResult(WorkoutDelete.Deleted);
 }

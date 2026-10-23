@@ -314,7 +314,7 @@ As the user, I want a list of my saved workouts, newest first, so that I can loo
 |---|---|---|---|---|
 | [US-17](#us-17-edit-a-saved-workout) | Edit a saved workout | FR-21, FR-22, FR-11, FR-13 | M | Done |
 | [US-18](#us-18-discard-unsaved-edits) | Discard unsaved edits | FR-23 | S | Done |
-| [US-19](#us-19-delete-a-workout) | Delete a workout | FR-24 | S | To do |
+| [US-19](#us-19-delete-a-workout) | Delete a workout | FR-24 | S | Done |
 
 ### US-17 Edit a saved workout
 As the user, I want to open a saved workout and change it, so that I can fix mistakes.
@@ -323,7 +323,7 @@ As the user, I want to open a saved workout and change it, so that I can fix mis
   - Edit shows the total time instead of the live timer ([06](06-screens-ux.md)).
   - Tapping a History row opens it; Save returns to the Dashboard (D184, D186).
   - Loading, Load failed with Try again, and Not found states; back in them goes to History (D185).
-  - Until US-18, back on a loaded workout does nothing; until US-19, Delete does nothing (D184). Back superseded by D189.
+  - Until US-18, back on a loaded workout does nothing; until US-19, Delete does nothing (D184). Back superseded by D189, Delete by D191.
   - **Logging:** Warning 1207: the workout id isn't found. Error 1208: loading the workout failed (id, exception). Debug 1209: loaded (id, exercise count). Error 2901: an exercise is unknown or the wrong type (workout id, exercise id). Warning 3001: focusing Try again failed (exception). Saves are logged by `WorkoutService` (US-35).
 - **Size:** M · **Status:** Done (D184–D188, T63–T66)
 
@@ -341,8 +341,10 @@ As the user, I want to delete a workout after confirming, so that wrong entries 
 - **Links:** FR-24
 - **Extra ACs:**
   - After delete, the app returns to History ([06](06-screens-ux.md)).
-  - **Logging:** Information: workout deleted (id). Error: delete failed (id, exception).
-- **Size:** S · **Status:** To do
+  - Same dialog with or without unsaved edits. A failed delete shows "Couldn't delete the workout. Try again.", keeps the workout and its edits, and focuses Delete. Delete, Save and Back are guarded as D189 (D191).
+  - Stories: "Delete failed"; "Back and discard" becomes "Back, discard and delete" (D192).
+  - **Logging:** Information 1210: workout deleted (id). Error 1211: delete failed (id, exception). Both in `WorkoutService` (T68).
+- **Size:** S · **Status:** Done (D191, D192, T68, T69)
 
 ## EP-06 Dashboard (M5)
 | ID | Story | Links | Size | Status |

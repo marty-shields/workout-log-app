@@ -42,6 +42,12 @@ internal enum CoreEvent
     /// <summary><see cref="Services.WorkoutService"/>: workout read.</summary>
     WorkoutLoaded = 1209,
 
+    /// <summary><see cref="Services.WorkoutService"/>: workout deleted.</summary>
+    WorkoutDeleted = 1210,
+
+    /// <summary><see cref="Services.WorkoutService"/>: deleting a workout failed.</summary>
+    WorkoutDeleteFailed = 1211,
+
     /// <summary><see cref="Services.HistoryService"/>: history read.</summary>
     HistoryLoaded = 1301,
 

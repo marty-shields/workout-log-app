@@ -1,13 +1,13 @@
 @using WorkoutLog.UI.Models.Dashboard
 @using WorkoutLog.UI.Models.History
-@* Runs EditWorkoutPage on the sample workout and moves between it, History and the Dashboard as the App does. Stories only. *@
+@* Runs EditWorkoutPage on the sample workout and moves between it, History and the Dashboard as the App does. A deleted workout leaves this History's rows. Stories only. *@
 @switch (screen)
 {
     case Screen.Edit:
-        <EditWorkoutPage WorkoutId="workoutId" OnBack="() => screen = Screen.History" OnSaved="() => screen = Screen.Dashboard" />
+        <EditWorkoutPage WorkoutId="workoutId" OnBack="() => screen = Screen.History" OnSaved="() => screen = Screen.Dashboard" OnDeleted="Deleted" />
         break;
     case Screen.History:
-        <HistoryView Rows="SampleData.HistoryRows" OnOpen="Open" OnBack="() => screen = Screen.Dashboard" />
+        <HistoryView Rows="rows" OnOpen="Open" OnBack="() => screen = Screen.Dashboard" />
         break;
     case Screen.Dashboard:
         <DashboardView Summary="@(new DashboardSummary(SampleData.Started, 2, 9))" OnNewWorkout="() => { }" OnHistory="() => screen = Screen.History" />
@@ -17,6 +17,7 @@
 @code {
     private enum Screen { Edit, History, Dashboard }
 
+    private readonly List<HistoryRow> rows = SampleData.HistoryRows.ToList();
     private Screen screen;
     private int workoutId = 1;
 
@@ -24,5 +25,11 @@
     {
         workoutId = row.Id;
         screen = Screen.Edit;
+    }
+
+    private void Deleted()
+    {
+        rows.RemoveAll(r => r.Id == workoutId);
+        screen = Screen.History;
     }
 }

@@ -11,6 +11,9 @@ public interface IWorkoutChecker
 
     /// <summary>Message on the workout when a save fails.</summary>
     string SaveFailed { get; }
+
+    /// <summary>Message on the workout when a delete fails.</summary>
+    string DeleteFailed { get; }
 }
 
 /// <summary>Outcome of <see cref="IWorkoutChecker.Check"/>.</summary>

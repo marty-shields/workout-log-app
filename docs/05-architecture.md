@@ -71,7 +71,7 @@ Blazor routing (`@page`):
 The Exercise picker is an overlay on the workout page, not a route.
 
 The Android back button is passed to the current page:
-- Workout pages: close the picker if it's open; otherwise show the Discard / Cancel prompt (FR-12, FR-23). New Workout ignores back while a save runs and after one succeeds (D179). Edit Workout asks only after a change, otherwise goes to History, and ignores back while a save runs and after one succeeds (D189); while loading, after a failed load or when it isn't found, back goes to History (D185).
+- Workout pages: close the picker if it's open; otherwise show the Discard / Cancel prompt (FR-12, FR-23). New Workout ignores back while a save runs and after one succeeds (D179). Edit Workout asks only after a change, otherwise goes to History, and ignores back while a save runs and after one succeeds (D189), and while a delete runs and after one succeeds (D191); while loading, after a failed load or when it isn't found, back goes to History (D185).
 - History: go to the Dashboard.
 - Dashboard: leave the app.
 
@@ -94,6 +94,7 @@ How (T46):
 - History load errors show "Couldn't load your history." with **Try again**. `IHistoryService` turns any repository exception into `HistoryResult.Failed` and logs it (T60).
 - Opening a workout that fails to load shows "Couldn't load the workout." with **Try again**; a missing one shows "This workout no longer exists." `IWorkoutService.GetAsync` turns any repository exception into `WorkoutLoad.Failed` and logs it (D185, T63).
 - Database errors are shown as a simple error message ("Couldn't save the workout. Try again."). The service turns any repository exception into `WorkoutError.SaveFailed` (T32) and logs it. The draft stays on screen.
+- A failed delete shows "Couldn't delete the workout. Try again."; the workout stays on screen. `IWorkoutService.DeleteAsync` turns any repository exception, a missing workout included, into `WorkoutDelete.Failed` and logs it (D191, T68).
 - An unhandled error in a screen shows the Error screen: "Something went wrong." and **Restart**, which goes to the Dashboard. `AppErrorBoundary` in the App's `Routes` shows it and logs the error (D140).
 - Unhandled .NET exceptions are logged, then the app crashes. Unobserved task exceptions are logged only (T44).
 

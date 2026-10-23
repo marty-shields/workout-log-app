@@ -50,11 +50,12 @@ public static class ScreenStates
         new("Screens/Edit Workout", "Save failed", c => Workout(c, WorkoutMode.Edit, SampleData.StrengthWorkout(Catalog(c)), error: WorkoutChecker(c).SaveFailed)),
         new("Screens/Edit Workout", "Discard prompt", c => Workout(c, WorkoutMode.Edit, SampleData.StrengthWorkout(Catalog(c)), dialog: ("Discard changes?", "Discard"))),
         new("Screens/Edit Workout", "Delete prompt", c => Workout(c, WorkoutMode.Edit, SampleData.StrengthWorkout(Catalog(c)), dialog: ("Delete this workout?", "Delete"))),
+        new("Screens/Edit Workout", "Delete failed", c => Workout(c, WorkoutMode.Edit, SampleData.StrengthWorkout(Catalog(c)), error: WorkoutChecker(c).DeleteFailed)),
         new("Screens/Edit Workout", "Loading", c => WorkoutLoad(c)),
         new("Screens/Edit Workout", "Load failed", c => WorkoutLoad(c, failed: true)),
         new("Screens/Edit Workout", "Not found", c => WorkoutLoad(c, notFound: true)),
         new("Screens/Edit Workout", "Live page", EditWorkout),
-        new("Screens/Edit Workout", "Back and discard", EditWorkoutOutcome),
+        new("Screens/Edit Workout", "Back, discard and delete", EditWorkoutOutcome),
 
         new("Screens/Exercise Picker", "No search text", c => Workout(c, WorkoutMode.New, SampleData.StrengthWorkout(Catalog(c)), pickerQuery: "")),
         new("Screens/Exercise Picker", "Results", c => Workout(c, WorkoutMode.New, SampleData.StrengthWorkout(Catalog(c)), pickerQuery: "dumbbell")),
@@ -94,7 +95,8 @@ public static class ScreenStates
         return context.Render<EditWorkoutPage>(p => p
             .Add(x => x.WorkoutId, 1)
             .Add(x => x.OnBack, () => { })
-            .Add(x => x.OnSaved, () => { }))
+            .Add(x => x.OnSaved, () => { })
+            .Add(x => x.OnDeleted, () => { }))
             .FindAll("*");
     }
 

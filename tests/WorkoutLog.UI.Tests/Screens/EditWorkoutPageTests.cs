@@ -540,20 +540,390 @@ public class EditWorkoutPageTests : ComponentTestBase
     }
 
     [Test]
-    public void Delete_DoesNothing()
+    public void Delete_ShowsDeleteThisWorkoutAndFocusesCancel()
+    {
+        var cut = RenderLoaded();
+
+        cut.Find("[data-testid=delete-workout]").Click();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.Find("[data-testid=confirm-dialog] h2").TextContent, Is.EqualTo("Delete this workout?"));
+            Assert.That(cut.Find("[data-testid=confirm-dialog-confirm]").TextContent, Is.EqualTo("Delete"));
+            Assert.That(cut.Find("[data-testid=confirm-dialog-cancel]").TextContent, Is.EqualTo("Cancel"));
+            Assert.That(cut.FindAll("[data-testid=confirm-dialog] .message"), Is.Empty);
+            Assert.That(workouts.Deletes, Is.Empty);
+        });
+        var cancel = cut.Find("[data-testid=confirm-dialog-cancel]").GetAttribute("blazor:elementreference");
+        cut.WaitForAssertion(() => Assert.That(((ElementReference)LastFocus().Arguments[0]!).Id, Is.EqualTo(cancel)));
+    }
+
+    [TestCase(false)]
+    [TestCase(true)]
+    public async Task Delete_CancelOrAndroidBack_ClosesThePromptAndKeepsTheWorkout(bool androidBack)
+    {
+        var backs = 0;
+        var deleted = 0;
+        var cut = RenderLoaded(onBack: () => backs++, onDeleted: () => deleted++);
+        cut.Find("[data-testid=exercise-1-set-1-reps]").Input("9");
+        cut.Find("[data-testid=delete-workout]").Click();
+
+        if (androidBack)
+        {
+            await cut.InvokeAsync(BackButton.HandleAsync);
+        }
+        else
+        {
+            cut.Find("[data-testid=confirm-dialog-cancel]").Click();
+        }
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.FindAll("[data-testid=confirm-dialog]"), Is.Empty);
+            Assert.That(Value(cut, "exercise-1-set-1-reps"), Is.EqualTo("9"));
+            Assert.That(workouts.Deletes, Is.Empty);
+            Assert.That(backs, Is.Zero);
+            Assert.That(deleted, Is.Zero);
+        });
+    }
+
+    [Test]
+    public void Delete_Confirmed_DeletesTheLoadedIdAndRaisesOnDeletedOnly()
+    {
+        var backs = 0;
+        var saved = 0;
+        var deleted = 0;
+        var cut = RenderLoaded(onBack: () => backs++, onSaved: () => saved++, onDeleted: () => deleted++);
+        cut.Find("[data-testid=delete-workout]").Click();
+
+        cut.Find("[data-testid=confirm-dialog-confirm]").Click();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(workouts.Deletes, Is.EqualTo(new[] { Id }));
+            Assert.That(deleted, Is.EqualTo(1));
+            Assert.That(backs, Is.Zero);
+            Assert.That(saved, Is.Zero);
+            Assert.That(workouts.Saves, Is.Empty);
+            Assert.That(LoggedEvents.Of(logger), Is.Empty);
+        });
+    }
+
+    [Test]
+    public void Delete_AfterTheIdParameterChanges_DeletesTheLoadedId()
+    {
+        var cut = RenderLoaded();
+        cut.Render(p => p.Add(x => x.WorkoutId, Id + 1));
+        cut.Find("[data-testid=delete-workout]").Click();
+
+        cut.Find("[data-testid=confirm-dialog-confirm]").Click();
+
+        Assert.That(workouts.Deletes, Is.EqualTo(new[] { Id }));
+    }
+
+    [Test]
+    public void Delete_WithChanges_AsksTheSameAndDeletesWithoutDiscardingOrSaving()
+    {
+        var deleted = 0;
+        var cut = RenderLoaded(onDeleted: () => deleted++);
+        cut.Find("[data-testid=exercise-1-set-1-reps]").Input("9");
+        cut.Find("[data-testid=delete-workout]").Click();
+        var title = cut.Find("[data-testid=confirm-dialog] h2").TextContent;
+
+        cut.Find("[data-testid=confirm-dialog-confirm]").Click();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(title, Is.EqualTo("Delete this workout?"));
+            Assert.That(workouts.Deletes, Is.EqualTo(new[] { Id }));
+            Assert.That(deleted, Is.EqualTo(1));
+            Assert.That(workouts.Saves, Is.Empty);
+            Assert.That(LoggedEvents.Of(logger), Is.Empty);
+        });
+    }
+
+    [Test]
+    public void Delete_Fails_ShowsDeleteFailedFocusesDeleteAndKeepsTheEdits()
+    {
+        var deleted = 0;
+        var cut = RenderLoaded(onDeleted: () => deleted++);
+        var delete = cut.Find("[data-testid=delete-workout]").GetAttribute("blazor:elementreference");
+        workouts.Delete = () => Task.FromResult(WorkoutDelete.Failed);
+        cut.Find("[data-testid=exercise-1-set-1-reps]").Input("9");
+        cut.Find("[data-testid=delete-workout]").Click();
+
+        cut.Find("[data-testid=confirm-dialog-confirm]").Click();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.FindAll("[data-testid=confirm-dialog]"), Is.Empty);
+            Assert.That(cut.Find("[data-testid=workout-error]").TextContent, Is.EqualTo("Couldn't delete the workout. Try again."));
+            Assert.That(Names(cut), Has.Count.EqualTo(3));
+            Assert.That(Value(cut, "exercise-1-set-1-reps"), Is.EqualTo("9"));
+            Assert.That(deleted, Is.Zero);
+            Assert.That(LoggedEvents.Of(logger), Is.Empty);
+        });
+        cut.WaitForAssertion(() => Assert.That(((ElementReference)LastFocus().Arguments[0]!).Id, Is.EqualTo(delete)));
+    }
+
+    [Test]
+    public async Task Delete_AfterItFails_BackAndDeleteWorkAgain()
+    {
+        var backs = 0;
+        var deleted = 0;
+        var cut = RenderLoaded(onBack: () => backs++, onDeleted: () => deleted++);
+        workouts.Delete = () => Task.FromResult(WorkoutDelete.Failed);
+        cut.Find("[data-testid=exercise-1-set-1-reps]").Input("9");
+        cut.Find("[data-testid=delete-workout]").Click();
+        cut.Find("[data-testid=confirm-dialog-confirm]").Click();
+
+        await cut.InvokeAsync(BackButton.HandleAsync);
+        var discardTitle = cut.Find("[data-testid=confirm-dialog] h2").TextContent;
+        cut.Find("[data-testid=confirm-dialog-cancel]").Click();
+        workouts.Delete = null;
+        cut.Find("[data-testid=delete-workout]").Click();
+        cut.Find("[data-testid=confirm-dialog-confirm]").Click();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(discardTitle, Is.EqualTo("Discard changes?"));
+            Assert.That(workouts.Deletes, Is.EqualTo(new[] { Id, Id }));
+            Assert.That(deleted, Is.EqualTo(1));
+            Assert.That(backs, Is.Zero);
+        });
+    }
+
+    [Test]
+    public void Delete_AfterItFails_SaveWorks()
+    {
+        var saved = 0;
+        var cut = RenderLoaded(onSaved: () => saved++);
+        workouts.Delete = () => Task.FromResult(WorkoutDelete.Failed);
+        cut.Find("[data-testid=delete-workout]").Click();
+        cut.Find("[data-testid=confirm-dialog-confirm]").Click();
+
+        cut.Find("[data-testid=save-workout]").Click();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(workouts.Saves, Has.Count.EqualTo(1));
+            Assert.That(saved, Is.EqualTo(1));
+        });
+    }
+
+    [Test]
+    public void ConfirmDelete_Twice_DeletesOnce()
+    {
+        var deleted = 0;
+        var cut = RenderLoaded(onDeleted: () => deleted++);
+        var pending = new TaskCompletionSource<WorkoutDelete>();
+        workouts.Delete = () => pending.Task;
+        cut.Find("[data-testid=delete-workout]").Click();
+
+        cut.Find("[data-testid=confirm-dialog-confirm]").Click();
+        cut.Find("[data-testid=confirm-dialog-confirm]").Click();
+        cut.InvokeAsync(() => pending.SetResult(WorkoutDelete.Deleted));
+        cut.WaitForAssertion(() => Assert.That(deleted, Is.EqualTo(1)));
+        cut.Find("[data-testid=confirm-dialog-confirm]").Click();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(workouts.Deletes, Has.Count.EqualTo(1));
+            Assert.That(deleted, Is.EqualTo(1));
+        });
+    }
+
+    [TestCase(false)]
+    [TestCase(true)]
+    public async Task WhileDeletingOrDeleted_BackSaveAndDeleteAreIgnored(bool finished)
     {
         var backs = 0;
         var cut = RenderLoaded(onBack: () => backs++);
+        if (!finished)
+        {
+            workouts.Delete = () => new TaskCompletionSource<WorkoutDelete>().Task;
+        }
+
+        cut.Find("[data-testid=exercise-1-set-1-reps]").Input("9");
+        cut.Find("[data-testid=delete-workout]").Click();
+        cut.Find("[data-testid=confirm-dialog-confirm]").Click();
+
+        cut.Find("[data-testid=back]").Click();
+        cut.Find("[data-testid=save-workout]").Click();
+        var afterBackAndSave = DialogTitles(cut);
+        cut.Find("[data-testid=delete-workout]").Click();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(afterBackAndSave, Is.EqualTo(new[] { "Delete this workout?" }));
+            Assert.That(DialogTitles(cut), Is.EqualTo(new[] { "Delete this workout?" }));
+            Assert.That(backs, Is.Zero);
+            Assert.That(workouts.Saves, Is.Empty);
+            Assert.That(workouts.Deletes, Has.Count.EqualTo(1));
+        });
+    }
+
+    [TestCase(false)]
+    [TestCase(true)]
+    public async Task CancelOrAndroidBack_WhileDeletingOrDeleted_KeepsThePrompt(bool finished)
+    {
+        var backs = 0;
+        var cut = RenderLoaded(onBack: () => backs++);
+        if (!finished)
+        {
+            workouts.Delete = () => new TaskCompletionSource<WorkoutDelete>().Task;
+        }
+
+        cut.Find("[data-testid=delete-workout]").Click();
+        cut.Find("[data-testid=confirm-dialog-confirm]").Click();
+
+        cut.Find("[data-testid=confirm-dialog-cancel]").Click();
+        await cut.InvokeAsync(BackButton.HandleAsync);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(DialogTitles(cut), Is.EqualTo(new[] { "Delete this workout?" }));
+            Assert.That(backs, Is.Zero);
+            Assert.That(workouts.Deletes, Has.Count.EqualTo(1));
+        });
+    }
+
+    [Test]
+    public void Cancel_AfterADeleteFails_ClosesThePrompt()
+    {
+        workouts.Delete = () => Task.FromResult(WorkoutDelete.Failed);
+        var cut = RenderLoaded();
+        cut.Find("[data-testid=delete-workout]").Click();
+        cut.Find("[data-testid=confirm-dialog-confirm]").Click();
+
+        cut.Find("[data-testid=delete-workout]").Click();
+        cut.Find("[data-testid=confirm-dialog-cancel]").Click();
+
+        Assert.That(cut.FindAll("[data-testid=confirm-dialog]"), Is.Empty);
+    }
+
+    [TestCase(false)]
+    [TestCase(true)]
+    public void Delete_WhileSavingOrSaved_IsIgnored(bool finished)
+    {
+        var cut = RenderLoaded();
+        if (!finished)
+        {
+            workouts.Save = () => new TaskCompletionSource<SaveResult>().Task;
+        }
+
+        cut.Find("[data-testid=save-workout]").Click();
 
         cut.Find("[data-testid=delete-workout]").Click();
 
         Assert.Multiple(() =>
         {
             Assert.That(cut.FindAll("[data-testid=confirm-dialog]"), Is.Empty);
-            Assert.That(Names(cut), Has.Count.EqualTo(3));
-            Assert.That(workouts.Saves, Is.Empty);
-            Assert.That(backs, Is.Zero);
+            Assert.That(workouts.Deletes, Is.Empty);
         });
+    }
+
+    [Test]
+    public void Delete_AfterADiscard_IsIgnored()
+    {
+        var cut = RenderLoaded();
+        cut.Find("[data-testid=exercise-1-set-1-reps]").Input("9");
+        cut.Find("[data-testid=back]").Click();
+        cut.Find("[data-testid=confirm-dialog-confirm]").Click();
+
+        cut.Find("[data-testid=delete-workout]").Click();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(DialogTitles(cut), Is.EqualTo(new[] { "Discard changes?" }));
+            Assert.That(workouts.Deletes, Is.Empty);
+        });
+    }
+
+    [TestCase(false)]
+    [TestCase(true)]
+    public void ConfirmDelete_WhileSavingOrSaved_ClosesThePromptAndDoesNothing(bool finished)
+    {
+        var deleted = 0;
+        var cut = RenderLoaded(onDeleted: () => deleted++);
+        if (!finished)
+        {
+            workouts.Save = () => new TaskCompletionSource<SaveResult>().Task;
+        }
+
+        cut.Find("[data-testid=delete-workout]").Click();
+        cut.Find("[data-testid=save-workout]").Click();
+
+        cut.Find("[data-testid=confirm-dialog-confirm]").Click();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.FindAll("[data-testid=confirm-dialog]"), Is.Empty);
+            Assert.That(workouts.Deletes, Is.Empty);
+            Assert.That(deleted, Is.Zero);
+        });
+    }
+
+    [Test]
+    public void ConfirmDelete_AfterADiscard_DoesNothing()
+    {
+        var deleted = 0;
+        var cut = RenderLoaded(onDeleted: () => deleted++);
+        cut.Find("[data-testid=exercise-1-set-1-reps]").Input("9");
+        cut.Find("[data-testid=back]").Click();
+        cut.Find("[data-testid=delete-workout]").Click();
+
+        cut.FindAll("[data-testid=confirm-dialog-confirm]")[0].Click();
+        cut.FindAll("[data-testid=confirm-dialog-confirm]")[1].Click();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(workouts.Deletes, Is.Empty);
+            Assert.That(deleted, Is.Zero);
+        });
+    }
+
+    [TestCase(false)]
+    [TestCase(true)]
+    public void Discard_WhileDeletingOrDeleted_ClosesThePromptAndDoesNothing(bool finished)
+    {
+        var backs = 0;
+        var cut = RenderLoaded(onBack: () => backs++);
+        if (!finished)
+        {
+            workouts.Delete = () => new TaskCompletionSource<WorkoutDelete>().Task;
+        }
+
+        cut.Find("[data-testid=exercise-1-set-1-reps]").Input("9");
+        cut.Find("[data-testid=back]").Click();
+        cut.Find("[data-testid=delete-workout]").Click();
+        cut.FindAll("[data-testid=confirm-dialog-confirm]")[1].Click();
+
+        cut.FindAll("[data-testid=confirm-dialog-confirm]")[0].Click();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(DialogTitles(cut), Is.EqualTo(new[] { "Delete this workout?" }));
+            Assert.That(backs, Is.Zero);
+            Assert.That(LoggedEvents.Of(logger), Is.Empty);
+        });
+    }
+
+    [Test]
+    public void Deleted_HandlerFails_ShowsTheErrorScreen()
+    {
+        var cut = Context.Render<AppErrorBoundary>(p => p
+            .Add(x => x.OnRestart, () => { })
+            .AddChildContent<EditWorkoutPage>(page => page
+                .Add(x => x.WorkoutId, Id)
+                .Add(x => x.OnDeleted, () => throw new InvalidOperationException("Navigation failed"))));
+        workouts.Complete(Loaded);
+        cut.WaitForAssertion(() => Assert.That(cut.FindAll("[data-testid=save-workout]"), Has.Count.EqualTo(1)));
+        cut.Find("[data-testid=delete-workout]").Click();
+
+        cut.Find("[data-testid=confirm-dialog-confirm]").Click();
+
+        cut.WaitForAssertion(() => Assert.That(cut.FindAll("[data-testid=error-message]"), Has.Count.EqualTo(1)));
     }
 
     [Test]
@@ -750,15 +1120,19 @@ public class EditWorkoutPageTests : ComponentTestBase
 
     private IReadOnlyList<JSRuntimeInvocation> Focuses() => Context.JSInterop.Invocations["Blazor._internal.domWrapper.focus"];
 
-    private IRenderedComponent<EditWorkoutPage> RenderPage(Action? onBack = null, Action? onSaved = null) =>
+    private static IReadOnlyList<string> DialogTitles(IRenderedComponent<EditWorkoutPage> cut) =>
+        cut.FindAll("[data-testid=confirm-dialog] h2").Select(h => h.TextContent).ToList();
+
+    private IRenderedComponent<EditWorkoutPage> RenderPage(Action? onBack = null, Action? onSaved = null, Action? onDeleted = null) =>
         Context.Render<EditWorkoutPage>(p => p
             .Add(x => x.WorkoutId, Id)
             .Add(x => x.OnBack, onBack ?? (() => { }))
-            .Add(x => x.OnSaved, onSaved ?? (() => { })));
+            .Add(x => x.OnSaved, onSaved ?? (() => { }))
+            .Add(x => x.OnDeleted, onDeleted ?? (() => { })));
 
-    private IRenderedComponent<EditWorkoutPage> RenderLoaded(Action? onBack = null, Action? onSaved = null)
+    private IRenderedComponent<EditWorkoutPage> RenderLoaded(Action? onBack = null, Action? onSaved = null, Action? onDeleted = null)
     {
-        var cut = RenderPage(onBack, onSaved);
+        var cut = RenderPage(onBack, onSaved, onDeleted);
         workouts.Complete(Loaded);
         cut.WaitForAssertion(() => Assert.That(cut.FindAll("[data-testid=save-workout]"), Has.Count.EqualTo(1)));
         return cut;
@@ -772,7 +1146,7 @@ public class EditWorkoutPageTests : ComponentTestBase
         cut.Find($"[data-testid=picker-item-{exerciseId}]").Click();
     }
 
-    /// <summary>Checks with the inner service. Each load waits until the test completes it; saves are recorded.</summary>
+    /// <summary>Checks with the inner service. Each load waits until the test completes it; saves and deletes are recorded.</summary>
     private sealed class FakeWorkoutService(IWorkoutService inner) : IWorkoutService
     {
         private TaskCompletionSource<WorkoutResult> pending = new();
@@ -784,6 +1158,12 @@ public class EditWorkoutPageTests : ComponentTestBase
 
         /// <summary>When set, <see cref="SaveAsync"/> returns its result instead of the inner service's.</summary>
         public Func<Task<SaveResult>>? Save { get; set; }
+
+        /// <summary>The id asked for by each delete.</summary>
+        public List<int> Deletes { get; } = [];
+
+        /// <summary>When set, <see cref="DeleteAsync"/> returns its result instead of the inner service's.</summary>
+        public Func<Task<WorkoutDelete>>? Delete { get; set; }
 
         /// <summary>Completes the latest load.</summary>
         public void Complete(WorkoutResult result) => pending.SetResult(result);
@@ -809,6 +1189,12 @@ public class EditWorkoutPageTests : ComponentTestBase
         {
             Saves.Add((workoutId, exercises));
             return Save?.Invoke() ?? inner.SaveAsync(workoutId, exercises);
+        }
+
+        public Task<WorkoutDelete> DeleteAsync(int workoutId)
+        {
+            Deletes.Add(workoutId);
+            return Delete?.Invoke() ?? inner.DeleteAsync(workoutId);
         }
     }
 }

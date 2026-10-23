@@ -54,6 +54,12 @@
         </Template>
     </Story>
 
+    <Story Name="Delete failed">
+        <Template>
+            <WorkoutView Mode="WorkoutMode.Edit" StartedAt="SampleData.Started" Time="new TimeSpan(1, 4, 37)" Exercises="SampleData.StrengthWorkout(Catalog)" Error="@Checker.DeleteFailed" OnBack="() => { }" OnDelete="() => { }" />
+        </Template>
+    </Story>
+
     <Story Name="Loading">
         <Template>
             <WorkoutLoadView OnBack="() => { }" />
@@ -74,11 +80,11 @@
 
     <Story Name="Live page">
         <Template>
-            <EditWorkoutPage WorkoutId="1" OnBack="() => { }" />
+            <EditWorkoutPage WorkoutId="1" OnBack="() => { }" OnDeleted="() => { }" />
         </Template>
     </Story>
 
-    <Story Name="Back and discard">
+    <Story Name="Back, discard and delete">
         <Template>
             <EditWorkoutOutcome />
         </Template>

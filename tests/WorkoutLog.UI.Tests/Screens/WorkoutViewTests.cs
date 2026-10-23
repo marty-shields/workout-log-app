@@ -374,15 +374,28 @@ public class WorkoutViewTests : ComponentTestBase
     }
 
     [Test]
-    public void ErrorFocus_FocusSave_FocusesSave()
+    public void ErrorFocus_Save_FocusesSave()
     {
         var cut = Context.Render<WorkoutView>(p => p
             .Add(x => x.StartedAt, Started)
             .Add(x => x.Exercises, [Curl()])
             .Add(x => x.Error, "Couldn't save the workout. Try again.")
-            .Add(x => x.ErrorFocus, new ErrorFocus(focusSave: true)));
+            .Add(x => x.ErrorFocus, new ErrorFocus(ErrorFocusTarget.Save)));
 
         Context.JSInterop.VerifyFocusAsyncInvoke().Arguments[0].ShouldBeElementReferenceTo(cut.Find("[data-testid=save-workout]"));
+    }
+
+    [Test]
+    public void ErrorFocus_Delete_FocusesDelete()
+    {
+        var cut = Context.Render<WorkoutView>(p => p
+            .Add(x => x.Mode, WorkoutMode.Edit)
+            .Add(x => x.StartedAt, Started)
+            .Add(x => x.Exercises, [Curl()])
+            .Add(x => x.Error, "Couldn't delete the workout. Try again.")
+            .Add(x => x.ErrorFocus, new ErrorFocus(ErrorFocusTarget.Delete)));
+
+        Context.JSInterop.VerifyFocusAsyncInvoke().Arguments[0].ShouldBeElementReferenceTo(cut.Find("[data-testid=delete-workout]"));
     }
 
     [Test]
@@ -564,7 +577,25 @@ public class WorkoutViewTests : ComponentTestBase
             .Add(x => x.StartedAt, Started)
             .Add(x => x.Exercises, [Curl()])
             .Add(x => x.Error, "Couldn't save the workout. Try again.")
-            .Add(x => x.ErrorFocus, new ErrorFocus(focusSave: true)));
+            .Add(x => x.ErrorFocus, new ErrorFocus(ErrorFocusTarget.Save)));
+
+        cut.WaitForAssertion(() => Assert.That(LoggedEvents.Of(logger), Is.EqualTo(new[] { (UiEvent.ErrorFocusFailed, LogLevel.Warning, "Focusing the first error failed") })));
+        Assert.That(cut.FindAll("[data-testid=exercise-1]"), Has.Count.EqualTo(1));
+    }
+
+    [Test]
+    public void DeleteFocusFails_LogsAWarningAndKeepsTheWorkout()
+    {
+        var logger = new FakeLogger<WorkoutView>();
+        Context.Services.AddSingleton<ILogger<WorkoutView>>(logger);
+        Context.JSInterop.SetupVoid("Blazor._internal.domWrapper.focus", _ => true).SetException(new JSException("Focus failed"));
+
+        var cut = Context.Render<WorkoutView>(p => p
+            .Add(x => x.Mode, WorkoutMode.Edit)
+            .Add(x => x.StartedAt, Started)
+            .Add(x => x.Exercises, [Curl()])
+            .Add(x => x.Error, "Couldn't delete the workout. Try again.")
+            .Add(x => x.ErrorFocus, new ErrorFocus(ErrorFocusTarget.Delete)));
 
         cut.WaitForAssertion(() => Assert.That(LoggedEvents.Of(logger), Is.EqualTo(new[] { (UiEvent.ErrorFocusFailed, LogLevel.Warning, "Focusing the first error failed") })));
         Assert.That(cut.FindAll("[data-testid=exercise-1]"), Has.Count.EqualTo(1));

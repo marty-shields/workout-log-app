@@ -6,7 +6,7 @@ using WorkoutLog.Core.Logging;
 
 namespace WorkoutLog.Core.Services;
 
-/// <summary>Checks workouts with <see cref="IWorkoutValidator"/>, and reads and saves them through <see cref="IWorkoutRepository"/>.</summary>
+/// <summary>Checks workouts with <see cref="IWorkoutValidator"/>, and reads, saves and deletes them through <see cref="IWorkoutRepository"/>.</summary>
 internal sealed partial class WorkoutService(
     IWorkoutRepository repository, IWorkoutValidator validator, TimeProvider time, ILogger<WorkoutService> logger) : IWorkoutService
 {
@@ -99,6 +99,23 @@ internal sealed partial class WorkoutService(
         }, errors);
     }
 
+    /// <inheritdoc />
+    public async Task<WorkoutDelete> DeleteAsync(int workoutId)
+    {
+        try
+        {
+            await repository.DeleteAsync(workoutId);
+        }
+        catch (Exception exception)
+        {
+            Log.DeleteFailed(logger, workoutId, exception);
+            return WorkoutDelete.Failed;
+        }
+
+        Log.Deleted(logger, workoutId);
+        return WorkoutDelete.Deleted;
+    }
+
     /// <summary>Runs <paramref name="write"/> and logs the outcome. <paramref name="workoutId"/> is null for a new workout.</summary>
     private async Task<SaveResult> WriteAsync(int? workoutId, int exerciseCount, Func<Task<int>> write, WorkoutErrors errors)
     {
@@ -176,5 +193,11 @@ internal sealed partial class WorkoutService(
 
         [LoggerMessage((int)CoreEvent.WorkoutLoaded, LogLevel.Debug, "Workout {WorkoutId} loaded with {ExerciseCount} exercises")]
         public static partial void Loaded(ILogger logger, int workoutId, int exerciseCount);
+
+        [LoggerMessage((int)CoreEvent.WorkoutDeleted, LogLevel.Information, "Workout {WorkoutId} deleted")]
+        public static partial void Deleted(ILogger logger, int workoutId);
+
+        [LoggerMessage((int)CoreEvent.WorkoutDeleteFailed, LogLevel.Error, "Deleting workout {WorkoutId} failed")]
+        public static partial void DeleteFailed(ILogger logger, int workoutId, Exception exception);
     }
 }

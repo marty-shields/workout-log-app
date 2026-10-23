@@ -59,6 +59,27 @@ public class EditWorkoutOutcomeTests : ComponentTestBase
     }
 
     [Test]
+    public void Delete_ShowsHistoryWithoutTheRowAndItStaysGone()
+    {
+        var cut = Context.Render<EditWorkoutOutcome>();
+        cut.Find("[data-testid=delete-workout]").Click();
+        cut.Find("[data-testid=confirm-dialog-confirm]").Click();
+        var title = cut.Find("[data-testid=screen-title]").TextContent;
+        var rows = cut.FindAll("[data-testid^=history-row-]").Count;
+
+        cut.Find("[data-testid=back]").Click();
+        cut.Find("[data-testid=history-link]").Click();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(title, Is.EqualTo("History"));
+            Assert.That(rows, Is.EqualTo(SampleData.HistoryRows.Count - 1));
+            Assert.That(cut.FindAll("[data-testid=history-row-1]"), Is.Empty);
+            Assert.That(cut.FindAll("[data-testid^=history-row-]"), Has.Count.EqualTo(SampleData.HistoryRows.Count - 1));
+        });
+    }
+
+    [Test]
     public void BackOnHistory_ShowsTheDashboard()
     {
         var cut = Context.Render<EditWorkoutOutcome>();

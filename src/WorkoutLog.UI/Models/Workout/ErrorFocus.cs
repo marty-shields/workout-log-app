@@ -1,9 +1,9 @@
 namespace WorkoutLog.UI.Models.Workout;
 
-/// <summary>A request to move focus after a failed Save: to the workout's first error, or to Save. Each instance is handled once.</summary>
-/// <param name="focusSave">True to focus Save, after a save that failed to write (D176).</param>
-public sealed class ErrorFocus(bool focusSave = false)
+/// <summary>A request to move focus after a failed Save or Delete. Each instance is handled once.</summary>
+/// <param name="target">Where focus moves.</param>
+public sealed class ErrorFocus(ErrorFocusTarget target = ErrorFocusTarget.FirstError)
 {
-    /// <summary>True to focus Save instead of the first error.</summary>
-    public bool FocusSave { get; } = focusSave;
+    /// <summary>Where focus moves.</summary>
+    public ErrorFocusTarget Target { get; } = target;
 }

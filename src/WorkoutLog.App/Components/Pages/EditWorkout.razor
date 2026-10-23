@@ -2,7 +2,7 @@
 @using WorkoutLog.UI.Screens
 @inject NavigationManager Navigation
 
-<EditWorkoutPage WorkoutId="Id" OnSaved="@(() => Navigation.GoTo(string.Empty))" OnBack="@(() => Navigation.GoTo("history"))" />
+<EditWorkoutPage WorkoutId="Id" OnSaved="@(() => Navigation.GoTo(string.Empty))" OnBack="@(() => Navigation.GoTo("history"))" OnDeleted="@(() => Navigation.GoTo("history"))" />
 
 @code {
     [Parameter] public int Id { get; set; }

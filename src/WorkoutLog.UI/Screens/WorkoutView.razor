@@ -5,7 +5,7 @@
     <Actions>
         @if (Mode == WorkoutMode.Edit)
         {
-            <AppButton Variant="ButtonVariant.Text" TestId="delete-workout" OnClick="OnDelete">Delete</AppButton>
+            <AppButton @ref="delete" Variant="ButtonVariant.Text" TestId="delete-workout" OnClick="OnDelete">Delete</AppButton>
         }
     </Actions>
     <ChildContent>
@@ -93,7 +93,10 @@
     [Parameter]
     public ExerciseFocus? Focus { get; set; }
 
-    /// <summary>Moves focus once shown, after a failed Save: to the first error (D171), or to Save when the request asks (D176). Each request is handled once.</summary>
+    /// <summary>
+    /// Moves focus once shown, after a failed Save or Delete: to the first error (D171), or to Save (D176) or Delete (D191) when
+    /// the request asks. Each request is handled once.
+    /// </summary>
     [Parameter]
     public ErrorFocus? ErrorFocus { get; set; }
 
@@ -106,6 +109,7 @@
     private ErrorFocus? handledError;
     private AppButton? addExercise;
     private AppButton? save;
+    private AppButton? delete;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -142,7 +146,7 @@
         }
     }
 
-    /// <summary>Handles <see cref="ErrorFocus"/>: Save when asked, Add exercise for a workout error, otherwise the first card with an error.</summary>
+    /// <summary>Handles <see cref="ErrorFocus"/>: Save or Delete when asked, Add exercise for a workout error, otherwise the first card with an error.</summary>
     private async Task FocusFirstErrorAsync()
     {
         if (ErrorFocus is null || ReferenceEquals(ErrorFocus, handledError))
@@ -153,19 +157,17 @@
         handledError = ErrorFocus;
         try
         {
-            if (ErrorFocus.FocusSave)
+            if (ErrorFocus.Target == ErrorFocusTarget.Save && save is not null)
             {
-                if (save is not null)
-                {
-                    await save.FocusAsync();
-                }
+                await save.FocusAsync();
             }
-            else if (Error is not null)
+            else if (ErrorFocus.Target == ErrorFocusTarget.Delete && delete is not null)
             {
-                if (addExercise is not null)
-                {
-                    await addExercise.FocusAsync();
-                }
+                await delete.FocusAsync();
+            }
+            else if (Error is not null && addExercise is not null)
+            {
+                await addExercise.FocusAsync();
             }
             else if (Exercises.FirstOrDefault(HasError) is { } exercise && cards.TryGetValue(exercise, out var card))
             {

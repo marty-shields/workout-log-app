@@ -302,6 +302,43 @@ public class WorkoutServiceTests
     }
 
     [Test]
+    public async Task DeleteAsync_Deleted_ReturnsDeletedAndLogsTheId()
+    {
+        repository.Setup(r => r.DeleteAsync(7)).Returns(Task.CompletedTask);
+
+        var result = await service.DeleteAsync(7);
+
+        Assert.That(result, Is.EqualTo(WorkoutDelete.Deleted));
+        repository.Verify(r => r.DeleteAsync(7), Times.Once);
+        Assert.That(LoggedEvents.Of(logger), Is.EqualTo(new[] { (CoreEvent.WorkoutDeleted, LogLevel.Information, "Workout 7 deleted") }));
+        Assert.That(logger.LatestRecord.Exception, Is.Null);
+    }
+
+    [Test]
+    public async Task DeleteAsync_RepositoryThrows_ReturnsFailedAndLogsTheIdAndException()
+    {
+        var exception = SQLiteException.New(SQLite3.Result.IOError, "disk I/O error");
+        repository.Setup(r => r.DeleteAsync(7)).ThrowsAsync(exception);
+
+        var result = await service.DeleteAsync(7);
+
+        Assert.That(result, Is.EqualTo(WorkoutDelete.Failed));
+        Assert.That(LoggedEvents.Of(logger), Is.EqualTo(new[] { (CoreEvent.WorkoutDeleteFailed, LogLevel.Error, "Deleting workout 7 failed") }));
+        Assert.That(logger.LatestRecord.Exception, Is.SameAs(exception));
+    }
+
+    [Test]
+    public async Task DeleteAsync_MissingWorkout_ReturnsFailed()
+    {
+        repository.Setup(r => r.DeleteAsync(7)).ThrowsAsync(new KeyNotFoundException());
+
+        var result = await service.DeleteAsync(7);
+
+        Assert.That(result, Is.EqualTo(WorkoutDelete.Failed));
+        Assert.That(LoggedEvents.Of(logger), Is.EqualTo(new[] { (CoreEvent.WorkoutDeleteFailed, LogLevel.Error, "Deleting workout 7 failed") }));
+    }
+
+    [Test]
     public async Task Invalid_LogsNothing()
     {
         validator.Setup(v => v.Validate(It.IsAny<IReadOnlyList<WorkoutExercise>>())).Returns(Errors);

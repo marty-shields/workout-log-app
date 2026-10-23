@@ -3,7 +3,7 @@ using WorkoutLog.Core.Domain.Workouts.Validation;
 
 namespace WorkoutLog.Core.Services;
 
-/// <summary>Starts, checks, opens and saves workouts. Times come from <see cref="TimeProvider"/>. Null input throws <see cref="ArgumentNullException"/>.</summary>
+/// <summary>Starts, checks, opens, saves and deletes workouts. Times come from <see cref="TimeProvider"/>. Null input throws <see cref="ArgumentNullException"/>.</summary>
 public interface IWorkoutService
 {
     /// <summary>Starts a new workout with the current time as its start (FR-01).</summary>
@@ -35,4 +35,10 @@ public interface IWorkoutService
     /// Nothing is saved when invalid or when the write fails, including when the workout doesn't exist.
     /// </summary>
     Task<SaveResult> SaveAsync(int workoutId, IReadOnlyList<WorkoutExercise> exercises);
+
+    /// <summary>
+    /// Deletes a saved workout with its exercises, sets and entries (FR-24). Returns <see cref="WorkoutDelete.Failed"/>
+    /// when the write fails, including when the workout doesn't exist.
+    /// </summary>
+    Task<WorkoutDelete> DeleteAsync(int workoutId);
 }
