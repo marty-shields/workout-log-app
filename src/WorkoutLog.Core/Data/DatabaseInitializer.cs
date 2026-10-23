@@ -1,9 +1,10 @@
+using Microsoft.Extensions.Logging;
 using SQLite;
 
 namespace WorkoutLog.Core.Data;
 
 /// <summary>Upgrades the schema version stored in SQLite <c>user_version</c>, creates missing tables, then seeds the exercise list.</summary>
-public sealed class DatabaseInitializer : IDatabaseInitializer
+public sealed partial class DatabaseInitializer : IDatabaseInitializer
 {
     /// <summary>The app's schema version.</summary>
     public const int CurrentVersion = 1;
@@ -11,19 +12,27 @@ public sealed class DatabaseInitializer : IDatabaseInitializer
     private readonly SQLiteAsyncConnection connection;
     private readonly IReadOnlyList<ISchemaUpgrade> upgrades;
     private readonly IExerciseSeeder seeder;
+    private readonly ILogger<DatabaseInitializer> logger;
     private readonly int currentVersion;
 
     /// <summary>Uses <see cref="CurrentVersion"/>.</summary>
-    public DatabaseInitializer(SQLiteAsyncConnection connection, IEnumerable<ISchemaUpgrade> upgrades, IExerciseSeeder seeder)
-        : this(connection, upgrades, seeder, CurrentVersion)
+    public DatabaseInitializer(
+        SQLiteAsyncConnection connection, IEnumerable<ISchemaUpgrade> upgrades, IExerciseSeeder seeder, ILogger<DatabaseInitializer> logger)
+        : this(connection, upgrades, seeder, logger, CurrentVersion)
     {
     }
 
-    internal DatabaseInitializer(SQLiteAsyncConnection connection, IEnumerable<ISchemaUpgrade> upgrades, IExerciseSeeder seeder, int currentVersion)
+    internal DatabaseInitializer(
+        SQLiteAsyncConnection connection,
+        IEnumerable<ISchemaUpgrade> upgrades,
+        IExerciseSeeder seeder,
+        ILogger<DatabaseInitializer> logger,
+        int currentVersion)
     {
         this.connection = connection;
         this.upgrades = upgrades.ToList();
         this.seeder = seeder;
+        this.logger = logger;
         this.currentVersion = currentVersion;
     }
 
@@ -37,6 +46,7 @@ public sealed class DatabaseInitializer : IDatabaseInitializer
     public async Task InitializeAsync()
     {
         var stored = await connection.ExecuteScalarAsync<int>("PRAGMA user_version");
+        Log.SchemaVersion(logger, stored, currentVersion);
         if (stored > currentVersion)
         {
             throw new InvalidOperationException($"Database schema version {stored} is newer than the app's version {currentVersion}");
@@ -48,6 +58,7 @@ public sealed class DatabaseInitializer : IDatabaseInitializer
         {
             await CreateTablesAsync();
             await connection.ExecuteAsync($"PRAGMA user_version = {currentVersion}");
+            Log.DatabaseCreated(logger, currentVersion);
         }
         else
         {
@@ -58,6 +69,7 @@ public sealed class DatabaseInitializer : IDatabaseInitializer
                     step.Apply(db);
                     db.Execute($"PRAGMA user_version = {step.Version}");
                 });
+                Log.StepApplied(logger, step.Version);
             }
 
             await CreateTablesAsync();
@@ -79,5 +91,17 @@ public sealed class DatabaseInitializer : IDatabaseInitializer
         }
 
         return steps;
+    }
+
+    private static partial class Log
+    {
+        [LoggerMessage(1001, LogLevel.Information, "Database schema version {Stored}, app schema version {Current}")]
+        public static partial void SchemaVersion(ILogger logger, int stored, int current);
+
+        [LoggerMessage(1002, LogLevel.Information, "New database created at schema version {Version}")]
+        public static partial void DatabaseCreated(ILogger logger, int version);
+
+        [LoggerMessage(1003, LogLevel.Information, "Schema upgrade step {Version} applied")]
+        public static partial void StepApplied(ILogger logger, int version);
     }
 }

@@ -29,6 +29,7 @@ WorkoutLog.slnx
 │  └─ WorkoutLog.Core/         Class library (net10.0)
 │      ├─ Domain/              Records/entities, metrics, exercise definitions, validation
 │      ├─ Data/                sqlite-net repositories, schema, seeding
+│      ├─ Logging/             File log provider, shared log line format
 │      └─ Services/            Workout, history, dashboard services
 └─ tests/
    ├─ WorkoutLog.Core.Tests/       NUnit + Moq + AutoFixture
@@ -47,15 +48,15 @@ flowchart LR
     S --> C[TimeProvider<br/>.NET]
     S --> X[Exercise definitions<br/>Core]
 ```
-- **App** hosts the BlazorWebView, registers DI and handles the Android back button.
+- **App** hosts the BlazorWebView, registers DI and the logging providers, and handles the Android back button.
 - **UI** renders and calls services only. It never touches the database. Form fields come from the exercise's metric definition.
 - **Services** hold the rules: save validation, start/finish capture, dashboard counts.
 - **Repositories** handle sqlite-net access. They sit behind interfaces so services can be unit-tested with Moq.
 - **TimeProvider** (.NET) supplies the current time, so start/finish, the live timer and week/month counts can be tested with `FakeTimeProvider` (T31).
-- **Exercise definitions** are an embedded JSON file in Core, loaded once at startup into the `IExerciseCatalog` singleton. The catalog also runs the picker search in memory (see [03](03-data-model.md#exercise-search), [04](04-exercise-list.md)).
+- **Exercise definitions** are an embedded JSON file in Core, read into the `IExerciseCatalog` singleton on first use: the seeder, at startup (T45). The catalog also runs the picker search in memory (see [03](03-data-model.md#exercise-search), [04](04-exercise-list.md)).
 
 ## Dependency injection
-Everything is registered in `MauiProgram.CreateMauiApp()` using the built-in `IServiceCollection`. Core registers its own types through `AddCore(databasePath)` (T19); the App passes `workoutlog.db3` in `FileSystem.AppDataDirectory`. Of the services, only `IWorkoutService` is public; the repository and validator are internal (T33). The database connection is an `SQLiteAsyncConnection` singleton. Services and repositories are registered by interface. At startup the App's `Routes` component wraps the router in `StartupGate`, which awaits `IDatabaseInitializer.InitializeAsync()` and shows the Startup screen until it completes, or its error if it throws (T36, D133). The initializer upgrades and creates the schema, then seeds the exercise list (T25, T28). The initializer and repository are decorators that run each call through one `DatabaseGate`, so database calls run one at a time (T27).
+Everything is registered in `MauiProgram.CreateMauiApp()` using the built-in `IServiceCollection`. Core registers its own types through `AddCore(databasePath)` (T19); the App passes `workoutlog.db3` in `FileSystem.AppDataDirectory`. Of the services, only `IWorkoutService` is public; the repository and validator are internal (T33). The database connection is an `SQLiteAsyncConnection` singleton. Services and repositories are registered by interface. At startup the App's `Routes` component wraps the router in `StartupGate`, which awaits `IDatabaseInitializer.InitializeAsync()` and shows the Startup screen until it completes, or its error if it throws (T36, D133). The initializer upgrades and creates the schema, then seeds the exercise list (T25, T28). The initializer and repository are decorators that run each call through one `DatabaseGate`, so database calls run one at a time (T27). Logging providers are registered in `MauiProgram` too ([Logging](#logging)).
 
 ## Navigation
 Blazor routing (`@page`). The routes are proposed:
@@ -82,7 +83,42 @@ The Android back button is passed to the current page:
 
 ## Error handling
 - Validation failures are shown inline on the page. Nothing is written. The service returns error codes; the page words them (T30).
-- Database errors are shown as a simple error message ("Couldn't save the workout. Try again."). The service turns any repository exception into `WorkoutError.SaveFailed` (T32). The draft stays on screen.
+- Database errors are shown as a simple error message ("Couldn't save the workout. Try again."). The service turns any repository exception into `WorkoutError.SaveFailed` (T32) and logs it. The draft stays on screen.
+- An unhandled error in a screen shows the Error screen: "Something went wrong." and **Restart**, which goes to the Dashboard. `AppErrorBoundary` in the App's `Routes` shows it and logs the error (D140).
+- Unhandled .NET exceptions are logged, then the app crashes. Unobserved task exceptions are logged only (T44).
+
+## Logging
+Every story logs its errors and unexpected events (D141). The Definition of Done checks this ([12](12-product-goal.md)).
+
+**How**
+- Core and UI inject `ILogger<T>` and never know where logs go. Each host registers its own `ILoggerProvider`s and levels in its startup (T41).
+- Each logging type has a nested `static partial class Log` of `[LoggerMessage]` methods, each with a fixed EventId and level (T43). EventIds: Core 1000+, UI 2000+, App 3000+, a block of 100 per type. In a Razor component the `Log` class goes in `<Component>.razor.cs`.
+- Tests check each event with `FakeLogger` (Microsoft.Extensions.Diagnostics.Testing): EventId, level, message and exception ([07](07-testing.md)).
+
+**What to log**
+| Level | When |
+|---|---|
+| Critical | The app is about to crash |
+| Error | An operation failed: an exception caught and turned into an error code or error screen. Pass the exception |
+| Warning | Something unexpected that the app works around (e.g. the clock before the start, D129) |
+| Information | A milestone: startup steps, a workout saved or deleted, lifecycle events |
+| Debug | Detail for a debugging session |
+
+**Never log** set values, entry values or notes, and never put them in an exception message. Ids, counts, versions, durations and exception details only. Validation errors (FR-09) are not logged (D142). So that exception messages stay clean:
+- Parse user input with `TryParse`, never `Parse`: a failed `Parse` puts the input in its `FormatException` message.
+- Never put a domain record (set, entry, workout) in a message: its `ToString()` prints every value.
+
+**Android App**
+| Provider | Where | Read with |
+|---|---|---|
+| `AndroidLogProvider` (App) | logcat, tag `WorkoutLog` | `adb logcat -s WorkoutLog` ([08](08-dev-setup-build.md#reading-the-logs)) |
+| `FileLogProvider` (Core) | `logs/workoutlog.log` in the app-specific external files folder, or the app data folder if there is none; becomes `workoutlog.1.log` at 1 MB (T42) | `adb pull` ([08](08-dev-setup-build.md#reading-the-logs)) |
+
+- Levels: Debug builds from Debug, Release from Information, `Microsoft.*` from Warning (D139).
+- `AndroidDiagnostics` logs the start (version, version code, build, API level), the previous exit reason, activity created/stopped/destroyed and trim-memory requests. `MauiProgram` registers its handlers with `ConfigureLifecycleEvents`; on start it subscribes to unhandled and unobserved-task exceptions (T44).
+- On API 36 Android never calls `OnLowMemory`, and trim memory only reports `UiHidden` or `Background`, so it is logged at Information. Memory kills show as the previous exit reason (`LowMemory`) on the next start (T44).
+- The WebView render process ending can't be logged; the next start logs the exit reason (T44).
+- The log file shows when each workout was saved (ids and counts only). adb or a USB-connected PC can read it on both builds (T42).
 
 ## Dependencies
 Confirmed in US-02 (D75).
@@ -91,6 +127,7 @@ Confirmed in US-02 (D75).
 |---|---|---|---|
 | sqlite-net-pcl | 1.11.285 | Core | ORM. Brings in SQLitePCLRaw 3.0.3 and the native SQLite library (SourceGear.sqlite3 3.53.3) |
 | Microsoft.Extensions.DependencyInjection.Abstractions | 10.0.13 | Core | `IServiceCollection` for `AddCore` (T19) |
+| Microsoft.Extensions.Logging.Abstractions | 10.0.13 | Core | `ILogger<T>` and `[LoggerMessage]` (T41, T43) |
 | NUnit | 5.0.0 | tests | Test framework. Fallback: 4.6.1 (see [US-04](13-backlog.md#us-04-create-the-solution)) |
 | NUnit3TestAdapter | 6.3.1 | tests | Test adapter |
 | NUnit.Analyzers | 4.15.0 | tests | Build-time NUnit checks |
@@ -98,6 +135,7 @@ Confirmed in US-02 (D75).
 | Moq | 4.21.0 | tests | Mocks |
 | AutoFixture, AutoFixture.AutoMoq | 4.18.1 | tests | Test data |
 | Microsoft.Extensions.TimeProvider.Testing | 10.11.0 | Core.Tests | `FakeTimeProvider` (T31) |
+| Microsoft.Extensions.Diagnostics.Testing | 10.11.0 | Core.Tests, UI.Tests | `FakeLogger` (T43) |
 | bunit | 2.12.5 | UI.Tests | Component tests |
 | Appium.WebDriver | 9.0.0 | E2E.Tests | UI automation (Selenium 4.46). Check against the Appium server version in M6 |
 | BlazingStory | 1.0.0-preview.96 | UI.Stories | Component stories and prototyping (D99). Prerelease only; no stable version exists |
@@ -106,6 +144,8 @@ Confirmed in US-02 (D75).
 MAUI packages (`Microsoft.Maui.Controls`, `Microsoft.AspNetCore.Components.WebView.Maui`) come from the template, pinned to 10.0.120 with `MauiVersion` in the App project (T38).
 
 Blazor packages (`Microsoft.AspNetCore.Components.Web` in UI; `Microsoft.AspNetCore.Components.WebAssembly` and `.DevServer` in UI.Stories; 10.0.13) come from the project templates.
+
+`ILogger<T>` reaches UI through `Microsoft.AspNetCore.Components.Web`, and the App gets Microsoft.Extensions.Logging through MAUI. No logging provider packages are used (T38, T41).
 
 Checks:
 - `SQLitePCLRaw.bundle_green` is not used. It is on the 2.x line and conflicts with the 3.x packages sqlite-net-pcl brings in.

@@ -1,3 +1,5 @@
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Testing;
 using Microsoft.Extensions.Time.Testing;
 using Moq;
 using SQLite;
@@ -21,6 +23,7 @@ public class WorkoutServiceTests
     private FakeTimeProvider time = null!;
     private Mock<IWorkoutRepository> repository = null!;
     private Mock<IWorkoutValidator> validator = null!;
+    private FakeLogger<WorkoutService> logger = null!;
     private WorkoutService service = null!;
 
     [SetUp]
@@ -30,7 +33,8 @@ public class WorkoutServiceTests
         repository = new Mock<IWorkoutRepository>(MockBehavior.Strict);
         validator = new Mock<IWorkoutValidator>();
         validator.Setup(v => v.Validate(It.IsAny<IReadOnlyList<WorkoutExercise>>())).Returns(NoErrors);
-        service = new WorkoutService(repository.Object, validator.Object, time);
+        logger = new FakeLogger<WorkoutService>();
+        service = new WorkoutService(repository.Object, validator.Object, time, logger);
     }
 
     [Test]
@@ -173,6 +177,78 @@ public class WorkoutServiceTests
         var result = await service.SaveAsync(7, Exercises());
 
         Assert.That(result, Is.EqualTo(new SaveResult(null, SaveFailed)));
+    }
+
+    [Test]
+    public async Task SaveNewAsync_Saved_LogsTheIdAndExerciseCount()
+    {
+        repository.Setup(r => r.AddAsync(It.IsAny<NewWorkout>())).ReturnsAsync(7);
+
+        await service.SaveNewAsync(service.StartNew(), Exercises());
+
+        Assert.That(LoggedEvents.Of(logger), Is.EqualTo(new[]
+        {
+            (1201, LogLevel.Information, "Workout 7 added with 2 exercises"),
+        }));
+    }
+
+    [Test]
+    public async Task SaveNewAsync_ClockBeforeTheStart_LogsAWarning()
+    {
+        repository.Setup(r => r.AddAsync(It.IsAny<NewWorkout>())).ReturnsAsync(7);
+
+        await service.SaveNewAsync(new WorkoutDraft(Start.AddMinutes(30)), Exercises());
+
+        Assert.That(LoggedEvents.Of(logger)[0], Is.EqualTo(
+            (1205, LogLevel.Warning, "The clock is 00:30:00 behind the workout start; the finish is set to the start")));
+    }
+
+    [Test]
+    public async Task SaveNewAsync_RepositoryThrows_LogsTheException()
+    {
+        var exception = SQLiteException.New(SQLite3.Result.Full, "disk full");
+        repository.Setup(r => r.AddAsync(It.IsAny<NewWorkout>())).ThrowsAsync(exception);
+
+        await service.SaveNewAsync(service.StartNew(), Exercises());
+
+        Assert.That(LoggedEvents.Of(logger), Is.EqualTo(new[] { (1203, LogLevel.Error, "Adding a workout failed") }));
+        Assert.That(logger.LatestRecord.Exception, Is.SameAs(exception));
+    }
+
+    [Test]
+    public async Task SaveAsync_Saved_LogsTheIdAndExerciseCount()
+    {
+        repository.Setup(r => r.ReplaceExercisesAsync(7, It.IsAny<IReadOnlyList<WorkoutExercise>>())).Returns(Task.CompletedTask);
+
+        await service.SaveAsync(7, Exercises());
+
+        Assert.That(LoggedEvents.Of(logger), Is.EqualTo(new[]
+        {
+            (1202, LogLevel.Information, "Workout 7 updated with 2 exercises"),
+        }));
+    }
+
+    [Test]
+    public async Task SaveAsync_RepositoryThrows_LogsTheIdAndException()
+    {
+        var exception = new KeyNotFoundException();
+        repository.Setup(r => r.ReplaceExercisesAsync(7, It.IsAny<IReadOnlyList<WorkoutExercise>>())).ThrowsAsync(exception);
+
+        await service.SaveAsync(7, Exercises());
+
+        Assert.That(LoggedEvents.Of(logger), Is.EqualTo(new[] { (1204, LogLevel.Error, "Updating workout 7 failed") }));
+        Assert.That(logger.LatestRecord.Exception, Is.SameAs(exception));
+    }
+
+    [Test]
+    public async Task Invalid_LogsNothing()
+    {
+        validator.Setup(v => v.Validate(It.IsAny<IReadOnlyList<WorkoutExercise>>())).Returns(Errors);
+
+        await service.SaveNewAsync(service.StartNew(), Exercises());
+        await service.SaveAsync(7, Exercises());
+
+        Assert.That(LoggedEvents.Of(logger), Is.Empty);
     }
 
     [Test]

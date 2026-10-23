@@ -6,6 +6,10 @@
 - Shown while the database opens, before the Dashboard (T36)
 - Spinner with "Loading…" (D134), or "Couldn't open the workout database." if it fails (D133)
 
+### Error
+- Shown instead of any screen that hits an unhandled error (D140)
+- "Something went wrong." and **Restart**, which goes to the Dashboard. An unsaved workout is lost.
+
 ### Dashboard (home)
 - **New Workout** button
 - Last workout: date + day, or an empty state

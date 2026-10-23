@@ -2,6 +2,18 @@
 
 <Stories TComponent="PrototypeApp">
 
+    <Story Name="Open the app">
+        <Template>
+            <ScenarioPlayer Scenario="Scenarios.OpenApp" />
+        </Template>
+    </Story>
+
+    <Story Name="Startup fails">
+        <Template>
+            <ScenarioPlayer Scenario="Scenarios.StartupFails" />
+        </Template>
+    </Story>
+
     <Story Name="Click through">
         <Template>
             <PrototypeApp />
@@ -65,6 +77,12 @@
     <Story Name="Delete a workout">
         <Template>
             <ScenarioPlayer Scenario="Scenarios.DeleteWorkout" />
+        </Template>
+    </Story>
+
+    <Story Name="Recover from an error">
+        <Template>
+            <ScenarioPlayer Scenario="Scenarios.RecoverFromError" />
         </Template>
     </Story>
 

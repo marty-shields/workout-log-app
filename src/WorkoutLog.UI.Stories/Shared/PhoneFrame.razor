@@ -11,11 +11,15 @@
         <div class="nav-bar">
             @if (OnSystemBack.HasDelegate)
             {
-                <button type="button" class="system-back" data-testid="system-back" @onclick="OnSystemBack">&#x25C1; Android back</button>
+                <button type="button" class="system-button" data-testid="system-back" @onclick="OnSystemBack">&#x25C1; Android back</button>
             }
             else
             {
                 <span class="handle" aria-hidden="true"></span>
+            }
+            @if (OnSimulateError.HasDelegate)
+            {
+                <button type="button" class="system-button" data-testid="simulate-error" @onclick="OnSimulateError">&#x26A0; Simulate an error</button>
             }
         </div>
     </div>
@@ -29,6 +33,10 @@
     /// <summary>Raised by the simulated Android back button. The bar shows a gesture handle when unset.</summary>
     [Parameter]
     public EventCallback OnSystemBack { get; set; }
+
+    /// <summary>Raised by the Simulate an error button, shown in the bar when set.</summary>
+    [Parameter]
+    public EventCallback OnSimulateError { get; set; }
 
     private string? Theme { get; set; }
 }

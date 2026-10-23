@@ -5,6 +5,27 @@ namespace WorkoutLog.UI.Stories.Stories.Prototype;
 /// <summary>Typical user tasks, played on the prototype's sample data (docs/06).</summary>
 public static class Scenarios
 {
+    /// <summary>The Startup screen while the database opens, then the Dashboard.</summary>
+    public static readonly Scenario OpenApp = new(
+        "Open the app",
+        "The Startup screen shows while the database opens, then the Dashboard.",
+        [
+            Show("The app opens on the Startup screen", "startup-loading"),
+            Show("Then the Dashboard shows", "last-workout"),
+        ],
+        StartupDelay: TimeSpan.FromSeconds(2));
+
+    /// <summary>The Startup screen, then its error when the database can't be opened (D133).</summary>
+    public static readonly Scenario StartupFails = new(
+        "Startup fails",
+        "If the database can't be opened, the Startup screen shows an error and the app goes no further.",
+        [
+            Show("The app opens on the Startup screen", "startup-loading"),
+            Show("Couldn't open the workout database.", "startup-error"),
+        ],
+        StartupDelay: TimeSpan.FromSeconds(2),
+        StartupFails: true);
+
     /// <summary>Empty Dashboard and History, then leaving and reopening the app.</summary>
     public static readonly Scenario FirstUse = new(
         "First use",
@@ -233,5 +254,17 @@ public static class Scenarios
             Click("Delete again", "delete-workout"),
             Click("Confirm delete", "confirm-dialog-confirm"),
             Show("Back on History: two workouts left", "history-row-2"),
+        ]);
+
+    /// <summary>An unhandled error shows the Error screen; Restart goes back to the Dashboard.</summary>
+    public static readonly Scenario RecoverFromError = new(
+        "Recover from an error",
+        "An unexpected error shows the Error screen; Restart goes back to the Dashboard.",
+        [
+            Click("Open History", "history-link"),
+            Click("Simulate an error", "simulate-error"),
+            Show("Something went wrong.", "error-message"),
+            Click("Restart", "error-restart"),
+            Show("Back on the Dashboard", "last-workout"),
         ]);
 }

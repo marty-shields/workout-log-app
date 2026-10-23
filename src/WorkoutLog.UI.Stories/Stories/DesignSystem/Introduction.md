@@ -61,7 +61,7 @@ One page per group: [Actions](/?path=/custom/design-system-components-actions) �
 Component stories have a System / Light / Dark switch.
 
 ## Screens
-Screens are built from the components only. One page per screen, each with its states as stories in the phone frame: [Startup](/?path=/custom/design-system-screens-startup) · [Dashboard](/?path=/custom/design-system-screens-dashboard) · [New Workout](/?path=/custom/design-system-screens-new-workout) · [Edit Workout](/?path=/custom/design-system-screens-edit-workout) · [Exercise Picker](/?path=/custom/design-system-screens-exercise-picker) · [History](/?path=/custom/design-system-screens-history)
+Screens are built from the components only. One page per screen, each with its states as stories in the phone frame: [Startup](/?path=/custom/design-system-screens-startup) · [Dashboard](/?path=/custom/design-system-screens-dashboard) · [New Workout](/?path=/custom/design-system-screens-new-workout) · [Edit Workout](/?path=/custom/design-system-screens-edit-workout) · [Exercise Picker](/?path=/custom/design-system-screens-exercise-picker) · [History](/?path=/custom/design-system-screens-history) · [Error](/?path=/custom/design-system-screens-error)
 
 ## Checks
 Tests in `WorkoutLog.UI.Tests` fail when:

@@ -20,6 +20,14 @@ public class ExerciseCatalogTests
     }
 
     [Test]
+    public void MissingResource_ThrowsOnFirstUseNotOnCreate()
+    {
+        var missing = new ExerciseCatalog("WorkoutLog.Core.missing.json");
+
+        Assert.That(() => missing.All, Throws.InvalidOperationException);
+    }
+
+    [Test]
     public void All_ReadsStrengthFields()
     {
         var exercise = Find("Machine Assisted Pull-up");

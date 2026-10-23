@@ -22,3 +22,8 @@ Stories: [AppScreen](/?path=/docs/components-layout-appscreen--docs)
 Runs `Initialize` once at startup. Shows the [Startup](/?path=/custom/design-system-screens-startup) screen while it runs or if it throws, then `ChildContent`.
 
 Stories: [StartupGate](/?path=/docs/components-layout-startupgate--docs)
+
+## `AppErrorBoundary`
+Shows `ChildContent` until it throws an unhandled error, then logs the error and shows the [Error](/?path=/custom/design-system-screens-error) screen. **Restart** raises `OnRestart`, then shows `ChildContent` again.
+
+Stories: [AppErrorBoundary](/?path=/docs/components-layout-apperrorboundary--docs) · [Recover from an error](/?path=/story/prototype-workout-log--recover-from-an-error)

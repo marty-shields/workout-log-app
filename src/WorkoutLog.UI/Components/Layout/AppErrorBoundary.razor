@@ -1,0 +1,31 @@
+@using Microsoft.Extensions.Logging
+@using WorkoutLog.UI.Screens
+@inherits ErrorBoundaryBase
+@inject ILogger<AppErrorBoundary> Logger
+@if (CurrentException is null)
+{
+    @ChildContent
+}
+else
+{
+    <ErrorView OnRestart="RestartAsync" />
+}
+
+@code {
+    /// <summary>Raised by Restart on the Error screen, before the content shows again.</summary>
+    [Parameter]
+    public EventCallback OnRestart { get; set; }
+
+    /// <inheritdoc />
+    protected override Task OnErrorAsync(Exception exception)
+    {
+        Log.Unhandled(Logger, exception);
+        return Task.CompletedTask;
+    }
+
+    private async Task RestartAsync()
+    {
+        await OnRestart.InvokeAsync();
+        Recover();
+    }
+}

@@ -1,0 +1,16 @@
+<AppScreen Title="Workout Log">
+    <ChildContent>
+        <div class="centre">
+            <p class="message" data-testid="error-message">Something went wrong.</p>
+        </div>
+    </ChildContent>
+    <BottomBar>
+        <AppButton FullWidth TestId="error-restart" OnClick="OnRestart">Restart</AppButton>
+    </BottomBar>
+</AppScreen>
+
+@code {
+    /// <summary>Raised by Restart.</summary>
+    [Parameter]
+    public EventCallback OnRestart { get; set; }
+}

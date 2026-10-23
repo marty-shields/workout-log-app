@@ -1,0 +1,24 @@
+@using WorkoutLog.UI.Components.Layout
+@attribute [Stories("Components/Layout/AppErrorBoundary")]
+
+<Stories TComponent="AppErrorBoundary" Layout="typeof(PhoneLayout)">
+
+    <Story Name="Error">
+        <Template>
+            <AppErrorBoundary>
+                <ThrowOnRender />
+            </AppErrorBoundary>
+        </Template>
+    </Story>
+
+    <Story Name="No error">
+        <Template>
+            <AppErrorBoundary>
+                <AppScreen Title="Workout Log">
+                    <p>App content.</p>
+                </AppScreen>
+            </AppErrorBoundary>
+        </Template>
+    </Story>
+
+</Stories>

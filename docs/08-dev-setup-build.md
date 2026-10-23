@@ -39,6 +39,13 @@ Without USB, use wireless debugging (phone and PC on the same Wi-Fi):
 - Or from the CLI: `dotnet build src/WorkoutLog.App -t:Run -f net10.0-android`
 - Debug builds install as "Workout Log (Dev)".
 
+## Reading the logs
+Debug and Release builds both log to logcat and to a file ([05](05-architecture.md#logging)).
+- **Logcat** (phone connected): `adb logcat -s WorkoutLog`. Add `-d` to print what's there and stop.
+- **File:** `adb pull /sdcard/Android/data/<package id>/files/logs/`, with the package id from [App identity](#app-identity). The folder holds `workoutlog.log` and, after it reaches 1 MB, the older `workoutlog.1.log`. Uninstalling the app deletes it.
+- If the phone has no external storage, the file is in the app data folder instead. Only the Debug app's can be read: `adb shell run-as uk.martinshields.workoutlog.debug cat files/logs/workoutlog.log`.
+- Each line: UTC time (file only), level, category, `[EventId]`, message, then any exception.
+
 ## Release: signed APK
 1. Create a keystore once (`keytool -genkey ...`).
 2. Set the signing properties in the app `.csproj` (`AndroidKeyStore`, `AndroidSigningKeyStore`, `AndroidSigningKeyAlias`). Passwords come from environment variables and are never stored in the repo.

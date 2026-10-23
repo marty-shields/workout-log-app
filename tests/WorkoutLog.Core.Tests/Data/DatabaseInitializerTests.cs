@@ -1,3 +1,6 @@
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
+using Microsoft.Extensions.Logging.Testing;
 using Moq;
 using SQLite;
 using WorkoutLog.Core.Data;
@@ -11,11 +14,13 @@ public class DatabaseInitializerTests
     private string databasePath = "";
     private SQLiteAsyncConnection connection = null!;
     private Mock<IExerciseSeeder> seeder = null!;
+    private FakeLogger<DatabaseInitializer> logger = null!;
 
     [SetUp]
     public void SetUp()
     {
         calls.Clear();
+        logger = new FakeLogger<DatabaseInitializer>();
         databasePath = TempDatabase.NewPath();
         connection = new SQLiteAsyncConnection(databasePath);
         seeder = new Mock<IExerciseSeeder>();
@@ -126,6 +131,33 @@ public class DatabaseInitializerTests
     }
 
     [Test]
+    public async Task InitializeAsync_NewDatabase_LogsTheVersionsAndTheNewDatabase()
+    {
+        await Initializer(2, Step(2)).InitializeAsync();
+
+        Assert.That(LoggedEvents.Of(logger), Is.EqualTo(new[]
+        {
+            (1001, LogLevel.Information, "Database schema version 0, app schema version 2"),
+            (1002, LogLevel.Information, "New database created at schema version 2"),
+        }));
+    }
+
+    [Test]
+    public async Task InitializeAsync_OlderDatabase_LogsTheVersionsAndEachStep()
+    {
+        await SetVersion(1);
+
+        await Initializer(3, Step(2), Step(3)).InitializeAsync();
+
+        Assert.That(LoggedEvents.Of(logger), Is.EqualTo(new[]
+        {
+            (1001, LogLevel.Information, "Database schema version 1, app schema version 3"),
+            (1003, LogLevel.Information, "Schema upgrade step 2 applied"),
+            (1003, LogLevel.Information, "Schema upgrade step 3 applied"),
+        }));
+    }
+
+    [Test]
     public async Task InitializeAsync_NewerDatabase_ThrowsAndChangesNothing()
     {
         await SetVersion(3);
@@ -135,6 +167,10 @@ public class DatabaseInitializerTests
         Assert.That(await Version(), Is.EqualTo(3));
         Assert.That(await Tables(), Is.Empty);
         Assert.That(calls, Is.Empty);
+        Assert.That(LoggedEvents.Of(logger), Is.EqualTo(new[]
+        {
+            (1001, LogLevel.Information, "Database schema version 3, app schema version 2"),
+        }));
     }
 
     [Test]
@@ -206,7 +242,8 @@ public class DatabaseInitializerTests
     public async Task InitializeAsync_Twice_SeedsEveryExerciseOnce()
     {
         var catalog = new ExerciseCatalog();
-        var initializer = new DatabaseInitializer(connection, [], new ExerciseSeeder(connection, catalog));
+        var initializer = new DatabaseInitializer(
+            connection, [], new ExerciseSeeder(connection, catalog, NullLogger<ExerciseSeeder>.Instance), logger);
 
         await initializer.InitializeAsync();
         await initializer.InitializeAsync();
@@ -216,7 +253,7 @@ public class DatabaseInitializerTests
     }
 
     private DatabaseInitializer Initializer(int currentVersion, params ISchemaUpgrade[] steps) =>
-        new(connection, steps, seeder.Object, currentVersion);
+        new(connection, steps, seeder.Object, logger, currentVersion);
 
     private FakeStep Step(int version, Action<SQLiteConnection>? apply = null) => new(version, db =>
     {

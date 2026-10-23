@@ -5,7 +5,10 @@ namespace WorkoutLog.UI.Stories.Stories.Prototype;
 /// <param name="Summary">One line on what the scenario shows.</param>
 /// <param name="Steps">Steps in order.</param>
 /// <param name="Empty">Starts with no saved workouts.</param>
-public sealed record Scenario(string Name, string Summary, IReadOnlyList<ScenarioStep> Steps, bool Empty = false);
+/// <param name="StartupDelay">How long the Startup screen shows first. None by default.</param>
+/// <param name="StartupFails">Startup fails and shows its error.</param>
+public sealed record Scenario(
+    string Name, string Summary, IReadOnlyList<ScenarioStep> Steps, bool Empty = false, TimeSpan StartupDelay = default, bool StartupFails = false);
 
 /// <summary>What a step does to its target element.</summary>
 public enum StepAction

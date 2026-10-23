@@ -1,0 +1,10 @@
+.centre {
+    display: grid;
+    place-items: center;
+    height: 100%;
+    text-align: center;
+}
+
+.message {
+    margin: 0;
+}

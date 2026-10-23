@@ -26,7 +26,7 @@ A personal Android app (.NET 10 MAUI Blazor Hybrid) that replaces a paper workou
 | `src/WorkoutLog.App/` | MAUI Blazor Hybrid host (Android): DI, startup, routing |
 | `src/WorkoutLog.UI/` | Razor class library: pages, components, design tokens |
 | `src/WorkoutLog.UI.Stories/` | BlazingStory app: stories for UI components |
-| `src/WorkoutLog.Core/` | Class library: exercise definitions (embedded `exercises.json`), SQLite data, `AddCore` registration |
+| `src/WorkoutLog.Core/` | Class library: exercise definitions (embedded `exercises.json`), SQLite data, file logging, `AddCore` registration |
 | `tests/WorkoutLog.UI.Tests/` | bUnit tests for UI components and screens; plays the prototype scenarios |
 | `tests/WorkoutLog.Core.Tests/` | NUnit tests for Core |
 | `tests/WorkoutLog.E2E.Tests/` | NUnit + Appium tests on a device; `[Explicit]` until M6 |
@@ -48,6 +48,7 @@ A personal Android app (.NET 10 MAUI Blazor Hybrid) that replaces a paper workou
 - UI components follow the Design System pages in the stories site ([14](docs/14-design-system.md)): tokens only, data in through parameters, a story for each component, `data-testid` on interactive elements.
 - Front-end work is stories first: build each new or changed screen or component in the stories site, get Martin's approval there, then use it in the App ([14](docs/14-design-system.md#process)).
 - The UI never touches the database; it calls services only.
+- New code logs its errors and unexpected events as in [05 Logging](docs/05-architecture.md#logging), with tests. No workout contents in logs.
 - Local git only, no remote. Commits use Conventional Commits.
 - Never commit without review. When a story's work is ready, stop, summarise the changes and ask Martin to review. Commit only after he approves.
 - Docs are short and factual.

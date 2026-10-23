@@ -1,0 +1,11 @@
+@attribute [Stories("Screens/Error")]
+
+<Stories TComponent="ErrorView" Layout="typeof(PhoneLayout)">
+
+    <Story Name="Rendering error">
+        <Template>
+            <ErrorView OnRestart="() => { }" />
+        </Template>
+    </Story>
+
+</Stories>

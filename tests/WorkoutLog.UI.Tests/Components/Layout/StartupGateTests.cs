@@ -1,9 +1,21 @@
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Testing;
 using WorkoutLog.UI.Components.Layout;
 
 namespace WorkoutLog.UI.Tests.Components.Layout;
 
 public class StartupGateTests : ComponentTestBase
 {
+    private FakeLogger<StartupGate> logger = null!;
+
+    [SetUp]
+    public void AddLogger()
+    {
+        logger = new FakeLogger<StartupGate>();
+        Context.Services.AddSingleton<ILogger<StartupGate>>(logger);
+    }
+
     [Test]
     public void Pending_ShowsLoadingAndNotContent()
     {
@@ -58,6 +70,27 @@ public class StartupGateTests : ComponentTestBase
             Assert.That(cut.FindAll("[data-testid=startup-error]"), Has.Count.EqualTo(1));
             Assert.That(cut.FindAll("[data-testid=content]"), Is.Empty);
         });
+    }
+
+    [Test]
+    public void Completed_LogsTheDuration()
+    {
+        Render(() => Task.CompletedTask);
+
+        var logged = LoggedEvents.Of(logger).Single();
+        Assert.That((logged.Id, logged.Level), Is.EqualTo((2001, LogLevel.Information)));
+        Assert.That(logged.Message, Does.Match(@"^Startup finished in \d+ ms$"));
+    }
+
+    [Test]
+    public void Throws_LogsTheException()
+    {
+        var exception = new InvalidOperationException();
+
+        Render(() => Task.FromException(exception));
+
+        Assert.That(LoggedEvents.Of(logger), Is.EqualTo(new[] { (2002, LogLevel.Error, "Startup failed") }));
+        Assert.That(logger.LatestRecord.Exception, Is.SameAs(exception));
     }
 
     [Test]

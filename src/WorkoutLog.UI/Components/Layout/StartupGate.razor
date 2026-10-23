@@ -1,4 +1,7 @@
+@using System.Diagnostics
+@using Microsoft.Extensions.Logging
 @using WorkoutLog.UI.Screens
+@inject ILogger<StartupGate> Logger
 @if (_state == State.Ready)
 {
     @ChildContent
@@ -23,14 +26,17 @@ else
 
     protected override async Task OnInitializedAsync()
     {
+        var started = Stopwatch.GetTimestamp();
         try
         {
             await Initialize();
             _state = State.Ready;
+            Log.Started(Logger, (long)Stopwatch.GetElapsedTime(started).TotalMilliseconds);
         }
-        catch
+        catch (Exception exception)
         {
             _state = State.Failed;
+            Log.Failed(Logger, exception);
         }
     }
 }

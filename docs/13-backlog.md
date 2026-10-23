@@ -19,7 +19,7 @@ Goal and Definition of Done: [12](12-product-goal.md).
 | [US-03](#us-03-tooling-and-phone-setup) | Tooling and phone setup | [08](08-dev-setup-build.md) | S | Done |
 | [US-04](#us-04-create-the-solution) | Create the solution | T06, T13, NFR-02 | M | Done |
 | [US-28](#us-28-spike-back-button-on-android-16) | Spike: back button on Android 16 | FR-12, FR-23 | S | To do |
-| [US-35](#us-35-diagnostic-logging) | Diagnostic logging | D129, T32, D133, D61 | L | To do |
+| [US-35](#us-35-diagnostic-logging) | Diagnostic logging | D129, T32, D133, D61 | L | Done |
 
 ### US-01 Review the draft roadmap
 As the developer, I want the draft roadmap reviewed, so that the milestones are agreed before coding starts.
@@ -63,6 +63,7 @@ As the developer, I want to prove a Blazor page can intercept the Android back b
 - **Extra ACs:**
   - On the phone, back on a test page shows a prompt, and Cancel keeps the page open.
   - The approach is recorded in [05](05-architecture.md).
+  - **Logging:** Debug: back pressed and what it did (picker closed, prompt shown, navigated).
 - **Size:** S · **Status:** To do
 
 ### US-35 Diagnostic logging
@@ -70,32 +71,35 @@ As the developer, I want errors and unexpected events logged on the phone, in De
 - **Links:** D129, T32, D133, D61, NFR-01, [05](05-architecture.md), [08](08-dev-setup-build.md)
 - **Notes:**
   - Microsoft.Extensions.Logging.Debug logs nothing unless a debugger is attached (`DebugLogger.IsEnabled` checks `Debugger.IsAttached`), so it is not used (T38).
-  - `ILogger<T>` is already available in the App (Microsoft.Extensions.Logging via MAUI) and UI (Abstractions via Components.Web). Core has no logging abstractions.
+  - `ILogger<T>` is already available in the App (Microsoft.Extensions.Logging via MAUI) and UI (Abstractions via Components.Web). Core gets Microsoft.Extensions.Logging.Abstractions in this story.
   - Release is not debuggable, so `adb run-as` can only read the Debug app's files. Logcat works for both builds.
   - The App's `index.html` has no Blazor error UI, so an unhandled rendering error currently fails silently.
 - **Extra ACs:**
-  - Packages approved and added to [05](05-architecture.md): Microsoft.Extensions.Logging.Console (App), Microsoft.Extensions.Logging.Abstractions (Core). Versions confirmed at the start of the story.
-  - **Logcat:** the Console provider writes to logcat in Debug and Release. The logcat tag and filter command are checked on the phone and recorded in [08](08-dev-setup-build.md).
-  - **File:** a size-capped log file in app-private storage, in Debug and Release. Location, size cap and rotation are decided and recorded in [10](10-decisions-log.md). No new network access (NFR-01).
+  - Packages approved and added to [05](05-architecture.md): Microsoft.Extensions.Logging.Abstractions 10.0.13 (Core), Microsoft.Extensions.Diagnostics.Testing 10.11.0 (Core.Tests, UI.Tests). Console is not used (T41).
+  - **Logcat:** the App's own `AndroidLogProvider` writes to logcat in Debug and Release (T41). The logcat tag and filter command are checked on the phone and recorded in [08](08-dev-setup-build.md).
+  - **File:** a size-capped log file in app-specific storage, in Debug and Release (T42). Location, size cap and rotation are decided and recorded in [10](10-decisions-log.md). No new network access (NFR-01).
   - Minimum log level per build is decided and recorded in [10](10-decisions-log.md).
-  - Logs never contain workout contents (exercises, sets, entries, notes). Ids, counts, versions and exception details only.
+  - Logs never contain workout contents: set values, entry values or notes. Ids, counts, versions, durations and exception details only; exceptions are logged as they are (D142).
   - **Logged — .NET:**
     - Startup failure caught by `StartupGate` (D133).
     - The repository exception behind `WorkoutError.SaveFailed` in `WorkoutService` (T32).
     - The clock earlier than the start on first save (D129).
     - Schema upgrade steps run, and the stored and current schema versions (`DatabaseInitializer`, T25, T28).
-    - Exercise seeding: how many exercises were added (`ExerciseSeeder`).
-    - Unhandled exceptions: `AppDomain.UnhandledException`, `TaskScheduler.UnobservedTaskException` and `AndroidEnvironment.UnhandledExceptionRaiser`.
-    - Unhandled Blazor rendering errors. What the user sees is designed in the stories first (D131).
+    - Exercise seeding: how many exercises were added and updated (`ExerciseSeeder`).
+    - Startup duration (`StartupGate`), and each workout saved: id and exercise count (`WorkoutService`).
+    - A bad exercises.json fails inside `StartupGate`, so it is logged and shows D133 (T45).
+    - Unhandled exceptions: `AppDomain.UnhandledException` and `TaskScheduler.UnobservedTaskException`. `AndroidEnvironment.UnhandledExceptionRaiser` is not used: on the phone it logged the same crash a second time (T44).
+    - Unhandled Blazor rendering errors, shown on the Error screen (D140). Designed in the stories first (D131).
   - **Logged — Android:**
-    - App lifecycle: process start, activity created, stopped and destroyed.
-    - Memory pressure (`OnTrimMemory`, `OnLowMemory`), to help with D61.
+    - App lifecycle: process start (version, version code, build, API level), activity created, stopped and destroyed.
+    - Memory pressure, to help with D61. On API 36 only trim memory (`UiHidden`, `Background`) is reported, logged at Information; `OnLowMemory` is never called, so memory kills show in the exit reason (T44).
     - On start, why the previous process ended (`ActivityManager.GetHistoricalProcessExitReasons`: low memory, crash, ANR, user).
-    - The WebView render process ending, if the BlazorWebView handler allows it; otherwise recorded as not possible.
+    - The WebView render process ending, if the BlazorWebView handler allows it; otherwise recorded as not possible. Not possible (T44).
   - Validation errors from user input (FR-09) are not logged.
   - Unit tests cover each logged Core and UI event.
-  - [08](08-dev-setup-build.md) says how to read the logs: logcat command, and pulling the Debug app's log file.
-- **Size:** L · **Status:** To do
+  - [08](08-dev-setup-build.md) says how to read the logs: logcat command, and pulling the log file.
+  - Logging in new work is a rule: [05](05-architecture.md#logging), the Definition of Done, AGENTS.md, and log ACs on the other stories (D141).
+- **Size:** L · **Status:** Done (D139–D142, T41–T45)
 
 ## EP-02 Exercises & data (M1)
 | ID | Story | Links | Size | Status |
@@ -224,6 +228,7 @@ As the user, I want a workout to start when I open New Workout, with a live time
 - **Links:** FR-01, FR-02, FR-14
 - **Extra ACs:**
   - The header shows the date and day ([06](06-screens-ux.md)).
+  - **Logging:** Information: new workout started.
 - **Size:** S · **Status:** To do
 
 ### US-11 Add and remove exercises
@@ -233,6 +238,7 @@ As the user, I want to add exercises from the list and remove them, so that the 
   - The picker is an overlay, grouped Strength / Cardio; back closes it ([06](06-screens-ux.md)).
   - Search matches names and nicknames as in [03](03-data-model.md#exercise-search), including ranking and word normalisation.
   - The search is added to `IExerciseCatalog` in Core, with unit tests (D122).
+  - **Logging:** none. The search runs in memory and has no errors to log.
 - **Size:** S · **Status:** To do
 
 ### US-12 Log strength sets
@@ -241,6 +247,7 @@ As the user, I want to add, fill in and remove sets for a strength exercise, so 
 - **Extra ACs:**
   - Weight accepts any decimal (D07).
   - Carries show distance in metres (D84); assisted machines label weight Assist (kg) (D85).
+  - **Logging:** none. Validation errors are not logged (D142); input is parsed with `TryParse` ([05](05-architecture.md#logging)).
 - **Size:** M · **Status:** To do
 
 ### US-13 Log a cardio entry
@@ -251,16 +258,21 @@ As the user, I want to fill in one cardio entry for a cardio exercise, so that I
   - Distance and rate show the exercise's units ([04](04-exercise-list.md)).
   - Level shows the exercise's label (Resistance, Damper, Speed level); Incline accepts decimals (D87).
   - Pace (min/km) is entered and shown as m:ss (D95).
+  - **Logging:** none. Validation errors are not logged (D142); input is parsed with `TryParse` ([05](05-architecture.md#logging)).
 - **Size:** M · **Status:** To do
 
 ### US-14 Save a workout
 As the user, I want to save the workout, so that it is kept and the finish time is recorded.
 - **Links:** FR-09, FR-10, FR-13
+- **Extra ACs:**
+  - **Logging:** none new. `WorkoutService` already logs each save and failed save (US-35).
 - **Size:** S · **Status:** To do
 
 ### US-15 Discard an unsaved workout
 As the user, I want the back button to ask before dropping a new workout, so that I don't lose it by accident.
 - **Links:** FR-12
+- **Extra ACs:**
+  - **Logging:** Information: new workout discarded, with its exercise count.
 - **Size:** S · **Status:** To do
 
 ## EP-04 History (M3)
@@ -274,6 +286,7 @@ As the user, I want a list of my saved workouts, newest first, so that I can loo
 - **Extra ACs:**
   - Back goes to the Dashboard ([06](06-screens-ux.md)).
   - Rows are not tappable. Opening a workout (FR-21) comes in [US-17](#us-17-edit-a-saved-workout).
+  - **Logging:** Error: loading the history failed (exception). Debug: rows loaded (count).
 - **Size:** S · **Status:** To do
 
 ## EP-05 Edit workouts (M4)
@@ -288,6 +301,7 @@ As the user, I want to open a saved workout and change it, so that I can fix mis
 - **Links:** FR-21, FR-22, FR-11, FR-13
 - **Extra ACs:**
   - Edit shows the total time instead of the live timer ([06](06-screens-ux.md)).
+  - **Logging:** Warning: the workout id isn't found when opened. Error: loading the workout failed (id, exception). Saves are logged by `WorkoutService` (US-35).
 - **Size:** M · **Status:** To do
 
 ### US-18 Discard unsaved edits
@@ -295,6 +309,7 @@ As the user, I want the back button to ask before dropping my edits, so that I d
 - **Links:** FR-23
 - **Extra ACs:**
   - Discard returns to History ([06](06-screens-ux.md)).
+  - **Logging:** Information: edits discarded (workout id).
 - **Size:** S · **Status:** To do
 
 ### US-19 Delete a workout
@@ -302,6 +317,7 @@ As the user, I want to delete a workout after confirming, so that wrong entries 
 - **Links:** FR-24
 - **Extra ACs:**
   - After delete, the app returns to History ([06](06-screens-ux.md)).
+  - **Logging:** Information: workout deleted (id). Error: delete failed (id, exception).
 - **Size:** S · **Status:** To do
 
 ## EP-06 Dashboard (M5)
@@ -316,16 +332,21 @@ As the user, I want the app to open on a Dashboard with New Workout and History,
 - **Links:** FR-30, FR-31, FR-35
 - **Extra ACs:**
   - Back leaves the app ([06](06-screens-ux.md)).
+  - **Logging:** Error: loading the Dashboard failed (exception).
 - **Size:** S · **Status:** To do
 
 ### US-21 Last workout summary
 As the user, I want to see when my last workout was, so that I know when I last trained.
 - **Links:** FR-32
+- **Extra ACs:**
+  - **Logging:** Error: loading the last workout failed (exception).
 - **Size:** XS · **Status:** To do
 
 ### US-22 Week and month counts
 As the user, I want to see how many workouts I've done this week and this month, so that I can track how often I train.
 - **Links:** FR-33, FR-34, NFR-06
+- **Extra ACs:**
+  - **Logging:** Error: counting the workouts failed (exception).
 - **Size:** S · **Status:** To do
 
 ## EP-07 Automated UI tests (M6)
@@ -339,6 +360,7 @@ As the developer, I want Appium set up against the app's WebView, so that UI flo
 - **Links:** [07](07-testing.md)
 - **Extra ACs:**
   - One test switches to the WebView context and finds an element by `data-testid`.
+  - **Logging:** none. Test code only.
 - **Size:** M · **Status:** To do
 
 ### US-24 Automate the v1 flows
@@ -346,6 +368,7 @@ As the developer, I want the v1 UI flows automated, so that regressions are caug
 - **Links:** [07](07-testing.md)
 - **Extra ACs:**
   - The 8 automated flows in [07](07-testing.md) pass.
+  - **Logging:** none. Test code only.
 - **Size:** L · **Status:** To do
 
 ## EP-08 Release (M6)
@@ -362,6 +385,7 @@ As the developer, I want a backup location for the keystore, so that future APKs
 - **Extra ACs:**
   - The location is recorded in [08](08-dev-setup-build.md).
   - The decision is recorded in [10](10-decisions-log.md).
+  - **Logging:** none. No code.
 - **Size:** XS · **Status:** To do
 
 ### US-26 Signed release APK
@@ -372,6 +396,7 @@ As the user, I want a signed release APK installed on my phone, so that I can us
   - Only APKs signed with the release keystore are installed on the phone. A Release build without signing uses the debug key and would block later updates.
   - A newer APK installs over the old one and the data survives.
   - The version code is higher than the previous APK's ([08](08-dev-setup-build.md)).
+  - **Logging:** the signed Release APK writes to logcat and the log file, checked on the phone ([08](08-dev-setup-build.md#reading-the-logs)).
 - **Size:** M · **Status:** To do
 
 ### US-27 Manual phone checklist
@@ -379,6 +404,7 @@ As the developer, I want the manual checklist run on the phone, so that v1 is ch
 - **Links:** [07](07-testing.md)
 - **Extra ACs:**
   - Every item in the manual checklist in [07](07-testing.md) is ticked.
+  - **Logging:** none. The checklist already has the logs check ([07](07-testing.md)).
 - **Size:** S · **Status:** To do
 
 ### US-34 App icon and splash screen
@@ -386,4 +412,5 @@ As the user, I want the app's own icon and splash screen, so that I can find it 
 - **Links:** D137, [14](14-design-system.md)
 - **Extra ACs:**
   - Designed in the stories first and approved (D131).
+  - **Logging:** none. No code that can fail.
 - **Size:** S · **Status:** To do

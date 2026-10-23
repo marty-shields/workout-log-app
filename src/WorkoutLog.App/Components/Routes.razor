@@ -2,11 +2,14 @@
 @using WorkoutLog.Core.Data
 @using WorkoutLog.UI.Components.Layout
 @inject IDatabaseInitializer DatabaseInitializer
+@inject NavigationManager Navigation
 
 <StartupGate Initialize="DatabaseInitializer.InitializeAsync">
-    <Router AppAssembly="typeof(MauiProgram).Assembly">
-        <Found Context="routeData">
-            <RouteView RouteData="routeData" />
-        </Found>
-    </Router>
+    <AppErrorBoundary OnRestart="() => Navigation.NavigateTo(string.Empty)">
+        <Router AppAssembly="typeof(MauiProgram).Assembly">
+            <Found Context="routeData">
+                <RouteView RouteData="routeData" />
+            </Found>
+        </Router>
+    </AppErrorBoundary>
 </StartupGate>

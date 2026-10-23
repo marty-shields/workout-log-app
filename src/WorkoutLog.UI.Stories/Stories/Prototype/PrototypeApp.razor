@@ -1,59 +1,68 @@
+@using WorkoutLog.UI.Components.Layout
 @using WorkoutLog.UI.Models.History
 @* Clickable prototype of the whole app on sample data. Navigation follows docs/06. Stories only. *@
 @implements IDisposable
 
-<PhoneFrame OnSystemBack="Back">
-    @switch (screen)
-    {
-        case Screen.Dashboard:
-            <DashboardView Summary="SampleData.Summary(saved, DateTime.Now)" OnNewWorkout="StartWorkout" OnHistory="() => Go(Screen.History)" />
-            break;
+<PhoneFrame OnSystemBack="Back" OnSimulateError="() => broken = true">
+    <StartupGate Initialize="Start">
+        <AppErrorBoundary OnRestart="Restart">
+            @if (broken)
+            {
+                <ThrowOnRender />
+            }
+            @switch (screen)
+            {
+                case Screen.Dashboard:
+                    <DashboardView Summary="SampleData.Summary(saved, DateTime.Now)" OnNewWorkout="StartWorkout" OnHistory="() => Go(Screen.History)" />
+                    break;
 
-        case Screen.History:
-            <HistoryView Rows="HistoryRows" OnOpen="Open" OnBack="Back" />
-            break;
+                case Screen.History:
+                    <HistoryView Rows="HistoryRows" OnOpen="Open" OnBack="Back" />
+                    break;
 
-        case Screen.Workout:
-            <WorkoutView Mode="mode"
-                         StartedAt="startedAt"
-                         Time="WorkoutTime"
-                         Exercises="exercises"
-                         Error="@error"
-                         ValidateSet="SampleData.ValidateSet"
-                         OnChanged="() => changed = true"
-                         OnAddExercise="OpenPicker"
-                         OnRemoveExercise="RemoveExercise"
-                         OnSave="Save"
-                         OnBack="Back"
-                         OnDelete="() => dialog = Dialog.Delete">
-                <Overlay>
-                    @if (pickerOpen)
-                    {
-                        <ExercisePicker Query="@query" QueryChanged="(string q) => query = q" Items="SampleData.Search(query)" OnPick="Pick" OnClose="() => pickerOpen = false" />
-                    }
-                    @switch (dialog)
-                    {
-                        case Dialog.Discard:
-                            <ConfirmDialog Title="Discard this workout?" ConfirmText="Discard" Danger OnConfirm="() => Go(Screen.Dashboard)" OnCancel="CloseDialog" />
-                            break;
-                        case Dialog.DiscardChanges:
-                            <ConfirmDialog Title="Discard changes?" ConfirmText="Discard" Danger OnConfirm="() => Go(Screen.History)" OnCancel="CloseDialog" />
-                            break;
-                        case Dialog.Delete:
-                            <ConfirmDialog Title="Delete this workout?" ConfirmText="Delete" Danger OnConfirm="Delete" OnCancel="CloseDialog" />
-                            break;
-                    }
-                </Overlay>
-            </WorkoutView>
-            break;
+                case Screen.Workout:
+                    <WorkoutView Mode="mode"
+                                 StartedAt="startedAt"
+                                 Time="WorkoutTime"
+                                 Exercises="exercises"
+                                 Error="@error"
+                                 ValidateSet="SampleData.ValidateSet"
+                                 OnChanged="() => changed = true"
+                                 OnAddExercise="OpenPicker"
+                                 OnRemoveExercise="RemoveExercise"
+                                 OnSave="Save"
+                                 OnBack="Back"
+                                 OnDelete="() => dialog = Dialog.Delete">
+                        <Overlay>
+                            @if (pickerOpen)
+                            {
+                                <ExercisePicker Query="@query" QueryChanged="(string q) => query = q" Items="SampleData.Search(query)" OnPick="Pick" OnClose="() => pickerOpen = false" />
+                            }
+                            @switch (dialog)
+                            {
+                                case Dialog.Discard:
+                                    <ConfirmDialog Title="Discard this workout?" ConfirmText="Discard" Danger OnConfirm="() => Go(Screen.Dashboard)" OnCancel="CloseDialog" />
+                                    break;
+                                case Dialog.DiscardChanges:
+                                    <ConfirmDialog Title="Discard changes?" ConfirmText="Discard" Danger OnConfirm="() => Go(Screen.History)" OnCancel="CloseDialog" />
+                                    break;
+                                case Dialog.Delete:
+                                    <ConfirmDialog Title="Delete this workout?" ConfirmText="Delete" Danger OnConfirm="Delete" OnCancel="CloseDialog" />
+                                    break;
+                            }
+                        </Overlay>
+                    </WorkoutView>
+                    break;
 
-        case Screen.Closed:
-            <div class="closed">
-                <p>Back on the Dashboard leaves the app.</p>
-                <AppButton TestId="reopen" OnClick="() => Go(Screen.Dashboard)">Reopen the app</AppButton>
-            </div>
-            break;
-    }
+                case Screen.Closed:
+                    <div class="closed">
+                        <p>Back on the Dashboard leaves the app.</p>
+                        <AppButton TestId="reopen" OnClick="() => Go(Screen.Dashboard)">Reopen the app</AppButton>
+                    </div>
+                    break;
+            }
+        </AppErrorBoundary>
+    </StartupGate>
 </PhoneFrame>
 
 @code {
@@ -73,10 +82,19 @@
     private string query = "";
     private Dialog dialog;
     private string? error;
+    private bool broken;
 
     /// <summary>Starts with no saved workouts.</summary>
     [Parameter]
     public bool Empty { get; set; }
+
+    /// <summary>How long the Startup screen shows before the app opens. None by default.</summary>
+    [Parameter]
+    public TimeSpan StartupDelay { get; set; }
+
+    /// <summary>Shows the startup error after <see cref="StartupDelay"/> instead of opening the app.</summary>
+    [Parameter]
+    public bool StartupFails { get; set; }
 
     private IReadOnlyList<HistoryRow> HistoryRows =>
         saved.OrderByDescending(w => w.StartedAt).Select(w => new HistoryRow(w.Id, w.StartedAt)).ToList();
@@ -163,6 +181,25 @@
     {
         saved.Remove(editing!);
         Go(Screen.History);
+    }
+
+    private async Task Start()
+    {
+        if (StartupDelay > TimeSpan.Zero)
+        {
+            await Task.Delay(StartupDelay);
+        }
+
+        if (StartupFails)
+        {
+            throw new InvalidOperationException("Simulated startup failure");
+        }
+    }
+
+    private void Restart()
+    {
+        broken = false;
+        Go(Screen.Dashboard);
     }
 
     private void CloseDialog() => dialog = Dialog.None;

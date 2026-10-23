@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 
 namespace WorkoutLog.Core.Domain.Exercises;
 
-/// <summary>The exercise list, read from the embedded exercises.json.</summary>
+/// <summary>The exercise list, read from the embedded exercises.json on first use.</summary>
 public sealed class ExerciseCatalog : IExerciseCatalog
 {
     private const string ResourceName = "WorkoutLog.Core.exercises.json";
@@ -17,16 +17,26 @@ public sealed class ExerciseCatalog : IExerciseCatalog
         RespectRequiredConstructorParameters = true,
     };
 
-    /// <summary>Reads the embedded file. Throws if the resource is missing or doesn't match <see cref="ExerciseDefinition"/>.</summary>
+    private readonly Lazy<IReadOnlyList<ExerciseDefinition>> all;
+
+    /// <summary>Uses the embedded exercises.json.</summary>
     public ExerciseCatalog()
+        : this(ResourceName)
     {
-        using var stream = typeof(ExerciseCatalog).Assembly.GetManifestResourceStream(ResourceName)
-            ?? throw new InvalidOperationException($"Embedded resource {ResourceName} not found");
-        var exercises = JsonSerializer.Deserialize<List<ExerciseDefinition>>(stream, Options)
-            ?? throw new JsonException($"{ResourceName} is empty");
-        All = exercises.OrderBy(e => e.Id).ToList();
     }
 
+    internal ExerciseCatalog(string resourceName) => all = new(() => Load(resourceName));
+
     /// <inheritdoc />
-    public IReadOnlyList<ExerciseDefinition> All { get; }
+    /// <remarks>Throws if the resource is missing or doesn't match <see cref="ExerciseDefinition"/>.</remarks>
+    public IReadOnlyList<ExerciseDefinition> All => all.Value;
+
+    private static List<ExerciseDefinition> Load(string resourceName)
+    {
+        using var stream = typeof(ExerciseCatalog).Assembly.GetManifestResourceStream(resourceName)
+            ?? throw new InvalidOperationException($"Embedded resource {resourceName} not found");
+        var exercises = JsonSerializer.Deserialize<List<ExerciseDefinition>>(stream, Options)
+            ?? throw new JsonException($"{resourceName} is empty");
+        return exercises.OrderBy(e => e.Id).ToList();
+    }
 }

@@ -5,7 +5,7 @@
 
 <div class="player">
     <div @ref="phone">
-        <PrototypeApp @key="generation" Empty="Scenario.Empty" />
+        <PrototypeApp @key="generation" Empty="Scenario.Empty" StartupDelay="Scenario.StartupDelay" StartupFails="Scenario.StartupFails" />
     </div>
     <aside class="panel">
         <h2 class="name">@Scenario.Name</h2>
@@ -68,6 +68,11 @@
         playing = !playing;
         if (playing && !looping)
         {
+            if (next == 0)
+            {
+                generation++;
+            }
+
             module ??= await JS.InvokeAsync<IJSObjectReference>("import", "./Stories/Prototype/ScenarioPlayer.razor.js");
             await PlayAsync(generation);
         }

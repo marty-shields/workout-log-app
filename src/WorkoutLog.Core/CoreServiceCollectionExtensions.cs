@@ -14,6 +14,7 @@ public static class CoreServiceCollectionExtensions
     /// Registers the database connection, exercise catalog, exercise seeder, database initializer, workout repository,
     /// system time, workout validator and workout service as singletons.
     /// The initializer and repository run through one <see cref="DatabaseGate"/>.
+    /// Services log through <c>ILogger&lt;T&gt;</c>, so the host must register logging.
     /// </summary>
     /// <param name="services">Service collection.</param>
     /// <param name="databasePath">Full path of the SQLite database file.</param>

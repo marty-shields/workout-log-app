@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Logging;
 using WorkoutLog.Core.Data;
 using WorkoutLog.Core.Domain.Workouts;
 using WorkoutLog.Core.Domain.Workouts.Validation;
@@ -5,7 +6,8 @@ using WorkoutLog.Core.Domain.Workouts.Validation;
 namespace WorkoutLog.Core.Services;
 
 /// <summary>Checks workouts with <see cref="IWorkoutValidator"/> and saves them through <see cref="IWorkoutRepository"/>.</summary>
-internal sealed class WorkoutService(IWorkoutRepository repository, IWorkoutValidator validator, TimeProvider time) : IWorkoutService
+internal sealed partial class WorkoutService(
+    IWorkoutRepository repository, IWorkoutValidator validator, TimeProvider time, ILogger<WorkoutService> logger) : IWorkoutService
 {
     private static readonly WorkoutErrors SaveFailed = new(WorkoutError.SaveFailed, []);
 
@@ -41,8 +43,13 @@ internal sealed class WorkoutService(IWorkoutRepository repository, IWorkoutVali
         }
 
         var now = time.GetUtcNow();
+        if (now < draft.StartedAt)
+        {
+            Log.ClockBeforeStart(logger, draft.StartedAt - now);
+        }
+
         var workout = new NewWorkout(draft.StartedAt, now < draft.StartedAt ? draft.StartedAt : now, copy);
-        return await WriteAsync(() => repository.AddAsync(workout), errors);
+        return await WriteAsync(null, copy.Length, () => repository.AddAsync(workout), errors);
     }
 
     /// <inheritdoc />
@@ -55,23 +62,45 @@ internal sealed class WorkoutService(IWorkoutRepository repository, IWorkoutVali
             return new SaveResult(null, errors);
         }
 
-        return await WriteAsync(async () =>
+        return await WriteAsync(workoutId, copy.Length, async () =>
         {
             await repository.ReplaceExercisesAsync(workoutId, copy);
             return workoutId;
         }, errors);
     }
 
-    private static async Task<SaveResult> WriteAsync(Func<Task<int>> write, WorkoutErrors errors)
+    /// <summary>Runs <paramref name="write"/> and logs the outcome. <paramref name="workoutId"/> is null for a new workout.</summary>
+    private async Task<SaveResult> WriteAsync(int? workoutId, int exerciseCount, Func<Task<int>> write, WorkoutErrors errors)
     {
+        int savedId;
         try
         {
-            return new SaveResult(await write(), errors);
+            savedId = await write();
         }
-        catch (Exception)
+        catch (Exception exception)
         {
+            if (workoutId is { } id)
+            {
+                Log.UpdateFailed(logger, id, exception);
+            }
+            else
+            {
+                Log.AddFailed(logger, exception);
+            }
+
             return new SaveResult(null, SaveFailed);
         }
+
+        if (workoutId is null)
+        {
+            Log.Added(logger, savedId, exerciseCount);
+        }
+        else
+        {
+            Log.Updated(logger, savedId, exerciseCount);
+        }
+
+        return new SaveResult(savedId, errors);
     }
 
     /// <summary>Copies the list and its sets, so later changes by the caller aren't saved. Throws on a null list, exercise, set list, set or entry.</summary>
@@ -87,5 +116,23 @@ internal sealed class WorkoutService(IWorkoutRepository repository, IWorkoutVali
             CardioExercise { Entry: null } => throw new ArgumentNullException(nameof(exercises), "A cardio entry is null"),
             _ => exercise,
         }).ToArray();
+    }
+
+    private static partial class Log
+    {
+        [LoggerMessage(1201, LogLevel.Information, "Workout {WorkoutId} added with {ExerciseCount} exercises")]
+        public static partial void Added(ILogger logger, int workoutId, int exerciseCount);
+
+        [LoggerMessage(1202, LogLevel.Information, "Workout {WorkoutId} updated with {ExerciseCount} exercises")]
+        public static partial void Updated(ILogger logger, int workoutId, int exerciseCount);
+
+        [LoggerMessage(1203, LogLevel.Error, "Adding a workout failed")]
+        public static partial void AddFailed(ILogger logger, Exception exception);
+
+        [LoggerMessage(1204, LogLevel.Error, "Updating workout {WorkoutId} failed")]
+        public static partial void UpdateFailed(ILogger logger, int workoutId, Exception exception);
+
+        [LoggerMessage(1205, LogLevel.Warning, "The clock is {Behind} behind the workout start; the finish is set to the start")]
+        public static partial void ClockBeforeStart(ILogger logger, TimeSpan behind);
     }
 }
