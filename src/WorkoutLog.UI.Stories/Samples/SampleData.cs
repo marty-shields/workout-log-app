@@ -12,7 +12,7 @@ namespace WorkoutLog.UI.Stories.Samples;
 /// <param name="Exercises">Exercises and their sets or entries.</param>
 public sealed record SavedWorkout(int Id, DateTime StartedAt, DateTime FinishedAt, IReadOnlyList<ExerciseState> Exercises);
 
-/// <summary>Sample data for stories, plus stand-ins for the save rules and counts. Exercises come from the real catalog.</summary>
+/// <summary>Sample data for stories, plus stand-ins for the counts. Exercises come from the real catalog.</summary>
 public static class SampleData
 {
     /// <summary>Start time used by the static stories: Tue 20 Oct 2026 18:05.</summary>
@@ -62,14 +62,14 @@ public static class SampleData
     ];
 
     /// <summary>A saved workout after a failed save: a set missing reps, a carry set missing distance.</summary>
-    public static List<ExerciseState> EditWorkoutWithErrors(IExerciseCatalog catalog, ISetChecker checker)
+    public static List<ExerciseState> EditWorkoutWithErrors(IExerciseCatalog catalog, IWorkoutChecker checker)
     {
         List<ExerciseState> exercises =
         [
             Exercise(catalog, 6, ["8", "60"], [null, "60"]),
             Exercise(catalog, 187, ["40", "32", "0:00:45"], [null, "32", "0:00:40"]),
         ];
-        Validate(checker, exercises, out _);
+        checker.Check(exercises);
         return exercises;
     }
 
@@ -81,16 +81,17 @@ public static class SampleData
         Exercise(catalog, 311, ["0:25:30", "5", null, "5:06"]),
     ];
 
-    /// <summary>A workout after a failed save: a set missing reps, an exercise with no sets, and a cardio entry missing duration, which isn't checked.</summary>
-    public static List<ExerciseState> WorkoutWithErrors(IExerciseCatalog catalog, ISetChecker checker)
+    /// <summary>A workout after a failed save: a set missing reps, an exercise with no sets, a rower with no duration and a part damper, and a run with a bad pace.</summary>
+    public static List<ExerciseState> WorkoutWithErrors(IExerciseCatalog catalog, IWorkoutChecker checker)
     {
         List<ExerciseState> exercises =
         [
             Exercise(catalog, 222, ["10", "50"], [null, "50"]),
             Exercise(catalog, 132),
-            Exercise(catalog, 305, [null, "2000", "5", null, null]),
+            Exercise(catalog, 305, [null, "2000", "5.5", null, null]),
+            Exercise(catalog, 311, ["0:25:30", "5", null, "5:75"]),
         ];
-        Validate(checker, exercises, out _);
+        checker.Check(exercises);
         return exercises;
     }
 
@@ -124,24 +125,6 @@ public static class SampleData
             saved.Count == 0 ? null : saved.Max(w => w.StartedAt),
             saved.Count(w => w.StartedAt >= weekStart),
             saved.Count(w => w.StartedAt >= monthStart));
-    }
-
-    /// <summary>FR-09 save rules, with each set checked by <paramref name="checker"/>. Sets <see cref="ExerciseState.Error"/> and <see cref="EntryState.Errors"/>; returns false if anything fails.</summary>
-    public static bool Validate(ISetChecker checker, IReadOnlyList<ExerciseState> exercises, out string? workoutError)
-    {
-        workoutError = exercises.Count == 0 ? "Add at least one exercise" : null;
-        var valid = workoutError is null;
-        foreach (var exercise in exercises)
-        {
-            exercise.Error = exercise.Entries.Count == 0 ? "Add at least one set" : null;
-            valid &= exercise.Error is null;
-            foreach (var entry in exercise.Entries)
-            {
-                valid &= checker.Check(exercise, entry);
-            }
-        }
-
-        return valid;
     }
 
     /// <summary>Deep copy, so edits can be discarded.</summary>

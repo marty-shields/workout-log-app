@@ -25,7 +25,6 @@ public class MetricLimitsTests
     }
 
     [TestCase(RateUnit.KmPerHour, 100)]
-    [TestCase(RateUnit.MinPerKm, 60)]
     [TestCase(RateUnit.Rpm, 300)]
     [TestCase(RateUnit.StrokesPerMin, 200)]
     [TestCase(RateUnit.StridesPerMin, 300)]
@@ -37,12 +36,19 @@ public class MetricLimitsTests
     }
 
     [Test]
-    public void Max_DistanceOrRateWithNoUnit_Throws()
+    public void Max_PacePerKm_Is60Minutes()
+    {
+        Assert.That(MetricLimits.Max(Exercise(null, null, PaceUnit.PerKm), Metric.Pace), Is.EqualTo(3_600));
+    }
+
+    [Test]
+    public void Max_DistanceRateOrPaceWithNoUnit_Throws()
     {
         Assert.Multiple(() =>
         {
             Assert.That(() => MetricLimits.Max(Exercise(null, null), Metric.Distance), Throws.ArgumentException);
             Assert.That(() => MetricLimits.Max(Exercise(null, null), Metric.Rate), Throws.ArgumentException);
+            Assert.That(() => MetricLimits.Max(Exercise(null, null), Metric.Pace), Throws.ArgumentException);
         });
     }
 
@@ -54,6 +60,6 @@ public class MetricLimitsTests
         Assert.That(() => catalog.All.SelectMany(e => e.Metrics.Select(m => MetricLimits.Max(e, m.Metric))).ToList(), Throws.Nothing);
     }
 
-    private static ExerciseDefinition Exercise(DistanceUnit? distanceUnit, RateUnit? rateUnit) =>
-        new(1, "Exercise", ExerciseType.Cardio, [], null, null, null, [], distanceUnit, rateUnit);
+    private static ExerciseDefinition Exercise(DistanceUnit? distanceUnit, RateUnit? rateUnit, PaceUnit? paceUnit = null) =>
+        new(1, "Exercise", ExerciseType.Cardio, [], null, null, null, [], distanceUnit, rateUnit, paceUnit);
 }

@@ -42,8 +42,8 @@ public static class ExerciseFields
             Metric.Level => new("level", Metric.Level, metric.Label ?? "Level", FieldKind.Whole, required),
             Metric.Incline => new("incline", Metric.Incline, metric.Label ?? "Incline", FieldKind.Decimal, required, "%"),
             Metric.Calories => new("calories", Metric.Calories, metric.Label ?? "Calories", FieldKind.Whole, required),
-            Metric.Rate when exercise.RateUnit == RateUnit.MinPerKm => new("rate", Metric.Rate, metric.Label ?? "Pace", FieldKind.Pace, required, "min/km"),
             Metric.Rate => new("rate", Metric.Rate, metric.Label ?? "Rate", FieldKind.Decimal, required, RateText(exercise)),
+            Metric.Pace => new("pace", Metric.Pace, metric.Label ?? "Pace", FieldKind.Pace, required, PaceText(exercise)),
             _ => throw new ArgumentOutOfRangeException(nameof(metric), metric.Metric, null),
         };
     }
@@ -65,5 +65,11 @@ public static class ExerciseFields
         RateUnit.StepsPerMin => "steps/min",
         RateUnit.FeetPerMin => "feet/min",
         _ => throw new ArgumentOutOfRangeException(nameof(exercise), exercise.RateUnit, "Rate needs a rate unit"),
+    };
+
+    private static string PaceText(ExerciseDefinition exercise) => exercise.PaceUnit switch
+    {
+        PaceUnit.PerKm => "min/km",
+        _ => throw new ArgumentOutOfRangeException(nameof(exercise), exercise.PaceUnit, "Pace needs a pace unit"),
     };
 }

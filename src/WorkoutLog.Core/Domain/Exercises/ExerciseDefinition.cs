@@ -11,6 +11,7 @@ namespace WorkoutLog.Core.Domain.Exercises;
 /// <param name="Metrics">Metrics shown, in field order.</param>
 /// <param name="DistanceUnit">Unit of the distance metric. Null when there is no distance.</param>
 /// <param name="RateUnit">Unit of the rate metric. Null when there is no rate.</param>
+/// <param name="PaceUnit">Unit of the pace metric. Null when there is no pace.</param>
 public sealed record ExerciseDefinition(
     int Id,
     string Name,
@@ -21,4 +22,5 @@ public sealed record ExerciseDefinition(
     Mechanic? Mechanic,
     IReadOnlyList<MetricDefinition> Metrics,
     DistanceUnit? DistanceUnit,
-    RateUnit? RateUnit);
+    RateUnit? RateUnit,
+    PaceUnit? PaceUnit);

@@ -6,9 +6,6 @@ public enum RateUnit
     /// <summary>Kilometres per hour.</summary>
     KmPerHour,
 
-    /// <summary>Pace in minutes per kilometre.</summary>
-    MinPerKm,
-
     /// <summary>Revolutions per minute.</summary>
     Rpm,
 

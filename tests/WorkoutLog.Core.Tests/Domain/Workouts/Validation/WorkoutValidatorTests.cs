@@ -12,6 +12,7 @@ public class WorkoutValidatorTests
     private const int Bike = 3;
     private const int Plank = 4;
     private const int Climber = 5;
+    private const int Run = 6;
 
     private WorkoutValidator validator = null!;
 
@@ -31,14 +32,20 @@ public class WorkoutValidatorTests
                 new MetricDefinition(Metric.Level, Required: false, Label: "Resistance"),
                 new MetricDefinition(Metric.Calories, Required: false),
                 new MetricDefinition(Metric.Rate, Required: false),
-            ], DistanceUnit.Km, RateUnit.Rpm),
+            ], DistanceUnit.Km, RateUnit.Rpm, null),
             Strength(Plank, new MetricDefinition(Metric.Duration, Required: true), new MetricDefinition(Metric.WeightKg, Required: false)),
             new ExerciseDefinition(Climber, "Climber", ExerciseType.Cardio, [], null, null, null,
             [
                 new MetricDefinition(Metric.Duration, Required: true),
                 new MetricDefinition(Metric.Floors, Required: false),
                 new MetricDefinition(Metric.Incline, Required: false),
-            ], null, null),
+            ], null, null, null),
+            new ExerciseDefinition(Run, "Run", ExerciseType.Cardio, [], null, null, null,
+            [
+                new MetricDefinition(Metric.Duration, Required: true),
+                new MetricDefinition(Metric.Distance, Required: false),
+                new MetricDefinition(Metric.Pace, Required: false),
+            ], DistanceUnit.Km, null, PaceUnit.PerKm),
         ]);
         validator = new WorkoutValidator(catalog.Object);
     }
@@ -49,7 +56,7 @@ public class WorkoutValidatorTests
         var errors = validator.Validate(
         [
             new StrengthExercise(Press, [new StrengthSet(10, 22.75m, null, null), new StrengthSet(8, null, null, null)]),
-            new CardioExercise(Bike, new CardioEntry(TimeSpan.FromMinutes(20), 8.5m, null, 6, null, 210, 85m)),
+            new CardioExercise(Bike, new CardioEntry(TimeSpan.FromMinutes(20), 8.5m, null, 6, null, 210, 85m, null)),
             new StrengthExercise(Press, [new StrengthSet(5, 0m, null, null)]),
         ]);
 
@@ -151,7 +158,7 @@ public class WorkoutValidatorTests
     [Test]
     public void Validate_NegativeFloorsAndIncline_ReturnNegative()
     {
-        var errors = validator.Validate(new CardioExercise(Climber, new CardioEntry(TimeSpan.FromMinutes(10), null, -1, null, -0.5m, null, null)));
+        var errors = validator.Validate(new CardioExercise(Climber, new CardioEntry(TimeSpan.FromMinutes(10), null, -1, null, -0.5m, null, null, null)));
 
         Assert.That(errors.Entries.Single().Fields, Is.EqualTo(new Dictionary<Metric, FieldError>
         {
@@ -167,8 +174,8 @@ public class WorkoutValidatorTests
         {
             Assert.That(SetErrors(Press, new StrengthSet(1_000, 1_000m, null, null)), Is.Empty);
             Assert.That(SetErrors(Carry, new StrengthSet(null, null, MetricLimits.MaxDuration, 100_000m)), Is.Empty);
-            Assert.That(EntryErrors(new CardioEntry(MetricLimits.MaxDuration, 1_000m, null, 100, null, 10_000, 300m)), Is.Empty);
-            Assert.That(validator.Validate(new CardioExercise(Climber, new CardioEntry(TimeSpan.FromMinutes(1), null, 1_000, null, 100m, null, null))).IsValid,
+            Assert.That(EntryErrors(new CardioEntry(MetricLimits.MaxDuration, 1_000m, null, 100, null, 10_000, 300m, null)), Is.Empty);
+            Assert.That(validator.Validate(new CardioExercise(Climber, new CardioEntry(TimeSpan.FromMinutes(1), null, 1_000, null, 100m, null, null, null))).IsValid,
                 Is.True);
         });
     }
@@ -180,9 +187,9 @@ public class WorkoutValidatorTests
         {
             Assert.That(SetErrors(Press, new StrengthSet(1_001, 1_000.01m, null, null)),
                 Is.EqualTo(new Dictionary<Metric, FieldError> { [Metric.Reps] = FieldError.TooLarge, [Metric.WeightKg] = FieldError.TooLarge }));
-            Assert.That(SetErrors(Carry, new StrengthSet(null, null, MetricLimits.MaxDuration + TimeSpan.FromTicks(1), 100_000.1m)),
+            Assert.That(SetErrors(Carry, new StrengthSet(null, null, MetricLimits.MaxDuration + TimeSpan.FromSeconds(1), 100_000.1m)),
                 Is.EqualTo(new Dictionary<Metric, FieldError> { [Metric.Duration] = FieldError.TooLarge, [Metric.Distance] = FieldError.TooLarge }));
-            Assert.That(EntryErrors(new CardioEntry(TimeSpan.FromDays(2), decimal.MaxValue, null, 101, null, 10_001, 300.5m)),
+            Assert.That(EntryErrors(new CardioEntry(TimeSpan.FromDays(2), decimal.MaxValue, null, 101, null, 10_001, 300.5m, null)),
                 Is.EqualTo(new Dictionary<Metric, FieldError>
                 {
                     [Metric.Duration] = FieldError.TooLarge,
@@ -191,7 +198,7 @@ public class WorkoutValidatorTests
                     [Metric.Calories] = FieldError.TooLarge,
                     [Metric.Rate] = FieldError.TooLarge,
                 }));
-            Assert.That(validator.Validate(new CardioExercise(Climber, new CardioEntry(TimeSpan.FromMinutes(1), null, 1_001, null, 100.5m, null, null)))
+            Assert.That(validator.Validate(new CardioExercise(Climber, new CardioEntry(TimeSpan.FromMinutes(1), null, 1_001, null, 100.5m, null, null, null)))
                     .Entries.Single().Fields,
                 Is.EqualTo(new Dictionary<Metric, FieldError> { [Metric.Floors] = FieldError.TooLarge, [Metric.Incline] = FieldError.TooLarge }));
         });
@@ -211,7 +218,7 @@ public class WorkoutValidatorTests
         Assert.Multiple(() =>
         {
             Assert.That(SetErrors(Press, new StrengthSet(10, 0m, null, null)), Is.Empty);
-            Assert.That(EntryErrors(new CardioEntry(TimeSpan.FromMinutes(1), 0m, null, 0, null, 0, 0m)), Is.Empty);
+            Assert.That(EntryErrors(new CardioEntry(TimeSpan.FromMinutes(1), 0m, null, 0, null, 0, 0m, null)), Is.Empty);
         });
     }
 
@@ -222,7 +229,7 @@ public class WorkoutValidatorTests
         {
             Assert.That(SetErrors(Press, new StrengthSet(10, -2.5m, null, null)),
                 Is.EqualTo(new Dictionary<Metric, FieldError> { [Metric.WeightKg] = FieldError.Negative }));
-            Assert.That(EntryErrors(new CardioEntry(TimeSpan.FromMinutes(1), -1m, null, -1, null, -1, -1m)),
+            Assert.That(EntryErrors(new CardioEntry(TimeSpan.FromMinutes(1), -1m, null, -1, null, -1, -1m, null)),
                 Is.EqualTo(new Dictionary<Metric, FieldError>
                 {
                     [Metric.Distance] = FieldError.Negative,
@@ -242,6 +249,61 @@ public class WorkoutValidatorTests
                 Is.EqualTo(new Dictionary<Metric, FieldError> { [Metric.Duration] = FieldError.NotShown, [Metric.Distance] = FieldError.NotShown }));
             Assert.That(EntryErrors(Entry() with { Floors = 0, Incline = 1.5m }),
                 Is.EqualTo(new Dictionary<Metric, FieldError> { [Metric.Floors] = FieldError.NotShown, [Metric.Incline] = FieldError.NotShown }));
+        });
+    }
+
+    [Test]
+    public void Validate_Pace_ZeroAndTheLimitAreValid()
+    {
+        Assert.Multiple(() =>
+        {
+            Assert.That(EntryErrors(Entry() with { Pace = TimeSpan.Zero }, Run), Is.Empty);
+            Assert.That(EntryErrors(Entry() with { Pace = MetricLimits.MaxPace }, Run), Is.Empty);
+        });
+    }
+
+    [TestCase(-1, FieldError.Negative)]
+    [TestCase(3_601, FieldError.TooLarge)]
+    public void Validate_PaceOutOfRange_IsAnError(int seconds, FieldError error)
+    {
+        Assert.That(EntryErrors(Entry() with { Pace = TimeSpan.FromSeconds(seconds) }, Run),
+            Is.EqualTo(new Dictionary<Metric, FieldError> { [Metric.Pace] = error }));
+    }
+
+    [Test]
+    public void Validate_PaceOnAnExerciseWithoutIt_ReturnsNotShown()
+    {
+        Assert.That(EntryErrors(Entry() with { Pace = TimeSpan.FromMinutes(5) }),
+            Is.EqualTo(new Dictionary<Metric, FieldError> { [Metric.Pace] = FieldError.NotShown }));
+    }
+
+    [Test]
+    public void Validate_PartSeconds_ReturnNotWholeSeconds()
+    {
+        var part = TimeSpan.FromSeconds(30.5);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(SetErrors(Plank, new StrengthSet(null, null, part, null)),
+                Is.EqualTo(new Dictionary<Metric, FieldError> { [Metric.Duration] = FieldError.NotWholeSeconds }));
+            Assert.That(SetErrors(Carry, new StrengthSet(null, null, part, 20m)),
+                Is.EqualTo(new Dictionary<Metric, FieldError> { [Metric.Duration] = FieldError.NotWholeSeconds }));
+            Assert.That(EntryErrors(Entry() with { Duration = part, Pace = TimeSpan.FromTicks(1) }, Run),
+                Is.EqualTo(new Dictionary<Metric, FieldError> { [Metric.Duration] = FieldError.NotWholeSeconds, [Metric.Pace] = FieldError.NotWholeSeconds }));
+        });
+    }
+
+    [Test]
+    public void Validate_PartSeconds_ComeAfterNotPositiveAndNegative_AndBeforeTooLarge()
+    {
+        Assert.Multiple(() =>
+        {
+            Assert.That(SetErrors(Plank, new StrengthSet(null, null, TimeSpan.FromSeconds(-0.5), null)),
+                Is.EqualTo(new Dictionary<Metric, FieldError> { [Metric.Duration] = FieldError.NotPositive }));
+            Assert.That(EntryErrors(Entry() with { Pace = TimeSpan.FromSeconds(-0.5) }, Run),
+                Is.EqualTo(new Dictionary<Metric, FieldError> { [Metric.Pace] = FieldError.Negative }));
+            Assert.That(EntryErrors(Entry() with { Pace = TimeSpan.FromSeconds(3_600.5) }, Run),
+                Is.EqualTo(new Dictionary<Metric, FieldError> { [Metric.Pace] = FieldError.NotWholeSeconds }));
         });
     }
 
@@ -275,13 +337,13 @@ public class WorkoutValidatorTests
 
     private static ExerciseDefinition Strength(int id, params MetricDefinition[] metrics) =>
         new(id, $"Exercise {id}", ExerciseType.Strength, [], Muscle.Chest, Equipment.Barbell, Mechanic.Compound, metrics,
-            metrics.Any(m => m.Metric == Metric.Distance) ? DistanceUnit.Metres : null, null);
+            metrics.Any(m => m.Metric == Metric.Distance) ? DistanceUnit.Metres : null, null, null);
 
-    private static CardioEntry Entry() => new(TimeSpan.FromMinutes(20), null, null, null, null, null, null);
+    private static CardioEntry Entry() => new(TimeSpan.FromMinutes(20), null, null, null, null, null, null, null);
 
     private IReadOnlyDictionary<Metric, FieldError> SetErrors(int exerciseId, StrengthSet set) =>
         validator.Validate(new StrengthExercise(exerciseId, [set])).Entries.Single().Fields;
 
-    private IReadOnlyDictionary<Metric, FieldError> EntryErrors(CardioEntry entry) =>
-        validator.Validate(new CardioExercise(Bike, entry)).Entries.Single().Fields;
+    private IReadOnlyDictionary<Metric, FieldError> EntryErrors(CardioEntry entry, int exerciseId = Bike) =>
+        validator.Validate(new CardioExercise(exerciseId, entry)).Entries.Single().Fields;
 }

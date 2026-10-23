@@ -6,13 +6,17 @@
 @inject IExerciseCatalog Catalog
 @inject TimeProvider Clock
 @inject ISetChecker Checker
+@inject IWorkoutChecker WorkoutChecker
 
 <WorkoutView Mode="WorkoutMode.New"
              StartedAt="startedAt"
              Time="Elapsed"
              Exercises="exercises"
+             Error="@error"
              Focus="focus"
+             ErrorFocus="errorFocus"
              ValidateSet="Checker.Check"
+             OnSave="Save"
              OnAddExercise="OpenPicker"
              OnRemoveExercise="RemoveExercise"
              OnBack="OnBack">
@@ -33,6 +37,8 @@
     private string query = "";
     private IReadOnlyList<PickerItem> pickerItems = [];
     private ExerciseFocus? focus;
+    private ErrorFocus? errorFocus;
+    private string? error;
 
     /// <summary>Raised by the back arrow and the Android back button.</summary>
     [Parameter]
@@ -69,7 +75,19 @@
     private void Pick(PickerItem item)
     {
         focus = Show(item.Id);
+        error = null;
         pickerOpen = false;
+    }
+
+    /// <summary>Checks the workout (FR-09) and moves focus to the first error. A valid workout isn't saved until US-14.</summary>
+    private void Save()
+    {
+        var check = WorkoutChecker.Check(exercises);
+        error = check.Error;
+        if (!check.IsValid)
+        {
+            errorFocus = new ErrorFocus();
+        }
     }
 
     /// <summary>Focuses the exercise already in the workout, adding a set to a strength one; otherwise adds it at the bottom.</summary>

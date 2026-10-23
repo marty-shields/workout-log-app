@@ -56,9 +56,16 @@ public class ExerciseCatalogTests
         {
             Assert.That(exercise.Type, Is.EqualTo(ExerciseType.Cardio));
             Assert.That(exercise.DistanceUnit, Is.EqualTo(DistanceUnit.Km));
-            Assert.That(exercise.RateUnit, Is.EqualTo(RateUnit.MinPerKm));
+            Assert.That(exercise.RateUnit, Is.Null);
+            Assert.That(exercise.PaceUnit, Is.EqualTo(PaceUnit.PerKm));
+            Assert.That(Find("Rowing Machine").RateUnit, Is.EqualTo(RateUnit.StrokesPerMin));
         });
     }
+
+    [TestCase("Outdoor Run")]
+    [TestCase("Outdoor Walk")]
+    public void All_PaceExercises_ShowPaceWhereRateWas(string name) =>
+        Assert.That(Find(name).Metrics.Select(m => m.Metric), Is.EqualTo(new[] { Metric.Duration, Metric.Distance, Metric.Calories, Metric.Pace }));
 
     [Test]
     public void All_ReadsMetricLabels() =>

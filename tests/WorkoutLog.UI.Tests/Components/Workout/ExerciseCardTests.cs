@@ -12,6 +12,33 @@ namespace WorkoutLog.UI.Tests.Components.Workout;
 
 public class ExerciseCardTests : ComponentTestBase
 {
+    /// <summary>Reps are required and must be digits only; marks the set for re-checking when it fails, as <see cref="SetChecker"/> does.</summary>
+    private static bool WholeReps(ExerciseState exercise, EntryState entry)
+    {
+        entry.Errors.Clear();
+        var reps = entry.Values.GetValueOrDefault("reps");
+        if (string.IsNullOrEmpty(reps))
+        {
+            entry.Errors["reps"] = "Enter reps";
+        }
+        else if (!reps.All(char.IsAsciiDigit))
+        {
+            entry.Errors["reps"] = "Reps must be a number";
+        }
+
+        entry.CheckOnChange |= entry.Errors.Count > 0;
+        return entry.Errors.Count == 0;
+    }
+
+    /// <summary>As <see cref="WholeReps"/>, but leaves <see cref="EntryState.CheckOnChange"/> to the card.</summary>
+    private static bool PlainWholeReps(ExerciseState exercise, EntryState entry)
+    {
+        var flag = entry.CheckOnChange;
+        var valid = WholeReps(exercise, entry);
+        entry.CheckOnChange = flag;
+        return valid;
+    }
+
     private static ExerciseState Strength(int sets)
     {
         var exercise = new ExerciseState(132, "Dumbbell Curl", ExerciseKind.Strength,
@@ -524,6 +551,76 @@ public class ExerciseCardTests : ComponentTestBase
         cut.Find("[data-testid=exercise-1-duration-mm]").Input("20");
 
         Assert.That(cut.FindAll("[data-testid=exercise-1-entry-error]"), Is.Empty);
+    }
+
+    [Test]
+    public void TypingThroughAValidValue_KeepsCheckingAndShowsTheNewError()
+    {
+        var exercise = Strength(1);
+        WholeReps(exercise, exercise.Entries[0]);
+        var cut = Context.Render<ExerciseCard>(p => p
+            .Add(x => x.Exercise, exercise)
+            .Add(x => x.ValidateSet, WholeReps)
+            .Add(x => x.TestId, "exercise-1"));
+
+        cut.Find("[data-testid=exercise-1-set-1-reps]").Input("8");
+        cut.Find("[data-testid=exercise-1-set-1-reps]").Input("8.");
+
+        Assert.That(cut.Find("[data-testid=exercise-1-set-1-error]").TextContent.Trim(), Is.EqualTo("Reps must be a number"));
+    }
+
+    [Test]
+    public void TypingThroughAValidValue_PlainValidator_KeepsChecking()
+    {
+        var exercise = Strength(1);
+        var cut = Context.Render<ExerciseCard>(p => p
+            .Add(x => x.Exercise, exercise)
+            .Add(x => x.ValidateSet, PlainWholeReps)
+            .Add(x => x.TestId, "exercise-1"));
+        cut.Find("[data-testid=exercise-1-add-set]").Click();
+
+        cut.Find("[data-testid=exercise-1-set-1-reps]").Input("8");
+        cut.Find("[data-testid=exercise-1-set-1-reps]").Input("8.");
+
+        Assert.That(cut.Find("[data-testid=exercise-1-set-1-error]").TextContent.Trim(), Is.EqualTo("Reps must be a number"));
+    }
+
+    [Test]
+    public void AddSet_Allowed_StopsCheckingTheSetOnChange()
+    {
+        var exercise = Strength(1);
+        WholeReps(exercise, exercise.Entries[0]);
+        var checks = 0;
+        var cut = Context.Render<ExerciseCard>(p => p
+            .Add(x => x.Exercise, exercise)
+            .Add(x => x.ValidateSet, (e, s) => { checks++; return WholeReps(e, s); })
+            .Add(x => x.TestId, "exercise-1"));
+        cut.Find("[data-testid=exercise-1-set-1-reps]").Input("8");
+        cut.Find("[data-testid=exercise-1-add-set]").Click();
+        checks = 0;
+
+        cut.Find("[data-testid=exercise-1-set-1-reps]").Input("8.");
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(exercise.Entries[0].CheckOnChange, Is.False);
+            Assert.That(checks, Is.Zero);
+        });
+    }
+
+    [Test]
+    public void Carry_OpenOtherSet_Allowed_StopsCheckingTheOpenSetOnChange()
+    {
+        var exercise = Carry(2);
+        exercise.Entries[1].CheckOnChange = true;
+        var cut = Context.Render<ExerciseCard>(p => p
+            .Add(x => x.Exercise, exercise)
+            .Add(x => x.ValidateSet, (_, _) => true)
+            .Add(x => x.TestId, "exercise-1"));
+
+        cut.Find("[data-testid=exercise-1-set-1-open]").Click();
+
+        Assert.That(exercise.Entries[1].CheckOnChange, Is.False);
     }
 
     [Test]

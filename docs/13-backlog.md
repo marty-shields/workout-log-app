@@ -223,7 +223,7 @@ As the user, I want the wireframes rebuilt with the design system, so that M2–
 | [US-10](#us-10-start-a-workout) | Start a workout | FR-01, FR-02, FR-14 | S | Done |
 | [US-11](#us-11-add-and-remove-exercises) | Add and remove exercises | FR-03, FR-04, FR-05, FR-08 | S | Done |
 | [US-12](#us-12-log-strength-sets) | Log strength sets | FR-06, FR-08, NFR-04 | M | Done |
-| [US-13](#us-13-log-a-cardio-entry) | Log a cardio entry | FR-07 | M | To do |
+| [US-13](#us-13-log-a-cardio-entry-and-check-on-save) | Log a cardio entry and check on Save | FR-07, FR-09 | XL | Done |
 | [US-14](#us-14-save-a-workout) | Save a workout | FR-09, FR-10, FR-13 | S | To do |
 | [US-15](#us-15-discard-an-unsaved-workout) | Discard an unsaved workout | FR-12 | S | To do |
 
@@ -244,7 +244,7 @@ As the user, I want to add exercises from the list and remove them, so that the 
   - The search is added to `IExerciseCatalog` in Core, with unit tests (D122).
   - An added exercise shows its fields with the labels and units in [04](04-exercise-list.md#field-labels-and-units), and focus moves to its first field.
   - Picking an exercise already in the workout goes to its card: strength adds a set, cardio focuses its entry (D154).
-  - New Workout only; Add set and Remove set work, without set checks until US-12 and US-13. Save stays inert until US-14 (D153).
+  - New Workout only; Add set and Remove set work, without set checks until US-12 and US-13. Save stays inert until US-14 (D153); US-13 makes it check the workout (D165).
   - **Logging:** none. The search runs in memory and has no errors to log.
 - **Size:** S · **Status:** Done (D146–D156, T49, T50)
 
@@ -260,22 +260,27 @@ As the user, I want to add, fill in and remove sets for a strength exercise, so 
   - **Logging:** Warning 2401: focusing a blocked set failed (exception). Warning 2501/2502: a Core code gave no message (exercise id, code, metric). Validation errors are not logged (D142); input is parsed with `TryParse` ([05](05-architecture.md#logging)) (D164).
 - **Size:** M · **Status:** Done (D157–D164, T51–T53)
 
-### US-13 Log a cardio entry
-As the user, I want to fill in one cardio entry for a cardio exercise, so that I can record the machine's readout.
-- **Links:** FR-07
+### US-13 Log a cardio entry and check on Save
+As the user, I want to fill in one cardio entry for a cardio exercise, and have Save check the workout, so that I can record the machine's readout and see what's wrong before saving.
+- **Links:** FR-07, FR-09
 - **Extra ACs:**
   - Duration is entered as h:mm:ss (D14).
-  - Distance and rate show the exercise's units ([04](04-exercise-list.md)).
+  - Distance, rate and pace show the exercise's units ([04](04-exercise-list.md)).
   - Level shows the exercise's label (Resistance, Damper, Speed level); Incline accepts decimals (D87).
-  - Pace (min/km) is entered and shown as m:ss (D95).
-  - Decimals follow D157 and D158 (up to 2 places); `ISetChecker` gains the cardio checks (T51, D163).
-  - **Logging:** none. Validation errors are not logged (D142); input is parsed with `TryParse` ([05](05-architecture.md#logging)).
-- **Size:** M · **Status:** To do
+  - Pace is its own metric, entered and shown as m:ss, max 60:00 per km (D167, D168).
+  - Duration and pace are whole seconds (D169).
+  - Decimals follow D157 and D158 (up to 2 places); `ISetChecker` gains the cardio checks (T51, D166).
+  - Save on New Workout runs `IWorkoutChecker` and shows every error; focus moves to the first (D170, D171, T54, T56). A valid Save does nothing until US-14 (D165).
+  - Once a set or entry fails a check, every change re-checks it until it passes (D174).
+  - The prototype has Workout, Strength and Cardio mistakes scenarios (D172); the scenario tests type as the player does (T57).
+  - **Logging:** Warning 2302: focusing the first error failed (exception). Warning 2601: Save found an unknown exercise or wrong type (exercise id, code), once per exercise. Warnings 2501/2502 now cover cardio entries; 2501 is reworded (D175). Validation errors are not logged (D142); input is parsed with `TryParse` ([05](05-architecture.md#logging)).
+- **Size:** XL · **Status:** Done (D165–D175, T54–T57)
 
 ### US-14 Save a workout
 As the user, I want to save the workout, so that it is kept and the finish time is recorded.
 - **Links:** FR-09, FR-10, FR-13
 - **Extra ACs:**
+  - A valid Save calls `SaveNewAsync` with `ISetChecker.Read`'s records and returns to the Dashboard; SaveFailed shows "Couldn't save the workout. Try again." The checks and their errors come from US-13 (D165).
   - **Logging:** none new. `WorkoutService` already logs each save and failed save (US-35).
 - **Size:** S · **Status:** To do
 

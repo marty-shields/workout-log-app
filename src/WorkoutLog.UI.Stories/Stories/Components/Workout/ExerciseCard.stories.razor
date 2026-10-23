@@ -1,6 +1,6 @@
 @attribute [Stories("Components/Workout/ExerciseCard")]
 @inject IExerciseCatalog Catalog
-@inject ISetChecker Checker
+@inject IWorkoutChecker Checker
 
 <Stories TComponent="ExerciseCard" Layout="typeof(ThemeLayout)">
 
@@ -30,7 +30,7 @@
 
     <Story Name="Carry - errors">
         <Template>
-            @{ var exercise = SampleData.Exercise(Catalog, 187, [null, "32", "0:00:75"], ["40", "36", "0:00:50"], ["30", null, "0:00:00"]); SampleData.Validate(Checker, [exercise], out _); }
+            @{ var exercise = SampleData.Exercise(Catalog, 187, [null, "32", "0:00:75"], ["40", "36", "0:00:50"], ["30", null, "0:00:00"]); Checker.Check([exercise]); }
             <ExerciseCard Exercise="exercise" />
         </Template>
     </Story>
@@ -50,6 +50,13 @@
     <Story Name="Cardio with pace">
         <Template>
             <ExerciseCard Exercise="@SampleData.Exercise(Catalog, 311, ["0:25:30", "5", null, "5:06"])" />
+        </Template>
+    </Story>
+
+    <Story Name="Cardio with errors">
+        <Template>
+            @{ var exercise = SampleData.Exercise(Catalog, 305, [null, "2000", "5.5", "abc", "201"]); Checker.Check([exercise]); }
+            <ExerciseCard Exercise="exercise" />
         </Template>
     </Story>
 

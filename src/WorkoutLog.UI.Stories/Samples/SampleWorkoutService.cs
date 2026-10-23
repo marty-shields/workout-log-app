@@ -6,8 +6,8 @@ using WorkoutLog.Core.Services;
 namespace WorkoutLog.UI.Stories.Samples;
 
 /// <summary>
-/// <see cref="IWorkoutService"/> for the stories. Starts workouts and checks strength sets with Core's validator;
-/// the other members throw <see cref="NotSupportedException"/>.
+/// <see cref="IWorkoutService"/> for the stories. Starts workouts and checks workouts, sets and entries with Core's validator;
+/// saving throws <see cref="NotSupportedException"/>.
 /// </summary>
 public sealed class SampleWorkoutService(TimeProvider time, IExerciseCatalog catalog) : IWorkoutService
 {
@@ -17,13 +17,13 @@ public sealed class SampleWorkoutService(TimeProvider time, IExerciseCatalog cat
     public WorkoutDraft StartNew() => new(time.GetUtcNow());
 
     /// <inheritdoc />
-    public WorkoutErrors Validate(IReadOnlyList<WorkoutExercise> exercises) => throw new NotSupportedException();
+    public WorkoutErrors Validate(IReadOnlyList<WorkoutExercise> exercises) => validator.Validate(exercises);
 
     /// <inheritdoc />
     public ExerciseErrors ValidateSet(int exerciseId, StrengthSet set) => validator.Validate(new StrengthExercise(exerciseId, [set]));
 
     /// <inheritdoc />
-    public ExerciseErrors ValidateEntry(int exerciseId, CardioEntry entry) => throw new NotSupportedException();
+    public ExerciseErrors ValidateEntry(int exerciseId, CardioEntry entry) => validator.Validate(new CardioExercise(exerciseId, entry));
 
     /// <inheritdoc />
     public Task<SaveResult> SaveNewAsync(WorkoutDraft draft, IReadOnlyList<WorkoutExercise> exercises) => throw new NotSupportedException();

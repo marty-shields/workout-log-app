@@ -1,3 +1,4 @@
+using WorkoutLog.Core.Domain.Workouts.Validation;
 using WorkoutLog.UI.Models.Fields;
 
 namespace WorkoutLog.UI.Models.Workout;
@@ -26,4 +27,7 @@ public sealed class ExerciseState(int exerciseId, string name, ExerciseKind kind
 
     /// <summary>Validation message for the exercise.</summary>
     public string? Error { get; set; }
+
+    /// <summary>Core's code behind <see cref="Error"/>, when Save set it.</summary>
+    public ExerciseError? ErrorCode { get; set; }
 }

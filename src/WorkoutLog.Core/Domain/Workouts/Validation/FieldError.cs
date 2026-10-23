@@ -12,6 +12,9 @@ public enum FieldError
     /// <summary>Below 0.</summary>
     Negative,
 
+    /// <summary>A duration or pace with part of a second.</summary>
+    NotWholeSeconds,
+
     /// <summary>Above the metric's limit in <see cref="Exercises.MetricLimits"/>.</summary>
     TooLarge,
 

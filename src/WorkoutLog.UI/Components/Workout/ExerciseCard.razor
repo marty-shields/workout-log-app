@@ -1,11 +1,12 @@
 @using Microsoft.Extensions.Logging
+@using WorkoutLog.Core.Domain.Workouts.Validation
 @using WorkoutLog.UI.Components.Inputs
 @implements IDisposable
 @inject ILogger<ExerciseCard> Logger
 <section class="card @(Exercise.Error is not null ? "has-error" : null)" data-testid="@TestId">
     <header class="card-header">
         <h2 class="name">@Exercise.Name</h2>
-        <AppButton Variant="ButtonVariant.Text" TestId="@($"{TestId}-remove")" OnClick="OnRemove">Remove<span class="visually-hidden">@($" {Exercise.Name}")</span></AppButton>
+        <AppButton @ref="remove" Variant="ButtonVariant.Text" TestId="@($"{TestId}-remove")" OnClick="OnRemove">Remove<span class="visually-hidden">@($" {Exercise.Name}")</span></AppButton>
     </header>
     @if (Exercise.Error is not null)
     {
@@ -35,6 +36,7 @@
                     else
                     {
                         <SetSummary @key="entry"
+                                    @ref="summaries[entry]"
                                     Number="number"
                                     Fields="Exercise.Fields"
                                     Entry="entry"
@@ -72,7 +74,7 @@
                 }
             }
         </div>
-        <AppButton Variant="ButtonVariant.Secondary" FullWidth TestId="@($"{TestId}-add-set")" OnClick="AddSet">Add set</AppButton>
+        <AppButton @ref="addSet" Variant="ButtonVariant.Secondary" FullWidth TestId="@($"{TestId}-add-set")" OnClick="AddSet">Add set</AppButton>
     }
     else if (Exercise.Entries.Count > 0)
     {
@@ -108,15 +110,18 @@
     [Parameter]
     public bool OpenLastSet { get; set; } = true;
 
-    /// <summary>Checks a set before Add set or opening another set: the open set, or the last row. Sets the set's errors and returns false to block. Also re-checks a set or entry showing errors each time its values change. Unset: nothing is blocked or re-checked.</summary>
+    /// <summary>Checks a set before Add set or opening another set: the open set, or the last row. Sets the set's errors and returns false to block. Also re-checks a set or entry each time its values change while it shows errors or <see cref="EntryState.CheckOnChange"/> is set. Unset: nothing is blocked or re-checked.</summary>
     [Parameter]
     public Func<ExerciseState, EntryState, bool>? ValidateSet { get; set; }
 
     private ExerciseState? shown;
     private EntryState? open;
     private readonly Dictionary<EntryState, SetRow> rows = new();
+    private readonly Dictionary<EntryState, SetSummary> summaries = new();
     private readonly Dictionary<string, FieldInput> cardioFields = new();
     private SetPanel? openPanel;
+    private AppButton? remove;
+    private AppButton? addSet;
     private TaskCompletionSource? pendingFocus;
 
     /// <summary>Set when Add set or opening another set was blocked: the next render focuses the set at fault.</summary>
@@ -136,6 +141,43 @@
         }
 
         return Exercise.Entries.LastOrDefault() is { } last && rows.TryGetValue(last, out var row) ? row.FocusAsync() : ValueTask.CompletedTask;
+    }
+
+    /// <summary>
+    /// Moves focus to the card's first error. An exercise error: Add set for <see cref="ExerciseError.NoSets"/>, otherwise Remove.
+    /// Otherwise the first set or entry with errors: its first field at fault, or the summary line of a closed set.
+    /// </summary>
+    public ValueTask FocusFirstErrorAsync()
+    {
+        if (Exercise.Error is not null)
+        {
+            var button = Exercise.ErrorCode == ExerciseError.NoSets ? addSet : remove;
+            return button?.FocusAsync() ?? ValueTask.CompletedTask;
+        }
+
+        if (Exercise.Entries.FirstOrDefault(e => e.Errors.Count > 0) is not { } entry)
+        {
+            return ValueTask.CompletedTask;
+        }
+
+        if (Exercise.Kind == ExerciseKind.Cardio)
+        {
+            return Exercise.Fields.FirstOrDefault(f => entry.Errors.ContainsKey(f.Key)) is { } field && cardioFields.TryGetValue(field.Key, out var input)
+                ? input.FocusAsync()
+                : ValueTask.CompletedTask;
+        }
+
+        if (SetGrid.Collapses(Exercise.Fields))
+        {
+            if (entry == open)
+            {
+                return openPanel?.FocusAsync() ?? ValueTask.CompletedTask;
+            }
+
+            return summaries.TryGetValue(entry, out var summary) ? summary.FocusAsync() : ValueTask.CompletedTask;
+        }
+
+        return rows.TryGetValue(entry, out var row) ? row.FocusAsync() : ValueTask.CompletedTask;
     }
 
     /// <summary>
@@ -218,7 +260,17 @@
         open = last is not null && (OpenLastSet || last.Values.Values.All(string.IsNullOrEmpty)) ? last : null;
     }
 
-    private bool CanLeave(EntryState? entry) => entry is null || ValidateSet is null || ValidateSet(Exercise, entry);
+    private bool CanLeave(EntryState? entry)
+    {
+        if (entry is null || ValidateSet is null)
+        {
+            return true;
+        }
+
+        var valid = ValidateSet(Exercise, entry);
+        entry.CheckOnChange = !valid;
+        return valid;
+    }
 
     private void OpenSet(EntryState entry)
     {
@@ -254,15 +306,16 @@
         var entry = new EntryState();
         Exercise.Entries.Add(entry);
         Exercise.Error = null;
+        Exercise.ErrorCode = null;
         open = entry;
         return true;
     }
 
     private Task EntryChanged(EntryState entry)
     {
-        if (entry.Errors.Count > 0)
+        if ((entry.Errors.Count > 0 || entry.CheckOnChange) && ValidateSet is not null && !ValidateSet(Exercise, entry))
         {
-            ValidateSet?.Invoke(Exercise, entry);
+            entry.CheckOnChange = true;
         }
 
         return OnChanged.InvokeAsync();
@@ -272,6 +325,7 @@
     {
         Exercise.Entries.Remove(entry);
         rows.Remove(entry);
+        summaries.Remove(entry);
         if (entry == open)
         {
             open = null;

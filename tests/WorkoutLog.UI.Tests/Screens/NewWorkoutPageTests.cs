@@ -330,6 +330,114 @@ public class NewWorkoutPageTests : ComponentTestBase
     }
 
     [Test]
+    public void Save_NoExercises_ShowsTheWorkoutErrorAndFocusesAddExercise()
+    {
+        var cut = RenderPage();
+        var addExercise = ReferenceId(cut, "add-exercise");
+
+        cut.Find("[data-testid=save-workout]").Click();
+
+        Assert.That(cut.Find("[data-testid=workout-error]").TextContent, Is.EqualTo("Add at least one exercise"));
+        cut.WaitForAssertion(() => Assert.That(((ElementReference)LastFocus().Arguments[0]!).Id, Is.EqualTo(addExercise)));
+    }
+
+    [Test]
+    public void Pick_ClearsTheWorkoutError()
+    {
+        var cut = RenderPage();
+        cut.Find("[data-testid=save-workout]").Click();
+
+        Add(cut, 6);
+
+        Assert.That(cut.FindAll("[data-testid=workout-error]"), Is.Empty);
+    }
+
+    [Test]
+    public void Save_ExerciseWithNoSets_ShowsWhyAndFocusesItsAddSet()
+    {
+        var cut = RenderPage();
+        Add(cut, 6);
+        var addSet = ReferenceId(cut, "exercise-1-add-set");
+        cut.Find("[data-testid=exercise-1-set-1-remove]").Click();
+
+        cut.Find("[data-testid=save-workout]").Click();
+
+        Assert.That(cut.Find("[data-testid=exercise-1-error]").TextContent, Is.EqualTo("Add at least one set"));
+        cut.WaitForAssertion(() => Assert.That(((ElementReference)LastFocus().Arguments[0]!).Id, Is.EqualTo(addSet)));
+    }
+
+    [Test]
+    public void Save_ChecksEverySetAndEntryAndFocusesTheFirstError()
+    {
+        var cut = RenderPage();
+        Add(cut, 311);
+        Add(cut, 6);
+        cut.Find("[data-testid=exercise-1-pace-m]").Input("5");
+        cut.Find("[data-testid=exercise-1-pace-ss]").Input("75");
+        var hours = ReferenceId(cut, "exercise-1-duration-h");
+
+        cut.Find("[data-testid=save-workout]").Click();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.FindAll("[data-testid=exercise-1-entry-error] p").Select(p => p.TextContent.Trim()),
+                Is.EqualTo(new[] { "Enter duration", "Pace seconds must be 00–59" }));
+            Assert.That(cut.FindAll("[data-testid=exercise-2-set-1-error] p").Select(p => p.TextContent.Trim()), Is.EqualTo(new[] { "Enter reps" }));
+        });
+        cut.WaitForAssertion(() => Assert.That(((ElementReference)LastFocus().Arguments[0]!).Id, Is.EqualTo(hours)));
+    }
+
+    [Test]
+    public void CardioEntry_BeforeTheFirstSave_IsNotChecked()
+    {
+        var cut = RenderPage();
+        Add(cut, 300);
+
+        cut.Find("[data-testid=exercise-1-incline]").Input("1.255");
+
+        Assert.That(cut.FindAll("[data-testid=exercise-1-entry-error] p"), Is.Empty);
+    }
+
+    [Test]
+    public void Save_CardioEntryWithErrors_IsReCheckedAsYouType()
+    {
+        var cut = RenderPage();
+        Add(cut, 300);
+        cut.Find("[data-testid=save-workout]").Click();
+
+        cut.Find("[data-testid=exercise-1-duration-mm]").Input("20");
+        var clearedOnValid = cut.FindAll("[data-testid=exercise-1-entry-error] p").Count;
+        foreach (var typed in new[] { "1", "1.", "1.2", "1.25", "1.255" })
+        {
+            cut.Find("[data-testid=exercise-1-incline]").Input(typed);
+        }
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(clearedOnValid, Is.Zero);
+            Assert.That(cut.FindAll("[data-testid=exercise-1-entry-error] p").Select(p => p.TextContent.Trim()),
+                Is.EqualTo(new[] { "Incline can have up to 2 decimal places" }));
+        });
+    }
+
+    [Test]
+    public void Save_Valid_ClearsTheErrorsAndStaysOnThePage()
+    {
+        var cut = RenderPage();
+        Add(cut, 132);
+        cut.Find("[data-testid=save-workout]").Click();
+        cut.Find("[data-testid=exercise-1-set-1-reps]").Input("8");
+
+        cut.Find("[data-testid=save-workout]").Click();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.FindAll(".error"), Is.Empty);
+            Assert.That(Names(cut), Is.EqualTo(new[] { "Dumbbell Curl" }));
+        });
+    }
+
+    [Test]
     public void Remove_RemovesOnlyThatExerciseAndKeepsTheOrder()
     {
         var cut = RenderPage();
@@ -432,6 +540,10 @@ public class NewWorkoutPageTests : ComponentTestBase
             Assert.That(cut.FindAll("[data-testid=picker-none]"), Has.Count.EqualTo(1));
         });
     }
+
+    /// <summary>The element's reference id. bUnit drops it from the markup once the element re-renders, so read it first.</summary>
+    private static string? ReferenceId(IRenderedComponent<NewWorkoutPage> cut, string testId) =>
+        cut.Find($"[data-testid={testId}]").GetAttribute("blazor:elementreference");
 
     private static string Subtitle(IRenderedComponent<NewWorkoutPage> cut) => cut.Find("[data-testid=screen-subtitle]").TextContent;
 

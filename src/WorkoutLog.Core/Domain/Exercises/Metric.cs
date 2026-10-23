@@ -29,4 +29,7 @@ public enum Metric
 
     /// <summary>Rate, in the exercise's rate unit. Cardio.</summary>
     Rate,
+
+    /// <summary>Pace: time per the exercise's pace unit of distance. Cardio.</summary>
+    Pace,
 }

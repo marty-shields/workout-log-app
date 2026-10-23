@@ -56,8 +56,8 @@ public class ExerciseFieldsTests
         }));
 
     [Test]
-    public void For_OutdoorRun_RateIsPace() =>
-        Assert.That(Fields(311)[^1], Is.EqualTo(new FieldSpec("rate", Metric.Rate, "Pace", FieldKind.Pace, Unit: "min/km")));
+    public void For_OutdoorRun_PaceInMinPerKm() =>
+        Assert.That(Fields(311)[^1], Is.EqualTo(new FieldSpec("pace", Metric.Pace, "Pace", FieldKind.Pace, Unit: "min/km")));
 
     [TestCase(301, "rpm")]
     [TestCase(305, "strokes/min")]

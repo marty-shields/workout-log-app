@@ -34,7 +34,7 @@
         </div>
     </ChildContent>
     <BottomBar>
-        <AppButton Variant="ButtonVariant.Secondary" FullWidth TestId="add-exercise" OnClick="OnAddExercise">Add exercise</AppButton>
+        <AppButton @ref="addExercise" Variant="ButtonVariant.Secondary" FullWidth TestId="add-exercise" OnClick="OnAddExercise">Add exercise</AppButton>
         <AppButton FullWidth TestId="save-workout" OnClick="OnSave">Save</AppButton>
     </BottomBar>
 </AppScreen>
@@ -93,12 +93,18 @@
     [Parameter]
     public ExerciseFocus? Focus { get; set; }
 
+    /// <summary>Moves focus to the first error once shown, after a Save that failed its checks (D171). Each request is handled once.</summary>
+    [Parameter]
+    public ErrorFocus? ErrorFocus { get; set; }
+
     /// <summary>Overlays shown above the screen: the exercise picker or a confirm dialog.</summary>
     [Parameter]
     public RenderFragment? Overlay { get; set; }
 
     private readonly Dictionary<ExerciseState, ExerciseCard> cards = new();
     private ExerciseFocus? handled;
+    private ErrorFocus? handledError;
+    private AppButton? addExercise;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -107,6 +113,7 @@
             cards.Remove(removed);
         }
 
+        await FocusFirstErrorAsync();
         if (Focus is null || ReferenceEquals(Focus, handled) || !cards.TryGetValue(Focus.Exercise, out var card))
         {
             return;
@@ -133,6 +140,37 @@
             Log.FocusFailed(Logger, exception);
         }
     }
+
+    /// <summary>Handles <see cref="ErrorFocus"/>: Add exercise for a workout error, otherwise the first card with an error.</summary>
+    private async Task FocusFirstErrorAsync()
+    {
+        if (ErrorFocus is null || ReferenceEquals(ErrorFocus, handledError))
+        {
+            return;
+        }
+
+        handledError = ErrorFocus;
+        try
+        {
+            if (Error is not null)
+            {
+                if (addExercise is not null)
+                {
+                    await addExercise.FocusAsync();
+                }
+            }
+            else if (Exercises.FirstOrDefault(HasError) is { } exercise && cards.TryGetValue(exercise, out var card))
+            {
+                await card.FocusFirstErrorAsync();
+            }
+        }
+        catch (Exception exception)
+        {
+            Log.ErrorFocusFailed(Logger, exception);
+        }
+    }
+
+    private static bool HasError(ExerciseState exercise) => exercise.Error is not null || exercise.Entries.Any(e => e.Errors.Count > 0);
 
     private string TimeText => Mode == WorkoutMode.New
         ? $"Elapsed {DisplayFormat.Duration(Time)}"

@@ -37,13 +37,13 @@ public static class ScreenStates
         new("Screens/New Workout", "Strength sets", c => Workout(c, WorkoutMode.New, SampleData.StrengthWorkout(Catalog(c)))),
         new("Screens/New Workout", "Carry sets", c => Workout(c, WorkoutMode.New, SampleData.CarryWorkout(Catalog(c)))),
         new("Screens/New Workout", "Cardio entries", c => Workout(c, WorkoutMode.New, SampleData.CardioWorkout(Catalog(c)))),
-        new("Screens/New Workout", "Save errors", c => Workout(c, WorkoutMode.New, SampleData.WorkoutWithErrors(Catalog(c), Checker(c)))),
-        new("Screens/New Workout", "Save with no exercises", c => Workout(c, WorkoutMode.New, [], error: "Add at least one exercise")),
+        new("Screens/New Workout", "Save errors", c => Workout(c, WorkoutMode.New, SampleData.WorkoutWithErrors(Catalog(c), WorkoutChecker(c)))),
+        new("Screens/New Workout", "Save with no exercises", c => Workout(c, WorkoutMode.New, [], error: WorkoutChecker(c).Check([]).Error)),
         new("Screens/New Workout", "Discard prompt", c => Workout(c, WorkoutMode.New, SampleData.StrengthWorkout(Catalog(c)), dialog: ("Discard this workout?", "Discard"))),
 
         new("Screens/Edit Workout", "Saved", c => Workout(c, WorkoutMode.Edit, SampleData.StrengthWorkout(Catalog(c)))),
         new("Screens/Edit Workout", "Carry sets closed", c => Workout(c, WorkoutMode.Edit, SampleData.CarryWorkout(Catalog(c)))),
-        new("Screens/Edit Workout", "Save errors", c => Workout(c, WorkoutMode.Edit, SampleData.EditWorkoutWithErrors(Catalog(c), Checker(c)))),
+        new("Screens/Edit Workout", "Save errors", c => Workout(c, WorkoutMode.Edit, SampleData.EditWorkoutWithErrors(Catalog(c), WorkoutChecker(c)))),
         new("Screens/Edit Workout", "Discard prompt", c => Workout(c, WorkoutMode.Edit, SampleData.StrengthWorkout(Catalog(c)), dialog: ("Discard changes?", "Discard"))),
         new("Screens/Edit Workout", "Delete prompt", c => Workout(c, WorkoutMode.Edit, SampleData.StrengthWorkout(Catalog(c)), dialog: ("Delete this workout?", "Delete"))),
 
@@ -61,6 +61,8 @@ public static class ScreenStates
     private static IExerciseCatalog Catalog(BunitContext context) => context.Services.GetRequiredService<IExerciseCatalog>();
 
     private static ISetChecker Checker(BunitContext context) => context.Services.GetRequiredService<ISetChecker>();
+
+    private static IWorkoutChecker WorkoutChecker(BunitContext context) => context.Services.GetRequiredService<IWorkoutChecker>();
 
     private static IReadOnlyList<IElement> Dashboard(BunitContext context, DashboardSummary summary) =>
         context.Render<DashboardView>(p => p

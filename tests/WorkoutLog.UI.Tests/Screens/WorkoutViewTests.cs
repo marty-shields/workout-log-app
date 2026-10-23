@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Testing;
 using Microsoft.JSInterop;
 using WorkoutLog.Core.Domain.Exercises;
+using WorkoutLog.Core.Domain.Workouts.Validation;
 using WorkoutLog.UI.Models.Fields;
 using WorkoutLog.UI.Models.Workout;
 using WorkoutLog.UI.Screens;
@@ -357,6 +358,186 @@ public class WorkoutViewTests : ComponentTestBase
             .Add(x => x.Exercises, [Curl()]));
 
         Assert.That(Context.JSInterop.Invocations, Is.Empty);
+    }
+
+    [Test]
+    public void ErrorFocus_WorkoutError_FocusesAddExercise()
+    {
+        var cut = Context.Render<WorkoutView>(p => p
+            .Add(x => x.StartedAt, Started)
+            .Add(x => x.Exercises, [])
+            .Add(x => x.Error, "Add at least one exercise")
+            .Add(x => x.ErrorFocus, new ErrorFocus()));
+
+        Context.JSInterop.VerifyFocusAsyncInvoke().Arguments[0].ShouldBeElementReferenceTo(cut.Find("[data-testid=add-exercise]"));
+    }
+
+    [Test]
+    public void ErrorFocus_ExerciseWithNoSets_FocusesItsAddSet()
+    {
+        var valid = Curl();
+        var empty = Curl();
+        empty.Entries.Clear();
+        empty.Error = "Add at least one set";
+        empty.ErrorCode = ExerciseError.NoSets;
+
+        var cut = Context.Render<WorkoutView>(p => p
+            .Add(x => x.StartedAt, Started)
+            .Add(x => x.Exercises, [valid, empty])
+            .Add(x => x.ErrorFocus, new ErrorFocus()));
+
+        Context.JSInterop.VerifyFocusAsyncInvoke().Arguments[0].ShouldBeElementReferenceTo(cut.Find("[data-testid=exercise-2-add-set]"));
+    }
+
+    [Test]
+    public void ErrorFocus_ExerciseErrorWithSets_FocusesItsRemove()
+    {
+        var unknown = Curl();
+        unknown.Error = "Exercise not found";
+
+        var cut = Context.Render<WorkoutView>(p => p
+            .Add(x => x.StartedAt, Started)
+            .Add(x => x.Exercises, [unknown])
+            .Add(x => x.ErrorFocus, new ErrorFocus()));
+
+        Context.JSInterop.VerifyFocusAsyncInvoke().Arguments[0].ShouldBeElementReferenceTo(cut.Find("[data-testid=exercise-1-remove]"));
+    }
+
+    [Test]
+    public void ErrorFocus_UnknownStrengthExerciseWithNoSets_FocusesItsRemove()
+    {
+        var unknown = Curl();
+        unknown.Entries.Clear();
+        unknown.Error = "Exercise not found";
+        unknown.ErrorCode = ExerciseError.UnknownExercise;
+
+        var cut = Context.Render<WorkoutView>(p => p
+            .Add(x => x.StartedAt, Started)
+            .Add(x => x.Exercises, [unknown])
+            .Add(x => x.ErrorFocus, new ErrorFocus()));
+
+        Context.JSInterop.VerifyFocusAsyncInvoke().Arguments[0].ShouldBeElementReferenceTo(cut.Find("[data-testid=exercise-1-remove]"));
+    }
+
+    [Test]
+    public void ErrorFocus_CardioExerciseError_FocusesItsRemove()
+    {
+        var treadmill = ExerciseFields.New(Catalog.All.Single(e => e.Id == 300));
+        treadmill.Error = "Exercise type doesn't match";
+
+        var cut = Context.Render<WorkoutView>(p => p
+            .Add(x => x.StartedAt, Started)
+            .Add(x => x.Exercises, [treadmill])
+            .Add(x => x.ErrorFocus, new ErrorFocus()));
+
+        Context.JSInterop.VerifyFocusAsyncInvoke().Arguments[0].ShouldBeElementReferenceTo(cut.Find("[data-testid=exercise-1-remove]"));
+    }
+
+    [Test]
+    public void ErrorFocus_SetRow_FocusesTheFirstSetWithErrors()
+    {
+        var curl = Curl();
+        curl.Entries.Add(new EntryState { Errors = { ["reps"] = "Enter reps" } });
+        curl.Entries.Add(new EntryState { Errors = { ["reps"] = "Enter reps" } });
+
+        var cut = Context.Render<WorkoutView>(p => p
+            .Add(x => x.StartedAt, Started)
+            .Add(x => x.Exercises, [curl])
+            .Add(x => x.ErrorFocus, new ErrorFocus()));
+
+        Context.JSInterop.VerifyFocusAsyncInvoke().Arguments[0].ShouldBeElementReferenceTo(cut.Find("[data-testid=exercise-1-set-2-reps]"));
+    }
+
+    [Test]
+    public void ErrorFocus_OpenCarrySet_FocusesItsFirstFieldAtFault()
+    {
+        var carry = Carry();
+        carry.Entries[0].Errors["weight"] = "Weight must be a number";
+
+        var cut = Context.Render<WorkoutView>(p => p
+            .Add(x => x.Mode, WorkoutMode.New)
+            .Add(x => x.StartedAt, Started)
+            .Add(x => x.Exercises, [carry])
+            .Add(x => x.ErrorFocus, new ErrorFocus()));
+
+        Context.JSInterop.VerifyFocusAsyncInvoke().Arguments[0].ShouldBeElementReferenceTo(cut.Find("[data-testid=exercise-1-set-1-weight]"));
+    }
+
+    [Test]
+    public void ErrorFocus_ClosedCarrySet_FocusesItsSummaryAndLeavesItClosed()
+    {
+        var carry = Carry();
+        carry.Entries.Add(new EntryState { Values = { ["distance"] = "40" } });
+        carry.Entries[1].Errors["weight"] = "Weight must be a number";
+
+        var cut = Context.Render<WorkoutView>(p => p
+            .Add(x => x.Mode, WorkoutMode.Edit)
+            .Add(x => x.StartedAt, Started)
+            .Add(x => x.Exercises, [carry])
+            .Add(x => x.ErrorFocus, new ErrorFocus()));
+
+        Assert.Multiple(() =>
+        {
+            Context.JSInterop.VerifyFocusAsyncInvoke().Arguments[0].ShouldBeElementReferenceTo(cut.Find("[data-testid=exercise-1-set-2-open]"));
+            Assert.That(cut.FindAll(".panel"), Is.Empty);
+        });
+    }
+
+    [Test]
+    public void ErrorFocus_CardioEntry_FocusesItsFirstFieldAtFault()
+    {
+        var treadmill = ExerciseFields.New(Catalog.All.Single(e => e.Id == 300));
+        treadmill.Entries[0].Errors["incline"] = "Incline can have up to 2 decimal places";
+        treadmill.Entries[0].Errors["calories"] = "Calories must be a number";
+
+        var cut = Context.Render<WorkoutView>(p => p
+            .Add(x => x.StartedAt, Started)
+            .Add(x => x.Exercises, [Curl(), treadmill])
+            .Add(x => x.ErrorFocus, new ErrorFocus()));
+
+        Context.JSInterop.VerifyFocusAsyncInvoke().Arguments[0].ShouldBeElementReferenceTo(cut.Find("[data-testid=exercise-2-incline]"));
+    }
+
+    [Test]
+    public void ErrorFocus_FocusesOnlyOnce()
+    {
+        var cut = Context.Render<WorkoutView>(p => p
+            .Add(x => x.StartedAt, Started)
+            .Add(x => x.Exercises, [])
+            .Add(x => x.Error, "Add at least one exercise")
+            .Add(x => x.ErrorFocus, new ErrorFocus()));
+
+        cut.Render(p => p.Add(x => x.Time, TimeSpan.FromSeconds(1)));
+
+        Context.JSInterop.VerifyFocusAsyncInvoke(calledTimes: 1);
+    }
+
+    [Test]
+    public void ErrorFocus_NoErrors_FocusesNothing()
+    {
+        Context.Render<WorkoutView>(p => p
+            .Add(x => x.StartedAt, Started)
+            .Add(x => x.Exercises, [Curl()])
+            .Add(x => x.ErrorFocus, new ErrorFocus()));
+
+        Assert.That(Context.JSInterop.Invocations, Is.Empty);
+    }
+
+    [Test]
+    public void ErrorFocusFails_LogsAWarningAndKeepsTheWorkout()
+    {
+        var logger = new FakeLogger<WorkoutView>();
+        Context.Services.AddSingleton<ILogger<WorkoutView>>(logger);
+        Context.JSInterop.SetupVoid("Blazor._internal.domWrapper.focus", _ => true).SetException(new JSException("Focus failed"));
+
+        var cut = Context.Render<WorkoutView>(p => p
+            .Add(x => x.StartedAt, Started)
+            .Add(x => x.Exercises, [])
+            .Add(x => x.Error, "Add at least one exercise")
+            .Add(x => x.ErrorFocus, new ErrorFocus()));
+
+        cut.WaitForAssertion(() => Assert.That(LoggedEvents.Of(logger), Is.EqualTo(new[] { (2302, LogLevel.Warning, "Focusing the first error failed") })));
+        Assert.That(cut.FindAll("[data-testid=workout-error]"), Has.Count.EqualTo(1));
     }
 
     [Test]

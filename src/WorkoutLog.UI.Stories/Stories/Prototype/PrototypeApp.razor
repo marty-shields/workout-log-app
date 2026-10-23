@@ -4,6 +4,7 @@
 @implements IDisposable
 @inject IExerciseCatalog Catalog
 @inject ISetChecker Checker
+@inject IWorkoutChecker WorkoutChecker
 
 <PhoneFrame OnSystemBack="Back" OnSimulateError="() => broken = true">
     <StartupGate Initialize="Start">
@@ -33,6 +34,7 @@
                                  OnAddExercise="OpenPicker"
                                  OnRemoveExercise="RemoveExercise"
                                  Focus="focus"
+                                 ErrorFocus="errorFocus"
                                  OnSave="Save"
                                  OnBack="Back"
                                  OnDelete="() => dialog = Dialog.Delete">
@@ -85,6 +87,7 @@
     private string query = "";
     private IReadOnlyList<PickerItem> pickerItems = [];
     private ExerciseFocus? focus;
+    private ErrorFocus? errorFocus;
     private Dialog dialog;
     private string? error;
     private bool broken;
@@ -181,8 +184,11 @@
 
     private void Save()
     {
-        if (!SampleData.Validate(Checker, exercises, out error))
+        var check = WorkoutChecker.Check(exercises);
+        error = check.Error;
+        if (!check.IsValid)
         {
+            errorFocus = new ErrorFocus();
             return;
         }
 

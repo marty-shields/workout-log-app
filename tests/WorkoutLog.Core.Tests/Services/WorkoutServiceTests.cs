@@ -91,7 +91,7 @@ public class WorkoutServiceTests
     [Test]
     public void ValidateEntry_ChecksTheEntryAsACardioExercise()
     {
-        var entry = new CardioEntry(TimeSpan.FromMinutes(5), null, null, null, null, null, null);
+        var entry = new CardioEntry(TimeSpan.FromMinutes(5), null, null, null, null, null, null, null);
         var errors = new ExerciseErrors(null, [new EntryErrors(new Dictionary<Metric, FieldError>())]);
         validator.Setup(v => v.Validate(It.IsAny<WorkoutExercise>())).Returns(errors);
 
@@ -298,7 +298,7 @@ public class WorkoutServiceTests
     private static WorkoutExercise[] Exercises() =>
     [
         new StrengthExercise(Press, [new StrengthSet(10, 20m, null, null)]),
-        new CardioExercise(Bike, new CardioEntry(TimeSpan.FromMinutes(20), null, null, null, null, null, null)),
+        new CardioExercise(Bike, new CardioEntry(TimeSpan.FromMinutes(20), null, null, null, null, null, null, null)),
     ];
 
     private static bool Same(IReadOnlyList<WorkoutExercise> actual, IReadOnlyList<WorkoutExercise> expected) =>

@@ -53,6 +53,7 @@ internal sealed class WorkoutValidator(IExerciseCatalog catalog) : IWorkoutValid
             (_, null) => null,
             ({ } shown, <= 0m) when MustBePositive(shown) => FieldError.NotPositive,
             (_, < 0m) => FieldError.Negative,
+            ({ Metric: Metric.Duration or Metric.Pace }, { } seconds) when seconds != decimal.Truncate(seconds) => FieldError.NotWholeSeconds,
             (_, { } number) when number > MetricLimits.Max(definition, metric) => FieldError.TooLarge,
             _ => null,
         };
@@ -77,6 +78,7 @@ internal sealed class WorkoutValidator(IExerciseCatalog catalog) : IWorkoutValid
         (Metric.Incline, entry.Incline),
         (Metric.Calories, entry.Calories),
         (Metric.Rate, entry.Rate),
+        (Metric.Pace, Seconds(entry.Pace)),
     ];
 
     private static decimal? Seconds(TimeSpan? duration) => duration is { } d ? (decimal)d.TotalSeconds : null;

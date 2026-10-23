@@ -1,6 +1,6 @@
 @using WorkoutLog.UI.Models.Fields
 <div class="summary" data-testid="@TestId">
-    <button type="button" class="open @(Entry.Errors.Count > 0 ? "invalid" : null)" data-testid="@($"{TestId}-open")" @onclick="OnOpen">
+    <button @ref="button" type="button" class="open @(Entry.Errors.Count > 0 ? "invalid" : null)" data-testid="@($"{TestId}-open")" @onclick="OnOpen">
         <span class="visually-hidden">Set </span>
         <span class="number">@Number</span>
         <span class="text">@Text</span>
@@ -34,6 +34,11 @@
     /// <summary>Value of the data-testid attribute.</summary>
     [Parameter]
     public string? TestId { get; set; }
+
+    private ElementReference button;
+
+    /// <summary>Moves focus to the summary line.</summary>
+    public ValueTask FocusAsync() => button.FocusAsync();
 
     private string Text
     {

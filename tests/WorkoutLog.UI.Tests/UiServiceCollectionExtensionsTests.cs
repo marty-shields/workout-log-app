@@ -15,6 +15,7 @@ public class UiServiceCollectionExtensionsTests
         {
             (typeof(IBackButton), typeof(BackButton), ServiceLifetime.Singleton),
             (typeof(ISetChecker), typeof(SetChecker), ServiceLifetime.Singleton),
+            (typeof(IWorkoutChecker), typeof(WorkoutChecker), ServiceLifetime.Singleton),
         }));
     }
 }

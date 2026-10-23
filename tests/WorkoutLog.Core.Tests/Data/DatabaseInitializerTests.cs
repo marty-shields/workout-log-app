@@ -50,6 +50,7 @@ public class DatabaseInitializerTests
             ("CardioEntry", "Incline", "float"),
             ("CardioEntry", "Calories", "integer"),
             ("CardioEntry", "Rate", "float"),
+            ("CardioEntry", "Pace", "bigint"),
             ("Exercise", "Id", "integer"),
             ("Exercise", "Name", "varchar"),
             ("Exercise", "Type", "integer"),
@@ -117,6 +118,24 @@ public class DatabaseInitializerTests
 
         Assert.That(tablesSeenByStep, Is.Empty);
         Assert.That(await Tables(), Has.Member("Workout"));
+    }
+
+    [Test]
+    public async Task InitializeAsync_CurrentDatabaseWithoutPace_AddsThePaceColumnAndKeepsTheEntries()
+    {
+        await connection.ExecuteAsync(
+            "CREATE TABLE CardioEntry (Id integer primary key autoincrement not null, WorkoutExerciseId integer not null, " +
+            "Duration bigint not null, Distance float, Floors integer, Level integer, Incline float, Calories integer, Rate float)");
+        await connection.ExecuteAsync("INSERT INTO CardioEntry (WorkoutExerciseId, Duration) VALUES (1, 6000000000)");
+        await SetVersion(DatabaseInitializer.CurrentVersion);
+
+        await Initializer(DatabaseInitializer.CurrentVersion).InitializeAsync();
+
+        Assert.Multiple(async () =>
+        {
+            Assert.That(await Columns(), Does.Contain(("CardioEntry", "Pace", "bigint")));
+            Assert.That(await connection.Table<CardioEntryRow>().CountAsync(), Is.EqualTo(1));
+        });
     }
 
     [Test]

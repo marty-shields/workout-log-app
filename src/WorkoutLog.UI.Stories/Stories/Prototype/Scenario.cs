@@ -28,7 +28,8 @@ public enum StepAction
 /// <param name="Action">What the step does.</param>
 /// <param name="TestId">data-testid of the target element.</param>
 /// <param name="Text">Text typed by <see cref="StepAction.Enter"/>.</param>
-public sealed record ScenarioStep(string Caption, StepAction Action, string TestId, string? Text = null)
+/// <param name="Expected">Text a <see cref="StepAction.Show"/> target must contain; checked by the tests, not the player.</param>
+public sealed record ScenarioStep(string Caption, StepAction Action, string TestId, string? Text = null, IReadOnlyList<string>? Expected = null)
 {
     /// <summary>Taps the element.</summary>
     public static ScenarioStep Click(string caption, string testId) => new(caption, StepAction.Click, testId);
@@ -36,8 +37,8 @@ public sealed record ScenarioStep(string Caption, StepAction Action, string Test
     /// <summary>Types <paramref name="text"/> into the input.</summary>
     public static ScenarioStep Enter(string caption, string testId, string text) => new(caption, StepAction.Enter, testId, text);
 
-    /// <summary>Outlines the element.</summary>
-    public static ScenarioStep Show(string caption, string testId) => new(caption, StepAction.Show, testId);
+    /// <summary>Outlines the element. The tests check it contains each of <paramref name="expected"/>.</summary>
+    public static ScenarioStep Show(string caption, string testId, params string[] expected) => new(caption, StepAction.Show, testId, Expected: expected);
 
     /// <summary>Presses the simulated Android back button.</summary>
     public static ScenarioStep Back(string caption) => Click(caption, "system-back");

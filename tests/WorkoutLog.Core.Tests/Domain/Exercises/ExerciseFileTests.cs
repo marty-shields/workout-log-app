@@ -10,7 +10,7 @@ public class ExerciseFileTests
     private static readonly Metric[] StrengthMetrics = [Metric.Reps, Metric.WeightKg, Metric.Duration, Metric.Distance];
 
     private static readonly Metric[] CardioMetrics =
-        [Metric.Duration, Metric.Distance, Metric.Floors, Metric.Level, Metric.Incline, Metric.Calories, Metric.Rate];
+        [Metric.Duration, Metric.Distance, Metric.Floors, Metric.Level, Metric.Incline, Metric.Calories, Metric.Rate, Metric.Pace];
 
     private static IEnumerable<TestCaseData> Each() => Cases(Exercises);
 
@@ -54,6 +54,7 @@ public class ExerciseFileTests
             Assert.That(exercise.Metrics.All(m => Enum.IsDefined(m.Metric)), Is.True);
             Assert.That(exercise.DistanceUnit is not { } distance || Enum.IsDefined(distance), Is.True);
             Assert.That(exercise.RateUnit is not { } rate || Enum.IsDefined(rate), Is.True);
+            Assert.That(exercise.PaceUnit is not { } pace || Enum.IsDefined(pace), Is.True);
         });
     }
 
@@ -101,6 +102,7 @@ public class ExerciseFileTests
         {
             Assert.That(exercise.DistanceUnit.HasValue, Is.EqualTo(exercise.Metrics.Any(m => m.Metric == Metric.Distance)));
             Assert.That(exercise.RateUnit.HasValue, Is.EqualTo(exercise.Metrics.Any(m => m.Metric == Metric.Rate)));
+            Assert.That(exercise.PaceUnit.HasValue, Is.EqualTo(exercise.Metrics.Any(m => m.Metric == Metric.Pace)));
         });
     }
 }

@@ -14,15 +14,16 @@ SQLite on the device, accessed with sqlite-net-pcl through `IWorkoutRepository`,
 |---|---|---|---|---|
 | Reps | int | ✓ | | > 0 |
 | WeightKg | decimal | ✓ | | ≥ 0, any decimal; the UI takes up to 2 places (D158). Per dumbbell. Assistance on assisted machines. |
-| Duration | TimeSpan | ✓ | ✓ (always required) | > 0 when required, otherwise ≥ 0. Entered as h:mm:ss |
+| Duration | TimeSpan | ✓ | ✓ (always required) | > 0 when required, otherwise ≥ 0. Whole seconds (D169). Entered as h:mm:ss |
 | Distance | decimal | ✓ (carries) | ✓ | > 0 when required (carries), otherwise ≥ 0. Unit from the exercise. The UI takes up to 2 places (D158) |
 | Floors | int | | ✓ | ≥ 0 |
 | Level | int | | ✓ | ≥ 0, whole number. Resistance, damper or speed level, per the exercise's label |
 | Incline | decimal | | ✓ | ≥ 0, percent. The UI takes up to 2 places (D158) |
 | Calories | int | | ✓ | ≥ 0, whole number |
 | Rate | decimal | | ✓ | ≥ 0, unit from the exercise (e.g. steps/min). The UI takes up to 2 places (D158) |
+| Pace | TimeSpan | | ✓ | ≥ 0, whole seconds, time per the exercise's pace unit (D168, D169). Entered as m:ss |
 
-0 is a valid value for an optional metric (D127). Each metric has a maximum (D130, `MetricLimits`): reps 1,000; weight 1,000 kg; duration 23:59:59; distance 1,000 km or 100,000 m or ft; floors 1,000; level 100; incline 100 %; calories 10,000; rate 100 km/h, 60 min/km, 300 rpm, 200 strokes/min, 300 strides/min, 300 steps/min, 1,000 ft/min.
+0 is a valid value for an optional metric (D127). Each metric has a maximum (D130, `MetricLimits`): reps 1,000; weight 1,000 kg; duration 23:59:59; distance 1,000 km or 100,000 m or ft; floors 1,000; level 100; incline 100 %; calories 10,000; pace 60:00 per km; rate 100 km/h, 300 rpm, 200 strokes/min, 300 strides/min, 300 steps/min, 1,000 ft/min.
 
 sqlite-net stores `decimal` as REAL (floating point), `TimeSpan` as ticks and `DateTimeOffset` as UTC ticks.
 
@@ -40,7 +41,8 @@ The definitions are an embedded JSON file in Core, from [exercises.json](../src/
 | Mechanic | enum? | `Compound` or `Isolation`. Strength only |
 | Metrics | list of (Metric, Required, Label?) | Which metrics show, which are required, and an optional field label (e.g. `Assist`, `Resistance`, `Damper`) |
 | DistanceUnit | enum? | `Km`, `Metres`, `Feet`. Null = no distance |
-| RateUnit | enum? | `KmPerHour`, `MinPerKm`, `Rpm`, `StrokesPerMin`, `StridesPerMin`, `StepsPerMin`, `FeetPerMin`. Null = no rate |
+| RateUnit | enum? | `KmPerHour`, `Rpm`, `StrokesPerMin`, `StridesPerMin`, `StepsPerMin`, `FeetPerMin`. Null = no rate |
+| PaceUnit | enum? | `PerKm`. Null = no pace (D168) |
 
 The `Exercise` database table stores only Id, Name and Type, so other tables can reference it. All other fields come from the definition file, so changing them never needs a schema change.
 
@@ -111,6 +113,7 @@ Date, day of week and total time are calculated from these and shown in the phon
 | Incline | decimal? |
 | Calories | int? |
 | Rate | decimal? |
+| Pace | TimeSpan? |
 
 ## Diagram
 
@@ -139,19 +142,20 @@ erDiagram
 |---|---|---|---|
 | Workout | `NoExercises` | No exercises | Add at least one exercise |
 | Workout | `SaveFailed` | The database write failed (T32) | Couldn't save the workout. Try again. |
-| Exercise | `UnknownExercise` | Id not in the list; its sets aren't checked | Exercise not found |
-| Exercise | `WrongType` | Strength for a cardio exercise or the other way round; its sets aren't checked | Exercise type doesn't match |
+| Exercise | `UnknownExercise` | Id not in the list; its sets aren't checked | Exercise not found (on Save only, D170) |
+| Exercise | `WrongType` | Strength for a cardio exercise or the other way round; its sets aren't checked | Exercise type doesn't match (on Save only, D170) |
 | Exercise | `NoSets` | A strength exercise with no sets | Add at least one set |
 | Set / entry | `Missing` | A required metric is empty | Enter {label} |
 | Set / entry | `NotPositive` | Reps, a required duration or a required distance ≤ 0 | {Label} must be more than 0 |
 | Set / entry | `Negative` | Any other metric < 0 (D126) | {Label} must be 0 or more |
+| Set / entry | `NotWholeSeconds` | A duration or pace with part of a second (D169) | {Label} must be whole seconds |
 | Set / entry | `TooLarge` | Above the metric's maximum (D130) | {Label} must be {max} or less |
-| Set / entry | `NotShown` | A value for a metric the exercise doesn't show; message only, no field border (D128) | {Label} isn't used by this exercise |
+| Set / entry | `NotShown` | A value for a metric the exercise doesn't show (D128) | None; logged (D170) |
 
-At most one code per metric. Entry formats are checked by the UI before it builds the records (below). A null list, exercise, set or entry is a programming error and throws `ArgumentNullException` (T34). The service validates and saves its own copy of the list (T33).
+At most one code per metric, in the order Missing, NotPositive or Negative, NotWholeSeconds, TooLarge (D169). Entry formats are checked by the UI before it builds the records (below). A null list, exercise, set or entry is a programming error and throws `ArgumentNullException` (T34). The service validates and saves its own copy of the list (T33).
 
 ### Entry formats (UI)
-`ISetChecker` reads each field's text before Core checks the set (T51). A field with a format message gets no message from Core. Cardio entries are not checked until US-13 (D163).
+`ISetChecker` reads each field's text before Core checks the set or entry (T51). A field with a format message gets no message from Core. On Save, `IWorkoutChecker` checks every set and entry, then the workout through `IWorkoutService.Validate` (T54).
 
 | Field | Accepted | Message (UI) |
 |---|---|---|
@@ -160,8 +164,10 @@ At most one code per metric. Entry formats are checked by the UI before it build
 | Whole number | No `.` (D159) | {Label} must be a whole number |
 | Duration | Three boxes of digits; an empty box is 0, all empty is empty (D160) | {Label} must be a time |
 | Duration | Minutes and seconds 00–59 (D160) | {Label} minutes and seconds must be 00–59 |
+| Pace | Two boxes of digits, m:ss; an empty box is 0, all empty is empty (D167) | {Label} must be a time |
+| Pace | Seconds 00–59; minutes any (D167) | {Label} seconds must be 00–59 |
 
-A number too large for the set's types is capped (weight and distance at the largest decimal, reps at the largest int, duration just over 23:59:59), so Core reports `TooLarge`. The TooLarge message has no unit; a duration's maximum shows as 23:59:59 (D163). `NotShown` can't come from the UI and has no message; the set still fails and Warning 2502 is logged (D163, D164).
+A number too large for the set's types is capped (weight, distance, incline and rate at the largest decimal; reps, floors, level and calories at the largest int; duration just over 23:59:59 and pace just over 60:00), so Core reports `TooLarge`. The TooLarge message has no unit; a duration's maximum shows as 23:59:59 and a pace's as 60:00 (D163, D167). `NotShown` can't come from the UI and has no message; the set still fails and Warning 2502 is logged (D163, D164).
 
 ## Seeding the exercise list
 - On startup, `IExerciseSeeder` inserts any exercise Id from the definition file that is missing from the database. It never removes rows.
@@ -178,7 +184,6 @@ A number too large for the set's types is capped (weight and distance at the lar
 - A step sees the schema left by the previous step. Tables and columns sqlite-net adds from the row classes appear only after the last step.
 - Any change sqlite-net can't make itself (rename, move or transform data) is a numbered upgrade step.
 
-## Rate entry format
-The entry format follows the rate unit:
-- Pace (`MinPerKm`): entered and shown as `m:ss` (e.g. `5:30`), seconds 00–59. Stored as decimal minutes (`5.5`).
-- All other rate units: entered and shown as a decimal.
+## Pace entry format
+- Pace is entered and shown as `m:ss` (e.g. `5:30`), seconds 00–59, and stored as a TimeSpan (D168).
+- Rate is entered and shown as a decimal.

@@ -48,6 +48,11 @@ public class ScenarioTests : ComponentTestBase
 
             var targets = cut.FindAll(selector);
             Assert.That(targets, Is.Not.Empty, $"Step {i + 1} \"{step.Caption}\": nothing with data-testid {step.TestId}");
+            foreach (var expected in step.Expected ?? [])
+            {
+                Assert.That(TestText.Normalise(targets[0].TextContent), Does.Contain(expected), $"Step {i + 1} \"{step.Caption}\"");
+            }
+
             check(cut, $"Before step {i + 1} \"{step.Caption}\"");
 
             switch (step.Action)
@@ -56,11 +61,23 @@ public class ScenarioTests : ComponentTestBase
                     targets[0].Click();
                     break;
                 case StepAction.Enter:
-                    targets[0].Input(step.Text);
+                    Type(cut, selector, step.Text);
                     break;
             }
         }
 
         check(cut, "After the last step");
+    }
+
+    /// <summary>Clears the input, then types one character at a time, as ScenarioPlayer.razor.js does, so each partial value is checked.</summary>
+    private static void Type(IRenderedComponent<PrototypeApp> cut, string selector, string? text)
+    {
+        cut.Find(selector).Input("");
+        var typed = "";
+        foreach (var character in text ?? "")
+        {
+            typed += character;
+            cut.Find(selector).Input(typed);
+        }
     }
 }

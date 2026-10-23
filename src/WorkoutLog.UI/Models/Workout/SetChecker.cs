@@ -10,39 +10,30 @@ using WorkoutLog.UI.Models.Fields;
 namespace WorkoutLog.UI.Models.Workout;
 
 /// <summary>
-/// Reads each field's text, then checks the set with <see cref="IWorkoutService.ValidateSet"/> and words its codes.
+/// Reads each field's text, then checks the set or entry with <see cref="IWorkoutService.ValidateSet"/> or
+/// <see cref="IWorkoutService.ValidateEntry"/> and words its codes.
 /// A field that can't be read gets a format message and no message from Core.
-/// A Core code with no message, which the UI can't cause, is logged and fails the set.
+/// A Core code with no message, which the UI can't cause, is logged and fails the set or entry.
 /// </summary>
 public sealed partial class SetChecker(IWorkoutService workouts, IExerciseCatalog catalog, ILogger<SetChecker> logger) : ISetChecker
 {
     private const int MaxDecimalPlaces = 2;
     private static readonly decimal MaxDurationSeconds = (decimal)MetricLimits.MaxDuration.TotalSeconds;
+    private static readonly decimal MaxPaceSeconds = (decimal)MetricLimits.MaxPace.TotalSeconds;
 
     /// <inheritdoc />
-    public bool Check(ExerciseState exercise, EntryState entry)
+    public bool Check(ExerciseState exercise, EntryState entry) => Check(exercise, entry, logExerciseError: true);
+
+    /// <inheritdoc />
+    public bool CheckOnSave(ExerciseState exercise, EntryState entry) => Check(exercise, entry, logExerciseError: false);
+
+    private bool Check(ExerciseState exercise, EntryState entry, bool logExerciseError)
     {
         entry.Errors.Clear();
-        if (exercise.Kind == ExerciseKind.Cardio)
-        {
-            return true;
-        }
-
-        var values = new Dictionary<Metric, decimal>();
-        foreach (var field in exercise.Fields)
-        {
-            var (value, error) = Read(field, entry.Values.GetValueOrDefault(field.Key));
-            if (error is not null)
-            {
-                entry.Errors[field.Key] = error;
-            }
-            else if (value is { } read)
-            {
-                values[field.Metric] = read;
-            }
-        }
-
-        var result = workouts.ValidateSet(exercise.ExerciseId, ToSet(values));
+        var values = Values(exercise, entry, entry.Errors);
+        var result = exercise.Kind == ExerciseKind.Strength
+            ? workouts.ValidateSet(exercise.ExerciseId, ToSet(values))
+            : workouts.ValidateEntry(exercise.ExerciseId, ToEntry(values));
         var codes = result.Entries.Count > 0 ? result.Entries[0].Fields : new Dictionary<Metric, FieldError>();
         foreach (var field in exercise.Fields)
         {
@@ -54,14 +45,45 @@ public sealed partial class SetChecker(IWorkoutService workouts, IExerciseCatalo
             }
         }
 
-        LogUnworded(exercise, entry, result, codes);
-        return entry.Errors.Count == 0 && result.IsValid;
+        LogUnworded(exercise, entry, logExerciseError ? result.Error : null, codes);
+        var valid = entry.Errors.Count == 0 && result.IsValid;
+        entry.CheckOnChange |= !valid;
+        return valid;
     }
 
-    /// <summary>Logs Core codes that gave no message: an exercise error, or a field error on a field without one.</summary>
-    private void LogUnworded(ExerciseState exercise, EntryState entry, ExerciseErrors result, IReadOnlyDictionary<Metric, FieldError> codes)
+    /// <inheritdoc />
+    public WorkoutExercise Read(ExerciseState exercise) => exercise.Kind switch
     {
-        if (result.Error is { } error)
+        ExerciseKind.Strength => new StrengthExercise(exercise.ExerciseId, exercise.Entries.Select(e => ToSet(Values(exercise, e, null))).ToList()),
+        ExerciseKind.Cardio => new CardioExercise(exercise.ExerciseId,
+            ToEntry(exercise.Entries.FirstOrDefault() is { } entry ? Values(exercise, entry, null) : [])),
+        _ => throw new ArgumentOutOfRangeException(nameof(exercise), exercise.Kind, null),
+    };
+
+    /// <summary>The values that could be read, per metric. Adds a format message per unreadable field to <paramref name="errors"/> when given.</summary>
+    private static Dictionary<Metric, decimal> Values(ExerciseState exercise, EntryState entry, Dictionary<string, string>? errors)
+    {
+        var values = new Dictionary<Metric, decimal>();
+        foreach (var field in exercise.Fields)
+        {
+            var (value, error) = ReadField(field, entry.Values.GetValueOrDefault(field.Key));
+            if (error is not null)
+            {
+                errors?.Add(field.Key, error);
+            }
+            else if (value is { } read)
+            {
+                values[field.Metric] = read;
+            }
+        }
+
+        return values;
+    }
+
+    /// <summary>Logs Core codes that gave no message: <paramref name="exerciseError"/>, or a field error on a field without one.</summary>
+    private void LogUnworded(ExerciseState exercise, EntryState entry, ExerciseError? exerciseError, IReadOnlyDictionary<Metric, FieldError> codes)
+    {
+        if (exerciseError is { } error)
         {
             Log.ExerciseErrorUnworded(logger, exercise.ExerciseId, error);
         }
@@ -75,12 +97,12 @@ public sealed partial class SetChecker(IWorkoutService workouts, IExerciseCatalo
         }
     }
 
-    /// <summary>The field's value (a duration in seconds), or null when empty; or a format message.</summary>
-    private static (decimal? Value, string? Error) Read(FieldSpec field, string? text) => field.Kind switch
+    /// <summary>The field's value (a duration or pace in seconds), or null when empty; or a format message.</summary>
+    private static (decimal? Value, string? Error) ReadField(FieldSpec field, string? text) => field.Kind switch
     {
         FieldKind.Whole or FieldKind.Decimal => ReadNumber(field, text),
-        FieldKind.Duration => ReadDuration(field, text),
-        _ => throw new ArgumentOutOfRangeException(nameof(field), field.Kind, "Strength sets have no such field"),
+        FieldKind.Duration or FieldKind.Pace => ReadTime(field, text),
+        _ => throw new ArgumentOutOfRangeException(nameof(field), field.Kind, "Unknown field kind"),
     };
 
     private static (decimal? Value, string? Error) ReadNumber(FieldSpec field, string? text)
@@ -110,28 +132,36 @@ public sealed partial class SetChecker(IWorkoutService workouts, IExerciseCatalo
         return (decimal.TryParse(text, NumberStyles.AllowDecimalPoint, CultureInfo.InvariantCulture, out var value) ? value : decimal.MaxValue, null);
     }
 
-    /// <summary>Reads h:mm:ss. Empty boxes count as 0; all empty is an empty field.</summary>
-    private static (decimal? Value, string? Error) ReadDuration(FieldSpec field, string? text)
+    /// <summary>Reads h:mm:ss (duration) or m:ss (pace). Empty boxes count as 0; all empty is an empty field.</summary>
+    private static (decimal? Value, string? Error) ReadTime(FieldSpec field, string? text)
     {
+        var pace = field.Kind == FieldKind.Pace;
         var parts = (text ?? "").Split(':');
         if (parts.All(string.IsNullOrEmpty))
         {
             return (null, null);
         }
 
-        if (parts.Length != 3)
+        if (parts.Length != (pace ? 2 : 3))
         {
             return (null, $"{field.Label} must be a time");
         }
 
-        var numbers = new int[3];
-        for (var i = 0; i < 3; i++)
+        var numbers = new int[parts.Length];
+        for (var i = 0; i < parts.Length; i++)
         {
             if (parts[i].Length > 0
                 && !(DigitsText().IsMatch(parts[i]) && int.TryParse(parts[i], NumberStyles.None, CultureInfo.InvariantCulture, out numbers[i])))
             {
                 return (null, $"{field.Label} must be a time");
             }
+        }
+
+        if (pace)
+        {
+            return numbers[1] > 59
+                ? (null, $"{field.Label} seconds must be 00–59")
+                : ((decimal)numbers[0] * 60 + numbers[1], null);
         }
 
         if (numbers[1] > 59 || numbers[2] > 59)
@@ -143,16 +173,30 @@ public sealed partial class SetChecker(IWorkoutService workouts, IExerciseCatalo
     }
 
     /// <summary>Values too large for the set's types are capped (reps at <see cref="int.MaxValue"/>, duration just over the maximum), so Core reports them as too large.</summary>
-    private static StrengthSet ToSet(Dictionary<Metric, decimal> values)
-    {
-        decimal? Get(Metric metric) => values.TryGetValue(metric, out var value) ? value : null;
+    private static StrengthSet ToSet(Dictionary<Metric, decimal> values) => new(
+        Whole(values, Metric.Reps),
+        Get(values, Metric.WeightKg),
+        Time(values, Metric.Duration, MaxDurationSeconds),
+        Get(values, Metric.Distance));
 
-        return new StrengthSet(
-            Get(Metric.Reps) is { } reps ? (int)Math.Min(reps, int.MaxValue) : null,
-            Get(Metric.WeightKg),
-            Get(Metric.Duration) is { } seconds ? TimeSpan.FromSeconds((double)Math.Min(seconds, MaxDurationSeconds + 1)) : null,
-            Get(Metric.Distance));
-    }
+    /// <summary>Capped as <see cref="ToSet"/> is; pace just over its maximum.</summary>
+    private static CardioEntry ToEntry(Dictionary<Metric, decimal> values) => new(
+        Time(values, Metric.Duration, MaxDurationSeconds),
+        Get(values, Metric.Distance),
+        Whole(values, Metric.Floors),
+        Whole(values, Metric.Level),
+        Get(values, Metric.Incline),
+        Whole(values, Metric.Calories),
+        Get(values, Metric.Rate),
+        Time(values, Metric.Pace, MaxPaceSeconds));
+
+    private static decimal? Get(Dictionary<Metric, decimal> values, Metric metric) => values.TryGetValue(metric, out var value) ? value : null;
+
+    private static int? Whole(Dictionary<Metric, decimal> values, Metric metric) =>
+        Get(values, metric) is { } value ? (int)Math.Min(value, int.MaxValue) : null;
+
+    private static TimeSpan? Time(Dictionary<Metric, decimal> values, Metric metric, decimal maxSeconds) =>
+        Get(values, metric) is { } seconds ? TimeSpan.FromSeconds((double)Math.Min(seconds, maxSeconds + 1)) : null;
 
     /// <summary>Message for a Core code. <see cref="FieldError.NotShown"/> can't come from the UI and has none.</summary>
     private string? Message(ExerciseState exercise, FieldSpec field, FieldError code) => code switch
@@ -160,13 +204,22 @@ public sealed partial class SetChecker(IWorkoutService workouts, IExerciseCatalo
         FieldError.Missing => $"Enter {field.Label.ToLowerInvariant()}",
         FieldError.NotPositive => $"{field.Label} must be more than 0",
         FieldError.Negative => $"{field.Label} must be 0 or more",
+        FieldError.NotWholeSeconds => $"{field.Label} must be whole seconds",
         FieldError.TooLarge => $"{field.Label} must be {MaxText(exercise, field)} or less",
         _ => null,
     };
 
-    private string MaxText(ExerciseState exercise, FieldSpec field) => field.Metric == Metric.Duration
-        ? MetricLimits.MaxDuration.ToString(@"h\:mm\:ss", CultureInfo.InvariantCulture)
-        : MetricLimits.Max(catalog.All.First(e => e.Id == exercise.ExerciseId), field.Metric).ToString("#,0", CultureInfo.InvariantCulture);
+    /// <summary>The maximum as the field is entered: h:mm:ss for a duration, m:ss for a pace, otherwise a number.</summary>
+    private string MaxText(ExerciseState exercise, FieldSpec field)
+    {
+        var max = MetricLimits.Max(catalog.All.First(e => e.Id == exercise.ExerciseId), field.Metric);
+        return field.Kind switch
+        {
+            FieldKind.Duration => TimeSpan.FromSeconds((double)max).ToString(@"h\:mm\:ss", CultureInfo.InvariantCulture),
+            FieldKind.Pace => $"{(int)(max / 60)}:{(int)(max % 60):00}",
+            _ => max.ToString("#,0", CultureInfo.InvariantCulture),
+        };
+    }
 
     /// <summary>Digits with an optional point and digits after it, or a point and digits (.5).</summary>
     [GeneratedRegex(@"^([0-9]+(\.[0-9]+)?|\.[0-9]+)\z")]
@@ -177,7 +230,7 @@ public sealed partial class SetChecker(IWorkoutService workouts, IExerciseCatalo
 
     private static partial class Log
     {
-        [LoggerMessage(2501, LogLevel.Warning, "Set check for exercise {ExerciseId} failed with {Error} and no message")]
+        [LoggerMessage(2501, LogLevel.Warning, "Set check for exercise {ExerciseId} failed with {Error}")]
         public static partial void ExerciseErrorUnworded(ILogger logger, int exerciseId, ExerciseError error);
 
         [LoggerMessage(2502, LogLevel.Warning, "Set check for exercise {ExerciseId} gave {Error} for {Metric} and no message")]

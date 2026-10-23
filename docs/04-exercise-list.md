@@ -50,24 +50,24 @@ Muscle, equipment and mechanic are stored but not shown or filtered on in v1.
 ### Cardio
 Duration (h:mm:ss) is required for every cardio exercise. Everything else is optional.
 
-| Name | Distance | Floors | Level (label) | Incline % | Calories | Rate |
-|---|---|---|---|---|---|---|
-| Treadmill | km | | | o | o | km/h |
-| Exercise Bike | km | | Resistance | | o | RPM |
-| Recumbent Bike | km | | Resistance | | o | RPM |
-| Spin Bike | km | | Resistance | | o | RPM |
-| Air Bike | km | | | | o | RPM |
-| Rowing Machine | metres | | Damper | | o | strokes/min |
-| Ski Erg | metres | | Damper | | o | strokes/min |
-| Cross Trainer | km | | Resistance | o | o | strides/min |
-| Arc Trainer | km | | Resistance | o | o | strides/min |
-| Stair Climber | | o | Speed level | | o | steps/min |
-| VersaClimber | feet | | | | o | feet/min |
-| Outdoor Run | km | | | | o | min/km |
-| Outdoor Walk | km | | | | o | min/km |
-| Outdoor Cycle | km | | | | o | km/h |
-| Swimming | metres | | | | o | |
-| Jump Rope | | | | | o | |
+| Name | Distance | Floors | Level (label) | Incline % | Calories | Rate | Pace |
+|---|---|---|---|---|---|---|---|
+| Treadmill | km | | | o | o | km/h | |
+| Exercise Bike | km | | Resistance | | o | RPM | |
+| Recumbent Bike | km | | Resistance | | o | RPM | |
+| Spin Bike | km | | Resistance | | o | RPM | |
+| Air Bike | km | | | | o | RPM | |
+| Rowing Machine | metres | | Damper | | o | strokes/min | |
+| Ski Erg | metres | | Damper | | o | strokes/min | |
+| Cross Trainer | km | | Resistance | o | o | strides/min | |
+| Arc Trainer | km | | Resistance | o | o | strides/min | |
+| Stair Climber | | o | Speed level | | o | steps/min | |
+| VersaClimber | feet | | | | o | feet/min | |
+| Outdoor Run | km | | | | o | | min/km |
+| Outdoor Walk | km | | | | o | | min/km |
+| Outdoor Cycle | km | | | | o | km/h | |
+| Swimming | metres | | | | o | | |
+| Jump Rope | | | | | o | | |
 
 Stair Climber also covers StepMill.
 
@@ -85,4 +85,4 @@ How each metric shows on a set or entry (D149). A label in the exercise file rep
 | Incline | Incline | % | decimal, up to 2 places |
 | Calories | Calories | | whole number |
 | Rate | Rate | km/h, rpm, strokes/min, strides/min, steps/min, feet/min | decimal, up to 2 places |
-| Rate in min/km | Pace | min/km | m:ss |
+| Pace | Pace | min/km | m:ss |

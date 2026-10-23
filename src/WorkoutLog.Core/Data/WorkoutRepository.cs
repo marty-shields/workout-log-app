@@ -119,10 +119,11 @@ internal sealed class WorkoutRepository(SQLiteAsyncConnection connection) : IWor
         Incline = entry.Incline,
         Calories = entry.Calories,
         Rate = entry.Rate,
+        Pace = entry.Pace,
     };
 
     private static StrengthSet ToSet(StrengthSetRow row) => new(row.Reps, row.WeightKg, row.Duration, row.Distance);
 
     private static CardioEntry ToEntry(CardioEntryRow row) =>
-        new(row.Duration, row.Distance, row.Floors, row.Level, row.Incline, row.Calories, row.Rate);
+        new(row.Duration, row.Distance, row.Floors, row.Level, row.Incline, row.Calories, row.Rate, row.Pace);
 }

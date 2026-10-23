@@ -21,7 +21,7 @@ public class FieldInputTests : ComponentTestBase
     public void PaceField_RendersTwoBoxes()
     {
         var cut = Context.Render<FieldInput>(p => p
-            .Add(x => x.Field, new FieldSpec("rate", Metric.Rate, "Pace", FieldKind.Pace, Unit: "min/km"))
+            .Add(x => x.Field, new FieldSpec("pace", Metric.Pace, "Pace", FieldKind.Pace, Unit: "min/km"))
             .Add(x => x.Entry, new EntryState()));
 
         Assert.That(cut.FindAll("input"), Has.Count.EqualTo(2));

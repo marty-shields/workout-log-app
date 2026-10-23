@@ -26,6 +26,20 @@ public class SetSummaryTests : ComponentTestBase
     }
 
     [Test]
+    public async Task Focus_FocusesTheSummaryLine()
+    {
+        var cut = Context.Render<SetSummary>(p => p
+            .Add(x => x.Number, 1)
+            .Add(x => x.Fields, Carry)
+            .Add(x => x.Entry, Entry())
+            .Add(x => x.TestId, "set-1"));
+
+        await cut.InvokeAsync(() => cut.Instance.FocusAsync().AsTask());
+
+        Context.JSInterop.VerifyFocusAsyncInvoke().Arguments[0].ShouldBeElementReferenceTo(cut.Find("[data-testid=set-1-open]"));
+    }
+
+    [Test]
     public void FilledSet_ShowsValuesWithUnitsAndDuration()
     {
         var cut = Context.Render<SetSummary>(p => p

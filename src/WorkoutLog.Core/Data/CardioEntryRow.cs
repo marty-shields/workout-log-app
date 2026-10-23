@@ -34,4 +34,7 @@ internal sealed class CardioEntryRow
 
     /// <summary>Rate, in the exercise's unit.</summary>
     public decimal? Rate { get; set; }
+
+    /// <summary>Pace: time per the exercise's pace unit.</summary>
+    public TimeSpan? Pace { get; set; }
 }

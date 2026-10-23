@@ -201,7 +201,7 @@ public class WorkoutRepositoryTests
     ];
 
     private static CardioEntry Entry() =>
-        new(new TimeSpan(0, 25, 30), 5.2m, 12, 8, 1.5m, 310, 5.5m);
+        new(new TimeSpan(0, 25, 30), 5.2m, 12, 8, 1.5m, 310, 5.5m, new TimeSpan(0, 5, 30));
 
     private async Task<(int Workouts, int Exercises, int Sets, int Entries)> RowCounts() => (
         await connection.Table<WorkoutRow>().CountAsync(),

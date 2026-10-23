@@ -35,7 +35,7 @@ Time is injected through .NET `TimeProvider`; tests use `FakeTimeProvider`, so t
 - [ ] Strength fields match [04](04-exercise-list.md) per exercise; weight decimals accepted (e.g. 22.75, .5); 22.755, 5. and 22,75 rejected; assisted machines show Assist (kg)
 - [ ] Add set on an empty or faulty set is blocked, shows why and moves focus to the first field at fault; Remove set is never blocked
 - [ ] Cardio: duration h:mm:ss required; other fields match [04](04-exercise-list.md), with the correct units and labels
-- [ ] Outdoor Run pace is entered and shown as m:ss (e.g. 5:30)
+- [ ] Outdoor Run pace is entered and shown as m:ss (e.g. 5:30); 5:75 and 61:00 are errors on Save
 - [ ] Only one cardio entry per cardio exercise
 - [ ] Adding an exercise starts it with one empty set (strength) or its empty entry (cardio)
 - [ ] Picking an exercise already in the workout adds a set to its card (strength) or focuses its entry (cardio); no second card
