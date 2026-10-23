@@ -2,5 +2,4 @@
 @using WorkoutLog.UI.Screens
 @inject NavigationManager Navigation
 
-@* Back goes to the Dashboard without a prompt until US-15. *@
-<NewWorkoutPage OnBack="@(() => Navigation.GoTo(string.Empty))" OnSaved="@(() => Navigation.GoTo(string.Empty))" />
+<NewWorkoutPage OnDiscarded="@(() => Navigation.GoTo(string.Empty))" OnSaved="@(() => Navigation.GoTo(string.Empty))" />

@@ -76,7 +76,7 @@ public static class ScreenStates
     {
         var clock = new FakeTimeProvider();
         context.Services.AddSingleton<TimeProvider>(clock);
-        return context.Render<NewWorkoutPage>(p => p.Add(x => x.OnBack, () => { })).FindAll("*");
+        return context.Render<NewWorkoutPage>().FindAll("*");
     }
 
     private static IReadOnlyList<IElement> Workout(

@@ -1,5 +1,7 @@
 using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Testing;
 using Microsoft.Extensions.Time.Testing;
 using WorkoutLog.Core.Domain.Exercises;
 using WorkoutLog.Core.Domain.Workouts;
@@ -18,6 +20,7 @@ public class NewWorkoutPageTests : ComponentTestBase
 
     private RecordingClock clock = null!;
     private CountingWorkoutService workouts = null!;
+    private FakeLogger<NewWorkoutPage> logger = null!;
 
     [SetUp]
     public void SetUp()
@@ -25,6 +28,8 @@ public class NewWorkoutPageTests : ComponentTestBase
         clock = new RecordingClock(Start);
         clock.SetLocalTimeZone(TimeZoneInfo.CreateCustomTimeZone("UTC+1", TimeSpan.FromHours(1), "UTC+1", "UTC+1"));
         Context.Services.AddSingleton<TimeProvider>(clock);
+        logger = new FakeLogger<NewWorkoutPage>();
+        Context.Services.AddSingleton<ILogger<NewWorkoutPage>>(logger);
     }
 
     [Test]
@@ -76,16 +81,255 @@ public class NewWorkoutPageTests : ComponentTestBase
     }
 
     [Test]
-    public async Task Back_RaisesOnBack()
+    public void Back_ShowsTheDiscardPromptAndFocusesCancel()
     {
-        UseWorkouts(clock);
-        var backs = 0;
-        var cut = Context.Render<NewWorkoutPage>(p => p.Add(x => x.OnBack, () => backs++));
+        var discards = 0;
+        var cut = RenderPage(() => discards++);
+        Add(cut, 132);
+
+        cut.Find("[data-testid=back]").Click();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.Find("[data-testid=confirm-dialog] h2").TextContent, Is.EqualTo("Discard this workout?"));
+            Assert.That(cut.Find("[data-testid=confirm-dialog-confirm]").TextContent, Is.EqualTo("Discard"));
+            Assert.That(cut.Find("[data-testid=confirm-dialog-cancel]").TextContent, Is.EqualTo("Cancel"));
+            Assert.That(discards, Is.Zero);
+        });
+        var cancel = ReferenceId(cut, "confirm-dialog-cancel");
+        cut.WaitForAssertion(() => Assert.That(((ElementReference)LastFocus().Arguments[0]!).Id, Is.EqualTo(cancel)));
+    }
+
+    [Test]
+    public async Task AndroidBack_ShowsTheDiscardPrompt()
+    {
+        var discards = 0;
+        var cut = RenderPage(() => discards++);
+        Add(cut, 132);
+
+        await cut.InvokeAsync(BackButton.HandleAsync);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.FindAll("[data-testid=confirm-dialog]"), Has.Count.EqualTo(1));
+            Assert.That(discards, Is.Zero);
+        });
+    }
+
+    [Test]
+    public void Back_NoExercises_StillAsks()
+    {
+        var discards = 0;
+        var cut = RenderPage(() => discards++);
+
+        cut.Find("[data-testid=back]").Click();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.FindAll("[data-testid=confirm-dialog]"), Has.Count.EqualTo(1));
+            Assert.That(discards, Is.Zero);
+        });
+    }
+
+    [Test]
+    public void Cancel_ClosesThePromptAndKeepsTheWorkout()
+    {
+        var discards = 0;
+        var cut = RenderPage(() => discards++);
+        Add(cut, 132);
+        cut.Find("[data-testid=exercise-1-set-1-reps]").Input("8");
+        cut.Find("[data-testid=back]").Click();
+        var focusCalls = Context.JSInterop.Invocations["Blazor._internal.domWrapper.focus"].Count;
+
+        cut.Find("[data-testid=confirm-dialog-cancel]").Click();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.FindAll("[data-testid=confirm-dialog]"), Is.Empty);
+            Assert.That(Context.JSInterop.Invocations["Blazor._internal.domWrapper.focus"], Has.Count.EqualTo(focusCalls));
+            Assert.That(Names(cut), Is.EqualTo(new[] { "Dumbbell Curl" }));
+            Assert.That(cut.Find("[data-testid=exercise-1-set-1-reps]").GetAttribute("value"), Is.EqualTo("8"));
+            Assert.That(discards, Is.Zero);
+            Assert.That(LoggedEvents.Of(logger), Is.Empty);
+        });
+    }
+
+    [Test]
+    public async Task AndroidBack_WithThePromptOpen_CancelsIt()
+    {
+        var discards = 0;
+        var cut = RenderPage(() => discards++);
+        Add(cut, 132);
+        cut.Find("[data-testid=back]").Click();
+
+        await cut.InvokeAsync(BackButton.HandleAsync);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.FindAll("[data-testid=confirm-dialog]"), Is.Empty);
+            Assert.That(Names(cut), Is.EqualTo(new[] { "Dumbbell Curl" }));
+            Assert.That(discards, Is.Zero);
+        });
+    }
+
+    [Test]
+    public void Discard_LogsTheExerciseCountAndRaisesOnDiscarded()
+    {
+        var discards = 0;
+        var cut = RenderPage(() => discards++);
+        Add(cut, 132);
+        Add(cut, 305);
+        cut.Find("[data-testid=exercise-1-set-1-reps]").Input("8");
+        cut.Find("[data-testid=back]").Click();
+
+        cut.Find("[data-testid=confirm-dialog-confirm]").Click();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(discards, Is.EqualTo(1));
+            Assert.That(LoggedEvents.Of(logger), Is.EqualTo(new[] { (2701, LogLevel.Information, "New workout discarded with 2 exercises") }));
+            Assert.That(workouts.Saves, Is.Empty);
+        });
+    }
+
+    [Test]
+    public async Task Back_WhileSaving_IsIgnored()
+    {
+        var discards = 0;
+        var cut = RenderPage(() => discards++);
+        workouts.SaveNew = () => new TaskCompletionSource<SaveResult>().Task;
+        Add(cut, 132);
+        cut.Find("[data-testid=exercise-1-set-1-reps]").Input("8");
+        cut.Find("[data-testid=save-workout]").Click();
 
         cut.Find("[data-testid=back]").Click();
         await cut.InvokeAsync(BackButton.HandleAsync);
 
-        Assert.That(backs, Is.EqualTo(2));
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.FindAll("[data-testid=confirm-dialog]"), Is.Empty);
+            Assert.That(discards, Is.Zero);
+        });
+    }
+
+    [Test]
+    public async Task Discard_Twice_LogsAndRaisesOnceAndBackIsIgnored()
+    {
+        var discards = 0;
+        var cut = RenderPage(() => discards++);
+        cut.Find("[data-testid=back]").Click();
+
+        cut.Find("[data-testid=confirm-dialog-confirm]").Click();
+        cut.Find("[data-testid=confirm-dialog-confirm]").Click();
+        await cut.InvokeAsync(BackButton.HandleAsync);
+        cut.Find("[data-testid=back]").Click();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(discards, Is.EqualTo(1));
+            Assert.That(LoggedEvents.Of(logger), Has.Count.EqualTo(1));
+            Assert.That(cut.FindAll("[data-testid=confirm-dialog]"), Is.Empty);
+        });
+    }
+
+    [Test]
+    public void Discard_WhileSaving_ClosesThePromptAndDoesNothing()
+    {
+        var discards = 0;
+        var cut = RenderPage(() => discards++);
+        workouts.SaveNew = () => new TaskCompletionSource<SaveResult>().Task;
+        Add(cut, 132);
+        cut.Find("[data-testid=exercise-1-set-1-reps]").Input("8");
+        cut.Find("[data-testid=back]").Click();
+        cut.Find("[data-testid=save-workout]").Click();
+
+        cut.Find("[data-testid=confirm-dialog-confirm]").Click();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.FindAll("[data-testid=confirm-dialog]"), Is.Empty);
+            Assert.That(discards, Is.Zero);
+            Assert.That(LoggedEvents.Of(logger), Is.Empty);
+        });
+    }
+
+    [Test]
+    public void Discard_AfterASuccessfulSave_DoesNothing()
+    {
+        var discards = 0;
+        var cut = RenderPage(() => discards++);
+        Add(cut, 132);
+        cut.Find("[data-testid=exercise-1-set-1-reps]").Input("8");
+        cut.Find("[data-testid=back]").Click();
+        cut.Find("[data-testid=save-workout]").Click();
+
+        cut.Find("[data-testid=confirm-dialog-confirm]").Click();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(discards, Is.Zero);
+            Assert.That(LoggedEvents.Of(logger), Is.Empty);
+            Assert.That(workouts.Saves, Has.Count.EqualTo(1));
+        });
+    }
+
+    [Test]
+    public void Discard_NoExercises_LogsZero()
+    {
+        var cut = RenderPage();
+        cut.Find("[data-testid=back]").Click();
+
+        cut.Find("[data-testid=confirm-dialog-confirm]").Click();
+
+        Assert.That(LoggedEvents.Of(logger), Is.EqualTo(new[] { (2701, LogLevel.Information, "New workout discarded with 0 exercises") }));
+    }
+
+    [Test]
+    public async Task Back_AfterASuccessfulSave_IsIgnored()
+    {
+        var discards = 0;
+        var cut = RenderPage(() => discards++);
+        Add(cut, 132);
+        cut.Find("[data-testid=exercise-1-set-1-reps]").Input("8");
+        cut.Find("[data-testid=save-workout]").Click();
+
+        cut.Find("[data-testid=back]").Click();
+        await cut.InvokeAsync(BackButton.HandleAsync);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.FindAll("[data-testid=confirm-dialog]"), Is.Empty);
+            Assert.That(discards, Is.Zero);
+        });
+    }
+
+    [Test]
+    public void Back_AfterASaveFails_Asks()
+    {
+        var cut = RenderPage();
+        workouts.SaveNew = () => Task.FromResult(new SaveResult(null, new WorkoutErrors(WorkoutError.SaveFailed, [])));
+        Add(cut, 132);
+        cut.Find("[data-testid=exercise-1-set-1-reps]").Input("8");
+        cut.Find("[data-testid=save-workout]").Click();
+
+        cut.Find("[data-testid=back]").Click();
+
+        Assert.That(cut.FindAll("[data-testid=confirm-dialog]"), Has.Count.EqualTo(1));
+    }
+
+    [Test]
+    public void Discard_HandlerFails_ShowsTheErrorScreen()
+    {
+        UseWorkouts(clock);
+        var cut = Context.Render<AppErrorBoundary>(p => p
+            .Add(x => x.OnRestart, () => { })
+            .AddChildContent<NewWorkoutPage>(page => page
+                .Add(x => x.OnDiscarded, () => throw new InvalidOperationException("Navigation failed"))));
+        cut.Find("[data-testid=back]").Click();
+
+        cut.Find("[data-testid=confirm-dialog-confirm]").Click();
+
+        cut.WaitForAssertion(() => Assert.That(cut.FindAll("[data-testid=error-message]"), Has.Count.EqualTo(1)));
     }
 
     [Test]
@@ -666,11 +910,11 @@ public class NewWorkoutPageTests : ComponentTestBase
     /// <summary>The latest focus call; the picker search and added exercises each take focus.</summary>
     private JSRuntimeInvocation LastFocus() => Context.JSInterop.Invocations["Blazor._internal.domWrapper.focus"][^1];
 
-    private IRenderedComponent<NewWorkoutPage> RenderPage(Action? onBack = null, Action? onSaved = null)
+    private IRenderedComponent<NewWorkoutPage> RenderPage(Action? onDiscarded = null, Action? onSaved = null)
     {
         workouts = UseWorkouts(clock);
         return Context.Render<NewWorkoutPage>(p => p
-            .Add(x => x.OnBack, onBack ?? (() => { }))
+            .Add(x => x.OnDiscarded, onDiscarded ?? (() => { }))
             .Add(x => x.OnSaved, onSaved ?? (() => { })));
     }
 

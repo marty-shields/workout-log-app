@@ -19,7 +19,7 @@ Save runs `IWorkoutChecker.Check` (FR-09): every set and entry, then the workout
 
 A valid Save calls `IWorkoutService.SaveNewAsync` with `ISetChecker.Read`'s records, then raises `OnSaved`; the App goes to the Dashboard. If nothing was saved, the workout error shows "Couldn't save the workout. Try again." and focus moves to Save (D176). Taps on Save while a save runs are ignored (D177).
 
-Back: Discard / Cancel, then Dashboard.
+Back (arrow or Android) opens `ConfirmDialog` "Discard this workout?", even with no exercises (FR-12). Cancel, or Android back, closes it and the workout stays. Discard logs Information 2701 "New workout discarded with {ExerciseCount} exercises" and raises `OnDiscarded`; the App goes to the Dashboard. Discard runs once. Back is ignored while a save runs, after one succeeds and after a discard; Discard then closes the prompt and does nothing else (D179).
 
 States: [Empty](/?path=/story/screens-new-workout--empty) · [Live timer](/?path=/story/screens-new-workout--live-timer) · [Strength sets](/?path=/story/screens-new-workout--strength-sets) · [Carry sets](/?path=/story/screens-new-workout--carry-sets) · [Cardio entries](/?path=/story/screens-new-workout--cardio-entries) · [Save errors](/?path=/story/screens-new-workout--save-errors) · [Save with no exercises](/?path=/story/screens-new-workout--save-with-no-exercises) · [Save failed](/?path=/story/screens-new-workout--save-failed) · [Discard prompt](/?path=/story/screens-new-workout--discard-prompt)
 

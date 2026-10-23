@@ -1,5 +1,7 @@
+@using Microsoft.Extensions.Logging
 @using WorkoutLog.Core.Domain.Exercises
 @using WorkoutLog.Core.Services
+@using WorkoutLog.UI.Components.Overlays
 @using WorkoutLog.UI.Components.Workout
 @implements IDisposable
 @inject IWorkoutService Workouts
@@ -7,6 +9,7 @@
 @inject TimeProvider Clock
 @inject ISetChecker Checker
 @inject IWorkoutChecker WorkoutChecker
+@inject ILogger<NewWorkoutPage> Logger
 
 <WorkoutView Mode="WorkoutMode.New"
              StartedAt="startedAt"
@@ -19,11 +22,15 @@
              OnSave="SaveAsync"
              OnAddExercise="OpenPicker"
              OnRemoveExercise="RemoveExercise"
-             OnBack="OnBack">
+             OnBack="Back">
     <Overlay>
         @if (pickerOpen)
         {
             <ExercisePicker Query="@query" QueryChanged="Search" Items="pickerItems" OnPick="Pick" OnClose="ClosePicker" />
+        }
+        @if (discardOpen)
+        {
+            <ConfirmDialog Title="Discard this workout?" ConfirmText="Discard" Danger OnConfirm="DiscardAsync" OnCancel="CloseDiscard" />
         }
     </Overlay>
 </WorkoutView>
@@ -40,10 +47,12 @@
     private ErrorFocus? errorFocus;
     private string? error;
     private bool saving;
+    private bool discardOpen;
+    private bool discarded;
 
-    /// <summary>Raised by the back arrow and the Android back button.</summary>
+    /// <summary>Raised after Discard is confirmed. Nothing is saved.</summary>
     [Parameter]
-    public EventCallback OnBack { get; set; }
+    public EventCallback OnDiscarded { get; set; }
 
     /// <summary>Raised after the workout is saved.</summary>
     [Parameter]
@@ -76,6 +85,39 @@
     }
 
     private void ClosePicker() => pickerOpen = false;
+
+    /// <summary>Asks Discard / Cancel (FR-12). Ignored while a save runs, after one succeeds and after a discard (D179).</summary>
+    private void Back()
+    {
+        if (!saving && !discarded)
+        {
+            discardOpen = true;
+        }
+    }
+
+    private void CloseDiscard() => discardOpen = false;
+
+    /// <summary>
+    /// Logs the exercise count only (D142) and raises <see cref="OnDiscarded"/>, once. While a save runs or after one
+    /// succeeds, closes the prompt and does nothing else (D179).
+    /// </summary>
+    private async Task DiscardAsync()
+    {
+        if (saving)
+        {
+            discardOpen = false;
+            return;
+        }
+
+        if (discarded)
+        {
+            return;
+        }
+
+        discarded = true;
+        Log.Discarded(Logger, exercises.Count);
+        await OnDiscarded.InvokeAsync();
+    }
 
     private void Pick(PickerItem item)
     {

@@ -32,7 +32,7 @@
 - **Save** button: validates (FR-09), saves and returns to the Dashboard. If the save fails, "Couldn't save the workout. Try again." shows at the top, the workout stays and focus moves to Save (D176). Taps while a save runs are ignored (D177). Errors show on the exercise, set or entry at fault: each faulty field is outlined, with one message per problem under its set or entry (D103). Focus moves to the first error: Add exercise, an exercise's Add set or Remove, the first field at fault, or a closed set's summary line (D171). Once a set or entry fails a check, every change re-checks it until it passes Add set or opening another set, or the whole workout passes Save (D108, D174); adding a set clears "Add at least one set" and adding an exercise clears the workout error (D108). Cardio entries are first checked on Save (D166).
 - Edit only: **Delete** (confirm dialog)
 - Back:
-  - New workout: **Discard / Cancel**
+  - New workout: **Discard / Cancel**, even with no exercises; ignored while a save runs and after one succeeds (D179)
   - Edit with unsaved changes: **Discard / Cancel**
   - Edit with no unsaved changes: History, no prompt
 

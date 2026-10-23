@@ -225,7 +225,7 @@ As the user, I want the wireframes rebuilt with the design system, so that M2–
 | [US-12](#us-12-log-strength-sets) | Log strength sets | FR-06, FR-08, NFR-04 | M | Done |
 | [US-13](#us-13-log-a-cardio-entry-and-check-on-save) | Log a cardio entry and check on Save | FR-07, FR-09 | XL | Done |
 | [US-14](#us-14-save-a-workout) | Save a workout | FR-09, FR-10, FR-13 | S | Done |
-| [US-15](#us-15-discard-an-unsaved-workout) | Discard an unsaved workout | FR-12 | S | To do |
+| [US-15](#us-15-discard-an-unsaved-workout) | Discard an unsaved workout | FR-12 | S | Done |
 
 ### US-10 Start a workout
 As the user, I want a workout to start when I open New Workout, with a live timer, so that I don't have to note the time.
@@ -291,7 +291,7 @@ As the user, I want the back button to ask before dropping a new workout, so tha
 - **Extra ACs:**
   - **Logging:** Information: new workout discarded, with its exercise count.
   - The back handler follows D142: a failure in it is logged with the exception as it is (D140), so no workout values may reach an exception message.
-- **Size:** S · **Status:** To do
+- **Size:** S · **Status:** Done (D179, T59)
 
 ## EP-04 History (M3)
 | ID | Story | Links | Size | Status |
