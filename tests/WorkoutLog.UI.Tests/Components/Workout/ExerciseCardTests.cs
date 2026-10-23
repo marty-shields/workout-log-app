@@ -1,3 +1,9 @@
+using Microsoft.AspNetCore.Components;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Testing;
+using Microsoft.JSInterop;
+using WorkoutLog.Core.Domain.Exercises;
 using WorkoutLog.UI.Components.Workout;
 using WorkoutLog.UI.Models.Fields;
 using WorkoutLog.UI.Models.Workout;
@@ -10,8 +16,8 @@ public class ExerciseCardTests : ComponentTestBase
     {
         var exercise = new ExerciseState(132, "Dumbbell Curl", ExerciseKind.Strength,
         [
-            new FieldSpec("reps", "Reps", FieldKind.Whole, Required: true),
-            new FieldSpec("weight", "Weight", FieldKind.Decimal, Unit: "kg"),
+            new FieldSpec("reps", Metric.Reps, "Reps", FieldKind.Whole, Required: true),
+            new FieldSpec("weight", Metric.WeightKg, "Weight", FieldKind.Decimal, Unit: "kg"),
         ]);
         for (var i = 0; i < sets; i++)
         {
@@ -25,9 +31,9 @@ public class ExerciseCardTests : ComponentTestBase
     {
         var exercise = new ExerciseState(187, "Farmer's Walk", ExerciseKind.Strength,
         [
-            new FieldSpec("distance", "Distance", FieldKind.Decimal, Required: true, Unit: "m"),
-            new FieldSpec("weight", "Weight", FieldKind.Decimal, Unit: "kg"),
-            new FieldSpec("duration", "Duration", FieldKind.Duration),
+            new FieldSpec("distance", Metric.Distance, "Distance", FieldKind.Decimal, Required: true, Unit: "m"),
+            new FieldSpec("weight", Metric.WeightKg, "Weight", FieldKind.Decimal, Unit: "kg"),
+            new FieldSpec("duration", Metric.Duration, "Duration", FieldKind.Duration),
         ]);
         for (var i = 0; i < sets; i++)
         {
@@ -43,8 +49,8 @@ public class ExerciseCardTests : ComponentTestBase
     {
         var exercise = new ExerciseState(300, "Treadmill", ExerciseKind.Cardio,
         [
-            new FieldSpec("duration", "Duration", FieldKind.Duration, Required: true),
-            new FieldSpec("distance", "Distance", FieldKind.Decimal, Unit: "km"),
+            new FieldSpec("duration", Metric.Duration, "Duration", FieldKind.Duration, Required: true),
+            new FieldSpec("distance", Metric.Distance, "Distance", FieldKind.Decimal, Unit: "km"),
         ]);
         exercise.Entries.Add(new EntryState());
         return exercise;
@@ -75,8 +81,8 @@ public class ExerciseCardTests : ComponentTestBase
     {
         var exercise = new ExerciseState(258, "Plank", ExerciseKind.Strength,
         [
-            new FieldSpec("reps", "Reps", FieldKind.Whole),
-            new FieldSpec("duration", "Duration", FieldKind.Duration),
+            new FieldSpec("reps", Metric.Reps, "Reps", FieldKind.Whole),
+            new FieldSpec("duration", Metric.Duration, "Duration", FieldKind.Duration),
         ]);
         exercise.Entries.Add(new EntryState());
         var cut = Context.Render<ExerciseCard>(p => p.Add(x => x.Exercise, exercise));
@@ -197,6 +203,71 @@ public class ExerciseCardTests : ComponentTestBase
             Assert.That(checkedSet, Is.EqualTo((exercise, last)));
             Assert.That(exercise.Entries, Has.Count.EqualTo(sets));
         });
+    }
+
+    [Test]
+    public void AddSet_Blocked_FocusesTheFirstFieldAtFault()
+    {
+        var exercise = Strength(1);
+        var cut = Context.Render<ExerciseCard>(p => p
+            .Add(x => x.Exercise, exercise)
+            .Add(x => x.ValidateSet, (_, s) => { s.Errors["weight"] = "Weight must be a number"; return false; })
+            .Add(x => x.TestId, "exercise-1"));
+
+        var weight = ReferenceId(cut, "exercise-1-set-1-weight");
+        cut.Find("[data-testid=exercise-1-add-set]").Click();
+
+        cut.WaitForAssertion(() => Assert.That(FocusedId(), Is.EqualTo(weight)));
+    }
+
+    [TestCase("exercise-1-add-set")]
+    [TestCase("exercise-1-set-1-open")]
+    public void Blocked_FocusFails_LogsAWarningAndKeepsTheCard(string tap)
+    {
+        var logger = new FakeLogger<ExerciseCard>();
+        Context.Services.AddSingleton<ILogger<ExerciseCard>>(logger);
+        Context.JSInterop.SetupVoid("Blazor._internal.domWrapper.focus", _ => true).SetException(new JSException("Focus failed"));
+        var cut = Context.Render<ExerciseCard>(p => p
+            .Add(x => x.Exercise, Carry(2))
+            .Add(x => x.ValidateSet, (_, s) => { s.Errors["weight"] = "Weight must be a number"; return false; })
+            .Add(x => x.TestId, "exercise-1"));
+
+        cut.Find($"[data-testid={tap}]").Click();
+
+        cut.WaitForAssertion(() => Assert.That(LoggedEvents.Of(logger), Is.EqualTo(new[] { (2401, LogLevel.Warning, "Focusing a blocked set failed") })));
+        Assert.Multiple(() =>
+        {
+            Assert.That(logger.LatestRecord.Exception, Is.TypeOf<JSException>());
+            Assert.That(cut.FindAll("[data-testid=exercise-1]"), Has.Count.EqualTo(1));
+        });
+    }
+
+    [Test]
+    public void AddSet_Allowed_LeavesFocus()
+    {
+        var cut = Context.Render<ExerciseCard>(p => p
+            .Add(x => x.Exercise, Strength(1))
+            .Add(x => x.ValidateSet, (_, _) => true)
+            .Add(x => x.TestId, "exercise-1"));
+
+        cut.Find("[data-testid=exercise-1-add-set]").Click();
+
+        Assert.That(Context.JSInterop.Invocations, Is.Empty);
+    }
+
+    [Test]
+    public void Carry_OpenOtherSet_Blocked_FocusesTheFirstFieldAtFaultInTheOpenSet()
+    {
+        var exercise = Carry(2);
+        var cut = Context.Render<ExerciseCard>(p => p
+            .Add(x => x.Exercise, exercise)
+            .Add(x => x.ValidateSet, (_, s) => { s.Errors["weight"] = "Weight must be a number"; return false; })
+            .Add(x => x.TestId, "exercise-1"));
+
+        var weight = ReferenceId(cut, "exercise-1-set-2-weight");
+        cut.Find("[data-testid=exercise-1-set-1-open]").Click();
+
+        cut.WaitForAssertion(() => Assert.That(FocusedId(), Is.EqualTo(weight)));
     }
 
     [Test]
@@ -479,4 +550,11 @@ public class ExerciseCardTests : ComponentTestBase
 
         return entry.Errors.Count == 0;
     }
+
+    /// <summary>Element reference id of the input with <paramref name="testId"/>. bUnit drops it from the markup once the input re-renders, so read it first.</summary>
+    private static string? ReferenceId(IRenderedComponent<ExerciseCard> cut, string testId) =>
+        cut.Find($"[data-testid={testId}]").GetAttribute("blazor:elementreference");
+
+    /// <summary>Element reference id passed to the last focus call.</summary>
+    private string FocusedId() => ((ElementReference)Context.JSInterop.VerifyFocusAsyncInvoke().Arguments[0]!).Id;
 }

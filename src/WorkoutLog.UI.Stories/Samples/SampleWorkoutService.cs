@@ -1,12 +1,18 @@
+using WorkoutLog.Core.Domain.Exercises;
 using WorkoutLog.Core.Domain.Workouts;
 using WorkoutLog.Core.Domain.Workouts.Validation;
 using WorkoutLog.Core.Services;
 
 namespace WorkoutLog.UI.Stories.Samples;
 
-/// <summary><see cref="IWorkoutService"/> for the stories. Starts workouts only; the other members throw <see cref="NotSupportedException"/>.</summary>
-public sealed class SampleWorkoutService(TimeProvider time) : IWorkoutService
+/// <summary>
+/// <see cref="IWorkoutService"/> for the stories. Starts workouts and checks strength sets with Core's validator;
+/// the other members throw <see cref="NotSupportedException"/>.
+/// </summary>
+public sealed class SampleWorkoutService(TimeProvider time, IExerciseCatalog catalog) : IWorkoutService
 {
+    private readonly WorkoutValidator validator = new(catalog);
+
     /// <inheritdoc />
     public WorkoutDraft StartNew() => new(time.GetUtcNow());
 
@@ -14,7 +20,7 @@ public sealed class SampleWorkoutService(TimeProvider time) : IWorkoutService
     public WorkoutErrors Validate(IReadOnlyList<WorkoutExercise> exercises) => throw new NotSupportedException();
 
     /// <inheritdoc />
-    public ExerciseErrors ValidateSet(int exerciseId, StrengthSet set) => throw new NotSupportedException();
+    public ExerciseErrors ValidateSet(int exerciseId, StrengthSet set) => validator.Validate(new StrengthExercise(exerciseId, [set]));
 
     /// <inheritdoc />
     public ExerciseErrors ValidateEntry(int exerciseId, CardioEntry entry) => throw new NotSupportedException();

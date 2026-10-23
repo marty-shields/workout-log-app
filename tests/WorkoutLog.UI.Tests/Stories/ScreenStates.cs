@@ -2,7 +2,6 @@ using AngleSharp.Dom;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Time.Testing;
 using WorkoutLog.Core.Domain.Exercises;
-using WorkoutLog.Core.Services;
 using WorkoutLog.UI.Components.Overlays;
 using WorkoutLog.UI.Components.Workout;
 using WorkoutLog.UI.Models.Dashboard;
@@ -38,13 +37,13 @@ public static class ScreenStates
         new("Screens/New Workout", "Strength sets", c => Workout(c, WorkoutMode.New, SampleData.StrengthWorkout(Catalog(c)))),
         new("Screens/New Workout", "Carry sets", c => Workout(c, WorkoutMode.New, SampleData.CarryWorkout(Catalog(c)))),
         new("Screens/New Workout", "Cardio entries", c => Workout(c, WorkoutMode.New, SampleData.CardioWorkout(Catalog(c)))),
-        new("Screens/New Workout", "Save errors", c => Workout(c, WorkoutMode.New, SampleData.WorkoutWithErrors(Catalog(c)))),
+        new("Screens/New Workout", "Save errors", c => Workout(c, WorkoutMode.New, SampleData.WorkoutWithErrors(Catalog(c), Checker(c)))),
         new("Screens/New Workout", "Save with no exercises", c => Workout(c, WorkoutMode.New, [], error: "Add at least one exercise")),
         new("Screens/New Workout", "Discard prompt", c => Workout(c, WorkoutMode.New, SampleData.StrengthWorkout(Catalog(c)), dialog: ("Discard this workout?", "Discard"))),
 
         new("Screens/Edit Workout", "Saved", c => Workout(c, WorkoutMode.Edit, SampleData.StrengthWorkout(Catalog(c)))),
         new("Screens/Edit Workout", "Carry sets closed", c => Workout(c, WorkoutMode.Edit, SampleData.CarryWorkout(Catalog(c)))),
-        new("Screens/Edit Workout", "Save errors", c => Workout(c, WorkoutMode.Edit, SampleData.EditWorkoutWithErrors(Catalog(c)))),
+        new("Screens/Edit Workout", "Save errors", c => Workout(c, WorkoutMode.Edit, SampleData.EditWorkoutWithErrors(Catalog(c), Checker(c)))),
         new("Screens/Edit Workout", "Discard prompt", c => Workout(c, WorkoutMode.Edit, SampleData.StrengthWorkout(Catalog(c)), dialog: ("Discard changes?", "Discard"))),
         new("Screens/Edit Workout", "Delete prompt", c => Workout(c, WorkoutMode.Edit, SampleData.StrengthWorkout(Catalog(c)), dialog: ("Delete this workout?", "Delete"))),
 
@@ -61,6 +60,8 @@ public static class ScreenStates
 
     private static IExerciseCatalog Catalog(BunitContext context) => context.Services.GetRequiredService<IExerciseCatalog>();
 
+    private static ISetChecker Checker(BunitContext context) => context.Services.GetRequiredService<ISetChecker>();
+
     private static IReadOnlyList<IElement> Dashboard(BunitContext context, DashboardSummary summary) =>
         context.Render<DashboardView>(p => p
             .Add(x => x.Summary, summary)
@@ -72,7 +73,6 @@ public static class ScreenStates
     {
         var clock = new FakeTimeProvider();
         context.Services.AddSingleton<TimeProvider>(clock);
-        context.Services.AddSingleton<IWorkoutService>(new SampleWorkoutService(clock));
         return context.Render<NewWorkoutPage>(p => p.Add(x => x.OnBack, () => { })).FindAll("*");
     }
 
@@ -90,7 +90,7 @@ public static class ScreenStates
                 .Add(x => x.Time, new TimeSpan(0, 34, 12))
                 .Add(x => x.Exercises, exercises)
                 .Add(x => x.Error, error)
-                .Add(x => x.ValidateSet, SampleData.ValidateSet)
+                .Add(x => x.ValidateSet, Checker(context).Check)
                 .Add(x => x.OnAddExercise, () => { })
                 .Add(x => x.OnRemoveExercise, (ExerciseState _) => { })
                 .Add(x => x.OnSave, () => { })

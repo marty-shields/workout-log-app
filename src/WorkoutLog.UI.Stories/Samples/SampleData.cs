@@ -1,7 +1,5 @@
-using System.Globalization;
 using WorkoutLog.Core.Domain.Exercises;
 using WorkoutLog.UI.Models.Dashboard;
-using WorkoutLog.UI.Models.Fields;
 using WorkoutLog.UI.Models.History;
 using WorkoutLog.UI.Models.Workout;
 
@@ -14,7 +12,7 @@ namespace WorkoutLog.UI.Stories.Samples;
 /// <param name="Exercises">Exercises and their sets or entries.</param>
 public sealed record SavedWorkout(int Id, DateTime StartedAt, DateTime FinishedAt, IReadOnlyList<ExerciseState> Exercises);
 
-/// <summary>Sample data for stories, plus simplified stand-ins for Core's save rules and counts. Exercises come from the real catalog.</summary>
+/// <summary>Sample data for stories, plus stand-ins for the save rules and counts. Exercises come from the real catalog.</summary>
 public static class SampleData
 {
     /// <summary>Start time used by the static stories: Tue 20 Oct 2026 18:05.</summary>
@@ -64,14 +62,14 @@ public static class SampleData
     ];
 
     /// <summary>A saved workout after a failed save: a set missing reps, a carry set missing distance.</summary>
-    public static List<ExerciseState> EditWorkoutWithErrors(IExerciseCatalog catalog)
+    public static List<ExerciseState> EditWorkoutWithErrors(IExerciseCatalog catalog, ISetChecker checker)
     {
         List<ExerciseState> exercises =
         [
             Exercise(catalog, 6, ["8", "60"], [null, "60"]),
             Exercise(catalog, 187, ["40", "32", "0:00:45"], [null, "32", "0:00:40"]),
         ];
-        Validate(exercises, out _);
+        Validate(checker, exercises, out _);
         return exercises;
     }
 
@@ -83,8 +81,8 @@ public static class SampleData
         Exercise(catalog, 311, ["0:25:30", "5", null, "5:06"]),
     ];
 
-    /// <summary>A workout after a failed save: a set missing reps, an exercise with no sets, a cardio entry missing duration.</summary>
-    public static List<ExerciseState> WorkoutWithErrors(IExerciseCatalog catalog)
+    /// <summary>A workout after a failed save: a set missing reps, an exercise with no sets, and a cardio entry missing duration, which isn't checked.</summary>
+    public static List<ExerciseState> WorkoutWithErrors(IExerciseCatalog catalog, ISetChecker checker)
     {
         List<ExerciseState> exercises =
         [
@@ -92,7 +90,7 @@ public static class SampleData
             Exercise(catalog, 132),
             Exercise(catalog, 305, [null, "2000", "5", null, null]),
         ];
-        Validate(exercises, out _);
+        Validate(checker, exercises, out _);
         return exercises;
     }
 
@@ -128,8 +126,8 @@ public static class SampleData
             saved.Count(w => w.StartedAt >= monthStart));
     }
 
-    /// <summary>FR-09 save rules and the value rules in docs/03. Sets <see cref="ExerciseState.Error"/> and <see cref="EntryState.Errors"/>; returns false if anything fails.</summary>
-    public static bool Validate(IReadOnlyList<ExerciseState> exercises, out string? workoutError)
+    /// <summary>FR-09 save rules, with each set checked by <paramref name="checker"/>. Sets <see cref="ExerciseState.Error"/> and <see cref="EntryState.Errors"/>; returns false if anything fails.</summary>
+    public static bool Validate(ISetChecker checker, IReadOnlyList<ExerciseState> exercises, out string? workoutError)
     {
         workoutError = exercises.Count == 0 ? "Add at least one exercise" : null;
         var valid = workoutError is null;
@@ -139,26 +137,11 @@ public static class SampleData
             valid &= exercise.Error is null;
             foreach (var entry in exercise.Entries)
             {
-                valid &= ValidateSet(exercise, entry);
+                valid &= checker.Check(exercise, entry);
             }
         }
 
         return valid;
-    }
-
-    /// <summary>Save rules for one set or entry. Sets <see cref="EntryState.Errors"/>; returns false if any field fails.</summary>
-    public static bool ValidateSet(ExerciseState exercise, EntryState entry)
-    {
-        entry.Errors.Clear();
-        foreach (var field in exercise.Fields)
-        {
-            if (FieldError(field, entry.Values.GetValueOrDefault(field.Key)) is { } message)
-            {
-                entry.Errors[field.Key] = message;
-            }
-        }
-
-        return entry.Errors.Count == 0;
     }
 
     /// <summary>Deep copy, so edits can be discarded.</summary>
@@ -181,80 +164,4 @@ public static class SampleData
         }).ToList();
 
     private static ExerciseDefinition Find(IExerciseCatalog catalog, int id) => catalog.All.Single(e => e.Id == id);
-
-    private static bool IsFilled(string? value) => value is not null && value.Any(char.IsDigit);
-
-    private static string? FieldError(FieldSpec field, string? value)
-    {
-        if (!IsFilled(value))
-        {
-            return field.Required ? $"Enter {field.Label.ToLowerInvariant()}" : null;
-        }
-
-        if (field.Kind is FieldKind.Duration or FieldKind.Pace)
-        {
-            return TimeError(field, value!);
-        }
-
-        if (!decimal.TryParse(value, out var number))
-        {
-            return $"{field.Label} must be a number";
-        }
-
-        if (field.Kind == FieldKind.Whole && number != decimal.Truncate(number))
-        {
-            return $"{field.Label} must be a whole number";
-        }
-
-        // Reps and required distance more than 0; other numbers 0 or more; none above the limit in Core's MetricLimits.
-        if ((field.Key == "reps" || (field.Key == "distance" && field.Required)) && number <= 0)
-        {
-            return $"{field.Label} must be more than 0";
-        }
-
-        if (number < 0)
-        {
-            return $"{field.Label} must be 0 or more";
-        }
-
-        var max = Max(field);
-        return number > max ? $"{field.Label} must be {max.ToString("#,0", CultureInfo.InvariantCulture)} or less" : null;
-    }
-
-    private static decimal Max(FieldSpec field) => (field.Key, field.Unit) switch
-    {
-        ("distance", "km") => 1_000,
-        ("distance", _) => 100_000,
-        ("level", _) or ("incline", _) => 100,
-        ("calories", _) => 10_000,
-        ("rate", "km/h") => 100,
-        ("rate", "strokes/min") => 200,
-        ("rate", "feet/min") => 1_000,
-        ("rate", _) => 300,
-        _ => 1_000,
-    };
-
-    // Duration (h:mm:ss): minutes and seconds 00–59, at most 23:59:59, more than 0 when required. Pace (m:ss): seconds 00–59, at most 60:00.
-    private static string? TimeError(FieldSpec field, string value)
-    {
-        var parts = value.Split(':').Select(p => int.TryParse(p, out var n) ? n : 0).ToArray();
-        var pace = field.Kind == FieldKind.Pace;
-        if (parts.Skip(1).Any(p => p is < 0 or > 59))
-        {
-            return pace ? $"{field.Label} seconds must be 00–59" : $"{field.Label} minutes and seconds must be 00–59";
-        }
-
-        if (parts[0] < 0)
-        {
-            return $"{field.Label} must be 0 or more";
-        }
-
-        var seconds = parts.Aggregate(0L, (total, part) => total * 60 + part);
-        if (seconds > (pace ? 3_600 : 86_399))
-        {
-            return $"{field.Label} must be {(pace ? "60:00" : "23:59:59")} or less";
-        }
-
-        return field.Required && seconds == 0 ? $"{field.Label} must be more than 0" : null;
-    }
 }

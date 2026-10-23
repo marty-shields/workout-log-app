@@ -5,12 +5,14 @@
 @inject IWorkoutService Workouts
 @inject IExerciseCatalog Catalog
 @inject TimeProvider Clock
+@inject ISetChecker Checker
 
 <WorkoutView Mode="WorkoutMode.New"
              StartedAt="startedAt"
              Time="Elapsed"
              Exercises="exercises"
              Focus="focus"
+             ValidateSet="Checker.Check"
              OnAddExercise="OpenPicker"
              OnRemoveExercise="RemoveExercise"
              OnBack="OnBack">

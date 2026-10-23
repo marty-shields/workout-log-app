@@ -6,7 +6,7 @@ using WorkoutLog.App.Logging;
 using WorkoutLog.App.Navigation;
 using WorkoutLog.Core;
 using WorkoutLog.Core.Logging;
-using WorkoutLog.UI.Navigation;
+using WorkoutLog.UI;
 
 namespace WorkoutLog.App;
 
@@ -19,6 +19,7 @@ public static class MauiProgram
 
         builder.Services.AddMauiBlazorWebView();
         builder.Services.AddCore(Path.Combine(FileSystem.AppDataDirectory, "workoutlog.db3"));
+        builder.Services.AddUi();
 
 #if DEBUG
         builder.Services.AddBlazorWebViewDeveloperTools();
@@ -37,7 +38,6 @@ public static class MauiProgram
     /// </summary>
     private static void AddBackButton(MauiAppBuilder builder)
     {
-        builder.Services.AddSingleton<IBackButton, BackButton>();
         builder.Services.AddSingleton<AndroidBackButton>();
         builder.ConfigureLifecycleEvents(events => events.AddAndroid(android => android
             .OnCreate((activity, _) => BackButton().Attach((AndroidX.Activity.ComponentActivity)activity))

@@ -1,3 +1,4 @@
+using WorkoutLog.Core.Domain.Exercises;
 using WorkoutLog.UI.Components.Workout;
 using WorkoutLog.UI.Models.Fields;
 using WorkoutLog.UI.Models.Workout;
@@ -8,9 +9,9 @@ public class SetSummaryTests : ComponentTestBase
 {
     private static readonly FieldSpec[] Carry =
     [
-        new("distance", "Distance", FieldKind.Decimal, Required: true, Unit: "m"),
-        new("weight", "Weight", FieldKind.Decimal, Unit: "kg"),
-        new("duration", "Duration", FieldKind.Duration),
+        new("distance", Metric.Distance, "Distance", FieldKind.Decimal, Required: true, Unit: "m"),
+        new("weight", Metric.WeightKg, "Weight", FieldKind.Decimal, Unit: "kg"),
+        new("duration", Metric.Duration, "Duration", FieldKind.Duration),
     ];
 
     private static EntryState Entry(params (string Key, string? Value)[] values)
@@ -80,7 +81,7 @@ public class SetSummaryTests : ComponentTestBase
     [Test]
     public void FieldWithoutUnit_UsesLabel()
     {
-        FieldSpec[] fields = [new("reps", "Reps", FieldKind.Whole, Required: true)];
+        FieldSpec[] fields = [new("reps", Metric.Reps, "Reps", FieldKind.Whole, Required: true)];
         var cut = Context.Render<SetSummary>(p => p
             .Add(x => x.Number, 1)
             .Add(x => x.Fields, fields)

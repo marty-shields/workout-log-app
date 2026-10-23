@@ -1,3 +1,4 @@
+using WorkoutLog.Core.Domain.Exercises;
 using WorkoutLog.UI.Components.Workout;
 using WorkoutLog.UI.Models.Fields;
 using WorkoutLog.UI.Models.Workout;
@@ -8,9 +9,9 @@ public class SetPanelTests : ComponentTestBase
 {
     private static readonly FieldSpec[] Carry =
     [
-        new("distance", "Distance", FieldKind.Decimal, Required: true, Unit: "m"),
-        new("weight", "Weight", FieldKind.Decimal, Unit: "kg"),
-        new("duration", "Duration", FieldKind.Duration),
+        new("distance", Metric.Distance, "Distance", FieldKind.Decimal, Required: true, Unit: "m"),
+        new("weight", Metric.WeightKg, "Weight", FieldKind.Decimal, Unit: "kg"),
+        new("duration", Metric.Duration, "Duration", FieldKind.Duration),
     ];
 
     [Test]
@@ -109,5 +110,35 @@ public class SetPanelTests : ComponentTestBase
             Assert.That(cut.Find("[data-testid=set-1-distance]").GetAttribute("aria-invalid"), Is.EqualTo("true"));
             Assert.That(cut.Find("[data-testid=set-1-weight]").HasAttribute("aria-invalid"), Is.False);
         });
+    }
+
+    [Test]
+    public async Task Focus_NoErrors_FocusesTheFirstField()
+    {
+        var cut = Context.Render<SetPanel>(p => p
+            .Add(x => x.Number, 1)
+            .Add(x => x.Fields, Carry)
+            .Add(x => x.Entry, new EntryState())
+            .Add(x => x.TestId, "set-1"));
+
+        await cut.InvokeAsync(() => cut.Instance.FocusAsync().AsTask());
+
+        Context.JSInterop.VerifyFocusAsyncInvoke().Arguments[0].ShouldBeElementReferenceTo(cut.Find("[data-testid=set-1-distance]"));
+    }
+
+    [Test]
+    public async Task Focus_WithErrors_FocusesTheFirstFieldAtFault()
+    {
+        var entry = new EntryState();
+        entry.Errors["weight"] = "Weight must be a number";
+        var cut = Context.Render<SetPanel>(p => p
+            .Add(x => x.Number, 1)
+            .Add(x => x.Fields, Carry)
+            .Add(x => x.Entry, entry)
+            .Add(x => x.TestId, "set-1"));
+
+        await cut.InvokeAsync(() => cut.Instance.FocusAsync().AsTask());
+
+        Context.JSInterop.VerifyFocusAsyncInvoke().Arguments[0].ShouldBeElementReferenceTo(cut.Find("[data-testid=set-1-weight]"));
     }
 }

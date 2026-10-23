@@ -9,7 +9,8 @@ One exercise in a workout: name, Remove, and its sets (strength) or entry (cardi
 - Strength with up to two fields, or no duration: one `SetRow` per set and Add set.
 - Strength with more than two fields, one a duration (carries): one `SetPanel` open, the other sets as `SetSummary` lines (D105).
 - Cardio: one entry with every field labelled.
-- Add set and opening another set are blocked while the current set is empty or has errors (D106).
+- Add set and opening another set are blocked while the current set is empty or has errors (D106). Focus then moves to its first field at fault (D162).
+- `ValidateSet` is `ISetChecker.Check` in the App and prototype: one message per field, format messages first, then Core's rules (D157–D163).
 - `data-testid`: `TestId`, `{TestId}-remove`, `{TestId}-error`, `{TestId}-add-set`, `{TestId}-set-{n}`, `{TestId}-{field}` (cardio).
 
 ## `SetRow`

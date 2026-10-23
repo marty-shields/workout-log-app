@@ -1,5 +1,7 @@
+@using Microsoft.Extensions.Logging
 @using WorkoutLog.UI.Components.Inputs
 @implements IDisposable
+@inject ILogger<ExerciseCard> Logger
 <section class="card @(Exercise.Error is not null ? "has-error" : null)" data-testid="@TestId">
     <header class="card-header">
         <h2 class="name">@Exercise.Name</h2>
@@ -117,7 +119,10 @@
     private SetPanel? openPanel;
     private TaskCompletionSource? pendingFocus;
 
-    /// <summary>Moves focus to the first field of the open set, the last set row, or the cardio entry.</summary>
+    /// <summary>Set when Add set or opening another set was blocked: the next render focuses the set at fault.</summary>
+    private bool focusBlockedSet;
+
+    /// <summary>Moves focus to the open set or the last set row (its first field with an error, or its first field), or the cardio entry.</summary>
     public ValueTask FocusAsync()
     {
         if (Exercise.Kind == ExerciseKind.Cardio)
@@ -134,14 +139,14 @@
     }
 
     /// <summary>
-    /// Strength: does what Add set does, then focuses the new set, or the set that blocked it. Cardio: focuses the entry.
+    /// Strength: adds a set as Add set does, then focuses the new set, or the first field at fault in the set that blocked it. Cardio: focuses the entry.
     /// Completes once focus has moved; fails if focusing fails, and is cancelled if the card is removed first.
     /// </summary>
     public async Task AddSetAndFocusAsync()
     {
-        if (Exercise.Kind == ExerciseKind.Strength)
+        if (Exercise.Kind == ExerciseKind.Strength && TryAddSet())
         {
-            await AddSet();
+            await OnChanged.InvokeAsync();
         }
 
         pendingFocus?.TrySetCanceled();
@@ -155,6 +160,19 @@
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
+        if (focusBlockedSet)
+        {
+            focusBlockedSet = false;
+            try
+            {
+                await FocusAsync();
+            }
+            catch (Exception exception)
+            {
+                Log.FocusFailed(Logger, exception);
+            }
+        }
+
         if (pendingFocus is not { } focus || !FocusTargetRendered())
         {
             return;
@@ -207,22 +225,37 @@
         if (CanLeave(open))
         {
             open = entry;
+            return;
         }
+
+        focusBlockedSet = true;
     }
 
     private Task AddSet()
     {
+        if (TryAddSet())
+        {
+            return OnChanged.InvokeAsync();
+        }
+
+        focusBlockedSet = true;
+        return Task.CompletedTask;
+    }
+
+    /// <summary>Adds an empty set and opens it, unless the open set or the last row fails the check.</summary>
+    private bool TryAddSet()
+    {
         var current = SetGrid.Collapses(Exercise.Fields) ? open : Exercise.Entries.LastOrDefault();
         if (!CanLeave(current))
         {
-            return Task.CompletedTask;
+            return false;
         }
 
         var entry = new EntryState();
         Exercise.Entries.Add(entry);
         Exercise.Error = null;
         open = entry;
-        return OnChanged.InvokeAsync();
+        return true;
     }
 
     private Task EntryChanged(EntryState entry)

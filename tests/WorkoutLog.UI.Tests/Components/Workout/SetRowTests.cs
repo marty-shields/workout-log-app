@@ -1,3 +1,4 @@
+using WorkoutLog.Core.Domain.Exercises;
 using WorkoutLog.UI.Components.Workout;
 using WorkoutLog.UI.Models.Fields;
 using WorkoutLog.UI.Models.Workout;
@@ -8,8 +9,8 @@ public class SetRowTests : ComponentTestBase
 {
     private static readonly FieldSpec[] Fields =
     [
-        new("reps", "Reps", FieldKind.Whole, Required: true),
-        new("weight", "Weight", FieldKind.Decimal, Unit: "kg"),
+        new("reps", Metric.Reps, "Reps", FieldKind.Whole, Required: true),
+        new("weight", Metric.WeightKg, "Weight", FieldKind.Decimal, Unit: "kg"),
     ];
 
     [Test]
@@ -111,5 +112,35 @@ public class SetRowTests : ComponentTestBase
             .Add(x => x.TestId, "set-1"));
 
         Assert.That(cut.FindAll("[data-testid=set-1-error]"), Is.Empty);
+    }
+
+    [Test]
+    public async Task Focus_NoErrors_FocusesTheFirstField()
+    {
+        var cut = Context.Render<SetRow>(p => p
+            .Add(x => x.Number, 1)
+            .Add(x => x.Fields, Fields)
+            .Add(x => x.Entry, new EntryState())
+            .Add(x => x.TestId, "set-1"));
+
+        await cut.InvokeAsync(() => cut.Instance.FocusAsync().AsTask());
+
+        Context.JSInterop.VerifyFocusAsyncInvoke().Arguments[0].ShouldBeElementReferenceTo(cut.Find("[data-testid=set-1-reps]"));
+    }
+
+    [Test]
+    public async Task Focus_WithErrors_FocusesTheFirstFieldAtFault()
+    {
+        var entry = new EntryState();
+        entry.Errors["weight"] = "Weight must be a number";
+        var cut = Context.Render<SetRow>(p => p
+            .Add(x => x.Number, 1)
+            .Add(x => x.Fields, Fields)
+            .Add(x => x.Entry, entry)
+            .Add(x => x.TestId, "set-1"));
+
+        await cut.InvokeAsync(() => cut.Instance.FocusAsync().AsTask());
+
+        Context.JSInterop.VerifyFocusAsyncInvoke().Arguments[0].ShouldBeElementReferenceTo(cut.Find("[data-testid=set-1-weight]"));
     }
 }

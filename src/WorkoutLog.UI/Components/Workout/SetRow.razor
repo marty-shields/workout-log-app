@@ -46,8 +46,11 @@
 
     private readonly Dictionary<string, FieldInput> fields = new();
 
-    /// <summary>Moves focus to the first field.</summary>
-    public ValueTask FocusAsync() => Fields.Count > 0 && fields.TryGetValue(Fields[0].Key, out var first) ? first.FocusAsync() : ValueTask.CompletedTask;
+    /// <summary>Moves focus to the first field with an error, or the first field.</summary>
+    public ValueTask FocusAsync() =>
+        (Fields.FirstOrDefault(f => Entry.Errors.ContainsKey(f.Key)) ?? Fields.FirstOrDefault()) is { } field && fields.TryGetValue(field.Key, out var input)
+            ? input.FocusAsync()
+            : ValueTask.CompletedTask;
 
     private string RemoveLabel => ExerciseName is null ? $"Remove set {Number}" : $"Remove {ExerciseName} set {Number}";
 }

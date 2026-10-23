@@ -13,14 +13,14 @@ SQLite on the device, accessed with sqlite-net-pcl through `IWorkoutRepository`,
 | Metric | Type | Strength | Cardio | Notes |
 |---|---|---|---|---|
 | Reps | int | ✓ | | > 0 |
-| WeightKg | decimal | ✓ | | ≥ 0, any decimal. Per dumbbell. Assistance on assisted machines. |
+| WeightKg | decimal | ✓ | | ≥ 0, any decimal; the UI takes up to 2 places (D158). Per dumbbell. Assistance on assisted machines. |
 | Duration | TimeSpan | ✓ | ✓ (always required) | > 0 when required, otherwise ≥ 0. Entered as h:mm:ss |
-| Distance | decimal | ✓ (carries) | ✓ | > 0 when required (carries), otherwise ≥ 0. Unit from the exercise |
+| Distance | decimal | ✓ (carries) | ✓ | > 0 when required (carries), otherwise ≥ 0. Unit from the exercise. The UI takes up to 2 places (D158) |
 | Floors | int | | ✓ | ≥ 0 |
 | Level | int | | ✓ | ≥ 0, whole number. Resistance, damper or speed level, per the exercise's label |
-| Incline | decimal | | ✓ | ≥ 0, percent |
+| Incline | decimal | | ✓ | ≥ 0, percent. The UI takes up to 2 places (D158) |
 | Calories | int | | ✓ | ≥ 0, whole number |
-| Rate | decimal | | ✓ | ≥ 0, unit from the exercise (e.g. steps/min) |
+| Rate | decimal | | ✓ | ≥ 0, unit from the exercise (e.g. steps/min). The UI takes up to 2 places (D158) |
 
 0 is a valid value for an optional metric (D127). Each metric has a maximum (D130, `MetricLimits`): reps 1,000; weight 1,000 kg; duration 23:59:59; distance 1,000 km or 100,000 m or ft; floors 1,000; level 100; incline 100 %; calories 10,000; rate 100 km/h, 60 min/km, 300 rpm, 200 strokes/min, 300 strides/min, 300 steps/min, 1,000 ft/min.
 
@@ -148,7 +148,20 @@ erDiagram
 | Set / entry | `TooLarge` | Above the metric's maximum (D130) | {Label} must be {max} or less |
 | Set / entry | `NotShown` | A value for a metric the exercise doesn't show; message only, no field border (D128) | {Label} isn't used by this exercise |
 
-At most one code per metric. Entry formats (numbers, whole numbers, minutes and seconds 00–59) are checked by the UI before it builds the records. A null list, exercise, set or entry is a programming error and throws `ArgumentNullException` (T34). The service validates and saves its own copy of the list (T33).
+At most one code per metric. Entry formats are checked by the UI before it builds the records (below). A null list, exercise, set or entry is a programming error and throws `ArgumentNullException` (T34). The service validates and saves its own copy of the list (T33).
+
+### Entry formats (UI)
+`ISetChecker` reads each field's text before Core checks the set (T51). A field with a format message gets no message from Core. Cardio entries are not checked until US-13 (D163).
+
+| Field | Accepted | Message (UI) |
+|---|---|---|
+| Number | Digits, optionally `.` and digits; `.5`; leading zeros. Not `5.`, spaces, `+`, `-`, `,` or exponents (D157, D161) | {Label} must be a number |
+| Decimal | At most 2 decimal places, counting typed digits (`22.500` fails) (D158) | {Label} can have up to 2 decimal places |
+| Whole number | No `.` (D159) | {Label} must be a whole number |
+| Duration | Three boxes of digits; an empty box is 0, all empty is empty (D160) | {Label} must be a time |
+| Duration | Minutes and seconds 00–59 (D160) | {Label} minutes and seconds must be 00–59 |
+
+A number too large for the set's types is capped (weight and distance at the largest decimal, reps at the largest int, duration just over 23:59:59), so Core reports `TooLarge`. The TooLarge message has no unit; a duration's maximum shows as 23:59:59 (D163). `NotShown` can't come from the UI and has no message; the set still fails and Warning 2502 is logged (D163, D164).
 
 ## Seeding the exercise list
 - On startup, `IExerciseSeeder` inserts any exercise Id from the definition file that is missing from the database. It never removes rows.

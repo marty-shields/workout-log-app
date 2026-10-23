@@ -222,7 +222,7 @@ As the user, I want the wireframes rebuilt with the design system, so that M2–
 |---|---|---|---|---|
 | [US-10](#us-10-start-a-workout) | Start a workout | FR-01, FR-02, FR-14 | S | Done |
 | [US-11](#us-11-add-and-remove-exercises) | Add and remove exercises | FR-03, FR-04, FR-05, FR-08 | S | Done |
-| [US-12](#us-12-log-strength-sets) | Log strength sets | FR-06, FR-08, NFR-04 | M | To do |
+| [US-12](#us-12-log-strength-sets) | Log strength sets | FR-06, FR-08, NFR-04 | M | Done |
 | [US-13](#us-13-log-a-cardio-entry) | Log a cardio entry | FR-07 | M | To do |
 | [US-14](#us-14-save-a-workout) | Save a workout | FR-09, FR-10, FR-13 | S | To do |
 | [US-15](#us-15-discard-an-unsaved-workout) | Discard an unsaved workout | FR-12 | S | To do |
@@ -252,10 +252,13 @@ As the user, I want to add exercises from the list and remove them, so that the 
 As the user, I want to add, fill in and remove sets for a strength exercise, so that I can record reps, weight, duration or distance.
 - **Links:** FR-06, FR-08, NFR-04
 - **Extra ACs:**
-  - Weight accepts any decimal (D07).
+  - Decimals use `.` and take up to 2 places (D157, D158); whole numbers take no `.` (D159); duration boxes take digits only (D160).
+  - The set checks are `ISetChecker` in UI, which reads the text and words `IWorkoutService.ValidateSet`'s codes (T51). The prototype and stories use it too (T52).
+  - A blocked Add set or set open moves focus to the first field at fault (D162).
+  - Strength only; cardio entries are checked in US-13 (D163).
   - Carries show distance in metres (D84); assisted machines label weight Assist (kg) (D85).
-  - **Logging:** none. Validation errors are not logged (D142); input is parsed with `TryParse` ([05](05-architecture.md#logging)).
-- **Size:** M · **Status:** To do
+  - **Logging:** Warning 2401: focusing a blocked set failed (exception). Warning 2501/2502: a Core code gave no message (exercise id, code, metric). Validation errors are not logged (D142); input is parsed with `TryParse` ([05](05-architecture.md#logging)) (D164).
+- **Size:** M · **Status:** Done (D157–D164, T51–T53)
 
 ### US-13 Log a cardio entry
 As the user, I want to fill in one cardio entry for a cardio exercise, so that I can record the machine's readout.
@@ -265,6 +268,7 @@ As the user, I want to fill in one cardio entry for a cardio exercise, so that I
   - Distance and rate show the exercise's units ([04](04-exercise-list.md)).
   - Level shows the exercise's label (Resistance, Damper, Speed level); Incline accepts decimals (D87).
   - Pace (min/km) is entered and shown as m:ss (D95).
+  - Decimals follow D157 and D158 (up to 2 places); `ISetChecker` gains the cardio checks (T51, D163).
   - **Logging:** none. Validation errors are not logged (D142); input is parsed with `TryParse` ([05](05-architecture.md#logging)).
 - **Size:** M · **Status:** To do
 

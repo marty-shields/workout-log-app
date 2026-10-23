@@ -3,6 +3,7 @@
 @* Clickable prototype of the whole app on sample data. Navigation follows docs/06. Stories only. *@
 @implements IDisposable
 @inject IExerciseCatalog Catalog
+@inject ISetChecker Checker
 
 <PhoneFrame OnSystemBack="Back" OnSimulateError="() => broken = true">
     <StartupGate Initialize="Start">
@@ -27,7 +28,7 @@
                                  Time="WorkoutTime"
                                  Exercises="exercises"
                                  Error="@error"
-                                 ValidateSet="SampleData.ValidateSet"
+                                 ValidateSet="Checker.Check"
                                  OnChanged="() => changed = true"
                                  OnAddExercise="OpenPicker"
                                  OnRemoveExercise="RemoveExercise"
@@ -180,7 +181,7 @@
 
     private void Save()
     {
-        if (!SampleData.Validate(exercises, out error))
+        if (!SampleData.Validate(Checker, exercises, out error))
         {
             return;
         }

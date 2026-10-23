@@ -5,25 +5,25 @@
 
     <Story Name="Whole">
         <Template>
-            <FieldInput Field="@(new FieldSpec("reps", "Reps", FieldKind.Whole, Required: true))" Entry="new EntryState()" />
+            <FieldInput Field="@(new FieldSpec("reps", Metric.Reps, "Reps", FieldKind.Whole, Required: true))" Entry="new EntryState()" />
         </Template>
     </Story>
 
     <Story Name="Decimal">
         <Template>
-            <FieldInput Field="@(new FieldSpec("weight", "Weight", FieldKind.Decimal, Unit: "kg"))" Entry="new EntryState()" />
+            <FieldInput Field="@(new FieldSpec("weight", Metric.WeightKg, "Weight", FieldKind.Decimal, Unit: "kg"))" Entry="new EntryState()" />
         </Template>
     </Story>
 
     <Story Name="Duration">
         <Template>
-            <FieldInput Field="@(new FieldSpec("duration", "Duration", FieldKind.Duration, Required: true))" Entry="new EntryState()" />
+            <FieldInput Field="@(new FieldSpec("duration", Metric.Duration, "Duration", FieldKind.Duration, Required: true))" Entry="new EntryState()" />
         </Template>
     </Story>
 
     <Story Name="Pace">
         <Template>
-            <FieldInput Field="@(new FieldSpec("rate", "Pace", FieldKind.Pace, Unit: "min/km"))" Entry="new EntryState()" />
+            <FieldInput Field="@(new FieldSpec("rate", Metric.Rate, "Pace", FieldKind.Pace, Unit: "min/km"))" Entry="new EntryState()" />
         </Template>
     </Story>
 

@@ -1,5 +1,6 @@
 @attribute [Stories("Components/Workout/SetRow")]
 @inject IExerciseCatalog Catalog
+@inject ISetChecker Checker
 
 <Stories TComponent="SetRow" Layout="typeof(ThemeLayout)">
 
@@ -19,7 +20,21 @@
 
     <Story Name="Error">
         <Template>
-            @{ var exercise = SampleData.Exercise(Catalog, 132, [null, "10"]); SampleData.Validate([exercise], out _); }
+            @{ var exercise = SampleData.Exercise(Catalog, 132, [null, "10"]); SampleData.Validate(Checker, [exercise], out _); }
+            <SetRow Number="2" Fields="exercise.Fields" Entry="exercise.Entries[0]" />
+        </Template>
+    </Story>
+
+    <Story Name="Format errors">
+        <Template>
+            @{ var exercise = SampleData.Exercise(Catalog, 132, ["8.5", "12.255"]); SampleData.Validate(Checker, [exercise], out _); }
+            <SetRow Number="2" Fields="exercise.Fields" Entry="exercise.Entries[0]" />
+        </Template>
+    </Story>
+
+    <Story Name="Not a number">
+        <Template>
+            @{ var exercise = SampleData.Exercise(Catalog, 132, ["8.", "22,75"]); SampleData.Validate(Checker, [exercise], out _); }
             <SetRow Number="2" Fields="exercise.Fields" Entry="exercise.Entries[0]" />
         </Template>
     </Story>

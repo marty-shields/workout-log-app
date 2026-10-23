@@ -1,3 +1,4 @@
+using WorkoutLog.Core.Domain.Exercises;
 using WorkoutLog.UI.Components.Workout;
 using WorkoutLog.UI.Models.Fields;
 using WorkoutLog.UI.Models.Workout;
@@ -8,8 +9,8 @@ public class EntryErrorsTests : ComponentTestBase
 {
     private static readonly FieldSpec[] Fields =
     [
-        new("reps", "Reps", FieldKind.Whole, Required: true),
-        new("weight", "Weight", FieldKind.Decimal, Unit: "kg"),
+        new("reps", Metric.Reps, "Reps", FieldKind.Whole, Required: true),
+        new("weight", Metric.WeightKg, "Weight", FieldKind.Decimal, Unit: "kg"),
     ];
 
     [Test]

@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Time.Testing;
 using WorkoutLog.Core.Domain.Exercises;
@@ -176,6 +177,7 @@ public class NewWorkoutPageTests : ComponentTestBase
     {
         var cut = RenderPage();
         Add(cut, 132);
+        cut.Find("[data-testid=exercise-1-set-1-reps]").Input("10");
         Add(cut, 6);
 
         Add(cut, 132);
@@ -187,6 +189,25 @@ public class NewWorkoutPageTests : ComponentTestBase
         });
         cut.WaitForAssertion(() => LastFocus().Arguments[0]
             .ShouldBeElementReferenceTo(cut.Find("[data-testid=exercise-1-set-2-reps]")));
+    }
+
+    [Test]
+    public void PickAgain_Strength_EmptyLastSet_IsBlockedAndFocusesTheFieldAtFault()
+    {
+        var cut = RenderPage();
+        Add(cut, 132);
+        Add(cut, 6);
+        // bUnit drops the reference id from the markup once the input re-renders, so read it first.
+        var reps = cut.Find("[data-testid=exercise-1-set-1-reps]").GetAttribute("blazor:elementreference");
+
+        Add(cut, 132);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.FindAll("[data-testid=exercise-1-set-2-reps]"), Is.Empty);
+            Assert.That(cut.Find("[data-testid=exercise-1-set-1-error]").TextContent.Trim(), Is.EqualTo("Enter reps"));
+        });
+        cut.WaitForAssertion(() => Assert.That(((ElementReference)LastFocus().Arguments[0]!).Id, Is.EqualTo(reps)));
     }
 
     [Test]
@@ -231,14 +252,81 @@ public class NewWorkoutPageTests : ComponentTestBase
     }
 
     [Test]
-    public void AddSet_AddsASet()
+    public void AddSet_ValidSet_AddsASet()
+    {
+        var cut = RenderPage();
+        Add(cut, 132);
+        cut.Find("[data-testid=exercise-1-set-1-reps]").Input("10");
+
+        cut.Find("[data-testid=exercise-1-add-set]").Click();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.FindAll("[data-testid=exercise-1-set-2-reps]"), Has.Count.EqualTo(1));
+            Assert.That(cut.FindAll("[data-testid=exercise-1-set-1-error]"), Is.Empty);
+        });
+    }
+
+    [Test]
+    public void AddSet_EmptySet_IsBlockedAndShowsWhy()
     {
         var cut = RenderPage();
         Add(cut, 132);
 
         cut.Find("[data-testid=exercise-1-add-set]").Click();
 
-        Assert.That(cut.FindAll("[data-testid=exercise-1-set-2-reps]"), Has.Count.EqualTo(1));
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.FindAll("[data-testid=exercise-1-set-2-reps]"), Is.Empty);
+            Assert.That(cut.Find("[data-testid=exercise-1-set-1-error]").TextContent.Trim(), Is.EqualTo("Enter reps"));
+        });
+    }
+
+    [Test]
+    public void AddSet_AfterTheFix_ErrorsClearAndTheSetIsAdded()
+    {
+        var cut = RenderPage();
+        Add(cut, 132);
+        cut.Find("[data-testid=exercise-1-set-1-weight]").Input("12.255");
+        cut.Find("[data-testid=exercise-1-add-set]").Click();
+
+        cut.Find("[data-testid=exercise-1-set-1-reps]").Input("10");
+        cut.Find("[data-testid=exercise-1-set-1-weight]").Input("12.25");
+        cut.Find("[data-testid=exercise-1-add-set]").Click();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.FindAll("[data-testid=exercise-1-set-1-error]"), Is.Empty);
+            Assert.That(cut.FindAll("[data-testid=exercise-1-set-2-reps]"), Has.Count.EqualTo(1));
+        });
+    }
+
+    [Test]
+    public void AddSet_Carry_BlockedWithTwoErrors()
+    {
+        var cut = RenderPage();
+        Add(cut, 187);
+        cut.Find("[data-testid=exercise-1-set-1-duration-ss]").Input("75");
+
+        cut.Find("[data-testid=exercise-1-add-set]").Click();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.FindAll("[data-testid=exercise-1-set-2]"), Is.Empty);
+            Assert.That(cut.FindAll("[data-testid=exercise-1-set-1-error] p").Select(p => p.TextContent.Trim()),
+                Is.EqualTo(new[] { "Enter distance", "Duration minutes and seconds must be 00–59" }));
+        });
+    }
+
+    [Test]
+    public void PickAgain_Cardio_IsNotChecked()
+    {
+        var cut = RenderPage();
+        Add(cut, 305);
+
+        Add(cut, 305);
+
+        Assert.That(cut.FindAll("[data-testid=exercise-1-entry-error] p"), Is.Empty);
     }
 
     [Test]
@@ -369,7 +457,7 @@ public class NewWorkoutPageTests : ComponentTestBase
     /// <summary>Registers a workout service whose drafts start at <paramref name="draftClock"/>'s current time.</summary>
     private CountingWorkoutService UseWorkouts(TimeProvider draftClock)
     {
-        var workouts = new CountingWorkoutService(new SampleWorkoutService(draftClock));
+        var workouts = new CountingWorkoutService(new SampleWorkoutService(draftClock, Catalog));
         Context.Services.AddSingleton<IWorkoutService>(workouts);
         return workouts;
     }

@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Testing;
 using Microsoft.JSInterop;
+using WorkoutLog.Core.Domain.Exercises;
 using WorkoutLog.UI.Models.Fields;
 using WorkoutLog.UI.Models.Workout;
 using WorkoutLog.UI.Screens;
@@ -16,7 +17,7 @@ public class WorkoutViewTests : ComponentTestBase
     private static ExerciseState Curl()
     {
         var exercise = new ExerciseState(132, "Dumbbell Curl", ExerciseKind.Strength,
-            [new FieldSpec("reps", "Reps", FieldKind.Whole, Required: true)]);
+            [new FieldSpec("reps", Metric.Reps, "Reps", FieldKind.Whole, Required: true)]);
         exercise.Entries.Add(new EntryState());
         return exercise;
     }
@@ -25,9 +26,9 @@ public class WorkoutViewTests : ComponentTestBase
     {
         var exercise = new ExerciseState(187, "Farmer's Walk", ExerciseKind.Strength,
         [
-            new FieldSpec("distance", "Distance", FieldKind.Decimal, Required: true, Unit: "m"),
-            new FieldSpec("weight", "Weight", FieldKind.Decimal, Unit: "kg"),
-            new FieldSpec("duration", "Duration", FieldKind.Duration),
+            new FieldSpec("distance", Metric.Distance, "Distance", FieldKind.Decimal, Required: true, Unit: "m"),
+            new FieldSpec("weight", Metric.WeightKg, "Weight", FieldKind.Decimal, Unit: "kg"),
+            new FieldSpec("duration", Metric.Duration, "Duration", FieldKind.Duration),
         ]);
         var entry = new EntryState();
         entry.Values["distance"] = "40";
@@ -275,6 +276,26 @@ public class WorkoutViewTests : ComponentTestBase
 
         cut.WaitForAssertion(() => Context.JSInterop.VerifyFocusAsyncInvoke().Arguments[0]
             .ShouldBeElementReferenceTo(cut.Find("[data-testid=exercise-1-set-2-distance]")));
+    }
+
+    [Test]
+    public void FocusWithAddSet_CarryBlockedByTheOpenSet_FocusesItsFirstFieldAtFault()
+    {
+        var carry = Carry();
+        var cut = Context.Render<WorkoutView>(p => p
+            .Add(x => x.Mode, WorkoutMode.New)
+            .Add(x => x.StartedAt, Started)
+            .Add(x => x.Exercises, [carry]));
+        // bUnit drops the reference id from the markup once the input re-renders, so read it first.
+        var weight = cut.Find("[data-testid=exercise-1-set-1-weight]").GetAttribute("blazor:elementreference");
+
+        cut.Render(p => p
+            .Add(x => x.ValidateSet, (_, s) => { s.Errors["weight"] = "Weight must be a number"; return false; })
+            .Add(x => x.Focus, new ExerciseFocus(carry, addSet: true)));
+
+        cut.WaitForAssertion(() => Assert.That(
+            ((ElementReference)Context.JSInterop.VerifyFocusAsyncInvoke().Arguments[0]!).Id, Is.EqualTo(weight)));
+        Assert.That(carry.Entries, Has.Count.EqualTo(1));
     }
 
     [Test]

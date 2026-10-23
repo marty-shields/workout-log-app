@@ -12,52 +12,52 @@ public class ExerciseFieldsTests
     public void For_RepsAndWeight() =>
         Assert.That(Fields(6), Is.EqualTo(new[]
         {
-            new FieldSpec("reps", "Reps", FieldKind.Whole, Required: true),
-            new FieldSpec("weight", "Weight", FieldKind.Decimal, Unit: "kg"),
+            new FieldSpec("reps", Metric.Reps, "Reps", FieldKind.Whole, Required: true),
+            new FieldSpec("weight", Metric.WeightKg, "Weight", FieldKind.Decimal, Unit: "kg"),
         }));
 
     [Test]
     public void For_AssistedMachine_UsesTheLabelWithKg() =>
-        Assert.That(Fields(218)[1], Is.EqualTo(new FieldSpec("weight", "Assist", FieldKind.Decimal, Unit: "kg")));
+        Assert.That(Fields(218)[1], Is.EqualTo(new FieldSpec("weight", Metric.WeightKg, "Assist", FieldKind.Decimal, Unit: "kg")));
 
     [Test]
     public void For_Hold_RequiresDuration() =>
-        Assert.That(Fields(258)[0], Is.EqualTo(new FieldSpec("duration", "Duration", FieldKind.Duration, Required: true)));
+        Assert.That(Fields(258)[0], Is.EqualTo(new FieldSpec("duration", Metric.Duration, "Duration", FieldKind.Duration, Required: true)));
 
     [Test]
     public void For_Carry_RequiresDistanceInMetres() =>
         Assert.That(Fields(187), Is.EqualTo(new[]
         {
-            new FieldSpec("distance", "Distance", FieldKind.Decimal, Required: true, Unit: "m"),
-            new FieldSpec("weight", "Weight", FieldKind.Decimal, Unit: "kg"),
-            new FieldSpec("duration", "Duration", FieldKind.Duration),
+            new FieldSpec("distance", Metric.Distance, "Distance", FieldKind.Decimal, Required: true, Unit: "m"),
+            new FieldSpec("weight", Metric.WeightKg, "Weight", FieldKind.Decimal, Unit: "kg"),
+            new FieldSpec("duration", Metric.Duration, "Duration", FieldKind.Duration),
         }));
 
     [Test]
     public void For_Treadmill() =>
         Assert.That(Fields(300), Is.EqualTo(new[]
         {
-            new FieldSpec("duration", "Duration", FieldKind.Duration, Required: true),
-            new FieldSpec("distance", "Distance", FieldKind.Decimal, Unit: "km"),
-            new FieldSpec("incline", "Incline", FieldKind.Decimal, Unit: "%"),
-            new FieldSpec("calories", "Calories", FieldKind.Whole),
-            new FieldSpec("rate", "Rate", FieldKind.Decimal, Unit: "km/h"),
+            new FieldSpec("duration", Metric.Duration, "Duration", FieldKind.Duration, Required: true),
+            new FieldSpec("distance", Metric.Distance, "Distance", FieldKind.Decimal, Unit: "km"),
+            new FieldSpec("incline", Metric.Incline, "Incline", FieldKind.Decimal, Unit: "%"),
+            new FieldSpec("calories", Metric.Calories, "Calories", FieldKind.Whole),
+            new FieldSpec("rate", Metric.Rate, "Rate", FieldKind.Decimal, Unit: "km/h"),
         }));
 
     [Test]
     public void For_StairClimber_FloorsAndLevelLabel() =>
         Assert.That(Fields(309), Is.EqualTo(new[]
         {
-            new FieldSpec("duration", "Duration", FieldKind.Duration, Required: true),
-            new FieldSpec("floors", "Floors", FieldKind.Whole),
-            new FieldSpec("level", "Speed level", FieldKind.Whole),
-            new FieldSpec("calories", "Calories", FieldKind.Whole),
-            new FieldSpec("rate", "Rate", FieldKind.Decimal, Unit: "steps/min"),
+            new FieldSpec("duration", Metric.Duration, "Duration", FieldKind.Duration, Required: true),
+            new FieldSpec("floors", Metric.Floors, "Floors", FieldKind.Whole),
+            new FieldSpec("level", Metric.Level, "Speed level", FieldKind.Whole),
+            new FieldSpec("calories", Metric.Calories, "Calories", FieldKind.Whole),
+            new FieldSpec("rate", Metric.Rate, "Rate", FieldKind.Decimal, Unit: "steps/min"),
         }));
 
     [Test]
     public void For_OutdoorRun_RateIsPace() =>
-        Assert.That(Fields(311)[^1], Is.EqualTo(new FieldSpec("rate", "Pace", FieldKind.Pace, Unit: "min/km")));
+        Assert.That(Fields(311)[^1], Is.EqualTo(new FieldSpec("rate", Metric.Rate, "Pace", FieldKind.Pace, Unit: "min/km")));
 
     [TestCase(301, "rpm")]
     [TestCase(305, "strokes/min")]

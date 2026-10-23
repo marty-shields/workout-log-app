@@ -22,7 +22,7 @@
   - New: live elapsed timer (h:mm:ss)
   - Edit: total time (h:mm:ss)
 - List of added exercises, in the order added. Each one shows the fields its definition declares ([04](04-exercise-list.md)):
-  - Strength: rows of sets (e.g. reps + weight, duration for Plank, distance for carries), **Add set**, remove set. Starts with one empty set. Add set does nothing while the last set (or the open set, below) is empty or has errors; the errors show on that set (D106).
+  - Strength: rows of sets (e.g. reps + weight, duration for Plank, distance for carries), **Add set**, remove set. Starts with one empty set. Add set does nothing while the last set (or the open set, below) is empty or has errors; the errors show on that set and focus moves to its first field at fault (D106, D162). Format errors and Core's rules are in [03](03-data-model.md#entry-formats-ui).
     - Exercises with more than two fields, one of them a duration (carries): one set is open, with every field labelled; the others show as a summary line (e.g. *40 m · 32 kg · 0:00:45*). Tap a summary to open it, once the open set is valid; Add set opens the new set. A new workout opens the last set; an edited workout starts with all sets closed. Errors on a closed set show under its summary, which gets a red outline (D105, D118).
   - Cardio: one entry (duration + the exercise's other metrics, with units). Starts empty; not removable on its own.
   - Fields use the exercise's label where it has one (e.g. Assist (kg), Resistance, Damper).

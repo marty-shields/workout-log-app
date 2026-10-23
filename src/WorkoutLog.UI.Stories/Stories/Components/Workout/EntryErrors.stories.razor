@@ -1,18 +1,19 @@
 @attribute [Stories("Components/Workout/EntryErrors")]
 @inject IExerciseCatalog Catalog
+@inject ISetChecker Checker
 
 <Stories TComponent="EntryErrors" Layout="typeof(ThemeLayout)">
 
     <Story Name="One error">
         <Template>
-            @{ var exercise = SampleData.Exercise(Catalog, 132, ["0", "12"]); SampleData.Validate([exercise], out _); }
+            @{ var exercise = SampleData.Exercise(Catalog, 132, ["0", "12"]); SampleData.Validate(Checker, [exercise], out _); }
             <EntryErrors Fields="exercise.Fields" Entry="exercise.Entries[0]" />
         </Template>
     </Story>
 
     <Story Name="Several errors">
         <Template>
-            @{ var exercise = SampleData.Exercise(Catalog, 187, [null, "32", "0:00:75"]); SampleData.Validate([exercise], out _); }
+            @{ var exercise = SampleData.Exercise(Catalog, 187, [null, "32", "0:00:75"]); SampleData.Validate(Checker, [exercise], out _); }
             <EntryErrors Fields="exercise.Fields" Entry="exercise.Entries[0]" />
         </Template>
     </Story>

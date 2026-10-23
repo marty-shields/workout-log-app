@@ -1,5 +1,6 @@
 @attribute [Stories("Screens/New Workout")]
 @inject IExerciseCatalog Catalog
+@inject ISetChecker Checker
 
 <Stories TComponent="WorkoutView" Layout="typeof(PhoneLayout)">
 
@@ -35,7 +36,7 @@
 
     <Story Name="Save errors">
         <Template>
-            <WorkoutView Mode="WorkoutMode.New" StartedAt="SampleData.Started" Time="new TimeSpan(0, 21, 40)" Exercises="SampleData.WorkoutWithErrors(Catalog)" OnBack="() => { }" />
+            <WorkoutView Mode="WorkoutMode.New" StartedAt="SampleData.Started" Time="new TimeSpan(0, 21, 40)" Exercises="SampleData.WorkoutWithErrors(Catalog, Checker)" OnBack="() => { }" />
         </Template>
     </Story>
 

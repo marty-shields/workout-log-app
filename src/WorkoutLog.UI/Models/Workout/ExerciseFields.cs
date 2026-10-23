@@ -34,16 +34,16 @@ public static class ExerciseFields
         var required = metric.Required;
         return metric.Metric switch
         {
-            Metric.Reps => new("reps", metric.Label ?? "Reps", FieldKind.Whole, required),
-            Metric.WeightKg => new("weight", metric.Label ?? "Weight", FieldKind.Decimal, required, "kg"),
-            Metric.Duration => new("duration", metric.Label ?? "Duration", FieldKind.Duration, required),
-            Metric.Distance => new("distance", metric.Label ?? "Distance", FieldKind.Decimal, required, DistanceText(exercise)),
-            Metric.Floors => new("floors", metric.Label ?? "Floors", FieldKind.Whole, required),
-            Metric.Level => new("level", metric.Label ?? "Level", FieldKind.Whole, required),
-            Metric.Incline => new("incline", metric.Label ?? "Incline", FieldKind.Decimal, required, "%"),
-            Metric.Calories => new("calories", metric.Label ?? "Calories", FieldKind.Whole, required),
-            Metric.Rate when exercise.RateUnit == RateUnit.MinPerKm => new("rate", metric.Label ?? "Pace", FieldKind.Pace, required, "min/km"),
-            Metric.Rate => new("rate", metric.Label ?? "Rate", FieldKind.Decimal, required, RateText(exercise)),
+            Metric.Reps => new("reps", Metric.Reps, metric.Label ?? "Reps", FieldKind.Whole, required),
+            Metric.WeightKg => new("weight", Metric.WeightKg, metric.Label ?? "Weight", FieldKind.Decimal, required, "kg"),
+            Metric.Duration => new("duration", Metric.Duration, metric.Label ?? "Duration", FieldKind.Duration, required),
+            Metric.Distance => new("distance", Metric.Distance, metric.Label ?? "Distance", FieldKind.Decimal, required, DistanceText(exercise)),
+            Metric.Floors => new("floors", Metric.Floors, metric.Label ?? "Floors", FieldKind.Whole, required),
+            Metric.Level => new("level", Metric.Level, metric.Label ?? "Level", FieldKind.Whole, required),
+            Metric.Incline => new("incline", Metric.Incline, metric.Label ?? "Incline", FieldKind.Decimal, required, "%"),
+            Metric.Calories => new("calories", Metric.Calories, metric.Label ?? "Calories", FieldKind.Whole, required),
+            Metric.Rate when exercise.RateUnit == RateUnit.MinPerKm => new("rate", Metric.Rate, metric.Label ?? "Pace", FieldKind.Pace, required, "min/km"),
+            Metric.Rate => new("rate", Metric.Rate, metric.Label ?? "Rate", FieldKind.Decimal, required, RateText(exercise)),
             _ => throw new ArgumentOutOfRangeException(nameof(metric), metric.Metric, null),
         };
     }

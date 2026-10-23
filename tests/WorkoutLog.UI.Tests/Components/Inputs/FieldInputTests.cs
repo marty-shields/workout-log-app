@@ -1,3 +1,4 @@
+using WorkoutLog.Core.Domain.Exercises;
 using WorkoutLog.UI.Components.Inputs;
 using WorkoutLog.UI.Models.Fields;
 using WorkoutLog.UI.Models.Workout;
@@ -10,7 +11,7 @@ public class FieldInputTests : ComponentTestBase
     public void DurationField_RendersThreeBoxes()
     {
         var cut = Context.Render<FieldInput>(p => p
-            .Add(x => x.Field, new FieldSpec("duration", "Duration", FieldKind.Duration, Required: true))
+            .Add(x => x.Field, new FieldSpec("duration", Metric.Duration, "Duration", FieldKind.Duration, Required: true))
             .Add(x => x.Entry, new EntryState()));
 
         Assert.That(cut.FindAll("input"), Has.Count.EqualTo(3));
@@ -20,7 +21,7 @@ public class FieldInputTests : ComponentTestBase
     public void PaceField_RendersTwoBoxes()
     {
         var cut = Context.Render<FieldInput>(p => p
-            .Add(x => x.Field, new FieldSpec("rate", "Pace", FieldKind.Pace, Unit: "min/km"))
+            .Add(x => x.Field, new FieldSpec("rate", Metric.Rate, "Pace", FieldKind.Pace, Unit: "min/km"))
             .Add(x => x.Entry, new EntryState()));
 
         Assert.That(cut.FindAll("input"), Has.Count.EqualTo(2));
@@ -31,7 +32,7 @@ public class FieldInputTests : ComponentTestBase
     public void NumberKinds_SetInputMode(FieldKind kind, string inputMode)
     {
         var cut = Context.Render<FieldInput>(p => p
-            .Add(x => x.Field, new FieldSpec("value", "Value", kind))
+            .Add(x => x.Field, new FieldSpec("value", Metric.WeightKg, "Value", kind))
             .Add(x => x.Entry, new EntryState()));
 
         Assert.That(cut.Find("input").GetAttribute("inputmode"), Is.EqualTo(inputMode));
@@ -41,7 +42,7 @@ public class FieldInputTests : ComponentTestBase
     public void Label_IncludesUnit()
     {
         var cut = Context.Render<FieldInput>(p => p
-            .Add(x => x.Field, new FieldSpec("weight", "Weight", FieldKind.Decimal, Unit: "kg"))
+            .Add(x => x.Field, new FieldSpec("weight", Metric.WeightKg, "Weight", FieldKind.Decimal, Unit: "kg"))
             .Add(x => x.Entry, new EntryState()));
 
         Assert.That(TestText.Normalise(cut.Find(".label").TextContent), Is.EqualTo("Weight (kg)"));
@@ -58,7 +59,7 @@ public class FieldInputTests : ComponentTestBase
         }
 
         var cut = Context.Render<FieldInput>(p => p
-            .Add(x => x.Field, new FieldSpec("reps", "Reps", FieldKind.Whole, Required: true))
+            .Add(x => x.Field, new FieldSpec("reps", Metric.Reps, "Reps", FieldKind.Whole, Required: true))
             .Add(x => x.Entry, entry));
 
         Assert.That(cut.Find("input").HasAttribute("aria-invalid"), Is.EqualTo(hasError));
@@ -69,7 +70,7 @@ public class FieldInputTests : ComponentTestBase
     {
         var entry = new EntryState { Errors = { ["weight"] = "Weight error" } };
         var cut = Context.Render<FieldInput>(p => p
-            .Add(x => x.Field, new FieldSpec("reps", "Reps", FieldKind.Whole, Required: true))
+            .Add(x => x.Field, new FieldSpec("reps", Metric.Reps, "Reps", FieldKind.Whole, Required: true))
             .Add(x => x.Entry, entry));
 
         Assert.That(cut.Find("input").HasAttribute("aria-invalid"), Is.False);
@@ -81,7 +82,7 @@ public class FieldInputTests : ComponentTestBase
         var entry = new EntryState();
         var changed = false;
         var cut = Context.Render<FieldInput>(p => p
-            .Add(x => x.Field, new FieldSpec("reps", "Reps", FieldKind.Whole, Required: true))
+            .Add(x => x.Field, new FieldSpec("reps", Metric.Reps, "Reps", FieldKind.Whole, Required: true))
             .Add(x => x.Entry, entry)
             .Add(x => x.OnChanged, () => changed = true));
 

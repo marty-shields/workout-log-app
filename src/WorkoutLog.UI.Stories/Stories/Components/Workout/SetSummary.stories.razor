@@ -1,5 +1,6 @@
 @attribute [Stories("Components/Workout/SetSummary")]
 @inject IExerciseCatalog Catalog
+@inject ISetChecker Checker
 
 <Stories TComponent="SetSummary" Layout="typeof(ThemeLayout)">
 
@@ -19,7 +20,7 @@
 
     <Story Name="Errors">
         <Template>
-            @{ var exercise = SampleData.Exercise(Catalog, 187, [null, "32", "0:00:75"]); SampleData.Validate([exercise], out _); }
+            @{ var exercise = SampleData.Exercise(Catalog, 187, [null, "32", "0:00:75"]); SampleData.Validate(Checker, [exercise], out _); }
             <SetSummary Number="1" Fields="exercise.Fields" Entry="exercise.Entries[0]" />
         </Template>
     </Story>

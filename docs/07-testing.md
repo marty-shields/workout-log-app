@@ -32,7 +32,8 @@ Time is injected through .NET `TimeProvider`; tests use `FakeTimeProvider`, so t
 - [ ] New Workout: the date + day are correct and the live timer runs
 - [ ] Picker search finds exercises by name and nickname, words in any order (e.g. "incline dumbbell press", "pec deck")
 - [ ] Search keeps matching while typing a joined word ("pullu", "pushups") and after punctuation ("bench."); the box takes at most 50 characters
-- [ ] Strength fields match [04](04-exercise-list.md) per exercise; weight decimals accepted (e.g. 22.75); assisted machines show Assist (kg)
+- [ ] Strength fields match [04](04-exercise-list.md) per exercise; weight decimals accepted (e.g. 22.75, .5); 22.755, 5. and 22,75 rejected; assisted machines show Assist (kg)
+- [ ] Add set on an empty or faulty set is blocked, shows why and moves focus to the first field at fault; Remove set is never blocked
 - [ ] Cardio: duration h:mm:ss required; other fields match [04](04-exercise-list.md), with the correct units and labels
 - [ ] Outdoor Run pace is entered and shown as m:ss (e.g. 5:30)
 - [ ] Only one cardio entry per cardio exercise

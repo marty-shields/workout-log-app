@@ -72,17 +72,17 @@ Duration (h:mm:ss) is required for every cardio exercise. Everything else is opt
 Stair Climber also covers StepMill.
 
 ## Field labels and units
-How each metric shows on a set or entry (D149). A label in the exercise file replaces the default.
+How each metric shows on a set or entry (D149). A label in the exercise file replaces the default. Decimals use `.` and take at most 2 places (D157, D158).
 
 | Metric | Default label | Unit shown | Entered as |
 |---|---|---|---|
 | Reps | Reps | | whole number |
-| Weight | Weight | kg | decimal |
+| Weight | Weight | kg | decimal, up to 2 places |
 | Duration | Duration | | h:mm:ss |
-| Distance | Distance | km, m, ft | decimal |
+| Distance | Distance | km, m, ft | decimal, up to 2 places |
 | Floors | Floors | | whole number |
 | Level | (always labelled) | | whole number |
-| Incline | Incline | % | decimal |
+| Incline | Incline | % | decimal, up to 2 places |
 | Calories | Calories | | whole number |
-| Rate | Rate | km/h, rpm, strokes/min, strides/min, steps/min, feet/min | decimal |
+| Rate | Rate | km/h, rpm, strokes/min, strides/min, steps/min, feet/min | decimal, up to 2 places |
 | Rate in min/km | Pace | min/km | m:ss |
