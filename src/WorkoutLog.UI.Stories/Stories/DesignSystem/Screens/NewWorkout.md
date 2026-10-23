@@ -6,6 +6,8 @@ $attribute: CustomPage("Design System/Screens/New Workout")
 
 Log a workout as you go (FR-01–FR-14). View: `WorkoutView` with `Mode` New.
 
+`NewWorkoutPage` starts the workout through `IWorkoutService.StartNew()`, ticks the timer every second from `TimeProvider`, and renders `WorkoutView`. The date and day come from the start time in the phone's time zone; the timer shows 0:00:00 while the clock is before the start.
+
 | Part | Content |
 |---|---|
 | Top bar | Back arrow; date and day; "Elapsed h:mm:ss". |
@@ -15,6 +17,6 @@ Log a workout as you go (FR-01–FR-14). View: `WorkoutView` with `Mode` New.
 
 Back: Discard / Cancel, then Dashboard.
 
-States: [Empty](/?path=/story/screens-new-workout--empty) · [Strength sets](/?path=/story/screens-new-workout--strength-sets) · [Carry sets](/?path=/story/screens-new-workout--carry-sets) · [Cardio entries](/?path=/story/screens-new-workout--cardio-entries) · [Save errors](/?path=/story/screens-new-workout--save-errors) · [Save with no exercises](/?path=/story/screens-new-workout--save-with-no-exercises) · [Discard prompt](/?path=/story/screens-new-workout--discard-prompt)
+States: [Empty](/?path=/story/screens-new-workout--empty) · [Live timer](/?path=/story/screens-new-workout--live-timer) · [Strength sets](/?path=/story/screens-new-workout--strength-sets) · [Carry sets](/?path=/story/screens-new-workout--carry-sets) · [Cardio entries](/?path=/story/screens-new-workout--cardio-entries) · [Save errors](/?path=/story/screens-new-workout--save-errors) · [Save with no exercises](/?path=/story/screens-new-workout--save-with-no-exercises) · [Discard prompt](/?path=/story/screens-new-workout--discard-prompt)
 
 `data-testid`: `back`, `screen-title`, `screen-subtitle`, `workout-error`, `no-exercises`, `exercise-{n}` (and its parts, see [Workout](/?path=/custom/design-system-components-workout)), `add-exercise`, `save-workout`, `confirm-dialog`.

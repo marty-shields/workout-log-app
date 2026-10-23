@@ -23,4 +23,11 @@
     <ProjectReference Include="..\WorkoutLog.UI\WorkoutLog.UI.csproj" />
   </ItemGroup>
 
+  <!-- Removes the native SQLite file that Core brings in (T48). -->
+  <Target Name="RemoveSqliteNativeReference" BeforeTargets="_CheckBrowserWorkloadNeededButNotAvailable">
+    <ItemGroup>
+      <NativeFileReference Remove="@(NativeFileReference)" Condition="'%(Filename)' == 'e_sqlite3'" />
+    </ItemGroup>
+  </Target>
+
 </Project>

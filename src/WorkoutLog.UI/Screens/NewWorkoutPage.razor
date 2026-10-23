@@ -1,0 +1,39 @@
+@using WorkoutLog.Core.Services
+@implements IDisposable
+@inject IWorkoutService Workouts
+@inject TimeProvider Clock
+
+<WorkoutView Mode="WorkoutMode.New" StartedAt="startedAt" Time="Elapsed" Exercises="exercises" OnBack="OnBack" />
+
+@code {
+    private readonly List<ExerciseState> exercises = [];
+    private WorkoutDraft draft = null!;
+    private DateTime startedAt;
+    private PeriodicTimer? timer;
+
+    /// <summary>Raised by the back arrow and the Android back button.</summary>
+    [Parameter]
+    public EventCallback OnBack { get; set; }
+
+    /// <summary>Time since the start; zero while the clock is before the start.</summary>
+    private TimeSpan Elapsed => TimeSpan.FromTicks(Math.Max(0, (Clock.GetUtcNow() - draft.StartedAt).Ticks));
+
+    protected override void OnInitialized()
+    {
+        draft = Workouts.StartNew();
+        startedAt = TimeZoneInfo.ConvertTime(draft.StartedAt, Clock.LocalTimeZone).DateTime;
+        timer = new PeriodicTimer(TimeSpan.FromSeconds(1), Clock);
+        _ = TickAsync(timer);
+    }
+
+    public void Dispose() => timer?.Dispose();
+
+    /// <summary>Re-renders every tick until the timer is disposed. A render error goes to the error boundary.</summary>
+    private async Task TickAsync(PeriodicTimer ticks)
+    {
+        while (await ticks.WaitForNextTickAsync())
+        {
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+}

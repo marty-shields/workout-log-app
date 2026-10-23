@@ -1,0 +1,6 @@
+@page "/workout/new"
+@using WorkoutLog.UI.Screens
+@inject NavigationManager Navigation
+
+@* Back goes to the Dashboard without a prompt until US-15. *@
+<NewWorkoutPage OnBack="@(() => Navigation.GoTo(string.Empty))" />

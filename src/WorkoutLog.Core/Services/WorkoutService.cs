@@ -12,7 +12,12 @@ internal sealed partial class WorkoutService(
     private static readonly WorkoutErrors SaveFailed = new(WorkoutError.SaveFailed, []);
 
     /// <inheritdoc />
-    public WorkoutDraft StartNew() => new(time.GetUtcNow());
+    public WorkoutDraft StartNew()
+    {
+        var draft = new WorkoutDraft(time.GetUtcNow());
+        Log.Started(logger);
+        return draft;
+    }
 
     /// <inheritdoc />
     public WorkoutErrors Validate(IReadOnlyList<WorkoutExercise> exercises) => validator.Validate(Snapshot(exercises));
@@ -134,5 +139,8 @@ internal sealed partial class WorkoutService(
 
         [LoggerMessage(1205, LogLevel.Warning, "The clock is {Behind} behind the workout start; the finish is set to the start")]
         public static partial void ClockBeforeStart(ILogger logger, TimeSpan behind);
+
+        [LoggerMessage(1206, LogLevel.Information, "New workout started")]
+        public static partial void Started(ILogger logger);
     }
 }

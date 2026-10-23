@@ -46,24 +46,25 @@ flowchart LR
     S --> R[Repositories<br/>Core]
     R --> DB[(SQLite file<br/>app data dir)]
     S --> C[TimeProvider<br/>.NET]
+    UI --> C
     S --> X[Exercise definitions<br/>Core]
 ```
 - **App** hosts the BlazorWebView, registers DI and the logging providers, and handles the Android back button.
 - **UI** renders and calls services only. It never touches the database. Form fields come from the exercise's metric definition.
 - **Services** hold the rules: save validation, start/finish capture, dashboard counts.
 - **Repositories** handle sqlite-net access. They sit behind interfaces so services can be unit-tested with Moq.
-- **TimeProvider** (.NET) supplies the current time, so start/finish, the live timer and week/month counts can be tested with `FakeTimeProvider` (T31).
+- **TimeProvider** (.NET) supplies the current time, so start/finish, the live timer and week/month counts can be tested with `FakeTimeProvider` (T31). The UI uses it for the live timer (T47).
 - **Exercise definitions** are an embedded JSON file in Core, read into the `IExerciseCatalog` singleton on first use: the seeder, at startup (T45). The catalog also runs the picker search in memory (see [03](03-data-model.md#exercise-search), [04](04-exercise-list.md)).
 
 ## Dependency injection
-Everything is registered in `MauiProgram.CreateMauiApp()` using the built-in `IServiceCollection`. Core registers its own types through `AddCore(databasePath)` (T19); the App passes `workoutlog.db3` in `FileSystem.AppDataDirectory`. Of the services, only `IWorkoutService` is public; the repository and validator are internal (T33). The database connection is an `SQLiteAsyncConnection` singleton. Services and repositories are registered by interface. At startup the App's `Routes` component wraps the router in `StartupGate`, which awaits `IDatabaseInitializer.InitializeAsync()` and shows the Startup screen until it completes, or its error if it throws (T36, D133). The initializer upgrades and creates the schema, then seeds the exercise list (T25, T28). The initializer and repository are decorators that run each call through one `DatabaseGate`, so database calls run one at a time (T27). Logging providers are registered in `MauiProgram` too ([Logging](#logging)). So are the `IBackButton` and `AndroidBackButton` singletons ([Navigation](#navigation)); the stories app registers `IBackButton` as well.
+Everything is registered in `MauiProgram.CreateMauiApp()` using the built-in `IServiceCollection`. Core registers its own types through `AddCore(databasePath)` (T19); the App passes `workoutlog.db3` in `FileSystem.AppDataDirectory`. Of the services, only `IWorkoutService` is public; the repository and validator are internal (T33). The database connection is an `SQLiteAsyncConnection` singleton. Services and repositories are registered by interface. At startup the App's `Routes` component wraps the router in `StartupGate`, which awaits `IDatabaseInitializer.InitializeAsync()` and shows the Startup screen until it completes, or its error if it throws (T36, D133). The initializer upgrades and creates the schema, then seeds the exercise list (T25, T28). The initializer and repository are decorators that run each call through one `DatabaseGate`, so database calls run one at a time (T27). Logging providers are registered in `MauiProgram` too ([Logging](#logging)). So are the `IBackButton` and `AndroidBackButton` singletons ([Navigation](#navigation)); the stories app registers `IBackButton` as well. UI page components such as `NewWorkoutPage` inject `IWorkoutService` and `TimeProvider`; the stories app registers `TimeProvider.System` and `SampleWorkoutService` for them (T48).
 
 ## Navigation
-Blazor routing (`@page`). The routes are proposed:
+Blazor routing (`@page`). `/workout/{id}` is proposed; the others are in use:
 | Route | Screen |
 |---|---|
 | `/` | Dashboard |
-| `/workout/new` | New workout |
+| `/workout/new` | New workout (T47) |
 | `/workout/{id}` | Edit workout |
 | `/history` | History |
 
@@ -82,8 +83,8 @@ How (T46):
 - The BlazorWebView takes back while the WebView can go back in its history, so the App navigates with `GoTo` (`replace: true`), has no links, and never builds a history.
 
 ## Start / finish capture
-- The New Workout page asks `IWorkoutService.StartNew()` for a `WorkoutDraft`. The service stamps `StartedAt` (UTC) from `TimeProvider` (T29).
-- The page shows a live elapsed timer based on `StartedAt`.
+- `NewWorkoutPage` (UI) asks `IWorkoutService.StartNew()` for a `WorkoutDraft`. The service stamps `StartedAt` (UTC) from `TimeProvider` (T29) and logs the start.
+- The page shows the date in `TimeProvider.LocalTimeZone` and an elapsed timer that ticks every second from `TimeProvider`. While the clock is before `StartedAt` it shows 0:00:00 (T47, D145).
 - The draft stays in memory only (FR-12: lost if the app is killed). Android may kill the app while the phone is locked; this is accepted (D61).
 - On the first save, the service validates (FR-09), stamps `FinishedAt` and writes everything in one transaction. If the clock is earlier than `StartedAt`, `FinishedAt` is set to `StartedAt` (D129).
 - Later saves update the exercises, sets and entries only. They never change the times.
@@ -141,7 +142,7 @@ Confirmed in US-02 (D75).
 | Microsoft.NET.Test.Sdk | 18.11.0 | tests | Test host |
 | Moq | 4.21.0 | tests | Mocks |
 | AutoFixture, AutoFixture.AutoMoq | 4.18.1 | tests | Test data |
-| Microsoft.Extensions.TimeProvider.Testing | 10.11.0 | Core.Tests | `FakeTimeProvider` (T31) |
+| Microsoft.Extensions.TimeProvider.Testing | 10.11.0 | Core.Tests, UI.Tests | `FakeTimeProvider` (T31) |
 | Microsoft.Extensions.Diagnostics.Testing | 10.11.0 | Core.Tests, UI.Tests | `FakeLogger` (T43) |
 | bunit | 2.12.5 | UI.Tests | Component tests |
 | Appium.WebDriver | 9.0.0 | E2E.Tests | UI automation (Selenium 4.46). Check against the Appium server version in M6 |

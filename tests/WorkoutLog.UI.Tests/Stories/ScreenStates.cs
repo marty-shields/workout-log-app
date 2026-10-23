@@ -1,4 +1,7 @@
 using AngleSharp.Dom;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Time.Testing;
+using WorkoutLog.Core.Services;
 using WorkoutLog.UI.Components.Overlays;
 using WorkoutLog.UI.Components.Workout;
 using WorkoutLog.UI.Models.Dashboard;
@@ -30,6 +33,7 @@ public static class ScreenStates
         new("Screens/Dashboard", "With workouts", c => Dashboard(c, new DashboardSummary(SampleData.Started, 2, 9))),
 
         new("Screens/New Workout", "Empty", c => Workout(c, WorkoutMode.New, [])),
+        new("Screens/New Workout", "Live timer", NewWorkout),
         new("Screens/New Workout", "Strength sets", c => Workout(c, WorkoutMode.New, SampleData.StrengthWorkout())),
         new("Screens/New Workout", "Carry sets", c => Workout(c, WorkoutMode.New, SampleData.CarryWorkout())),
         new("Screens/New Workout", "Cardio entries", c => Workout(c, WorkoutMode.New, SampleData.CardioWorkout())),
@@ -60,6 +64,14 @@ public static class ScreenStates
             .Add(x => x.OnNewWorkout, () => { })
             .Add(x => x.OnHistory, () => { }))
             .FindAll("*");
+
+    private static IReadOnlyList<IElement> NewWorkout(BunitContext context)
+    {
+        var clock = new FakeTimeProvider();
+        context.Services.AddSingleton<TimeProvider>(clock);
+        context.Services.AddSingleton<IWorkoutService>(new SampleWorkoutService(clock));
+        return context.Render<NewWorkoutPage>(p => p.Add(x => x.OnBack, () => { })).FindAll("*");
+    }
 
     private static IReadOnlyList<IElement> Workout(
         BunitContext context,

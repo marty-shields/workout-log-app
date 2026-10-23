@@ -44,6 +44,29 @@ public class WorkoutServiceTests
     }
 
     [Test]
+    public void StartNew_LogsNewWorkoutStarted()
+    {
+        service.StartNew();
+
+        Assert.That(LoggedEvents.Of(logger), Is.EqualTo(new[] { (1206, LogLevel.Information, "New workout started") }));
+        Assert.That(logger.LatestRecord.Exception, Is.Null);
+    }
+
+    [Test]
+    public async Task SaveNewAsync_TwoWorkoutsOnTheSameDay_BothSaved()
+    {
+        repository.SetupSequence(r => r.AddAsync(It.IsAny<NewWorkout>())).ReturnsAsync(7).ReturnsAsync(8);
+        var first = service.StartNew();
+        time.Advance(TimeSpan.FromHours(1));
+        var second = service.StartNew();
+
+        var results = new[] { await service.SaveNewAsync(first, Exercises()), await service.SaveNewAsync(second, Exercises()) };
+
+        Assert.That(results.Select(r => r.WorkoutId), Is.EqualTo(new int?[] { 7, 8 }));
+        repository.Verify(r => r.AddAsync(It.IsAny<NewWorkout>()), Times.Exactly(2));
+    }
+
+    [Test]
     public void Validate_ReturnsTheValidatorsErrorsForACopy()
     {
         var exercises = Exercises();
@@ -184,7 +207,7 @@ public class WorkoutServiceTests
     {
         repository.Setup(r => r.AddAsync(It.IsAny<NewWorkout>())).ReturnsAsync(7);
 
-        await service.SaveNewAsync(service.StartNew(), Exercises());
+        await service.SaveNewAsync(new WorkoutDraft(Start), Exercises());
 
         Assert.That(LoggedEvents.Of(logger), Is.EqualTo(new[]
         {
@@ -209,7 +232,7 @@ public class WorkoutServiceTests
         var exception = SQLiteException.New(SQLite3.Result.Full, "disk full");
         repository.Setup(r => r.AddAsync(It.IsAny<NewWorkout>())).ThrowsAsync(exception);
 
-        await service.SaveNewAsync(service.StartNew(), Exercises());
+        await service.SaveNewAsync(new WorkoutDraft(Start), Exercises());
 
         Assert.That(LoggedEvents.Of(logger), Is.EqualTo(new[] { (1203, LogLevel.Error, "Adding a workout failed") }));
         Assert.That(logger.LatestRecord.Exception, Is.SameAs(exception));
@@ -245,7 +268,7 @@ public class WorkoutServiceTests
     {
         validator.Setup(v => v.Validate(It.IsAny<IReadOnlyList<WorkoutExercise>>())).Returns(Errors);
 
-        await service.SaveNewAsync(service.StartNew(), Exercises());
+        await service.SaveNewAsync(new WorkoutDraft(Start), Exercises());
         await service.SaveAsync(7, Exercises());
 
         Assert.That(LoggedEvents.Of(logger), Is.Empty);

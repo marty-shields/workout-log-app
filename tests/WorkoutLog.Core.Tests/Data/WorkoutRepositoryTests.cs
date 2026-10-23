@@ -61,6 +61,19 @@ public class WorkoutRepositoryTests
     }
 
     [Test]
+    public async Task AddAsync_TwoWorkoutsOnTheSameDay_BothReadBack()
+    {
+        var later = new NewWorkout(Start.AddHours(2), Finish.AddHours(2), Exercises());
+
+        var first = await repository.AddAsync(new NewWorkout(Start, Finish, Exercises()));
+        var second = await repository.AddAsync(later);
+
+        var saved = new[] { await repository.GetAsync(first), await repository.GetAsync(second) };
+
+        Assert.That(saved.Select(w => w!.StartedAt), Is.EqualTo(new[] { Start, later.StartedAt }));
+    }
+
+    [Test]
     public async Task AddAsync_TimesWithAnOffset_AreStoredAsUtc()
     {
         var offset = TimeSpan.FromHours(1);

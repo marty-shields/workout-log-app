@@ -3,8 +3,10 @@
 @using WorkoutLog.UI.Screens
 @inject NavigationManager Navigation
 
-@* Placeholder data until US-20. Back has no handler here, so it leaves the app. *@
-<DashboardView Summary="summary" OnHistory="@(() => Navigation.GoTo("history"))" />
+@* Placeholder summary until US-20. Back has no handler here, so it leaves the app. *@
+<DashboardView Summary="summary"
+               OnNewWorkout="@(() => Navigation.GoTo("workout/new"))"
+               OnHistory="@(() => Navigation.GoTo("history"))" />
 
 @code {
     private readonly DashboardSummary summary = new(null, 0, 0);

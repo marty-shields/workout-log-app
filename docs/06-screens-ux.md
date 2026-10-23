@@ -78,7 +78,7 @@ Done in M1.5, before the screens are built in M2 (D96). Details: [14 Design syst
 | Screen | Stories (`Screens/…`) | Page (`Design System/Screens/…`) |
 |---|---|---|
 | Dashboard | Empty · With workouts | Dashboard |
-| New Workout | Empty · Strength sets · Carry sets · Cardio entries · Save errors · Save with no exercises · Discard prompt | New Workout |
+| New Workout | Empty · Live timer · Strength sets · Carry sets · Cardio entries · Save errors · Save with no exercises · Discard prompt | New Workout |
 | Edit Workout | Saved · Carry sets closed · Save errors · Discard prompt · Delete prompt | Edit Workout |
 | Exercise Picker | No search text · Results · No match | Exercise Picker |
 | History | Empty · With workouts · Rows not tappable | History |

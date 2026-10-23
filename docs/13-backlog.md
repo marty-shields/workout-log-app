@@ -220,7 +220,7 @@ As the user, I want the wireframes rebuilt with the design system, so that M2–
 ## EP-03 Workout logging (M2)
 | ID | Story | Links | Size | Status |
 |---|---|---|---|---|
-| [US-10](#us-10-start-a-workout) | Start a workout | FR-01, FR-02, FR-14 | S | To do |
+| [US-10](#us-10-start-a-workout) | Start a workout | FR-01, FR-02, FR-14 | S | Done |
 | [US-11](#us-11-add-and-remove-exercises) | Add and remove exercises | FR-03, FR-04, FR-05, FR-08 | S | To do |
 | [US-12](#us-12-log-strength-sets) | Log strength sets | FR-06, FR-08, NFR-04 | M | To do |
 | [US-13](#us-13-log-a-cardio-entry) | Log a cardio entry | FR-07 | M | To do |
@@ -233,7 +233,7 @@ As the user, I want a workout to start when I open New Workout, with a live time
 - **Extra ACs:**
   - The header shows the date and day ([06](06-screens-ux.md)).
   - **Logging:** Information: new workout started.
-- **Size:** S · **Status:** To do
+- **Size:** S · **Status:** Done (D145, T47, T48)
 
 ### US-11 Add and remove exercises
 As the user, I want to add exercises from the list and remove them, so that the workout matches what I did.
