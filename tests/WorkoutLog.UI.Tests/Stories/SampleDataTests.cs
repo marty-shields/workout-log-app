@@ -1,9 +1,12 @@
+using WorkoutLog.Core.Domain.Exercises;
 using WorkoutLog.UI.Stories.Samples;
 
 namespace WorkoutLog.UI.Tests.Stories;
 
 public class SampleDataTests
 {
+    private static readonly IExerciseCatalog Catalog = new ExerciseCatalog();
+
     private const int Squat = 6;
     private const int FarmersWalk = 187;
     private const int Treadmill = 300;
@@ -107,7 +110,7 @@ public class SampleDataTests
 
     private static Dictionary<string, string> Errors(int exerciseId, params string?[] values)
     {
-        var exercise = SampleData.Exercise(exerciseId, values);
+        var exercise = SampleData.Exercise(Catalog, exerciseId, values);
         var entry = exercise.Entries.Single();
         SampleData.ValidateSet(exercise, entry);
         return entry.Errors;

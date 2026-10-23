@@ -1,4 +1,5 @@
 @using WorkoutLog.UI.Components.Inputs
+@implements IDisposable
 <section class="card @(Exercise.Error is not null ? "has-error" : null)" data-testid="@TestId">
     <header class="card-header">
         <h2 class="name">@Exercise.Name</h2>
@@ -20,6 +21,7 @@
                     if (entry == open)
                     {
                         <SetPanel @key="entry"
+                                  @ref="openPanel"
                                   Number="number"
                                   ExerciseName="@Exercise.Name"
                                   Fields="Exercise.Fields"
@@ -57,6 +59,7 @@
                     var entry = Exercise.Entries[i];
                     var number = i + 1;
                     <SetRow @key="entry"
+                            @ref="rows[entry]"
                             Number="number"
                             ExerciseName="@Exercise.Name"
                             Fields="Exercise.Fields"
@@ -75,7 +78,7 @@
         <div class="cardio">
             @foreach (var field in Exercise.Fields)
             {
-                <FieldInput Field="field" Entry="entry" OnChanged="() => EntryChanged(entry)" TestId="@($"{TestId}-{field.Key}")" />
+                <FieldInput @ref="cardioFields[field.Key]" Field="field" Entry="entry" OnChanged="() => EntryChanged(entry)" TestId="@($"{TestId}-{field.Key}")" />
             }
         </div>
         <EntryErrors Fields="Exercise.Fields" Entry="entry" TestId="@($"{TestId}-entry-error")" />
@@ -109,6 +112,81 @@
 
     private ExerciseState? shown;
     private EntryState? open;
+    private readonly Dictionary<EntryState, SetRow> rows = new();
+    private readonly Dictionary<string, FieldInput> cardioFields = new();
+    private SetPanel? openPanel;
+    private TaskCompletionSource? pendingFocus;
+
+    /// <summary>Moves focus to the first field of the open set, the last set row, or the cardio entry.</summary>
+    public ValueTask FocusAsync()
+    {
+        if (Exercise.Kind == ExerciseKind.Cardio)
+        {
+            return Exercise.Fields.Count > 0 && cardioFields.TryGetValue(Exercise.Fields[0].Key, out var first) ? first.FocusAsync() : ValueTask.CompletedTask;
+        }
+
+        if (SetGrid.Collapses(Exercise.Fields))
+        {
+            return open is not null && openPanel is not null ? openPanel.FocusAsync() : ValueTask.CompletedTask;
+        }
+
+        return Exercise.Entries.LastOrDefault() is { } last && rows.TryGetValue(last, out var row) ? row.FocusAsync() : ValueTask.CompletedTask;
+    }
+
+    /// <summary>
+    /// Strength: does what Add set does, then focuses the new set, or the set that blocked it. Cardio: focuses the entry.
+    /// Completes once focus has moved; fails if focusing fails, and is cancelled if the card is removed first.
+    /// </summary>
+    public async Task AddSetAndFocusAsync()
+    {
+        if (Exercise.Kind == ExerciseKind.Strength)
+        {
+            await AddSet();
+        }
+
+        pendingFocus?.TrySetCanceled();
+        var focus = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        pendingFocus = focus;
+        StateHasChanged();
+        await focus.Task;
+    }
+
+    public void Dispose() => pendingFocus?.TrySetCanceled();
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (pendingFocus is not { } focus || !FocusTargetRendered())
+        {
+            return;
+        }
+
+        pendingFocus = null;
+        try
+        {
+            await FocusAsync();
+            focus.TrySetResult();
+        }
+        catch (Exception exception)
+        {
+            focus.TrySetException(exception);
+        }
+    }
+
+    /// <summary>Whether the set or entry <see cref="FocusAsync"/> moves to has been rendered.</summary>
+    private bool FocusTargetRendered()
+    {
+        if (Exercise.Kind == ExerciseKind.Cardio)
+        {
+            return Exercise.Fields.Count == 0 || cardioFields.ContainsKey(Exercise.Fields[0].Key);
+        }
+
+        if (SetGrid.Collapses(Exercise.Fields))
+        {
+            return open is null || openPanel?.Entry == open;
+        }
+
+        return Exercise.Entries.LastOrDefault() is not { } last || rows.ContainsKey(last);
+    }
 
     protected override void OnParametersSet()
     {
@@ -160,6 +238,7 @@
     private Task RemoveSet(EntryState entry)
     {
         Exercise.Entries.Remove(entry);
+        rows.Remove(entry);
         if (entry == open)
         {
             open = null;

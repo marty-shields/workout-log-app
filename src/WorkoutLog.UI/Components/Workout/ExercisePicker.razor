@@ -1,3 +1,4 @@
+@using WorkoutLog.Core.Domain.Exercises
 @using WorkoutLog.UI.Navigation
 
 <div class="overlay" role="dialog" aria-modal="true" aria-label="Add exercise" data-testid="exercise-picker">
@@ -10,6 +11,7 @@
                placeholder="Search exercises"
                aria-label="Search exercises"
                autocomplete="off"
+               maxlength="@ExerciseCatalog.MaxQueryLength"
                value="@Query"
                data-testid="picker-search"
                @oninput="OnInput" />
@@ -49,7 +51,7 @@
     [Parameter]
     public string? Query { get; set; }
 
-    /// <summary>Raised on each keystroke with the new search text.</summary>
+    /// <summary>Raised on each keystroke with the new search text, at most <see cref="ExerciseCatalog.MaxQueryLength"/> characters.</summary>
     [Parameter]
     public EventCallback<string> QueryChanged { get; set; }
 
@@ -75,7 +77,11 @@
         }
     }
 
-    private Task OnInput(ChangeEventArgs e) => QueryChanged.InvokeAsync(e.Value as string ?? "");
+    private Task OnInput(ChangeEventArgs e)
+    {
+        var text = e.Value as string ?? "";
+        return QueryChanged.InvokeAsync(text.Length > ExerciseCatalog.MaxQueryLength ? text[..ExerciseCatalog.MaxQueryLength] : text);
+    }
 
     private RenderFragment RenderItem(PickerItem item) =>
         @<li>

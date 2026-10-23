@@ -4,7 +4,7 @@
     <span class="number">@Number</span>
     @foreach (var field in Fields)
     {
-        <FieldInput Field="field" Entry="Entry" ShowLabel="false" OnChanged="OnChanged" TestId="@($"{TestId}-{field.Key}")" />
+        <FieldInput @ref="fields[field.Key]" Field="field" Entry="Entry" ShowLabel="false" OnChanged="OnChanged" TestId="@($"{TestId}-{field.Key}")" />
     }
     <button type="button" class="remove" aria-label="@RemoveLabel" data-testid="@($"{TestId}-remove")" @onclick="OnRemove">&#x2715;</button>
 </div>
@@ -43,6 +43,11 @@
     /// <summary>Value of the data-testid attribute.</summary>
     [Parameter]
     public string? TestId { get; set; }
+
+    private readonly Dictionary<string, FieldInput> fields = new();
+
+    /// <summary>Moves focus to the first field.</summary>
+    public ValueTask FocusAsync() => Fields.Count > 0 && fields.TryGetValue(Fields[0].Key, out var first) ? first.FocusAsync() : ValueTask.CompletedTask;
 
     private string RemoveLabel => ExerciseName is null ? $"Remove set {Number}" : $"Remove {ExerciseName} set {Number}";
 }

@@ -221,7 +221,7 @@ As the user, I want the wireframes rebuilt with the design system, so that M2–
 | ID | Story | Links | Size | Status |
 |---|---|---|---|---|
 | [US-10](#us-10-start-a-workout) | Start a workout | FR-01, FR-02, FR-14 | S | Done |
-| [US-11](#us-11-add-and-remove-exercises) | Add and remove exercises | FR-03, FR-04, FR-05, FR-08 | S | To do |
+| [US-11](#us-11-add-and-remove-exercises) | Add and remove exercises | FR-03, FR-04, FR-05, FR-08 | S | Done |
 | [US-12](#us-12-log-strength-sets) | Log strength sets | FR-06, FR-08, NFR-04 | M | To do |
 | [US-13](#us-13-log-a-cardio-entry) | Log a cardio entry | FR-07 | M | To do |
 | [US-14](#us-14-save-a-workout) | Save a workout | FR-09, FR-10, FR-13 | S | To do |
@@ -242,8 +242,11 @@ As the user, I want to add exercises from the list and remove them, so that the 
   - The picker is an overlay, grouped Strength / Cardio; back closes it ([06](06-screens-ux.md)).
   - Search matches names and nicknames as in [03](03-data-model.md#exercise-search), including ranking and word normalisation.
   - The search is added to `IExerciseCatalog` in Core, with unit tests (D122).
+  - An added exercise shows its fields with the labels and units in [04](04-exercise-list.md#field-labels-and-units), and focus moves to its first field.
+  - Picking an exercise already in the workout goes to its card: strength adds a set, cardio focuses its entry (D154).
+  - New Workout only; Add set and Remove set work, without set checks until US-12 and US-13. Save stays inert until US-14 (D153).
   - **Logging:** none. The search runs in memory and has no errors to log.
-- **Size:** S · **Status:** To do
+- **Size:** S · **Status:** Done (D146–D156, T49, T50)
 
 ### US-12 Log strength sets
 As the user, I want to add, fill in and remove sets for a strength exercise, so that I can record reps, weight, duration or distance.

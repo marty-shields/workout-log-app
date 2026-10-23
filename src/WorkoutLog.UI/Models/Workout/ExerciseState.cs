@@ -3,11 +3,15 @@ using WorkoutLog.UI.Models.Fields;
 namespace WorkoutLog.UI.Models.Workout;
 
 /// <summary>An exercise in a workout while it is edited.</summary>
+/// <param name="exerciseId">Exercise id.</param>
 /// <param name="name">Exercise name.</param>
 /// <param name="kind">Strength or cardio.</param>
 /// <param name="fields">Fields shown for each set or entry.</param>
-public sealed class ExerciseState(string name, ExerciseKind kind, IReadOnlyList<FieldSpec> fields)
+public sealed class ExerciseState(int exerciseId, string name, ExerciseKind kind, IReadOnlyList<FieldSpec> fields)
 {
+    /// <summary>Exercise id.</summary>
+    public int ExerciseId { get; } = exerciseId;
+
     /// <summary>Exercise name.</summary>
     public string Name { get; } = name;
 

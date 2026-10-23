@@ -82,6 +82,14 @@ public class ExerciseFileTests
         });
     }
 
+    [TestCaseSource(nameof(Each))]
+    public void Aliases_AreNotBlank(ExerciseDefinition exercise) =>
+        Assert.That(exercise.Aliases, Has.None.Matches<string?>(string.IsNullOrWhiteSpace));
+
+    [TestCaseSource(nameof(Each))]
+    public void Level_HasALabel(ExerciseDefinition exercise) =>
+        Assert.That(exercise.Metrics.Where(m => m.Metric == Metric.Level).Select(m => m.Label), Has.None.Matches<string?>(string.IsNullOrWhiteSpace));
+
     [TestCaseSource(nameof(Cardio))]
     public void Cardio_RequiresDuration(ExerciseDefinition exercise) =>
         Assert.That(exercise.Metrics, Has.One.Matches<MetricDefinition>(m => m is { Metric: Metric.Duration, Required: true }));

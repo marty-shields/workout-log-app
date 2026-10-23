@@ -70,3 +70,19 @@ Duration (h:mm:ss) is required for every cardio exercise. Everything else is opt
 | Jump Rope | | | | | o | |
 
 Stair Climber also covers StepMill.
+
+## Field labels and units
+How each metric shows on a set or entry (D149). A label in the exercise file replaces the default.
+
+| Metric | Default label | Unit shown | Entered as |
+|---|---|---|---|
+| Reps | Reps | | whole number |
+| Weight | Weight | kg | decimal |
+| Duration | Duration | | h:mm:ss |
+| Distance | Distance | km, m, ft | decimal |
+| Floors | Floors | | whole number |
+| Level | (always labelled) | | whole number |
+| Incline | Incline | % | decimal |
+| Calories | Calories | | whole number |
+| Rate | Rate | km/h, rpm, strokes/min, strides/min, steps/min, feet/min | decimal |
+| Rate in min/km | Pace | min/km | m:ss |

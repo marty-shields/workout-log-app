@@ -1,22 +1,23 @@
 @attribute [Stories("Components/Workout/ExercisePicker")]
+@inject IExerciseCatalog Catalog
 
 <Stories TComponent="ExercisePicker" Layout="typeof(PhoneLayout)">
 
     <Story Name="No search text">
         <Template>
-            <ExercisePicker Items="SampleData.Search(null)" />
+            <ExercisePicker Items="SampleData.PickerItems(Catalog, null)" />
         </Template>
     </Story>
 
     <Story Name="Results">
         <Template>
-            <ExercisePicker Query="pec" Items="@SampleData.Search("pec")" />
+            <ExercisePicker Query="pec" Items="@SampleData.PickerItems(Catalog, "pec")" />
         </Template>
     </Story>
 
     <Story Name="No match">
         <Template>
-            <ExercisePicker Query="zzz" Items="@SampleData.Search("zzz")" />
+            <ExercisePicker Query="zzz" Items="@SampleData.PickerItems(Catalog, "zzz")" />
         </Template>
     </Story>
 

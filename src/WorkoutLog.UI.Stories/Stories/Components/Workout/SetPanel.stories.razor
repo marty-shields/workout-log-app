@@ -1,17 +1,18 @@
 @attribute [Stories("Components/Workout/SetPanel")]
+@inject IExerciseCatalog Catalog
 
 <Stories TComponent="SetPanel" Layout="typeof(ThemeLayout)">
 
     <Story Name="Carry">
         <Template>
-            @{ var exercise = SampleData.Exercise(187, ["40", "32", null]); }
+            @{ var exercise = SampleData.Exercise(Catalog, 187, ["40", "32", null]); }
             <SetPanel Number="3" Fields="exercise.Fields" Entry="exercise.Entries[0]" />
         </Template>
     </Story>
 
     <Story Name="Errors">
         <Template>
-            @{ var exercise = SampleData.Exercise(187, [null, "32", "0:00:75"]); SampleData.Validate([exercise], out _); }
+            @{ var exercise = SampleData.Exercise(Catalog, 187, [null, "32", "0:00:75"]); SampleData.Validate([exercise], out _); }
             <SetPanel Number="1" Fields="exercise.Fields" Entry="exercise.Entries[0]" />
         </Template>
     </Story>

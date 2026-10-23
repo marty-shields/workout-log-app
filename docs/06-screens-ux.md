@@ -27,8 +27,8 @@
   - Cardio: one entry (duration + the exercise's other metrics, with units). Starts empty; not removable on its own.
   - Fields use the exercise's label where it has one (e.g. Assist (kg), Resistance, Damper).
   - A partly filled duration or pace fills in when focus leaves it: empty boxes become 0, minutes and seconds two digits (e.g. *1:00:00*, *0:00:22*, *5:03*) (D107).
-  - Remove exercise
-- **Add exercise** opens the Exercise picker
+  - Remove exercise: removes it at once, with no confirm (D150)
+- **Add exercise** opens the Exercise picker. After a pick, focus moves to the new exercise's first field, which scrolls it into view (D151).
 - **Save** button: validates (FR-09) and returns to the Dashboard. Errors show on the exercise, set or entry at fault: each faulty field is outlined, with one message per problem under its set or entry (D103). A set or entry showing errors is re-checked on each change; adding a set clears "Add at least one set" and adding an exercise clears the workout error (D108).
 - Edit only: **Delete** (confirm dialog)
 - Back:
@@ -38,10 +38,10 @@
 
 ### Exercise picker
 - An overlay on the workout page. Back closes it.
-- Search box at the top. It matches names and nicknames, every word in any order ([03](03-data-model.md#exercise-search)).
+- Search box at the top, empty each time the picker opens (D152). It matches names and nicknames, every word in any order ([03](03-data-model.md#exercise-search)).
 - With no search text: the full list A–Z, grouped Strength / Cardio
-- Tap to add to the workout
-- Exercises already in the workout are still shown (FR-04)
+- Tap to add to the workout; the picker closes
+- Exercises already in the workout are still shown. Picking one goes to its card instead of adding it again: strength adds a set, cardio focuses its entry (FR-04, D154)
 
 ### History
 - Saved workouts, newest first

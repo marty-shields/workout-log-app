@@ -1,4 +1,6 @@
+using System.Globalization;
 using Microsoft.AspNetCore.Components;
+using WorkoutLog.Core.Domain.Exercises;
 using WorkoutLog.UI.Components.Layout;
 using WorkoutLog.UI.Components.Workout;
 using WorkoutLog.UI.Models.Workout;
@@ -82,6 +84,28 @@ public class ExercisePickerTests : ComponentTestBase
         cut.Find("[data-testid=picker-search]").Input("curl");
 
         Assert.That(query, Is.EqualTo("curl"));
+    }
+
+    [Test]
+    public void Search_HasTheMaxLength() =>
+        Assert.That(
+            Context.Render<ExercisePicker>(p => p.Add(x => x.Items, Items)).Find("[data-testid=picker-search]").GetAttribute("maxlength"),
+            Is.EqualTo(ExerciseCatalog.MaxQueryLength.ToString(CultureInfo.InvariantCulture)));
+
+    [TestCase(ExerciseCatalog.MaxQueryLength - 1, ExerciseCatalog.MaxQueryLength - 1)]
+    [TestCase(ExerciseCatalog.MaxQueryLength, ExerciseCatalog.MaxQueryLength)]
+    [TestCase(ExerciseCatalog.MaxQueryLength + 1, ExerciseCatalog.MaxQueryLength)]
+    [TestCase(100_000, ExerciseCatalog.MaxQueryLength)]
+    public void TypingInSearch_CutsTextToTheMaxLength(int typed, int raised)
+    {
+        string? query = null;
+        var cut = Context.Render<ExercisePicker>(p => p
+            .Add(x => x.Items, Items)
+            .Add(x => x.QueryChanged, (string q) => query = q));
+
+        cut.Find("[data-testid=picker-search]").Input(new string('a', typed));
+
+        Assert.That(query, Is.EqualTo(new string('a', raised)));
     }
 
     [Test]

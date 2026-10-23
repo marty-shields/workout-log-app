@@ -1,4 +1,5 @@
 @attribute [Stories("Screens/New Workout")]
+@inject IExerciseCatalog Catalog
 
 <Stories TComponent="WorkoutView" Layout="typeof(PhoneLayout)">
 
@@ -16,25 +17,25 @@
 
     <Story Name="Strength sets">
         <Template>
-            <WorkoutView Mode="WorkoutMode.New" StartedAt="SampleData.Started" Time="new TimeSpan(0, 34, 12)" Exercises="SampleData.StrengthWorkout()" OnBack="() => { }" />
+            <WorkoutView Mode="WorkoutMode.New" StartedAt="SampleData.Started" Time="new TimeSpan(0, 34, 12)" Exercises="SampleData.StrengthWorkout(Catalog)" OnBack="() => { }" />
         </Template>
     </Story>
 
     <Story Name="Carry sets">
         <Template>
-            <WorkoutView Mode="WorkoutMode.New" StartedAt="SampleData.Started" Time="new TimeSpan(0, 28, 3)" Exercises="SampleData.CarryWorkout()" OnBack="() => { }" />
+            <WorkoutView Mode="WorkoutMode.New" StartedAt="SampleData.Started" Time="new TimeSpan(0, 28, 3)" Exercises="SampleData.CarryWorkout(Catalog)" OnBack="() => { }" />
         </Template>
     </Story>
 
     <Story Name="Cardio entries">
         <Template>
-            <WorkoutView Mode="WorkoutMode.New" StartedAt="SampleData.Started" Time="new TimeSpan(1, 2, 5)" Exercises="SampleData.CardioWorkout()" OnBack="() => { }" />
+            <WorkoutView Mode="WorkoutMode.New" StartedAt="SampleData.Started" Time="new TimeSpan(1, 2, 5)" Exercises="SampleData.CardioWorkout(Catalog)" OnBack="() => { }" />
         </Template>
     </Story>
 
     <Story Name="Save errors">
         <Template>
-            <WorkoutView Mode="WorkoutMode.New" StartedAt="SampleData.Started" Time="new TimeSpan(0, 21, 40)" Exercises="SampleData.WorkoutWithErrors()" OnBack="() => { }" />
+            <WorkoutView Mode="WorkoutMode.New" StartedAt="SampleData.Started" Time="new TimeSpan(0, 21, 40)" Exercises="SampleData.WorkoutWithErrors(Catalog)" OnBack="() => { }" />
         </Template>
     </Story>
 
@@ -46,7 +47,7 @@
 
     <Story Name="Discard prompt">
         <Template>
-            <WorkoutView Mode="WorkoutMode.New" StartedAt="SampleData.Started" Time="new TimeSpan(0, 34, 12)" Exercises="SampleData.StrengthWorkout()" OnBack="() => { }">
+            <WorkoutView Mode="WorkoutMode.New" StartedAt="SampleData.Started" Time="new TimeSpan(0, 34, 12)" Exercises="SampleData.StrengthWorkout(Catalog)" OnBack="() => { }">
                 <Overlay>
                     <ConfirmDialog Title="Discard this workout?" ConfirmText="Discard" Danger />
                 </Overlay>

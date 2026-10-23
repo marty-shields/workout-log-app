@@ -1,7 +1,8 @@
 @using WorkoutLog.UI.Models.Fields
 @if (Field.Kind is FieldKind.Duration or FieldKind.Pace)
 {
-    <DurationField Label="@Field.DisplayLabel"
+    <DurationField @ref="duration"
+                   Label="@Field.DisplayLabel"
                    ShowLabel="ShowLabel"
                    Required="Field.Required"
                    ShowHours="@(Field.Kind == FieldKind.Duration)"
@@ -12,7 +13,8 @@
 }
 else
 {
-    <NumberField Label="@Field.DisplayLabel"
+    <NumberField @ref="number"
+                 Label="@Field.DisplayLabel"
                  ShowLabel="ShowLabel"
                  Required="Field.Required"
                  AllowDecimal="@(Field.Kind == FieldKind.Decimal)"
@@ -42,6 +44,12 @@ else
     /// <summary>data-testid of the input, or the prefix for duration boxes.</summary>
     [Parameter]
     public string? TestId { get; set; }
+
+    private DurationField? duration;
+    private NumberField? number;
+
+    /// <summary>Moves focus to the input, or the first box of a duration or pace.</summary>
+    public ValueTask FocusAsync() => duration?.FocusAsync() ?? number?.FocusAsync() ?? ValueTask.CompletedTask;
 
     private string? CurrentValue => Entry.Values.GetValueOrDefault(Field.Key);
 

@@ -6,7 +6,8 @@
             <span class="required" aria-hidden="true"> *</span>
         }
     </span>
-    <input type="text"
+    <input @ref="input"
+           type="text"
            inputmode="@(AllowDecimal ? "decimal" : "numeric")"
            autocomplete="off"
            class="input @(Invalid ? "invalid" : null)"
@@ -49,6 +50,11 @@
     /// <summary>Value of the input's data-testid attribute.</summary>
     [Parameter]
     public string? TestId { get; set; }
+
+    private ElementReference input;
+
+    /// <summary>Moves focus to the input.</summary>
+    public ValueTask FocusAsync() => input.FocusAsync();
 
     private Task OnInput(ChangeEventArgs e)
     {

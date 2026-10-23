@@ -14,7 +14,8 @@
             {
                 <span class="separator" aria-hidden="true">:</span>
             }
-            <input type="text"
+            <input @ref="boxes[index]"
+                   type="text"
                    inputmode="numeric"
                    autocomplete="off"
                    maxlength="2"
@@ -69,6 +70,10 @@
     private static readonly TimeSpan FocusMoveWait = TimeSpan.FromMilliseconds(10);
 
     private bool focused;
+    private readonly ElementReference[] boxes = new ElementReference[HourParts.Length];
+
+    /// <summary>Moves focus to the first box.</summary>
+    public ValueTask FocusAsync() => boxes[0].FocusAsync();
 
     private Part[] Parts => ShowHours ? HourParts : MinuteParts;
 

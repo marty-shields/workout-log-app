@@ -38,16 +38,28 @@ The definitions are an embedded JSON file in Core, from [exercises.json](../src/
 | PrimaryMuscle | enum? | Strength only. Values in [04](04-exercise-list.md#fields-per-exercise) |
 | Equipment | enum? | Strength only. Values in [04](04-exercise-list.md#fields-per-exercise) |
 | Mechanic | enum? | `Compound` or `Isolation`. Strength only |
-| Metrics | list of (Metric, Required, Label?) | Which metrics show, which are required, and an optional field label (e.g. `Assist (kg)`, `Resistance`, `Damper`) |
+| Metrics | list of (Metric, Required, Label?) | Which metrics show, which are required, and an optional field label (e.g. `Assist`, `Resistance`, `Damper`) |
 | DistanceUnit | enum? | `Km`, `Metres`, `Feet`. Null = no distance |
 | RateUnit | enum? | `KmPerHour`, `MinPerKm`, `Rpm`, `StrokesPerMin`, `StridesPerMin`, `StepsPerMin`, `FeetPerMin`. Null = no rate |
 
 The `Exercise` database table stores only Id, Name and Type, so other tables can reference it. All other fields come from the definition file, so changing them never needs a schema change.
 
 ## Exercise search
-- At load, each exercise gets a search string built from its name and aliases. It is lower-case, with hyphens as spaces and word variants normalised: triceps → tricep, biceps → bicep, flies/flyes → fly, pullup/pushup/chinup/situp/stepup → pull up, push up, etc.
-- A query is normalised the same way. An exercise matches when every query word is found in its search string, in any order.
-- Order: name starts with the query, then other name matches, then alias-only matches; A–Z within each.
+- At load, each exercise's name and aliases are split into words: lower case, apostrophes removed, and any other character that isn't a letter or digit as a space. These variants are replaced (D146, D155):
+
+| Word | Becomes |
+|---|---|
+| triceps, biceps | tricep, bicep |
+| flies, flyes, flye | fly |
+| pullup(s), pushup(s), chinup(s), situp(s), stepup(s) | pull up, push up, chin up, sit up, step up |
+| ups | up |
+| nordics | nordic |
+| skullcrusher | skull crusher |
+
+- A partly typed two-word variant is split as the full one would be: pullu → pull u, skullc → skull c (D155).
+- A query is split the same way, after cutting it to 50 characters; the search box also takes at most 50. An exercise matches when every query word starts a word of its name or aliases, in any order (D147, D155).
+- Order: name starts with the query, then other name matches, then matches that need an alias; A–Z within each. "Starts with": each query word, in order, starts the name's word in the same place, so "dumb curl" ranks Dumbbell Curl first (D156).
+- With no search text: every exercise, Strength then Cardio, A–Z.
 - Search runs in memory on each keystroke. There is no search table in SQLite.
 
 ## Tables

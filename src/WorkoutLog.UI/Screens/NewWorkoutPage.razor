@@ -1,15 +1,36 @@
+@using WorkoutLog.Core.Domain.Exercises
 @using WorkoutLog.Core.Services
+@using WorkoutLog.UI.Components.Workout
 @implements IDisposable
 @inject IWorkoutService Workouts
+@inject IExerciseCatalog Catalog
 @inject TimeProvider Clock
 
-<WorkoutView Mode="WorkoutMode.New" StartedAt="startedAt" Time="Elapsed" Exercises="exercises" OnBack="OnBack" />
+<WorkoutView Mode="WorkoutMode.New"
+             StartedAt="startedAt"
+             Time="Elapsed"
+             Exercises="exercises"
+             Focus="focus"
+             OnAddExercise="OpenPicker"
+             OnRemoveExercise="RemoveExercise"
+             OnBack="OnBack">
+    <Overlay>
+        @if (pickerOpen)
+        {
+            <ExercisePicker Query="@query" QueryChanged="Search" Items="pickerItems" OnPick="Pick" OnClose="ClosePicker" />
+        }
+    </Overlay>
+</WorkoutView>
 
 @code {
     private readonly List<ExerciseState> exercises = [];
     private WorkoutDraft draft = null!;
     private DateTime startedAt;
     private PeriodicTimer? timer;
+    private bool pickerOpen;
+    private string query = "";
+    private IReadOnlyList<PickerItem> pickerItems = [];
+    private ExerciseFocus? focus;
 
     /// <summary>Raised by the back arrow and the Android back button.</summary>
     [Parameter]
@@ -27,6 +48,42 @@
     }
 
     public void Dispose() => timer?.Dispose();
+
+    private void OpenPicker()
+    {
+        Search("");
+        pickerOpen = true;
+    }
+
+    /// <summary>Sets the search text and its results.</summary>
+    private void Search(string text)
+    {
+        query = text;
+        pickerItems = Catalog.Search(text).Select(ExerciseFields.PickerItem).ToList();
+    }
+
+    private void ClosePicker() => pickerOpen = false;
+
+    private void Pick(PickerItem item)
+    {
+        focus = Show(item.Id);
+        pickerOpen = false;
+    }
+
+    /// <summary>Focuses the exercise already in the workout, adding a set to a strength one; otherwise adds it at the bottom.</summary>
+    private ExerciseFocus Show(int exerciseId)
+    {
+        if (exercises.Find(e => e.ExerciseId == exerciseId) is { } existing)
+        {
+            return new ExerciseFocus(existing, addSet: existing.Kind == ExerciseKind.Strength);
+        }
+
+        var added = ExerciseFields.New(Catalog.All.Single(e => e.Id == exerciseId));
+        exercises.Add(added);
+        return new ExerciseFocus(added);
+    }
+
+    private void RemoveExercise(ExerciseState exercise) => exercises.Remove(exercise);
 
     /// <summary>Re-renders every tick until the timer is disposed. A render error goes to the error boundary.</summary>
     private async Task TickAsync(PeriodicTimer ticks)

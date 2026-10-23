@@ -1,28 +1,29 @@
 @attribute [Stories("Screens/Edit Workout")]
+@inject IExerciseCatalog Catalog
 
 <Stories TComponent="WorkoutView" Layout="typeof(PhoneLayout)">
 
     <Story Name="Saved">
         <Template>
-            <WorkoutView Mode="WorkoutMode.Edit" StartedAt="SampleData.Started" Time="new TimeSpan(1, 4, 37)" Exercises="SampleData.StrengthWorkout()" OnBack="() => { }" OnDelete="() => { }" />
+            <WorkoutView Mode="WorkoutMode.Edit" StartedAt="SampleData.Started" Time="new TimeSpan(1, 4, 37)" Exercises="SampleData.StrengthWorkout(Catalog)" OnBack="() => { }" OnDelete="() => { }" />
         </Template>
     </Story>
 
     <Story Name="Carry sets closed">
         <Template>
-            <WorkoutView Mode="WorkoutMode.Edit" StartedAt="SampleData.Started" Time="new TimeSpan(0, 52, 10)" Exercises="SampleData.CarryWorkout()" OnBack="() => { }" OnDelete="() => { }" />
+            <WorkoutView Mode="WorkoutMode.Edit" StartedAt="SampleData.Started" Time="new TimeSpan(0, 52, 10)" Exercises="SampleData.CarryWorkout(Catalog)" OnBack="() => { }" OnDelete="() => { }" />
         </Template>
     </Story>
 
     <Story Name="Save errors">
         <Template>
-            <WorkoutView Mode="WorkoutMode.Edit" StartedAt="SampleData.Started" Time="new TimeSpan(0, 52, 10)" Exercises="SampleData.EditWorkoutWithErrors()" OnBack="() => { }" OnDelete="() => { }" />
+            <WorkoutView Mode="WorkoutMode.Edit" StartedAt="SampleData.Started" Time="new TimeSpan(0, 52, 10)" Exercises="SampleData.EditWorkoutWithErrors(Catalog)" OnBack="() => { }" OnDelete="() => { }" />
         </Template>
     </Story>
 
     <Story Name="Discard prompt">
         <Template>
-            <WorkoutView Mode="WorkoutMode.Edit" StartedAt="SampleData.Started" Time="new TimeSpan(1, 4, 37)" Exercises="SampleData.StrengthWorkout()" OnBack="() => { }" OnDelete="() => { }">
+            <WorkoutView Mode="WorkoutMode.Edit" StartedAt="SampleData.Started" Time="new TimeSpan(1, 4, 37)" Exercises="SampleData.StrengthWorkout(Catalog)" OnBack="() => { }" OnDelete="() => { }">
                 <Overlay>
                     <ConfirmDialog Title="Discard changes?" ConfirmText="Discard" Danger />
                 </Overlay>
@@ -32,7 +33,7 @@
 
     <Story Name="Delete prompt">
         <Template>
-            <WorkoutView Mode="WorkoutMode.Edit" StartedAt="SampleData.Started" Time="new TimeSpan(1, 4, 37)" Exercises="SampleData.StrengthWorkout()" OnBack="() => { }" OnDelete="() => { }">
+            <WorkoutView Mode="WorkoutMode.Edit" StartedAt="SampleData.Started" Time="new TimeSpan(1, 4, 37)" Exercises="SampleData.StrengthWorkout(Catalog)" OnBack="() => { }" OnDelete="() => { }">
                 <Overlay>
                     <ConfirmDialog Title="Delete this workout?" ConfirmText="Delete" Danger />
                 </Overlay>

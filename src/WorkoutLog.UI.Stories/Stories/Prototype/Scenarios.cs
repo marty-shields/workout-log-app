@@ -166,6 +166,29 @@ public static class Scenarios
             Show("Added to the workout", "exercise-1"),
         ]);
 
+    /// <summary>Picking an exercise already in the workout goes to its card (D154).</summary>
+    public static readonly Scenario PickAgain = new(
+        "Pick an exercise again",
+        "An exercise already in the workout isn't added twice: strength gets a new set, cardio focuses its entry.",
+        [
+            Click("Start a new workout", "new-workout"),
+            Click("Add exercise", "add-exercise"),
+            Enter("Search \"squat\"", "picker-search", "squat"),
+            Click("Pick Barbell Back Squat", "picker-item-6"),
+            Enter("Set 1: 5 reps", "exercise-1-set-1-reps", "5"),
+            Click("Add exercise", "add-exercise"),
+            Enter("Search \"squat\" again", "picker-search", "squat"),
+            Click("Pick Barbell Back Squat again", "picker-item-6"),
+            Show("Set 2 is added to the same card", "exercise-1-set-2"),
+            Click("Add exercise", "add-exercise"),
+            Enter("Search \"rower\"", "picker-search", "rower"),
+            Click("Pick Rowing Machine", "picker-item-305"),
+            Click("Add exercise", "add-exercise"),
+            Enter("Search \"rower\" again", "picker-search", "rower"),
+            Click("Pick Rowing Machine again", "picker-item-305"),
+            Show("Still two exercises: its entry is focused", "exercise-2-duration-h"),
+        ]);
+
     /// <summary>Discard prompt on a new workout: cancel, then discard.</summary>
     public static readonly Scenario AbandonWorkout = new(
         "Abandon a new workout",

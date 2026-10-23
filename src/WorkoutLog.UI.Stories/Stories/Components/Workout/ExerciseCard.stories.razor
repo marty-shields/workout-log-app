@@ -1,59 +1,60 @@
 @attribute [Stories("Components/Workout/ExerciseCard")]
+@inject IExerciseCatalog Catalog
 
 <Stories TComponent="ExerciseCard" Layout="typeof(ThemeLayout)">
 
     <Story Name="Strength">
         <Template>
-            <ExerciseCard Exercise="@SampleData.Exercise(6, ["8", "60"], ["8", "60"], ["6", "62.5"])" />
+            <ExerciseCard Exercise="@SampleData.Exercise(Catalog, 6, ["8", "60"], ["8", "60"], ["6", "62.5"])" />
         </Template>
     </Story>
 
     <Story Name="Assisted">
         <Template>
-            <ExerciseCard Exercise="@SampleData.Exercise(218, ["10", "25"])" />
+            <ExerciseCard Exercise="@SampleData.Exercise(Catalog, 218, ["10", "25"])" />
         </Template>
     </Story>
 
     <Story Name="Hold">
         <Template>
-            <ExerciseCard Exercise="@SampleData.Exercise(258, ["0:01:00", null])" />
+            <ExerciseCard Exercise="@SampleData.Exercise(Catalog, 258, ["0:01:00", null])" />
         </Template>
     </Story>
 
     <Story Name="Carry - several sets">
         <Template>
-            <ExerciseCard Exercise="@SampleData.Exercise(187, ["40", "32", "0:00:45"], ["40", "36", "0:00:50"], ["30", "40", null])" />
+            <ExerciseCard Exercise="@SampleData.Exercise(Catalog, 187, ["40", "32", "0:00:45"], ["40", "36", "0:00:50"], ["30", "40", null])" />
         </Template>
     </Story>
 
     <Story Name="Carry - errors">
         <Template>
-            @{ var exercise = SampleData.Exercise(187, [null, "32", "0:00:75"], ["40", "36", "0:00:50"], ["30", null, "0:00:00"]); SampleData.Validate([exercise], out _); }
+            @{ var exercise = SampleData.Exercise(Catalog, 187, [null, "32", "0:00:75"], ["40", "36", "0:00:50"], ["30", null, "0:00:00"]); SampleData.Validate([exercise], out _); }
             <ExerciseCard Exercise="exercise" />
         </Template>
     </Story>
 
     <Story Name="New strength">
         <Template>
-            <ExerciseCard Exercise="@SampleData.NewExercise(132)" />
+            <ExerciseCard Exercise="@SampleData.NewExercise(Catalog, 132)" />
         </Template>
     </Story>
 
     <Story Name="Cardio">
         <Template>
-            <ExerciseCard Exercise="@SampleData.Exercise(300, ["0:20:00", "3.2", "1.5", "210", "9.6"])" />
+            <ExerciseCard Exercise="@SampleData.Exercise(Catalog, 300, ["0:20:00", "3.2", "1.5", "210", "9.6"])" />
         </Template>
     </Story>
 
     <Story Name="Cardio with pace">
         <Template>
-            <ExerciseCard Exercise="@SampleData.Exercise(311, ["0:25:30", "5", null, "5:06"])" />
+            <ExerciseCard Exercise="@SampleData.Exercise(Catalog, 311, ["0:25:30", "5", null, "5:06"])" />
         </Template>
     </Story>
 
     <Story Name="Errors">
         <Template>
-            <ExerciseCard Exercise="@SampleData.WorkoutWithErrors()[0]" />
+            <ExerciseCard Exercise="@SampleData.WorkoutWithErrors(Catalog)[0]" />
         </Template>
     </Story>
 

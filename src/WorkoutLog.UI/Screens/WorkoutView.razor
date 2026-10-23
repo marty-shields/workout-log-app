@@ -1,4 +1,6 @@
+@using Microsoft.Extensions.Logging
 @using WorkoutLog.UI.Components.Workout
+@inject ILogger<WorkoutView> Logger
 <AppScreen Title="@DisplayFormat.Date(StartedAt)" Subtitle="@TimeText" OnBack="OnBack">
     <Actions>
         @if (Mode == WorkoutMode.Edit)
@@ -21,6 +23,7 @@
                 var exercise = Exercises[i];
                 var number = i + 1;
                 <ExerciseCard @key="exercise"
+                              @ref="cards[exercise]"
                               Exercise="exercise"
                               OpenLastSet="@(Mode == WorkoutMode.New)"
                               ValidateSet="ValidateSet"
@@ -86,9 +89,50 @@
     [Parameter]
     public EventCallback OnDelete { get; set; }
 
+    /// <summary>Moves focus to an exercise once it is shown, e.g. one just added or picked again. Each request is handled once.</summary>
+    [Parameter]
+    public ExerciseFocus? Focus { get; set; }
+
     /// <summary>Overlays shown above the screen: the exercise picker or a confirm dialog.</summary>
     [Parameter]
     public RenderFragment? Overlay { get; set; }
+
+    private readonly Dictionary<ExerciseState, ExerciseCard> cards = new();
+    private ExerciseFocus? handled;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        foreach (var removed in cards.Keys.Where(e => !Exercises.Contains(e)).ToList())
+        {
+            cards.Remove(removed);
+        }
+
+        if (Focus is null || ReferenceEquals(Focus, handled) || !cards.TryGetValue(Focus.Exercise, out var card))
+        {
+            return;
+        }
+
+        handled = Focus;
+        try
+        {
+            if (Focus.AddSet)
+            {
+                await card.AddSetAndFocusAsync();
+            }
+            else
+            {
+                await card.FocusAsync();
+            }
+        }
+        catch (OperationCanceledException)
+        {
+            // The card was removed before focus moved.
+        }
+        catch (Exception exception)
+        {
+            Log.FocusFailed(Logger, exception);
+        }
+    }
 
     private string TimeText => Mode == WorkoutMode.New
         ? $"Elapsed {DisplayFormat.Duration(Time)}"

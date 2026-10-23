@@ -1,12 +1,13 @@
 @attribute [Stories("Screens/Exercise Picker")]
+@inject IExerciseCatalog Catalog
 
 <Stories TComponent="ExercisePicker" Layout="typeof(PhoneLayout)">
 
     <Story Name="No search text">
         <Template>
-            <WorkoutView Mode="WorkoutMode.New" StartedAt="SampleData.Started" Time="new TimeSpan(0, 34, 12)" Exercises="SampleData.StrengthWorkout()" OnBack="() => { }">
+            <WorkoutView Mode="WorkoutMode.New" StartedAt="SampleData.Started" Time="new TimeSpan(0, 34, 12)" Exercises="SampleData.StrengthWorkout(Catalog)" OnBack="() => { }">
                 <Overlay>
-                    <ExercisePicker Items="SampleData.Search(null)" />
+                    <ExercisePicker Items="SampleData.PickerItems(Catalog, null)" />
                 </Overlay>
             </WorkoutView>
         </Template>
@@ -14,9 +15,9 @@
 
     <Story Name="Results">
         <Template>
-            <WorkoutView Mode="WorkoutMode.New" StartedAt="SampleData.Started" Time="new TimeSpan(0, 34, 12)" Exercises="SampleData.StrengthWorkout()" OnBack="() => { }">
+            <WorkoutView Mode="WorkoutMode.New" StartedAt="SampleData.Started" Time="new TimeSpan(0, 34, 12)" Exercises="SampleData.StrengthWorkout(Catalog)" OnBack="() => { }">
                 <Overlay>
-                    <ExercisePicker Query="dumbbell" Items="@SampleData.Search("dumbbell")" />
+                    <ExercisePicker Query="dumbbell" Items="@SampleData.PickerItems(Catalog, "dumbbell")" />
                 </Overlay>
             </WorkoutView>
         </Template>
@@ -24,9 +25,9 @@
 
     <Story Name="No match">
         <Template>
-            <WorkoutView Mode="WorkoutMode.New" StartedAt="SampleData.Started" Time="new TimeSpan(0, 34, 12)" Exercises="SampleData.StrengthWorkout()" OnBack="() => { }">
+            <WorkoutView Mode="WorkoutMode.New" StartedAt="SampleData.Started" Time="new TimeSpan(0, 34, 12)" Exercises="SampleData.StrengthWorkout(Catalog)" OnBack="() => { }">
                 <Overlay>
-                    <ExercisePicker Query="zumba" Items="@SampleData.Search("zumba")" />
+                    <ExercisePicker Query="zumba" Items="@SampleData.PickerItems(Catalog, "zumba")" />
                 </Overlay>
             </WorkoutView>
         </Template>

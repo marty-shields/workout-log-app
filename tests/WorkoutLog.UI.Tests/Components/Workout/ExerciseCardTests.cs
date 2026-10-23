@@ -8,7 +8,7 @@ public class ExerciseCardTests : ComponentTestBase
 {
     private static ExerciseState Strength(int sets)
     {
-        var exercise = new ExerciseState("Dumbbell Curl", ExerciseKind.Strength,
+        var exercise = new ExerciseState(132, "Dumbbell Curl", ExerciseKind.Strength,
         [
             new FieldSpec("reps", "Reps", FieldKind.Whole, Required: true),
             new FieldSpec("weight", "Weight", FieldKind.Decimal, Unit: "kg"),
@@ -23,7 +23,7 @@ public class ExerciseCardTests : ComponentTestBase
 
     private static ExerciseState Carry(int sets)
     {
-        var exercise = new ExerciseState("Farmer's Walk", ExerciseKind.Strength,
+        var exercise = new ExerciseState(187, "Farmer's Walk", ExerciseKind.Strength,
         [
             new FieldSpec("distance", "Distance", FieldKind.Decimal, Required: true, Unit: "m"),
             new FieldSpec("weight", "Weight", FieldKind.Decimal, Unit: "kg"),
@@ -41,7 +41,7 @@ public class ExerciseCardTests : ComponentTestBase
 
     private static ExerciseState Cardio()
     {
-        var exercise = new ExerciseState("Treadmill", ExerciseKind.Cardio,
+        var exercise = new ExerciseState(300, "Treadmill", ExerciseKind.Cardio,
         [
             new FieldSpec("duration", "Duration", FieldKind.Duration, Required: true),
             new FieldSpec("distance", "Distance", FieldKind.Decimal, Unit: "km"),
@@ -73,7 +73,7 @@ public class ExerciseCardTests : ComponentTestBase
     [Test]
     public void Strength_ColumnsAreNumberFieldsAndRemove()
     {
-        var exercise = new ExerciseState("Plank", ExerciseKind.Strength,
+        var exercise = new ExerciseState(258, "Plank", ExerciseKind.Strength,
         [
             new FieldSpec("reps", "Reps", FieldKind.Whole),
             new FieldSpec("duration", "Duration", FieldKind.Duration),

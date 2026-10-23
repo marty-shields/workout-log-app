@@ -4672,7 +4672,7 @@
       {
         "metric": "WeightKg",
         "required": false,
-        "label": "Assist (kg)"
+        "label": "Assist"
       }
     ],
     "distanceUnit": null,
@@ -4694,7 +4694,7 @@
       {
         "metric": "WeightKg",
         "required": false,
-        "label": "Assist (kg)"
+        "label": "Assist"
       }
     ],
     "distanceUnit": null,
@@ -4718,7 +4718,7 @@
       {
         "metric": "WeightKg",
         "required": false,
-        "label": "Assist (kg)"
+        "label": "Assist"
       }
     ],
     "distanceUnit": null,

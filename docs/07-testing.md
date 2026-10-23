@@ -31,12 +31,13 @@ Time is injected through .NET `TimeProvider`; tests use `FakeTimeProvider`, so t
 - [ ] Fresh install opens to the Dashboard with an empty state
 - [ ] New Workout: the date + day are correct and the live timer runs
 - [ ] Picker search finds exercises by name and nickname, words in any order (e.g. "incline dumbbell press", "pec deck")
+- [ ] Search keeps matching while typing a joined word ("pullu", "pushups") and after punctuation ("bench."); the box takes at most 50 characters
 - [ ] Strength fields match [04](04-exercise-list.md) per exercise; weight decimals accepted (e.g. 22.75); assisted machines show Assist (kg)
 - [ ] Cardio: duration h:mm:ss required; other fields match [04](04-exercise-list.md), with the correct units and labels
 - [ ] Outdoor Run pace is entered and shown as m:ss (e.g. 5:30)
 - [ ] Only one cardio entry per cardio exercise
 - [ ] Adding an exercise starts it with one empty set (strength) or its empty entry (cardio)
-- [ ] Same exercise can be added twice
+- [ ] Picking an exercise already in the workout adds a set to its card (strength) or focuses its entry (cardio); no second card
 - [ ] Two workouts can be saved on the same day
 - [ ] Remove a set and an exercise
 - [ ] Save blocked when there's no exercise, an exercise has no set/entry, or a set/entry misses a required metric; the error shows on the item at fault

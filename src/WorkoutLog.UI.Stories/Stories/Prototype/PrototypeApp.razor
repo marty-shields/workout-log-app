@@ -2,6 +2,7 @@
 @using WorkoutLog.UI.Models.History
 @* Clickable prototype of the whole app on sample data. Navigation follows docs/06. Stories only. *@
 @implements IDisposable
+@inject IExerciseCatalog Catalog
 
 <PhoneFrame OnSystemBack="Back" OnSimulateError="() => broken = true">
     <StartupGate Initialize="Start">
@@ -30,13 +31,14 @@
                                  OnChanged="() => changed = true"
                                  OnAddExercise="OpenPicker"
                                  OnRemoveExercise="RemoveExercise"
+                                 Focus="focus"
                                  OnSave="Save"
                                  OnBack="Back"
                                  OnDelete="() => dialog = Dialog.Delete">
                         <Overlay>
                             @if (pickerOpen)
                             {
-                                <ExercisePicker Query="@query" QueryChanged="(string q) => query = q" Items="SampleData.Search(query)" OnPick="Pick" OnClose="() => pickerOpen = false" />
+                                <ExercisePicker Query="@query" QueryChanged="Search" Items="pickerItems" OnPick="Pick" OnClose="() => pickerOpen = false" />
                             }
                             @switch (dialog)
                             {
@@ -80,6 +82,8 @@
     private bool changed;
     private bool pickerOpen;
     private string query = "";
+    private IReadOnlyList<PickerItem> pickerItems = [];
+    private ExerciseFocus? focus;
     private Dialog dialog;
     private string? error;
     private bool broken;
@@ -103,7 +107,7 @@
 
     protected override void OnInitialized()
     {
-        saved = Empty ? [] : SampleData.SavedWorkouts(DateTime.Now);
+        saved = Empty ? [] : SampleData.SavedWorkouts(Catalog, DateTime.Now);
         _ = TickAsync();
     }
 
@@ -140,13 +144,29 @@
 
     private void OpenPicker()
     {
-        query = "";
+        Search("");
         pickerOpen = true;
+    }
+
+    private void Search(string text)
+    {
+        query = text;
+        pickerItems = SampleData.PickerItems(Catalog, text);
     }
 
     private void Pick(PickerItem item)
     {
-        exercises.Add(SampleData.NewExercise(item.Id));
+        if (exercises.Find(e => e.ExerciseId == item.Id) is { } existing)
+        {
+            focus = new ExerciseFocus(existing, addSet: existing.Kind == ExerciseKind.Strength);
+        }
+        else
+        {
+            var added = SampleData.NewExercise(Catalog, item.Id);
+            exercises.Add(added);
+            focus = new ExerciseFocus(added);
+        }
+
         error = null;
         pickerOpen = false;
         changed = true;
