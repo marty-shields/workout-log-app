@@ -86,6 +86,26 @@ public class ConfirmDialogTests : ComponentTestBase
     }
 
     [Test]
+    public async Task AndroidBack_RaisesOnCancel()
+    {
+        var cancelled = 0;
+        var confirmed = 0;
+        Context.Render<ConfirmDialog>(p => p
+            .Add(x => x.Title, "Discard this workout?")
+            .Add(x => x.ConfirmText, "Discard")
+            .Add(x => x.OnConfirm, () => confirmed++)
+            .Add(x => x.OnCancel, () => cancelled++));
+
+        await BackButton.HandleAsync();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(cancelled, Is.EqualTo(1));
+            Assert.That(confirmed, Is.Zero);
+        });
+    }
+
+    [Test]
     public void Danger_StylesConfirmAsDanger()
     {
         var cut = Context.Render<ConfirmDialog>(p => p

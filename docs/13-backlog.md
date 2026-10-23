@@ -18,7 +18,7 @@ Goal and Definition of Done: [12](12-product-goal.md).
 | [US-02](#us-02-confirm-package-versions) | Confirm package versions | Open item 3 | XS | Done |
 | [US-03](#us-03-tooling-and-phone-setup) | Tooling and phone setup | [08](08-dev-setup-build.md) | S | Done |
 | [US-04](#us-04-create-the-solution) | Create the solution | T06, T13, NFR-02 | M | Done |
-| [US-28](#us-28-spike-back-button-on-android-16) | Spike: back button on Android 16 | FR-12, FR-23 | S | To do |
+| [US-28](#us-28-back-button-on-android-16) | Back button on Android 16 | FR-12, FR-23, D143 | S | Done |
 | [US-35](#us-35-diagnostic-logging) | Diagnostic logging | D129, T32, D133, D61 | L | Done |
 
 ### US-01 Review the draft roadmap
@@ -57,14 +57,18 @@ As the developer, I want the solution created in local git, so that features hav
   - A test runs and passes with NUnit 5.0.0, NUnit3TestAdapter 6.3.1 and NUnit.Analyzers 4.15.0. If not, fall back to NUnit 4.6.1 and update [05](05-architecture.md) and D75.
 - **Size:** M · **Status:** Done (D133–D138, T36–T40)
 
-### US-28 Spike: back button on Android 16
-As the developer, I want to prove a Blazor page can intercept the Android back button on API 36, so that the Discard prompts (FR-12, FR-23) can be built.
-- **Links:** FR-12, FR-23, [05](05-architecture.md#android-16-platform-notes)
+### US-28 Back button on Android 16
+As the developer, I want the Android back button passed to the current page on API 36, so that the picker, the Discard prompts (FR-12, FR-23) and the screens' back can be built.
+- **Links:** FR-12, FR-23, D143, [05](05-architecture.md#navigation)
 - **Extra ACs:**
-  - On the phone, back on a test page shows a prompt, and Cancel keeps the page open.
-  - The approach is recorded in [05](05-architecture.md).
-  - **Logging:** Debug: back pressed and what it did (picker closed, prompt shown, navigated).
-- **Size:** S · **Status:** To do
+  - The App shows the Dashboard at `/` and History at `/history`, with placeholder data until US-20 and US-16 (D143).
+  - On the phone (API 36), with the back gesture and the in-app back arrow: back on History returns to the Dashboard; back on the Dashboard leaves the app.
+  - Android back does what the on-screen back or Cancel does: `AppScreen`, `ExercisePicker` and `ConfirmDialog` register it through `BackHandler`. The newest registration runs, and removing it restores the one before. With a dialog open, back cancels it (D144).
+  - A back handler that throws shows the Error screen, as the back arrow does (D140).
+  - The App keeps no WebView history, so the BlazorWebView's own back never runs. A test checks the App's source.
+  - The approach is recorded in [05](05-architecture.md#navigation) and T46.
+  - **Logging:** Debug: back pressed, and whether a page handled it. Error: a back handler failed (exception).
+- **Size:** S · **Status:** Done (D143, D144, T46)
 
 ### US-35 Diagnostic logging
 As the developer, I want errors and unexpected events logged on the phone, in Debug and Release, so that I can find out what went wrong without a debugger attached.
@@ -273,6 +277,7 @@ As the user, I want the back button to ask before dropping a new workout, so tha
 - **Links:** FR-12
 - **Extra ACs:**
   - **Logging:** Information: new workout discarded, with its exercise count.
+  - The back handler follows D142: a failure in it is logged with the exception as it is (D140), so no workout values may reach an exception message.
 - **Size:** S · **Status:** To do
 
 ## EP-04 History (M3)
@@ -286,6 +291,7 @@ As the user, I want a list of my saved workouts, newest first, so that I can loo
 - **Extra ACs:**
   - Back goes to the Dashboard ([06](06-screens-ux.md)).
   - Rows are not tappable. Opening a workout (FR-21) comes in [US-17](#us-17-edit-a-saved-workout).
+  - Replaces the placeholder History page from [US-28](#us-28-back-button-on-android-16).
   - **Logging:** Error: loading the history failed (exception). Debug: rows loaded (count).
 - **Size:** S · **Status:** To do
 
@@ -310,6 +316,7 @@ As the user, I want the back button to ask before dropping my edits, so that I d
 - **Extra ACs:**
   - Discard returns to History ([06](06-screens-ux.md)).
   - **Logging:** Information: edits discarded (workout id).
+  - The back handler follows D142, as on [US-15](#us-15-discard-an-unsaved-workout).
 - **Size:** S · **Status:** To do
 
 ### US-19 Delete a workout
@@ -332,6 +339,7 @@ As the user, I want the app to open on a Dashboard with New Workout and History,
 - **Links:** FR-30, FR-31, FR-35
 - **Extra ACs:**
   - Back leaves the app ([06](06-screens-ux.md)).
+  - Replaces the placeholder Dashboard data from [US-28](#us-28-back-button-on-android-16).
   - **Logging:** Error: loading the Dashboard failed (exception).
 - **Size:** S · **Status:** To do
 

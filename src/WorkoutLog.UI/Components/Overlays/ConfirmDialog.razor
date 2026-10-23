@@ -1,4 +1,7 @@
+@using WorkoutLog.UI.Navigation
+
 <div class="scrim" data-testid="@TestId">
+    <BackHandler OnBack="OnCancel" />
     <div class="dialog" role="alertdialog" aria-modal="true" aria-labelledby="@titleId" aria-describedby="@(Message is not null ? messageId : null)">
         <h2 id="@titleId" class="title">@Title</h2>
         @if (Message is not null)
@@ -41,7 +44,7 @@
     [Parameter]
     public EventCallback OnConfirm { get; set; }
 
-    /// <summary>Raised by the cancel button.</summary>
+    /// <summary>Raised by the cancel button and the Android back button.</summary>
     [Parameter]
     public EventCallback OnCancel { get; set; }
 

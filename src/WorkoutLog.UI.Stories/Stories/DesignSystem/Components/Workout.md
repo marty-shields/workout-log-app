@@ -29,7 +29,7 @@ One message per faulty field under a set or entry, in field order (D103).
 - `data-testid`: `TestId`.
 
 ## `ExercisePicker`
-Full-screen overlay: back, search box, results grouped Strength / Cardio. Focus moves to the search box when it opens (D109).
+Full-screen overlay: back, search box, results grouped Strength / Cardio. The back arrow and Android back raise `OnClose`. Focus moves to the search box when it opens (D109).
 - `data-testid`: `exercise-picker`, `picker-back`, `picker-search`, `picker-group-{kind}`, `picker-item-{id}`, `picker-none`.
 
 Stories: [ExerciseCard](/?path=/docs/components-workout-exercisecard--docs) · [SetRow](/?path=/docs/components-workout-setrow--docs) · [SetPanel](/?path=/docs/components-workout-setpanel--docs) · [SetSummary](/?path=/docs/components-workout-setsummary--docs) · [EntryErrors](/?path=/docs/components-workout-entryerrors--docs) · [ExercisePicker](/?path=/docs/components-workout-exercisepicker--docs)

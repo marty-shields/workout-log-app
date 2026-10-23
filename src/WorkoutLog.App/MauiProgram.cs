@@ -3,8 +3,10 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Maui.LifecycleEvents;
 using WorkoutLog.App.Diagnostics;
 using WorkoutLog.App.Logging;
+using WorkoutLog.App.Navigation;
 using WorkoutLog.Core;
 using WorkoutLog.Core.Logging;
+using WorkoutLog.UI.Navigation;
 
 namespace WorkoutLog.App;
 
@@ -24,8 +26,24 @@ public static class MauiProgram
 
         AddLogging(builder);
         AddDiagnostics(builder);
+        AddBackButton(builder);
 
         return builder.Build();
+    }
+
+    /// <summary>
+    /// Passes the Android back button to the registered page handlers through <see cref="AndroidBackButton"/>.
+    /// The handlers resolve it from the app's services.
+    /// </summary>
+    private static void AddBackButton(MauiAppBuilder builder)
+    {
+        builder.Services.AddSingleton<IBackButton, BackButton>();
+        builder.Services.AddSingleton<AndroidBackButton>();
+        builder.ConfigureLifecycleEvents(events => events.AddAndroid(android => android
+            .OnCreate((activity, _) => BackButton().Attach((AndroidX.Activity.ComponentActivity)activity))
+            .OnDestroy(_ => BackButton().Detach())));
+
+        static AndroidBackButton BackButton() => IPlatformApplication.Current!.Services.GetRequiredService<AndroidBackButton>();
     }
 
     /// <summary>

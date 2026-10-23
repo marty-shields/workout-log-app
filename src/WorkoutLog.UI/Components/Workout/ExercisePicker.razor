@@ -1,4 +1,7 @@
+@using WorkoutLog.UI.Navigation
+
 <div class="overlay" role="dialog" aria-modal="true" aria-label="Add exercise" data-testid="exercise-picker">
+    <BackHandler OnBack="OnClose" />
     <header class="picker-bar">
         <button type="button" class="back" aria-label="Back" data-testid="picker-back" @onclick="OnClose">&#x2190;</button>
         <input @ref="search"
@@ -58,7 +61,7 @@
     [Parameter]
     public EventCallback<PickerItem> OnPick { get; set; }
 
-    /// <summary>Raised by the back arrow.</summary>
+    /// <summary>Raised by the back arrow and the Android back button.</summary>
     [Parameter]
     public EventCallback OnClose { get; set; }
 

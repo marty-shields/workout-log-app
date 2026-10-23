@@ -5,7 +5,7 @@
 @inject NavigationManager Navigation
 
 <StartupGate Initialize="DatabaseInitializer.InitializeAsync">
-    <AppErrorBoundary OnRestart="() => Navigation.NavigateTo(string.Empty)">
+    <AppErrorBoundary OnRestart="() => Navigation.GoTo(string.Empty)">
         <Router AppAssembly="typeof(MauiProgram).Assembly">
             <Found Context="routeData">
                 <RouteView RouteData="routeData" />

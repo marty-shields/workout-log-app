@@ -41,6 +41,27 @@ public class AppScreenTests : ComponentTestBase
     }
 
     [Test]
+    public async Task AndroidBack_RaisesOnBack()
+    {
+        var back = 0;
+        Context.Render<AppScreen>(p => p
+            .Add(x => x.Title, "History")
+            .Add(x => x.OnBack, () => back++));
+
+        await BackButton.HandleAsync();
+
+        Assert.That(back, Is.EqualTo(1));
+    }
+
+    [Test]
+    public void NoOnBack_DoesNotTakeAndroidBack()
+    {
+        Context.Render<AppScreen>(p => p.Add(x => x.Title, "Workout Log"));
+
+        Assert.That(BackButton.HasHandler, Is.False);
+    }
+
+    [Test]
     public void BottomBar_RendersOnlyWhenSet()
     {
         var without = Context.Render<AppScreen>(p => p.Add(x => x.Title, "History"));

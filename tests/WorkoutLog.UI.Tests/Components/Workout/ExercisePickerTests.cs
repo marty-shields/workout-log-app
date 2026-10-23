@@ -1,3 +1,5 @@
+using Microsoft.AspNetCore.Components;
+using WorkoutLog.UI.Components.Layout;
 using WorkoutLog.UI.Components.Workout;
 using WorkoutLog.UI.Models.Workout;
 
@@ -106,5 +108,41 @@ public class ExercisePickerTests : ComponentTestBase
         cut.Find("[data-testid=picker-back]").Click();
 
         Assert.That(closed, Is.True);
+    }
+
+    [Test]
+    public async Task AndroidBack_ClosesThePickerThenTheScreenBelowTakesBack()
+    {
+        var screenBack = 0;
+        var closed = 0;
+        RenderFragment picker = b =>
+        {
+            b.OpenComponent<ExercisePicker>(0);
+            b.AddComponentParameter(1, nameof(ExercisePicker.Items), Items);
+            b.AddComponentParameter(2, nameof(ExercisePicker.OnClose), EventCallback.Factory.Create(this, () => closed++));
+            b.CloseComponent();
+        };
+        var cut = Context.Render<AppScreen>(p => p
+            .Add(x => x.Title, "New Workout")
+            .Add(x => x.OnBack, () => screenBack++)
+            .Add(x => x.ChildContent, picker));
+
+        await BackButton.HandleAsync();
+        cut.Render(p => p.Add(x => x.ChildContent, (RenderFragment?)null));
+        await BackButton.HandleAsync();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(closed, Is.EqualTo(1));
+            Assert.That(screenBack, Is.EqualTo(1));
+        });
+    }
+
+    [Test]
+    public void NoOnClose_DoesNotTakeAndroidBack()
+    {
+        Context.Render<ExercisePicker>(p => p.Add(x => x.Items, Items));
+
+        Assert.That(BackButton.HasHandler, Is.False);
     }
 }

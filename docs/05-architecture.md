@@ -56,7 +56,7 @@ flowchart LR
 - **Exercise definitions** are an embedded JSON file in Core, read into the `IExerciseCatalog` singleton on first use: the seeder, at startup (T45). The catalog also runs the picker search in memory (see [03](03-data-model.md#exercise-search), [04](04-exercise-list.md)).
 
 ## Dependency injection
-Everything is registered in `MauiProgram.CreateMauiApp()` using the built-in `IServiceCollection`. Core registers its own types through `AddCore(databasePath)` (T19); the App passes `workoutlog.db3` in `FileSystem.AppDataDirectory`. Of the services, only `IWorkoutService` is public; the repository and validator are internal (T33). The database connection is an `SQLiteAsyncConnection` singleton. Services and repositories are registered by interface. At startup the App's `Routes` component wraps the router in `StartupGate`, which awaits `IDatabaseInitializer.InitializeAsync()` and shows the Startup screen until it completes, or its error if it throws (T36, D133). The initializer upgrades and creates the schema, then seeds the exercise list (T25, T28). The initializer and repository are decorators that run each call through one `DatabaseGate`, so database calls run one at a time (T27). Logging providers are registered in `MauiProgram` too ([Logging](#logging)).
+Everything is registered in `MauiProgram.CreateMauiApp()` using the built-in `IServiceCollection`. Core registers its own types through `AddCore(databasePath)` (T19); the App passes `workoutlog.db3` in `FileSystem.AppDataDirectory`. Of the services, only `IWorkoutService` is public; the repository and validator are internal (T33). The database connection is an `SQLiteAsyncConnection` singleton. Services and repositories are registered by interface. At startup the App's `Routes` component wraps the router in `StartupGate`, which awaits `IDatabaseInitializer.InitializeAsync()` and shows the Startup screen until it completes, or its error if it throws (T36, D133). The initializer upgrades and creates the schema, then seeds the exercise list (T25, T28). The initializer and repository are decorators that run each call through one `DatabaseGate`, so database calls run one at a time (T27). Logging providers are registered in `MauiProgram` too ([Logging](#logging)). So are the `IBackButton` and `AndroidBackButton` singletons ([Navigation](#navigation)); the stories app registers `IBackButton` as well.
 
 ## Navigation
 Blazor routing (`@page`). The routes are proposed:
@@ -73,6 +73,13 @@ The Android back button is passed to the current page:
 - Workout pages: close the picker if it's open; otherwise show the Discard / Cancel prompt (FR-12, FR-23).
 - History: go to the Dashboard.
 - Dashboard: leave the app.
+
+How (T46):
+- `BackHandler` (UI) registers a handler with `IBackButton` while its `OnBack` is set. `AppScreen` uses it for `OnBack`, `ExercisePicker` for `OnClose` and `ConfirmDialog` for `OnCancel`, so Android back does what the on-screen back or Cancel does (D144). The newest registration runs, so the picker or a dialog takes back over its page.
+- A handler that throws shows the Error screen, as a click would (D140).
+- `AndroidBackButton` (App) adds an AndroidX `OnBackPressedCallback` when the activity is created. It is on only while a handler is registered, so Android knows before the gesture starts whether the app takes back. When the activity is destroyed it clears every handler, as the pages in it are not disposed.
+- With no handler (the Dashboard has no `OnBack`), the callback is off and the default runs: the app closes and the activity is destroyed (D143).
+- The BlazorWebView takes back while the WebView can go back in its history, so the App navigates with `GoTo` (`replace: true`), has no links, and never builds a history.
 
 ## Start / finish capture
 - The New Workout page asks `IWorkoutService.StartNew()` for a `WorkoutDraft`. The service stamps `StartedAt` (UTC) from `TimeProvider` (T29).
@@ -153,4 +160,4 @@ Checks:
 
 ## Android 16 platform notes
 - **Edge-to-edge:** the app draws under the status and navigation bars, with no opt-out on API 36. The layout must keep content inside the safe-area insets.
-- **Predictive back:** the old back-press callbacks aren't called on API 36. Intercepting back for the Discard prompts is proven in a spike ([US-28](13-backlog.md#us-28-spike-back-button-on-android-16)).
+- **Predictive back:** the old back-press callbacks aren't called on API 36. Back goes through an AndroidX `OnBackPressedCallback` instead ([Navigation](#navigation), [US-28](13-backlog.md#us-28-back-button-on-android-16)).

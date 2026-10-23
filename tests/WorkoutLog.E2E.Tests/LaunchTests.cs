@@ -38,7 +38,7 @@ public class LaunchTests
     public void EndSession() => driver?.Dispose();
 
     [Test]
-    public void Launch_ShowsHomeAfterStartup()
+    public void Launch_ShowsTheDashboardAfterStartup()
     {
         var app = driver!;
         var context = $"WEBVIEW_{Package}";
@@ -46,7 +46,7 @@ public class LaunchTests
 
         wait.Until(_ => app.Contexts.Contains(context));
         app.Context = context;
-        wait.Until(d => d.FindElements(By.CssSelector("[data-testid=home]")).Count == 1);
+        wait.Until(d => d.FindElements(By.CssSelector("[data-testid=history-link]")).Count == 1);
 
         Assert.That(app.FindElements(By.CssSelector("[data-testid=startup-error]")), Is.Empty);
     }

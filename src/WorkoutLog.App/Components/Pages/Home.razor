@@ -1,3 +1,11 @@
 @page "/"
+@using WorkoutLog.UI.Models.Dashboard
+@using WorkoutLog.UI.Screens
+@inject NavigationManager Navigation
 
-<main data-testid="home"></main>
+@* Placeholder data until US-20. Back has no handler here, so it leaves the app. *@
+<DashboardView Summary="summary" OnHistory="@(() => Navigation.GoTo("history"))" />
+
+@code {
+    private readonly DashboardSummary summary = new(null, 0, 0);
+}

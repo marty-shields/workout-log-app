@@ -1,0 +1,38 @@
+@implements IDisposable
+@inject IBackButton BackButton
+
+@code {
+    /// <summary>Raised by the Android back button. Not registered when unset.</summary>
+    [Parameter]
+    public EventCallback OnBack { get; set; }
+
+    private IDisposable? registration;
+
+    protected override void OnParametersSet()
+    {
+        if (OnBack.HasDelegate && registration is null)
+        {
+            registration = BackButton.Register(() => InvokeAsync(HandleAsync));
+        }
+        else if (!OnBack.HasDelegate && registration is not null)
+        {
+            registration.Dispose();
+            registration = null;
+        }
+    }
+
+    // Passes a failure to the nearest error boundary, as an exception from a button click would.
+    private async Task HandleAsync()
+    {
+        try
+        {
+            await OnBack.InvokeAsync();
+        }
+        catch (Exception exception)
+        {
+            await DispatchExceptionAsync(exception);
+        }
+    }
+
+    public void Dispose() => registration?.Dispose();
+}
