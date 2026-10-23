@@ -46,9 +46,13 @@ public sealed partial class WorkoutChecker(ISetChecker sets, IWorkoutService wor
         return new WorkoutCheck(valid, Message(result.Error));
     }
 
+    /// <inheritdoc />
+    public string SaveFailed => Message(WorkoutError.SaveFailed)!;
+
     private static string? Message(WorkoutError? code) => code switch
     {
         WorkoutError.NoExercises => "Add at least one exercise",
+        WorkoutError.SaveFailed => "Couldn't save the workout. Try again.",
         _ => null,
     };
 

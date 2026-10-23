@@ -17,6 +17,7 @@ public class NewWorkoutPageTests : ComponentTestBase
     private static readonly DateTimeOffset Start = new(2026, 10, 20, 23, 30, 0, TimeSpan.Zero);
 
     private RecordingClock clock = null!;
+    private CountingWorkoutService workouts = null!;
 
     [SetUp]
     public void SetUp()
@@ -421,19 +422,132 @@ public class NewWorkoutPageTests : ComponentTestBase
     }
 
     [Test]
-    public void Save_Valid_ClearsTheErrorsAndStaysOnThePage()
+    public void Save_Valid_SavesTheReadRecordsAndRaisesOnSaved()
     {
-        var cut = RenderPage();
+        var saved = 0;
+        var cut = RenderPage(onSaved: () => saved++);
         Add(cut, 132);
+        cut.Find("[data-testid=exercise-1-set-1-reps]").Input("8");
+        cut.Find("[data-testid=exercise-1-set-1-weight]").Input("12.5");
+
         cut.Find("[data-testid=save-workout]").Click();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(workouts.Saves, Has.Count.EqualTo(1));
+            Assert.That(workouts.Saves[0].Draft, Is.SameAs(workouts.Drafts.Single()));
+            var exercise = (StrengthExercise)workouts.Saves[0].Exercises.Single();
+            Assert.That(exercise.ExerciseId, Is.EqualTo(132));
+            Assert.That(exercise.Sets, Is.EqualTo(new[] { new StrengthSet(8, 12.5m, null, null) }));
+            Assert.That(saved, Is.EqualTo(1));
+        });
+    }
+
+    [Test]
+    public void Save_Invalid_DoesNotSave()
+    {
+        var saved = 0;
+        var cut = RenderPage(onSaved: () => saved++);
+        Add(cut, 132);
+
+        cut.Find("[data-testid=save-workout]").Click();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(workouts.Saves, Is.Empty);
+            Assert.That(saved, Is.Zero);
+        });
+    }
+
+    [Test]
+    public void Save_WriteFails_ShowsSaveFailedFocusesSaveAndKeepsTheWorkout()
+    {
+        var saved = 0;
+        var cut = RenderPage(onSaved: () => saved++);
+        var save = ReferenceId(cut, "save-workout");
+        workouts.SaveNew = () => Task.FromResult(new SaveResult(null, new WorkoutErrors(WorkoutError.SaveFailed, [])));
+        Add(cut, 132);
         cut.Find("[data-testid=exercise-1-set-1-reps]").Input("8");
 
         cut.Find("[data-testid=save-workout]").Click();
 
         Assert.Multiple(() =>
         {
-            Assert.That(cut.FindAll(".error"), Is.Empty);
+            Assert.That(cut.Find("[data-testid=workout-error]").TextContent, Is.EqualTo("Couldn't save the workout. Try again."));
             Assert.That(Names(cut), Is.EqualTo(new[] { "Dumbbell Curl" }));
+            Assert.That(cut.Find("[data-testid=exercise-1-set-1-reps]").GetAttribute("value"), Is.EqualTo("8"));
+            Assert.That(saved, Is.Zero);
+        });
+        cut.WaitForAssertion(() => Assert.That(((ElementReference)LastFocus().Arguments[0]!).Id, Is.EqualTo(save)));
+    }
+
+    [Test]
+    public void Save_NoWorkoutIdWithAnotherCode_ShowsSaveFailed()
+    {
+        var cut = RenderPage();
+        workouts.SaveNew = () => Task.FromResult(new SaveResult(null, new WorkoutErrors(WorkoutError.NoExercises, [])));
+        Add(cut, 132);
+        cut.Find("[data-testid=exercise-1-set-1-reps]").Input("8");
+
+        cut.Find("[data-testid=save-workout]").Click();
+
+        Assert.That(cut.Find("[data-testid=workout-error]").TextContent, Is.EqualTo("Couldn't save the workout. Try again."));
+    }
+
+    [Test]
+    public void Save_WhileSaving_IsIgnored()
+    {
+        var saved = 0;
+        var cut = RenderPage(onSaved: () => saved++);
+        var pending = new TaskCompletionSource<SaveResult>();
+        workouts.SaveNew = () => pending.Task;
+        Add(cut, 132);
+        cut.Find("[data-testid=exercise-1-set-1-reps]").Input("8");
+
+        cut.Find("[data-testid=save-workout]").Click();
+        cut.Find("[data-testid=save-workout]").Click();
+        cut.InvokeAsync(() => pending.SetResult(new SaveResult(1, new WorkoutErrors(null, []))));
+
+        cut.WaitForAssertion(() => Assert.That(saved, Is.EqualTo(1)));
+        Assert.That(workouts.Saves, Has.Count.EqualTo(1));
+    }
+
+    [Test]
+    public void Save_AfterASuccessfulSave_IsIgnored()
+    {
+        var saved = 0;
+        var cut = RenderPage(onSaved: () => saved++);
+        Add(cut, 132);
+        cut.Find("[data-testid=exercise-1-set-1-reps]").Input("8");
+
+        cut.Find("[data-testid=save-workout]").Click();
+        cut.Find("[data-testid=save-workout]").Click();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(workouts.Saves, Has.Count.EqualTo(1));
+            Assert.That(saved, Is.EqualTo(1));
+        });
+    }
+
+    [Test]
+    public void Save_AfterAFailure_SavesAgainAndClearsTheError()
+    {
+        var saved = 0;
+        var cut = RenderPage(onSaved: () => saved++);
+        workouts.SaveNew = () => Task.FromResult(new SaveResult(null, new WorkoutErrors(WorkoutError.SaveFailed, [])));
+        Add(cut, 132);
+        cut.Find("[data-testid=exercise-1-set-1-reps]").Input("8");
+        cut.Find("[data-testid=save-workout]").Click();
+        workouts.SaveNew = null;
+
+        cut.Find("[data-testid=save-workout]").Click();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(workouts.Saves, Has.Count.EqualTo(2));
+            Assert.That(cut.FindAll("[data-testid=workout-error]"), Is.Empty);
+            Assert.That(saved, Is.EqualTo(1));
         });
     }
 
@@ -552,10 +666,12 @@ public class NewWorkoutPageTests : ComponentTestBase
     /// <summary>The latest focus call; the picker search and added exercises each take focus.</summary>
     private JSRuntimeInvocation LastFocus() => Context.JSInterop.Invocations["Blazor._internal.domWrapper.focus"][^1];
 
-    private IRenderedComponent<NewWorkoutPage> RenderPage(Action? onBack = null)
+    private IRenderedComponent<NewWorkoutPage> RenderPage(Action? onBack = null, Action? onSaved = null)
     {
-        UseWorkouts(clock);
-        return Context.Render<NewWorkoutPage>(p => p.Add(x => x.OnBack, onBack ?? (() => { })));
+        workouts = UseWorkouts(clock);
+        return Context.Render<NewWorkoutPage>(p => p
+            .Add(x => x.OnBack, onBack ?? (() => { }))
+            .Add(x => x.OnSaved, onSaved ?? (() => { })));
     }
 
     /// <summary>Opens the picker, searches for the exercise by name and picks it.</summary>
@@ -627,15 +743,26 @@ public class NewWorkoutPageTests : ComponentTestBase
         }
     }
 
-    /// <summary>Counts <see cref="StartNew"/> calls; the rest is passed to <paramref name="inner"/>.</summary>
+    /// <summary>
+    /// Counts <see cref="StartNew"/> calls and keeps the drafts, and records <see cref="SaveNewAsync"/> calls, which return
+    /// <see cref="SaveNew"/>'s result when set; the rest is passed to <paramref name="inner"/>.
+    /// </summary>
     private sealed class CountingWorkoutService(IWorkoutService inner) : IWorkoutService
     {
-        public int Started { get; private set; }
+        public int Started => Drafts.Count;
+
+        public List<WorkoutDraft> Drafts { get; } = [];
+
+        public List<(WorkoutDraft Draft, IReadOnlyList<WorkoutExercise> Exercises)> Saves { get; } = [];
+
+        /// <summary>When set, <see cref="SaveNewAsync"/> returns its result instead of the inner service's.</summary>
+        public Func<Task<SaveResult>>? SaveNew { get; set; }
 
         public WorkoutDraft StartNew()
         {
-            Started++;
-            return inner.StartNew();
+            var draft = inner.StartNew();
+            Drafts.Add(draft);
+            return draft;
         }
 
         public WorkoutErrors Validate(IReadOnlyList<WorkoutExercise> exercises) => inner.Validate(exercises);
@@ -644,7 +771,11 @@ public class NewWorkoutPageTests : ComponentTestBase
 
         public ExerciseErrors ValidateEntry(int exerciseId, CardioEntry entry) => inner.ValidateEntry(exerciseId, entry);
 
-        public Task<SaveResult> SaveNewAsync(WorkoutDraft draft, IReadOnlyList<WorkoutExercise> exercises) => inner.SaveNewAsync(draft, exercises);
+        public Task<SaveResult> SaveNewAsync(WorkoutDraft draft, IReadOnlyList<WorkoutExercise> exercises)
+        {
+            Saves.Add((draft, exercises));
+            return SaveNew?.Invoke() ?? inner.SaveNewAsync(draft, exercises);
+        }
 
         public Task<SaveResult> SaveAsync(int workoutId, IReadOnlyList<WorkoutExercise> exercises) => inner.SaveAsync(workoutId, exercises);
     }

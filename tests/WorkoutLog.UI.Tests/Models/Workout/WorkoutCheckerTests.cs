@@ -37,6 +37,12 @@ public class WorkoutCheckerTests
     }
 
     [Test]
+    public void SaveFailed_CouldntSaveTheWorkout()
+    {
+        Assert.That(checker.SaveFailed, Is.EqualTo("Couldn't save the workout. Try again."));
+    }
+
+    [Test]
     public void Check_ValidWorkout_IsValidAndClearsOldErrors()
     {
         var squat = SampleData.Exercise(Catalog, Squat, ["8", "60"]);

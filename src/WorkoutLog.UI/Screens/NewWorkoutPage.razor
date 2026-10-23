@@ -16,7 +16,7 @@
              Focus="focus"
              ErrorFocus="errorFocus"
              ValidateSet="Checker.Check"
-             OnSave="Save"
+             OnSave="SaveAsync"
              OnAddExercise="OpenPicker"
              OnRemoveExercise="RemoveExercise"
              OnBack="OnBack">
@@ -39,10 +39,15 @@
     private ExerciseFocus? focus;
     private ErrorFocus? errorFocus;
     private string? error;
+    private bool saving;
 
     /// <summary>Raised by the back arrow and the Android back button.</summary>
     [Parameter]
     public EventCallback OnBack { get; set; }
+
+    /// <summary>Raised after the workout is saved.</summary>
+    [Parameter]
+    public EventCallback OnSaved { get; set; }
 
     /// <summary>Time since the start; zero while the clock is before the start.</summary>
     private TimeSpan Elapsed => TimeSpan.FromTicks(Math.Max(0, (Clock.GetUtcNow() - draft.StartedAt).Ticks));
@@ -79,15 +84,36 @@
         pickerOpen = false;
     }
 
-    /// <summary>Checks the workout (FR-09) and moves focus to the first error. A valid workout isn't saved until US-14.</summary>
-    private void Save()
+    /// <summary>
+    /// Checks the workout (FR-09) and moves focus to the first error. A valid workout is saved and raises <see cref="OnSaved"/>;
+    /// if nothing was saved, shows SaveFailed and focuses Save (D176). Ignored while a save runs and after one succeeds (D177).
+    /// </summary>
+    private async Task SaveAsync()
     {
+        if (saving)
+        {
+            return;
+        }
+
         var check = WorkoutChecker.Check(exercises);
         error = check.Error;
         if (!check.IsValid)
         {
             errorFocus = new ErrorFocus();
+            return;
         }
+
+        saving = true;
+        var result = await Workouts.SaveNewAsync(draft, exercises.Select(Checker.Read).ToList());
+        saving = result.WorkoutId is not null;
+        if (result.WorkoutId is null)
+        {
+            error = WorkoutChecker.SaveFailed;
+            errorFocus = new ErrorFocus(focusSave: true);
+            return;
+        }
+
+        await OnSaved.InvokeAsync();
     }
 
     /// <summary>Focuses the exercise already in the workout, adding a set to a strength one; otherwise adds it at the bottom.</summary>

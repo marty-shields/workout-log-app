@@ -15,10 +15,12 @@ Log a workout as you go (FR-01–FR-14). View: `WorkoutView` with `Mode` New.
 | Bottom bar | Add exercise (secondary) and Save (primary), side by side. |
 | Overlays | `ExercisePicker` ([Exercise Picker](/?path=/custom/design-system-screens-exercise-picker)); `ConfirmDialog` "Discard this workout?" on back. |
 
-Save runs `IWorkoutChecker.Check` (FR-09): every set and entry, then the workout and each exercise through `IWorkoutService.Validate`. With errors, focus moves to the first one in screen order (D171): Add exercise for the workout error, otherwise the first card at fault. A valid Save does nothing until US-14 (D165). Adding an exercise clears the workout error (D108).
+Save runs `IWorkoutChecker.Check` (FR-09): every set and entry, then the workout and each exercise through `IWorkoutService.Validate`. With errors, focus moves to the first one in screen order (D171): Add exercise for the workout error, otherwise the first card at fault. Adding an exercise clears the workout error (D108).
+
+A valid Save calls `IWorkoutService.SaveNewAsync` with `ISetChecker.Read`'s records, then raises `OnSaved`; the App goes to the Dashboard. If nothing was saved, the workout error shows "Couldn't save the workout. Try again." and focus moves to Save (D176). Taps on Save while a save runs are ignored (D177).
 
 Back: Discard / Cancel, then Dashboard.
 
-States: [Empty](/?path=/story/screens-new-workout--empty) · [Live timer](/?path=/story/screens-new-workout--live-timer) · [Strength sets](/?path=/story/screens-new-workout--strength-sets) · [Carry sets](/?path=/story/screens-new-workout--carry-sets) · [Cardio entries](/?path=/story/screens-new-workout--cardio-entries) · [Save errors](/?path=/story/screens-new-workout--save-errors) · [Save with no exercises](/?path=/story/screens-new-workout--save-with-no-exercises) · [Discard prompt](/?path=/story/screens-new-workout--discard-prompt)
+States: [Empty](/?path=/story/screens-new-workout--empty) · [Live timer](/?path=/story/screens-new-workout--live-timer) · [Strength sets](/?path=/story/screens-new-workout--strength-sets) · [Carry sets](/?path=/story/screens-new-workout--carry-sets) · [Cardio entries](/?path=/story/screens-new-workout--cardio-entries) · [Save errors](/?path=/story/screens-new-workout--save-errors) · [Save with no exercises](/?path=/story/screens-new-workout--save-with-no-exercises) · [Save failed](/?path=/story/screens-new-workout--save-failed) · [Discard prompt](/?path=/story/screens-new-workout--discard-prompt)
 
 `data-testid`: `back`, `screen-title`, `screen-subtitle`, `workout-error`, `no-exercises`, `exercise-{n}` (and its parts, see [Workout](/?path=/custom/design-system-components-workout)), `add-exercise`, `save-workout`, `confirm-dialog`.

@@ -35,7 +35,7 @@
     </ChildContent>
     <BottomBar>
         <AppButton @ref="addExercise" Variant="ButtonVariant.Secondary" FullWidth TestId="add-exercise" OnClick="OnAddExercise">Add exercise</AppButton>
-        <AppButton FullWidth TestId="save-workout" OnClick="OnSave">Save</AppButton>
+        <AppButton @ref="save" FullWidth TestId="save-workout" OnClick="OnSave">Save</AppButton>
     </BottomBar>
 </AppScreen>
 @Overlay
@@ -93,7 +93,7 @@
     [Parameter]
     public ExerciseFocus? Focus { get; set; }
 
-    /// <summary>Moves focus to the first error once shown, after a Save that failed its checks (D171). Each request is handled once.</summary>
+    /// <summary>Moves focus once shown, after a failed Save: to the first error (D171), or to Save when the request asks (D176). Each request is handled once.</summary>
     [Parameter]
     public ErrorFocus? ErrorFocus { get; set; }
 
@@ -105,6 +105,7 @@
     private ExerciseFocus? handled;
     private ErrorFocus? handledError;
     private AppButton? addExercise;
+    private AppButton? save;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -141,7 +142,7 @@
         }
     }
 
-    /// <summary>Handles <see cref="ErrorFocus"/>: Add exercise for a workout error, otherwise the first card with an error.</summary>
+    /// <summary>Handles <see cref="ErrorFocus"/>: Save when asked, Add exercise for a workout error, otherwise the first card with an error.</summary>
     private async Task FocusFirstErrorAsync()
     {
         if (ErrorFocus is null || ReferenceEquals(ErrorFocus, handledError))
@@ -152,7 +153,14 @@
         handledError = ErrorFocus;
         try
         {
-            if (Error is not null)
+            if (ErrorFocus.FocusSave)
+            {
+                if (save is not null)
+                {
+                    await save.FocusAsync();
+                }
+            }
+            else if (Error is not null)
             {
                 if (addExercise is not null)
                 {

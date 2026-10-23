@@ -39,6 +39,7 @@ public static class ScreenStates
         new("Screens/New Workout", "Cardio entries", c => Workout(c, WorkoutMode.New, SampleData.CardioWorkout(Catalog(c)))),
         new("Screens/New Workout", "Save errors", c => Workout(c, WorkoutMode.New, SampleData.WorkoutWithErrors(Catalog(c), WorkoutChecker(c)))),
         new("Screens/New Workout", "Save with no exercises", c => Workout(c, WorkoutMode.New, [], error: WorkoutChecker(c).Check([]).Error)),
+        new("Screens/New Workout", "Save failed", c => Workout(c, WorkoutMode.New, SampleData.StrengthWorkout(Catalog(c)), error: WorkoutChecker(c).SaveFailed)),
         new("Screens/New Workout", "Discard prompt", c => Workout(c, WorkoutMode.New, SampleData.StrengthWorkout(Catalog(c)), dialog: ("Discard this workout?", "Discard"))),
 
         new("Screens/Edit Workout", "Saved", c => Workout(c, WorkoutMode.Edit, SampleData.StrengthWorkout(Catalog(c)))),

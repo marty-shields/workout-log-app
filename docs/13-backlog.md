@@ -224,7 +224,7 @@ As the user, I want the wireframes rebuilt with the design system, so that M2–
 | [US-11](#us-11-add-and-remove-exercises) | Add and remove exercises | FR-03, FR-04, FR-05, FR-08 | S | Done |
 | [US-12](#us-12-log-strength-sets) | Log strength sets | FR-06, FR-08, NFR-04 | M | Done |
 | [US-13](#us-13-log-a-cardio-entry-and-check-on-save) | Log a cardio entry and check on Save | FR-07, FR-09 | XL | Done |
-| [US-14](#us-14-save-a-workout) | Save a workout | FR-09, FR-10, FR-13 | S | To do |
+| [US-14](#us-14-save-a-workout) | Save a workout | FR-09, FR-10, FR-13 | S | Done |
 | [US-15](#us-15-discard-an-unsaved-workout) | Discard an unsaved workout | FR-12 | S | To do |
 
 ### US-10 Start a workout
@@ -281,8 +281,9 @@ As the user, I want to save the workout, so that it is kept and the finish time 
 - **Links:** FR-09, FR-10, FR-13
 - **Extra ACs:**
   - A valid Save calls `SaveNewAsync` with `ISetChecker.Read`'s records and returns to the Dashboard; SaveFailed shows "Couldn't save the workout. Try again." The checks and their errors come from US-13 (D165).
+  - SaveFailed focuses Save; taps while a save runs are ignored; a "Save failed" story (D176–D178, T58).
   - **Logging:** none new. `WorkoutService` already logs each save and failed save (US-35).
-- **Size:** S · **Status:** To do
+- **Size:** S · **Status:** Done (D176–D178, T58)
 
 ### US-15 Discard an unsaved workout
 As the user, I want the back button to ask before dropping a new workout, so that I don't lose it by accident.

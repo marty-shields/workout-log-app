@@ -373,6 +373,18 @@ public class WorkoutViewTests : ComponentTestBase
     }
 
     [Test]
+    public void ErrorFocus_FocusSave_FocusesSave()
+    {
+        var cut = Context.Render<WorkoutView>(p => p
+            .Add(x => x.StartedAt, Started)
+            .Add(x => x.Exercises, [Curl()])
+            .Add(x => x.Error, "Couldn't save the workout. Try again.")
+            .Add(x => x.ErrorFocus, new ErrorFocus(focusSave: true)));
+
+        Context.JSInterop.VerifyFocusAsyncInvoke().Arguments[0].ShouldBeElementReferenceTo(cut.Find("[data-testid=save-workout]"));
+    }
+
+    [Test]
     public void ErrorFocus_ExerciseWithNoSets_FocusesItsAddSet()
     {
         var valid = Curl();
@@ -538,6 +550,23 @@ public class WorkoutViewTests : ComponentTestBase
 
         cut.WaitForAssertion(() => Assert.That(LoggedEvents.Of(logger), Is.EqualTo(new[] { (2302, LogLevel.Warning, "Focusing the first error failed") })));
         Assert.That(cut.FindAll("[data-testid=workout-error]"), Has.Count.EqualTo(1));
+    }
+
+    [Test]
+    public void SaveFocusFails_LogsAWarningAndKeepsTheWorkout()
+    {
+        var logger = new FakeLogger<WorkoutView>();
+        Context.Services.AddSingleton<ILogger<WorkoutView>>(logger);
+        Context.JSInterop.SetupVoid("Blazor._internal.domWrapper.focus", _ => true).SetException(new JSException("Focus failed"));
+
+        var cut = Context.Render<WorkoutView>(p => p
+            .Add(x => x.StartedAt, Started)
+            .Add(x => x.Exercises, [Curl()])
+            .Add(x => x.Error, "Couldn't save the workout. Try again.")
+            .Add(x => x.ErrorFocus, new ErrorFocus(focusSave: true)));
+
+        cut.WaitForAssertion(() => Assert.That(LoggedEvents.Of(logger), Is.EqualTo(new[] { (2302, LogLevel.Warning, "Focusing the first error failed") })));
+        Assert.That(cut.FindAll("[data-testid=exercise-1]"), Has.Count.EqualTo(1));
     }
 
     [Test]

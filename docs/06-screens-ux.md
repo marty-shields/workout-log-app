@@ -29,7 +29,7 @@
   - A partly filled duration or pace fills in when focus leaves it: empty boxes become 0, minutes and seconds two digits (e.g. *1:00:00*, *0:00:22*, *5:03*) (D107).
   - Remove exercise: removes it at once, with no confirm (D150)
 - **Add exercise** opens the Exercise picker. After a pick, focus moves to the new exercise's first field, which scrolls it into view (D151).
-- **Save** button: validates (FR-09) and returns to the Dashboard (from US-14; until then a valid Save does nothing, D165). Errors show on the exercise, set or entry at fault: each faulty field is outlined, with one message per problem under its set or entry (D103). Focus moves to the first error: Add exercise, an exercise's Add set or Remove, the first field at fault, or a closed set's summary line (D171). Once a set or entry fails a check, every change re-checks it until it passes Add set or opening another set, or the whole workout passes Save (D108, D174); adding a set clears "Add at least one set" and adding an exercise clears the workout error (D108). Cardio entries are first checked on Save (D166).
+- **Save** button: validates (FR-09), saves and returns to the Dashboard. If the save fails, "Couldn't save the workout. Try again." shows at the top, the workout stays and focus moves to Save (D176). Taps while a save runs are ignored (D177). Errors show on the exercise, set or entry at fault: each faulty field is outlined, with one message per problem under its set or entry (D103). Focus moves to the first error: Add exercise, an exercise's Add set or Remove, the first field at fault, or a closed set's summary line (D171). Once a set or entry fails a check, every change re-checks it until it passes Add set or opening another set, or the whole workout passes Save (D108, D174); adding a set clears "Add at least one set" and adding an exercise clears the workout error (D108). Cardio entries are first checked on Save (D166).
 - Edit only: **Delete** (confirm dialog)
 - Back:
   - New workout: **Discard / Cancel**
@@ -78,7 +78,7 @@ Done in M1.5, before the screens are built in M2 (D96). Details: [14 Design syst
 | Screen | Stories (`Screens/…`) | Page (`Design System/Screens/…`) |
 |---|---|---|
 | Dashboard | Empty · With workouts | Dashboard |
-| New Workout | Empty · Live timer · Strength sets · Carry sets · Cardio entries · Save errors · Save with no exercises · Discard prompt | New Workout |
+| New Workout | Empty · Live timer · Strength sets · Carry sets · Cardio entries · Save errors · Save with no exercises · Save failed · Discard prompt | New Workout |
 | Edit Workout | Saved · Carry sets closed · Save errors · Discard prompt · Delete prompt | Edit Workout |
 | Exercise Picker | No search text · Results · No match | Exercise Picker |
 | History | Empty · With workouts · Rows not tappable | History |
