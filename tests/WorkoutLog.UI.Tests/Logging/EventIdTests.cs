@@ -40,6 +40,7 @@ public partial class EventIdTests
             [UiEvent.NewWorkoutDiscarded] = 2701,
             [UiEvent.HistoryRetryFocusFailed] = 2801,
             [UiEvent.EditWorkoutOpenFailed] = 2901,
+            [UiEvent.EditsDiscarded] = 2902,
             [UiEvent.WorkoutRetryFocusFailed] = 3001,
         }));
 

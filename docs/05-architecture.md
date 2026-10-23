@@ -71,7 +71,7 @@ Blazor routing (`@page`):
 The Exercise picker is an overlay on the workout page, not a route.
 
 The Android back button is passed to the current page:
-- Workout pages: close the picker if it's open; otherwise show the Discard / Cancel prompt (FR-12, FR-23). New Workout ignores back while a save runs and after one succeeds (D179). Until US-18, Edit Workout ignores back once the workout is loaded; while loading, after a failed load or when it isn't found, back goes to History (D184, D185).
+- Workout pages: close the picker if it's open; otherwise show the Discard / Cancel prompt (FR-12, FR-23). New Workout ignores back while a save runs and after one succeeds (D179). Edit Workout asks only after a change, otherwise goes to History, and ignores back while a save runs and after one succeeds (D189); while loading, after a failed load or when it isn't found, back goes to History (D185).
 - History: go to the Dashboard.
 - Dashboard: leave the app.
 

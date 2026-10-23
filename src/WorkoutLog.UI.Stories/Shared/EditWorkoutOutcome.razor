@@ -1,0 +1,28 @@
+@using WorkoutLog.UI.Models.Dashboard
+@using WorkoutLog.UI.Models.History
+@* Runs EditWorkoutPage on the sample workout and moves between it, History and the Dashboard as the App does. Stories only. *@
+@switch (screen)
+{
+    case Screen.Edit:
+        <EditWorkoutPage WorkoutId="workoutId" OnBack="() => screen = Screen.History" OnSaved="() => screen = Screen.Dashboard" />
+        break;
+    case Screen.History:
+        <HistoryView Rows="SampleData.HistoryRows" OnOpen="Open" OnBack="() => screen = Screen.Dashboard" />
+        break;
+    case Screen.Dashboard:
+        <DashboardView Summary="@(new DashboardSummary(SampleData.Started, 2, 9))" OnNewWorkout="() => { }" OnHistory="() => screen = Screen.History" />
+        break;
+}
+
+@code {
+    private enum Screen { Edit, History, Dashboard }
+
+    private Screen screen;
+    private int workoutId = 1;
+
+    private void Open(HistoryRow row)
+    {
+        workoutId = row.Id;
+        screen = Screen.Edit;
+    }
+}

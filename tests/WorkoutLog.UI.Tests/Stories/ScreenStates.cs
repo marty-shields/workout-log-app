@@ -9,6 +9,7 @@ using WorkoutLog.UI.Models.History;
 using WorkoutLog.UI.Models.Workout;
 using WorkoutLog.UI.Screens;
 using WorkoutLog.UI.Stories.Samples;
+using WorkoutLog.UI.Stories.Shared;
 
 namespace WorkoutLog.UI.Tests.Stories;
 
@@ -53,6 +54,7 @@ public static class ScreenStates
         new("Screens/Edit Workout", "Load failed", c => WorkoutLoad(c, failed: true)),
         new("Screens/Edit Workout", "Not found", c => WorkoutLoad(c, notFound: true)),
         new("Screens/Edit Workout", "Live page", EditWorkout),
+        new("Screens/Edit Workout", "Back and discard", EditWorkoutOutcome),
 
         new("Screens/Exercise Picker", "No search text", c => Workout(c, WorkoutMode.New, SampleData.StrengthWorkout(Catalog(c)), pickerQuery: "")),
         new("Screens/Exercise Picker", "Results", c => Workout(c, WorkoutMode.New, SampleData.StrengthWorkout(Catalog(c)), pickerQuery: "dumbbell")),
@@ -94,6 +96,12 @@ public static class ScreenStates
             .Add(x => x.OnBack, () => { })
             .Add(x => x.OnSaved, () => { }))
             .FindAll("*");
+    }
+
+    private static IReadOnlyList<IElement> EditWorkoutOutcome(BunitContext context)
+    {
+        context.Services.AddSingleton<TimeProvider>(new FakeTimeProvider());
+        return context.Render<EditWorkoutOutcome>().FindAll("*");
     }
 
     private static IReadOnlyList<IElement> Workout(

@@ -48,6 +48,9 @@ internal enum UiEvent
     /// <summary><see cref="Screens.EditWorkoutPage"/>: a saved exercise is unknown or the wrong type.</summary>
     EditWorkoutOpenFailed = 2901,
 
+    /// <summary><see cref="Screens.EditWorkoutPage"/>: edits discarded.</summary>
+    EditsDiscarded = 2902,
+
     /// <summary><see cref="Screens.WorkoutLoadView"/>: focusing Try again failed.</summary>
     WorkoutRetryFocusFailed = 3001,
 }

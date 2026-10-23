@@ -1,6 +1,7 @@
 @using Microsoft.Extensions.Logging
 @using WorkoutLog.Core.Domain.Exercises
 @using WorkoutLog.Core.Services
+@using WorkoutLog.UI.Components.Overlays
 @using WorkoutLog.UI.Components.Workout
 @inject IWorkoutService Workouts
 @inject IExerciseCatalog Catalog
@@ -23,15 +24,20 @@ else
                  Focus="focus"
                  ErrorFocus="errorFocus"
                  ValidateSet="Checker.Check"
+                 OnChanged="() => changed = true"
                  OnSave="SaveAsync"
                  OnAddExercise="OpenPicker"
                  OnRemoveExercise="RemoveExercise"
-                 OnBack="IgnoreBack"
+                 OnBack="BackAsync"
                  OnDelete="() => { }">
         <Overlay>
             @if (pickerOpen)
             {
                 <ExercisePicker Query="@query" QueryChanged="Search" Items="pickerItems" OnPick="Pick" OnClose="ClosePicker" />
+            }
+            @if (discardOpen)
+            {
+                <ConfirmDialog Title="Discard changes?" ConfirmText="Discard" Danger OnConfirm="DiscardAsync" OnCancel="CloseDiscard" />
             }
         </Overlay>
     </WorkoutView>
@@ -52,6 +58,9 @@ else
     private ErrorFocus? errorFocus;
     private string? error;
     private bool saving;
+    private bool changed;
+    private bool discardOpen;
+    private bool discarded;
 
     /// <summary>Id of the saved workout.</summary>
     [Parameter, EditorRequired]
@@ -61,7 +70,10 @@ else
     [Parameter]
     public EventCallback OnSaved { get; set; }
 
-    /// <summary>Raised by back while the workout is loading, failed to load or doesn't exist. Back on a loaded workout does nothing (D184).</summary>
+    /// <summary>
+    /// Raised by back while the workout is loading, failed to load or doesn't exist; on a loaded workout with no changes; and after
+    /// Discard is confirmed. Nothing is saved (D189).
+    /// </summary>
     [Parameter]
     public EventCallback OnBack { get; set; }
 
@@ -112,9 +124,48 @@ else
         exercises = loaded;
     }
 
-    /// <summary>Back on a loaded workout does nothing until US-18 (D184). The picker takes back first while it is open.</summary>
-    private static void IgnoreBack()
+    /// <summary>
+    /// With changes, asks Discard / Cancel (FR-23); without, raises <see cref="OnBack"/>. Ignored while a save runs, after one
+    /// succeeds and after a discard (D189). The picker takes back first while it is open.
+    /// </summary>
+    private async Task BackAsync()
     {
+        if (saving || discarded)
+        {
+            return;
+        }
+
+        if (changed)
+        {
+            discardOpen = true;
+            return;
+        }
+
+        await OnBack.InvokeAsync();
+    }
+
+    private void CloseDiscard() => discardOpen = false;
+
+    /// <summary>
+    /// Logs the workout id only (D142) and raises <see cref="OnBack"/>, once. While a save runs or after one succeeds, closes
+    /// the prompt and does nothing else (D189).
+    /// </summary>
+    private async Task DiscardAsync()
+    {
+        if (saving)
+        {
+            discardOpen = false;
+            return;
+        }
+
+        if (discarded)
+        {
+            return;
+        }
+
+        discarded = true;
+        Log.EditsDiscarded(Logger, loadedId);
+        await OnBack.InvokeAsync();
     }
 
     private void OpenPicker()
@@ -181,8 +232,13 @@ else
 
         var added = ExerciseFields.New(Catalog.All.Single(e => e.Id == exerciseId));
         exercises.Add(added);
+        changed = true;
         return new ExerciseFocus(added);
     }
 
-    private void RemoveExercise(ExerciseState exercise) => exercises!.Remove(exercise);
+    private void RemoveExercise(ExerciseState exercise)
+    {
+        exercises!.Remove(exercise);
+        changed = true;
+    }
 }

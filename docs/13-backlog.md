@@ -313,7 +313,7 @@ As the user, I want a list of my saved workouts, newest first, so that I can loo
 | ID | Story | Links | Size | Status |
 |---|---|---|---|---|
 | [US-17](#us-17-edit-a-saved-workout) | Edit a saved workout | FR-21, FR-22, FR-11, FR-13 | M | Done |
-| [US-18](#us-18-discard-unsaved-edits) | Discard unsaved edits | FR-23 | S | To do |
+| [US-18](#us-18-discard-unsaved-edits) | Discard unsaved edits | FR-23 | S | Done |
 | [US-19](#us-19-delete-a-workout) | Delete a workout | FR-24 | S | To do |
 
 ### US-17 Edit a saved workout
@@ -323,7 +323,7 @@ As the user, I want to open a saved workout and change it, so that I can fix mis
   - Edit shows the total time instead of the live timer ([06](06-screens-ux.md)).
   - Tapping a History row opens it; Save returns to the Dashboard (D184, D186).
   - Loading, Load failed with Try again, and Not found states; back in them goes to History (D185).
-  - Until US-18, back on a loaded workout does nothing; until US-19, Delete does nothing (D184).
+  - Until US-18, back on a loaded workout does nothing; until US-19, Delete does nothing (D184). Back superseded by D189.
   - **Logging:** Warning 1207: the workout id isn't found. Error 1208: loading the workout failed (id, exception). Debug 1209: loaded (id, exercise count). Error 2901: an exercise is unknown or the wrong type (workout id, exercise id). Warning 3001: focusing Try again failed (exception). Saves are logged by `WorkoutService` (US-35).
 - **Size:** M · **Status:** Done (D184–D188, T63–T66)
 
@@ -332,9 +332,9 @@ As the user, I want the back button to ask before dropping my edits, so that I d
 - **Links:** FR-23
 - **Extra ACs:**
   - Discard returns to History ([06](06-screens-ux.md)).
-  - **Logging:** Information: edits discarded (workout id).
+  - **Logging:** Information 2902: edits discarded (workout id).
   - The back handler follows D142, as on [US-15](#us-15-discard-an-unsaved-workout).
-- **Size:** S · **Status:** To do
+- **Size:** S · **Status:** Done (D189, D190, T67)
 
 ### US-19 Delete a workout
 As the user, I want to delete a workout after confirming, so that wrong entries don't stay in my history.

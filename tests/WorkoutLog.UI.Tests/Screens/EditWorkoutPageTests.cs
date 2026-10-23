@@ -6,6 +6,7 @@ using Microsoft.Extensions.Time.Testing;
 using WorkoutLog.Core.Domain.Workouts;
 using WorkoutLog.Core.Domain.Workouts.Validation;
 using WorkoutLog.Core.Services;
+using WorkoutLog.UI.Components.Layout;
 using WorkoutLog.UI.Logging;
 using WorkoutLog.UI.Screens;
 using WorkoutLog.UI.Stories.Samples;
@@ -195,35 +196,321 @@ public class EditWorkoutPageTests : ComponentTestBase
     }
 
     [Test]
-    public void Back_Loaded_DoesNothing()
+    public async Task Back_NoChanges_RaisesOnBackWithNoPrompt()
     {
         var backs = 0;
         var cut = RenderLoaded(onBack: () => backs++);
 
         cut.Find("[data-testid=back]").Click();
+        await cut.InvokeAsync(BackButton.HandleAsync);
 
         Assert.Multiple(() =>
         {
-            Assert.That(backs, Is.Zero);
-            Assert.That(Names(cut), Has.Count.EqualTo(3));
+            Assert.That(backs, Is.EqualTo(2));
             Assert.That(cut.FindAll("[data-testid=confirm-dialog]"), Is.Empty);
+            Assert.That(LoggedEvents.Of(logger), Is.Empty);
         });
     }
 
     [Test]
-    public async Task AndroidBack_Loaded_IsTakenAndDoesNothing()
+    public void Back_AfterAnEdit_ShowsDiscardChangesAndFocusesCancel()
     {
         var backs = 0;
         var cut = RenderLoaded(onBack: () => backs++);
+        cut.Find("[data-testid=exercise-1-set-1-reps]").Input("9");
+
+        cut.Find("[data-testid=back]").Click();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.Find("[data-testid=confirm-dialog] h2").TextContent, Is.EqualTo("Discard changes?"));
+            Assert.That(cut.Find("[data-testid=confirm-dialog-confirm]").TextContent, Is.EqualTo("Discard"));
+            Assert.That(cut.Find("[data-testid=confirm-dialog-cancel]").TextContent, Is.EqualTo("Cancel"));
+            Assert.That(backs, Is.Zero);
+        });
+        var cancel = cut.Find("[data-testid=confirm-dialog-cancel]").GetAttribute("blazor:elementreference");
+        cut.WaitForAssertion(() => Assert.That(((ElementReference)LastFocus().Arguments[0]!).Id, Is.EqualTo(cancel)));
+    }
+
+    [TestCase("value typed")]
+    [TestCase("set added")]
+    [TestCase("set removed")]
+    [TestCase("exercise added")]
+    [TestCase("exercise removed")]
+    [TestCase("strength exercise picked again")]
+    [TestCase("value typed back")]
+    public async Task AndroidBack_Changed_Asks(string change)
+    {
+        var backs = 0;
+        var cut = RenderLoaded(onBack: () => backs++);
+        switch (change)
+        {
+            case "value typed":
+                cut.Find("[data-testid=exercise-3-distance]").Input("4");
+                break;
+            case "set added":
+                cut.Find("[data-testid=exercise-1-add-set]").Click();
+                break;
+            case "set removed":
+                cut.Find("[data-testid=exercise-1-set-2-remove]").Click();
+                break;
+            case "exercise added":
+                Add(cut, 132);
+                break;
+            case "exercise removed":
+                cut.Find("[data-testid=exercise-2-remove]").Click();
+                break;
+            case "strength exercise picked again":
+                Add(cut, 6);
+                break;
+            case "value typed back":
+                cut.Find("[data-testid=exercise-1-set-1-reps]").Input("9");
+                cut.Find("[data-testid=exercise-1-set-1-reps]").Input("8");
+                break;
+        }
 
         await cut.InvokeAsync(BackButton.HandleAsync);
 
         Assert.Multiple(() =>
         {
-            Assert.That(BackButton.HasHandler, Is.True);
+            Assert.That(cut.FindAll("[data-testid=confirm-dialog]"), Has.Count.EqualTo(1));
             Assert.That(backs, Is.Zero);
-            Assert.That(Names(cut), Has.Count.EqualTo(3));
         });
+    }
+
+    [TestCase("picker opened and closed")]
+    [TestCase("cardio exercise picked again")]
+    [TestCase("save failed")]
+    public async Task Back_NotChanged_RaisesOnBack(string action)
+    {
+        var backs = 0;
+        var cut = RenderLoaded(onBack: () => backs++);
+        switch (action)
+        {
+            case "picker opened and closed":
+                cut.Find("[data-testid=add-exercise]").Click();
+                cut.Find("[data-testid=picker-search]").Input("curl");
+                await cut.InvokeAsync(BackButton.HandleAsync);
+                break;
+            case "cardio exercise picked again":
+                Add(cut, 300);
+                break;
+            case "save failed":
+                workouts.Save = () => Task.FromResult(new SaveResult(null, new WorkoutErrors(WorkoutError.SaveFailed, [])));
+                cut.Find("[data-testid=save-workout]").Click();
+                break;
+        }
+
+        cut.Find("[data-testid=back]").Click();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(backs, Is.EqualTo(1));
+            Assert.That(cut.FindAll("[data-testid=confirm-dialog]"), Is.Empty);
+        });
+    }
+
+    [Test]
+    public void Cancel_ClosesThePromptKeepsTheEditsAndMovesNoFocus()
+    {
+        var backs = 0;
+        var cut = RenderLoaded(onBack: () => backs++);
+        cut.Find("[data-testid=exercise-1-set-1-reps]").Input("9");
+        cut.Find("[data-testid=back]").Click();
+        var cancel = cut.Find("[data-testid=confirm-dialog-cancel]").GetAttribute("blazor:elementreference");
+        cut.WaitForAssertion(() => Assert.That(((ElementReference)LastFocus().Arguments[0]!).Id, Is.EqualTo(cancel)));
+        var focusCalls = Focuses().Count;
+
+        cut.Find("[data-testid=confirm-dialog-cancel]").Click();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.FindAll("[data-testid=confirm-dialog]"), Is.Empty);
+            Assert.That(Focuses(), Has.Count.EqualTo(focusCalls));
+            Assert.That(Value(cut, "exercise-1-set-1-reps"), Is.EqualTo("9"));
+            Assert.That(backs, Is.Zero);
+            Assert.That(LoggedEvents.Of(logger), Is.Empty);
+        });
+    }
+
+    [Test]
+    public async Task AndroidBack_WithThePromptOpen_CancelsIt()
+    {
+        var backs = 0;
+        var cut = RenderLoaded(onBack: () => backs++);
+        cut.Find("[data-testid=exercise-1-set-1-reps]").Input("9");
+        cut.Find("[data-testid=back]").Click();
+
+        await cut.InvokeAsync(BackButton.HandleAsync);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.FindAll("[data-testid=confirm-dialog]"), Is.Empty);
+            Assert.That(Value(cut, "exercise-1-set-1-reps"), Is.EqualTo("9"));
+            Assert.That(backs, Is.Zero);
+        });
+    }
+
+    [Test]
+    public void Discard_LogsTheIdAndRaisesOnBack()
+    {
+        var backs = 0;
+        var cut = RenderLoaded(onBack: () => backs++);
+        cut.Find("[data-testid=exercise-1-set-1-reps]").Input("9");
+        cut.Find("[data-testid=back]").Click();
+
+        cut.Find("[data-testid=confirm-dialog-confirm]").Click();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(backs, Is.EqualTo(1));
+            Assert.That(LoggedEvents.Of(logger), Is.EqualTo(new[] { (UiEvent.EditsDiscarded, LogLevel.Information, $"Edits to workout {Id} discarded") }));
+            Assert.That(workouts.Saves, Is.Empty);
+        });
+    }
+
+    [Test]
+    public async Task Discard_Twice_LogsAndRaisesOnceAndBackIsIgnored()
+    {
+        var backs = 0;
+        var cut = RenderLoaded(onBack: () => backs++);
+        cut.Find("[data-testid=exercise-1-set-1-reps]").Input("9");
+        cut.Find("[data-testid=back]").Click();
+
+        cut.Find("[data-testid=confirm-dialog-confirm]").Click();
+        cut.Find("[data-testid=confirm-dialog-confirm]").Click();
+        await cut.InvokeAsync(BackButton.HandleAsync);
+        cut.Find("[data-testid=back]").Click();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(backs, Is.EqualTo(1));
+            Assert.That(LoggedEvents.Of(logger), Has.Count.EqualTo(1));
+            Assert.That(cut.FindAll("[data-testid=confirm-dialog]"), Is.Empty);
+        });
+    }
+
+    [TestCase(false)]
+    [TestCase(true)]
+    public async Task Back_WhileSaving_IsIgnored(bool edited)
+    {
+        var backs = 0;
+        var cut = RenderLoaded(onBack: () => backs++);
+        workouts.Save = () => new TaskCompletionSource<SaveResult>().Task;
+        if (edited)
+        {
+            cut.Find("[data-testid=exercise-1-set-1-reps]").Input("9");
+        }
+
+        cut.Find("[data-testid=save-workout]").Click();
+
+        cut.Find("[data-testid=back]").Click();
+        await cut.InvokeAsync(BackButton.HandleAsync);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.FindAll("[data-testid=confirm-dialog]"), Is.Empty);
+            Assert.That(backs, Is.Zero);
+        });
+    }
+
+    [TestCase(false)]
+    [TestCase(true)]
+    public async Task Back_AfterASuccessfulSave_IsIgnored(bool edited)
+    {
+        var backs = 0;
+        var cut = RenderLoaded(onBack: () => backs++);
+        if (edited)
+        {
+            cut.Find("[data-testid=exercise-1-set-1-reps]").Input("9");
+        }
+
+        cut.Find("[data-testid=save-workout]").Click();
+
+        cut.Find("[data-testid=back]").Click();
+        await cut.InvokeAsync(BackButton.HandleAsync);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.FindAll("[data-testid=confirm-dialog]"), Is.Empty);
+            Assert.That(backs, Is.Zero);
+        });
+    }
+
+    [Test]
+    public void Back_AfterASaveFails_WithChanges_Asks()
+    {
+        var backs = 0;
+        var cut = RenderLoaded(onBack: () => backs++);
+        workouts.Save = () => Task.FromResult(new SaveResult(null, new WorkoutErrors(WorkoutError.SaveFailed, [])));
+        cut.Find("[data-testid=exercise-1-set-1-reps]").Input("9");
+        cut.Find("[data-testid=save-workout]").Click();
+
+        cut.Find("[data-testid=back]").Click();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.FindAll("[data-testid=confirm-dialog]"), Has.Count.EqualTo(1));
+            Assert.That(backs, Is.Zero);
+        });
+    }
+
+    [Test]
+    public void Discard_WhileSaving_ClosesThePromptAndDoesNothing()
+    {
+        var backs = 0;
+        var cut = RenderLoaded(onBack: () => backs++);
+        workouts.Save = () => new TaskCompletionSource<SaveResult>().Task;
+        cut.Find("[data-testid=exercise-1-set-1-reps]").Input("9");
+        cut.Find("[data-testid=back]").Click();
+        cut.Find("[data-testid=save-workout]").Click();
+
+        cut.Find("[data-testid=confirm-dialog-confirm]").Click();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.FindAll("[data-testid=confirm-dialog]"), Is.Empty);
+            Assert.That(backs, Is.Zero);
+            Assert.That(LoggedEvents.Of(logger), Is.Empty);
+        });
+    }
+
+    [Test]
+    public void Discard_AfterASuccessfulSave_DoesNothing()
+    {
+        var backs = 0;
+        var cut = RenderLoaded(onBack: () => backs++);
+        cut.Find("[data-testid=exercise-1-set-1-reps]").Input("9");
+        cut.Find("[data-testid=back]").Click();
+        cut.Find("[data-testid=save-workout]").Click();
+
+        cut.Find("[data-testid=confirm-dialog-confirm]").Click();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.FindAll("[data-testid=confirm-dialog]"), Is.Empty);
+            Assert.That(backs, Is.Zero);
+            Assert.That(LoggedEvents.Of(logger), Is.Empty);
+            Assert.That(workouts.Saves, Has.Count.EqualTo(1));
+        });
+    }
+
+    [Test]
+    public void Discard_HandlerFails_ShowsTheErrorScreen()
+    {
+        var cut = Context.Render<AppErrorBoundary>(p => p
+            .Add(x => x.OnRestart, () => { })
+            .AddChildContent<EditWorkoutPage>(page => page
+                .Add(x => x.WorkoutId, Id)
+                .Add(x => x.OnBack, () => throw new InvalidOperationException("Navigation failed"))));
+        workouts.Complete(Loaded);
+        cut.WaitForAssertion(() => Assert.That(cut.FindAll("[data-testid=save-workout]"), Has.Count.EqualTo(1)));
+        cut.Find("[data-testid=exercise-1-set-1-reps]").Input("9");
+        cut.Find("[data-testid=back]").Click();
+
+        cut.Find("[data-testid=confirm-dialog-confirm]").Click();
+
+        cut.WaitForAssertion(() => Assert.That(cut.FindAll("[data-testid=error-message]"), Has.Count.EqualTo(1)));
     }
 
     [Test]

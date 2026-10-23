@@ -37,9 +37,9 @@
   - Not found: "This workout no longer exists.", no Try again
 - Back:
   - New workout: **Discard / Cancel**, even with no exercises; ignored while a save runs and after one succeeds (D179)
-  - Edit with unsaved changes: **Discard / Cancel**
+  - Edit with unsaved changes: **Discard changes? Discard / Cancel**; Discard goes to History. A change is a value typed, a set added or removed, or an exercise added or removed, even if later undone (D189)
   - Edit with no unsaved changes: History, no prompt
-  - Until US-18, back on a loaded Edit workout does nothing (D184)
+  - Edit: ignored while a save runs and after one succeeds (D189)
   - Edit while loading, after a failed load or when not found: History (D185)
 
 ### Exercise picker
@@ -87,7 +87,7 @@ Done in M1.5, before the screens are built in M2 (D96). Details: [14 Design syst
 |---|---|---|
 | Dashboard | Empty · With workouts | Dashboard |
 | New Workout | Empty · Live timer · Strength sets · Carry sets · Cardio entries · Save errors · Save with no exercises · Save failed · Discard prompt | New Workout |
-| Edit Workout | Saved · Carry sets closed · Cardio entries · Save errors · Save failed · Discard prompt · Delete prompt · Loading · Load failed · Not found · Live page | Edit Workout |
+| Edit Workout | Saved · Carry sets closed · Cardio entries · Save errors · Save failed · Discard prompt · Delete prompt · Loading · Load failed · Not found · Live page · Back and discard | Edit Workout |
 | Exercise Picker | No search text · Results · No match | Exercise Picker |
 | History | Empty · With workouts · Loading · Load failed | History |
 
