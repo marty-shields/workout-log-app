@@ -18,5 +18,5 @@ Run the stories: see [08](08-dev-setup-build.md#stories-design-system-and-protot
 Every new or changed screen or component goes through these steps (D131):
 1. Build it in `WorkoutLog.UI` with its story and its design-system page.
 2. Run the stories and take Playwright screenshots of each state, light and dark, at phone width.
-3. Stop for Martin's review. Change it until he approves.
+3. Stop for review: leave the stories running and open each new or changed story and design-system page in the reviewer's browser (D193). Change it until the reviewer approves, then stop the stories.
 4. Only then use it in the App or in other screens.

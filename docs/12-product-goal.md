@@ -17,4 +17,4 @@ A story in the [backlog](13-backlog.md) is Done when all of these are true:
 | Tests | New behaviour has unit or bUnit tests. All tests pass. |
 | Logging | Errors and unexpected events in new code are logged as in [05](05-architecture.md#logging), with tests. No workout contents in logs. |
 | Verified on phone | Where the story changes the app, its acceptance criteria have been checked by hand on the real phone. |
-| Docs + commit | Affected docs are updated. Martin has reviewed the change and approved the commit. The change is committed to local git as a Conventional Commit. |
+| Docs + commit | Affected docs are updated. The reviewer has reviewed the change and approved the commit. The change is committed to local git as a Conventional Commit. |

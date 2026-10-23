@@ -5,7 +5,7 @@ The list ships with the app and changes only through an app update. The full lis
 ## Source
 - Strength exercises are based on [free-exercise-db](https://github.com/yuhonas/free-exercise-db) (public domain), strength and powerlifting categories only. Some exercises were added by hand.
 - Names were checked against muscleandstrength.com for gaps. Only names are used; no descriptions or images.
-- Martin's 44 must-have exercises are all included, under the names agreed for them (see D79).
+- The reviewer's 44 must-have exercises are all included, under the names agreed for them (see D79).
 - Cardio and carries were written by hand.
 
 ## Selection rules

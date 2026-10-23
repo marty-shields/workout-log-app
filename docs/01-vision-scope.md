@@ -6,7 +6,7 @@
 See [12 Product goal](12-product-goal.md).
 
 ## User
-One person (Martin). There are no accounts, no sharing and no Play Store listing. The app is sideloaded onto one phone.
+One person, the owner. There are no accounts, no sharing and no Play Store listing. The app is sideloaded onto one phone.
 
 ## In scope (v1)
 - Log a workout: add exercises from a fixed list, then record sets (strength) or one entry (cardio).
