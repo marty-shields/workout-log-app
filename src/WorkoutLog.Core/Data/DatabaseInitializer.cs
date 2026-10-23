@@ -1,5 +1,6 @@
 using Microsoft.Extensions.Logging;
 using SQLite;
+using WorkoutLog.Core.Logging;
 
 namespace WorkoutLog.Core.Data;
 
@@ -95,13 +96,13 @@ public sealed partial class DatabaseInitializer : IDatabaseInitializer
 
     private static partial class Log
     {
-        [LoggerMessage(1001, LogLevel.Information, "Database schema version {Stored}, app schema version {Current}")]
+        [LoggerMessage((int)CoreEvent.SchemaVersion, LogLevel.Information, "Database schema version {Stored}, app schema version {Current}")]
         public static partial void SchemaVersion(ILogger logger, int stored, int current);
 
-        [LoggerMessage(1002, LogLevel.Information, "New database created at schema version {Version}")]
+        [LoggerMessage((int)CoreEvent.DatabaseCreated, LogLevel.Information, "New database created at schema version {Version}")]
         public static partial void DatabaseCreated(ILogger logger, int version);
 
-        [LoggerMessage(1003, LogLevel.Information, "Schema upgrade step {Version} applied")]
+        [LoggerMessage((int)CoreEvent.SchemaStepApplied, LogLevel.Information, "Schema upgrade step {Version} applied")]
         public static partial void StepApplied(ILogger logger, int version);
     }
 }

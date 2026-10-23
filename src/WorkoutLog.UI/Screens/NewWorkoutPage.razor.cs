@@ -1,4 +1,5 @@
 using Microsoft.Extensions.Logging;
+using WorkoutLog.UI.Logging;
 
 namespace WorkoutLog.UI.Screens;
 
@@ -7,7 +8,7 @@ public partial class NewWorkoutPage
 {
     private static partial class Log
     {
-        [LoggerMessage(2701, LogLevel.Information, "New workout discarded with {ExerciseCount} exercises")]
+        [LoggerMessage((int)UiEvent.NewWorkoutDiscarded, LogLevel.Information, "New workout discarded with {ExerciseCount} exercises")]
         public static partial void Discarded(ILogger logger, int exerciseCount);
     }
 }

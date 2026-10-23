@@ -57,21 +57,21 @@ flowchart LR
 - **Exercise definitions** are an embedded JSON file in Core, read into the `IExerciseCatalog` singleton on first use: the seeder, at startup (T45). The catalog also runs the picker search in memory (see [03](03-data-model.md#exercise-search), [04](04-exercise-list.md)).
 
 ## Dependency injection
-Everything is registered in `MauiProgram.CreateMauiApp()` using the built-in `IServiceCollection`. Core registers its own types through `AddCore(databasePath)` (T19); the App passes `workoutlog.db3` in `FileSystem.AppDataDirectory`. Of the services, only `IWorkoutService` and `IHistoryService` are public; the repository and validator are internal (T33, T60). The database connection is an `SQLiteAsyncConnection` singleton. Services and repositories are registered by interface. At startup the App's `Routes` component wraps the router in `StartupGate`, which awaits `IDatabaseInitializer.InitializeAsync()` and shows the Startup screen until it completes, or its error if it throws (T36, D133). The initializer upgrades and creates the schema, then seeds the exercise list (T25, T28). The initializer and repository are decorators that run each call through one `DatabaseGate`, so database calls run one at a time (T27). Logging providers are registered in `MauiProgram` too ([Logging](#logging)). UI registers its own types through `AddUi()` (T51): the `IBackButton`, `ISetChecker` and `IWorkoutChecker` singletons (T54); the App and the stories app call it. The App also registers `AndroidBackButton` ([Navigation](#navigation)). UI page components such as `NewWorkoutPage` inject `IWorkoutService`, `IExerciseCatalog`, `TimeProvider`, `ISetChecker` and `IWorkoutChecker`; `HistoryPage` injects `IHistoryService` and `TimeProvider` (T62); the stories app registers `TimeProvider.System`, `SampleWorkoutService` and `ExerciseCatalog` for them (T48, T50, T52).
+Everything is registered in `MauiProgram.CreateMauiApp()` using the built-in `IServiceCollection`. Core registers its own types through `AddCore(databasePath)` (T19); the App passes `workoutlog.db3` in `FileSystem.AppDataDirectory`. Of the services, only `IWorkoutService` and `IHistoryService` are public; the repository and validator are internal (T33, T60). The database connection is an `SQLiteAsyncConnection` singleton. Services and repositories are registered by interface. At startup the App's `Routes` component wraps the router in `StartupGate`, which awaits `IDatabaseInitializer.InitializeAsync()` and shows the Startup screen until it completes, or its error if it throws (T36, D133). The initializer upgrades and creates the schema, then seeds the exercise list (T25, T28). The initializer and repository are decorators that run each call through one `DatabaseGate`, so database calls run one at a time (T27). Logging providers are registered in `MauiProgram` too ([Logging](#logging)). UI registers its own types through `AddUi()` (T51): the `IBackButton`, `ISetChecker` and `IWorkoutChecker` singletons (T54); the App and the stories app call it. The App also registers `AndroidBackButton` ([Navigation](#navigation)). UI page components such as `NewWorkoutPage` inject `IWorkoutService`, `IExerciseCatalog`, `TimeProvider`, `ISetChecker` and `IWorkoutChecker`; `EditWorkoutPage` injects the same (T65); `HistoryPage` injects `IHistoryService` and `TimeProvider` (T62); the stories app registers `TimeProvider.System`, `SampleWorkoutService` and `ExerciseCatalog` for them (T48, T50, T52).
 
 ## Navigation
-Blazor routing (`@page`). `/workout/{id}` is proposed; the others are in use:
+Blazor routing (`@page`):
 | Route | Screen |
 |---|---|
 | `/` | Dashboard |
 | `/workout/new` | New workout (T47) |
-| `/workout/{id}` | Edit workout |
+| `/workout/{id}` | Edit workout (T65) |
 | `/history` | History |
 
 The Exercise picker is an overlay on the workout page, not a route.
 
 The Android back button is passed to the current page:
-- Workout pages: close the picker if it's open; otherwise show the Discard / Cancel prompt (FR-12, FR-23). New Workout ignores back while a save runs and after one succeeds (D179).
+- Workout pages: close the picker if it's open; otherwise show the Discard / Cancel prompt (FR-12, FR-23). New Workout ignores back while a save runs and after one succeeds (D179). Until US-18, Edit Workout ignores back once the workout is loaded; while loading, after a failed load or when it isn't found, back goes to History (D184, D185).
 - History: go to the Dashboard.
 - Dashboard: leave the app.
 
@@ -92,6 +92,7 @@ How (T46):
 ## Error handling
 - Validation failures are shown inline on the page. Nothing is written. The service returns error codes; the page words them (T30).
 - History load errors show "Couldn't load your history." with **Try again**. `IHistoryService` turns any repository exception into `HistoryResult.Failed` and logs it (T60).
+- Opening a workout that fails to load shows "Couldn't load the workout." with **Try again**; a missing one shows "This workout no longer exists." `IWorkoutService.GetAsync` turns any repository exception into `WorkoutLoad.Failed` and logs it (D185, T63).
 - Database errors are shown as a simple error message ("Couldn't save the workout. Try again."). The service turns any repository exception into `WorkoutError.SaveFailed` (T32) and logs it. The draft stays on screen.
 - An unhandled error in a screen shows the Error screen: "Something went wrong." and **Restart**, which goes to the Dashboard. `AppErrorBoundary` in the App's `Routes` shows it and logs the error (D140).
 - Unhandled .NET exceptions are logged, then the app crashes. Unobserved task exceptions are logged only (T44).
@@ -101,7 +102,7 @@ Every story logs its errors and unexpected events (D141). The Definition of Done
 
 **How**
 - Core and UI inject `ILogger<T>` and never know where logs go. Each host registers its own `ILoggerProvider`s and levels in its startup (T41).
-- Each logging type has a nested `static partial class Log` of `[LoggerMessage]` methods, each with a fixed EventId and level (T43). EventIds: Core 1000+, UI 2000+, App 3000+, a block of 100 per type. In a Razor component the `Log` class goes in `<Component>.razor.cs`.
+- Each logging type has a nested `static partial class Log` of `[LoggerMessage]` methods, each with a fixed EventId and level (T43). Each project names its EventIds in an internal enum, used as `(int)UiEvent.X` (T66): `CoreEvent` 1000–1999 and `UiEvent` 2000–4999, a block of 100 per type; `AppEvent` 5000+, a block of 10 per group. In a Razor component the `Log` class goes in `<Component>.razor.cs`.
 - Tests check each event with `FakeLogger` (Microsoft.Extensions.Diagnostics.Testing): EventId, level, message and exception ([07](07-testing.md)).
 
 **What to log**

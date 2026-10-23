@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging.Testing;
 using SQLite;
 using WorkoutLog.Core.Data;
 using WorkoutLog.Core.Domain.Exercises;
+using WorkoutLog.Core.Logging;
 
 namespace WorkoutLog.Core.Tests.Data;
 
@@ -77,7 +78,7 @@ public class ExerciseSeederTests
 
         Assert.That(LoggedEvents.Of(logger), Is.EqualTo(new[]
         {
-            (1101, LogLevel.Information, $"Exercise list seeded: {catalog.All.Count} added, 0 updated"),
+            (CoreEvent.ExercisesSeeded, LogLevel.Information, $"Exercise list seeded: {catalog.All.Count} added, 0 updated"),
         }));
     }
 
@@ -93,7 +94,7 @@ public class ExerciseSeederTests
 
         Assert.That(LoggedEvents.Of(logger), Is.EqualTo(new[]
         {
-            (1101, LogLevel.Information, "Exercise list seeded: 1 added, 2 updated"),
+            (CoreEvent.ExercisesSeeded, LogLevel.Information, "Exercise list seeded: 1 added, 2 updated"),
         }));
     }
 

@@ -44,9 +44,15 @@ public static class ScreenStates
 
         new("Screens/Edit Workout", "Saved", c => Workout(c, WorkoutMode.Edit, SampleData.StrengthWorkout(Catalog(c)))),
         new("Screens/Edit Workout", "Carry sets closed", c => Workout(c, WorkoutMode.Edit, SampleData.CarryWorkout(Catalog(c)))),
+        new("Screens/Edit Workout", "Cardio entries", c => Workout(c, WorkoutMode.Edit, SampleData.CardioWorkout(Catalog(c)))),
         new("Screens/Edit Workout", "Save errors", c => Workout(c, WorkoutMode.Edit, SampleData.EditWorkoutWithErrors(Catalog(c), WorkoutChecker(c)))),
+        new("Screens/Edit Workout", "Save failed", c => Workout(c, WorkoutMode.Edit, SampleData.StrengthWorkout(Catalog(c)), error: WorkoutChecker(c).SaveFailed)),
         new("Screens/Edit Workout", "Discard prompt", c => Workout(c, WorkoutMode.Edit, SampleData.StrengthWorkout(Catalog(c)), dialog: ("Discard changes?", "Discard"))),
         new("Screens/Edit Workout", "Delete prompt", c => Workout(c, WorkoutMode.Edit, SampleData.StrengthWorkout(Catalog(c)), dialog: ("Delete this workout?", "Delete"))),
+        new("Screens/Edit Workout", "Loading", c => WorkoutLoad(c)),
+        new("Screens/Edit Workout", "Load failed", c => WorkoutLoad(c, failed: true)),
+        new("Screens/Edit Workout", "Not found", c => WorkoutLoad(c, notFound: true)),
+        new("Screens/Edit Workout", "Live page", EditWorkout),
 
         new("Screens/Exercise Picker", "No search text", c => Workout(c, WorkoutMode.New, SampleData.StrengthWorkout(Catalog(c)), pickerQuery: "")),
         new("Screens/Exercise Picker", "Results", c => Workout(c, WorkoutMode.New, SampleData.StrengthWorkout(Catalog(c)), pickerQuery: "dumbbell")),
@@ -54,7 +60,6 @@ public static class ScreenStates
 
         new("Screens/History", "Empty", c => History(c, [], tappable: true)),
         new("Screens/History", "With workouts", c => History(c, SampleData.HistoryRows, tappable: true)),
-        new("Screens/History", "Rows not tappable", c => History(c, SampleData.HistoryRows, tappable: false)),
         new("Screens/History", "Loading", c => History(c, [], tappable: false, loading: true)),
         new("Screens/History", "Load failed", c => History(c, [], tappable: false, failed: true)),
 
@@ -79,6 +84,16 @@ public static class ScreenStates
         var clock = new FakeTimeProvider();
         context.Services.AddSingleton<TimeProvider>(clock);
         return context.Render<NewWorkoutPage>().FindAll("*");
+    }
+
+    private static IReadOnlyList<IElement> EditWorkout(BunitContext context)
+    {
+        context.Services.AddSingleton<TimeProvider>(new FakeTimeProvider());
+        return context.Render<EditWorkoutPage>(p => p
+            .Add(x => x.WorkoutId, 1)
+            .Add(x => x.OnBack, () => { })
+            .Add(x => x.OnSaved, () => { }))
+            .FindAll("*");
     }
 
     private static IReadOnlyList<IElement> Workout(
@@ -125,6 +140,14 @@ public static class ScreenStates
                     .Add(x => x.OnClose, () => { }));
             }
         }).FindAll("*");
+
+    private static IReadOnlyList<IElement> WorkoutLoad(BunitContext context, bool failed = false, bool notFound = false) =>
+        context.Render<WorkoutLoadView>(p => p
+            .Add(x => x.Failed, failed)
+            .Add(x => x.NotFound, notFound)
+            .Add(x => x.OnRetry, () => { })
+            .Add(x => x.OnBack, () => { }))
+            .FindAll("*");
 
     private static IReadOnlyList<IElement> History(
         BunitContext context, IReadOnlyList<HistoryRow> rows, bool tappable, bool loading = false, bool failed = false) =>

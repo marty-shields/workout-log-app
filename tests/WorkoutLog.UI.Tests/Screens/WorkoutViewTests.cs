@@ -5,6 +5,7 @@ using Microsoft.Extensions.Logging.Testing;
 using Microsoft.JSInterop;
 using WorkoutLog.Core.Domain.Exercises;
 using WorkoutLog.Core.Domain.Workouts.Validation;
+using WorkoutLog.UI.Logging;
 using WorkoutLog.UI.Models.Fields;
 using WorkoutLog.UI.Models.Workout;
 using WorkoutLog.UI.Screens;
@@ -327,7 +328,7 @@ public class WorkoutViewTests : ComponentTestBase
             .Add(x => x.Exercises, [curl])
             .Add(x => x.Focus, new ExerciseFocus(curl, addSet)));
 
-        cut.WaitForAssertion(() => Assert.That(LoggedEvents.Of(logger), Is.EqualTo(new[] { (2301, LogLevel.Warning, "Focusing an exercise failed") })));
+        cut.WaitForAssertion(() => Assert.That(LoggedEvents.Of(logger), Is.EqualTo(new[] { (UiEvent.ExerciseFocusFailed, LogLevel.Warning, "Focusing an exercise failed") })));
         Assert.Multiple(() =>
         {
             Assert.That(logger.LatestRecord.Exception, Is.TypeOf<JSException>());
@@ -548,7 +549,7 @@ public class WorkoutViewTests : ComponentTestBase
             .Add(x => x.Error, "Add at least one exercise")
             .Add(x => x.ErrorFocus, new ErrorFocus()));
 
-        cut.WaitForAssertion(() => Assert.That(LoggedEvents.Of(logger), Is.EqualTo(new[] { (2302, LogLevel.Warning, "Focusing the first error failed") })));
+        cut.WaitForAssertion(() => Assert.That(LoggedEvents.Of(logger), Is.EqualTo(new[] { (UiEvent.ErrorFocusFailed, LogLevel.Warning, "Focusing the first error failed") })));
         Assert.That(cut.FindAll("[data-testid=workout-error]"), Has.Count.EqualTo(1));
     }
 
@@ -565,7 +566,7 @@ public class WorkoutViewTests : ComponentTestBase
             .Add(x => x.Error, "Couldn't save the workout. Try again.")
             .Add(x => x.ErrorFocus, new ErrorFocus(focusSave: true)));
 
-        cut.WaitForAssertion(() => Assert.That(LoggedEvents.Of(logger), Is.EqualTo(new[] { (2302, LogLevel.Warning, "Focusing the first error failed") })));
+        cut.WaitForAssertion(() => Assert.That(LoggedEvents.Of(logger), Is.EqualTo(new[] { (UiEvent.ErrorFocusFailed, LogLevel.Warning, "Focusing the first error failed") })));
         Assert.That(cut.FindAll("[data-testid=exercise-1]"), Has.Count.EqualTo(1));
     }
 

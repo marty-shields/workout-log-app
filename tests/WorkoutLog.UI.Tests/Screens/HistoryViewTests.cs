@@ -2,6 +2,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Testing;
 using Microsoft.JSInterop;
+using WorkoutLog.UI.Logging;
 using WorkoutLog.UI.Models.History;
 using WorkoutLog.UI.Screens;
 
@@ -43,14 +44,6 @@ public class HistoryViewTests : ComponentTestBase
         cut.Find("[data-testid=history-row-1]").Click();
 
         Assert.That(opened, Is.EqualTo(Rows[1]));
-    }
-
-    [Test]
-    public void WithoutOnOpen_RowsAreNotTappable()
-    {
-        var cut = Context.Render<HistoryView>(p => p.Add(x => x.Rows, Rows));
-
-        Assert.That(cut.FindAll(".rows button"), Is.Empty);
     }
 
     [Test]
@@ -137,7 +130,7 @@ public class HistoryViewTests : ComponentTestBase
 
         var cut = Context.Render<HistoryView>(p => p.Add(x => x.Rows, []).Add(x => x.Failed, true));
 
-        cut.WaitForAssertion(() => Assert.That(LoggedEvents.Of(logger), Is.EqualTo(new[] { (2801, LogLevel.Warning, "Focusing Try again failed") })));
+        cut.WaitForAssertion(() => Assert.That(LoggedEvents.Of(logger), Is.EqualTo(new[] { (UiEvent.HistoryRetryFocusFailed, LogLevel.Warning, "Focusing Try again failed") })));
         Assert.Multiple(() =>
         {
             Assert.That(logger.LatestRecord.Exception, Is.TypeOf<JSException>());

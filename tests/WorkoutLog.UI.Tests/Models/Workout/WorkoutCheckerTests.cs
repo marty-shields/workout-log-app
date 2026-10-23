@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging.Testing;
 using Microsoft.Extensions.Time.Testing;
 using WorkoutLog.Core.Domain.Exercises;
 using WorkoutLog.Core.Domain.Workouts.Validation;
+using WorkoutLog.UI.Logging;
 using WorkoutLog.UI.Models.Fields;
 using WorkoutLog.UI.Models.Workout;
 using WorkoutLog.UI.Stories.Samples;
@@ -130,7 +131,7 @@ public class WorkoutCheckerTests
             Assert.That(unknown.ErrorCode, Is.EqualTo(ExerciseError.UnknownExercise));
             Assert.That(LoggedEvents.Of(logger), Is.EqualTo(new[]
             {
-                (2601, LogLevel.Warning, "Save check for exercise 9999 failed with UnknownExercise"),
+                (UiEvent.SaveCheckExerciseError, LogLevel.Warning, "Save check for exercise 9999 failed with UnknownExercise"),
             }));
             Assert.That(LoggedEvents.Of(setLogger), Is.Empty);
         });
@@ -175,7 +176,7 @@ public class WorkoutCheckerTests
             Assert.That(squatAsCardio.ErrorCode, Is.EqualTo(ExerciseError.WrongType));
             Assert.That(LoggedEvents.Of(logger), Is.EqualTo(new[]
             {
-                (2601, LogLevel.Warning, $"Save check for exercise {Squat} failed with WrongType"),
+                (UiEvent.SaveCheckExerciseError, LogLevel.Warning, $"Save check for exercise {Squat} failed with WrongType"),
             }));
         });
     }

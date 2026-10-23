@@ -8,6 +8,7 @@ using WorkoutLog.Core.Domain.Workouts;
 using WorkoutLog.Core.Domain.Workouts.Validation;
 using WorkoutLog.Core.Services;
 using WorkoutLog.UI.Components.Layout;
+using WorkoutLog.UI.Logging;
 using WorkoutLog.UI.Screens;
 using WorkoutLog.UI.Stories.Samples;
 
@@ -187,7 +188,7 @@ public class NewWorkoutPageTests : ComponentTestBase
         Assert.Multiple(() =>
         {
             Assert.That(discards, Is.EqualTo(1));
-            Assert.That(LoggedEvents.Of(logger), Is.EqualTo(new[] { (2701, LogLevel.Information, "New workout discarded with 2 exercises") }));
+            Assert.That(LoggedEvents.Of(logger), Is.EqualTo(new[] { (UiEvent.NewWorkoutDiscarded, LogLevel.Information, "New workout discarded with 2 exercises") }));
             Assert.That(workouts.Saves, Is.Empty);
         });
     }
@@ -281,7 +282,7 @@ public class NewWorkoutPageTests : ComponentTestBase
 
         cut.Find("[data-testid=confirm-dialog-confirm]").Click();
 
-        Assert.That(LoggedEvents.Of(logger), Is.EqualTo(new[] { (2701, LogLevel.Information, "New workout discarded with 0 exercises") }));
+        Assert.That(LoggedEvents.Of(logger), Is.EqualTo(new[] { (UiEvent.NewWorkoutDiscarded, LogLevel.Information, "New workout discarded with 0 exercises") }));
     }
 
     [Test]
@@ -1020,6 +1021,8 @@ public class NewWorkoutPageTests : ComponentTestBase
             Saves.Add((draft, exercises));
             return SaveNew?.Invoke() ?? inner.SaveNewAsync(draft, exercises);
         }
+
+        public Task<WorkoutResult> GetAsync(int workoutId) => inner.GetAsync(workoutId);
 
         public Task<SaveResult> SaveAsync(int workoutId, IReadOnlyList<WorkoutExercise> exercises) => inner.SaveAsync(workoutId, exercises);
     }

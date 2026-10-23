@@ -5,6 +5,7 @@ using WorkoutLog.Core.Domain.Exercises;
 using WorkoutLog.Core.Domain.Workouts;
 using WorkoutLog.Core.Domain.Workouts.Validation;
 using WorkoutLog.Core.Services;
+using WorkoutLog.UI.Logging;
 using WorkoutLog.UI.Models.Fields;
 
 namespace WorkoutLog.UI.Models.Workout;
@@ -230,10 +231,10 @@ public sealed partial class SetChecker(IWorkoutService workouts, IExerciseCatalo
 
     private static partial class Log
     {
-        [LoggerMessage(2501, LogLevel.Warning, "Set check for exercise {ExerciseId} failed with {Error}")]
+        [LoggerMessage((int)UiEvent.SetCheckExerciseError, LogLevel.Warning, "Set check for exercise {ExerciseId} failed with {Error}")]
         public static partial void ExerciseErrorUnworded(ILogger logger, int exerciseId, ExerciseError error);
 
-        [LoggerMessage(2502, LogLevel.Warning, "Set check for exercise {ExerciseId} gave {Error} for {Metric} and no message")]
+        [LoggerMessage((int)UiEvent.SetCheckFieldUnworded, LogLevel.Warning, "Set check for exercise {ExerciseId} gave {Error} for {Metric} and no message")]
         public static partial void FieldErrorUnworded(ILogger logger, int exerciseId, Metric metric, FieldError error);
     }
 }

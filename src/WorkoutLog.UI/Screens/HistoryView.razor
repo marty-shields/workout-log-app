@@ -26,7 +26,7 @@
             @foreach (var row in Rows)
             {
                 <li>
-                    <ListRow Text="@DisplayFormat.DateAndTime(row.StartedAt)" OnClick="RowClick(row)" TestId="@($"history-row-{row.Id}")" />
+                    <ListRow Text="@DisplayFormat.DateAndTime(row.StartedAt)" OnClick="() => OnOpen.InvokeAsync(row)" TestId="@($"history-row-{row.Id}")" />
                 </li>
             }
         </ul>
@@ -50,8 +50,8 @@
     [Parameter]
     public EventCallback OnRetry { get; set; }
 
-    /// <summary>Raised when a row is tapped. Rows are not tappable when unset.</summary>
-    [Parameter]
+    /// <summary>Raised when a row is tapped.</summary>
+    [Parameter, EditorRequired]
     public EventCallback<HistoryRow> OnOpen { get; set; }
 
     /// <summary>Raised by the back arrow and the Android back button.</summary>
@@ -86,7 +86,4 @@
             Log.RetryFocusFailed(Logger, exception);
         }
     }
-
-    private EventCallback RowClick(HistoryRow row) =>
-        OnOpen.HasDelegate ? EventCallback.Factory.Create(this, () => OnOpen.InvokeAsync(row)) : default;
 }

@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Testing;
 using WorkoutLog.UI.Components.Layout;
+using WorkoutLog.UI.Logging;
 using WorkoutLog.UI.Navigation;
 
 namespace WorkoutLog.UI.Tests.Navigation;
@@ -78,7 +79,7 @@ public class BackHandlerTests : ComponentTestBase
         Assert.Multiple(() =>
         {
             Assert.That(cut.FindAll("[data-testid=error-message]"), Has.Count.EqualTo(1));
-            Assert.That(LoggedEvents.Of(logger), Is.EqualTo(new[] { (2101, LogLevel.Error, "Unhandled error in a screen") }));
+            Assert.That(LoggedEvents.Of(logger), Is.EqualTo(new[] { (UiEvent.ScreenError, LogLevel.Error, "Unhandled error in a screen") }));
         });
     }
 }

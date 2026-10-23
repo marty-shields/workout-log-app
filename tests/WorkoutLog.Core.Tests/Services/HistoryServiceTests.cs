@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging.Testing;
 using Moq;
 using WorkoutLog.Core.Data;
 using WorkoutLog.Core.Domain.Workouts;
+using WorkoutLog.Core.Logging;
 using WorkoutLog.Core.Services;
 
 namespace WorkoutLog.Core.Tests.Services;
@@ -43,7 +44,7 @@ public class HistoryServiceTests
 
         await service.GetAllAsync();
 
-        Assert.That(LoggedEvents.Of(logger), Is.EqualTo(new[] { (1301, LogLevel.Debug, $"History loaded with {count} workouts") }));
+        Assert.That(LoggedEvents.Of(logger), Is.EqualTo(new[] { (CoreEvent.HistoryLoaded, LogLevel.Debug, $"History loaded with {count} workouts") }));
         Assert.That(logger.LatestRecord.Exception, Is.Null);
     }
 
@@ -66,7 +67,7 @@ public class HistoryServiceTests
 
         await service.GetAllAsync();
 
-        Assert.That(LoggedEvents.Of(logger), Is.EqualTo(new[] { (1302, LogLevel.Error, "Loading the history failed") }));
+        Assert.That(LoggedEvents.Of(logger), Is.EqualTo(new[] { (CoreEvent.HistoryLoadFailed, LogLevel.Error, "Loading the history failed") }));
         Assert.That(logger.LatestRecord.Exception, Is.SameAs(exception));
     }
 }

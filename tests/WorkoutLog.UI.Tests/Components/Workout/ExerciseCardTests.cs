@@ -5,6 +5,7 @@ using Microsoft.Extensions.Logging.Testing;
 using Microsoft.JSInterop;
 using WorkoutLog.Core.Domain.Exercises;
 using WorkoutLog.UI.Components.Workout;
+using WorkoutLog.UI.Logging;
 using WorkoutLog.UI.Models.Fields;
 using WorkoutLog.UI.Models.Workout;
 
@@ -261,7 +262,7 @@ public class ExerciseCardTests : ComponentTestBase
 
         cut.Find($"[data-testid={tap}]").Click();
 
-        cut.WaitForAssertion(() => Assert.That(LoggedEvents.Of(logger), Is.EqualTo(new[] { (2401, LogLevel.Warning, "Focusing a blocked set failed") })));
+        cut.WaitForAssertion(() => Assert.That(LoggedEvents.Of(logger), Is.EqualTo(new[] { (UiEvent.BlockedSetFocusFailed, LogLevel.Warning, "Focusing a blocked set failed") })));
         Assert.Multiple(() =>
         {
             Assert.That(logger.LatestRecord.Exception, Is.TypeOf<JSException>());

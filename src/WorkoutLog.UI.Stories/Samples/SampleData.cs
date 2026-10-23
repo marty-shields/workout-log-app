@@ -1,4 +1,5 @@
 using WorkoutLog.Core.Domain.Exercises;
+using WorkoutLog.Core.Domain.Workouts;
 using WorkoutLog.UI.Models.Dashboard;
 using WorkoutLog.UI.Models.History;
 using WorkoutLog.UI.Models.Workout;
@@ -17,6 +18,18 @@ public static class SampleData
 {
     /// <summary>Start time used by the static stories: Tue 20 Oct 2026 18:05.</summary>
     public static readonly DateTime Started = new(2026, 10, 20, 18, 5, 0);
+
+    /// <summary>A saved workout as Core returns it, started at <see cref="Started"/> UTC and 1:04:37 long: squat, assisted pull-up, plank and a carry with two sets.</summary>
+    public static readonly Workout SavedStrengthWorkout = new(
+        1,
+        new DateTimeOffset(Started, TimeSpan.Zero),
+        new DateTimeOffset(Started, TimeSpan.Zero) + new TimeSpan(1, 4, 37),
+        [
+            new StrengthExercise(6, [new StrengthSet(8, 60m, null, null), new StrengthSet(8, 60m, null, null), new StrengthSet(6, 62.5m, null, null)]),
+            new StrengthExercise(218, [new StrengthSet(10, 25m, null, null), new StrengthSet(8, 25m, null, null)]),
+            new StrengthExercise(258, [new StrengthSet(null, null, TimeSpan.FromMinutes(1), null)]),
+            new StrengthExercise(187, [new StrengthSet(null, 32m, TimeSpan.FromSeconds(45), 40m), new StrengthSet(null, 32m, TimeSpan.FromSeconds(50), 40m)]),
+        ]);
 
     /// <summary>Picker results from the catalog's search.</summary>
     public static IReadOnlyList<PickerItem> PickerItems(IExerciseCatalog catalog, string? query) =>

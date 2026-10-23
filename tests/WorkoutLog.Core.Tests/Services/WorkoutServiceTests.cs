@@ -7,6 +7,7 @@ using WorkoutLog.Core.Data;
 using WorkoutLog.Core.Domain.Exercises;
 using WorkoutLog.Core.Domain.Workouts;
 using WorkoutLog.Core.Domain.Workouts.Validation;
+using WorkoutLog.Core.Logging;
 using WorkoutLog.Core.Services;
 
 namespace WorkoutLog.Core.Tests.Services;
@@ -48,7 +49,7 @@ public class WorkoutServiceTests
     {
         service.StartNew();
 
-        Assert.That(LoggedEvents.Of(logger), Is.EqualTo(new[] { (1206, LogLevel.Information, "New workout started") }));
+        Assert.That(LoggedEvents.Of(logger), Is.EqualTo(new[] { (CoreEvent.WorkoutStarted, LogLevel.Information, "New workout started") }));
         Assert.That(logger.LatestRecord.Exception, Is.Null);
     }
 
@@ -211,7 +212,7 @@ public class WorkoutServiceTests
 
         Assert.That(LoggedEvents.Of(logger), Is.EqualTo(new[]
         {
-            (1201, LogLevel.Information, "Workout 7 added with 2 exercises"),
+            (CoreEvent.WorkoutAdded, LogLevel.Information, "Workout 7 added with 2 exercises"),
         }));
     }
 
@@ -223,7 +224,7 @@ public class WorkoutServiceTests
         await service.SaveNewAsync(new WorkoutDraft(Start.AddMinutes(30)), Exercises());
 
         Assert.That(LoggedEvents.Of(logger)[0], Is.EqualTo(
-            (1205, LogLevel.Warning, "The clock is 00:30:00 behind the workout start; the finish is set to the start")));
+            (CoreEvent.ClockBeforeStart, LogLevel.Warning, "The clock is 00:30:00 behind the workout start; the finish is set to the start")));
     }
 
     [Test]
@@ -234,7 +235,7 @@ public class WorkoutServiceTests
 
         await service.SaveNewAsync(new WorkoutDraft(Start), Exercises());
 
-        Assert.That(LoggedEvents.Of(logger), Is.EqualTo(new[] { (1203, LogLevel.Error, "Adding a workout failed") }));
+        Assert.That(LoggedEvents.Of(logger), Is.EqualTo(new[] { (CoreEvent.WorkoutAddFailed, LogLevel.Error, "Adding a workout failed") }));
         Assert.That(logger.LatestRecord.Exception, Is.SameAs(exception));
     }
 
@@ -247,7 +248,7 @@ public class WorkoutServiceTests
 
         Assert.That(LoggedEvents.Of(logger), Is.EqualTo(new[]
         {
-            (1202, LogLevel.Information, "Workout 7 updated with 2 exercises"),
+            (CoreEvent.WorkoutUpdated, LogLevel.Information, "Workout 7 updated with 2 exercises"),
         }));
     }
 
@@ -259,7 +260,44 @@ public class WorkoutServiceTests
 
         await service.SaveAsync(7, Exercises());
 
-        Assert.That(LoggedEvents.Of(logger), Is.EqualTo(new[] { (1204, LogLevel.Error, "Updating workout 7 failed") }));
+        Assert.That(LoggedEvents.Of(logger), Is.EqualTo(new[] { (CoreEvent.WorkoutUpdateFailed, LogLevel.Error, "Updating workout 7 failed") }));
+        Assert.That(logger.LatestRecord.Exception, Is.SameAs(exception));
+    }
+
+    [Test]
+    public async Task GetAsync_Found_ReturnsTheWorkoutAndLogsTheIdAndExerciseCount()
+    {
+        var workout = new Workout(7, Start, Start.AddHours(1), Exercises());
+        repository.Setup(r => r.GetAsync(7)).ReturnsAsync(workout);
+
+        var result = await service.GetAsync(7);
+
+        Assert.That(result, Is.EqualTo(new WorkoutResult(workout, WorkoutLoad.Loaded)));
+        Assert.That(LoggedEvents.Of(logger), Is.EqualTo(new[] { (CoreEvent.WorkoutLoaded, LogLevel.Debug, "Workout 7 loaded with 2 exercises") }));
+    }
+
+    [Test]
+    public async Task GetAsync_Missing_ReturnsNotFoundAndLogsAWarning()
+    {
+        repository.Setup(r => r.GetAsync(7)).ReturnsAsync((Workout?)null);
+
+        var result = await service.GetAsync(7);
+
+        Assert.That(result, Is.EqualTo(new WorkoutResult(null, WorkoutLoad.NotFound)));
+        Assert.That(LoggedEvents.Of(logger), Is.EqualTo(new[] { (CoreEvent.WorkoutNotFound, LogLevel.Warning, "Workout 7 not found") }));
+        Assert.That(logger.LatestRecord.Exception, Is.Null);
+    }
+
+    [Test]
+    public async Task GetAsync_RepositoryThrows_ReturnsFailedAndLogsTheIdAndException()
+    {
+        var exception = SQLiteException.New(SQLite3.Result.IOError, "disk I/O error");
+        repository.Setup(r => r.GetAsync(7)).ThrowsAsync(exception);
+
+        var result = await service.GetAsync(7);
+
+        Assert.That(result, Is.EqualTo(new WorkoutResult(null, WorkoutLoad.Failed)));
+        Assert.That(LoggedEvents.Of(logger), Is.EqualTo(new[] { (CoreEvent.WorkoutLoadFailed, LogLevel.Error, "Loading workout 7 failed") }));
         Assert.That(logger.LatestRecord.Exception, Is.SameAs(exception));
     }
 

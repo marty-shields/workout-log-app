@@ -1,4 +1,5 @@
 using Microsoft.Extensions.Logging;
+using WorkoutLog.UI.Logging;
 
 namespace WorkoutLog.UI.Components.Layout;
 
@@ -7,7 +8,7 @@ public partial class AppErrorBoundary
 {
     private static partial class Log
     {
-        [LoggerMessage(2101, LogLevel.Error, "Unhandled error in a screen")]
+        [LoggerMessage((int)UiEvent.ScreenError, LogLevel.Error, "Unhandled error in a screen")]
         public static partial void Unhandled(ILogger logger, Exception exception);
     }
 }

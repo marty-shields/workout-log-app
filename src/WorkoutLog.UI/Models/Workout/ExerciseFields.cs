@@ -1,4 +1,6 @@
+using System.Globalization;
 using WorkoutLog.Core.Domain.Exercises;
+using WorkoutLog.Core.Domain.Workouts;
 using WorkoutLog.UI.Models.Fields;
 
 namespace WorkoutLog.UI.Models.Workout;
@@ -15,6 +17,40 @@ public static class ExerciseFields
     {
         var state = new ExerciseState(exercise.Id, exercise.Name, Kind(exercise.Type), For(exercise));
         state.Entries.Add(new EntryState());
+        return state;
+    }
+
+    /// <summary>
+    /// A saved exercise, with each value as the user would type it: decimals with up to 2 places and no trailing zeros,
+    /// duration as h:mm:ss, pace as m:ss. Null when the record doesn't match the definition's type.
+    /// </summary>
+    public static ExerciseState? Saved(ExerciseDefinition exercise, WorkoutExercise saved)
+    {
+        var kind = Kind(exercise.Type);
+        IEnumerable<Dictionary<Metric, object?>>? entries = (kind, saved) switch
+        {
+            (ExerciseKind.Strength, StrengthExercise strength) => strength.Sets.Select(Values),
+            (ExerciseKind.Cardio, CardioExercise cardio) => [Values(cardio.Entry)],
+            _ => null,
+        };
+
+        if (entries is null)
+        {
+            return null;
+        }
+
+        var state = new ExerciseState(exercise.Id, exercise.Name, kind, For(exercise));
+        foreach (var values in entries)
+        {
+            var entry = new EntryState();
+            foreach (var field in state.Fields)
+            {
+                entry.Values[field.Key] = Text(field.Kind, values.GetValueOrDefault(field.Metric));
+            }
+
+            state.Entries.Add(entry);
+        }
+
         return state;
     }
 
@@ -47,6 +83,37 @@ public static class ExerciseFields
             _ => throw new ArgumentOutOfRangeException(nameof(metric), metric.Metric, null),
         };
     }
+
+    private static Dictionary<Metric, object?> Values(StrengthSet set) => new()
+    {
+        [Metric.Reps] = set.Reps,
+        [Metric.WeightKg] = set.WeightKg,
+        [Metric.Duration] = set.Duration,
+        [Metric.Distance] = set.Distance,
+    };
+
+    private static Dictionary<Metric, object?> Values(CardioEntry entry) => new()
+    {
+        [Metric.Duration] = entry.Duration,
+        [Metric.Distance] = entry.Distance,
+        [Metric.Floors] = entry.Floors,
+        [Metric.Level] = entry.Level,
+        [Metric.Incline] = entry.Incline,
+        [Metric.Calories] = entry.Calories,
+        [Metric.Rate] = entry.Rate,
+        [Metric.Pace] = entry.Pace,
+    };
+
+    /// <summary>The value as the field's text; null when there is none.</summary>
+    private static string? Text(FieldKind kind, object? value) => (kind, value) switch
+    {
+        (_, null) => null,
+        (FieldKind.Whole, int whole) => whole.ToString(CultureInfo.InvariantCulture),
+        (FieldKind.Decimal, decimal number) => number.ToString("0.##", CultureInfo.InvariantCulture),
+        (FieldKind.Duration, TimeSpan time) => $"{(int)time.TotalHours}:{time.Minutes:00}:{time.Seconds:00}",
+        (FieldKind.Pace, TimeSpan time) => $"{(int)time.TotalMinutes}:{time.Seconds:00}",
+        _ => throw new ArgumentOutOfRangeException(nameof(value), kind, "Value doesn't fit the field"),
+    };
 
     private static string DistanceText(ExerciseDefinition exercise) => exercise.DistanceUnit switch
     {

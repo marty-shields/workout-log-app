@@ -1,6 +1,7 @@
 using Microsoft.Extensions.Logging;
 using WorkoutLog.Core.Domain.Workouts.Validation;
 using WorkoutLog.Core.Services;
+using WorkoutLog.UI.Logging;
 
 namespace WorkoutLog.UI.Models.Workout;
 
@@ -66,7 +67,7 @@ public sealed partial class WorkoutChecker(ISetChecker sets, IWorkoutService wor
 
     private static partial class Log
     {
-        [LoggerMessage(2601, LogLevel.Warning, "Save check for exercise {ExerciseId} failed with {Error}")]
+        [LoggerMessage((int)UiEvent.SaveCheckExerciseError, LogLevel.Warning, "Save check for exercise {ExerciseId} failed with {Error}")]
         public static partial void ExerciseError(ILogger logger, int exerciseId, ExerciseError error);
     }
 }

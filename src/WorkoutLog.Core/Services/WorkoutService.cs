@@ -2,10 +2,11 @@ using Microsoft.Extensions.Logging;
 using WorkoutLog.Core.Data;
 using WorkoutLog.Core.Domain.Workouts;
 using WorkoutLog.Core.Domain.Workouts.Validation;
+using WorkoutLog.Core.Logging;
 
 namespace WorkoutLog.Core.Services;
 
-/// <summary>Checks workouts with <see cref="IWorkoutValidator"/> and saves them through <see cref="IWorkoutRepository"/>.</summary>
+/// <summary>Checks workouts with <see cref="IWorkoutValidator"/>, and reads and saves them through <see cref="IWorkoutRepository"/>.</summary>
 internal sealed partial class WorkoutService(
     IWorkoutRepository repository, IWorkoutValidator validator, TimeProvider time, ILogger<WorkoutService> logger) : IWorkoutService
 {
@@ -55,6 +56,30 @@ internal sealed partial class WorkoutService(
 
         var workout = new NewWorkout(draft.StartedAt, now < draft.StartedAt ? draft.StartedAt : now, copy);
         return await WriteAsync(null, copy.Length, () => repository.AddAsync(workout), errors);
+    }
+
+    /// <inheritdoc />
+    public async Task<WorkoutResult> GetAsync(int workoutId)
+    {
+        Workout? workout;
+        try
+        {
+            workout = await repository.GetAsync(workoutId);
+        }
+        catch (Exception exception)
+        {
+            Log.LoadFailed(logger, workoutId, exception);
+            return new WorkoutResult(null, WorkoutLoad.Failed);
+        }
+
+        if (workout is null)
+        {
+            Log.NotFound(logger, workoutId);
+            return new WorkoutResult(null, WorkoutLoad.NotFound);
+        }
+
+        Log.Loaded(logger, workoutId, workout.Exercises.Count);
+        return new WorkoutResult(workout, WorkoutLoad.Loaded);
     }
 
     /// <inheritdoc />
@@ -125,22 +150,31 @@ internal sealed partial class WorkoutService(
 
     private static partial class Log
     {
-        [LoggerMessage(1201, LogLevel.Information, "Workout {WorkoutId} added with {ExerciseCount} exercises")]
+        [LoggerMessage((int)CoreEvent.WorkoutAdded, LogLevel.Information, "Workout {WorkoutId} added with {ExerciseCount} exercises")]
         public static partial void Added(ILogger logger, int workoutId, int exerciseCount);
 
-        [LoggerMessage(1202, LogLevel.Information, "Workout {WorkoutId} updated with {ExerciseCount} exercises")]
+        [LoggerMessage((int)CoreEvent.WorkoutUpdated, LogLevel.Information, "Workout {WorkoutId} updated with {ExerciseCount} exercises")]
         public static partial void Updated(ILogger logger, int workoutId, int exerciseCount);
 
-        [LoggerMessage(1203, LogLevel.Error, "Adding a workout failed")]
+        [LoggerMessage((int)CoreEvent.WorkoutAddFailed, LogLevel.Error, "Adding a workout failed")]
         public static partial void AddFailed(ILogger logger, Exception exception);
 
-        [LoggerMessage(1204, LogLevel.Error, "Updating workout {WorkoutId} failed")]
+        [LoggerMessage((int)CoreEvent.WorkoutUpdateFailed, LogLevel.Error, "Updating workout {WorkoutId} failed")]
         public static partial void UpdateFailed(ILogger logger, int workoutId, Exception exception);
 
-        [LoggerMessage(1205, LogLevel.Warning, "The clock is {Behind} behind the workout start; the finish is set to the start")]
+        [LoggerMessage((int)CoreEvent.ClockBeforeStart, LogLevel.Warning, "The clock is {Behind} behind the workout start; the finish is set to the start")]
         public static partial void ClockBeforeStart(ILogger logger, TimeSpan behind);
 
-        [LoggerMessage(1206, LogLevel.Information, "New workout started")]
+        [LoggerMessage((int)CoreEvent.WorkoutStarted, LogLevel.Information, "New workout started")]
         public static partial void Started(ILogger logger);
+
+        [LoggerMessage((int)CoreEvent.WorkoutNotFound, LogLevel.Warning, "Workout {WorkoutId} not found")]
+        public static partial void NotFound(ILogger logger, int workoutId);
+
+        [LoggerMessage((int)CoreEvent.WorkoutLoadFailed, LogLevel.Error, "Loading workout {WorkoutId} failed")]
+        public static partial void LoadFailed(ILogger logger, int workoutId, Exception exception);
+
+        [LoggerMessage((int)CoreEvent.WorkoutLoaded, LogLevel.Debug, "Workout {WorkoutId} loaded with {ExerciseCount} exercises")]
+        public static partial void Loaded(ILogger logger, int workoutId, int exerciseCount);
     }
 }

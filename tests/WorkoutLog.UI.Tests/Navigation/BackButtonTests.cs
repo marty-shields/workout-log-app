@@ -1,5 +1,6 @@
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Testing;
+using WorkoutLog.UI.Logging;
 using WorkoutLog.UI.Navigation;
 
 namespace WorkoutLog.UI.Tests.Navigation;
@@ -24,7 +25,7 @@ public class BackButtonTests
         Assert.Multiple(() =>
         {
             Assert.That(backButton.HasHandler, Is.False);
-            Assert.That(LoggedEvents.Of(logger), Is.EqualTo(new[] { (2202, LogLevel.Debug, "Back pressed: no handler") }));
+            Assert.That(LoggedEvents.Of(logger), Is.EqualTo(new[] { (UiEvent.BackNotHandled, LogLevel.Debug, "Back pressed: no handler") }));
         });
     }
 
@@ -40,7 +41,7 @@ public class BackButtonTests
         {
             Assert.That(backButton.HasHandler, Is.True);
             Assert.That(calls, Is.EqualTo(1));
-            Assert.That(LoggedEvents.Of(logger), Is.EqualTo(new[] { (2201, LogLevel.Debug, "Back pressed: handled by the page") }));
+            Assert.That(LoggedEvents.Of(logger), Is.EqualTo(new[] { (UiEvent.BackHandled, LogLevel.Debug, "Back pressed: handled by the page") }));
         });
     }
 
@@ -135,8 +136,8 @@ public class BackButtonTests
         {
             Assert.That(LoggedEvents.Of(logger), Is.EqualTo(new[]
             {
-                (2201, LogLevel.Debug, "Back pressed: handled by the page"),
-                (2203, LogLevel.Error, "Back handler failed"),
+                (UiEvent.BackHandled, LogLevel.Debug, "Back pressed: handled by the page"),
+                (UiEvent.BackHandlerFailed, LogLevel.Error, "Back handler failed"),
             }));
             Assert.That(logger.LatestRecord.Exception, Is.TypeOf<InvalidOperationException>());
         });

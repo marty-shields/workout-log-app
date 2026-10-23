@@ -1,4 +1,5 @@
 using Microsoft.Extensions.Logging;
+using WorkoutLog.UI.Logging;
 
 namespace WorkoutLog.UI.Components.Workout;
 
@@ -7,7 +8,7 @@ public partial class ExerciseCard
 {
     private static partial class Log
     {
-        [LoggerMessage(2401, LogLevel.Warning, "Focusing a blocked set failed")]
+        [LoggerMessage((int)UiEvent.BlockedSetFocusFailed, LogLevel.Warning, "Focusing a blocked set failed")]
         public static partial void FocusFailed(ILogger logger, Exception exception);
     }
 }

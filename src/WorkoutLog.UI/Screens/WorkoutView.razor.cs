@@ -1,4 +1,5 @@
 using Microsoft.Extensions.Logging;
+using WorkoutLog.UI.Logging;
 
 namespace WorkoutLog.UI.Screens;
 
@@ -7,10 +8,10 @@ public partial class WorkoutView
 {
     private static partial class Log
     {
-        [LoggerMessage(2301, LogLevel.Warning, "Focusing an exercise failed")]
+        [LoggerMessage((int)UiEvent.ExerciseFocusFailed, LogLevel.Warning, "Focusing an exercise failed")]
         public static partial void FocusFailed(ILogger logger, Exception exception);
 
-        [LoggerMessage(2302, LogLevel.Warning, "Focusing the first error failed")]
+        [LoggerMessage((int)UiEvent.ErrorFocusFailed, LogLevel.Warning, "Focusing the first error failed")]
         public static partial void ErrorFocusFailed(ILogger logger, Exception exception);
     }
 }

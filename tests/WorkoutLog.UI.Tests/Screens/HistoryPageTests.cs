@@ -55,14 +55,17 @@ public class HistoryPageTests : ComponentTestBase
     }
 
     [Test]
-    public void Loaded_RowsAreNotTappable()
+    public void TapRow_RaisesOnOpenWithTheWorkoutId()
     {
-        var cut = Context.Render<HistoryPage>();
-
-        history.Complete(new HistoryResult([new WorkoutSummary(1, DateTimeOffset.UnixEpoch)], Failed: false));
-
+        var opened = new List<int>();
+        var cut = Context.Render<HistoryPage>(p => p.Add(x => x.OnOpen, (int id) => opened.Add(id)));
+        history.Complete(new HistoryResult(
+            [new WorkoutSummary(2, DateTimeOffset.UnixEpoch.AddDays(1)), new WorkoutSummary(1, DateTimeOffset.UnixEpoch)], Failed: false));
         cut.WaitForAssertion(() => Assert.That(cut.FindAll("[data-testid=history-row-1]"), Has.Count.EqualTo(1)));
-        Assert.That(cut.FindAll(".rows button"), Is.Empty);
+
+        cut.Find("[data-testid=history-row-1]").Click();
+
+        Assert.That(opened, Is.EqualTo(new[] { 1 }));
     }
 
     [Test]

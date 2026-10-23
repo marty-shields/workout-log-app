@@ -1,6 +1,7 @@
 using Android.App;
 using Android.Content;
 using Microsoft.Extensions.Logging;
+using WorkoutLog.App.Logging;
 
 namespace WorkoutLog.App.Diagnostics;
 
@@ -72,34 +73,34 @@ internal sealed partial class AndroidDiagnostics(ILogger<AndroidDiagnostics> log
 
     private static partial class Log
     {
-        [LoggerMessage(3001, LogLevel.Information, "App {Version} ({VersionCode}) {Build} started on Android API {Api}")]
+        [LoggerMessage((int)AppEvent.ProcessStarted, LogLevel.Information, "App {Version} ({VersionCode}) {Build} started on Android API {Api}")]
         public static partial void ProcessStarted(ILogger logger, string version, string versionCode, string build, int api);
 
-        [LoggerMessage(3002, LogLevel.Information, "Previous exit: {Reason}, status {Status}, at {At:O}, {Description}")]
+        [LoggerMessage((int)AppEvent.PreviousExit, LogLevel.Information, "Previous exit: {Reason}, status {Status}, at {At:O}, {Description}")]
         public static partial void PreviousExit(ILogger logger, ApplicationExitInfoReason reason, int status, DateTimeOffset at, string? description);
 
-        [LoggerMessage(3003, LogLevel.Warning, "Previous exit: {Reason}, status {Status}, at {At:O}, {Description}")]
+        [LoggerMessage((int)AppEvent.PreviousExitAbnormal, LogLevel.Warning, "Previous exit: {Reason}, status {Status}, at {At:O}, {Description}")]
         public static partial void PreviousExitAbnormal(ILogger logger, ApplicationExitInfoReason reason, int status, DateTimeOffset at, string? description);
 
-        [LoggerMessage(3004, LogLevel.Information, "No previous exit recorded")]
+        [LoggerMessage((int)AppEvent.NoPreviousExit, LogLevel.Information, "No previous exit recorded")]
         public static partial void NoPreviousExit(ILogger logger);
 
-        [LoggerMessage(3011, LogLevel.Information, "Activity created")]
+        [LoggerMessage((int)AppEvent.ActivityCreated, LogLevel.Information, "Activity created")]
         public static partial void ActivityCreated(ILogger logger);
 
-        [LoggerMessage(3012, LogLevel.Information, "Activity stopped")]
+        [LoggerMessage((int)AppEvent.ActivityStopped, LogLevel.Information, "Activity stopped")]
         public static partial void ActivityStopped(ILogger logger);
 
-        [LoggerMessage(3013, LogLevel.Information, "Activity destroyed")]
+        [LoggerMessage((int)AppEvent.ActivityDestroyed, LogLevel.Information, "Activity destroyed")]
         public static partial void ActivityDestroyed(ILogger logger);
 
-        [LoggerMessage(3021, LogLevel.Information, "Trim memory: {Level}")]
+        [LoggerMessage((int)AppEvent.TrimMemory, LogLevel.Information, "Trim memory: {Level}")]
         public static partial void TrimMemory(ILogger logger, TrimMemory level);
 
-        [LoggerMessage(3031, LogLevel.Critical, "Unhandled exception")]
+        [LoggerMessage((int)AppEvent.UnhandledException, LogLevel.Critical, "Unhandled exception")]
         public static partial void UnhandledException(ILogger logger, Exception? exception);
 
-        [LoggerMessage(3033, LogLevel.Error, "Unobserved task exception")]
+        [LoggerMessage((int)AppEvent.UnobservedTaskException, LogLevel.Error, "Unobserved task exception")]
         public static partial void UnobservedTaskException(ILogger logger, Exception exception);
     }
 }

@@ -1,4 +1,5 @@
 using Microsoft.Extensions.Logging;
+using WorkoutLog.UI.Logging;
 
 namespace WorkoutLog.UI.Components.Layout;
 
@@ -7,10 +8,10 @@ public partial class StartupGate
 {
     private static partial class Log
     {
-        [LoggerMessage(2001, LogLevel.Information, "Startup finished in {Milliseconds} ms")]
+        [LoggerMessage((int)UiEvent.StartupFinished, LogLevel.Information, "Startup finished in {Milliseconds} ms")]
         public static partial void Started(ILogger logger, long milliseconds);
 
-        [LoggerMessage(2002, LogLevel.Error, "Startup failed")]
+        [LoggerMessage((int)UiEvent.StartupFailed, LogLevel.Error, "Startup failed")]
         public static partial void Failed(ILogger logger, Exception exception);
     }
 }

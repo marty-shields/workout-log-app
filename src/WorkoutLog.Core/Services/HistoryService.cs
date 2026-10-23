@@ -1,6 +1,7 @@
 using Microsoft.Extensions.Logging;
 using WorkoutLog.Core.Data;
 using WorkoutLog.Core.Domain.Workouts;
+using WorkoutLog.Core.Logging;
 
 namespace WorkoutLog.Core.Services;
 
@@ -27,10 +28,10 @@ internal sealed partial class HistoryService(IWorkoutRepository repository, ILog
 
     private static partial class Log
     {
-        [LoggerMessage(1301, LogLevel.Debug, "History loaded with {Count} workouts")]
+        [LoggerMessage((int)CoreEvent.HistoryLoaded, LogLevel.Debug, "History loaded with {Count} workouts")]
         public static partial void Loaded(ILogger logger, int count);
 
-        [LoggerMessage(1302, LogLevel.Error, "Loading the history failed")]
+        [LoggerMessage((int)CoreEvent.HistoryLoadFailed, LogLevel.Error, "Loading the history failed")]
         public static partial void LoadFailed(ILogger logger, Exception exception);
     }
 }

@@ -5,6 +5,7 @@ using Moq;
 using SQLite;
 using WorkoutLog.Core.Data;
 using WorkoutLog.Core.Domain.Exercises;
+using WorkoutLog.Core.Logging;
 
 namespace WorkoutLog.Core.Tests.Data;
 
@@ -174,8 +175,8 @@ public class DatabaseInitializerTests
 
         Assert.That(LoggedEvents.Of(logger), Is.EqualTo(new[]
         {
-            (1001, LogLevel.Information, "Database schema version 0, app schema version 2"),
-            (1002, LogLevel.Information, "New database created at schema version 2"),
+            (CoreEvent.SchemaVersion, LogLevel.Information, "Database schema version 0, app schema version 2"),
+            (CoreEvent.DatabaseCreated, LogLevel.Information, "New database created at schema version 2"),
         }));
     }
 
@@ -188,9 +189,9 @@ public class DatabaseInitializerTests
 
         Assert.That(LoggedEvents.Of(logger), Is.EqualTo(new[]
         {
-            (1001, LogLevel.Information, "Database schema version 1, app schema version 3"),
-            (1003, LogLevel.Information, "Schema upgrade step 2 applied"),
-            (1003, LogLevel.Information, "Schema upgrade step 3 applied"),
+            (CoreEvent.SchemaVersion, LogLevel.Information, "Database schema version 1, app schema version 3"),
+            (CoreEvent.SchemaStepApplied, LogLevel.Information, "Schema upgrade step 2 applied"),
+            (CoreEvent.SchemaStepApplied, LogLevel.Information, "Schema upgrade step 3 applied"),
         }));
     }
 
@@ -206,7 +207,7 @@ public class DatabaseInitializerTests
         Assert.That(calls, Is.Empty);
         Assert.That(LoggedEvents.Of(logger), Is.EqualTo(new[]
         {
-            (1001, LogLevel.Information, "Database schema version 3, app schema version 2"),
+            (CoreEvent.SchemaVersion, LogLevel.Information, "Database schema version 3, app schema version 2"),
         }));
     }
 

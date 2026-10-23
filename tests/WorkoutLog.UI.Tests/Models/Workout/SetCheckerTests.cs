@@ -5,6 +5,7 @@ using WorkoutLog.Core.Domain.Exercises;
 using WorkoutLog.Core.Domain.Workouts;
 using WorkoutLog.Core.Domain.Workouts.Validation;
 using WorkoutLog.Core.Services;
+using WorkoutLog.UI.Logging;
 using WorkoutLog.UI.Models.Workout;
 using WorkoutLog.UI.Stories.Samples;
 
@@ -405,7 +406,7 @@ public class SetCheckerTests
             Assert.That(exercise.Entries[0].Errors, Is.Empty);
             Assert.That(LoggedEvents.Of(logger), Is.EqualTo(new[]
             {
-                (2502, LogLevel.Warning, $"Set check for exercise {OutdoorRun} gave NotShown for Rate and no message"),
+                (UiEvent.SetCheckFieldUnworded, LogLevel.Warning, $"Set check for exercise {OutdoorRun} gave NotShown for Rate and no message"),
             }));
         });
     }
@@ -465,7 +466,7 @@ public class SetCheckerTests
             Assert.That(exercise.Entries[0].Errors, Is.Empty);
             Assert.That(LoggedEvents.Of(logger), Is.EqualTo(new[]
             {
-                (2502, LogLevel.Warning, $"Set check for exercise {Squat} gave NotShown for Distance and no message"),
+                (UiEvent.SetCheckFieldUnworded, LogLevel.Warning, $"Set check for exercise {Squat} gave NotShown for Distance and no message"),
             }));
         });
     }
@@ -483,7 +484,7 @@ public class SetCheckerTests
             Assert.That(exercise.Entries[0].Errors, Is.Empty);
             Assert.That(LoggedEvents.Of(logger), Is.EqualTo(new[]
             {
-                (2501, LogLevel.Warning, $"Set check for exercise {Squat} failed with {error}"),
+                (UiEvent.SetCheckExerciseError, LogLevel.Warning, $"Set check for exercise {Squat} failed with {error}"),
             }));
         });
     }
@@ -560,6 +561,8 @@ public class SetCheckerTests
         }
 
         public Task<SaveResult> SaveNewAsync(WorkoutDraft draft, IReadOnlyList<WorkoutExercise> exercises) => inner.SaveNewAsync(draft, exercises);
+
+        public Task<WorkoutResult> GetAsync(int workoutId) => inner.GetAsync(workoutId);
 
         public Task<SaveResult> SaveAsync(int workoutId, IReadOnlyList<WorkoutExercise> exercises) => inner.SaveAsync(workoutId, exercises);
     }

@@ -2,6 +2,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Testing;
 using WorkoutLog.UI.Components.Layout;
+using WorkoutLog.UI.Logging;
 
 namespace WorkoutLog.UI.Tests.Components.Layout;
 
@@ -78,7 +79,7 @@ public class StartupGateTests : ComponentTestBase
         Render(() => Task.CompletedTask);
 
         var logged = LoggedEvents.Of(logger).Single();
-        Assert.That((logged.Id, logged.Level), Is.EqualTo((2001, LogLevel.Information)));
+        Assert.That((logged.Id, logged.Level), Is.EqualTo((UiEvent.StartupFinished, LogLevel.Information)));
         Assert.That(logged.Message, Does.Match(@"^Startup finished in \d+ ms$"));
     }
 
@@ -89,7 +90,7 @@ public class StartupGateTests : ComponentTestBase
 
         Render(() => Task.FromException(exception));
 
-        Assert.That(LoggedEvents.Of(logger), Is.EqualTo(new[] { (2002, LogLevel.Error, "Startup failed") }));
+        Assert.That(LoggedEvents.Of(logger), Is.EqualTo(new[] { (UiEvent.StartupFailed, LogLevel.Error, "Startup failed") }));
         Assert.That(logger.LatestRecord.Exception, Is.SameAs(exception));
     }
 

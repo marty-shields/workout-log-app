@@ -13,6 +13,7 @@ These are not in v1. Nothing here is committed.
 | Log a past session | Enter start and finish by hand for a session that wasn't logged live |
 | Page or virtualise History | If History gets slow with many workouts: load in pages, or render only the visible rows (D183) |
 | Filter History by date | E.g. by month or a date range |
+| Share code between New and Edit Workout | `EditWorkoutPage` repeats `NewWorkoutPage`'s picker, remove and save code; `WorkoutLoadView` repeats `HistoryView`'s load error, focus and styles. Decide between composition and removing the duplication (US-17) |
 
 ## Backup / sync — things to consider
 These matter mainly when changing phone.

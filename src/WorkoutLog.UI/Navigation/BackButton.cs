@@ -1,4 +1,5 @@
 using Microsoft.Extensions.Logging;
+using WorkoutLog.UI.Logging;
 
 namespace WorkoutLog.UI.Navigation;
 
@@ -101,13 +102,13 @@ public sealed partial class BackButton(ILogger<BackButton> logger) : IBackButton
 
     private static partial class Log
     {
-        [LoggerMessage(2201, LogLevel.Debug, "Back pressed: handled by the page")]
+        [LoggerMessage((int)UiEvent.BackHandled, LogLevel.Debug, "Back pressed: handled by the page")]
         public static partial void Handled(ILogger logger);
 
-        [LoggerMessage(2202, LogLevel.Debug, "Back pressed: no handler")]
+        [LoggerMessage((int)UiEvent.BackNotHandled, LogLevel.Debug, "Back pressed: no handler")]
         public static partial void NotHandled(ILogger logger);
 
-        [LoggerMessage(2203, LogLevel.Error, "Back handler failed")]
+        [LoggerMessage((int)UiEvent.BackHandlerFailed, LogLevel.Error, "Back handler failed")]
         public static partial void Failed(ILogger logger, Exception exception);
     }
 }

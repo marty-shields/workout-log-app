@@ -1,4 +1,5 @@
 using Microsoft.Extensions.Logging;
+using WorkoutLog.UI.Logging;
 
 namespace WorkoutLog.UI.Screens;
 
@@ -7,7 +8,7 @@ public partial class HistoryView
 {
     private static partial class Log
     {
-        [LoggerMessage(2801, LogLevel.Warning, "Focusing Try again failed")]
+        [LoggerMessage((int)UiEvent.HistoryRetryFocusFailed, LogLevel.Warning, "Focusing Try again failed")]
         public static partial void RetryFocusFailed(ILogger logger, Exception exception);
     }
 }

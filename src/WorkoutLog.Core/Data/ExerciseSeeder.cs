@@ -1,6 +1,7 @@
 using Microsoft.Extensions.Logging;
 using SQLite;
 using WorkoutLog.Core.Domain.Exercises;
+using WorkoutLog.Core.Logging;
 
 namespace WorkoutLog.Core.Data;
 
@@ -38,7 +39,7 @@ public sealed partial class ExerciseSeeder(SQLiteAsyncConnection connection, IEx
 
     private static partial class Log
     {
-        [LoggerMessage(1101, LogLevel.Information, "Exercise list seeded: {Added} added, {Updated} updated")]
+        [LoggerMessage((int)CoreEvent.ExercisesSeeded, LogLevel.Information, "Exercise list seeded: {Added} added, {Updated} updated")]
         public static partial void Seeded(ILogger logger, int added, int updated);
     }
 }

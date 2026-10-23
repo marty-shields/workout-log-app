@@ -5,7 +5,7 @@
 
     <Story Name="Empty">
         <Template>
-            <HistoryView Rows="[]" OnBack="() => { }" />
+            <HistoryView Rows="[]" OnBack="() => { }" OnOpen="(HistoryRow _) => { }" />
         </Template>
     </Story>
 
@@ -15,21 +15,15 @@
         </Template>
     </Story>
 
-    <Story Name="Rows not tappable">
-        <Template>
-            <HistoryView Rows="SampleData.HistoryRows" OnBack="() => { }" />
-        </Template>
-    </Story>
-
     <Story Name="Loading">
         <Template>
-            <HistoryView Rows="[]" Loading OnBack="() => { }" />
+            <HistoryView Rows="[]" Loading OnBack="() => { }" OnOpen="(HistoryRow _) => { }" />
         </Template>
     </Story>
 
     <Story Name="Load failed">
         <Template>
-            <HistoryView Rows="[]" Failed OnRetry="() => { }" OnBack="() => { }" />
+            <HistoryView Rows="[]" Failed OnRetry="() => { }" OnBack="() => { }" OnOpen="(HistoryRow _) => { }" />
         </Template>
     </Story>
 

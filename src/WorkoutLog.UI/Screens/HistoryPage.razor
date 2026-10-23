@@ -3,12 +3,16 @@
 @inject IHistoryService History
 @inject TimeProvider Clock
 
-<HistoryView Rows="rows" Loading="loading" Failed="failed" OnRetry="LoadAsync" OnBack="OnBack" />
+<HistoryView Rows="rows" Loading="loading" Failed="failed" OnRetry="LoadAsync" OnOpen="row => OnOpen.InvokeAsync(row.Id)" OnBack="OnBack" />
 
 @code {
     private IReadOnlyList<HistoryRow> rows = [];
     private bool loading;
     private bool failed;
+
+    /// <summary>Raised with the workout id when a row is tapped.</summary>
+    [Parameter]
+    public EventCallback<int> OnOpen { get; set; }
 
     /// <summary>Raised by the back arrow and the Android back button.</summary>
     [Parameter]

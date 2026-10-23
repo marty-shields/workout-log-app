@@ -303,7 +303,7 @@ As the user, I want a list of my saved workouts, newest first, so that I can loo
 - **Links:** FR-20
 - **Extra ACs:**
   - Back goes to the Dashboard ([06](06-screens-ux.md)).
-  - Rows are not tappable. Opening a workout (FR-21) comes in [US-17](#us-17-edit-a-saved-workout).
+  - Rows are not tappable. Opening a workout (FR-21) comes in [US-17](#us-17-edit-a-saved-workout). Superseded by D186.
   - Replaces the placeholder History page from [US-28](#us-28-back-button-on-android-16).
   - A failed load shows "Couldn't load your history." and Try again; a spinner shows while loading (D180, D181).
   - **Logging:** Error 1302: loading the history failed (exception). Debug 1301: rows loaded (count). Warning 2801: focusing Try again failed (exception).
@@ -312,7 +312,7 @@ As the user, I want a list of my saved workouts, newest first, so that I can loo
 ## EP-05 Edit workouts (M4)
 | ID | Story | Links | Size | Status |
 |---|---|---|---|---|
-| [US-17](#us-17-edit-a-saved-workout) | Edit a saved workout | FR-21, FR-22, FR-11, FR-13 | M | To do |
+| [US-17](#us-17-edit-a-saved-workout) | Edit a saved workout | FR-21, FR-22, FR-11, FR-13 | M | Done |
 | [US-18](#us-18-discard-unsaved-edits) | Discard unsaved edits | FR-23 | S | To do |
 | [US-19](#us-19-delete-a-workout) | Delete a workout | FR-24 | S | To do |
 
@@ -321,8 +321,11 @@ As the user, I want to open a saved workout and change it, so that I can fix mis
 - **Links:** FR-21, FR-22, FR-11, FR-13
 - **Extra ACs:**
   - Edit shows the total time instead of the live timer ([06](06-screens-ux.md)).
-  - **Logging:** Warning: the workout id isn't found when opened. Error: loading the workout failed (id, exception). Saves are logged by `WorkoutService` (US-35).
-- **Size:** M · **Status:** To do
+  - Tapping a History row opens it; Save returns to the Dashboard (D184, D186).
+  - Loading, Load failed with Try again, and Not found states; back in them goes to History (D185).
+  - Until US-18, back on a loaded workout does nothing; until US-19, Delete does nothing (D184).
+  - **Logging:** Warning 1207: the workout id isn't found. Error 1208: loading the workout failed (id, exception). Debug 1209: loaded (id, exercise count). Error 2901: an exercise is unknown or the wrong type (workout id, exercise id). Warning 3001: focusing Try again failed (exception). Saves are logged by `WorkoutService` (US-35).
+- **Size:** M · **Status:** Done (D184–D188, T63–T66)
 
 ### US-18 Discard unsaved edits
 As the user, I want the back button to ask before dropping my edits, so that I don't lose them by accident.

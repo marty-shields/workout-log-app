@@ -7,7 +7,8 @@ namespace WorkoutLog.UI.Stories.Samples;
 
 /// <summary>
 /// <see cref="IWorkoutService"/> for the stories. Starts workouts and checks workouts, sets and entries with Core's validator.
-/// <see cref="SaveNewAsync"/> stores nothing and returns id 1 when valid; <see cref="SaveAsync"/> throws <see cref="NotSupportedException"/>.
+/// <see cref="GetAsync"/> returns <see cref="SampleData.SavedStrengthWorkout"/> with the asked id.
+/// <see cref="SaveNewAsync"/> and <see cref="SaveAsync"/> store nothing and return an id when valid.
 /// </summary>
 public sealed class SampleWorkoutService(TimeProvider time, IExerciseCatalog catalog) : IWorkoutService
 {
@@ -33,5 +34,13 @@ public sealed class SampleWorkoutService(TimeProvider time, IExerciseCatalog cat
     }
 
     /// <inheritdoc />
-    public Task<SaveResult> SaveAsync(int workoutId, IReadOnlyList<WorkoutExercise> exercises) => throw new NotSupportedException();
+    public Task<WorkoutResult> GetAsync(int workoutId) =>
+        Task.FromResult(new WorkoutResult(SampleData.SavedStrengthWorkout with { Id = workoutId }, WorkoutLoad.Loaded));
+
+    /// <inheritdoc />
+    public Task<SaveResult> SaveAsync(int workoutId, IReadOnlyList<WorkoutExercise> exercises)
+    {
+        var errors = validator.Validate(exercises);
+        return Task.FromResult(new SaveResult(errors.IsValid ? workoutId : null, errors));
+    }
 }
