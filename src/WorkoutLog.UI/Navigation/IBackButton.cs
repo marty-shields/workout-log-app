@@ -15,6 +15,9 @@ public interface IBackButton
     /// <summary>Runs the newest handler. Does nothing when none is registered.</summary>
     Task HandleAsync();
 
-    /// <summary>Removes every handler. Called when the activity, and the pages in it, are destroyed.</summary>
-    void Clear();
+    /// <summary>Removes any earlier activity's handlers and makes this activity current. Called when an activity is created, before its pages.</summary>
+    void Attach(object activity);
+
+    /// <summary>Removes every handler if the activity is current. Called when an activity, and the pages in it, are destroyed.</summary>
+    void Detach(object activity);
 }

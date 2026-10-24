@@ -1,8 +1,3 @@
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Testing;
-using Microsoft.JSInterop;
-using WorkoutLog.UI.Logging;
 using WorkoutLog.UI.Models.History;
 using WorkoutLog.UI.Screens;
 
@@ -119,23 +114,6 @@ public class HistoryViewTests : ComponentTestBase
         cut.Render(p => p.Add(x => x.Loading, false));
 
         cut.WaitForAssertion(() => Assert.That(Focuses(), Has.Count.EqualTo(2)));
-    }
-
-    [Test]
-    public void FocusFails_LogsAWarningAndKeepsTheError()
-    {
-        var logger = new FakeLogger<HistoryView>();
-        Context.Services.AddSingleton<ILogger<HistoryView>>(logger);
-        Context.JSInterop.SetupVoid("Blazor._internal.domWrapper.focus", _ => true).SetException(new JSException("Focus failed"));
-
-        var cut = Context.Render<HistoryView>(p => p.Add(x => x.Rows, []).Add(x => x.Failed, true));
-
-        cut.WaitForAssertion(() => Assert.That(LoggedEvents.Of(logger), Is.EqualTo(new[] { (UiEvent.HistoryRetryFocusFailed, LogLevel.Warning, "Focusing Try again failed") })));
-        Assert.Multiple(() =>
-        {
-            Assert.That(logger.LatestRecord.Exception, Is.TypeOf<JSException>());
-            Assert.That(cut.FindAll("[data-testid=history-retry]"), Has.Count.EqualTo(1));
-        });
     }
 
     [Test]

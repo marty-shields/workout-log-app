@@ -12,10 +12,15 @@
 
 ### Dashboard (home)
 - **New Workout** button
-- Last workout: date + day, or an empty state
-- Workouts this week (Monday start)
-- Workouts this month
+- Last workout: date + day of the latest start, or an empty state (FR-32)
+- Workouts this week: from Monday 00:00 to now (FR-33, D196)
+- Workouts this month: from the 1st at 00:00 to now (FR-34, D196)
+- A workout dated after now shows as the last workout but isn't counted (D196)
 - **History** link
+- Loads each time it's shown and when the app comes back; a load shows the spinner (D197)
+- While loading: spinner "Loading…" in place of the last workout and counts (D195)
+- Load failed: "Couldn't load the Dashboard." and **Try again**, which reloads, in place of the last workout and counts. Focus moves to Try again (D195)
+- History and New Workout work while loading and after a failed load (D195)
 
 ### New / Edit Workout
 - Header: date + day (from the start time)
@@ -85,7 +90,7 @@ Done in M1.5, before the screens are built in M2 (D96). Details: [14 Design syst
 
 | Screen | Stories (`Screens/…`) | Page (`Design System/Screens/…`) |
 |---|---|---|
-| Dashboard | Empty · With workouts | Dashboard |
+| Dashboard | Empty · With workouts · Loading · Load failed · Live page | Dashboard |
 | New Workout | Empty · Live timer · Strength sets · Carry sets · Cardio entries · Save errors · Save with no exercises · Save failed · Discard prompt | New Workout |
 | Edit Workout | Saved · Carry sets closed · Cardio entries · Save errors · Save failed · Discard prompt · Delete prompt · Delete failed · Loading · Load failed · Not found · Live page · Back, discard and delete | Edit Workout |
 | Exercise Picker | No search text · Results · No match | Exercise Picker |

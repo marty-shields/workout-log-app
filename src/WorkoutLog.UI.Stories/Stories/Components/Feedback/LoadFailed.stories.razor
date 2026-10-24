@@ -1,0 +1,16 @@
+@using WorkoutLog.UI.Components.Feedback
+@attribute [Stories("Components/Feedback/LoadFailed")]
+
+<Stories TComponent="LoadFailed" Layout="typeof(ThemeLayout)">
+
+    <Story Name="Default">
+        <Arguments>
+            <Arg For="_ => _.Message" Value="@("Couldn't load your history.")" />
+            <Arg For="_ => _.TestId" Value='"history"' />
+        </Arguments>
+        <Template>
+            <LoadFailed @attributes="context.Args" />
+        </Template>
+    </Story>
+
+</Stories>

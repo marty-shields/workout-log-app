@@ -8,6 +8,7 @@ public sealed partial class BackButton(ILogger<BackButton> logger) : IBackButton
 {
     private readonly List<Registration> handlers = [];
     private readonly Lock gate = new();
+    private object? current;
 
     /// <inheritdoc />
     public bool HasHandler
@@ -64,19 +65,47 @@ public sealed partial class BackButton(ILogger<BackButton> logger) : IBackButton
     }
 
     /// <inheritdoc />
-    public void Clear()
+    public void Attach(object activity)
     {
         bool cleared;
         lock (gate)
         {
-            cleared = handlers.Count > 0;
-            handlers.Clear();
+            current = activity;
+            cleared = RemoveAll();
         }
 
         if (cleared)
         {
             Changed?.Invoke();
         }
+    }
+
+    /// <inheritdoc />
+    public void Detach(object activity)
+    {
+        bool cleared;
+        lock (gate)
+        {
+            if (!ReferenceEquals(current, activity))
+            {
+                return;
+            }
+
+            current = null;
+            cleared = RemoveAll();
+        }
+
+        if (cleared)
+        {
+            Changed?.Invoke();
+        }
+    }
+
+    private bool RemoveAll()
+    {
+        var any = handlers.Count > 0;
+        handlers.Clear();
+        return any;
     }
 
     private void Remove(Registration registration)

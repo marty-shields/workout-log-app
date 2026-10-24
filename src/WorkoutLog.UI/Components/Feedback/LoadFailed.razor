@@ -1,0 +1,41 @@
+@using Microsoft.Extensions.Logging
+@inject ILogger<LoadFailed> Logger
+
+<div class="failed">
+    <p class="error" role="alert" data-testid="@($"{TestId}-error")">@Message</p>
+    <AppButton @ref="retry" Variant="ButtonVariant.Secondary" FullWidth TestId="@($"{TestId}-retry")" OnClick="OnRetry">Try again</AppButton>
+</div>
+
+@code {
+    /// <summary>Error text, e.g. Couldn't load your history.</summary>
+    [Parameter, EditorRequired]
+    public string Message { get; set; } = "";
+
+    /// <summary>Raised by Try again.</summary>
+    [Parameter]
+    public EventCallback OnRetry { get; set; }
+
+    /// <summary>Prefix of the data-testid attributes: <c>{TestId}-error</c> on the message and <c>{TestId}-retry</c> on Try again.</summary>
+    [Parameter, EditorRequired]
+    public string TestId { get; set; } = "";
+
+    private AppButton? retry;
+
+    /// <summary>Moves focus to Try again when the component first shows.</summary>
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender || retry is null)
+        {
+            return;
+        }
+
+        try
+        {
+            await retry.FocusAsync();
+        }
+        catch (Exception exception)
+        {
+            Log.RetryFocusFailed(Logger, exception);
+        }
+    }
+}

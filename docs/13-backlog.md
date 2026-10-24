@@ -306,7 +306,7 @@ As the user, I want a list of my saved workouts, newest first, so that I can loo
   - Rows are not tappable. Opening a workout (FR-21) comes in [US-17](#us-17-edit-a-saved-workout). Superseded by D186.
   - Replaces the placeholder History page from [US-28](#us-28-back-button-on-android-16).
   - A failed load shows "Couldn't load your history." and Try again; a spinner shows while loading (D180, D181).
-  - **Logging:** Error 1302: loading the history failed (exception). Debug 1301: rows loaded (count). Warning 2801: focusing Try again failed (exception).
+  - **Logging:** Error 1302: loading the history failed (exception). Debug 1301: rows loaded (count). Warning 2801: focusing Try again failed (exception); now 3301 (T73).
 - **Size:** S · **Status:** Done (D180–D183, T60–T62)
 
 ## EP-05 Edit workouts (M4)
@@ -324,7 +324,7 @@ As the user, I want to open a saved workout and change it, so that I can fix mis
   - Tapping a History row opens it; Save returns to the Dashboard (D184, D186).
   - Loading, Load failed with Try again, and Not found states; back in them goes to History (D185).
   - Until US-18, back on a loaded workout does nothing; until US-19, Delete does nothing (D184). Back superseded by D189, Delete by D191.
-  - **Logging:** Warning 1207: the workout id isn't found. Error 1208: loading the workout failed (id, exception). Debug 1209: loaded (id, exercise count). Error 2901: an exercise is unknown or the wrong type (workout id, exercise id). Warning 3001: focusing Try again failed (exception). Saves are logged by `WorkoutService` (US-35).
+  - **Logging:** Warning 1207: the workout id isn't found. Error 1208: loading the workout failed (id, exception). Debug 1209: loaded (id, exercise count). Error 2901: an exercise is unknown or the wrong type (workout id, exercise id). Warning 3001: focusing Try again failed (exception); now 3301 (T73). Saves are logged by `WorkoutService` (US-35).
 - **Size:** M · **Status:** Done (D184–D188, T63–T66)
 
 ### US-18 Discard unsaved edits
@@ -349,32 +349,37 @@ As the user, I want to delete a workout after confirming, so that wrong entries 
 ## EP-06 Dashboard (M5)
 | ID | Story | Links | Size | Status |
 |---|---|---|---|---|
-| [US-20](#us-20-dashboard-home) | Dashboard home | FR-30, FR-31, FR-35 | S | To do |
-| [US-21](#us-21-last-workout-summary) | Last workout summary | FR-32 | XS | To do |
-| [US-22](#us-22-week-and-month-counts) | Week and month counts | FR-33, FR-34, NFR-06 | S | To do |
+| [US-20](#us-20-dashboard-home) | Dashboard home | FR-30, FR-31, FR-32, FR-33, FR-34, FR-35, NFR-06 | M | Done |
+| [US-21](#us-21-last-workout-summary) | Last workout summary | FR-32 | XS | Done (in US-20, D194) |
+| [US-22](#us-22-week-and-month-counts) | Week and month counts | FR-33, FR-34, NFR-06 | S | Done (in US-20, D194) |
 
 ### US-20 Dashboard home
 As the user, I want the app to open on a Dashboard with New Workout and History, so that I can start or look back in one tap.
-- **Links:** FR-30, FR-31, FR-35
+- **Links:** FR-30, FR-31, FR-32, FR-33, FR-34, FR-35, NFR-06
 - **Extra ACs:**
+  - Covers the last workout and the week and month counts of US-21 and US-22, in one load (D194).
   - Back leaves the app ([06](06-screens-ux.md)).
   - Replaces the placeholder Dashboard data from [US-28](#us-28-back-button-on-android-16).
-  - **Logging:** Error: loading the Dashboard failed (exception).
-- **Size:** S · **Status:** To do
+  - A spinner shows while loading; a failed load shows "Couldn't load the Dashboard." and Try again; History and New Workout work in both (D195).
+  - Week from Monday 00:00 and month from the 1st at 00:00 in the phone's time zone, up to now (D196).
+  - Reloads each time it's shown and when the app comes back (D197).
+  - Stories: Loading, Load failed and Live page (D198). Load failed on History, Edit Workout and the Dashboard uses one `LoadFailed` component with its own story (D199).
+  - **Logging:** Error 1402: loading the Dashboard failed (exception). Debug 1401: loaded (counts). Warning 3301: focusing Try again failed (exception). Error 3201: an app start handler failed (exception). Information 5014: activity started.
+- **Size:** M · **Status:** Done (D194–D199, T70–T74)
 
 ### US-21 Last workout summary
 As the user, I want to see when my last workout was, so that I know when I last trained.
 - **Links:** FR-32
 - **Extra ACs:**
-  - **Logging:** Error: loading the last workout failed (exception).
-- **Size:** XS · **Status:** To do
+  - **Logging:** Error: loading the last workout failed (exception). Merged into US-20's (D194).
+- **Size:** XS · **Status:** Done (in US-20, D194)
 
 ### US-22 Week and month counts
 As the user, I want to see how many workouts I've done this week and this month, so that I can track how often I train.
 - **Links:** FR-33, FR-34, NFR-06
 - **Extra ACs:**
-  - **Logging:** Error: counting the workouts failed (exception).
-- **Size:** S · **Status:** To do
+  - **Logging:** Error: counting the workouts failed (exception). Merged into US-20's (D194).
+- **Size:** S · **Status:** Done (in US-20, D194)
 
 ## EP-07 Automated UI tests (M6)
 | ID | Story | Links | Size | Status |

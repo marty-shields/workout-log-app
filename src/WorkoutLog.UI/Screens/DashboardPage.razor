@@ -1,0 +1,66 @@
+@using WorkoutLog.Core.Services
+@using WorkoutLog.UI.Lifecycle
+@using WorkoutLog.UI.Models.Dashboard
+@implements IDisposable
+@inject IDashboardService Dashboard
+@inject TimeProvider Clock
+@inject IAppStart AppStart
+
+<DashboardView Summary="summary" Loading="loading" Failed="failed" OnRetry="LoadAsync" OnNewWorkout="OnNewWorkout" OnHistory="OnHistory" />
+
+@code {
+    private DashboardSummary summary = new(null, 0, 0);
+    private bool loading;
+    private bool failed;
+    private IDisposable? registration;
+    private bool disposed;
+
+    /// <summary>Raised by New Workout.</summary>
+    [Parameter]
+    public EventCallback OnNewWorkout { get; set; }
+
+    /// <summary>Raised by the History link.</summary>
+    [Parameter]
+    public EventCallback OnHistory { get; set; }
+
+    protected override Task OnInitializedAsync()
+    {
+        registration = AppStart.Register(() => InvokeAsync(ReloadAsync));
+        return LoadAsync();
+    }
+
+    public void Dispose()
+    {
+        disposed = true;
+        registration?.Dispose();
+    }
+
+    /// <summary>Loads the last workout and counts, with the start in the phone's time zone. Shows the spinner until it finishes (D195).</summary>
+    private async Task LoadAsync()
+    {
+        if (loading)
+        {
+            return;
+        }
+
+        loading = true;
+        StateHasChanged();
+        var result = await Dashboard.GetAsync();
+        var last = result.LastStartedAt is { } startedAt ? TimeZoneInfo.ConvertTime(startedAt, Clock.LocalTimeZone).DateTime : (DateTime?)null;
+        summary = new DashboardSummary(last, result.ThisWeek, result.ThisMonth);
+        failed = result.Failed;
+        loading = false;
+    }
+
+    /// <summary>Loads again when the app comes back on screen (D197). Does nothing once the page is disposed.</summary>
+    private async Task ReloadAsync()
+    {
+        if (disposed)
+        {
+            return;
+        }
+
+        await LoadAsync();
+        StateHasChanged();
+    }
+}

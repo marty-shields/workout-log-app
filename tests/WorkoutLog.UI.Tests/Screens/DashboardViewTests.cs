@@ -5,6 +5,8 @@ namespace WorkoutLog.UI.Tests.Screens;
 
 public class DashboardViewTests : ComponentTestBase
 {
+    private static readonly DateTime SampleStart = new(2026, 10, 20, 18, 5, 0);
+
     [Test]
     public void LastWorkout_ShowsDayAndDate()
     {
@@ -68,4 +70,106 @@ public class DashboardViewTests : ComponentTestBase
 
         Assert.That(cut.Find("[data-testid=bottom-bar] [data-testid=new-workout]"), Is.Not.Null);
     }
+
+    [Test]
+    public void Loading_ShowsTheSpinnerInsteadOfTheSummary()
+    {
+        var cut = Context.Render<DashboardView>(p => p
+            .Add(x => x.Summary, new DashboardSummary(SampleStart, 2, 7))
+            .Add(x => x.Loading, true));
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.Find("[data-testid=dashboard-loading]").TextContent, Does.Contain("Loading…"));
+            Assert.That(cut.FindAll("[data-testid=last-workout]"), Is.Empty);
+            Assert.That(cut.FindAll("[data-testid=count-week]"), Is.Empty);
+            Assert.That(cut.FindAll("[data-testid=count-month]"), Is.Empty);
+            Assert.That(cut.FindAll("[data-testid=dashboard-error]"), Is.Empty);
+            Assert.That(cut.FindAll("[data-testid=history-link]"), Has.Count.EqualTo(1));
+            Assert.That(cut.FindAll("[data-testid=new-workout]"), Has.Count.EqualTo(1));
+        });
+    }
+
+    [Test]
+    public void Failed_ShowsTheErrorAndTryAgainInsteadOfTheSummary()
+    {
+        var cut = Context.Render<DashboardView>(p => p
+            .Add(x => x.Summary, new DashboardSummary(SampleStart, 2, 7))
+            .Add(x => x.Failed, true));
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.Find("[data-testid=dashboard-error]").TextContent, Is.EqualTo("Couldn't load the Dashboard."));
+            Assert.That(cut.Find("[data-testid=dashboard-error]").GetAttribute("role"), Is.EqualTo("alert"));
+            Assert.That(cut.Find("[data-testid=dashboard-retry]").TextContent.Trim(), Is.EqualTo("Try again"));
+            Assert.That(cut.FindAll("[data-testid=last-workout]"), Is.Empty);
+            Assert.That(cut.FindAll("[data-testid=count-week]"), Is.Empty);
+            Assert.That(cut.FindAll("[data-testid=history-link]"), Has.Count.EqualTo(1));
+            Assert.That(cut.FindAll("[data-testid=new-workout]"), Has.Count.EqualTo(1));
+        });
+    }
+
+    [Test]
+    public void FailedWhileLoading_ShowsTheSpinner()
+    {
+        var cut = Context.Render<DashboardView>(p => p
+            .Add(x => x.Summary, new DashboardSummary(null, 0, 0))
+            .Add(x => x.Loading, true)
+            .Add(x => x.Failed, true));
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.FindAll("[data-testid=dashboard-loading]"), Has.Count.EqualTo(1));
+            Assert.That(cut.FindAll("[data-testid=dashboard-error]"), Is.Empty);
+        });
+    }
+
+    [Test]
+    public void TryAgain_RaisesOnRetry()
+    {
+        var retries = 0;
+        var cut = Context.Render<DashboardView>(p => p
+            .Add(x => x.Summary, new DashboardSummary(null, 0, 0))
+            .Add(x => x.Failed, true)
+            .Add(x => x.OnRetry, () => retries++));
+
+        cut.Find("[data-testid=dashboard-retry]").Click();
+
+        Assert.That(retries, Is.EqualTo(1));
+    }
+
+    [Test]
+    public void Failed_FocusesTryAgain()
+    {
+        var cut = Context.Render<DashboardView>(p => p.Add(x => x.Summary, new DashboardSummary(null, 0, 0)).Add(x => x.Failed, true));
+
+        cut.WaitForAssertion(() => Focuses().Single().Arguments[0]
+            .ShouldBeElementReferenceTo(cut.Find("[data-testid=dashboard-retry]")));
+    }
+
+    [Test]
+    public void Failed_RenderedAgain_DoesNotFocusAgain()
+    {
+        var cut = Context.Render<DashboardView>(p => p.Add(x => x.Summary, new DashboardSummary(null, 0, 0)).Add(x => x.Failed, true));
+        cut.WaitForAssertion(() => Assert.That(Focuses(), Has.Count.EqualTo(1)));
+
+        cut.Render(p => p.Add(x => x.Failed, true));
+
+        Assert.That(Focuses(), Has.Count.EqualTo(1));
+    }
+
+    [Test]
+    public void FailedAfterLoading_FocusesTryAgainAgain()
+    {
+        var cut = Context.Render<DashboardView>(p => p.Add(x => x.Summary, new DashboardSummary(null, 0, 0)).Add(x => x.Failed, true));
+        cut.WaitForAssertion(() => Assert.That(Focuses(), Has.Count.EqualTo(1)));
+
+        cut.Render(p => p.Add(x => x.Loading, true));
+        cut.Render(p => p.Add(x => x.Loading, false));
+
+        cut.WaitForAssertion(() => Assert.That(Focuses(), Has.Count.EqualTo(2)));
+    }
+
+    private IReadOnlyList<JSRuntimeInvocation> Focuses() =>
+        Context.JSInterop.Invocations["Blazor._internal.domWrapper.focus"];
 }

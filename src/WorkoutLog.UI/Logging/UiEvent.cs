@@ -1,6 +1,9 @@
 namespace WorkoutLog.UI.Logging;
 
-/// <summary>Event ids of the UI's log messages: 2000–4999, a block of 100 per type. Values never change once logged.</summary>
+/// <summary>
+/// Event ids of the UI's log messages: 2000–4999, a block of 100 per type. Values never change once logged.
+/// Retired, never reused: 2801 and 3001, focusing Try again failed on History and Edit Workout (now 3301).
+/// </summary>
 internal enum UiEvent
 {
     /// <summary><see cref="Components.Layout.StartupGate"/>: startup finished, with its duration.</summary>
@@ -42,15 +45,15 @@ internal enum UiEvent
     /// <summary><see cref="Screens.NewWorkoutPage"/>: new workout discarded.</summary>
     NewWorkoutDiscarded = 2701,
 
-    /// <summary><see cref="Screens.HistoryView"/>: focusing Try again failed.</summary>
-    HistoryRetryFocusFailed = 2801,
-
     /// <summary><see cref="Screens.EditWorkoutPage"/>: a saved exercise is unknown or the wrong type.</summary>
     EditWorkoutOpenFailed = 2901,
 
     /// <summary><see cref="Screens.EditWorkoutPage"/>: edits discarded.</summary>
     EditsDiscarded = 2902,
 
-    /// <summary><see cref="Screens.WorkoutLoadView"/>: focusing Try again failed.</summary>
-    WorkoutRetryFocusFailed = 3001,
+    /// <summary><see cref="Lifecycle.AppLifecycle"/>: an app start handler failed.</summary>
+    AppStartHandlerFailed = 3201,
+
+    /// <summary><see cref="Components.Feedback.LoadFailed"/>: focusing Try again failed.</summary>
+    LoadFailedFocusFailed = 3301,
 }

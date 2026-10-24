@@ -7,6 +7,7 @@ using WorkoutLog.App.Navigation;
 using WorkoutLog.Core;
 using WorkoutLog.Core.Logging;
 using WorkoutLog.UI;
+using WorkoutLog.UI.Lifecycle;
 
 namespace WorkoutLog.App;
 
@@ -28,6 +29,7 @@ public static class MauiProgram
         AddLogging(builder);
         AddDiagnostics(builder);
         AddBackButton(builder);
+        AddAppLifecycle(builder);
 
         return builder.Build();
     }
@@ -41,9 +43,23 @@ public static class MauiProgram
         builder.Services.AddSingleton<AndroidBackButton>();
         builder.ConfigureLifecycleEvents(events => events.AddAndroid(android => android
             .OnCreate((activity, _) => BackButton().Attach((AndroidX.Activity.ComponentActivity)activity))
-            .OnDestroy(_ => BackButton().Detach())));
+            .OnDestroy(activity => BackButton().Detach(activity))));
 
         static AndroidBackButton BackButton() => IPlatformApplication.Current!.Services.GetRequiredService<AndroidBackButton>();
+    }
+
+    /// <summary>
+    /// Runs the pages' app start handlers through <see cref="IAppLifecycle"/> each time the activity starts,
+    /// and removes them when it is destroyed or replaced. The handlers resolve it from the app's services.
+    /// </summary>
+    private static void AddAppLifecycle(MauiAppBuilder builder)
+    {
+        builder.ConfigureLifecycleEvents(events => events.AddAndroid(android => android
+            .OnCreate((activity, _) => Lifecycle().Attach(activity))
+            .OnStart(activity => _ = Lifecycle().NotifyStartedAsync())
+            .OnDestroy(activity => Lifecycle().Detach(activity))));
+
+        static IAppLifecycle Lifecycle() => IPlatformApplication.Current!.Services.GetRequiredService<IAppLifecycle>();
     }
 
     /// <summary>
@@ -77,6 +93,7 @@ public static class MauiProgram
         builder.ConfigureLifecycleEvents(events => events.AddAndroid(android => android
             .OnApplicationCreate(app => Diagnostics().ProcessStarted(app))
             .OnCreate((_, _) => Diagnostics().ActivityCreated())
+            .OnStart(_ => Diagnostics().ActivityStarted())
             .OnStop(_ => Diagnostics().ActivityStopped())
             .OnDestroy(_ => Diagnostics().ActivityDestroyed())
             .OnApplicationTrimMemory((_, level) => Diagnostics().TrimMemory(level))));

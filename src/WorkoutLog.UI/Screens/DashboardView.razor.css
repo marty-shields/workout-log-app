@@ -22,3 +22,14 @@
     gap: var(--space-3);
     margin-bottom: var(--space-6);
 }
+
+.centre {
+    display: grid;
+    place-items: center;
+    padding: var(--space-6) 0;
+    margin-bottom: var(--space-6);
+}
+
+.load-failed {
+    margin-bottom: var(--space-6);
+}

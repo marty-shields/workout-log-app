@@ -2,6 +2,7 @@ using AngleSharp.Dom;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Time.Testing;
 using WorkoutLog.Core.Domain.Exercises;
+using WorkoutLog.Core.Services;
 using WorkoutLog.UI.Components.Overlays;
 using WorkoutLog.UI.Components.Workout;
 using WorkoutLog.UI.Models.Dashboard;
@@ -32,6 +33,9 @@ public static class ScreenStates
 
         new("Screens/Dashboard", "Empty", c => Dashboard(c, new DashboardSummary(null, 0, 0))),
         new("Screens/Dashboard", "With workouts", c => Dashboard(c, new DashboardSummary(SampleData.Started, 2, 9))),
+        new("Screens/Dashboard", "Loading", c => Dashboard(c, new DashboardSummary(null, 0, 0), loading: true)),
+        new("Screens/Dashboard", "Load failed", c => Dashboard(c, new DashboardSummary(null, 0, 0), failed: true)),
+        new("Screens/Dashboard", "Live page", DashboardPage),
 
         new("Screens/New Workout", "Empty", c => Workout(c, WorkoutMode.New, [])),
         new("Screens/New Workout", "Live timer", NewWorkout),
@@ -75,12 +79,25 @@ public static class ScreenStates
 
     private static IWorkoutChecker WorkoutChecker(BunitContext context) => context.Services.GetRequiredService<IWorkoutChecker>();
 
-    private static IReadOnlyList<IElement> Dashboard(BunitContext context, DashboardSummary summary) =>
+    private static IReadOnlyList<IElement> Dashboard(BunitContext context, DashboardSummary summary, bool loading = false, bool failed = false) =>
         context.Render<DashboardView>(p => p
             .Add(x => x.Summary, summary)
+            .Add(x => x.Loading, loading)
+            .Add(x => x.Failed, failed)
+            .Add(x => x.OnRetry, () => { })
             .Add(x => x.OnNewWorkout, () => { })
             .Add(x => x.OnHistory, () => { }))
             .FindAll("*");
+
+    private static IReadOnlyList<IElement> DashboardPage(BunitContext context)
+    {
+        context.Services.AddSingleton<TimeProvider>(new FakeTimeProvider());
+        context.Services.AddSingleton<IDashboardService>(new SampleDashboardService());
+        return context.Render<DashboardPage>(p => p
+            .Add(x => x.OnNewWorkout, () => { })
+            .Add(x => x.OnHistory, () => { }))
+            .FindAll("*");
+    }
 
     private static IReadOnlyList<IElement> NewWorkout(BunitContext context)
     {

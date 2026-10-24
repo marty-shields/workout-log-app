@@ -109,7 +109,7 @@ public class EditWorkoutPageTests : ComponentTestBase
         workouts.Complete(new WorkoutResult(null, WorkoutLoad.NotFound));
 
         cut.WaitForAssertion(() => Assert.That(cut.FindAll("[data-testid=workout-not-found]"), Has.Count.EqualTo(1)));
-        Assert.That(cut.FindAll("[data-testid=workout-retry]"), Is.Empty);
+        Assert.That(cut.FindAll("[data-testid=workout-load-retry]"), Is.Empty);
     }
 
     [Test]
@@ -119,7 +119,7 @@ public class EditWorkoutPageTests : ComponentTestBase
         workouts.Complete(new WorkoutResult(null, WorkoutLoad.Failed));
         cut.WaitForAssertion(() => Assert.That(cut.FindAll("[data-testid=workout-load-error]"), Has.Count.EqualTo(1)));
 
-        cut.Find("[data-testid=workout-retry]").Click();
+        cut.Find("[data-testid=workout-load-retry]").Click();
 
         Assert.Multiple(() =>
         {
@@ -140,12 +140,12 @@ public class EditWorkoutPageTests : ComponentTestBase
         workouts.Complete(new WorkoutResult(null, WorkoutLoad.Failed));
         cut.WaitForAssertion(() => Assert.That(Focuses(), Has.Count.EqualTo(1)));
 
-        cut.Find("[data-testid=workout-retry]").Click();
+        cut.Find("[data-testid=workout-load-retry]").Click();
         workouts.Complete(new WorkoutResult(null, WorkoutLoad.Failed));
 
         cut.WaitForAssertion(() => Assert.That(Focuses(), Has.Count.EqualTo(2)));
         Assert.That(cut.FindAll("[data-testid=workout-load-error]"), Has.Count.EqualTo(1));
-        Focuses()[^1].Arguments[0].ShouldBeElementReferenceTo(cut.Find("[data-testid=workout-retry]"));
+        Focuses()[^1].Arguments[0].ShouldBeElementReferenceTo(cut.Find("[data-testid=workout-load-retry]"));
     }
 
     [Test]

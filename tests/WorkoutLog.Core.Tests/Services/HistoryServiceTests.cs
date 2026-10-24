@@ -28,7 +28,7 @@ public class HistoryServiceTests
     public async Task GetAllAsync_ReturnsTheRepositorysWorkoutsInOrder()
     {
         WorkoutSummary[] workouts = [new(2, Start), new(1, Start.AddDays(-1))];
-        repository.Setup(r => r.ListAsync()).ReturnsAsync(workouts);
+        repository.Setup(r => r.ListAsync(null, null, null)).ReturnsAsync(workouts);
 
         var result = await service.GetAllAsync();
 
@@ -40,7 +40,7 @@ public class HistoryServiceTests
     [TestCase(2)]
     public async Task GetAllAsync_LogsTheCountAtDebug(int count)
     {
-        repository.Setup(r => r.ListAsync()).ReturnsAsync(Enumerable.Range(1, count).Select(id => new WorkoutSummary(id, Start)).ToList());
+        repository.Setup(r => r.ListAsync(null, null, null)).ReturnsAsync(Enumerable.Range(1, count).Select(id => new WorkoutSummary(id, Start)).ToList());
 
         await service.GetAllAsync();
 
@@ -51,7 +51,7 @@ public class HistoryServiceTests
     [Test]
     public async Task GetAllAsync_RepositoryThrows_ReturnsFailedWithNoWorkouts()
     {
-        repository.Setup(r => r.ListAsync()).ThrowsAsync(new InvalidOperationException("disk"));
+        repository.Setup(r => r.ListAsync(null, null, null)).ThrowsAsync(new InvalidOperationException("disk"));
 
         var result = await service.GetAllAsync();
 
@@ -63,7 +63,7 @@ public class HistoryServiceTests
     public async Task GetAllAsync_RepositoryThrows_LogsTheErrorWithTheException()
     {
         var exception = new InvalidOperationException("disk");
-        repository.Setup(r => r.ListAsync()).ThrowsAsync(exception);
+        repository.Setup(r => r.ListAsync(null, null, null)).ThrowsAsync(exception);
 
         await service.GetAllAsync();
 

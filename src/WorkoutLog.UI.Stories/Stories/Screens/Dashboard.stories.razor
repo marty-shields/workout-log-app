@@ -15,4 +15,22 @@
         </Template>
     </Story>
 
+    <Story Name="Loading">
+        <Template>
+            <DashboardView Summary="@(new DashboardSummary(null, 0, 0))" Loading OnNewWorkout="() => { }" OnHistory="() => { }" />
+        </Template>
+    </Story>
+
+    <Story Name="Load failed">
+        <Template>
+            <DashboardView Summary="@(new DashboardSummary(null, 0, 0))" Failed OnRetry="() => { }" OnNewWorkout="() => { }" OnHistory="() => { }" />
+        </Template>
+    </Story>
+
+    <Story Name="Live page">
+        <Template>
+            <DashboardPage OnNewWorkout="() => { }" OnHistory="() => { }" />
+        </Template>
+    </Story>
+
 </Stories>

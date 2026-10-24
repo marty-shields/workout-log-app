@@ -11,7 +11,7 @@ public class WorkoutRepositoryTests
 
     private string databasePath = "";
     private SQLiteAsyncConnection connection = null!;
-    private WorkoutRepository repository = null!;
+    private IWorkoutRepository repository = null!;
 
     [SetUp]
     public async Task SetUp()
@@ -167,6 +167,49 @@ public class WorkoutRepositoryTests
     }
 
     [Test]
+    public async Task ListAsync_From_ReturnsStartsAtOrAfterIt()
+    {
+        var ids = await AddStartsAsync(-2, -1, 0, 1);
+
+        Assert.That((await repository.ListAsync(from: Start.AddHours(-1))).Select(w => w.Id), Is.EqualTo(new[] { ids[3], ids[2], ids[1] }));
+    }
+
+    [Test]
+    public async Task ListAsync_To_ReturnsStartsAtOrBeforeIt()
+    {
+        var ids = await AddStartsAsync(-2, -1, 0, 1);
+
+        Assert.That((await repository.ListAsync(to: Start)).Select(w => w.Id), Is.EqualTo(new[] { ids[2], ids[1], ids[0] }));
+    }
+
+    [Test]
+    public async Task ListAsync_Limit_ReturnsTheNewest()
+    {
+        var ids = await AddStartsAsync(-2, -1, 0, 1);
+
+        Assert.That((await repository.ListAsync(limit: 2)).Select(w => w.Id), Is.EqualTo(new[] { ids[3], ids[2] }));
+    }
+
+    [Test]
+    public async Task ListAsync_FromToAndLimit_ApplyTogether()
+    {
+        var ids = await AddStartsAsync(-2, -1, 0, 1);
+
+        Assert.That((await repository.ListAsync(Start.AddHours(-2), Start, 2)).Select(w => w.Id), Is.EqualTo(new[] { ids[2], ids[1] }));
+    }
+
+    [Test]
+    public async Task ListAsync_BoundsWithAnOffset_CompareAsInstants()
+    {
+        var ids = await AddStartsAsync(-1, 0, 1);
+        var offset = TimeSpan.FromHours(1);
+
+        var workouts = await repository.ListAsync(Start.ToOffset(offset), Start.ToOffset(offset));
+
+        Assert.That(workouts.Select(w => w.Id), Is.EqualTo(new[] { ids[1] }));
+    }
+
+    [Test]
     public async Task StartedAtIndex_ServesTheListOrderWithoutASort()
     {
         var plan = (await connection.QueryAsync<QueryPlanRow>(
@@ -260,6 +303,18 @@ public class WorkoutRepositoryTests
         await connection.Table<WorkoutExerciseRow>().CountAsync(),
         await connection.Table<StrengthSetRow>().CountAsync(),
         await connection.Table<CardioEntryRow>().CountAsync());
+
+    /// <summary>Adds a workout with no exercises at each hour from <see cref="Start"/>, in order. Returns their ids.</summary>
+    private async Task<List<int>> AddStartsAsync(params int[] hours)
+    {
+        var ids = new List<int>();
+        foreach (var hour in hours)
+        {
+            ids.Add(await repository.AddAsync(new NewWorkout(Start.AddHours(hour), Finish.AddHours(hour), [])));
+        }
+
+        return ids;
+    }
 
     private sealed record OtherExercise(int ExerciseId) : WorkoutExercise(ExerciseId);
 

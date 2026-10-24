@@ -3,9 +3,9 @@
 ## Layers
 | Type | Project | Tools | Covers |
 |---|---|---|---|
-| Unit | `WorkoutLog.Core.Tests` | NUnit, Moq, AutoFixture | Metric validation per exercise definition (FR-06, FR-07, FR-09), start/finish capture (FR-01, FR-10, FR-11), dashboard counts (FR-33, FR-34), exercise seeding, definition file checks (unique Ids, names and aliases; Ids 1…N without gaps; the documented counts; valid values; unknown fields fail to load; strength/cardio fields and metrics match the type; units only with their metric), search normalisation and ranking (FR-03), logged events with `FakeLogger` (T43), `CoreEvent` values unique, in range and fixed (T66) |
-| Repository | `WorkoutLog.Core.Tests` | NUnit + temp SQLite file | Save, load, list newest first, edit, cascade delete, one CardioEntry per exercise |
-| Component | `WorkoutLog.UI.Tests` | bUnit | Fields and labels shown per exercise definition, picker search, add/remove set, live timer, inline validation, Discard/Cancel and Delete prompts; every prototype scenario step finds its target; design-system checks (D117): tokens only, WCAG AA token pairs, touch targets, `data-testid` on every interactive element, screen stories match the tests' list of screen states, a Design System page for every component and screen; logged events with `FakeLogger`; `UiEvent` and `AppEvent` values unique, in range and fixed, and no `[LoggerMessage]` with a bare number (T66) |
+| Unit | `WorkoutLog.Core.Tests` | NUnit, Moq, AutoFixture | Metric validation per exercise definition (FR-06, FR-07, FR-09), start/finish capture (FR-01, FR-10, FR-11), last workout and dashboard counts in the phone's time zone, DST at midnight included (FR-32, FR-33, FR-34, D196), exercise seeding, definition file checks (unique Ids, names and aliases; Ids 1…N without gaps; the documented counts; valid values; unknown fields fail to load; strength/cardio fields and metrics match the type; units only with their metric), search normalisation and ranking (FR-03), logged events with `FakeLogger` (T43), `CoreEvent` values unique, in range and fixed (T66) |
+| Repository | `WorkoutLog.Core.Tests` | NUnit + temp SQLite file | Save, load, list newest first, list by start range and limit, edit, cascade delete, one CardioEntry per exercise |
+| Component | `WorkoutLog.UI.Tests` | bUnit | Fields and labels shown per exercise definition, picker search, add/remove set, live timer, inline validation, Discard/Cancel and Delete prompts; every prototype scenario step finds its target; design-system checks (D117): tokens only, WCAG AA token pairs, touch targets, `data-testid` on every interactive element, screen stories match the tests' list of screen states, a Design System page for every component and screen; app start handlers; back and app start handlers per activity and the App's activity lifecycle wiring, read from its source (T74); logged events with `FakeLogger`; `UiEvent` and `AppEvent` values unique, in range and fixed, retired values not reused (T73), and no `[LoggerMessage]` with a bare number (T66) |
 | UI (automated) | `WorkoutLog.E2E.Tests` | NUnit + Appium (UiAutomator2) | End-to-end flows on an emulator or the Debug build on the phone |
 | Manual | — | Checklist below | Real-phone checks before each release APK |
 
@@ -50,7 +50,8 @@ Time is injected through .NET `TimeProvider`; tests use `FakeTimeProvider`, so t
 - [ ] Content stays clear of the status and navigation bars
 - [ ] Edit saves changes; start/finish unchanged
 - [ ] Delete asks for confirmation, then removes the workout
-- [ ] This week / this month counts are correct (week starts Monday)
+- [ ] Dashboard: the last workout and the this week / this month counts are correct (week starts Monday)
+- [ ] Leave the app on the Dashboard and come back: it reloads; logcat shows "Activity started" (5014) and, on a Debug build, "Dashboard loaded" (1401)
 - [ ] Data survives closing and reopening the app
 - [ ] Data survives installing a new APK version over the old one
 - [ ] Logs: `adb logcat -s WorkoutLog` shows the start, the previous exit and lifecycle lines; the log file can be pulled ([08](08-dev-setup-build.md#reading-the-logs))

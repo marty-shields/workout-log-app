@@ -94,15 +94,16 @@ public class BackButtonTests
     }
 
     [Test]
-    public async Task Clear_RemovesEveryHandlerAndRaisesChangedOnce()
+    public async Task Attach_RemovesTheEarlierActivitysHandlersAndRaisesChangedOnce()
     {
         var calls = 0;
         var changes = 0;
+        backButton.Attach(new object());
         backButton.Register(() => { calls++; return Task.CompletedTask; });
         var picker = backButton.Register(() => { calls++; return Task.CompletedTask; });
         backButton.Changed += () => changes++;
 
-        backButton.Clear();
+        backButton.Attach(new object());
         picker.Dispose();
         await backButton.HandleAsync();
 
@@ -115,12 +116,69 @@ public class BackButtonTests
     }
 
     [Test]
-    public void Clear_WithNoHandlers_DoesNotRaiseChanged()
+    public void Attach_WithNoHandlers_DoesNotRaiseChanged()
     {
         var changes = 0;
         backButton.Changed += () => changes++;
 
-        backButton.Clear();
+        backButton.Attach(new object());
+
+        Assert.That(changes, Is.Zero);
+    }
+
+    [Test]
+    public async Task Detach_CurrentActivity_RemovesEveryHandlerAndRaisesChangedOnce()
+    {
+        var calls = 0;
+        var changes = 0;
+        var activity = new object();
+        backButton.Attach(activity);
+        backButton.Register(() => { calls++; return Task.CompletedTask; });
+        backButton.Register(() => { calls++; return Task.CompletedTask; });
+        backButton.Changed += () => changes++;
+
+        backButton.Detach(activity);
+        await backButton.HandleAsync();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(backButton.HasHandler, Is.False);
+            Assert.That(calls, Is.Zero);
+            Assert.That(changes, Is.EqualTo(1));
+        });
+    }
+
+    [Test]
+    public async Task Detach_EarlierActivity_KeepsTheCurrentActivitysHandlers()
+    {
+        var calls = 0;
+        var changes = 0;
+        var earlier = new object();
+        backButton.Attach(earlier);
+        backButton.Attach(new object());
+        backButton.Register(() => { calls++; return Task.CompletedTask; });
+        backButton.Changed += () => changes++;
+
+        backButton.Detach(earlier);
+        await backButton.HandleAsync();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(backButton.HasHandler, Is.True);
+            Assert.That(calls, Is.EqualTo(1));
+            Assert.That(changes, Is.Zero);
+        });
+    }
+
+    [Test]
+    public void Detach_WithNoHandlers_DoesNotRaiseChanged()
+    {
+        var changes = 0;
+        var activity = new object();
+        backButton.Attach(activity);
+        backButton.Changed += () => changes++;
+
+        backButton.Detach(activity);
 
         Assert.That(changes, Is.Zero);
     }

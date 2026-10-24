@@ -53,4 +53,10 @@ internal enum CoreEvent
 
     /// <summary><see cref="Services.HistoryService"/>: reading the history failed.</summary>
     HistoryLoadFailed = 1302,
+
+    /// <summary><see cref="Services.DashboardService"/>: Dashboard read.</summary>
+    DashboardLoaded = 1401,
+
+    /// <summary><see cref="Services.DashboardService"/>: reading the Dashboard failed.</summary>
+    DashboardLoadFailed = 1402,
 }

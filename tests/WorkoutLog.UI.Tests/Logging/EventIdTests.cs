@@ -38,11 +38,15 @@ public partial class EventIdTests
             [UiEvent.SetCheckFieldUnworded] = 2502,
             [UiEvent.SaveCheckExerciseError] = 2601,
             [UiEvent.NewWorkoutDiscarded] = 2701,
-            [UiEvent.HistoryRetryFocusFailed] = 2801,
             [UiEvent.EditWorkoutOpenFailed] = 2901,
             [UiEvent.EditsDiscarded] = 2902,
-            [UiEvent.WorkoutRetryFocusFailed] = 3001,
+            [UiEvent.AppStartHandlerFailed] = 3201,
+            [UiEvent.LoadFailedFocusFailed] = 3301,
         }));
+
+    [Test]
+    public void UiEvent_RetiredValuesAreNotReused() =>
+        Assert.That(Enum.GetValues<UiEvent>().Select(e => (int)e), Has.None.AnyOf(2801, 3001));
 
     [Test]
     public void AppEvent_ValuesAreUniqueAndInTheAppsRange()
@@ -68,6 +72,7 @@ public partial class EventIdTests
             ["ActivityCreated"] = 5011,
             ["ActivityStopped"] = 5012,
             ["ActivityDestroyed"] = 5013,
+            ["ActivityStarted"] = 5014,
             ["TrimMemory"] = 5021,
             ["UnhandledException"] = 5031,
             ["UnobservedTaskException"] = 5033,

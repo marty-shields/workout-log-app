@@ -1,21 +1,37 @@
+@using WorkoutLog.UI.Components.Feedback
 @using WorkoutLog.UI.Models.Dashboard
 <AppScreen Title="Workout Log">
     <ChildContent>
-        <section class="section">
-            <h2 class="heading">Last workout</h2>
-            @if (Summary.LastWorkoutStartedAt is { } lastWorkout)
-            {
-                <p class="last" data-testid="last-workout">@DisplayFormat.Date(lastWorkout)</p>
-            }
-            else
-            {
-                <EmptyState Message="No workouts yet" TestId="last-workout-empty" />
-            }
-        </section>
-        <div class="stats">
-            <StatTile Label="This week" Value="Summary.ThisWeek" TestId="count-week" />
-            <StatTile Label="This month" Value="Summary.ThisMonth" TestId="count-month" />
-        </div>
+        @if (Loading)
+        {
+            <div class="centre">
+                <Spinner Label="Loading…" TestId="dashboard-loading" />
+            </div>
+        }
+        else if (Failed)
+        {
+            <div class="load-failed">
+                <LoadFailed Message="Couldn't load the Dashboard." OnRetry="OnRetry" TestId="dashboard" />
+            </div>
+        }
+        else
+        {
+            <section class="section">
+                <h2 class="heading">Last workout</h2>
+                @if (Summary.LastWorkoutStartedAt is { } lastWorkout)
+                {
+                    <p class="last" data-testid="last-workout">@DisplayFormat.Date(lastWorkout)</p>
+                }
+                else
+                {
+                    <EmptyState Message="No workouts yet" TestId="last-workout-empty" />
+                }
+            </section>
+            <div class="stats">
+                <StatTile Label="This week" Value="Summary.ThisWeek" TestId="count-week" />
+                <StatTile Label="This month" Value="Summary.ThisMonth" TestId="count-month" />
+            </div>
+        }
         <ListRow Text="History" OnClick="OnHistory" TestId="history-link" />
     </ChildContent>
     <BottomBar>
@@ -27,6 +43,18 @@
     /// <summary>Last workout and counts.</summary>
     [Parameter, EditorRequired]
     public DashboardSummary Summary { get; set; } = null!;
+
+    /// <summary>Shows a spinner instead of the last workout and counts while they load.</summary>
+    [Parameter]
+    public bool Loading { get; set; }
+
+    /// <summary>Shows the load error and Try again instead of the last workout and counts, and moves focus to Try again.</summary>
+    [Parameter]
+    public bool Failed { get; set; }
+
+    /// <summary>Raised by Try again.</summary>
+    [Parameter]
+    public EventCallback OnRetry { get; set; }
 
     /// <summary>Raised by New Workout.</summary>
     [Parameter]

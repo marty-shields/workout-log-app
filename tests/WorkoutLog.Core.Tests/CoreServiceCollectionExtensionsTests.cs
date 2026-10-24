@@ -30,6 +30,7 @@ public class CoreServiceCollectionExtensionsTests
             (typeof(IWorkoutValidator), typeof(WorkoutValidator), ServiceLifetime.Singleton),
             (typeof(IWorkoutService), typeof(WorkoutService), ServiceLifetime.Singleton),
             (typeof(IHistoryService), typeof(HistoryService), ServiceLifetime.Singleton),
+            (typeof(IDashboardService), typeof(DashboardService), ServiceLifetime.Singleton),
         }));
     }
 
@@ -46,6 +47,7 @@ public class CoreServiceCollectionExtensionsTests
             Assert.That(provider.GetRequiredService<IDatabaseInitializer>(), Is.InstanceOf<GatedDatabaseInitializer>());
             Assert.That(provider.GetRequiredService<IWorkoutService>(), Is.InstanceOf<WorkoutService>());
             Assert.That(provider.GetRequiredService<IHistoryService>(), Is.InstanceOf<HistoryService>());
+            Assert.That(provider.GetRequiredService<IDashboardService>(), Is.InstanceOf<DashboardService>());
         });
     }
 

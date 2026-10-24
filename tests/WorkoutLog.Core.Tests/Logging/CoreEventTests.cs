@@ -33,5 +33,7 @@ public class CoreEventTests
             [CoreEvent.WorkoutDeleteFailed] = 1211,
             [CoreEvent.HistoryLoaded] = 1301,
             [CoreEvent.HistoryLoadFailed] = 1302,
+            [CoreEvent.DashboardLoaded] = 1401,
+            [CoreEvent.DashboardLoadFailed] = 1402,
         }));
 }

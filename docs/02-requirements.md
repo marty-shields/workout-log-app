@@ -36,7 +36,7 @@
 | FR-31 | New workout | A button starts a new workout (FR-01). |
 | FR-32 | Last workout | Shows the date + day of the workout with the latest start time. Shows an empty state if there are none. |
 | FR-33 | This week | Count of workouts started from Monday 00:00 to now. |
-| FR-34 | This month | Count of workouts started in the current calendar month. |
+| FR-34 | This month | Count of workouts started from the 1st at 00:00 to now (D196). |
 | FR-35 | History link | Opens the History list. |
 
 ### Exercise list

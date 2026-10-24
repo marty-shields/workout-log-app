@@ -9,26 +9,39 @@ namespace WorkoutLog.App.Navigation;
 /// </summary>
 internal sealed class AndroidBackButton(IBackButton backButton)
 {
+    private ComponentActivity? current;
     private Callback? callback;
 
-    /// <summary>Adds the back callback to a created activity.</summary>
+    /// <summary>Adds the back callback to a created activity, which replaces any earlier one.</summary>
     public void Attach(ComponentActivity activity)
     {
+        if (current is null)
+        {
+            backButton.Changed += Update;
+        }
+
+        current = activity;
         callback = new Callback(backButton, activity.OnBackPressedDispatcher);
         activity.OnBackPressedDispatcher.AddCallback(activity, callback);
-        backButton.Changed += Update;
+        backButton.Attach(activity);
         Update();
     }
 
     /// <summary>
-    /// Stops following the handlers when the activity is destroyed, and removes them: its pages are not disposed with it.
-    /// The dispatcher removes the callback itself.
+    /// Stops following the handlers when the current activity is destroyed, and removes them: its pages are not disposed with it.
+    /// An earlier activity is ignored. The dispatcher removes the callback itself.
     /// </summary>
-    public void Detach()
+    public void Detach(Android.App.Activity activity)
     {
+        if (!ReferenceEquals(activity, current))
+        {
+            return;
+        }
+
         backButton.Changed -= Update;
+        current = null;
         callback = null;
-        backButton.Clear();
+        backButton.Detach(activity);
     }
 
     private void Update() => MainThread.BeginInvokeOnMainThread(() =>

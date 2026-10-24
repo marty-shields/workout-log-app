@@ -45,6 +45,9 @@ internal sealed partial class AndroidDiagnostics(ILogger<AndroidDiagnostics> log
     /// <summary>Logs that the activity was destroyed.</summary>
     public void ActivityDestroyed() => Log.ActivityDestroyed(logger);
 
+    /// <summary>Logs that the activity started.</summary>
+    public void ActivityStarted() => Log.ActivityStarted(logger);
+
     /// <summary>Logs a trim-memory request. On API 34+ it is only <c>UiHidden</c> or <c>Background</c>.</summary>
     public void TrimMemory(TrimMemory level) => Log.TrimMemory(logger, level);
 
@@ -93,6 +96,9 @@ internal sealed partial class AndroidDiagnostics(ILogger<AndroidDiagnostics> log
 
         [LoggerMessage((int)AppEvent.ActivityDestroyed, LogLevel.Information, "Activity destroyed")]
         public static partial void ActivityDestroyed(ILogger logger);
+
+        [LoggerMessage((int)AppEvent.ActivityStarted, LogLevel.Information, "Activity started")]
+        public static partial void ActivityStarted(ILogger logger);
 
         [LoggerMessage((int)AppEvent.TrimMemory, LogLevel.Information, "Trim memory: {Level}")]
         public static partial void TrimMemory(ILogger logger, TrimMemory level);

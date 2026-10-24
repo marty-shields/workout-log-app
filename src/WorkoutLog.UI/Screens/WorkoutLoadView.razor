@@ -1,6 +1,4 @@
-@using Microsoft.Extensions.Logging
 @using WorkoutLog.UI.Components.Feedback
-@inject ILogger<WorkoutLoadView> Logger
 <AppScreen Title="Workout" OnBack="OnBack">
     @if (NotFound)
     {
@@ -8,10 +6,7 @@
     }
     else if (Failed)
     {
-        <div class="failed">
-            <p class="error" role="alert" data-testid="workout-load-error">Couldn't load the workout.</p>
-            <AppButton @ref="retry" Variant="ButtonVariant.Secondary" FullWidth TestId="workout-retry" OnClick="OnRetry">Try again</AppButton>
-        </div>
+        <LoadFailed Message="Couldn't load the workout." OnRetry="OnRetry" TestId="workout-load" />
     }
     else
     {
@@ -37,33 +32,4 @@
     /// <summary>Raised by the back arrow and the Android back button.</summary>
     [Parameter]
     public EventCallback OnBack { get; set; }
-
-    private AppButton? retry;
-    private bool shownFailed;
-    private bool focusRetry;
-
-    protected override void OnParametersSet()
-    {
-        var showsFailed = Failed && !NotFound;
-        focusRetry |= showsFailed && !shownFailed;
-        shownFailed = showsFailed;
-    }
-
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (!focusRetry || retry is null)
-        {
-            return;
-        }
-
-        focusRetry = false;
-        try
-        {
-            await retry.FocusAsync();
-        }
-        catch (Exception exception)
-        {
-            Log.RetryFocusFailed(Logger, exception);
-        }
-    }
 }

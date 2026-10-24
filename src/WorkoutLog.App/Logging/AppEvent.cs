@@ -24,6 +24,9 @@ internal enum AppEvent
     /// <summary>Activity destroyed.</summary>
     ActivityDestroyed = 5013,
 
+    /// <summary>Activity started: shown, or back from the background.</summary>
+    ActivityStarted = 5014,
+
     /// <summary>Android asked the app to trim memory.</summary>
     TrimMemory = 5021,
 

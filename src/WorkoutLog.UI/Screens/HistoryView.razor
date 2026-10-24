@@ -1,7 +1,5 @@
-@using Microsoft.Extensions.Logging
 @using WorkoutLog.UI.Components.Feedback
 @using WorkoutLog.UI.Models.History
-@inject ILogger<HistoryView> Logger
 <AppScreen Title="History" OnBack="OnBack">
     @if (Loading)
     {
@@ -11,10 +9,7 @@
     }
     else if (Failed)
     {
-        <div class="failed">
-            <p class="error" role="alert" data-testid="history-error">Couldn't load your history.</p>
-            <AppButton @ref="retry" Variant="ButtonVariant.Secondary" FullWidth TestId="history-retry" OnClick="OnRetry">Try again</AppButton>
-        </div>
+        <LoadFailed Message="Couldn't load your history." OnRetry="OnRetry" TestId="history" />
     }
     else if (Rows.Count == 0)
     {
@@ -57,33 +52,4 @@
     /// <summary>Raised by the back arrow and the Android back button.</summary>
     [Parameter]
     public EventCallback OnBack { get; set; }
-
-    private AppButton? retry;
-    private bool shownFailed;
-    private bool focusRetry;
-
-    protected override void OnParametersSet()
-    {
-        var showsFailed = Failed && !Loading;
-        focusRetry |= showsFailed && !shownFailed;
-        shownFailed = showsFailed;
-    }
-
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (!focusRetry || retry is null)
-        {
-            return;
-        }
-
-        focusRetry = false;
-        try
-        {
-            await retry.FocusAsync();
-        }
-        catch (Exception exception)
-        {
-            Log.RetryFocusFailed(Logger, exception);
-        }
-    }
 }

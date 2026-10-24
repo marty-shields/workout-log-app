@@ -12,7 +12,7 @@ public class GatedWorkoutRepositoryTests
     private string databasePath = "";
     private SQLiteAsyncConnection connection = null!;
     private DatabaseGate gate = null!;
-    private GatedWorkoutRepository repository = null!;
+    private IWorkoutRepository repository = null!;
 
     [SetUp]
     public async Task SetUp()
@@ -39,6 +39,9 @@ public class GatedWorkoutRepositoryTests
 
         Assert.That(await repository.GetAsync(id), Is.EqualTo(new Workout(id, Start, Start, [])).UsingPropertiesComparer());
         Assert.That(await repository.ListAsync(), Is.EqualTo(new[] { new WorkoutSummary(id, Start) }));
+        Assert.That(await repository.ListAsync(Start.AddTicks(1), null, null), Is.Empty);
+        Assert.That(await repository.ListAsync(null, Start.AddTicks(-1), null), Is.Empty);
+        Assert.That(await repository.ListAsync(null, null, 0), Is.Empty);
 
         await repository.DeleteAsync(id);
 
