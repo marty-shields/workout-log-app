@@ -39,6 +39,8 @@ public class SetCheckerTests
     [TestCase("8", "22.75")]
     [TestCase("8", ".5")]
     [TestCase("08", "007.5")]
+    [TestCase("8", "007")]
+    [TestCase("8", "0")]
     [TestCase("8", null)]
     [TestCase("8", "")]
     public void Check_ValidSet_PassesWithNoErrors(string reps, string? weight)

@@ -4,6 +4,7 @@ obj/
 *.binlog
 MSBuild_Logs/
 mono_crash.*
+*.feature.cs
 
 # Test results
 TestResults/

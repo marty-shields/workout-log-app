@@ -71,6 +71,26 @@ public class ExerciseFieldsTests
     public void For_RateUnits(int id, string unit) =>
         Assert.That(Fields(id).Single(f => f.Key == "rate").Unit, Is.EqualTo(unit));
 
+    [TestCase("Treadmill", "Duration, Distance (km), Incline (%), Calories, Rate (km/h)")]
+    [TestCase("Exercise Bike", "Duration, Distance (km), Resistance, Calories, Rate (rpm)")]
+    [TestCase("Recumbent Bike", "Duration, Distance (km), Resistance, Calories, Rate (rpm)")]
+    [TestCase("Spin Bike", "Duration, Distance (km), Resistance, Calories, Rate (rpm)")]
+    [TestCase("Air Bike", "Duration, Distance (km), Calories, Rate (rpm)")]
+    [TestCase("Rowing Machine", "Duration, Distance (m), Damper, Calories, Rate (strokes/min)")]
+    [TestCase("Ski Erg", "Duration, Distance (m), Damper, Calories, Rate (strokes/min)")]
+    [TestCase("Cross Trainer", "Duration, Distance (km), Resistance, Incline (%), Calories, Rate (strides/min)")]
+    [TestCase("Arc Trainer", "Duration, Distance (km), Resistance, Incline (%), Calories, Rate (strides/min)")]
+    [TestCase("Stair Climber", "Duration, Floors, Speed level, Calories, Rate (steps/min)")]
+    [TestCase("VersaClimber", "Duration, Distance (ft), Calories, Rate (feet/min)")]
+    [TestCase("Outdoor Run", "Duration, Distance (km), Calories, Pace (min/km)")]
+    [TestCase("Outdoor Walk", "Duration, Distance (km), Calories, Pace (min/km)")]
+    [TestCase("Outdoor Cycle", "Duration, Distance (km), Calories, Rate (km/h)")]
+    [TestCase("Swimming", "Duration, Distance (m), Calories")]
+    [TestCase("Jump Rope", "Duration, Calories")]
+    public void For_EachCardioMachine_LabelsAndUnits(string name, string labels) =>
+        Assert.That(string.Join(", ", ExerciseFields.For(Catalog.All.Single(e => e.Name == name)).Select(f => f.Unit is null ? f.Label : $"{f.Label} ({f.Unit})")),
+            Is.EqualTo(labels));
+
     [Test]
     public void For_DistanceInFeet() =>
         Assert.That(Fields(310).Single(f => f.Key == "distance").Unit, Is.EqualTo("ft"));

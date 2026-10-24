@@ -46,9 +46,10 @@
   - Edit with no unsaved changes: History, no prompt
   - Edit: ignored while a save runs and after one succeeds (D189), and while a delete runs and after one succeeds (D191)
   - Edit while loading, after a failed load or when not found: History (D185)
+  - With the soft keyboard open, Android back only hides the keyboard; the next back acts as above. The back arrow acts at once (D206)
 
 ### Exercise picker
-- An overlay on the workout page. Back closes it.
+- An overlay on the workout page. Back closes it; with the soft keyboard open, Android back first only hides the keyboard (D206).
 - Search box at the top, empty each time the picker opens (D152). It matches names and nicknames, every word in any order ([03](03-data-model.md#exercise-search)).
 - With no search text: the full list A–Z, grouped Strength / Cardio
 - Tap to add to the workout; the picker closes

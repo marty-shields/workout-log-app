@@ -34,9 +34,9 @@ WorkoutLog.slnx
 └─ tests/
    ├─ WorkoutLog.Core.Tests/       NUnit + Moq + AutoFixture
    ├─ WorkoutLog.UI.Tests/         bUnit
-   └─ WorkoutLog.E2E.Tests/        NUnit + Appium
+   └─ WorkoutLog.E2E.Tests/        Reqnroll + NUnit + Appium
 ```
-References: App → UI → Core. UI.Stories → UI. UI.Tests → UI, UI.Stories (to play the prototype scenarios). The App never references UI.Stories.
+References: App → UI → Core. UI.Stories → UI. UI.Tests → UI, UI.Stories (to play the prototype scenarios). E2E.Tests → Core (to seed workouts, T81). The App never references UI.Stories.
 
 ## Layers
 ```mermaid
@@ -155,6 +155,8 @@ Confirmed in US-02 (D75).
 | Microsoft.Extensions.Diagnostics.Testing | 10.11.0 | Core.Tests, UI.Tests | `FakeLogger` (T43) |
 | bunit | 2.12.5 | UI.Tests | Component tests |
 | Appium.WebDriver | 9.0.0 | E2E.Tests | UI automation (Selenium 4.46). Works with Appium 3.8.0 (T76) |
+| Reqnroll.NUnit | 3.3.4 | E2E.Tests | Runs the Gherkin features on NUnit (T80). Brings in Reqnroll, Gherkin 35.0.0 and the Cucumber packages |
+| Microsoft.Extensions.DependencyInjection | 10.0.13 | E2E.Tests | Builds Core's services to seed workouts (T81) |
 | BlazingStory | 1.0.0-preview.96 | UI.Stories | Component stories and prototyping (D99). Prerelease only; no stable version exists |
 | MD2RazorGenerator | 1.2.4 | UI.Stories | Build-time only. Turns the design-system Markdown pages into BlazingStory pages (D100) |
 

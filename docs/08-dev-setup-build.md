@@ -60,18 +60,24 @@ Debug and Release builds both log to logcat and to a file ([05](05-architecture.
 1. Connect the device and check `adb devices` lists it. A wireless debugging port changes when wireless debugging restarts: `adb connect <ip>:<new port>`.
 2. Unlock the phone and keep it unlocked. A locked device fails each test with "The device is locked". Developer options → **Stay awake** keeps the screen on while charging.
 3. Build the App: `dotnet build src/WorkoutLog.App -f net10.0-android`. The tests install this APK; they don't build it.
-4. Run the tests:
+4. Run the tests: every scenario, the smoke scenarios, one story's or one feature's:
    ```
    dotnet test tests/WorkoutLog.E2E.Tests --filter "FullyQualifiedName~WorkoutLog.E2E.Tests"
+   dotnet test tests/WorkoutLog.E2E.Tests --filter "Category=smoke"
+   dotnet test tests/WorkoutLog.E2E.Tests --filter "Category=US-17"
+   dotnet test tests/WorkoutLog.E2E.Tests --filter "FullyQualifiedName~EditWorkoutFeature"
    ```
-   With more than one device connected, name one: add `-- 'TestRunParameters.Parameter(name="DeviceUdid", value="<id from adb devices>")'`.
+   Run every scenario before each release APK (D204). With more than one device connected, name one: add `-- 'TestRunParameters.Parameter(name="DeviceUdid", value="<id from adb devices>")'`.
 
 What a run does:
 - Starts Appium from `node_modules` on a free port and stops it at the end.
 - Installs the APK over the Debug app.
-- Before each test, clears the Debug app's data and launches it. Any workouts in "Workout Log (Dev)" are deleted; the Release app is never touched.
+- Before each scenario, clears the Debug app's data and launches it. Any workouts in "Workout Log (Dev)" are deleted; the Release app is never touched.
+- A scenario that starts from saved workouts builds a database on the PC with Core and copies it into the Debug app with `run-as`, which needs the debuggable Debug build (T81). Build the App and run the tests from the same commit: a database from a newer Core can stop the app starting.
+- A `@today` scenario fails at its start within 5 minutes of midnight on the device; run it again after midnight (D205).
 - At the end, closes the Debug app. It stays installed with the last test's data, so a failure can be checked by hand.
 - Downloads a Chromedriver that matches the device's WebView into `tests/WorkoutLog.E2E.Tests/.chromedriver/` when needed.
+- Turns auto-rotate off and holds the screen in portrait, then puts both rotation settings back at the end (T86). After a killed run, set auto-rotate back yourself: `adb shell settings put system accelerometer_rotation 1` (on) or `0` (off).
 - Installs Appium's helper apps on the device (`io.appium.uiautomator2.server`, `io.appium.uiautomator2.server.test`, `io.appium.settings`) and removes them at the end. After a killed run, remove them with `adb uninstall <package>` for each.
 
 A plain `dotnet test` or `dotnet test WorkoutLog.slnx` skips the E2E tests (`[Explicit]`) and doesn't start Appium.
@@ -80,17 +86,18 @@ If a run is killed (Ctrl+C, IDE stop), Appium may keep running: stop the `node` 
 
 ### Results
 - `tests/WorkoutLog.E2E.Tests/TestResults/E2E/<yyyyMMdd-HHmmss>/` per run, holding the run's `appium.log`.
-- Each test is numbered in the output, e.g. `E2E 20261024-091420/01 Launch_ShowsTheFreshInstallDashboard`.
-- A failed test saves to `<run>/<nn>-<test>/`:
+- Each scenario is numbered in the output, e.g. `E2E 20261024-091420/01 A fresh install opens on the empty Dashboard`.
+- A failed scenario saves to `<run>/<nn>-<scenario>/`, named by its title with dashes for spaces, at most 60 characters:
   - `screen.png`: the device screen, black if the device is locked
   - `webview.html`, or `native.xml` if it failed before reaching the WebView
   - `workoutlog.log`: the app's log, from the external files folder only
   - `appium.log`: the test's part of the server log
 - The files are also attached to the test result, e.g. in a `--logger trx` file.
 - A phone run's files can show whatever is on the screen (notifications, another app), the phone's serial number and what the tests typed. Keep them local; don't share them.
+- Turn on Do Not Disturb during a run on your own phone, so notifications stay out of the screenshots.
 
 ### Use an emulator
-The Debug APK holds both arm64 (phone) and x86_64 (emulator) code, so the same build runs on an x86_64 emulator. Not yet tried on this project.
+The Debug APK holds both arm64 (phone) and x86_64 (emulator) code, so the same build runs on an x86_64 emulator.
 1. Turn on **Windows Hypervisor Platform** (Windows Features; admin).
 2. Install the emulator and an API 36 image, from `%ANDROID_HOME%\cmdline-tools\latest\bin` in an admin terminal:
    ```

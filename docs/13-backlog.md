@@ -55,6 +55,7 @@ As the developer, I want the solution created in local git, so that features hav
   - A blank page shows on the phone.
   - Debug builds use the `.debug` package id and the name "Workout Log (Dev)" ([08](08-dev-setup-build.md)).
   - A test runs and passes with NUnit 5.0.0, NUnit3TestAdapter 6.3.1 and NUnit.Analyzers 4.15.0. If not, fall back to NUnit 4.6.1 and update [05](05-architecture.md) and D75.
+  - **E2E (US-24):** the scenarios tagged `@US-04` pass (`--filter Category=US-04`).
 - **Size:** M · **Status:** Done (D133–D138, T36–T40)
 
 ### US-28 Back button on Android 16
@@ -68,6 +69,7 @@ As the developer, I want the Android back button passed to the current page on A
   - The App keeps no WebView history, so the BlazorWebView's own back never runs. A test checks the App's source.
   - The approach is recorded in [05](05-architecture.md#navigation) and T46.
   - **Logging:** Debug: back pressed, and whether a page handled it. Error: a back handler failed (exception).
+  - **E2E (US-24):** the scenarios tagged `@US-28` pass (`--filter Category=US-28`).
 - **Size:** S · **Status:** Done (D143, D144, T46)
 
 ### US-35 Diagnostic logging
@@ -103,6 +105,7 @@ As the developer, I want errors and unexpected events logged on the phone, in De
   - Unit tests cover each logged Core and UI event.
   - [08](08-dev-setup-build.md) says how to read the logs: logcat command, and pulling the log file.
   - Logging in new work is a rule: [05](05-architecture.md#logging), the Definition of Done, AGENTS.md, and log ACs on the other stories (D141).
+  - **E2E (US-24):** the scenarios tagged `@US-35` pass (`--filter Category=US-35`).
 - **Size:** L · **Status:** Done (D139–D142, T41–T45)
 
 ## EP-02 Exercises & data (M1)
@@ -140,6 +143,7 @@ As the developer, I want the exercise definitions in code and seeded into SQLite
   - `IExerciseCatalog` exposes the list only; search comes in [US-11](#us-11-add-and-remove-exercises) (D122).
   - Core creates the `Exercise` table and seeds it through `IExerciseSeeder` on an `SQLiteAsyncConnection` (T18). Seeding follows the rules in [03](03-data-model.md#seeding-the-exercise-list).
   - `AddCore(databasePath)` registers the connection, catalog and seeder as singletons (T19).
+  - **E2E (US-24):** the scenarios tagged `@US-07` pass (`--filter Category=US-07`).
 - **Size:** M · **Status:** Done
 
 ### US-08 SQLite schema and repositories
@@ -152,6 +156,7 @@ As the developer, I want the SQLite schema and repositories, so that workouts ar
   - A workout exercise has at most one cardio entry.
   - Times are stored in UTC (NFR-06).
   - The schema version is stored and upgrade steps run on startup ([03](03-data-model.md#schema-upgrades)).
+  - **E2E (US-24):** the scenarios tagged `@US-08` pass (`--filter Category=US-08`).
 - **Size:** L · **Status:** Done
 
 ### US-09 Workout service
@@ -160,6 +165,7 @@ As the developer, I want a workout service that validates and saves workouts and
 - **Extra ACs:**
   - Times come from `TimeProvider` (T31).
   - Save rules as in [03](03-data-model.md#validation) (D126–D129, T29–T32).
+  - **E2E (US-24):** the scenarios tagged `@US-09` pass (`--filter Category=US-09`).
 - **Size:** M · **Status:** Done
 
 ## EP-09 UX & design system (M1.5)
@@ -233,6 +239,7 @@ As the user, I want a workout to start when I open New Workout, with a live time
 - **Extra ACs:**
   - The header shows the date and day ([06](06-screens-ux.md)).
   - **Logging:** Information: new workout started.
+  - **E2E (US-24):** the scenarios tagged `@US-10` pass (`--filter Category=US-10`).
 - **Size:** S · **Status:** Done (D145, T47, T48)
 
 ### US-11 Add and remove exercises
@@ -246,6 +253,7 @@ As the user, I want to add exercises from the list and remove them, so that the 
   - Picking an exercise already in the workout goes to its card: strength adds a set, cardio focuses its entry (D154).
   - New Workout only; Add set and Remove set work, without set checks until US-12 and US-13. Save stays inert until US-14 (D153); US-13 makes it check the workout (D165).
   - **Logging:** none. The search runs in memory and has no errors to log.
+  - **E2E (US-24):** the scenarios tagged `@US-11` pass (`--filter Category=US-11`).
 - **Size:** S · **Status:** Done (D146–D156, T49, T50)
 
 ### US-12 Log strength sets
@@ -258,6 +266,7 @@ As the user, I want to add, fill in and remove sets for a strength exercise, so 
   - Strength only; cardio entries are checked in US-13 (D163).
   - Carries show distance in metres (D84); assisted machines label weight Assist (kg) (D85).
   - **Logging:** Warning 2401: focusing a blocked set failed (exception). Warning 2501/2502: a Core code gave no message (exercise id, code, metric). Validation errors are not logged (D142); input is parsed with `TryParse` ([05](05-architecture.md#logging)) (D164).
+  - **E2E (US-24):** the scenarios tagged `@US-12` pass (`--filter Category=US-12`).
 - **Size:** M · **Status:** Done (D157–D164, T51–T53)
 
 ### US-13 Log a cardio entry and check on Save
@@ -274,6 +283,7 @@ As the user, I want to fill in one cardio entry for a cardio exercise, and have 
   - Once a set or entry fails a check, every change re-checks it until it passes (D174).
   - The prototype has Workout, Strength and Cardio mistakes scenarios (D172); the scenario tests type as the player does (T57).
   - **Logging:** Warning 2302: focusing the first error failed (exception). Warning 2601: Save found an unknown exercise or wrong type (exercise id, code), once per exercise. Warnings 2501/2502 now cover cardio entries; 2501 is reworded (D175). Validation errors are not logged (D142); input is parsed with `TryParse` ([05](05-architecture.md#logging)).
+  - **E2E (US-24):** the scenarios tagged `@US-13` pass (`--filter Category=US-13`).
 - **Size:** XL · **Status:** Done (D165–D175, T54–T57)
 
 ### US-14 Save a workout
@@ -283,6 +293,7 @@ As the user, I want to save the workout, so that it is kept and the finish time 
   - A valid Save calls `SaveNewAsync` with `ISetChecker.Read`'s records and returns to the Dashboard; SaveFailed shows "Couldn't save the workout. Try again." The checks and their errors come from US-13 (D165).
   - SaveFailed focuses Save; taps while a save runs are ignored; a "Save failed" story (D176–D178, T58).
   - **Logging:** none new. `WorkoutService` already logs each save and failed save (US-35).
+  - **E2E (US-24):** the scenarios tagged `@US-14` pass (`--filter Category=US-14`).
 - **Size:** S · **Status:** Done (D176–D178, T58)
 
 ### US-15 Discard an unsaved workout
@@ -291,6 +302,7 @@ As the user, I want the back button to ask before dropping a new workout, so tha
 - **Extra ACs:**
   - **Logging:** Information: new workout discarded, with its exercise count.
   - The back handler follows D142: a failure in it is logged with the exception as it is (D140), so no workout values may reach an exception message.
+  - **E2E (US-24):** the scenarios tagged `@US-15` pass (`--filter Category=US-15`).
 - **Size:** S · **Status:** Done (D179, T59)
 
 ## EP-04 History (M3)
@@ -307,6 +319,7 @@ As the user, I want a list of my saved workouts, newest first, so that I can loo
   - Replaces the placeholder History page from [US-28](#us-28-back-button-on-android-16).
   - A failed load shows "Couldn't load your history." and Try again; a spinner shows while loading (D180, D181).
   - **Logging:** Error 1302: loading the history failed (exception). Debug 1301: rows loaded (count). Warning 2801: focusing Try again failed (exception); now 3301 (T73).
+  - **E2E (US-24):** the scenarios tagged `@US-16` pass (`--filter Category=US-16`).
 - **Size:** S · **Status:** Done (D180–D183, T60–T62)
 
 ## EP-05 Edit workouts (M4)
@@ -325,6 +338,7 @@ As the user, I want to open a saved workout and change it, so that I can fix mis
   - Loading, Load failed with Try again, and Not found states; back in them goes to History (D185).
   - Until US-18, back on a loaded workout does nothing; until US-19, Delete does nothing (D184). Back superseded by D189, Delete by D191.
   - **Logging:** Warning 1207: the workout id isn't found. Error 1208: loading the workout failed (id, exception). Debug 1209: loaded (id, exercise count). Error 2901: an exercise is unknown or the wrong type (workout id, exercise id). Warning 3001: focusing Try again failed (exception); now 3301 (T73). Saves are logged by `WorkoutService` (US-35).
+  - **E2E (US-24):** the scenarios tagged `@US-17` pass (`--filter Category=US-17`).
 - **Size:** M · **Status:** Done (D184–D188, T63–T66)
 
 ### US-18 Discard unsaved edits
@@ -334,6 +348,7 @@ As the user, I want the back button to ask before dropping my edits, so that I d
   - Discard returns to History ([06](06-screens-ux.md)).
   - **Logging:** Information 2902: edits discarded (workout id).
   - The back handler follows D142, as on [US-15](#us-15-discard-an-unsaved-workout).
+  - **E2E (US-24):** the scenarios tagged `@US-18` pass (`--filter Category=US-18`).
 - **Size:** S · **Status:** Done (D189, D190, T67)
 
 ### US-19 Delete a workout
@@ -344,6 +359,7 @@ As the user, I want to delete a workout after confirming, so that wrong entries 
   - Same dialog with or without unsaved edits. A failed delete shows "Couldn't delete the workout. Try again.", keeps the workout and its edits, and focuses Delete. Delete, Save and Back are guarded as D189 (D191).
   - Stories: "Delete failed"; "Back and discard" becomes "Back, discard and delete" (D192).
   - **Logging:** Information 1210: workout deleted (id). Error 1211: delete failed (id, exception). Both in `WorkoutService` (T68).
+  - **E2E (US-24):** the scenarios tagged `@US-19` pass (`--filter Category=US-19`).
 - **Size:** S · **Status:** Done (D191, D192, T68, T69)
 
 ## EP-06 Dashboard (M5)
@@ -365,6 +381,7 @@ As the user, I want the app to open on a Dashboard with New Workout and History,
   - Reloads each time it's shown and when the app comes back (D197).
   - Stories: Loading, Load failed and Live page (D198). Load failed on History, Edit Workout and the Dashboard uses one `LoadFailed` component with its own story (D199).
   - **Logging:** Error 1402: loading the Dashboard failed (exception). Debug 1401: loaded (counts). Warning 3301: focusing Try again failed (exception). Error 3201: an app start handler failed (exception). Information 5014: activity started.
+  - **E2E (US-24):** the scenarios tagged `@US-20` pass (`--filter Category=US-20`).
 - **Size:** M · **Status:** Done (D194–D199, T70–T74)
 
 ### US-21 Last workout summary
@@ -372,6 +389,7 @@ As the user, I want to see when my last workout was, so that I know when I last 
 - **Links:** FR-32
 - **Extra ACs:**
   - **Logging:** Error: loading the last workout failed (exception). Merged into US-20's (D194).
+  - **E2E (US-24):** the scenarios tagged `@US-21` pass (`--filter Category=US-21`).
 - **Size:** XS · **Status:** Done (in US-20, D194)
 
 ### US-22 Week and month counts
@@ -379,13 +397,14 @@ As the user, I want to see how many workouts I've done this week and this month,
 - **Links:** FR-33, FR-34, NFR-06
 - **Extra ACs:**
   - **Logging:** Error: counting the workouts failed (exception). Merged into US-20's (D194).
+  - **E2E (US-24):** the scenarios tagged `@US-22` pass (`--filter Category=US-22`).
 - **Size:** S · **Status:** Done (in US-20, D194)
 
 ## EP-07 Automated UI tests (M6)
 | ID | Story | Links | Size | Status |
 |---|---|---|---|---|
 | [US-23](#us-23-appium-setup) | Appium setup | [07](07-testing.md) | M | Done |
-| [US-24](#us-24-automate-the-v1-flows) | Automate the v1 flows | [07](07-testing.md) | L | To do |
+| [US-24](#us-24-automate-the-v1-flows) | Automate the v1 flows | [07](07-testing.md) | XL | Done |
 
 ### US-23 Appium setup
 As the developer, I want Appium set up against the app's WebView, so that UI flows can be automated.
@@ -401,15 +420,22 @@ As the developer, I want Appium set up against the app's WebView, so that UI flo
   - A failed test saves a screenshot, the page source, the app log and its Appium log slice, per numbered test (T79).
   - [08](08-dev-setup-build.md#e2e-tests) covers the setup, a run, the results, switching to an emulator and what CI needs.
   - **Logging:** none. Test code, plus the Debug build setting (T78).
+  - **E2E (US-24):** the scenarios tagged `@US-23` pass (`--filter Category=US-23`).
 - **Size:** M · **Status:** Done (D200, D201, T75–T79)
 
 ### US-24 Automate the v1 flows
 As the developer, I want the v1 UI flows automated, so that regressions are caught before a release.
-- **Links:** [07](07-testing.md)
+- **Links:** [07](07-testing.md), [08](08-dev-setup-build.md#e2e-tests)
 - **Extra ACs:**
-  - The 8 automated flows in [07](07-testing.md) pass.
+  - Every scenario in [tests/WorkoutLog.E2E.Tests/Features](../tests/WorkoutLog.E2E.Tests/Features) passes on the phone in one full run; the `@smoke` scenarios pass on their own.
+  - Each Done story with app behaviour has an **E2E (US-24)** AC naming its story tag (D202, D207).
+  - Reqnroll.NUnit and Microsoft.Extensions.DependencyInjection in E2E, recorded in [05](05-architecture.md#dependencies) (T80, T81).
+  - `AppTest` and `LaunchTests` are replaced by `AppHooks` and `Launch.feature`; the failure files are unchanged (T79, T80).
+  - Saved workouts are seeded through Core (T81); expected dates and counts come from the device clock, with the midnight check (D205); log, focus and keyboard checks (T83, T84); back with the keyboard open (D206); the screen held in portrait (T86); device commands from the WebView (T87); one example row per device path (T88).
+  - A plain `dotnet test` still skips the E2E tests.
+  - [07](07-testing.md) indexes the features and lists what stays in UI.Tests; the manual checklist keeps only what E2E doesn't run; [08](08-dev-setup-build.md#e2e-tests) covers smoke, tag and feature runs and seeding.
   - **Logging:** none. Test code only.
-- **Size:** L · **Status:** To do
+- **Size:** XL · **Status:** Done
 
 ## EP-08 Release (M6)
 | ID | Story | Links | Size | Status |

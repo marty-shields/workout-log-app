@@ -1,6 +1,6 @@
 # 04 — Exercise List
 
-The list ships with the app and changes only through an app update. The full list is [exercises.json](../src/WorkoutLog.Core/Domain/Exercises/exercises.json): 315 exercises (299 strength, 16 cardio). It is Core's embedded definition file.
+The list ships with the app and changes only through an app update. The full list is [exercises.json](../src/WorkoutLog.Core/Domain/Exercises/exercises.json). It is Core's embedded definition file.
 
 ## Source
 - Strength exercises are based on [free-exercise-db](https://github.com/yuhonas/free-exercise-db) (public domain), strength and powerlifting categories only. Some exercises were added by hand.

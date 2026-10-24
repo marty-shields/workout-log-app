@@ -29,7 +29,7 @@ A personal Android app (.NET 10 MAUI Blazor Hybrid) that replaces a paper workou
 | `src/WorkoutLog.Core/` | Class library: exercise definitions (embedded `exercises.json`), SQLite data, file logging, `AddCore` registration |
 | `tests/WorkoutLog.UI.Tests/` | bUnit tests for UI components and screens; plays the prototype scenarios |
 | `tests/WorkoutLog.Core.Tests/` | NUnit tests for Core |
-| `tests/WorkoutLog.E2E.Tests/` | NUnit + Appium tests on a device; `[Explicit]`, so a plain `dotnet test` skips them ([07](docs/07-testing.md#e2e-tests-appium)) |
+| `tests/WorkoutLog.E2E.Tests/` | Gherkin features run by Reqnroll + NUnit + Appium on a device; `[Explicit]`, so a plain `dotnet test` skips them ([07](docs/07-testing.md#e2e-tests-appium)) |
 
 ## Commands
 | Task | Command |
@@ -38,6 +38,7 @@ A personal Android app (.NET 10 MAUI Blazor Hybrid) that replaces a paper workou
 | Run the UI tests | `dotnet test tests/WorkoutLog.UI.Tests` |
 | Run the Core tests | `dotnet test tests/WorkoutLog.Core.Tests` |
 | Run the E2E tests | Build the App, then `dotnet test tests/WorkoutLog.E2E.Tests --filter "FullyQualifiedName~WorkoutLog.E2E.Tests"` with a device connected and unlocked ([08](docs/08-dev-setup-build.md#e2e-tests)) |
+| Run the E2E smoke tests | As above, with `--filter "Category=smoke"` |
 | Run the stories | `dotnet run --project src/WorkoutLog.UI.Stories` → http://localhost:5056 |
 | Run on the phone | `dotnet build src/WorkoutLog.App -t:Run -f net10.0-android` ([08](docs/08-dev-setup-build.md)) |
 

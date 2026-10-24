@@ -114,6 +114,14 @@ public class ExerciseCatalogTests
     public void Search_WordsInAnyOrder() =>
         Assert.That(Names("press chest machine"), Does.Contain("Machine Chest Press"));
 
+    [TestCase("chest", "Machine Chest Fly")]
+    [TestCase("pec deck", "Machine Chest Fly")]
+    [TestCase("deck pec", "Machine Chest Fly")]
+    [TestCase("incline dumbbell press", "Dumbbell Incline Press")]
+    [TestCase("rower", "Rowing Machine")]
+    public void Search_MatchesNamesAndNicknamesInAnyOrder(string query, string expected) =>
+        Assert.That(Names(query), Does.Contain(expected));
+
     [Test]
     public void Search_MatchesTheStartOfWordsOnly()
     {

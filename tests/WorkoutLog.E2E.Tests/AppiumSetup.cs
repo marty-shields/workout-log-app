@@ -6,6 +6,7 @@ using OpenQA.Selenium.Appium;
 using OpenQA.Selenium.Appium.Android;
 using OpenQA.Selenium.Appium.Service;
 using OpenQA.Selenium.Appium.Service.Options;
+using WorkoutLog.E2E.Tests.Device;
 
 [assembly: NonParallelizable]
 
@@ -13,8 +14,8 @@ namespace WorkoutLog.E2E.Tests;
 
 /// <summary>
 /// Starts the Appium server from this project's node_modules and opens one session for the run,
-/// installing the Debug APK. At the end it closes the Debug app, leaving it installed, and removes
-/// Appium's helper apps from the device.
+/// installing the Debug APK and locking the screen in portrait. At the end it closes the Debug app, leaving it installed,
+/// puts back the rotation settings and removes Appium's helper apps from the device.
 /// Writes the server log to <c>TestResults/E2E/&lt;run&gt;/appium.log</c>.
 /// Run setting: optional <c>DeviceUdid</c>; without it the first device adb lists is used.
 /// </summary>
@@ -30,11 +31,18 @@ public class AppiumSetup
     /// <summary>Apps the UiAutomator2 driver installs on the device; removed at the end of a run.</summary>
     private static readonly string[] HelperApps = ["io.appium.uiautomator2.server", "io.appium.uiautomator2.server.test", "io.appium.settings"];
 
+    /// <summary>Device settings that set the screen's rotation; saved at the start of a run and put back at the end.</summary>
+    private static readonly string[] RotationSettings = ["accelerometer_rotation", "user_rotation"];
+
     private static AndroidDriver? driver;
+    private static Adb? adb;
+    private static Dictionary<string, string>? rotation;
     private AppiumLocalService? service;
-    private string? udid;
 
     internal static AndroidDriver Driver => driver ?? throw new InvalidOperationException("AppiumSetup has not started a session.");
+
+    /// <summary>adb for the session's device.</summary>
+    internal static Adb Adb => adb ?? throw new InvalidOperationException("AppiumSetup has not started a session.");
 
     /// <summary>The run's results folder, named by its start time.</summary>
     internal static string RunFolder { get; private set; } = "";
@@ -68,8 +76,10 @@ public class AppiumSetup
             AutomationName = "UiAutomator2",
         };
         options.AddAdditionalAppiumOption("recreateChromeDriverSessions", true);
+        options.AddAdditionalAppiumOption("adbExecTimeout", (int)TimeSpan.FromMinutes(1).TotalMilliseconds);
         options.AddAdditionalAppiumOption("chromedriverExecutableDir", chromedrivers);
-        udid = TestContext.Parameters.Get("DeviceUdid");
+        var udid = TestContext.Parameters.Get("DeviceUdid");
+        adb = new Adb(udid);
         if (udid is not null)
         {
             options.AddAdditionalAppiumOption("udid", udid);
@@ -89,6 +99,7 @@ public class AppiumSetup
 
             driver = new AndroidDriver(service, options, TimeSpan.FromMinutes(3));
             driver.InstallApp(apk, timeout: (int)TimeSpan.FromMinutes(3).TotalMilliseconds, replace: true, checkVersion: false);
+            LockPortrait();
         }
         catch
         {
@@ -108,8 +119,31 @@ public class AppiumSetup
         service = null;
         if (started)
         {
+            RestoreRotation();
             RemoveHelperApps();
         }
+    }
+
+    /// <summary>Turns auto-rotate off and holds the screen in portrait, saving both rotation settings.</summary>
+    private static void LockPortrait()
+    {
+        rotation = RotationSettings.ToDictionary(name => name, name => Adb.Shell("settings", "get", "system", name));
+        Adb.Shell("settings", "put", "system", "accelerometer_rotation", "0");
+        Adb.Shell("settings", "put", "system", "user_rotation", "0");
+    }
+
+    /// <summary>Puts back the saved rotation settings, skipping any that were unset; a failure is written to the test output.</summary>
+    private static void RestoreRotation()
+    {
+        foreach (var (name, value) in rotation ?? [])
+        {
+            if (value != "null" && !Adb.TryRun(out var output, "shell", "settings", "put", "system", name, value))
+            {
+                TestContext.Progress.WriteLine($"Couldn't restore {name}: {output}");
+            }
+        }
+
+        rotation = null;
     }
 
     /// <summary>Stops the Debug app and leaves it installed; a failure is written to the test output.</summary>
@@ -126,33 +160,13 @@ public class AppiumSetup
     }
 
     /// <summary>Uninstalls <see cref="HelperApps"/> with adb; a failure is written to the test output.</summary>
-    private void RemoveHelperApps()
+    private static void RemoveHelperApps()
     {
-        var adb = Path.Combine(Environment.GetEnvironmentVariable("ANDROID_HOME")!, "platform-tools", "adb");
         foreach (var app in HelperApps)
         {
-            var start = new ProcessStartInfo(adb) { RedirectStandardOutput = true, RedirectStandardError = true };
-            if (udid is not null)
+            if (!Adb.TryRun(out var output, "uninstall", app))
             {
-                start.ArgumentList.Add("-s");
-                start.ArgumentList.Add(udid);
-            }
-
-            start.ArgumentList.Add("uninstall");
-            start.ArgumentList.Add(app);
-            try
-            {
-                using var process = Process.Start(start)!;
-                var output = process.StandardOutput.ReadToEnd() + process.StandardError.ReadToEnd();
-                process.WaitForExit();
-                if (process.ExitCode != 0)
-                {
-                    TestContext.Progress.WriteLine($"Couldn't remove {app}: {output.Trim()}");
-                }
-            }
-            catch (Win32Exception e)
-            {
-                TestContext.Progress.WriteLine($"Couldn't remove {app}: {e.Message}");
+                TestContext.Progress.WriteLine($"Couldn't remove {app}: {output}");
             }
         }
     }
