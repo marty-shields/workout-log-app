@@ -2,7 +2,7 @@
 
 A personal Android app that replaces a paper workout notebook.
 
-**Status:** Planning. The solution has the UI, Stories, UI.Tests, Core and Core.Tests projects; the prototype, design tokens, components and final screen designs are in the stories site (US-29 to US-33); Core holds the exercise definitions and seeding (US-07). The App logs to logcat and a file (US-35).
+**Status:** Planning. The solution has the App, UI, Stories, UI.Tests, Core, Core.Tests and E2E.Tests projects; the prototype, design tokens, components and final screen designs are in the stories site (US-29 to US-33); Core holds the exercise definitions and seeding (US-07). The App logs to logcat and a file (US-35). E2E tests run the Debug build on a device through Appium (US-23).
 
 ## Documents
 

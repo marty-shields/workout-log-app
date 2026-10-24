@@ -154,9 +154,16 @@ Confirmed in US-02 (D75).
 | Microsoft.Extensions.TimeProvider.Testing | 10.11.0 | Core.Tests, UI.Tests | `FakeTimeProvider` (T31) |
 | Microsoft.Extensions.Diagnostics.Testing | 10.11.0 | Core.Tests, UI.Tests | `FakeLogger` (T43) |
 | bunit | 2.12.5 | UI.Tests | Component tests |
-| Appium.WebDriver | 9.0.0 | E2E.Tests | UI automation (Selenium 4.46). Check against the Appium server version in M6 |
+| Appium.WebDriver | 9.0.0 | E2E.Tests | UI automation (Selenium 4.46). Works with Appium 3.8.0 (T76) |
 | BlazingStory | 1.0.0-preview.96 | UI.Stories | Component stories and prototyping (D99). Prerelease only; no stable version exists |
 | MD2RazorGenerator | 1.2.4 | UI.Stories | Build-time only. Turns the design-system Markdown pages into BlazingStory pages (D100) |
+
+npm devDependencies in `tests/WorkoutLog.E2E.Tests/package.json`, approved in US-23: exact versions, installed with `npm ci --ignore-scripts` from the committed `package-lock.json` (T76):
+
+| Package | Version | Purpose |
+|---|---|---|
+| appium | 3.8.0 | Appium server, started by the E2E tests |
+| appium-uiautomator2-driver | 8.7.0 | Android driver. Downloads Chromedriver for the device's WebView |
 
 MAUI packages (`Microsoft.Maui.Controls`, `Microsoft.AspNetCore.Components.WebView.Maui`) come from the template, pinned to 10.0.120 with `MauiVersion` in the App project (T38).
 

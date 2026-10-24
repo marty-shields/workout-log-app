@@ -384,16 +384,24 @@ As the user, I want to see how many workouts I've done this week and this month,
 ## EP-07 Automated UI tests (M6)
 | ID | Story | Links | Size | Status |
 |---|---|---|---|---|
-| [US-23](#us-23-appium-setup) | Appium setup | [07](07-testing.md) | M | To do |
+| [US-23](#us-23-appium-setup) | Appium setup | [07](07-testing.md) | M | Done |
 | [US-24](#us-24-automate-the-v1-flows) | Automate the v1 flows | [07](07-testing.md) | L | To do |
 
 ### US-23 Appium setup
 As the developer, I want Appium set up against the app's WebView, so that UI flows can be automated.
-- **Links:** [07](07-testing.md)
+- **Links:** [07](07-testing.md), [08](08-dev-setup-build.md#e2e-tests)
 - **Extra ACs:**
   - One test switches to the WebView context and finds an element by `data-testid`.
-  - **Logging:** none. Test code only.
-- **Size:** M · **Status:** To do
+  - Purpose and device as D200: the Debug build on the phone, one test at a time, data cleared before each test. The device comes from the `DeviceUdid` run setting; the emulator steps are documented, not yet run.
+  - Appium 3.8.0 and UiAutomator2 8.7.0 from the E2E project's `package.json`; Chromedriver downloads itself (T75, T76).
+  - The tests start Appium, install the built APK and stop Appium at the end. A plain `dotnet test` skips them (T77).
+  - Debug APKs embed their assemblies (T78); a UI.Tests check reads the App's project file for it.
+  - The scope grew from the one original AC to the harness (D201).
+  - A locked device fails each test with a clear message (D200).
+  - A failed test saves a screenshot, the page source, the app log and its Appium log slice, per numbered test (T79).
+  - [08](08-dev-setup-build.md#e2e-tests) covers the setup, a run, the results, switching to an emulator and what CI needs.
+  - **Logging:** none. Test code, plus the Debug build setting (T78).
+- **Size:** M · **Status:** Done (D200, D201, T75–T79)
 
 ### US-24 Automate the v1 flows
 As the developer, I want the v1 UI flows automated, so that regressions are caught before a release.

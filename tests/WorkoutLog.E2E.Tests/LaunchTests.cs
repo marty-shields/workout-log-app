@@ -1,53 +1,22 @@
 using OpenQA.Selenium;
-using OpenQA.Selenium.Appium;
-using OpenQA.Selenium.Appium.Android;
-using OpenQA.Selenium.Support.UI;
 
 namespace WorkoutLog.E2E.Tests;
 
-/// <summary>
-/// Runs against the Debug app on a device through an Appium server with the UiAutomator2 driver.
-/// Run settings: <c>AppiumServerUrl</c> (default http://127.0.0.1:4723/) and optional <c>DeviceUdid</c>.
-/// </summary>
-[Explicit("Needs an Appium server and a device (M6)")]
-public class LaunchTests
+public class LaunchTests : AppTest
 {
-    private const string Package = "uk.martinshields.workoutlog.debug";
-
-    private AndroidDriver? driver;
-
-    [SetUp]
-    public void StartSession()
-    {
-        var options = new AppiumOptions
-        {
-            PlatformName = "Android",
-            AutomationName = "UiAutomator2",
-        };
-        if (TestContext.Parameters.Get("DeviceUdid") is { } udid)
-        {
-            options.AddAdditionalAppiumOption("udid", udid);
-        }
-
-        var server = new Uri(TestContext.Parameters.Get("AppiumServerUrl", "http://127.0.0.1:4723/"));
-        driver = new AndroidDriver(server, options);
-        driver.ActivateApp(Package);
-    }
-
-    [TearDown]
-    public void EndSession() => driver?.Dispose();
-
     [Test]
-    public void Launch_ShowsTheDashboardAfterStartup()
+    public void Launch_ShowsTheFreshInstallDashboard()
     {
-        var app = driver!;
-        var context = $"WEBVIEW_{Package}";
-        var wait = new WebDriverWait(app, TimeSpan.FromSeconds(30));
+        var empty = WaitForTestId("last-workout-empty");
 
-        wait.Until(_ => app.Contexts.Contains(context));
-        app.Context = context;
-        wait.Until(d => d.FindElements(By.CssSelector("[data-testid=history-link]")).Count == 1);
-
-        Assert.That(app.FindElements(By.CssSelector("[data-testid=startup-error]")), Is.Empty);
+        Assert.Multiple(() =>
+        {
+            Assert.That(empty.Text, Is.EqualTo("No workouts yet"));
+            Assert.That(FindByTestId("count-week").FindElement(By.CssSelector(".value")).Text, Is.EqualTo("0"));
+            Assert.That(FindByTestId("count-month").FindElement(By.CssSelector(".value")).Text, Is.EqualTo("0"));
+            Assert.That(App.FindElements(ByTestId("history-link")), Has.Count.EqualTo(1));
+            Assert.That(App.FindElements(ByTestId("new-workout")), Has.Count.EqualTo(1));
+            Assert.That(App.FindElements(ByTestId("startup-error")), Is.Empty);
+        });
     }
 }

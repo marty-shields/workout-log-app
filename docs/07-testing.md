@@ -5,17 +5,28 @@
 |---|---|---|---|
 | Unit | `WorkoutLog.Core.Tests` | NUnit, Moq, AutoFixture | Metric validation per exercise definition (FR-06, FR-07, FR-09), start/finish capture (FR-01, FR-10, FR-11), last workout and dashboard counts in the phone's time zone, DST at midnight included (FR-32, FR-33, FR-34, D196), exercise seeding, definition file checks (unique Ids, names and aliases; Ids 1…N without gaps; the documented counts; valid values; unknown fields fail to load; strength/cardio fields and metrics match the type; units only with their metric), search normalisation and ranking (FR-03), logged events with `FakeLogger` (T43), `CoreEvent` values unique, in range and fixed (T66) |
 | Repository | `WorkoutLog.Core.Tests` | NUnit + temp SQLite file | Save, load, list newest first, list by start range and limit, edit, cascade delete, one CardioEntry per exercise |
-| Component | `WorkoutLog.UI.Tests` | bUnit | Fields and labels shown per exercise definition, picker search, add/remove set, live timer, inline validation, Discard/Cancel and Delete prompts; every prototype scenario step finds its target; design-system checks (D117): tokens only, WCAG AA token pairs, touch targets, `data-testid` on every interactive element, screen stories match the tests' list of screen states, a Design System page for every component and screen; app start handlers; back and app start handlers per activity and the App's activity lifecycle wiring, read from its source (T74); logged events with `FakeLogger`; `UiEvent` and `AppEvent` values unique, in range and fixed, retired values not reused (T73), and no `[LoggerMessage]` with a bare number (T66) |
-| UI (automated) | `WorkoutLog.E2E.Tests` | NUnit + Appium (UiAutomator2) | End-to-end flows on an emulator or the Debug build on the phone |
+| Component | `WorkoutLog.UI.Tests` | bUnit | Fields and labels shown per exercise definition, picker search, add/remove set, live timer, inline validation, Discard/Cancel and Delete prompts; every prototype scenario step finds its target; design-system checks (D117): tokens only, WCAG AA token pairs, touch targets, `data-testid` on every interactive element, screen stories match the tests' list of screen states, a Design System page for every component and screen; app start handlers; back and app start handlers per activity and the App's activity lifecycle wiring, read from its source (T74); Debug builds embedding their assemblies, read from the App's project file (T78); logged events with `FakeLogger`; `UiEvent` and `AppEvent` values unique, in range and fixed, retired values not reused (T73), and no `[LoggerMessage]` with a bare number (T66) |
+| UI (automated) | `WorkoutLog.E2E.Tests` | NUnit + Appium (UiAutomator2) | Typical user flows end to end on the Debug build, on the phone or an emulator (D200) |
 | Manual | — | Checklist below | Real-phone checks before each release APK |
 
 Time is injected through .NET `TimeProvider`; tests use `FakeTimeProvider`, so they never depend on the real clock (T31).
 
-## Appium + Blazor Hybrid
-- The UI is HTML inside an Android WebView. Appium must switch from the `NATIVE_APP` context to the `WEBVIEW_<package>` context to find elements.
-- This needs WebView debugging turned on in Debug builds, and a matching Chromedriver.
-- Elements are found by `data-testid` attributes on the Razor components.
-- The Android back button is pressed from the native context.
+## E2E tests (Appium)
+**Purpose:** typical user flows end to end, as close to real use as possible: the Debug build, installed and run on a device. The phone is used now; an emulator is chosen by run setting (D200). How to set up and run: [08](08-dev-setup-build.md#e2e-tests).
+
+**How it works**
+- The UI is HTML inside an Android WebView. Appium switches from the `NATIVE_APP` context to `WEBVIEW_uk.martinshields.workoutlog.debug` to find elements. Debug builds turn on WebView debugging (`AddBlazorWebViewDeveloperTools`); Chromedriver for the device's WebView downloads itself (T76).
+- `AppiumSetup` (`[SetUpFixture]`, `[Explicit]`) starts Appium, opens one session for the run and installs the Debug APK. At the end it closes the Debug app, leaving it installed, and removes Appium's helper apps from the device (T77).
+- Each test derives from `AppTest`. Its SetUp fails at once if the device is locked, then clears the Debug app's data, launches the app and switches to the WebView. So every test starts as a fresh install.
+- Tests find elements by `data-testid` with `FindByTestId` and `WaitForTestId`.
+- Tests run one at a time on one device (`[assembly: NonParallelizable]`).
+- The Android back button is pressed from the native context (US-24).
+- A failed test saves a screenshot, the page source, the app's log and its part of the Appium log (T79, [08](08-dev-setup-build.md#results)).
+- A locked device: the page renders but isn't visible, so element text reads empty and screenshots are black. At the start of a run Appium unlocks a swipe-only lock screen, not a PIN; a lock later in the run fails each remaining test.
+
+| Test | Checks |
+|---|---|
+| `LaunchTests.Launch_ShowsTheFreshInstallDashboard` | A fresh install opens on the Dashboard: "No workouts yet", 0 this week and this month, History and New Workout, no startup error |
 
 ## Automated UI flows (v1)
 1. Start a workout, add a strength exercise with 2 sets, save. It lands on the Dashboard and appears in History.
