@@ -74,9 +74,16 @@ jobs:
           sudo udevadm trigger --name-match=kvm
           ls -l /dev/kvm
 
+      # avdmanager and the emulator look for AVDs in different default folders; ANDROID_AVD_HOME sets one for both.
       - name: Start the emulator
         run: |
           sdk="$ANDROID_HOME/cmdline-tools/latest/bin"
+          export ANDROID_AVD_HOME="$HOME/.android/avd"
+          mkdir -p "$ANDROID_AVD_HOME"
+          echo "ANDROID_AVD_HOME=$ANDROID_AVD_HOME" >> "$GITHUB_ENV"
+          echo "::group::Emulator libraries"
+          sudo apt-get install -y --no-install-recommends libpulse0 > /dev/null
+          echo "::endgroup::"
           echo "::group::Install the emulator and image"
           (yes || true) | "$sdk/sdkmanager" --licenses > /dev/null
           "$sdk/sdkmanager" --install emulator "$SYSTEM_IMAGE"
