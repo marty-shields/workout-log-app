@@ -106,8 +106,9 @@ jobs:
           "$ANDROID_HOME/emulator/emulator" -version | head -n 3
           "$ANDROID_HOME/emulator/emulator" -accel-check
           echo "::endgroup::"
+          # The runner's 4 vCPUs and 4 GB; the pixel_7 profile's default of 2 cores and 1.5 GB starves the keyboard and WebView.
           nohup "$ANDROID_HOME/emulator/emulator" -avd "$AVD" -no-window -no-audio -no-boot-anim -no-snapshot \
-            -gpu swiftshader_indirect -verbose > "$RUNNER_TEMP/emulator.log" 2>&1 &
+            -cores 4 -memory 4096 -gpu swiftshader_indirect -verbose > "$RUNNER_TEMP/emulator.log" 2>&1 &
           echo $! > "$RUNNER_TEMP/emulator.pid"
           echo "Emulator started, pid $(cat "$RUNNER_TEMP/emulator.pid")"
           echo "$ANDROID_HOME/platform-tools" >> "$GITHUB_PATH"
@@ -168,6 +169,12 @@ jobs:
           adb shell wm dismiss-keyguard || true
           # System "isn't responding" dialogs (e.g. Play services on a busy CPU) would cover the app and take its taps.
           adb shell settings put global hide_error_dialogs 1
+          # No system animations, so the keyboard and its insets settle before the next key or gesture.
+          adb shell settings put global window_animation_scale 0
+          adb shell settings put global transition_animation_scale 0
+          adb shell settings put global animator_duration_scale 0
+          adb shell getprop | grep -E "ro.kernel.qemu.avd_name|hw.cpu|ro.product.cpu.abi\b" || true
+          adb shell cat /proc/meminfo | head -n 1
           echo "::group::Device"
           adb devices -l
           adb shell getprop ro.build.fingerprint

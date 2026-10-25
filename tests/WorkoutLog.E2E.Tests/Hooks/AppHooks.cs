@@ -73,10 +73,12 @@ public sealed class AppHooks(ScenarioContext scenario, DeviceClock clock, Native
         }
     }
 
+    /// <summary>Characters Windows and Actions artifacts don't allow in a path; Linux allows all but '/'.</summary>
+    private static readonly char[] InvalidFileNameChars = ['"', '<', '>', ':', '|', '?', '*', '\\', '/'];
+
     private static string FileName(string title)
     {
-        var invalid = Path.GetInvalidFileNameChars();
-        var name = new string(title.Select(c => invalid.Contains(c) || c == ' ' ? '-' : c).ToArray());
+        var name = new string(title.Select(c => InvalidFileNameChars.Contains(c) || char.IsControl(c) || c == ' ' ? '-' : c).ToArray());
         return name.Length > 60 ? name[..60] : name;
     }
 
