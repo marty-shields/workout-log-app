@@ -16,7 +16,8 @@ env:
   TAG_PREFIX: spike-v
   E2E_SHARDS: 8
   AVD: WorkoutLog_API36
-  SYSTEM_IMAGE: system-images;android-36;google_apis;x86_64
+  # AOSP image: no Play services or Gboard, so less background work on the runner.
+  SYSTEM_IMAGE: system-images;android-36;default;x86_64
   CHROMEDRIVER_VERSION: ''
   CHROMEDRIVER_SHA256: ''
   CERT_SHA256: 'E4:37:88:10:3D:1A:15:73:71:D6:1E:D4:F8:30:9C:27:54:6B:1A:B8:44:46:52:16:44:D7:43:CA:5E:8C:A1:E9'

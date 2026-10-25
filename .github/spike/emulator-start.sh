@@ -41,9 +41,10 @@ echo "::group::Emulator version and acceleration"
 "$ANDROID_HOME/emulator/emulator" -accel-check
 echo "::endgroup::"
 
-# The runner's 4 vCPUs and 4 GB; the pixel_7 profile's default of 2 cores and 1.5 GB starves the keyboard and WebView.
+# 3 of the runner's 4 vCPUs (one stays for dotnet, Appium and adb) and 4 GB; the pixel_7 profile's default of 2 cores and
+# 1.5 GB starves the keyboard and WebView. A 2 GB data partition; software GPU through ANGLE (runners have no GPU).
 nohup "$ANDROID_HOME/emulator/emulator" -avd "$AVD" -no-window -no-audio -no-boot-anim -no-snapshot \
-  -cores 4 -memory 4096 -gpu swiftshader_indirect -verbose > "$RUNNER_TEMP/emulator.log" 2>&1 &
+  -cores 3 -memory 4096 -partition-size 2048 -gpu swangle_indirect -verbose > "$RUNNER_TEMP/emulator.log" 2>&1 &
 echo $! > "$RUNNER_TEMP/emulator.pid"
 echo "Emulator started, pid $(cat "$RUNNER_TEMP/emulator.pid")"
 echo "$ANDROID_HOME/platform-tools" >> "$GITHUB_PATH"

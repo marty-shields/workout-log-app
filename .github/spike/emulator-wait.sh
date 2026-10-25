@@ -43,6 +43,14 @@ adb shell settings put global hide_error_dialogs 1
 adb shell settings put global window_animation_scale 0
 adb shell settings put global transition_animation_scale 0
 adb shell settings put global animator_duration_scale 0
+# The app is offline; no network means no background syncs or scans. The screen stays on for the whole run.
+adb shell svc wifi disable || true
+adb shell svc data disable || true
+adb shell svc power stayon true
+# Only on an image with Play services.
+if adb shell pm list packages com.google.android.gms | grep -q "package:com.google.android.gms$"; then
+  adb shell pm disable-user --user 0 com.google.android.gms || true
+fi
 
 echo "::group::Device"
 adb devices -l
