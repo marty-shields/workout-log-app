@@ -11,7 +11,7 @@ Made from 2026-10-21 to 2026-10-25. Every decision is **Accepted** unless its Ch
 | Screens and design system | D66, D67, D96–D121, D131, D133–D134, D138, D140, D143–D145, D180–D199, D209–D214 |
 | Architecture and logging | T01–T06, T13, T15, T19, T21, T25–T27, T35–T36, T38–T74, T99; D139–D142 |
 | Testing | D200–D208, D215; T07, T14, T16–T18, T20, T75–T88, T94, T108–T109 |
-| Build, CI and release | D60, D68, D135–D136, D220, D223–D229; T08–T10, T89–T98, T101–T107 |
+| Build, CI and release | D60, D68, D135–D136, D220, D223–D229; T08–T10, T89–T98, T101–T107, T111 |
 | Ways of working and docs | D49–D59, D73–D75, D193, D216–D219, D221–D222, D230–D235; T11–T12, T100, T110 |
 
 ## Product
@@ -346,7 +346,7 @@ Made from 2026-10-21 to 2026-10-25. Every decision is **Accepted** unless its Ch
 | T88 | E2E example rows | Scenario outlines keep one row per device path; other values of a rule are tested in UI.Tests or Core.Tests | Every row on the device; one row per outline |
 | T89 | Source control | Public GitHub repo [marty-shields/workout-log-app](https://github.com/marty-shields/workout-log-app), default branch `main`, protected by a ruleset; git and `gh` use the personal account in this repo only ([07](07-dev-setup-build.md#source-control)). Supersedes T09 | Private repo; switch the `gh` account per task |
 | T90 | Local settings ignored | `.vscode/` and `.claude/settings.local.json` are gitignored, as they hold machine-specific settings. Amends T39 | Shared VS Code settings in the repo |
-| T91 | PR build | `pr-build.yml` builds and runs the Core and UI tests on PRs to `main`, on `ubuntu-latest`, with the SDK and workload set pinned; actions pinned by SHA with least permissions; its check is required ([07](07-dev-setup-build.md#ci)). Amended by T96 | Windows runner; floating SDK; one `ci.yml` |
+| T91 | PR build | `pr-build.yml` builds and runs the Core and UI tests on PRs to `main`, on `ubuntu-latest`, with the SDK and workload set pinned; actions pinned by SHA with least permissions; its check is required ([07](07-dev-setup-build.md#ci)). Amended by T96, T111 | Windows runner; floating SDK; one `ci.yml` |
 | T92 | Dependabot | Weekly updates for NuGet, the E2E npm packages, the SDK and the Actions; minor and patch grouped per ecosystem. Amended by T103 | One PR per package; NuGet only |
 | T93 | E2E npm overrides | `overrides` lift packages Appium pins to vulnerable versions; the driver's bundled copies can't be overridden and stay tracked in [US-38](https://github.com/marty-shields/workout-log-app/issues/47) | `npm audit fix --force`; hide the bundled entries |
 | T94 | Appium on loopback | Appium binds to 127.0.0.1. Amends T77 | The library default |
@@ -366,3 +366,4 @@ Made from 2026-10-21 to 2026-10-25. Every decision is **Accepted** unless its Ch
 | T108 | E2E harness fixes | `WebView.Text` reads inside its wait; failure folder names drop characters Windows and artifacts don't allow | |
 | T109 | E2E retries in CI | `e2e-run.sh` re-runs only the failed scenarios, up to 3 tries; a pass on a retry gets a warning. Local runs don't retry | NUnit `[Retry]`; a testing-platform extension; no retries |
 | T110 | Decisions log format (US-27) | Choice is the decision in 1–2 sentences, linking to the doc that holds the detail; Alternatives are option names; superseded rows keep only their title and successor; changed rows point both ways ("Amends" / "Amended by"); dates are in the header | Keep the full rows |
+| T111 | Exact SDK in CI (US-27) | `global.json` uses `rollForward: patch`, so CI installs exactly its SDK version; a new patch comes as a Dependabot PR. Locally a newer patch still works when that one isn't installed. Amends T91 | `latestPatch` (CI took 10.0.403, whose download failed); a version per workflow |

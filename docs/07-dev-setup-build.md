@@ -116,7 +116,7 @@ The [PR build](#ci) doesn't run the E2E tests; the [release workflow](#release-s
 - A `release-smoke` job builds the Release APK for x64 with the debug key, installs it on an emulator and launches it (`release-smoke.sh`). It fails unless the app's log shows the Release start line, the exercise list seeded and "Startup finished", with no error and no crash.
 
 ## CI
-- `.github/workflows/pr-build.yml` ("PR build") runs on every PR to `main` (T91). On `ubuntu-latest` it installs the SDK from `global.json` and the `maui-android` workload at a pinned workload set, runs `dotnet build WorkoutLog.slnx`, then the Core and UI tests. Its `build-and-test` check must pass before the PR can merge.
+- `.github/workflows/pr-build.yml` ("PR build") runs on every PR to `main` (T91). On `ubuntu-latest` it installs the exact SDK in `global.json` (T111) and the `maui-android` workload at a pinned workload set, runs `dotnet build WorkoutLog.slnx`, then the Core and UI tests. Its `build-and-test` check must pass before the PR can merge.
 - Failed tests show as annotations on the PR, linked to the test's source line, and each test step adds a results table to the run's summary (T95).
 - The workload set matches the SDK: when the SDK in `global.json` changes, set the workflow's `--version` to the matching set (`dotnet workload search version`) in the same PR.
 - `.github/workflows/pr-checks.yml` ("PR checks") runs on every PR to `main` when it opens, changes or is relabelled. Its `pr-checks` check fails unless:
