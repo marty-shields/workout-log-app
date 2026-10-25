@@ -23,6 +23,8 @@ A personal Android app (.NET 10 MAUI Blazor Hybrid) that replaces a paper workou
 | Path | What |
 |---|---|
 | `WorkoutLog.slnx` | Solution |
+| `Directory.Build.props` | Settings for every project: target framework, nullable, implicit usings, warnings are errors; NUnit for `*.Tests` projects (T96, T98) |
+| `Directory.Packages.props` | NuGet package versions for every project (T97) |
 | `src/WorkoutLog.App/` | MAUI Blazor Hybrid host (Android): DI, startup, routing |
 | `src/WorkoutLog.UI/` | Razor class library: pages, components, design tokens |
 | `src/WorkoutLog.UI.Stories/` | BlazingStory app: stories for UI components |
@@ -35,7 +37,7 @@ A personal Android app (.NET 10 MAUI Blazor Hybrid) that replaces a paper workou
 ## Commands
 | Task | Command |
 |---|---|
-| Build | `dotnet build WorkoutLog.slnx -warnaserror` (as the PR build) |
+| Build | `dotnet build WorkoutLog.slnx` (warnings fail the build) |
 | Run the UI tests | `dotnet test tests/WorkoutLog.UI.Tests` |
 | Run the Core tests | `dotnet test tests/WorkoutLog.Core.Tests` |
 | Run the E2E tests | Build the App, then `dotnet test tests/WorkoutLog.E2E.Tests --filter "FullyQualifiedName~WorkoutLog.E2E.Tests"` with a device connected and unlocked ([08](docs/08-dev-setup-build.md#e2e-tests)) |
@@ -45,7 +47,7 @@ A personal Android app (.NET 10 MAUI Blazor Hybrid) that replaces a paper workou
 
 ## Rules
 - Ask about any ambiguity. Don't pick a default.
-- No new packages without approval. Approved packages are in [05](docs/05-architecture.md#dependencies); their versions are in the project files, `package.json` and the workflows. A Dependabot PR is a request to update one; merging it approves it.
+- No new packages without approval. Approved packages are in [05](docs/05-architecture.md#dependencies); their versions are in `Directory.Packages.props` (NuGet), `package.json` and the workflows. A Dependabot PR is a request to update one; merging it approves it.
 - Every decision goes in [09](docs/09-decisions-log.md) with the next free ID. Story and decision IDs never change.
 - A story is done when it meets the Definition of Done in [11](docs/11-product-goal.md).
 - UI components follow the Design System pages in the stories site ([12](docs/12-design-system.md)): tokens only, data in through parameters, a story for each component, `data-testid` on interactive elements.

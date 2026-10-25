@@ -115,7 +115,8 @@ The [PR build](#ci) doesn't run the E2E tests. A CI job for them needs:
 - Steps: build the App, run the test command with the emulator's `DeviceUdid`, then keep `TestResults/E2E/` as the job's artifact with a short retention. Never publish the Debug APK: it is debuggable and has WebView debugging on.
 
 ## CI
-- `.github/workflows/pr-build.yml` ("PR build") runs on every PR to `main` (T91). On `ubuntu-latest` it installs the SDK from `global.json` and the `maui-android` workload at a pinned workload set, runs `dotnet build WorkoutLog.slnx -warnaserror`, then the Core and UI tests. Its `build-and-test` check must pass before the PR can merge.
+- `.github/workflows/pr-build.yml` ("PR build") runs on every PR to `main` (T91). On `ubuntu-latest` it installs the SDK from `global.json` and the `maui-android` workload at a pinned workload set, runs `dotnet build WorkoutLog.slnx`, then the Core and UI tests. Its `build-and-test` check must pass before the PR can merge.
+- Failed tests show as annotations on the PR, linked to the test's source line, and each test step adds a results table to the run's summary (T95).
 - The workload set matches the SDK: when the SDK in `global.json` changes, set the workflow's `--version` to the matching set (`dotnet workload search version`) in the same PR.
 - `.github/dependabot.yml` opens update PRs weekly for NuGet, the E2E project's npm packages, the SDK in `global.json` and the GitHub Actions (T92). Minor and patch bumps come grouped, one PR per ecosystem; each major bump has its own PR. The PR build runs on them like any other PR.
 - Repo Actions settings: only GitHub-owned actions, pinned by full commit SHA; workflows from outside contributors' PRs wait for approval (T91).

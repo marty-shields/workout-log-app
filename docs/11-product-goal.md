@@ -13,7 +13,7 @@ A story in the [backlog](https://github.com/users/marty-shields/projects/2) is D
 
 | Area | Criteria |
 |---|---|
-| Code | Builds with no errors or warnings (`-warnaserror`, as the PR build). No new packages without approval. |
+| Code | Builds with no errors or warnings (warnings are errors in `Directory.Build.props`). No new packages without approval. |
 | Tests | New behaviour has unit or bUnit tests. All tests pass. |
 | Logging | Errors and unexpected events in new code are logged as in [05](05-architecture.md#logging), with tests. No workout contents in logs. |
 | Verified on phone | Where the story changes the app, its acceptance criteria have been checked by hand on the real phone. |

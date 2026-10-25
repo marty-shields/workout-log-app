@@ -138,7 +138,7 @@ Every story logs its errors and unexpected events (D141). The Definition of Done
 - The log file shows when each workout was saved (ids and counts only). adb or a USB-connected PC can read it on both builds (T42).
 
 ## Dependencies
-Confirmed in US-02 (D75), updated by D218. This is the list of approved packages. Their versions live in the project files, `package.json` and the workflows; Dependabot proposes updates as PRs, and merging one approves it (D218).
+Confirmed in US-02 (D75), updated by D218. This is the list of approved packages. Their versions live in `Directory.Packages.props` (NuGet, T97), `package.json` and the workflows; Dependabot proposes updates as PRs, and merging one approves it (D218).
 
 | Package | Project | Purpose |
 |---|---|---|
@@ -154,6 +154,7 @@ Confirmed in US-02 (D75), updated by D218. This is the list of approved packages
 | Microsoft.Extensions.TimeProvider.Testing | Core.Tests, UI.Tests | `FakeTimeProvider` (T31) |
 | Microsoft.Extensions.Diagnostics.Testing | Core.Tests, UI.Tests | `FakeLogger` (T43) |
 | bunit | UI.Tests | Component tests |
+| GitHubActionsTestLogger | Core.Tests, UI.Tests | Reports test results in the PR build (T95) |
 | Appium.WebDriver | E2E.Tests | UI automation (Selenium). Checked against the Appium version in `package.json` (T76) |
 | Reqnroll.NUnit | E2E.Tests | Runs the Gherkin features on NUnit (T80). Brings in Reqnroll, Gherkin and the Cucumber packages |
 | Microsoft.Extensions.DependencyInjection | E2E.Tests | Builds Core's services to seed workouts (T81) |

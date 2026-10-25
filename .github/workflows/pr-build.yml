@@ -30,10 +30,14 @@ jobs:
         run: dotnet workload install maui-android --version 10.0.402.1
 
       - name: Build
-        run: dotnet build WorkoutLog.slnx -warnaserror
+        id: build
+        run: dotnet build WorkoutLog.slnx
 
+      # Failed tests are reported as annotations and in the job summary.
       - name: Core tests
-        run: dotnet test tests/WorkoutLog.Core.Tests --no-build
+        run: dotnet test tests/WorkoutLog.Core.Tests --no-build --logger GitHubActions -- RunConfiguration.CollectSourceInformation=true
 
+      # Runs even when the Core tests fail.
       - name: UI tests
-        run: dotnet test tests/WorkoutLog.UI.Tests --no-build
+        if: ${{ !cancelled() && steps.build.outcome == 'success' }}
+        run: dotnet test tests/WorkoutLog.UI.Tests --no-build --logger GitHubActions -- RunConfiguration.CollectSourceInformation=true
