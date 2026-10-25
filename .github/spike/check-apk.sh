@@ -12,7 +12,8 @@ echo "::group::apksigner $(basename "$tools")"
 signers=$("$tools/apksigner" verify --print-certs "$apk")
 echo "$signers"
 echo "::endgroup::"
-digests=$(sed -n 's/^Signer.* certificate SHA-256 digest: //p' <<<"$signers" | sort -u)
+# "Signer #1 certificate …" (build-tools 36) or "V3.0 Signer: certificate …" (37).
+digests=$(sed -n 's/^.*Signer[^:]*:\{0,1\} certificate SHA-256 digest: //p' <<<"$signers" | sort -u)
 [[ $(grep -c . <<<"$digests") -eq 1 ]] || fail "The APK must have exactly one signing cert; it has: ${digests:-none}"
 pinned=$(tr -d ':' <<<"$cert" | tr 'A-F' 'a-f')
 [[ -n "$pinned" && "$digests" == "$pinned" ]] || fail "The APK's signing cert ($digests) isn't the pinned release cert. Check the release environment's keystore secret."
