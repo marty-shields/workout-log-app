@@ -1,4 +1,4 @@
-# 12 — Design System
+# 10 — Design System
 
 The design system is documented in the stories site, under **Design System** (D100). It covers tokens, components, screens and layout rules.
 
@@ -13,7 +13,7 @@ The design system is documented in the stories site, under **Design System** (D1
 | App icon and splash | SVGs in `src/WorkoutLog.App/Resources/`; the **Design System / App Icon** page and stories (D209–D214) |
 | Component tests and design-system checks (bUnit) | `tests/WorkoutLog.UI.Tests/` (D117) |
 
-Run the stories: see [08](08-dev-setup-build.md#stories-design-system-and-prototypes).
+Run the stories: see [07](07-dev-setup-build.md#stories-design-system-and-prototypes).
 
 ## Process
 Every new or changed screen or component goes through these steps (D131):
@@ -25,7 +25,7 @@ Every new or changed screen or component goes through these steps (D131):
 
 ## README screenshots
 `README.md` shows five screen stories, light and dark, from `docs/images/readme/` (D221). To retake one:
-1. Run the stories ([08](08-dev-setup-build.md#stories-design-system-and-prototypes)).
+1. Run the stories ([07](07-dev-setup-build.md#stories-design-system-and-prototypes)).
 2. With Playwright, set the colour scheme (light, then dark) and open `http://localhost:5056/iframe.html?id=<story id>&viewMode=story`.
 3. Screenshot the `.phone` element with a transparent background, to `<file>-light.png` and `<file>-dark.png`.
 

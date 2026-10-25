@@ -1,6 +1,6 @@
 # Releases main by hand (Actions > Release > Run workflow): works out the next version from the semver labels of the PRs
 # merged since the last v* tag, builds and tests, runs the E2E suite on emulators, then, after the owner approves the
-# release environment, builds the signed APK and publishes the GitHub release with its v* tag (docs/08-dev-setup-build.md).
+# release environment, builds the signed APK and publishes the GitHub release with its v* tag (docs/07-dev-setup-build.md).
 name: Release
 
 on:
@@ -20,7 +20,7 @@ env:
   # Chrome for Testing build for the image's WebView major version (133.0.6943.137).
   CHROMEDRIVER_VERSION: 133.0.6943.141
   CHROMEDRIVER_SHA256: d3826586626a8e91d8b1d2da76423e2b4fd7179148284afe4677c72dcd0f1a27
-  # The release signing cert's SHA-256 (08).
+  # The release signing cert's SHA-256 (07).
   CERT_SHA256: '5D:6A:C3:4B:86:B8:29:8D:04:DE:18:5C:9B:D8:3C:27:C8:31:76:CB:F9:BD:F8:35:A8:CA:C4:95:57:1B:CD:AC'
 
 jobs:
@@ -44,7 +44,7 @@ jobs:
       - name: Release cert pinned
         if: env.CERT_SHA256 == ''
         run: |
-          echo "::error title=Release::CERT_SHA256 in release.yml is empty: set it to the release cert's SHA-256 (docs/08-dev-setup-build.md)."
+          echo "::error title=Release::CERT_SHA256 in release.yml is empty: set it to the release cert's SHA-256 (docs/07-dev-setup-build.md)."
           exit 1
 
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -111,7 +111,7 @@ jobs:
         run: |
           webview=$(adb shell dumpsys webviewupdate | sed -n 's/.*Current WebView package (name, version): ([^,]*, \([0-9.]*\)).*/\1/p')
           if [[ "${webview%%.*}" != "${CHROMEDRIVER_VERSION%%.*}" ]]; then
-            echo "::error title=Chromedriver::WebView $webview, pinned Chromedriver $CHROMEDRIVER_VERSION: update the pin in release.yml (docs/08-dev-setup-build.md)."
+            echo "::error title=Chromedriver::WebView $webview, pinned Chromedriver $CHROMEDRIVER_VERSION: update the pin in release.yml (docs/07-dev-setup-build.md)."
             exit 1
           fi
           curl -fsSL -o "$RUNNER_TEMP/chromedriver.zip" \

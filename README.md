@@ -13,7 +13,7 @@
 ![Android 16](https://img.shields.io/badge/Android-16_(API_36)-34A853?logo=android&logoColor=white)
 ![SQLite](https://img.shields.io/badge/SQLite-on_device-003B57?logo=sqlite&logoColor=white)
 
-[Features](#features) · [Screenshots](#screenshots) · [Install](#install) · [Built with](#built-with) · [Getting started](#getting-started) · [Docs](#documentation)
+[Features](#features) · [Screenshots](#screenshots) · [Install](#install) · [Built with](#built-with) · [Getting started](#getting-started)
 
 </div>
 
@@ -121,7 +121,7 @@ tests/
 
 ## Getting started
 
-You need the .NET 10 SDK with the `maui-android` workload. The full setup, including the Android SDK and the phone, is in [Dev setup & build](docs/08-dev-setup-build.md).
+You need the .NET 10 SDK with the `maui-android` workload. The full setup, including the Android SDK and the phone, is in [Dev setup & build](docs/07-dev-setup-build.md).
 
 ```powershell
 # Build (warnings fail the build)
@@ -138,11 +138,4 @@ dotnet run --project src/WorkoutLog.UI.Stories
 dotnet build src/WorkoutLog.App -t:Run -f net10.0-android
 ```
 
-The end-to-end tests need a connected device or an emulator: see [E2E tests](docs/08-dev-setup-build.md#e2e-tests).
-
-## Documentation
-
-- 📖 **[Docs index](docs/README.md):** vision, requirements, data model, architecture, screens, testing and ways of working.
-- 🧭 **[Decisions log](docs/09-decisions-log.md):** every product and technical decision, with the options turned down.
-- 🗺️ **[Backlog](https://github.com/users/marty-shields/projects/2):** epics, stories and milestones on GitHub Projects.
-- 💡 **[Future ideas](docs/10-future-ideas.md):** what's planned after v1.
+The end-to-end tests need a connected device or an emulator: see [E2E tests](docs/07-dev-setup-build.md#e2e-tests).

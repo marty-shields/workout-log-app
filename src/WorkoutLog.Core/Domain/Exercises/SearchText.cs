@@ -2,7 +2,7 @@ using System.Text;
 
 namespace WorkoutLog.Core.Domain.Exercises;
 
-/// <summary>Normalises exercise names, nicknames and queries for search (docs/03).</summary>
+/// <summary>Normalises exercise names, nicknames and queries for search (docs/02).</summary>
 internal static class SearchText
 {
     private static readonly Dictionary<string, string> Variants = new()

@@ -30,6 +30,6 @@ mkdir -p "$out"
 cp "$apk" "$out/WorkoutLog-$version.apk"
 (cd "$out" && sha256sum "WorkoutLog-$version.apk" > "WorkoutLog-$version.apk.sha256")
 fingerprint=$(sed 's/../&:/g; s/:$//' <<<"$digests" | tr 'a-f' 'A-F')
-printf 'Signing certificate SHA-256: `%s`\n\nCheck an APK before installing: `apksigner verify --print-certs <apk>` must show this digest ([08](https://github.com/%s/blob/main/docs/08-dev-setup-build.md)).\n' \
+printf 'Signing certificate SHA-256: `%s`\n\nCheck an APK before installing: `apksigner verify --print-certs <apk>` must show this digest ([Install](https://github.com/%s#install)).\n' \
   "$fingerprint" "$GITHUB_REPOSITORY" > "$out/notes.md"
 echo "Checked: $(head -n 1 <<<"$badging"); ABIs $abis; cert $fingerprint"

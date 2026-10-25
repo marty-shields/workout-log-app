@@ -1,12 +1,9 @@
-# 04 — Exercise List
+# 03 — Exercise List
 
 The list ships with the app and changes only through an app update. The full list is [exercises.json](../src/WorkoutLog.Core/Domain/Exercises/exercises.json). It is Core's embedded definition file.
 
 ## Source
-- Strength exercises are based on [free-exercise-db](https://github.com/yuhonas/free-exercise-db) (public domain), strength and powerlifting categories only. Some exercises were added by hand.
-- Names were checked against muscleandstrength.com for gaps. Only names are used; no descriptions or images.
-- The reviewer's 44 must-have exercises are all included, under the names agreed for them (see D79).
-- Cardio and carries were written by hand.
+Strength exercises are based on [free-exercise-db](https://github.com/yuhonas/free-exercise-db) (public domain; strength and powerlifting only), checked for gaps against muscleandstrength.com, and include the reviewer's 44 must-haves (D79). Cardio, carries and a few others were written by hand. Only names are used.
 
 ## Selection rules
 - **Folded into the base exercise:**
@@ -21,7 +18,6 @@ The list ships with the app and changes only through an app update. The full lis
 - Equipment comes first: `Dumbbell Incline Press`, `Cable Rope Tricep Pushdown`, `Machine Leg Extension`.
 - Bodyweight moves, carries and `Deadlift` have no prefix: `Pull-up`, `Plank`, `Farmer's Walk`.
 - Singular forms: Curl, Fly, Tricep, Pulldown, Pushdown, Pull-up.
-- Each exercise can have nicknames for search, e.g. Machine Chest Fly → Pec Deck, Butterfly.
 
 ## Fields per exercise
 | Field | Values |
@@ -30,8 +26,6 @@ The list ships with the app and changes only through an app update. The full lis
 | Primary muscle (strength) | Abdominals, Abductors, Adductors, Biceps, Calves, Chest, Forearms, Glutes, Hamstrings, Lats, LowerBack, MiddleBack, Neck, Quadriceps, Shoulders, Traps, Triceps |
 | Equipment (strength) | Barbell, Dumbbell, EzBar, Cable, Machine, SmithMachine, Kettlebell, Bodyweight, Band, TrapBar, Landmine, Other |
 | Mechanic (strength) | Compound, Isolation |
-
-Muscle, equipment and mechanic are stored but not shown or filtered on in v1.
 
 ## Activity types
 **R** = required, **o** = optional, blank = not shown.
@@ -44,7 +38,6 @@ Muscle, equipment and mechanic are stored but not shown or filtered on in v1.
 | Assisted (Machine Assisted Pull-up, Chin-up, Dip) | 3 | R | o, labelled **Assist (kg)** | | |
 | Carry (Farmer's Walk, Suitcase Carry, Overhead Carry, Sled Push, Sled Pull, Yoke Walk) | 6 | | o | o | R (metres) |
 
-- Dumbbell weight is per dumbbell.
 - On bodyweight moves, weight is extra load.
 
 ### Cardio
@@ -72,17 +65,17 @@ Duration (h:mm:ss) is required for every cardio exercise. Everything else is opt
 Stair Climber also covers StepMill.
 
 ## Field labels and units
-How each metric shows on a set or entry (D149). A label in the exercise file replaces the default. Decimals use `.` and take at most 2 places (D157, D158).
+How each metric shows on a set or entry (D149). A label in the exercise file replaces the default. Entry formats: [02](02-data-model.md#entry-formats-ui).
 
-| Metric | Default label | Unit shown | Entered as |
-|---|---|---|---|
-| Reps | Reps | | whole number |
-| Weight | Weight | kg | decimal, up to 2 places |
-| Duration | Duration | | h:mm:ss |
-| Distance | Distance | km, m, ft | decimal, up to 2 places |
-| Floors | Floors | | whole number |
-| Level | (always labelled) | | whole number |
-| Incline | Incline | % | decimal, up to 2 places |
-| Calories | Calories | | whole number |
-| Rate | Rate | km/h, rpm, strokes/min, strides/min, steps/min, feet/min | decimal, up to 2 places |
-| Pace | Pace | min/km | m:ss |
+| Metric | Default label | Unit shown |
+|---|---|---|
+| Reps | Reps | |
+| Weight | Weight | kg |
+| Duration | Duration | |
+| Distance | Distance | km, m, ft |
+| Floors | Floors | |
+| Level | (always labelled) | |
+| Incline | Incline | % |
+| Calories | Calories | |
+| Rate | Rate | km/h, rpm, strokes/min, strides/min, steps/min, feet/min |
+| Pace | Pace | min/km |

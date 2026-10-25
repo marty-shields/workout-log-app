@@ -2,7 +2,7 @@ using static WorkoutLog.UI.Stories.Stories.Prototype.ScenarioStep;
 
 namespace WorkoutLog.UI.Stories.Stories.Prototype;
 
-/// <summary>Typical user tasks, played on the prototype's sample data (docs/06).</summary>
+/// <summary>Typical user tasks, played on the prototype's sample data (docs/05).</summary>
 public static class Scenarios
 {
     /// <summary>The Startup screen while the database opens, then the Dashboard.</summary>
