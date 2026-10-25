@@ -66,4 +66,4 @@ Only what the E2E tests don't run (D202):
 - [ ] Splash on a cold start: the notebook on dark teal, uncropped (D209)
 
 ## Dependencies
-See [05 Architecture](05-architecture.md#dependencies) for packages and versions.
+See [05 Architecture](05-architecture.md#dependencies) for packages.

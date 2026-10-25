@@ -86,7 +86,7 @@ flowchart TD
 ```
 
 ## Design system & prototyping
-Done in M1.5, before the screens are built in M2 (D96). Details: [14 Design system](14-design-system.md).
+Done in M1.5, before the screens are built in M2 (D96). Details: [12 Design system](12-design-system.md).
 - The final designs are stories in `WorkoutLog.UI.Stories` (BlazingStory, D99), built from the design-system components. Each screen has its own stories section and Design System page (D114, D115):
 
 | Screen | Stories (`Screens/…`) | Page (`Design System/Screens/…`) |

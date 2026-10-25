@@ -2,8 +2,6 @@
 
 A personal Android app that replaces a paper workout notebook.
 
-**Status:** Planning. The solution has the App, UI, Stories, UI.Tests, Core, Core.Tests and E2E.Tests projects; the prototype, design tokens, components and final screen designs are in the stories site (US-29 to US-33); Core holds the exercise definitions and seeding (US-07). The App logs to logcat and a file (US-35). E2E tests run the Debug build on a device through Appium (US-23); Gherkin features in the E2E project cover the v1 flows (US-24). The App has its own pixel-art icon and splash (US-34).
-
 ## Documents
 
 | Doc | Purpose |
@@ -15,21 +13,19 @@ A personal Android app that replaces a paper workout notebook.
 | [05 Architecture](05-architecture.md) | Solution layout, layers, tech stack |
 | [06 Screens & UX](06-screens-ux.md) | Screen inventory and navigation |
 | [07 Testing](07-testing.md) | Test strategy and manual checklist |
-| [08 Dev setup & build](08-dev-setup-build.md) | Tooling, running on the phone, release APK |
-| [09 Roadmap](09-roadmap.md) | Milestones |
-| [10 Decisions log](10-decisions-log.md) | Every decision made so far |
-| [11 Future ideas](11-future-ideas.md) | Features deferred beyond v1 |
-| [12 Product goal](12-product-goal.md) | Product goal and Definition of Done |
-| [13 Backlog](13-backlog.md) | Epics and user stories |
-| [14 Design system](14-design-system.md) | Where the design system lives (the stories site) |
+| [08 Dev setup & build](08-dev-setup-build.md) | Tooling, running on the phone, release APK, source control, CI |
+| [09 Decisions log](09-decisions-log.md) | Every decision made so far |
+| [10 Future ideas](10-future-ideas.md) | Features deferred beyond v1 |
+| [11 Product goal](11-product-goal.md) | Product goal and Definition of Done |
+| [12 Design system](12-design-system.md) | Where the design system lives (the stories site) |
 
-## Open items
-
-| # | Item | Where | Backlog |
-|---|---|---|---|
-| 1 | ~~Review the draft exercise list and metrics~~ **Done** (D79–D94) | [04](04-exercise-list.md) | [US-05](13-backlog.md#us-05-review-the-exercise-list) |
-| 2 | ~~Review the draft roadmap~~ **Done** (D73) | [09](09-roadmap.md) | [US-01](13-backlog.md#us-01-review-the-draft-roadmap) |
-| 3 | ~~Exact package versions~~ **Done** (D75) | [05](05-architecture.md), [07](07-testing.md) | [US-02](13-backlog.md#us-02-confirm-package-versions) |
-| 4 | Where the keystore backup lives (before the first release APK) | [08](08-dev-setup-build.md) | [US-25](13-backlog.md#us-25-decide-the-keystore-backup-location) |
-| 5 | ~~Rate entry format for pace units (e.g. min/km as `5.5` or `5:30`)~~ **Done** (D95) | [03](03-data-model.md) | [US-06](13-backlog.md#us-06-decide-the-pace-entry-format) |
-| 6 | ~~Review the draft backlog~~ **Done** (D74) | [13](13-backlog.md) | — |
+## Ways of working
+- **Backlog:** the [Workout Log project](https://github.com/users/marty-shields/projects/2) over the repo's [issues](https://github.com/marty-shields/workout-log-app/issues) (D216).
+- **Milestones:** M0…M6 are [GitHub milestones](https://github.com/marty-shields/workout-log-app/milestones); each holds its scope and exit criteria. A milestone is closed when all its epics are Done.
+- **Epics:** issues titled `EP-xx Name`, in their milestone. An epic's stories are its sub-issues.
+- **Stories:** issues titled `US-xx Title`, in their epic's milestone. IDs never change; a new story takes the next number. "As the user, I want…, so that…", or "As the developer…" for technical stories.
+- **Acceptance criteria:** the linked FR-xx in [02](02-requirements.md), plus any extra ACs in the issue.
+- **Size:** the project's Size field: XS, S, M, L, XL. Relative effort only.
+- **Status:** the project's Status field: To do, In progress, Blocked, Done.
+- **Issue numbers:** EP-01…EP-09 are #1…#9 and US-01…US-38 are #10…#47. Later stories and PRs take the next free number.
+- **Delivery:** one branch per story, `type/us-xx-slug`. After local review, the commit is pushed and a DRAFT PR opened that closes the story's issue. The PR build must pass; the reviewer marks the PR ready and squash-merges it, which closes the issue ([08](08-dev-setup-build.md#source-control), [11](11-product-goal.md)).

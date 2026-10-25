@@ -18,11 +18,8 @@ TestResults/
 *.rsuser
 *.userprefs
 *.DotSettings.user
-.vscode/*
-!.vscode/settings.json
-!.vscode/tasks.json
-!.vscode/launch.json
-!.vscode/extensions.json
+.vscode/
+.claude/settings.local.json
 
 # Android packages, signing keys and secrets
 *.apk

@@ -24,7 +24,7 @@ WorkoutLog.slnx
 │  │   ├─ wwwroot/             index.html
 │  │   └─ MauiProgram.cs       DI registration
 │  ├─ WorkoutLog.UI/           Razor Class Library (net10.0): pages and components
-│  │   └─ wwwroot/css/         Design tokens and shared CSS ([14](14-design-system.md))
+│  │   └─ wwwroot/css/         Design tokens and shared CSS ([12](12-design-system.md))
 │  ├─ WorkoutLog.UI.Stories/   BlazingStory WebAssembly app (net10.0): stories for UI components
 │  └─ WorkoutLog.Core/         Class library (net10.0)
 │      ├─ Domain/              Records/entities, metrics, exercise definitions, validation
@@ -105,7 +105,7 @@ How (T46):
 - Unhandled .NET exceptions are logged, then the app crashes. Unobserved task exceptions are logged only (T44).
 
 ## Logging
-Every story logs its errors and unexpected events (D141). The Definition of Done checks this ([12](12-product-goal.md)).
+Every story logs its errors and unexpected events (D141). The Definition of Done checks this ([11](11-product-goal.md)).
 
 **How**
 - Core and UI inject `ILogger<T>` and never know where logs go. Each host registers its own `ILoggerProvider`s and levels in its startup (T41).
@@ -138,45 +138,52 @@ Every story logs its errors and unexpected events (D141). The Definition of Done
 - The log file shows when each workout was saved (ids and counts only). adb or a USB-connected PC can read it on both builds (T42).
 
 ## Dependencies
-Confirmed in US-02 (D75).
+Confirmed in US-02 (D75), updated by D218. This is the list of approved packages. Their versions live in the project files, `package.json` and the workflows; Dependabot proposes updates as PRs, and merging one approves it (D218).
 
-| Package | Version | Project | Purpose |
-|---|---|---|---|
-| sqlite-net-pcl | 1.11.285 | Core | ORM. Brings in SQLitePCLRaw 3.0.3 and the native SQLite library (SourceGear.sqlite3 3.53.3) |
-| Microsoft.Extensions.DependencyInjection.Abstractions | 10.0.13 | Core | `IServiceCollection` for `AddCore` (T19) |
-| Microsoft.Extensions.Logging.Abstractions | 10.0.13 | Core | `ILogger<T>` and `[LoggerMessage]` (T41, T43) |
-| NUnit | 5.0.0 | tests | Test framework. Fallback: 4.6.1 (see [US-04](13-backlog.md#us-04-create-the-solution)) |
-| NUnit3TestAdapter | 6.3.1 | tests | Test adapter |
-| NUnit.Analyzers | 4.15.0 | tests | Build-time NUnit checks |
-| Microsoft.NET.Test.Sdk | 18.11.0 | tests | Test host |
-| Moq | 4.21.0 | tests | Mocks |
-| AutoFixture, AutoFixture.AutoMoq | 4.18.1 | tests | Test data |
-| Microsoft.Extensions.TimeProvider.Testing | 10.11.0 | Core.Tests, UI.Tests | `FakeTimeProvider` (T31) |
-| Microsoft.Extensions.Diagnostics.Testing | 10.11.0 | Core.Tests, UI.Tests | `FakeLogger` (T43) |
-| bunit | 2.12.5 | UI.Tests | Component tests |
-| Appium.WebDriver | 9.0.0 | E2E.Tests | UI automation (Selenium 4.46). Works with Appium 3.8.0 (T76) |
-| Reqnroll.NUnit | 3.3.4 | E2E.Tests | Runs the Gherkin features on NUnit (T80). Brings in Reqnroll, Gherkin 35.0.0 and the Cucumber packages |
-| Microsoft.Extensions.DependencyInjection | 10.0.13 | E2E.Tests | Builds Core's services to seed workouts (T81) |
-| BlazingStory | 1.0.0-preview.96 | UI.Stories | Component stories and prototyping (D99). Prerelease only; no stable version exists |
-| MD2RazorGenerator | 1.2.4 | UI.Stories | Build-time only. Turns the design-system Markdown pages into BlazingStory pages (D100) |
-
-npm devDependencies in `tests/WorkoutLog.E2E.Tests/package.json`, approved in US-23: exact versions, installed with `npm ci --ignore-scripts` from the committed `package-lock.json` (T76):
-
-| Package | Version | Purpose |
+| Package | Project | Purpose |
 |---|---|---|
-| appium | 3.8.0 | Appium server, started by the E2E tests |
-| appium-uiautomator2-driver | 8.7.0 | Android driver. Downloads Chromedriver for the device's WebView |
+| sqlite-net-pcl | Core | ORM. Brings in SQLitePCLRaw and the native SQLite library (SourceGear.sqlite3) |
+| Microsoft.Extensions.DependencyInjection.Abstractions | Core | `IServiceCollection` for `AddCore` (T19) |
+| Microsoft.Extensions.Logging.Abstractions | Core | `ILogger<T>` and `[LoggerMessage]` (T41, T43) |
+| NUnit | tests | Test framework |
+| NUnit3TestAdapter | tests | Test adapter |
+| NUnit.Analyzers | tests | Build-time NUnit checks |
+| Microsoft.NET.Test.Sdk | tests | Test host |
+| Moq | tests | Mocks |
+| AutoFixture, AutoFixture.AutoMoq | tests | Test data |
+| Microsoft.Extensions.TimeProvider.Testing | Core.Tests, UI.Tests | `FakeTimeProvider` (T31) |
+| Microsoft.Extensions.Diagnostics.Testing | Core.Tests, UI.Tests | `FakeLogger` (T43) |
+| bunit | UI.Tests | Component tests |
+| Appium.WebDriver | E2E.Tests | UI automation (Selenium). Checked against the Appium version in `package.json` (T76) |
+| Reqnroll.NUnit | E2E.Tests | Runs the Gherkin features on NUnit (T80). Brings in Reqnroll, Gherkin and the Cucumber packages |
+| Microsoft.Extensions.DependencyInjection | E2E.Tests | Builds Core's services to seed workouts (T81) |
+| BlazingStory | UI.Stories | Component stories and prototyping (D99). Prerelease only; no stable version exists |
+| MD2RazorGenerator | UI.Stories | Build-time only. Turns the design-system Markdown pages into BlazingStory pages (D100) |
 
-MAUI packages (`Microsoft.Maui.Controls`, `Microsoft.AspNetCore.Components.WebView.Maui`) come from the template, pinned to 10.0.120 with `MauiVersion` in the App project (T38).
+npm devDependencies in `tests/WorkoutLog.E2E.Tests/package.json`, approved in US-23: exact versions, installed with `npm ci --ignore-scripts` from the committed `package-lock.json` (T76). Its `overrides` lift vulnerable packages that appium pins; packages bundled inside the driver can't be overridden (T93, [US-38](https://github.com/marty-shields/workout-log-app/issues/47)):
 
-Blazor packages (`Microsoft.AspNetCore.Components.Web` in UI; `Microsoft.AspNetCore.Components.WebAssembly` and `.DevServer` in UI.Stories; 10.0.13) come from the project templates.
+| Package | Purpose |
+|---|---|
+| appium | Appium server, started by the E2E tests |
+| appium-uiautomator2-driver | Android driver. Downloads Chromedriver for the device's WebView |
+
+GitHub Actions in `.github/workflows/`, pinned by commit SHA (T91):
+
+| Action | Purpose |
+|---|---|
+| actions/checkout | Checks out the repo |
+| actions/setup-dotnet | Installs the .NET 10 SDK |
+
+MAUI packages (`Microsoft.Maui.Controls`, `Microsoft.AspNetCore.Components.WebView.Maui`) come from the template, pinned with `MauiVersion` in the App project (T38).
+
+Blazor packages (`Microsoft.AspNetCore.Components.Web` in UI; `Microsoft.AspNetCore.Components.WebAssembly` and `.DevServer` in UI.Stories) come from the project templates.
 
 `ILogger<T>` reaches UI through `Microsoft.AspNetCore.Components.Web`, and the App gets Microsoft.Extensions.Logging through MAUI. No logging provider packages are used (T38, T41).
 
 Checks:
 - `SQLitePCLRaw.bundle_green` is not used. It is on the 2.x line and conflicts with the 3.x packages sqlite-net-pcl brings in.
-- 16 KB memory pages: the Android native libraries in SourceGear.sqlite3 3.53.3 (arm, arm64, x64, x86) are 16 KB aligned.
+- 16 KB memory pages: the Android native libraries in SourceGear.sqlite3 (arm, arm64, x64, x86) are 16 KB aligned. Recheck on each SourceGear.sqlite3 update.
 
 ## Android 16 platform notes
 - **Edge-to-edge:** the app draws under the status and navigation bars, with no opt-out on API 36. The layout must keep content inside the safe-area insets.
-- **Predictive back:** the old back-press callbacks aren't called on API 36. Back goes through an AndroidX `OnBackPressedCallback` instead ([Navigation](#navigation), [US-28](13-backlog.md#us-28-back-button-on-android-16)).
+- **Predictive back:** the old back-press callbacks aren't called on API 36. Back goes through an AndroidX `OnBackPressedCallback` instead ([Navigation](#navigation), [US-28](https://github.com/marty-shields/workout-log-app/issues/37)).
