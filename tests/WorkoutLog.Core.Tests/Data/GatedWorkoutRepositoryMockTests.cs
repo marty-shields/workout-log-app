@@ -1,0 +1,66 @@
+using Moq;
+using WorkoutLog.Core.Data;
+using WorkoutLog.Core.Domain.Workouts;
+
+namespace WorkoutLog.Core.Tests.Data;
+
+public class GatedWorkoutRepositoryMockTests
+{
+    private static readonly DateTimeOffset Start = new(2026, 10, 21, 17, 5, 0, TimeSpan.Zero);
+    private static readonly WorkoutExercise[] Exercises = [new StrengthExercise(1, [new StrengthSet(10, 20m, null, null)])];
+
+    [Test]
+    public async Task Calls_PassArgumentsAndResultsThrough()
+    {
+        var workout = new NewWorkout(Start, Start, Exercises);
+        var stored = new Workout(3, Start, Start, Exercises);
+        IReadOnlyList<WorkoutSummary> summaries = [new WorkoutSummary(3, Start)];
+        var inner = new Mock<IWorkoutRepository>(MockBehavior.Strict);
+        inner.Setup(r => r.AddAsync(workout)).ReturnsAsync(3);
+        inner.Setup(r => r.ReplaceExercisesAsync(3, Exercises)).Returns(Task.CompletedTask);
+        inner.Setup(r => r.GetAsync(3)).ReturnsAsync(stored);
+        inner.Setup(r => r.ListAsync(Start, Start, 5)).ReturnsAsync(summaries);
+        inner.Setup(r => r.DeleteAsync(3)).Returns(Task.CompletedTask);
+        var gated = new GatedWorkoutRepository(inner.Object, new DatabaseGate());
+
+        Assert.That(await gated.AddAsync(workout), Is.EqualTo(3));
+        await gated.ReplaceExercisesAsync(3, Exercises);
+        Assert.That(await gated.GetAsync(3), Is.SameAs(stored));
+        Assert.That(await gated.ListAsync(Start, Start, 5), Is.SameAs(summaries));
+        await gated.DeleteAsync(3);
+
+        inner.VerifyAll();
+    }
+
+    [TestCase("Add", nameof(IWorkoutRepository.AddAsync))]
+    [TestCase("Replace", nameof(IWorkoutRepository.ReplaceExercisesAsync))]
+    [TestCase("Get", nameof(IWorkoutRepository.GetAsync))]
+    [TestCase("List", nameof(IWorkoutRepository.ListAsync))]
+    [TestCase("Delete", nameof(IWorkoutRepository.DeleteAsync))]
+    public async Task Call_WhileTheGateIsHeld_DoesNotReachTheInner(string call, string method)
+    {
+        var inner = new Mock<IWorkoutRepository>();
+        var gate = new DatabaseGate();
+        IWorkoutRepository gated = new GatedWorkoutRepository(inner.Object, gate);
+        var release = new TaskCompletionSource();
+        var holder = gate.RunAsync(() => release.Task);
+
+        Task pending = call switch
+        {
+            "Add" => gated.AddAsync(new NewWorkout(Start, Start, Exercises)),
+            "Replace" => gated.ReplaceExercisesAsync(1, []),
+            "Get" => gated.GetAsync(1),
+            "List" => gated.ListAsync(),
+            _ => gated.DeleteAsync(1),
+        };
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(pending.IsCompleted, Is.False);
+            Assert.That(inner.Invocations, Is.Empty);
+        });
+        release.SetResult();
+        await Task.WhenAll(holder, pending);
+        Assert.That(inner.Invocations.Single().Method.Name, Is.EqualTo(method));
+    }
+}

@@ -70,7 +70,7 @@ public sealed class WorkoutSeeder(Native native)
         }
         finally
         {
-            await services.GetRequiredService<SQLiteAsyncConnection>().CloseAsync();
+            SQLiteAsyncConnection.ResetPool();
         }
     }
 

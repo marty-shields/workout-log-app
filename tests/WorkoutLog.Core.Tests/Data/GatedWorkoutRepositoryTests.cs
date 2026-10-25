@@ -68,7 +68,6 @@ public class GatedWorkoutRepositoryTests
             _ => repository.DeleteAsync(id),
         };
 
-        await Task.Delay(50);
         Assert.That(pending.IsCompleted, Is.False);
         release.SetResult();
         await Task.WhenAll(holder, pending);

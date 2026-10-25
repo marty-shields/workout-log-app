@@ -2,8 +2,8 @@ using WorkoutLog.Core.Domain.Workouts;
 
 namespace WorkoutLog.Core.Data;
 
-/// <summary>Runs each <see cref="WorkoutRepository"/> call through the <see cref="DatabaseGate"/>.</summary>
-internal sealed class GatedWorkoutRepository(WorkoutRepository inner, DatabaseGate gate) : IWorkoutRepository
+/// <summary>Runs each call to the inner repository through the <see cref="DatabaseGate"/>.</summary>
+internal sealed class GatedWorkoutRepository(IWorkoutRepository inner, DatabaseGate gate) : IWorkoutRepository
 {
     /// <inheritdoc />
     public Task<int> AddAsync(NewWorkout workout) => gate.RunAsync(() => inner.AddAsync(workout));

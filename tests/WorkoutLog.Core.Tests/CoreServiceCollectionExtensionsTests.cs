@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging.Abstractions;
 using SQLite;
 using WorkoutLog.Core.Data;
 using WorkoutLog.Core.Domain.Exercises;
+using WorkoutLog.Core.Domain.Workouts;
 using WorkoutLog.Core.Domain.Workouts.Validation;
 using WorkoutLog.Core.Services;
 
@@ -18,14 +19,10 @@ public class CoreServiceCollectionExtensionsTests
 
         Assert.That(services.Select(s => (s.ServiceType, s.ImplementationType, s.Lifetime)), Is.EquivalentTo(new[]
         {
-            (typeof(SQLiteAsyncConnection), (Type?)null, ServiceLifetime.Singleton),
             (typeof(DatabaseGate), typeof(DatabaseGate), ServiceLifetime.Singleton),
             (typeof(IExerciseCatalog), typeof(ExerciseCatalog), ServiceLifetime.Singleton),
-            (typeof(IExerciseSeeder), typeof(ExerciseSeeder), ServiceLifetime.Singleton),
-            (typeof(DatabaseInitializer), typeof(DatabaseInitializer), ServiceLifetime.Singleton),
-            (typeof(IDatabaseInitializer), typeof(GatedDatabaseInitializer), ServiceLifetime.Singleton),
-            (typeof(WorkoutRepository), typeof(WorkoutRepository), ServiceLifetime.Singleton),
-            (typeof(IWorkoutRepository), typeof(GatedWorkoutRepository), ServiceLifetime.Singleton),
+            (typeof(IDatabaseInitializer), (Type?)null, ServiceLifetime.Singleton),
+            (typeof(IWorkoutRepository), (Type?)null, ServiceLifetime.Singleton),
             (typeof(TimeProvider), (Type?)null, ServiceLifetime.Singleton),
             (typeof(IWorkoutValidator), typeof(WorkoutValidator), ServiceLifetime.Singleton),
             (typeof(IWorkoutService), typeof(WorkoutService), ServiceLifetime.Singleton),
@@ -45,6 +42,7 @@ public class CoreServiceCollectionExtensionsTests
         Assert.Multiple(() =>
         {
             Assert.That(provider.GetRequiredService<IDatabaseInitializer>(), Is.InstanceOf<GatedDatabaseInitializer>());
+            Assert.That(provider.GetRequiredService<IWorkoutRepository>(), Is.InstanceOf<GatedWorkoutRepository>());
             Assert.That(provider.GetRequiredService<IWorkoutService>(), Is.InstanceOf<WorkoutService>());
             Assert.That(provider.GetRequiredService<IHistoryService>(), Is.InstanceOf<HistoryService>());
             Assert.That(provider.GetRequiredService<IDashboardService>(), Is.InstanceOf<DashboardService>());
@@ -52,15 +50,51 @@ public class CoreServiceCollectionExtensionsTests
     }
 
     [Test]
-    public void AddCore_ConnectionUsesTheDatabasePath()
+    public void AddCore_UngatedDatabaseTypesCannotBeResolved()
+    {
+        using var provider = new ServiceCollection().AddCore(TempDatabase.NewPath()).BuildServiceProvider();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(provider.GetService<SQLiteAsyncConnection>(), Is.Null);
+            Assert.That(provider.GetService<DatabaseInitializer>(), Is.Null);
+            Assert.That(provider.GetService<WorkoutRepository>(), Is.Null);
+            Assert.That(provider.GetService<IExerciseSeeder>(), Is.Null);
+            Assert.That(provider.GetService<ExerciseSeeder>(), Is.Null);
+        });
+    }
+
+    [Test]
+    public async Task AddCore_InitializerAndRepositoryUseTheDatabasePath()
     {
         var path = TempDatabase.NewPath();
-        var factory = new ServiceCollection().AddCore(path)
-            .Single(s => s.ServiceType == typeof(SQLiteAsyncConnection)).ImplementationFactory!;
+        var start = new DateTimeOffset(2026, 10, 21, 17, 5, 0, TimeSpan.Zero);
+        using var provider = new ServiceCollection()
+            .AddSingleton(typeof(ILogger<>), typeof(NullLogger<>))
+            .AddCore(path)
+            .BuildServiceProvider();
 
-        var connection = (SQLiteAsyncConnection)factory(null!);
+        await provider.GetRequiredService<IDatabaseInitializer>().InitializeAsync();
+        await provider.GetRequiredService<IWorkoutRepository>().AddAsync(new NewWorkout(start, start, []));
 
-        Assert.That(connection.DatabasePath, Is.EqualTo(path));
+        var check = new SQLiteAsyncConnection(path);
+        try
+        {
+            var userVersion = await check.ExecuteScalarAsync<int>("PRAGMA user_version");
+            var exercises = await check.Table<Exercise>().CountAsync();
+            var workouts = await check.Table<WorkoutRow>().CountAsync();
+            Assert.Multiple(() =>
+            {
+                Assert.That(userVersion, Is.EqualTo(DatabaseInitializer.CurrentVersion));
+                Assert.That(exercises, Is.EqualTo(provider.GetRequiredService<IExerciseCatalog>().All.Count()));
+                Assert.That(workouts, Is.EqualTo(1));
+            });
+        }
+        finally
+        {
+            await check.CloseAsync();
+            File.Delete(path);
+        }
     }
 
     [Test]
