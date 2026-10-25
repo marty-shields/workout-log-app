@@ -204,8 +204,10 @@ jobs:
           if [[ -n "${CHROMEDRIVER:-}" ]]; then
             parameters+=("TestRunParameters.Parameter(name=\"ChromedriverExecutable\", value=\"$CHROMEDRIVER\")")
           fi
+          # Failed scenarios become annotations and the step writes a results table to the job summary (T95).
           dotnet test tests/WorkoutLog.E2E.Tests --no-build --filter "$filter" --logger "console;verbosity=detailed" \
-            --logger "trx;LogFileName=e2e.trx" --results-directory "$RESULTS/trx" -- "${parameters[@]}"
+            --logger GitHubActions --logger "trx;LogFileName=e2e.trx" --results-directory "$RESULTS/trx" \
+            -- "${parameters[@]}" RunConfiguration.CollectSourceInformation=true
 
       # Shard 1 only. Runs even when the E2E tests fail, once the emulator and .NET are ready.
       - name: Release smoke build (x64, debug key)
