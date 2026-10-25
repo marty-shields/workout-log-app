@@ -113,21 +113,17 @@ jobs:
           unzip -q -d "$RUNNER_TEMP" "$RUNNER_TEMP/chromedriver.zip"
           echo "CHROMEDRIVER=$RUNNER_TEMP/chromedriver-linux64/chromedriver" >> "$GITHUB_ENV"
 
-      # A shard's tests take 3–8 minutes; a hang fails here and the logs still upload.
+      # A shard's tests take 3–8 minutes; a hang fails here and the logs still upload. Failed scenarios run again, up to
+      # 3 tries in all (e2e-run.sh).
       - name: E2E tests
-        timeout-minutes: 20
+        timeout-minutes: 30
         run: |
           filter=$(.github/scripts/e2e-shard.sh "${{ matrix.shard }}" "${{ strategy.job-total }}")
           if [[ -z "$filter" ]]; then
             echo "::error title=E2E::Shard ${{ matrix.shard }}/${{ strategy.job-total }} has no features: check the test listing in e2e-shard.sh."
             exit 1
           fi
-          # Failed scenarios become annotations and the step writes a results table to the job summary (T95).
-          dotnet test tests/WorkoutLog.E2E.Tests --no-build --filter "$filter" --logger "console;verbosity=detailed" \
-            --logger GitHubActions --logger "trx;LogFileName=e2e.trx" --results-directory "$RESULTS/trx" \
-            -- 'TestRunParameters.Parameter(name="DeviceUdid", value="emulator-5554")' \
-            "TestRunParameters.Parameter(name=\"ChromedriverExecutable\", value=\"$CHROMEDRIVER\")" \
-            RunConfiguration.CollectSourceInformation=true
+          .github/scripts/e2e-run.sh "$filter" 3
 
       # Runs on a failure or a cancel too, so the logs are kept. Each adb call is time-limited: a hung emulator mustn't
       # hold up a cancel.
