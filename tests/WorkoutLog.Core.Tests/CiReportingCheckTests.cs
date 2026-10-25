@@ -4,5 +4,10 @@ namespace WorkoutLog.Core.Tests;
 public class CiReportingCheckTests
 {
     [Test]
-    public void FailsOnPurpose() => Assert.That(1 + 1, Is.EqualTo(3));
+    public void FailsOnPurpose()
+    {
+        var actual = new[] { 1, 1 }.Sum();
+
+        Assert.That(actual, Is.EqualTo(3));
+    }
 }

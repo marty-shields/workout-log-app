@@ -4,5 +4,10 @@ namespace WorkoutLog.UI.Tests;
 public class CiReportingCheckTests
 {
     [Test]
-    public void FailsOnPurpose() => Assert.That("ui", Is.EqualTo("UI"));
+    public void FailsOnPurpose()
+    {
+        var actual = string.Concat("u", "i");
+
+        Assert.That(actual, Is.EqualTo("UI"));
+    }
 }
