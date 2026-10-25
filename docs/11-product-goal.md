@@ -17,4 +17,4 @@ A story in the [backlog](https://github.com/users/marty-shields/projects/2) is D
 | Tests | New behaviour has unit or bUnit tests. All tests pass. |
 | Logging | Errors and unexpected events in new code are logged as in [05](05-architecture.md#logging), with tests. No workout contents in logs. |
 | Verified on phone | Where the story changes the app, its acceptance criteria have been checked by hand on the real phone. |
-| Docs + PR | Affected docs are updated. The reviewer has reviewed the change locally and approved the commit. The change is committed on the story's branch as a Conventional Commit, pushed, and in a PR that closes the story's issue. The PR build passes, and the reviewer has marked the PR ready and squash-merged it. |
+| Docs + PR | Affected docs are updated. `README.md` still matches the app: features, stack, commands and screenshots (D222). The reviewer has reviewed the change locally and approved the commit. The change is committed on the story's branch as a Conventional Commit, pushed, and in a PR that closes the story's issue. The PR build passes, and the reviewer has marked the PR ready and squash-merged it. |

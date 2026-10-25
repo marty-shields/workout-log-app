@@ -21,3 +21,20 @@ Every new or changed screen or component goes through these steps (D131):
 2. Run the stories and take Playwright screenshots of each state, light and dark, at phone width.
 3. Stop for review: leave the stories running and open each new or changed story and design-system page in the reviewer's browser (D193). Change it until the reviewer approves, then stop the stories.
 4. Only then use it in the App or in other screens.
+5. If the screen is in the README, retake its [README screenshots](#readme-screenshots) (D222).
+
+## README screenshots
+`README.md` shows five screen stories, light and dark, from `docs/images/readme/` (D221). To retake one:
+1. Run the stories ([08](08-dev-setup-build.md#stories-design-system-and-prototypes)).
+2. With Playwright, set the colour scheme (light, then dark) and open `http://localhost:5056/iframe.html?id=<story id>&viewMode=story`.
+3. Screenshot the `.phone` element with a transparent background, to `<file>-light.png` and `<file>-dark.png`.
+
+| File | Story id |
+|---|---|
+| `dashboard` | `screens-dashboard--with-workouts` |
+| `new-workout` | `screens-new-workout--strength-sets` |
+| `cardio` | `screens-new-workout--cardio-entries` |
+| `exercise-picker` | `screens-exercise-picker--results` |
+| `history` | `screens-history--with-workouts` |
+
+`icon.svg` is the app icon's foreground on its background with rounded corners; rebuild it when the icon changes.

@@ -122,7 +122,7 @@ The [PR build](#ci) doesn't run the E2E tests. A CI job for them needs:
 - Repo Actions settings: only GitHub-owned actions, pinned by full commit SHA; workflows from outside contributors' PRs wait for approval (T91).
 
 ## Release: signed APK
-1. Create a keystore once (`keytool -genkey ...`).
+1. Create a keystore once (`keytool -genkey ...`), then back it up ([Keystore handling](#keystore-handling)) before the first install.
 2. Set the signing properties in the app `.csproj` (`AndroidKeyStore`, `AndroidSigningKeyStore`, `AndroidSigningKeyAlias`). Passwords come from environment variables and are never stored in the repo.
 3. Bump the version code (and the display version if needed).
 4. `dotnet publish src/WorkoutLog.App -f net10.0-android -c Release -p:AndroidPackageFormat=apk`
@@ -132,7 +132,7 @@ The [PR build](#ci) doesn't run the E2E tests. A CI job for them needs:
 
 ## Keystore handling
 - The keystore file lives outside the repo and is listed in `.gitignore`.
-- Keep a backup copy. **The location is still open ([US-25](https://github.com/marty-shields/workout-log-app/issues/34)) and must be decided before the first release APK.**
+- The owner keeps one backup of the keystore file with its passwords and alias, in a private location that is not recorded in the repo (D220).
 
 ## Source control
 - GitHub: [marty-shields/workout-log-app](https://github.com/marty-shields/workout-log-app), public, default branch `main` (T89).
