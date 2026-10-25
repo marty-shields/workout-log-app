@@ -40,5 +40,5 @@ public abstract class ComponentTestBase
     /// Waits until the renderer has run the work queued so far, such as a component continuing after a fake call completes or
     /// a timer ticks. bUnit's synchronous events (<c>Click()</c>, <c>Input()</c>) are queued, not run, while the renderer is busy.
     /// </summary>
-    protected void WaitForRenderer() => Context.Renderer.Dispatcher.InvokeAsync(() => { }).GetAwaiter().GetResult();
+    protected Task WaitForRendererAsync() => Context.Renderer.Dispatcher.InvokeAsync(() => { });
 }

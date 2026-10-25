@@ -34,13 +34,13 @@ public class NewWorkoutPageTests : ComponentTestBase
     }
 
     [Test]
-    public void Open_StartsOneWorkout()
+    public async Task Open_StartsOneWorkout()
     {
         var workouts = UseWorkouts(clock);
         var cut = Context.Render<NewWorkoutPage>();
 
         clock.Advance(TimeSpan.FromSeconds(1));
-        WaitForRenderer();
+        await WaitForRendererAsync();
 
         cut.WaitForAssertion(() => Assert.That(cut.RenderCount, Is.GreaterThan(1)));
         Assert.That(workouts.Started, Is.EqualTo(1));
@@ -57,29 +57,29 @@ public class NewWorkoutPageTests : ComponentTestBase
     }
 
     [Test]
-    public void Timer_CountsFromTheStart()
+    public async Task Timer_CountsFromTheStart()
     {
         UseWorkouts(clock);
         var cut = Context.Render<NewWorkoutPage>();
         Assert.That(Subtitle(cut), Is.EqualTo("Elapsed 0:00:00"));
 
         clock.Advance(TimeSpan.FromSeconds(1));
-        WaitForRenderer();
+        await WaitForRendererAsync();
         cut.WaitForAssertion(() => Assert.That(Subtitle(cut), Is.EqualTo("Elapsed 0:00:01")));
 
         clock.Advance(new TimeSpan(1, 2, 3));
-        WaitForRenderer();
+        await WaitForRendererAsync();
         cut.WaitForAssertion(() => Assert.That(Subtitle(cut), Is.EqualTo("Elapsed 1:02:04")));
     }
 
     [Test]
-    public void ClockBeforeTheStart_ShowsZero()
+    public async Task ClockBeforeTheStart_ShowsZero()
     {
         UseWorkouts(new FakeTimeProvider(Start.AddMinutes(5)));
 
         var cut = Context.Render<NewWorkoutPage>();
         clock.Advance(TimeSpan.FromSeconds(1));
-        WaitForRenderer();
+        await WaitForRendererAsync();
 
         cut.WaitForAssertion(() => Assert.That(cut.RenderCount, Is.GreaterThan(1)));
         Assert.That(Subtitle(cut), Is.EqualTo("Elapsed 0:00:00"));
@@ -351,7 +351,7 @@ public class NewWorkoutPageTests : ComponentTestBase
     }
 
     [Test]
-    public void TickFails_ShowsTheErrorScreen()
+    public async Task TickFails_ShowsTheErrorScreen()
     {
         UseWorkouts(clock);
         var cut = Context.Render<AppErrorBoundary>(p => p
@@ -360,7 +360,7 @@ public class NewWorkoutPageTests : ComponentTestBase
 
         clock.FailReads = true;
         clock.Advance(TimeSpan.FromSeconds(1));
-        WaitForRenderer();
+        await WaitForRendererAsync();
 
         cut.WaitForAssertion(() => Assert.That(cut.FindAll("[data-testid=error-message]"), Has.Count.EqualTo(1)));
     }
@@ -745,7 +745,7 @@ public class NewWorkoutPageTests : ComponentTestBase
     }
 
     [Test]
-    public void Save_WhileSaving_IsIgnored()
+    public async Task Save_WhileSaving_IsIgnored()
     {
         var saved = 0;
         var cut = RenderPage(onSaved: () => saved++);
@@ -756,8 +756,8 @@ public class NewWorkoutPageTests : ComponentTestBase
 
         cut.Find("[data-testid=save-workout]").Click();
         cut.Find("[data-testid=save-workout]").Click();
-        cut.InvokeAsync(() => pending.SetResult(new SaveResult(1, new WorkoutErrors(null, []))));
-        WaitForRenderer();
+        await cut.InvokeAsync(() => pending.SetResult(new SaveResult(1, new WorkoutErrors(null, []))));
+        await WaitForRendererAsync();
 
         cut.WaitForAssertion(() => Assert.That(saved, Is.EqualTo(1)));
         Assert.That(workouts.Saves, Has.Count.EqualTo(1));
@@ -876,7 +876,7 @@ public class NewWorkoutPageTests : ComponentTestBase
     }
 
     [Test]
-    public void TimerTick_DoesNotRunTheSearchAgain()
+    public async Task TimerTick_DoesNotRunTheSearchAgain()
     {
         var catalog = new CountingCatalog(Catalog);
         Context.Services.AddSingleton<IExerciseCatalog>(catalog);
@@ -886,7 +886,7 @@ public class NewWorkoutPageTests : ComponentTestBase
         var searches = catalog.Searches;
 
         clock.Advance(TimeSpan.FromSeconds(3));
-        WaitForRenderer();
+        await WaitForRendererAsync();
 
         cut.WaitForAssertion(() => Assert.That(Subtitle(cut), Is.EqualTo("Elapsed 0:00:03")));
         Assert.That(catalog.Searches, Is.EqualTo(searches));
