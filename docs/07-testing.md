@@ -61,6 +61,9 @@ Only what the E2E tests don't run (D202):
 - [ ] Content stays clear of the status and navigation bars
 - [ ] Data survives installing a new APK version over the old one
 - [ ] Logs on a Release build: `adb logcat -s WorkoutLog` shows the start, the previous exit and lifecycle lines; the log file can be pulled ([08](08-dev-setup-build.md#reading-the-logs))
+- [ ] App icon on the home screen and in the app drawer: the notebook, crisp and uncropped (D209)
+- [ ] Themed icons on (Wallpaper & style): the icon shows the dumbbell, lines and binding (D212)
+- [ ] Splash on a cold start: the notebook on dark teal, uncropped (D209)
 
 ## Dependencies
 See [05 Architecture](05-architecture.md#dependencies) for packages and versions.

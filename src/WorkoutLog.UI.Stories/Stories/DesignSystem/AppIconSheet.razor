@@ -1,0 +1,75 @@
+@* Shows the App's icon and splash as Android does: launcher masks, the themed icon and the splash screen. Stories only. *@
+<div class="sheet">
+    <section>
+        <h2 class="heading">Launcher</h2>
+        <div class="row">
+            @foreach (var shape in Shapes)
+            {
+                @foreach (var size in Sizes)
+                {
+                    <figure class="icon">
+                        <span class="mask @shape size-@size">
+                            <img class="layer" src="@Background" alt="" />
+                            <img class="layer" src="@Foreground" alt="" />
+                        </span>
+                        <figcaption>@shape, @(size)px</figcaption>
+                    </figure>
+                }
+            }
+        </div>
+    </section>
+
+    <section>
+        <h2 class="heading">Themed icon</h2>
+        <div class="row">
+            @foreach (var (label, wallpaper) in Themed)
+            {
+                @foreach (var size in Sizes)
+                {
+                    <figure class="icon">
+                        <span class="mask circle size-@size @wallpaper">
+                            <span class="layer silhouette" style="@($"mask-image: url({Foreground})")"></span>
+                        </span>
+                        <figcaption>@label, @(size)px</figcaption>
+                    </figure>
+                }
+            }
+        </div>
+    </section>
+
+    <section>
+        <h2 class="heading">Splash</h2>
+        <PhoneFrame>
+            <div class="splash">
+                <img class="splash-image" src="@Splash" alt="" />
+            </div>
+        </PhoneFrame>
+    </section>
+</div>
+
+@code {
+    private static readonly string[] Shapes = ["circle", "squircle"];
+
+    private static readonly int[] Sizes = [48, 192];
+
+    private static readonly (string Label, string Wallpaper)[] Themed =
+    [
+        ("Light wallpaper", "light-wallpaper"),
+        ("Dark wallpaper", "dark-wallpaper"),
+    ];
+
+    private static readonly string Background = Art("appicon.svg");
+
+    private static readonly string Foreground = Art("appiconfg.svg");
+
+    private static readonly string Splash = Art("splash.svg");
+
+    // The App's SVG, embedded by the Stories project, as a data URI.
+    private static string Art(string file)
+    {
+        using var stream = typeof(AppIconSheet).Assembly.GetManifestResourceStream($"brand.{file}")!;
+        using var memory = new MemoryStream();
+        stream.CopyTo(memory);
+        return $"data:image/svg+xml;base64,{Convert.ToBase64String(memory.ToArray())}";
+    }
+}

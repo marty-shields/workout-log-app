@@ -1,0 +1,98 @@
+.sheet {
+    padding: 16px;
+    font-family: system-ui, Roboto, sans-serif;
+}
+
+section + section {
+    margin-top: 40px;
+}
+
+.heading {
+    margin: 0 0 8px;
+    font-size: 1.25rem;
+}
+
+.row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: 24px;
+}
+
+.icon {
+    margin: 0;
+    text-align: center;
+}
+
+.icon figcaption {
+    margin-top: 4px;
+    font-size: 0.75rem;
+}
+
+/* The launcher shows the central 72 of the 108-unit canvas. */
+.mask {
+    position: relative;
+    display: inline-block;
+    overflow: hidden;
+}
+
+.size-48 {
+    width: 48px;
+    height: 48px;
+}
+
+.size-192 {
+    width: 192px;
+    height: 192px;
+}
+
+.layer {
+    position: absolute;
+    top: -25%;
+    left: -25%;
+    width: 150%;
+    height: 150%;
+}
+
+.circle {
+    border-radius: 50%;
+}
+
+.squircle {
+    border-radius: 32%;
+}
+
+/* Android tints the foreground's shape; these stand in for wallpaper tones. */
+.silhouette {
+    mask-size: 100% 100%;
+}
+
+.light-wallpaper {
+    background: #b7d5d4;
+}
+
+.light-wallpaper .silhouette {
+    background: #305252;
+}
+
+.dark-wallpaper {
+    background: #373e40;
+}
+
+.dark-wallpaper .silhouette {
+    background: #b7d5d4;
+}
+
+/* The splash canvas at about the size Android 12+ shows it. */
+.splash {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    background: #305252;
+}
+
+.splash-image {
+    width: 288px;
+    height: 288px;
+}

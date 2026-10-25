@@ -63,6 +63,9 @@ Component stories have a System / Light / Dark switch.
 ## Screens
 Screens are built from the components only. One page per screen, each with its states as stories in the phone frame: [Startup](/?path=/custom/design-system-screens-startup) · [Dashboard](/?path=/custom/design-system-screens-dashboard) · [New Workout](/?path=/custom/design-system-screens-new-workout) · [Edit Workout](/?path=/custom/design-system-screens-edit-workout) · [Exercise Picker](/?path=/custom/design-system-screens-exercise-picker) · [History](/?path=/custom/design-system-screens-history) · [Error](/?path=/custom/design-system-screens-error)
 
+## App icon
+The launcher icon and splash screen: [App Icon](/?path=/custom/design-system-app-icon).
+
 ## Checks
 Tests in `WorkoutLog.UI.Tests` fail when:
 - a component's CSS has a literal colour or size, or uses a token that doesn't exist;
@@ -70,4 +73,5 @@ Tests in `WorkoutLog.UI.Tests` fail when:
 - a button or input is smaller than the touch target;
 - an interactive element has no `data-testid`;
 - a screen's stories differ from the screen states listed in the tests;
-- a component or screen has no page here.
+- a component or screen has no page here;
+- the app icon or splash uses a colour outside the palette and white.

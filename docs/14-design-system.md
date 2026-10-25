@@ -10,6 +10,7 @@ The design system is documented in the stories site, under **Design System** (D1
 | Tokens | `src/WorkoutLog.UI/wwwroot/css/tokens.css`; shown in the **Design System / Tokens** story |
 | Components | `src/WorkoutLog.UI/Components/` |
 | Screens | `src/WorkoutLog.UI/Screens/` |
+| App icon and splash | SVGs in `src/WorkoutLog.App/Resources/`; the **Design System / App Icon** page and stories (D209–D214) |
 | Component tests and design-system checks (bUnit) | `tests/WorkoutLog.UI.Tests/` (D117) |
 
 Run the stories: see [08](08-dev-setup-build.md#stories-design-system-and-prototypes).

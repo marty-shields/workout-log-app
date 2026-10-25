@@ -23,6 +23,11 @@
     <ProjectReference Include="..\WorkoutLog.UI\WorkoutLog.UI.csproj" />
   </ItemGroup>
 
+  <!-- The App's icon and splash, embedded as brand.<file>.svg for the App Icon stories. -->
+  <ItemGroup>
+    <EmbeddedResource Include="..\WorkoutLog.App\Resources\AppIcon\*.svg;..\WorkoutLog.App\Resources\Splash\*.svg" LogicalName="brand.%(Filename)%(Extension)" />
+  </ItemGroup>
+
   <!-- Removes the native SQLite file that Core brings in (T48). -->
   <Target Name="RemoveSqliteNativeReference" BeforeTargets="_CheckBrowserWorkloadNeededButNotAvailable">
     <ItemGroup>

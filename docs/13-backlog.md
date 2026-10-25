@@ -443,7 +443,7 @@ As the developer, I want the v1 UI flows automated, so that regressions are caug
 | [US-25](#us-25-decide-the-keystore-backup-location) | Decide the keystore backup location | Open item 4 | XS | To do |
 | [US-26](#us-26-signed-release-apk) | Signed release APK | [08](08-dev-setup-build.md) | M | To do |
 | [US-27](#us-27-manual-phone-checklist) | Manual phone checklist | [07](07-testing.md) | S | To do |
-| [US-34](#us-34-app-icon-and-splash-screen) | App icon and splash screen | D137, [14](14-design-system.md) | S | To do |
+| [US-34](#us-34-app-icon-and-splash-screen) | App icon and splash screen | D137, D209–D215, [14](14-design-system.md) | S | Done |
 | [US-36](#us-36-gated-decorators-wrap-the-interface) | Gated decorators wrap the interface | T27 | S | To do |
 
 ### US-25 Decide the keystore backup location
@@ -476,11 +476,16 @@ As the developer, I want the manual checklist run on the phone, so that v1 is ch
 
 ### US-34 App icon and splash screen
 As the user, I want the app's own icon and splash screen, so that I can find it on the phone and it doesn't look like a template.
-- **Links:** D137, [14](14-design-system.md)
+- **Links:** D137, D209–D215, [14](14-design-system.md)
 - **Extra ACs:**
-  - Designed in the stories first and approved (D131).
+  - Designed in the stories first and approved (D131): **Design System / App Icon**.
+  - A 32 × 32 pixel-art notebook on `#305252`, icon and splash (D209), the same on Debug and Release (D213).
+  - Only the five palette colours and white; a UI.Tests check reads the SVGs and the project's `Color` values against `tokens.css` (D210).
+  - Crisp at every density and inside the safe circle (D211); the themed icon shows the cut-outs (D212).
+  - The manual checklist in [07](07-testing.md#manual-on-phone-checklist) covers the launcher, themed icon and splash, checked on the phone (D215).
   - **Logging:** none. No code that can fail.
-- **Size:** S · **Status:** To do
+  - **E2E:** none. Appium can't check launcher or splash pixels (D215).
+- **Size:** S · **Status:** Done (D209–D215)
 
 ### US-36 Gated decorators wrap the interface
 As the developer, I want the gated repository and initializer to be true decorators, so that nothing can reach the database without the gate.
