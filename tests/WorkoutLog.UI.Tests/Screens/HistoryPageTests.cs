@@ -47,6 +47,7 @@ public class HistoryPageTests : ComponentTestBase
             new WorkoutSummary(2, new DateTimeOffset(2026, 10, 20, 23, 30, 0, TimeSpan.Zero)),
             new WorkoutSummary(1, new DateTimeOffset(2026, 10, 20, 17, 5, 0, TimeSpan.Zero)),
         ], Failed: false));
+        WaitForRenderer();
 
         cut.WaitForAssertion(() => Assert.That(cut.FindAll(".text").Select(t => t.TextContent),
             Is.EqualTo(new[] { "Wed 21 Oct 2026 · 00:30", "Tue 20 Oct 2026 · 18:05" })));
@@ -61,6 +62,7 @@ public class HistoryPageTests : ComponentTestBase
         var cut = Context.Render<HistoryPage>(p => p.Add(x => x.OnOpen, (int id) => opened.Add(id)));
         history.Complete(new HistoryResult(
             [new WorkoutSummary(2, DateTimeOffset.UnixEpoch.AddDays(1)), new WorkoutSummary(1, DateTimeOffset.UnixEpoch)], Failed: false));
+        WaitForRenderer();
         cut.WaitForAssertion(() => Assert.That(cut.FindAll("[data-testid=history-row-1]"), Has.Count.EqualTo(1)));
 
         cut.Find("[data-testid=history-row-1]").Click();
@@ -74,6 +76,7 @@ public class HistoryPageTests : ComponentTestBase
         var cut = Context.Render<HistoryPage>();
 
         history.Complete(new HistoryResult([], Failed: false));
+        WaitForRenderer();
 
         cut.WaitForAssertion(() => Assert.That(cut.Find("[data-testid=history-empty]").TextContent, Does.Contain("No workouts yet")));
     }
@@ -84,6 +87,7 @@ public class HistoryPageTests : ComponentTestBase
         var cut = Context.Render<HistoryPage>();
 
         history.Complete(Failed);
+        WaitForRenderer();
 
         cut.WaitForAssertion(() => Focuses().Single().Arguments[0]
             .ShouldBeElementReferenceTo(cut.Find("[data-testid=history-retry]")));
@@ -95,6 +99,7 @@ public class HistoryPageTests : ComponentTestBase
     {
         var cut = Context.Render<HistoryPage>();
         history.Complete(Failed);
+        WaitForRenderer();
         cut.WaitForAssertion(() => Assert.That(cut.FindAll("[data-testid=history-retry]"), Has.Count.EqualTo(1)));
 
         cut.Find("[data-testid=history-retry]").Click();
@@ -108,6 +113,7 @@ public class HistoryPageTests : ComponentTestBase
         });
 
         history.Complete(new HistoryResult([new WorkoutSummary(1, DateTimeOffset.UnixEpoch)], Failed: false));
+        WaitForRenderer();
 
         cut.WaitForAssertion(() => Assert.That(cut.FindAll("[data-testid=history-row-1]"), Has.Count.EqualTo(1)));
         Assert.That(cut.FindAll("[data-testid=history-error]"), Is.Empty);
@@ -119,10 +125,12 @@ public class HistoryPageTests : ComponentTestBase
     {
         var cut = Context.Render<HistoryPage>();
         history.Complete(Failed);
+        WaitForRenderer();
         cut.WaitForAssertion(() => Assert.That(Focuses(), Has.Count.EqualTo(1)));
 
         cut.Find("[data-testid=history-retry]").Click();
         history.Complete(Failed);
+        WaitForRenderer();
 
         cut.WaitForAssertion(() => Assert.That(Focuses(), Has.Count.EqualTo(2)));
         Focuses()[^1].Arguments[0].ShouldBeElementReferenceTo(cut.Find("[data-testid=history-retry]"));

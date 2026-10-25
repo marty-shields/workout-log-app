@@ -50,6 +50,7 @@ public class DashboardPageTests : ComponentTestBase
         var cut = Context.Render<DashboardPage>();
 
         dashboard.Complete(new DashboardResult(new DateTimeOffset(2026, 10, 20, 23, 30, 0, TimeSpan.Zero), 2, 7, Failed: false));
+        WaitForRenderer();
 
         cut.WaitForAssertion(() => Assert.That(cut.Find("[data-testid=last-workout]").TextContent, Is.EqualTo("Wed 21 Oct 2026")));
         Assert.Multiple(() =>
@@ -66,6 +67,7 @@ public class DashboardPageTests : ComponentTestBase
         var cut = Context.Render<DashboardPage>();
 
         dashboard.Complete(new DashboardResult(null, 0, 0, Failed: false));
+        WaitForRenderer();
 
         cut.WaitForAssertion(() => Assert.That(cut.Find("[data-testid=last-workout-empty]").TextContent, Does.Contain("No workouts yet")));
         Assert.That(cut.Find("[data-testid=count-week] .value").TextContent, Is.EqualTo("0"));
@@ -77,6 +79,7 @@ public class DashboardPageTests : ComponentTestBase
         var cut = Context.Render<DashboardPage>();
 
         dashboard.Complete(Failed);
+        WaitForRenderer();
 
         cut.WaitForAssertion(() => Focuses().Single().Arguments[0]
             .ShouldBeElementReferenceTo(cut.Find("[data-testid=dashboard-retry]")));
@@ -93,6 +96,7 @@ public class DashboardPageTests : ComponentTestBase
     {
         var cut = Context.Render<DashboardPage>();
         dashboard.Complete(Failed);
+        WaitForRenderer();
         cut.WaitForAssertion(() => Assert.That(cut.FindAll("[data-testid=dashboard-retry]"), Has.Count.EqualTo(1)));
 
         cut.Find("[data-testid=dashboard-retry]").Click();
@@ -105,6 +109,7 @@ public class DashboardPageTests : ComponentTestBase
         });
 
         dashboard.Complete(new DashboardResult(null, 1, 1, Failed: false));
+        WaitForRenderer();
 
         cut.WaitForAssertion(() => Assert.That(cut.Find("[data-testid=count-week] .value").TextContent, Is.EqualTo("1")));
         Assert.That(cut.FindAll("[data-testid=dashboard-error]"), Is.Empty);
@@ -115,6 +120,7 @@ public class DashboardPageTests : ComponentTestBase
     {
         var cut = Context.Render<DashboardPage>();
         dashboard.Complete(new DashboardResult(null, 1, 1, Failed: false));
+        WaitForRenderer();
         cut.WaitForAssertion(() => Assert.That(cut.FindAll("[data-testid=count-week]"), Has.Count.EqualTo(1)));
 
         var started = lifecycle.NotifyStartedAsync();
@@ -123,6 +129,7 @@ public class DashboardPageTests : ComponentTestBase
         Assert.That(dashboard.Calls, Is.EqualTo(2));
 
         dashboard.Complete(new DashboardResult(null, 3, 5, Failed: false));
+        WaitForRenderer();
         await started;
 
         cut.WaitForAssertion(() => Assert.That(cut.Find("[data-testid=count-week] .value").TextContent, Is.EqualTo("3")));
@@ -134,10 +141,12 @@ public class DashboardPageTests : ComponentTestBase
     {
         var cut = Context.Render<DashboardPage>();
         dashboard.Complete(new DashboardResult(null, 1, 1, Failed: false));
+        WaitForRenderer();
         cut.WaitForAssertion(() => Assert.That(cut.FindAll("[data-testid=count-week]"), Has.Count.EqualTo(1)));
 
         var started = lifecycle.NotifyStartedAsync();
         dashboard.Complete(Failed);
+        WaitForRenderer();
         await started;
 
         cut.WaitForAssertion(() => Assert.That(cut.FindAll("[data-testid=dashboard-error]"), Has.Count.EqualTo(1)));
@@ -158,6 +167,7 @@ public class DashboardPageTests : ComponentTestBase
     {
         var cut = Context.Render<DashboardPage>();
         dashboard.Complete(new DashboardResult(null, 0, 0, Failed: false));
+        WaitForRenderer();
         cut.WaitForAssertion(() => Assert.That(cut.FindAll("[data-testid=count-week]"), Has.Count.EqualTo(1)));
 
         await Context.DisposeComponentsAsync();
@@ -171,12 +181,14 @@ public class DashboardPageTests : ComponentTestBase
     {
         var cut = Context.Render<DashboardPage>();
         dashboard.Complete(new DashboardResult(null, 0, 0, Failed: false));
+        WaitForRenderer();
         cut.WaitForAssertion(() => Assert.That(cut.FindAll("[data-testid=count-week]"), Has.Count.EqualTo(1)));
         var started = lifecycle.NotifyStartedAsync();
         cut.WaitForAssertion(() => Assert.That(dashboard.Calls, Is.EqualTo(2)));
 
         await Context.DisposeComponentsAsync();
         dashboard.Complete(new DashboardResult(null, 1, 1, Failed: false));
+        WaitForRenderer();
 
         Assert.That(async () => await started, Throws.Nothing);
         Assert.That(lifecycleLogger.Collector.Count, Is.Zero);
@@ -188,6 +200,7 @@ public class DashboardPageTests : ComponentTestBase
         lifecycle.Register(() => Context.DisposeComponentsAsync());
         var cut = Context.Render<DashboardPage>();
         dashboard.Complete(new DashboardResult(null, 0, 0, Failed: false));
+        WaitForRenderer();
         cut.WaitForAssertion(() => Assert.That(cut.FindAll("[data-testid=count-week]"), Has.Count.EqualTo(1)));
 
         var started = lifecycle.NotifyStartedAsync();

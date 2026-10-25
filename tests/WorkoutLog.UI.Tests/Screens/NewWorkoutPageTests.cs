@@ -40,6 +40,7 @@ public class NewWorkoutPageTests : ComponentTestBase
         var cut = Context.Render<NewWorkoutPage>();
 
         clock.Advance(TimeSpan.FromSeconds(1));
+        WaitForRenderer();
 
         cut.WaitForAssertion(() => Assert.That(cut.RenderCount, Is.GreaterThan(1)));
         Assert.That(workouts.Started, Is.EqualTo(1));
@@ -63,9 +64,11 @@ public class NewWorkoutPageTests : ComponentTestBase
         Assert.That(Subtitle(cut), Is.EqualTo("Elapsed 0:00:00"));
 
         clock.Advance(TimeSpan.FromSeconds(1));
+        WaitForRenderer();
         cut.WaitForAssertion(() => Assert.That(Subtitle(cut), Is.EqualTo("Elapsed 0:00:01")));
 
         clock.Advance(new TimeSpan(1, 2, 3));
+        WaitForRenderer();
         cut.WaitForAssertion(() => Assert.That(Subtitle(cut), Is.EqualTo("Elapsed 1:02:04")));
     }
 
@@ -76,6 +79,7 @@ public class NewWorkoutPageTests : ComponentTestBase
 
         var cut = Context.Render<NewWorkoutPage>();
         clock.Advance(TimeSpan.FromSeconds(1));
+        WaitForRenderer();
 
         cut.WaitForAssertion(() => Assert.That(cut.RenderCount, Is.GreaterThan(1)));
         Assert.That(Subtitle(cut), Is.EqualTo("Elapsed 0:00:00"));
@@ -356,6 +360,7 @@ public class NewWorkoutPageTests : ComponentTestBase
 
         clock.FailReads = true;
         clock.Advance(TimeSpan.FromSeconds(1));
+        WaitForRenderer();
 
         cut.WaitForAssertion(() => Assert.That(cut.FindAll("[data-testid=error-message]"), Has.Count.EqualTo(1)));
     }
@@ -752,6 +757,7 @@ public class NewWorkoutPageTests : ComponentTestBase
         cut.Find("[data-testid=save-workout]").Click();
         cut.Find("[data-testid=save-workout]").Click();
         cut.InvokeAsync(() => pending.SetResult(new SaveResult(1, new WorkoutErrors(null, []))));
+        WaitForRenderer();
 
         cut.WaitForAssertion(() => Assert.That(saved, Is.EqualTo(1)));
         Assert.That(workouts.Saves, Has.Count.EqualTo(1));
@@ -880,6 +886,7 @@ public class NewWorkoutPageTests : ComponentTestBase
         var searches = catalog.Searches;
 
         clock.Advance(TimeSpan.FromSeconds(3));
+        WaitForRenderer();
 
         cut.WaitForAssertion(() => Assert.That(Subtitle(cut), Is.EqualTo("Elapsed 0:00:03")));
         Assert.That(catalog.Searches, Is.EqualTo(searches));

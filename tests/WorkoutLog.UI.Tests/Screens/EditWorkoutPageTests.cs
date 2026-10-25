@@ -107,6 +107,7 @@ public class EditWorkoutPageTests : ComponentTestBase
         var cut = RenderPage();
 
         workouts.Complete(new WorkoutResult(null, WorkoutLoad.NotFound));
+        WaitForRenderer();
 
         cut.WaitForAssertion(() => Assert.That(cut.FindAll("[data-testid=workout-not-found]"), Has.Count.EqualTo(1)));
         Assert.That(cut.FindAll("[data-testid=workout-load-retry]"), Is.Empty);
@@ -117,6 +118,7 @@ public class EditWorkoutPageTests : ComponentTestBase
     {
         var cut = RenderPage();
         workouts.Complete(new WorkoutResult(null, WorkoutLoad.Failed));
+        WaitForRenderer();
         cut.WaitForAssertion(() => Assert.That(cut.FindAll("[data-testid=workout-load-error]"), Has.Count.EqualTo(1)));
 
         cut.Find("[data-testid=workout-load-retry]").Click();
@@ -129,6 +131,7 @@ public class EditWorkoutPageTests : ComponentTestBase
         });
 
         workouts.Complete(Loaded);
+        WaitForRenderer();
 
         cut.WaitForAssertion(() => Assert.That(Names(cut), Has.Count.EqualTo(3)));
     }
@@ -138,10 +141,12 @@ public class EditWorkoutPageTests : ComponentTestBase
     {
         var cut = RenderPage();
         workouts.Complete(new WorkoutResult(null, WorkoutLoad.Failed));
+        WaitForRenderer();
         cut.WaitForAssertion(() => Assert.That(Focuses(), Has.Count.EqualTo(1)));
 
         cut.Find("[data-testid=workout-load-retry]").Click();
         workouts.Complete(new WorkoutResult(null, WorkoutLoad.Failed));
+        WaitForRenderer();
 
         cut.WaitForAssertion(() => Assert.That(Focuses(), Has.Count.EqualTo(2)));
         Assert.That(cut.FindAll("[data-testid=workout-load-error]"), Has.Count.EqualTo(1));
@@ -154,6 +159,7 @@ public class EditWorkoutPageTests : ComponentTestBase
         var cut = RenderPage();
 
         workouts.Complete(new WorkoutResult(null, WorkoutLoad.Failed));
+        WaitForRenderer();
 
         cut.WaitForAssertion(() => Assert.That(cut.FindAll("[data-testid=workout-load-error]"), Has.Count.EqualTo(1)));
         Assert.That(LoggedEvents.Of(logger), Is.Empty);
@@ -165,6 +171,7 @@ public class EditWorkoutPageTests : ComponentTestBase
         var cut = RenderPage();
 
         workouts.Complete(new WorkoutResult(Saved with { Exercises = [Saved.Exercises[0], new StrengthExercise(9999, [])] }, WorkoutLoad.Loaded));
+        WaitForRenderer();
 
         cut.WaitForAssertion(() => Assert.That(cut.FindAll("[data-testid=workout-load-error]"), Has.Count.EqualTo(1)));
         Assert.That(LoggedEvents.Of(logger), Is.EqualTo(new[]
@@ -179,6 +186,7 @@ public class EditWorkoutPageTests : ComponentTestBase
         var cut = RenderPage();
 
         workouts.Complete(new WorkoutResult(Saved with { Exercises = [new CardioExercise(6, new CardioEntry(TimeSpan.FromMinutes(1), null, null, null, null, null, null, null))] }, WorkoutLoad.Loaded));
+        WaitForRenderer();
 
         cut.WaitForAssertion(() => Assert.That(cut.FindAll("[data-testid=workout-load-error]"), Has.Count.EqualTo(1)));
         Assert.That(LoggedEvents.Of(logger), Is.EqualTo(new[]
@@ -504,6 +512,7 @@ public class EditWorkoutPageTests : ComponentTestBase
                 .Add(x => x.WorkoutId, Id)
                 .Add(x => x.OnBack, () => throw new InvalidOperationException("Navigation failed"))));
         workouts.Complete(Loaded);
+        WaitForRenderer();
         cut.WaitForAssertion(() => Assert.That(cut.FindAll("[data-testid=save-workout]"), Has.Count.EqualTo(1)));
         cut.Find("[data-testid=exercise-1-set-1-reps]").Input("9");
         cut.Find("[data-testid=back]").Click();
@@ -531,6 +540,7 @@ public class EditWorkoutPageTests : ComponentTestBase
         var backs = 0;
         var cut = RenderPage(onBack: () => backs++);
         workouts.Complete(new WorkoutResult(null, status));
+        WaitForRenderer();
         cut.WaitForAssertion(() => Assert.That(cut.FindAll("[data-testid=workout-loading]"), Is.Empty));
 
         cut.Find("[data-testid=back]").Click();
@@ -723,6 +733,7 @@ public class EditWorkoutPageTests : ComponentTestBase
         cut.Find("[data-testid=confirm-dialog-confirm]").Click();
         cut.Find("[data-testid=confirm-dialog-confirm]").Click();
         cut.InvokeAsync(() => pending.SetResult(WorkoutDelete.Deleted));
+        WaitForRenderer();
         cut.WaitForAssertion(() => Assert.That(deleted, Is.EqualTo(1)));
         cut.Find("[data-testid=confirm-dialog-confirm]").Click();
 
@@ -918,6 +929,7 @@ public class EditWorkoutPageTests : ComponentTestBase
                 .Add(x => x.WorkoutId, Id)
                 .Add(x => x.OnDeleted, () => throw new InvalidOperationException("Navigation failed"))));
         workouts.Complete(Loaded);
+        WaitForRenderer();
         cut.WaitForAssertion(() => Assert.That(cut.FindAll("[data-testid=save-workout]"), Has.Count.EqualTo(1)));
         cut.Find("[data-testid=delete-workout]").Click();
 
@@ -1022,6 +1034,7 @@ public class EditWorkoutPageTests : ComponentTestBase
         cut.Find("[data-testid=save-workout]").Click();
         cut.Find("[data-testid=save-workout]").Click();
         cut.InvokeAsync(() => pending.SetResult(new SaveResult(Id, new WorkoutErrors(null, []))));
+        WaitForRenderer();
 
         cut.WaitForAssertion(() => Assert.That(saved, Is.EqualTo(1)));
         Assert.That(workouts.Saves, Has.Count.EqualTo(1));
@@ -1134,6 +1147,7 @@ public class EditWorkoutPageTests : ComponentTestBase
     {
         var cut = RenderPage(onBack, onSaved, onDeleted);
         workouts.Complete(Loaded);
+        WaitForRenderer();
         cut.WaitForAssertion(() => Assert.That(cut.FindAll("[data-testid=save-workout]"), Has.Count.EqualTo(1)));
         return cut;
     }
