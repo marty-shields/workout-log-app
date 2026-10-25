@@ -4,7 +4,7 @@
 - Display name: **Workout Log**
 - Android package id: **`uk.martinshields.workoutlog`**. This can't change later without a reinstall, which wipes all data.
 - Debug builds: package id **`uk.martinshields.workoutlog.debug`**, name **Workout Log (Dev)**. They install alongside the release app with their own data, so USB debugging never touches real workouts.
-- Version: display version is SemVer (`1.0.0`, `1.1.0`…). The version code goes up by 1 on every release APK.
+- Version: display version is SemVer (`1.0.0`, `1.1.0`…); the version code is the number of `v*` tags + 1. The [release workflow](#release-signed-apk) sets both. The `.csproj` sets neither, so local builds are `1.0.0` (1).
 
 ## Prerequisites (Windows)
 - .NET 10 SDK: the version in `global.json` or a later patch (T91)
@@ -67,7 +67,7 @@ Debug and Release builds both log to logcat and to a file ([05](05-architecture.
    dotnet test tests/WorkoutLog.E2E.Tests --filter "Category=US-17"
    dotnet test tests/WorkoutLog.E2E.Tests --filter "FullyQualifiedName~EditWorkoutFeature"
    ```
-   Run every scenario before each release APK (D204). With more than one device connected, name one: add `-- 'TestRunParameters.Parameter(name="DeviceUdid", value="<id from adb devices>")'`.
+   The release workflow runs every scenario before each release (D204). With more than one device connected, name one: add `-- 'TestRunParameters.Parameter(name="DeviceUdid", value="<id from adb devices>")'`.
 
 What a run does:
 - Starts Appium from `node_modules` on a free port and stops it at the end.
@@ -76,7 +76,7 @@ What a run does:
 - A scenario that starts from saved workouts builds a database on the PC with Core and copies it into the Debug app with `run-as`, which needs the debuggable Debug build (T81). Build the App and run the tests from the same commit: a database from a newer Core can stop the app starting.
 - A `@today` scenario fails at its start within 5 minutes of midnight on the device; run it again after midnight (D205).
 - At the end, closes the Debug app. It stays installed with the last test's data, so a failure can be checked by hand.
-- Downloads a Chromedriver that matches the device's WebView into `tests/WorkoutLog.E2E.Tests/.chromedriver/` when needed.
+- Downloads a Chromedriver that matches the device's WebView into `tests/WorkoutLog.E2E.Tests/.chromedriver/` when needed, unless the run setting `ChromedriverExecutable` names one.
 - Turns auto-rotate off and holds the screen in portrait, then puts both rotation settings back at the end (T86). After a killed run, set auto-rotate back yourself: `adb shell settings put system accelerometer_rotation 1` (on) or `0` (off).
 - Installs Appium's helper apps on the device (`io.appium.uiautomator2.server`, `io.appium.uiautomator2.server.test`, `io.appium.settings`) and removes them at the end. After a killed run, remove them with `adb uninstall <package>` for each.
 
@@ -107,38 +107,65 @@ The Debug APK holds both arm64 (phone) and x86_64 (emulator) code, so the same b
 3. Start it: `%ANDROID_HOME%\emulator\emulator.exe -avd WorkoutLog_API36`. `adb devices` lists it as `emulator-5554`.
 4. Run the tests as above, adding the run setting `DeviceUdid` = `emulator-5554` if the phone is connected too.
 
-### E2E in CI later
-The [PR build](#ci) doesn't run the E2E tests. A CI job for them needs:
-- Node.js, `npm ci --ignore-scripts` in `tests/WorkoutLog.E2E.Tests`
-- the .NET 10 SDK with the `maui-android` workload, a JDK, and `ANDROID_HOME` and `JAVA_HOME`
-- an emulator: a Linux runner with KVM, started before the tests. Never the phone.
-- Steps: build the App, run the test command with the emulator's `DeviceUdid`, then keep `TestResults/E2E/` as the job's artifact with a short retention. Never publish the Debug APK: it is debuggable and has WebView debugging on.
+### E2E in the release workflow
+The [PR build](#ci) doesn't run the E2E tests; the [release workflow](#release-signed-apk) runs all of them on emulators.
+- 8 jobs (the `e2e` matrix in `release.yml`), each on `ubuntu-latest` with KVM and one emulator: API 36 AOSP image (`system-images;android-36;default;x86_64`), 3 cores, 4 GB, software GPU. `.github/scripts/emulator-start.sh` creates and starts it; `emulator-wait.sh` waits for the boot, then turns off animations, error dialogs, Wi-Fi and data and keeps the screen on.
+- `e2e-shard.sh` splits the scenarios by whole feature, the largest first, each to the job with the fewest scenarios. A job that gets no features fails.
+- Each job builds the Debug App and runs its features with `DeviceUdid` = `emulator-5554` and the run setting `ChromedriverExecutable` (`e2e-run.sh`). Failed scenarios show as annotations and each run adds a results table to the run's summary.
+- Only the scenarios that failed run again, up to 3 tries in all; the job fails if one still fails. A scenario that passes on a retry gets a warning annotation, and its failed try stays in the summary (T109). Local runs don't retry.
+- Chromedriver is pinned in `release.yml` (`CHROMEDRIVER_VERSION`, `CHROMEDRIVER_SHA256`, from [Chrome for Testing](https://googlechromelabs.github.io/chrome-for-testing/)). The job fails when the emulator's WebView major version differs: pin a Chromedriver of that major version and its zip's SHA-256. Local runs still download their own.
+- Each job keeps `TestResults/E2E/` (with logcat, a health log and the emulator log) as the artifact `e2e-results-<n>`, for 1 day. The Debug APK is never uploaded: it is debuggable and has WebView debugging on.
+- A `release-smoke` job builds the Release APK for x64 with the debug key, installs it on an emulator and launches it (`release-smoke.sh`). It fails unless the app's log shows the Release start line, the exercise list seeded and "Startup finished", with no error and no crash.
 
 ## CI
 - `.github/workflows/pr-build.yml` ("PR build") runs on every PR to `main` (T91). On `ubuntu-latest` it installs the SDK from `global.json` and the `maui-android` workload at a pinned workload set, runs `dotnet build WorkoutLog.slnx`, then the Core and UI tests. Its `build-and-test` check must pass before the PR can merge.
 - Failed tests show as annotations on the PR, linked to the test's source line, and each test step adds a results table to the run's summary (T95).
 - The workload set matches the SDK: when the SDK in `global.json` changes, set the workflow's `--version` to the matching set (`dotnet workload search version`) in the same PR.
-- `.github/dependabot.yml` opens update PRs weekly for NuGet, the E2E project's npm packages, the SDK in `global.json` and the GitHub Actions (T92). Minor and patch bumps come grouped, one PR per ecosystem; each major bump has its own PR. The PR build runs on them like any other PR.
+- `.github/workflows/pr-checks.yml` ("PR checks") runs on every PR to `main` when it opens, changes or is relabelled. Its `pr-checks` check fails unless:
+  - the title is a Conventional Commit: `type(scope)!: description`, type one of `build`, `chore`, `ci`, `docs`, `feat`, `fix`, `perf`, `refactor`, `revert`, `style`, `test`; scope and `!` optional
+  - the PR has exactly one of the labels `semver:major`, `semver:minor`, `semver:patch`. The [release](#release-signed-apk) bumps the version by the highest label among its PRs.
+- `.github/dependabot.yml` opens update PRs weekly for NuGet, the E2E project's npm packages, the SDK in `global.json` and the GitHub Actions (T92). Minor and patch bumps come grouped, one PR per ecosystem; each major bump has its own PR. Each PR is labelled `semver:patch` and titled `chore(deps): …`. The PR build and checks run on them like any other PR.
 - Repo Actions settings: only GitHub-owned actions, pinned by full commit SHA; workflows from outside contributors' PRs wait for approval (T91).
 
 ## Release: signed APK
-1. Create a keystore once (`keytool -genkey ...`), then back it up ([Keystore handling](#keystore-handling)) before the first install.
-2. Set the signing properties in the app `.csproj` (`AndroidKeyStore`, `AndroidSigningKeyStore`, `AndroidSigningKeyAlias`). Passwords come from environment variables and are never stored in the repo.
-3. Bump the version code (and the display version if needed).
-4. `dotnet publish src/WorkoutLog.App -f net10.0-android -c Release -p:AndroidPackageFormat=apk`
-5. Copy the signed `.apk` to the phone and install it (allow "install unknown apps" for the file manager).
+`.github/workflows/release.yml` ("Release") builds, tests, signs and publishes from `main`. Run it from Actions → Release → **Run workflow** on `main`.
+
+| Job | Does |
+|---|---|
+| `version` | Fails off `main` or while `CERT_SHA256` is empty. Release tags are `vX.Y.Z` only. No `v*` tag yet: `1.0.0`. Otherwise maps each commit since the last `v*` tag to its PR and bumps by the highest `semver:*` label. A PR without exactly one label fails the run, naming it; no PRs ends the run green with nothing released. Version code: number of `v*` tags + 1 (`next-version.sh`) |
+| `build` | The [PR build](#ci) (build, Core and UI tests) |
+| `e2e`, `release-smoke` | [E2E in the release workflow](#e2e-in-the-release-workflow) |
+| `release` | After the jobs above pass, waits for the owner to approve the `release` environment. Builds the Release APK for arm64, signed with the release keystore, with the version and code. `check-apk.sh` fails unless it has one signer with the pinned cert (`CERT_SHA256`), the version and code, isn't debuggable and holds arm64 only. Then creates the release `vX.Y.Z` and its tag on the run's commit |
+
+A failed run creates no tag or release: fix the cause and run it again. The release holds `WorkoutLog-X.Y.Z.apk`, its `.sha256`, and notes listing the merged PRs under the signing cert's fingerprint.
+
+Settings outside the repo (D224, D226, T102):
+- Labels `semver:major`, `semver:minor`, `semver:patch`.
+- Environment `release`: the owner is the required reviewer, admins can't bypass, `main` only. Secrets `RELEASE_KEYSTORE_BASE64`, `RELEASE_KEYSTORE_PASSWORD` (store and key), `RELEASE_KEY_ALIAS`.
+- Ruleset `Protect release tags`: `v*` tags can't be deleted or moved, with no bypass, so the version code only goes up.
+
+### Install or update on the phone
+1. Download `WorkoutLog-X.Y.Z.apk` from the [latest release](https://github.com/marty-shields/workout-log-app/releases/latest).
+2. Check it: `apksigner verify --print-certs WorkoutLog-X.Y.Z.apk` (in `%ANDROID_HOME%\build-tools\<version>`) must show the SHA-256 digest of [the release cert](#keystore-handling). Optionally compare `Get-FileHash WorkoutLog-X.Y.Z.apk` with the `.sha256` file.
+3. `adb install -r WorkoutLog-X.Y.Z.apk`, or copy it to the phone and open it (allow "install unknown apps" for the file manager). An update installs over the app and keeps its data.
 
 **The same keystore must sign every future APK.** If it's lost, updates can't be installed over the existing app. The only way back is to uninstall, which wipes all workout data.
 
 ## Keystore handling
-- The keystore file lives outside the repo and is listed in `.gitignore`.
+- Created once with the JDK's `keytool`: PKCS12, RSA 4096, valid 10000 days, one password for the store and the key:
+  ```
+  keytool -genkeypair -v -keystore <path>\workoutlog-release.keystore -storetype PKCS12 -alias <alias> -keyalg RSA -keysize 4096 -validity 10000
+  ```
+- Release cert SHA-256: `5D:6A:C3:4B:86:B8:29:8D:04:DE:18:5C:9B:D8:3C:27:C8:31:76:CB:F9:BD:F8:35:A8:CA:C4:95:57:1B:CD:AC`. It is also `CERT_SHA256` in `release.yml`.
+- The keystore file lives outside the repo and is listed in `.gitignore`. CI gets it only through the `release` environment's secrets; the owner sets them, base64 for the file. The workflow writes it to the runner's temp folder and deletes it after the build.
 - The owner keeps one backup of the keystore file with its passwords and alias, in a private location that is not recorded in the repo (D220).
+- Local Release builds are signed with the debug key.
 
 ## Source control
 - GitHub: [marty-shields/workout-log-app](https://github.com/marty-shields/workout-log-app), public, default branch `main` (T89).
 - The repo's own git config sets the author (`user.name`, `user.email`) and `credential.username`. The remote URL includes the username, so Git Credential Manager signs in as the owner in this repo only.
 - `gh` reads its login from the folder in `GH_CONFIG_DIR`, which holds only the owner's account. `.claude/settings.local.json` sets it for Claude Code and `.vscode/settings.json` for VS Code terminals; both are local and gitignored. Sign in once with `$env:GH_CONFIG_DIR="$HOME\.config\gh-personal"; gh auth login --web --scopes project,workflow`, and answer No to authenticating Git.
-- `main` is protected by the `Protect main` ruleset: no direct pushes, force pushes or deletion. Changes go through a PR, with no required approvals, and the PR build's `build-and-test` check must pass. PRs are opened as drafts; the reviewer marks them ready and squash-merges. The PR title becomes the commit title; merged branches are deleted.
+- `main` is protected by the `Protect main` ruleset: no direct pushes, force pushes or deletion. Changes go through a PR, with no required approvals, and the `build-and-test` and `pr-checks` checks must pass. PRs are opened as drafts; the reviewer marks them ready and squash-merges. The PR title becomes the commit title; merged branches are deleted.
 - Branches: `type/us-xx-slug`, the Conventional Commit type and the story ID (e.g. `feat/us-26-signed-release-apk`). Work that isn't a story leaves out the ID (e.g. `chore/update-readme`).
 - Backlog: the [Workout Log project](https://github.com/users/marty-shields/projects/2) ([ways of working](README.md#ways-of-working)).
 - `.gitignore` (T39, T90): build output and logs, test results, IDE and per-user files (`*.user`, `.vscode/`, `.claude/settings.local.json`), APKs, signing keys and secrets (`*.apk`, `*.aab`, `*.keystore`, `*.jks`, `*.pfx`, `*.p12`, `*.pem`, `*.key`, `.env`), tool output (including `node_modules/` and `.chromedriver/`) and OS files.

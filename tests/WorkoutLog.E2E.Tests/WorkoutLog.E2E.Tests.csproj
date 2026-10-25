@@ -6,6 +6,9 @@
 
   <ItemGroup>
     <PackageReference Include="Appium.WebDriver" />
+    <PackageReference Include="GitHubActionsTestLogger">
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" />
     <PackageReference Include="Reqnroll.NUnit" />
   </ItemGroup>

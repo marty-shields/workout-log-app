@@ -45,7 +45,7 @@ public sealed class PickerSteps(WebView web, Native native, WorkoutScreen workou
     {
         if (how == "Android back")
         {
-            native.BackGesture();
+            native.BackKey();
         }
         else
         {

@@ -1,10 +1,14 @@
-# Weekly update PRs. Minor and patch bumps are grouped per ecosystem; each major bump gets its own PR.
+# Weekly update PRs, labelled semver:patch with a chore(deps) title. Minor and patch bumps are grouped per ecosystem; each
+# major bump gets its own PR.
 version: 2
 updates:
   - package-ecosystem: "nuget"
     directory: "/"
     schedule:
       interval: "weekly"
+    labels: ["semver:patch"]
+    commit-message:
+      prefix: "chore(deps)"
     groups:
       nuget-minor-patch:
         update-types: ["minor", "patch"]
@@ -13,6 +17,9 @@ updates:
     directory: "/tests/WorkoutLog.E2E.Tests"
     schedule:
       interval: "weekly"
+    labels: ["semver:patch"]
+    commit-message:
+      prefix: "chore(deps)"
     groups:
       npm-minor-patch:
         update-types: ["minor", "patch"]
@@ -21,11 +28,17 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
+    labels: ["semver:patch"]
+    commit-message:
+      prefix: "chore(deps)"
 
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
       interval: "weekly"
+    labels: ["semver:patch"]
+    commit-message:
+      prefix: "chore(deps)"
     groups:
       actions-minor-patch:
         update-types: ["minor", "patch"]

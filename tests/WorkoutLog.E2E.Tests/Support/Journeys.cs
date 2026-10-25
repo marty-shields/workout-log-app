@@ -159,7 +159,7 @@ public sealed class Journeys(
         WaitForWorkout();
     }
 
-    /// <summary>Goes back: "the back arrow", "Android back" or "the back gesture" (an edge swipe), or "the Android back key".</summary>
+    /// <summary>Goes back: "the back arrow" or "Android back" (the back key).</summary>
     public void Back(string how)
     {
         switch (how)
@@ -168,10 +168,6 @@ public sealed class Journeys(
                 web.Tap("back");
                 break;
             case "Android back":
-            case "the back gesture":
-                native.BackGesture();
-                break;
-            case "the Android back key":
                 native.BackKey();
                 break;
             default:

@@ -7,12 +7,13 @@
 **A paper gym notebook, rebuilt as a fast, offline Android app.**
 
 [![PR build](https://github.com/marty-shields/workout-log-app/actions/workflows/pr-build.yml/badge.svg?event=pull_request)](https://github.com/marty-shields/workout-log-app/actions/workflows/pr-build.yml)
+[![Latest release](https://img.shields.io/github/v/release/marty-shields/workout-log-app?label=release)](https://github.com/marty-shields/workout-log-app/releases/latest)
 ![.NET 10](https://img.shields.io/badge/.NET-10-512BD4?logo=dotnet&logoColor=white)
 ![MAUI Blazor Hybrid](https://img.shields.io/badge/MAUI-Blazor_Hybrid-512BD4?logo=blazor&logoColor=white)
 ![Android 16](https://img.shields.io/badge/Android-16_(API_36)-34A853?logo=android&logoColor=white)
 ![SQLite](https://img.shields.io/badge/SQLite-on_device-003B57?logo=sqlite&logoColor=white)
 
-[Features](#features) · [Screenshots](#screenshots) · [Built with](#built-with) · [Getting started](#getting-started) · [Docs](#documentation)
+[Features](#features) · [Screenshots](#screenshots) · [Install](#install) · [Built with](#built-with) · [Getting started](#getting-started) · [Docs](#documentation)
 
 </div>
 
@@ -82,6 +83,14 @@ It's built for one person and one phone: no accounts, no sign-up, no cloud. Ever
 
 <p align="center"><sub>The screenshots match your GitHub theme. They're taken from the stories site, which renders the app's own components.</sub></p>
 
+## Install
+
+Workout Log is sideloaded: it isn't on Google Play.
+
+1. Download `WorkoutLog-X.Y.Z.apk` from the [latest release](https://github.com/marty-shields/workout-log-app/releases/latest).
+2. Check it's signed with the release key: `apksigner verify --print-certs WorkoutLog-X.Y.Z.apk` (Android SDK build tools) must show the SHA-256 digest at the top of the release notes.
+3. Open it on the phone (allow your file manager to install apps), or run `adb install -r WorkoutLog-X.Y.Z.apk`. A newer version installs over the old one and keeps your workouts.
+
 ## Built with
 
 | Area | Choice |
@@ -91,7 +100,7 @@ It's built for one person and one phone: no accounts, no sign-up, no cloud. Ever
 | Data | SQLite via sqlite-net-pcl, on the device only |
 | Design system | Design tokens and components, documented and prototyped in a [BlazingStory](https://github.com/jsakamoto/BlazingStory) stories site |
 | Tests | NUnit unit tests, bUnit component tests, and end-to-end Gherkin features run by Reqnroll and Appium on a phone or emulator |
-| CI | GitHub Actions builds and tests every pull request; Dependabot keeps packages current |
+| CI | GitHub Actions builds and tests every pull request; the release workflow runs the end-to-end tests on emulators, then signs and publishes the APK; Dependabot keeps packages current |
 
 <details>
 <summary><b>Project layout</b></summary>

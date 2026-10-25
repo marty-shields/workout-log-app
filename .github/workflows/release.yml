@@ -1,0 +1,270 @@
+# Releases main by hand (Actions > Release > Run workflow): works out the next version from the semver labels of the PRs
+# merged since the last v* tag, builds and tests, runs the E2E suite on emulators, then, after the owner approves the
+# release environment, builds the signed APK and publishes the GitHub release with its v* tag (docs/08-dev-setup-build.md).
+name: Release
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+env:
+  AVD: WorkoutLog_API36
+  # AOSP image: no Play services or Gboard, so less background work on the runner.
+  SYSTEM_IMAGE: system-images;android-36;default;x86_64
+  # Chrome for Testing build for the image's WebView major version (133.0.6943.137).
+  CHROMEDRIVER_VERSION: 133.0.6943.141
+  CHROMEDRIVER_SHA256: d3826586626a8e91d8b1d2da76423e2b4fd7179148284afe4677c72dcd0f1a27
+  # The release signing cert's SHA-256 (08).
+  CERT_SHA256: '5D:6A:C3:4B:86:B8:29:8D:04:DE:18:5C:9B:D8:3C:27:C8:31:76:CB:F9:BD:F8:35:A8:CA:C4:95:57:1B:CD:AC'
+
+jobs:
+  version:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      pull-requests: read
+    outputs:
+      release: ${{ steps.next.outputs.release }}
+      version: ${{ steps.next.outputs.version }}
+      code: ${{ steps.next.outputs.code }}
+    steps:
+      - name: Main only
+        if: github.ref != 'refs/heads/main'
+        run: |
+          echo "::error title=Release::Releases run from main only, not $GITHUB_REF."
+          exit 1
+
+      - name: Release cert pinned
+        if: env.CERT_SHA256 == ''
+        run: |
+          echo "::error title=Release::CERT_SHA256 in release.yml is empty: set it to the release cert's SHA-256 (docs/08-dev-setup-build.md)."
+          exit 1
+
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Next version
+        id: next
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: .github/scripts/next-version.sh v "$GITHUB_SHA"
+
+  build:
+    needs: version
+    if: needs.version.outputs.release == 'true'
+    uses: ./.github/workflows/pr-build.yml
+
+  # One emulator per runner; each shard runs whole features (e2e-shard.sh). The matrix sets the number of shards.
+  e2e:
+    needs: version
+    if: needs.version.outputs.release == 'true'
+    name: e2e (${{ matrix.shard }}/${{ strategy.job-total }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3, 4, 5, 6, 7, 8]
+    env:
+      RESULTS: tests/WorkoutLog.E2E.Tests/TestResults/E2E
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Start the emulator
+        run: .github/scripts/emulator-start.sh
+
+      - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
+        with:
+          global-json-file: global.json
+
+      - name: Install the MAUI Android workload
+        run: dotnet workload install maui-android --version 10.0.402.1
+
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24
+
+      - name: Install Appium
+        working-directory: tests/WorkoutLog.E2E.Tests
+        run: npm ci --ignore-scripts
+
+      - name: Build the App (Debug) and the tests
+        run: |
+          dotnet build src/WorkoutLog.App -f net10.0-android
+          dotnet build tests/WorkoutLog.E2E.Tests
+
+      - name: Wait for the emulator
+        run: .github/scripts/emulator-wait.sh "$RESULTS"
+
+      - name: Pinned Chromedriver
+        run: |
+          webview=$(adb shell dumpsys webviewupdate | sed -n 's/.*Current WebView package (name, version): ([^,]*, \([0-9.]*\)).*/\1/p')
+          if [[ "${webview%%.*}" != "${CHROMEDRIVER_VERSION%%.*}" ]]; then
+            echo "::error title=Chromedriver::WebView $webview, pinned Chromedriver $CHROMEDRIVER_VERSION: update the pin in release.yml (docs/08-dev-setup-build.md)."
+            exit 1
+          fi
+          curl -fsSL -o "$RUNNER_TEMP/chromedriver.zip" \
+            "https://storage.googleapis.com/chrome-for-testing-public/$CHROMEDRIVER_VERSION/linux64/chromedriver-linux64.zip"
+          echo "$CHROMEDRIVER_SHA256  $RUNNER_TEMP/chromedriver.zip" | sha256sum -c -
+          unzip -q -d "$RUNNER_TEMP" "$RUNNER_TEMP/chromedriver.zip"
+          echo "CHROMEDRIVER=$RUNNER_TEMP/chromedriver-linux64/chromedriver" >> "$GITHUB_ENV"
+
+      # A shard's tests take 3–8 minutes; a hang fails here and the logs still upload. Failed scenarios run again, up to
+      # 3 tries in all (e2e-run.sh).
+      - name: E2E tests
+        timeout-minutes: 30
+        run: |
+          filter=$(.github/scripts/e2e-shard.sh "${{ matrix.shard }}" "${{ strategy.job-total }}")
+          if [[ -z "$filter" ]]; then
+            echo "::error title=E2E::Shard ${{ matrix.shard }}/${{ strategy.job-total }} has no features: check the test listing in e2e-shard.sh."
+            exit 1
+          fi
+          .github/scripts/e2e-run.sh "$filter" 3
+
+      # Runs on a failure or a cancel too, so the logs are kept. Each adb call is time-limited: a hung emulator mustn't
+      # hold up a cancel.
+      - name: Keep the emulator log
+        if: always()
+        timeout-minutes: 3
+        run: |
+          mkdir -p "$RESULTS"
+          cp "$RUNNER_TEMP/emulator.log" "$RESULTS/" || true
+          timeout 30 adb shell dumpsys activity activities > "$RESULTS/activities.txt" 2>&1 || true
+          timeout 30 adb exec-out screencap -p > "$RESULTS/final-screen.png" 2>/dev/null || true
+          echo "::group::Health (last 20)"; tail -n 20 "$RESULTS/health.log" 2>/dev/null || true; echo "::endgroup::"
+          ls -la "$RESULTS"
+
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        if: always()
+        with:
+          name: e2e-results-${{ matrix.shard }}
+          path: ${{ env.RESULTS }}/
+          retention-days: 1
+          if-no-files-found: ignore
+
+  # A Release build of the same commit (x64, debug key, never published) starts cleanly on an emulator.
+  release-smoke:
+    needs: version
+    if: needs.version.outputs.release == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      RESULTS: release-smoke
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Start the emulator
+        run: .github/scripts/emulator-start.sh
+
+      - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
+        with:
+          global-json-file: global.json
+
+      - name: Install the MAUI Android workload
+        run: dotnet workload install maui-android --version 10.0.402.1
+
+      - name: Build the Release APK (x64, debug key)
+        run: |
+          dotnet publish src/WorkoutLog.App -c Release -f net10.0-android -p:AndroidPackageFormat=apk \
+            -r android-x64 -o "$RUNNER_TEMP/smoke"
+
+      - name: Wait for the emulator
+        run: .github/scripts/emulator-wait.sh "$RESULTS"
+
+      - name: Launch
+        run: .github/scripts/release-smoke.sh "$RUNNER_TEMP/smoke/uk.martinshields.workoutlog-Signed.apk"
+
+      # Runs on a failure or a cancel too, so the logs are kept.
+      - name: Keep the emulator log
+        if: always()
+        timeout-minutes: 3
+        run: |
+          mkdir -p "$RESULTS"
+          cp "$RUNNER_TEMP/emulator.log" "$RESULTS/" || true
+          timeout 30 adb exec-out screencap -p > "$RESULTS/final-screen.png" 2>/dev/null || true
+          echo "::group::Health (last 20)"; tail -n 20 "$RESULTS/health.log" 2>/dev/null || true; echo "::endgroup::"
+          ls -la "$RESULTS"
+
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        if: always()
+        with:
+          name: release-smoke
+          path: ${{ env.RESULTS }}/
+          retention-days: 1
+          if-no-files-found: ignore
+
+  # Waits for the owner's approval of the release environment, which holds the signing secrets.
+  release:
+    needs: [version, build, e2e, release-smoke]
+    if: needs.version.outputs.release == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    environment: release
+    permissions:
+      contents: write
+    env:
+      VERSION: ${{ needs.version.outputs.version }}
+      CODE: ${{ needs.version.outputs.code }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
+        with:
+          global-json-file: global.json
+
+      - name: Install the MAUI Android workload
+        run: dotnet workload install maui-android --version 10.0.402.1
+
+      # Packages are downloaded before any secret is on the runner.
+      - name: Restore
+        run: dotnet restore src/WorkoutLog.App -r android-arm64
+
+      - name: Keystore
+        env:
+          KEYSTORE_BASE64: ${{ secrets.RELEASE_KEYSTORE_BASE64 }}
+        run: base64 -d <<<"$KEYSTORE_BASE64" > "$RUNNER_TEMP/release.keystore"
+
+      # Passwords reach MSBuild through env: and never appear on the command line.
+      - name: Build the signed Release APK
+        env:
+          RELEASE_KEYSTORE_PASSWORD: ${{ secrets.RELEASE_KEYSTORE_PASSWORD }}
+          RELEASE_KEY_ALIAS: ${{ secrets.RELEASE_KEY_ALIAS }}
+        run: |
+          dotnet publish src/WorkoutLog.App -c Release -f net10.0-android -p:AndroidPackageFormat=apk \
+            -r android-arm64 --no-restore \
+            -p:ApplicationDisplayVersion="$VERSION" -p:ApplicationVersion="$CODE" \
+            -p:AndroidKeyStore=true -p:AndroidSigningKeyStore="$RUNNER_TEMP/release.keystore" \
+            -p:AndroidSigningKeyAlias="$RELEASE_KEY_ALIAS" \
+            -p:AndroidSigningStorePass=env:RELEASE_KEYSTORE_PASSWORD -p:AndroidSigningKeyPass=env:RELEASE_KEYSTORE_PASSWORD \
+            -o "$RUNNER_TEMP/release"
+
+      - name: Remove the keystore
+        if: always()
+        run: rm -f "$RUNNER_TEMP/release.keystore"
+
+      - name: Check the APK
+        run: .github/scripts/check-apk.sh "$RUNNER_TEMP/release/uk.martinshields.workoutlog-Signed.apk" "$VERSION" "$CODE" "$CERT_SHA256" "$RUNNER_TEMP/out"
+
+      # Creates the v* tag on this commit with the release.
+      - name: Publish the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          apk="$RUNNER_TEMP/out/WorkoutLog-$VERSION.apk"
+          gh release create "v$VERSION" "$apk" "$apk.sha256" --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" --title "v$VERSION" \
+            --generate-notes --notes "$(cat "$RUNNER_TEMP/out/notes.md")"
