@@ -71,7 +71,17 @@ public sealed class WebView
 
     public bool Exists(string testId) => App.FindElements(ByTestId(testId)).Count > 0;
 
-    public string Text(string testId) => Find(testId).Text.Trim();
+    /// <summary>The element's text, found and read again if the page re-renders it in between.</summary>
+    public string Text(string testId)
+    {
+        var text = "";
+        WaitUntil(() =>
+        {
+            text = Find(testId).Text.Trim();
+            return true;
+        }, $"no element {testId}");
+        return text;
+    }
 
     public void Tap(string testId) => Find(testId).Click();
 
