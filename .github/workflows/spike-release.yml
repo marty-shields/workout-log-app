@@ -65,18 +65,35 @@ jobs:
 
       - name: Enable KVM
         run: |
+          echo "::group::Host"
+          echo "CPUs: $(nproc)"; free -m; df -h / | tail -n 1
+          echo "CPU virtualisation flags: $(grep -c -E '(vmx|svm)' /proc/cpuinfo || true)"
+          echo "::endgroup::"
           echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
           sudo udevadm control --reload-rules
           sudo udevadm trigger --name-match=kvm
+          ls -l /dev/kvm
 
       - name: Start the emulator
         run: |
           sdk="$ANDROID_HOME/cmdline-tools/latest/bin"
+          echo "::group::Install the emulator and image"
           (yes || true) | "$sdk/sdkmanager" --licenses > /dev/null
-          "$sdk/sdkmanager" --install emulator "$SYSTEM_IMAGE" > /dev/null
+          "$sdk/sdkmanager" --install emulator "$SYSTEM_IMAGE"
+          "$sdk/sdkmanager" --list_installed | grep -E "emulator|system-images|platform-tools|build-tools"
+          echo "::endgroup::"
+          echo "::group::Create the AVD"
           echo no | "$sdk/avdmanager" create avd -n "$AVD" -k "$SYSTEM_IMAGE" -d pixel_7
+          cat "$HOME/.android/avd/$AVD.avd/config.ini"
+          echo "::endgroup::"
+          echo "::group::Emulator version and acceleration"
+          "$ANDROID_HOME/emulator/emulator" -version | head -n 3
+          "$ANDROID_HOME/emulator/emulator" -accel-check
+          echo "::endgroup::"
           nohup "$ANDROID_HOME/emulator/emulator" -avd "$AVD" -no-window -no-audio -no-boot-anim -no-snapshot \
-            -gpu swiftshader_indirect > "$RUNNER_TEMP/emulator.log" 2>&1 &
+            -gpu swiftshader_indirect -verbose > "$RUNNER_TEMP/emulator.log" 2>&1 &
+          echo $! > "$RUNNER_TEMP/emulator.pid"
+          echo "Emulator started, pid $(cat "$RUNNER_TEMP/emulator.pid")"
           echo "$ANDROID_HOME/platform-tools" >> "$GITHUB_PATH"
 
       - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
@@ -97,13 +114,49 @@ jobs:
       - name: Build the App (Debug)
         run: dotnet build src/WorkoutLog.App -f net10.0-android
 
+      # Reports every 15 s; fails at once if the emulator process ends, and after 15 minutes.
       - name: Wait for the emulator
         run: |
-          timeout 600 adb wait-for-device
-          timeout 600 bash -c 'until [ "$(adb shell getprop sys.boot_completed | tr -d "\r")" = 1 ]; do sleep 5; done'
+          pid=$(cat "$RUNNER_TEMP/emulator.pid")
+          log="$RUNNER_TEMP/emulator.log"
+          start=$SECONDS
+          shown=0
+          while true; do
+            elapsed=$((SECONDS - start))
+            if ! kill -0 "$pid" 2>/dev/null; then
+              echo "::error title=Emulator::The emulator process ended after ${elapsed}s."
+              echo "::group::emulator.log"; cat "$log"; echo "::endgroup::"
+              exit 1
+            fi
+            state=$(timeout 10 adb get-state 2>/dev/null || echo none)
+            boot=$(timeout 10 adb shell getprop sys.boot_completed 2>/dev/null | tr -d '\r' || true)
+            anim=$(timeout 10 adb shell getprop init.svc.bootanim 2>/dev/null | tr -d '\r' || true)
+            echo "[${elapsed}s] adb: $state, sys.boot_completed: ${boot:-?}, bootanim: ${anim:-?}, emulator.log: $(wc -l < "$log") lines"
+            lines=$(wc -l < "$log")
+            if (( lines > shown )); then
+              tail -n +"$((shown + 1))" "$log" | tail -n 5 | sed 's/^/    | /'
+              shown=$lines
+            fi
+            [[ "$boot" == 1 ]] && break
+            if (( elapsed > 900 )); then
+              echo "::error title=Emulator::Not booted after 15 minutes."
+              echo "::group::emulator.log"; cat "$log"; echo "::endgroup::"
+              exit 1
+            fi
+            sleep 15
+          done
+          echo "Booted in $((SECONDS - start))s."
           adb shell input keyevent 82
-          adb devices
-          adb shell dumpsys webviewupdate | grep -i "current webview package"
+          adb shell wm dismiss-keyguard || true
+          echo "::group::Device"
+          adb devices -l
+          adb shell getprop ro.build.fingerprint
+          adb shell wm size
+          adb shell wm density
+          adb shell dumpsys webviewupdate | grep -i -E "current webview package|webview packages"
+          echo "::endgroup::"
+          mkdir -p "$RESULTS"
+          nohup adb logcat -v threadtime > "$RESULTS/logcat.txt" 2>&1 &
 
       - name: Pinned Chromedriver
         if: env.CHROMEDRIVER_VERSION != ''
@@ -125,7 +178,8 @@ jobs:
           if [[ -n "${CHROMEDRIVER:-}" ]]; then
             parameters+=("TestRunParameters.Parameter(name=\"ChromedriverExecutable\", value=\"$CHROMEDRIVER\")")
           fi
-          dotnet test tests/WorkoutLog.E2E.Tests --filter "$E2E_FILTER" --logger "console;verbosity=normal" -- "${parameters[@]}"
+          dotnet test tests/WorkoutLog.E2E.Tests --filter "$E2E_FILTER" --logger "console;verbosity=detailed" \
+            --logger "trx;LogFileName=e2e.trx" --results-directory "$RESULTS/trx" -- "${parameters[@]}"
 
       - name: Release smoke build (x64, debug key)
         if: ${{ !cancelled() }}
@@ -137,12 +191,18 @@ jobs:
         if: ${{ !cancelled() }}
         run: .github/spike/release-smoke.sh "$RUNNER_TEMP/smoke/uk.martinshields.workoutlog-Signed.apk"
 
+      # Runs on a failure or a cancel too, so the logs are kept.
       - name: Keep the emulator log
-        if: ${{ !cancelled() }}
-        run: mkdir -p "$RESULTS" && cp "$RUNNER_TEMP/emulator.log" "$RESULTS/"
+        if: always()
+        run: |
+          mkdir -p "$RESULTS"
+          cp "$RUNNER_TEMP/emulator.log" "$RESULTS/" || true
+          adb shell dumpsys activity activities > "$RESULTS/activities.txt" 2>&1 || true
+          adb exec-out screencap -p > "$RESULTS/final-screen.png" 2>/dev/null || true
+          ls -la "$RESULTS"
 
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
-        if: ${{ !cancelled() }}
+        if: always()
         with:
           name: e2e-results
           path: ${{ env.RESULTS }}/
