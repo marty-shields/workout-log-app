@@ -22,8 +22,8 @@ Time is injected through .NET `TimeProvider`; tests use `FakeTimeProvider`, so t
 - "Given these saved workouts" builds a database on the PC with Core and copies it into the app (T81). What a scenario is about is done through the UI.
 - Expected dates and counts come from the device's clock and time zone (D205).
 - Steps find elements by `data-testid` through the screen classes in `Screens/`. Typing goes a key at a time (T82).
-- "Android back" is the back gesture, an edge swipe; the keyboard scenarios also use the back key. "I have …" steps end with the soft keyboard hidden (T84, D206).
-- Device commands (the back key, the keyboard check and hide, backgrounding, the app's state) run from the WebView; only the back gesture switches to the native context. The keyboard is hidden with the back key, only when an input has focus (T87). The screen is held in portrait for the run (T86).
+- "Android back" is the back key. "I have …" steps end with the soft keyboard hidden (T84, D206).
+- Device commands (the back key, the keyboard check and hide, backgrounding, the app's state) run from the WebView. The keyboard is hidden with the back key, only when an input has focus (T87). The screen is held in portrait for the run (T86).
 - Steps check focus where [06](06-screens-ux.md) says it moves, the soft keyboard and keypad on number fields, and the app's log (T83, T84).
 - Scenarios run one at a time on one device (`[assembly: NonParallelizable]`).
 - A failed scenario saves a screenshot, the page source, the app's log and its part of the Appium log (T79, [08](08-dev-setup-build.md#results)).

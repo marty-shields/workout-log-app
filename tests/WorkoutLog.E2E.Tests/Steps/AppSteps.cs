@@ -33,7 +33,7 @@ public sealed class AppSteps(
     public void GivenIHavePressedBackOnTheDashboard()
     {
         journeys.WaitFor(Journeys.Screen.Dashboard);
-        native.BackGesture();
+        native.BackKey();
         ThenTheAppIsInTheBackground();
     }
 

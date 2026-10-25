@@ -39,28 +39,10 @@ adb shell input keyevent 82
 adb shell wm dismiss-keyguard || true
 # System "isn't responding" dialogs (e.g. Play services on a busy CPU) would cover the app and take its taps.
 adb shell settings put global hide_error_dialogs 1
-# No system animations, so the keyboard and its insets settle before the next key or gesture.
+# No system animations, so the keyboard and its insets settle before the next key.
 adb shell settings put global window_animation_scale 0
 adb shell settings put global transition_animation_scale 0
 adb shell settings put global animator_duration_scale 0
-# Gesture navigation, as on the phone: the AOSP image starts with 3-button navigation, where the back swipe does nothing.
-echo "::group::Navigation overlays"
-adb shell cmd overlay list | grep -i navbar || true
-echo "::endgroup::"
-adb shell cmd overlay enable com.android.internal.systemui.navbar.gestural
-adb shell cmd overlay disable com.android.internal.systemui.navbar.threebutton || true
-mode=""
-for _ in $(seq 15); do
-  mode=$(adb shell settings get secure navigation_mode | tr -d '\r')
-  [[ "$mode" == 2 ]] && break
-  sleep 2
-done
-if [[ "$mode" != 2 ]]; then
-  adb shell cmd overlay list | grep -i navbar || true
-  echo "::error title=Emulator::Gesture navigation didn't turn on (navigation_mode $mode, expected 2)."
-  exit 1
-fi
-echo "Navigation: gestures (navigation_mode 2)"
 # The app is offline; no network means no background syncs or scans. The screen stays on for the whole run.
 adb shell svc wifi disable || true
 adb shell svc data disable || true
