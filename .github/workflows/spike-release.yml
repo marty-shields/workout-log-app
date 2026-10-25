@@ -84,7 +84,10 @@ jobs:
           echo "::endgroup::"
           echo "::group::Create the AVD"
           echo no | "$sdk/avdmanager" create avd -n "$AVD" -k "$SYSTEM_IMAGE" -d pixel_7
-          cat "$HOME/.android/avd/$AVD.avd/config.ini"
+          "$sdk/avdmanager" list avd
+          echo "ANDROID_USER_HOME=${ANDROID_USER_HOME:-} ANDROID_AVD_HOME=${ANDROID_AVD_HOME:-} ANDROID_SDK_ROOT=${ANDROID_SDK_ROOT:-}"
+          avd_path=$("$sdk/avdmanager" list avd | sed -n 's/^ *Path: //p' | head -n 1)
+          cat "$avd_path/config.ini"
           echo "::endgroup::"
           echo "::group::Emulator version and acceleration"
           "$ANDROID_HOME/emulator/emulator" -version | head -n 3
@@ -112,10 +115,12 @@ jobs:
         run: npm ci --ignore-scripts
 
       - name: Build the App (Debug)
+        id: app
         run: dotnet build src/WorkoutLog.App -f net10.0-android
 
       # Reports every 15 s; fails at once if the emulator process ends, and after 15 minutes.
       - name: Wait for the emulator
+        id: boot
         run: |
           pid=$(cat "$RUNNER_TEMP/emulator.pid")
           log="$RUNNER_TEMP/emulator.log"
@@ -181,14 +186,16 @@ jobs:
           dotnet test tests/WorkoutLog.E2E.Tests --filter "$E2E_FILTER" --logger "console;verbosity=detailed" \
             --logger "trx;LogFileName=e2e.trx" --results-directory "$RESULTS/trx" -- "${parameters[@]}"
 
+      # Runs even when the E2E tests fail, once the emulator and .NET are ready.
       - name: Release smoke build (x64, debug key)
-        if: ${{ !cancelled() }}
+        id: smoke
+        if: ${{ !cancelled() && steps.app.outcome == 'success' && steps.boot.outcome == 'success' }}
         run: |
           dotnet publish src/WorkoutLog.App -c Release -f net10.0-android -p:AndroidPackageFormat=apk \
             -p:RuntimeIdentifiers=android-x64 -o "$RUNNER_TEMP/smoke"
 
       - name: Release smoke launch
-        if: ${{ !cancelled() }}
+        if: ${{ !cancelled() && steps.smoke.outcome == 'success' }}
         run: .github/spike/release-smoke.sh "$RUNNER_TEMP/smoke/uk.martinshields.workoutlog-Signed.apk"
 
       # Runs on a failure or a cancel too, so the logs are kept.
