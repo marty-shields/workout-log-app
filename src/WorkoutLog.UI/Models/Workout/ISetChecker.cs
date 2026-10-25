@@ -2,7 +2,7 @@ using WorkoutLog.Core.Domain.Workouts;
 
 namespace WorkoutLog.UI.Models.Workout;
 
-/// <summary>Checks the entered text of one strength set or cardio entry against the exercise's rules (docs/03).</summary>
+/// <summary>Checks the entered text of one strength set or cardio entry against the exercise's rules (docs/02).</summary>
 public interface ISetChecker
 {
     /// <summary>

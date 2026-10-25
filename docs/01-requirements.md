@@ -1,4 +1,4 @@
-# 02 — Requirements
+# 01 — Requirements
 
 ## Functional
 
@@ -7,10 +7,10 @@
 |---|---|---|
 | FR-01 | Start a workout | Opening New Workout records the start time (date + time). |
 | FR-02 | Live timer | The New Workout screen shows elapsed time (h:mm:ss) since the start, updating live. |
-| FR-03 | Add an exercise | Pick from the fixed exercise list. A search box filters it by name or nickname, every word in any order ([03](03-data-model.md#exercise-search)). With no search text, the full list shows A–Z, grouped Strength / Cardio. The exercise is added at the bottom of the workout. A strength exercise starts with one empty set; a cardio exercise starts with its empty entry. |
+| FR-03 | Add an exercise | Pick from the fixed exercise list. A search box filters it by name or nickname, every word in any order ([02](02-data-model.md#exercise-search)). With no search text, the full list shows A–Z, grouped Strength / Cardio. The exercise is added at the bottom of the workout. A strength exercise starts with one empty set; a cardio exercise starts with its empty entry. |
 | FR-04 | Same exercise again | An exercise appears once in a workout. Picking one already added goes to its card: a strength exercise gets a new set, as Add set does, and focus moves to it; a cardio exercise focuses its entry (D154). |
 | FR-05 | Order | Exercises and sets show in the order they were added. No reordering. |
-| FR-06 | Strength sets | Any number of sets. Each set shows only the metrics the exercise declares (reps, weight kg, duration, distance) and enforces the ones it marks as required. Dumbbell weight is per dumbbell. See [04](04-exercise-list.md). Add set, and opening another set, wait until the current set is valid; its errors show on it (D106). |
+| FR-06 | Strength sets | Any number of sets. Each set shows only the metrics the exercise declares (reps, weight kg, duration, distance) and enforces the ones it marks as required. Dumbbell weight is per dumbbell. See [03](03-exercise-list.md). Add set, and opening another set, wait until the current set is valid; its errors show on it (D106). |
 | FR-07 | Cardio entry | Exactly one entry per cardio exercise. Duration is always required. The other metrics (distance, floors, level, incline, calories, rate, pace) show only if the exercise declares them, and are optional. |
 | FR-08 | Remove | A set or a whole exercise can be removed while logging or editing. A cardio entry is removed only with its exercise. |
 | FR-09 | Save button | The workout page has a Save button. Save is allowed only when the workout has at least one exercise, every exercise has at least one set or entry, and every set and entry has all its required metrics. Otherwise the page stays open, the error shows on the exercise or set at fault, and nothing is saved. |
@@ -45,7 +45,7 @@
 | FR-40 | Fixed list | Exercises ship with the app. They cannot be added, edited or deleted in the app. |
 | FR-41 | Type | Each exercise is Strength or Cardio. |
 | FR-42 | Metrics | Each exercise declares which metrics it shows, which are required and any field label (e.g. Assist (kg), Resistance, Damper), plus its distance, rate and pace units where relevant. |
-| FR-43 | Exercise details | Each exercise has nicknames for search. Strength exercises also have a primary muscle, equipment and mechanic (compound/isolation), which are stored but not shown in v1. |
+| FR-43 | Exercise details | Each exercise has nicknames for search. Strength exercises also have a primary muscle, equipment and mechanic (compound/isolation), which are stored but not shown. |
 
 ## Non-functional
 | ID | Requirement |

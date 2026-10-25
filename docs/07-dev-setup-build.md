@@ -1,4 +1,4 @@
-# 08 — Dev Setup & Build
+# 07 — Dev Setup & Build
 
 ## App identity
 - Display name: **Workout Log**
@@ -14,14 +14,12 @@
 - Optional: an Android emulator for API 36, to run the E2E tests without the phone ([Use an emulator](#use-an-emulator)). Creating one needs admin rights when the SDK is in Program Files.
 - For the E2E tests: Node.js 20.19+, 22.12+ or 24+, and the `ANDROID_HOME` and `JAVA_HOME` environment variables ([E2E tests](#e2e-tests)). Appium and its driver come from the repo; Chromedriver downloads itself.
 - Git, and the GitHub CLI (`gh`) signed in as the repo owner ([Source control](#source-control))
-- Optional: BlazingStory templates, to add story files with `dotnet new bstories`: `dotnet new install BlazingStory.ProjectTemplates::1.0.0-preview.96`
 
 The stories need only the .NET 10 SDK. They don't need the MAUI workload, Android SDK or phone.
 
 ## Stories (design system and prototypes)
 - `dotnet run --project src/WorkoutLog.UI.Stories`, then open http://localhost:5056
 - Story files are `*.stories.razor` in `src/WorkoutLog.UI.Stories/Stories/`.
-- Component tests: `dotnet test tests/WorkoutLog.UI.Tests`
 
 ## Phone setup (Android 16)
 1. Settings → About phone → tap **Build number** 7 times to enable Developer options.
@@ -40,14 +38,14 @@ Without USB, use wireless debugging (phone and PC on the same Wi-Fi):
 - Debug builds install as "Workout Log (Dev)". They embed their assemblies in the APK (no Fast Deployment), so the APK runs on its own (T78).
 
 ## Reading the logs
-Debug and Release builds both log to logcat and to a file ([05](05-architecture.md#logging)).
+Debug and Release builds both log to logcat and to a file ([04](04-architecture.md#logging)).
 - **Logcat** (phone connected): `adb logcat -s WorkoutLog`. Add `-d` to print what's there and stop.
 - **File:** `adb pull /sdcard/Android/data/<package id>/files/logs/`, with the package id from [App identity](#app-identity). The folder holds `workoutlog.log` and, after it reaches 1 MB, the older `workoutlog.1.log`. Uninstalling the app deletes it.
 - If the phone has no external storage, the file is in the app data folder instead. Only the Debug app's can be read: `adb shell run-as uk.martinshields.workoutlog.debug cat files/logs/workoutlog.log`.
 - Each line: UTC time (file only), level, category, `[EventId]`, message, then any exception.
 
 ## E2E tests
-`WorkoutLog.E2E.Tests` drives the Debug app on a device through Appium ([07](07-testing.md#e2e-tests-appium)).
+`WorkoutLog.E2E.Tests` drives the Debug app on a device through Appium ([06](06-testing.md#e2e-tests-appium)).
 
 ### One-time setup
 1. Set the user environment variables, then restart the terminal and IDE:
@@ -67,7 +65,7 @@ Debug and Release builds both log to logcat and to a file ([05](05-architecture.
    dotnet test tests/WorkoutLog.E2E.Tests --filter "Category=US-17"
    dotnet test tests/WorkoutLog.E2E.Tests --filter "FullyQualifiedName~EditWorkoutFeature"
    ```
-   The release workflow runs every scenario before each release (D204). With more than one device connected, name one: add `-- 'TestRunParameters.Parameter(name="DeviceUdid", value="<id from adb devices>")'`.
+   With more than one device connected, name one: add `-- 'TestRunParameters.Parameter(name="DeviceUdid", value="<id from adb devices>")'`.
 
 What a run does:
 - Starts Appium from `node_modules` on a free port and stops it at the end.
@@ -109,7 +107,7 @@ The Debug APK holds both arm64 (phone) and x86_64 (emulator) code, so the same b
 
 ### E2E in the release workflow
 The [PR build](#ci) doesn't run the E2E tests; the [release workflow](#release-signed-apk) runs all of them on emulators.
-- 8 jobs (the `e2e` matrix in `release.yml`), each on `ubuntu-latest` with KVM and one emulator: API 36 AOSP image (`system-images;android-36;default;x86_64`), 3 cores, 4 GB, software GPU. `.github/scripts/emulator-start.sh` creates and starts it; `emulator-wait.sh` waits for the boot, then turns off animations, error dialogs, Wi-Fi and data and keeps the screen on.
+- The `e2e` matrix in `release.yml` runs one job per shard, each with one API 36 emulator (`emulator-start.sh`, `emulator-wait.sh`).
 - `e2e-shard.sh` splits the scenarios by whole feature, the largest first, each to the job with the fewest scenarios. A job that gets no features fails.
 - Each job builds the Debug App and runs its features with `DeviceUdid` = `emulator-5554` and the run setting `ChromedriverExecutable` (`e2e-run.sh`). Failed scenarios show as annotations and each run adds a results table to the run's summary.
 - Only the scenarios that failed run again, up to 3 tries in all; the job fails if one still fails. A scenario that passes on a retry gets a warning annotation, and its failed try stays in the summary (T109). Local runs don't retry.
@@ -130,12 +128,10 @@ The [PR build](#ci) doesn't run the E2E tests; the [release workflow](#release-s
 ## Release: signed APK
 `.github/workflows/release.yml` ("Release") builds, tests, signs and publishes from `main`. Run it from Actions → Release → **Run workflow** on `main`.
 
-| Job | Does |
-|---|---|
-| `version` | Fails off `main` or while `CERT_SHA256` is empty. Release tags are `vX.Y.Z` only. No `v*` tag yet: `1.0.0`. Otherwise maps each commit since the last `v*` tag to its PR and bumps by the highest `semver:*` label. A PR without exactly one label fails the run, naming it; no PRs ends the run green with nothing released. Version code: number of `v*` tags + 1 (`next-version.sh`) |
-| `build` | The [PR build](#ci) (build, Core and UI tests) |
-| `e2e`, `release-smoke` | [E2E in the release workflow](#e2e-in-the-release-workflow) |
-| `release` | After the jobs above pass, waits for the owner to approve the `release` environment. Builds the Release APK for arm64, signed with the release keystore, with the version and code. `check-apk.sh` fails unless it has one signer with the pinned cert (`CERT_SHA256`), the version and code, isn't debuggable and holds arm64 only. Then creates the release `vX.Y.Z` and its tag on the run's commit |
+- `version`: fails off `main`. Works out the next version from the highest `semver:*` label among the PRs merged since the last `vX.Y.Z` tag, or `1.0.0` for the first (`next-version.sh`). Version code: number of `v*` tags + 1. A PR without exactly one label fails the run; no PRs ends it green with nothing released.
+- `build`: the [PR build](#ci).
+- `e2e`, `release-smoke`: [E2E in the release workflow](#e2e-in-the-release-workflow).
+- `release`: waits for the owner to approve the `release` environment, builds the arm64 Release APK signed with the release keystore, checks it (`check-apk.sh`: the pinned cert `CERT_SHA256`, version, not debuggable, arm64 only), then creates the release `vX.Y.Z` and its tag on the run's commit.
 
 A failed run creates no tag or release: fix the cause and run it again. The release holds `WorkoutLog-X.Y.Z.apk`, its `.sha256`, and notes listing the merged PRs under the signing cert's fingerprint.
 
@@ -145,17 +141,12 @@ Settings outside the repo (D224, D226, T102):
 - Ruleset `Protect release tags`: `v*` tags can't be deleted or moved, with no bypass, so the version code only goes up.
 
 ### Install or update on the phone
-1. Download `WorkoutLog-X.Y.Z.apk` from the [latest release](https://github.com/marty-shields/workout-log-app/releases/latest).
-2. Check it: `apksigner verify --print-certs WorkoutLog-X.Y.Z.apk` (in `%ANDROID_HOME%\build-tools\<version>`) must show the SHA-256 digest of [the release cert](#keystore-handling). Optionally compare `Get-FileHash WorkoutLog-X.Y.Z.apk` with the `.sha256` file.
-3. `adb install -r WorkoutLog-X.Y.Z.apk`, or copy it to the phone and open it (allow "install unknown apps" for the file manager). An update installs over the app and keeps its data.
+See the README's [Install](../README.md#install). An update installs over the app and keeps its data.
 
 **The same keystore must sign every future APK.** If it's lost, updates can't be installed over the existing app. The only way back is to uninstall, which wipes all workout data.
 
 ## Keystore handling
-- Created once with the JDK's `keytool`: PKCS12, RSA 4096, valid 10000 days, one password for the store and the key:
-  ```
-  keytool -genkeypair -v -keystore <path>\workoutlog-release.keystore -storetype PKCS12 -alias <alias> -keyalg RSA -keysize 4096 -validity 10000
-  ```
+- PKCS12, RSA 4096, valid 10000 days, one password for the store and the key (T101).
 - Release cert SHA-256: `5D:6A:C3:4B:86:B8:29:8D:04:DE:18:5C:9B:D8:3C:27:C8:31:76:CB:F9:BD:F8:35:A8:CA:C4:95:57:1B:CD:AC`. It is also `CERT_SHA256` in `release.yml`.
 - The keystore file lives outside the repo and is listed in `.gitignore`. CI gets it only through the `release` environment's secrets; the owner sets them, base64 for the file. The workflow writes it to the runner's temp folder and deletes it after the build.
 - The owner keeps one backup of the keystore file with its passwords and alias, in a private location that is not recorded in the repo (D220).
@@ -167,7 +158,5 @@ Settings outside the repo (D224, D226, T102):
 - `gh` reads its login from the folder in `GH_CONFIG_DIR`, which holds only the owner's account. `.claude/settings.local.json` sets it for Claude Code and `.vscode/settings.json` for VS Code terminals; both are local and gitignored. Sign in once with `$env:GH_CONFIG_DIR="$HOME\.config\gh-personal"; gh auth login --web --scopes project,workflow`, and answer No to authenticating Git.
 - `main` is protected by the `Protect main` ruleset: no direct pushes, force pushes or deletion. Changes go through a PR, with no required approvals, and the `build-and-test` and `pr-checks` checks must pass. PRs are opened as drafts; the reviewer marks them ready and squash-merges. The PR title becomes the commit title; merged branches are deleted.
 - Branches: `type/us-xx-slug`, the Conventional Commit type and the story ID (e.g. `feat/us-26-signed-release-apk`). Work that isn't a story leaves out the ID (e.g. `chore/update-readme`).
-- Backlog: the [Workout Log project](https://github.com/users/marty-shields/projects/2) ([ways of working](README.md#ways-of-working)).
-- `.gitignore` (T39, T90): build output and logs, test results, IDE and per-user files (`*.user`, `.vscode/`, `.claude/settings.local.json`), APKs, signing keys and secrets (`*.apk`, `*.aab`, `*.keystore`, `*.jks`, `*.pfx`, `*.p12`, `*.pem`, `*.key`, `.env`), tool output (including `node_modules/` and `.chromedriver/`) and OS files.
+- `.gitignore` keeps build output, logs, test results, per-user files, APKs, signing keys and secrets out of the repo (T39, T90).
 - `nuget.config` restores from nuget.org only (T40).
-- Commit messages and PR titles: Conventional Commits.
