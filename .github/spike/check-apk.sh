@@ -8,9 +8,12 @@ tools=$(ls -d "$ANDROID_HOME"/build-tools/* | sort -V | tail -n 1)
 
 fail() { echo "::error title=APK check::$1"; exit 1; }
 
+echo "::group::apksigner $(basename "$tools")"
 signers=$("$tools/apksigner" verify --print-certs "$apk")
-digests=$(sed -n 's/^Signer #[0-9]* certificate SHA-256 digest: //p' <<<"$signers")
-[[ $(grep -c . <<<"$digests") -eq 1 ]] || fail "The APK must have exactly one signer."
+echo "$signers"
+echo "::endgroup::"
+digests=$(sed -n 's/^Signer.* certificate SHA-256 digest: //p' <<<"$signers" | sort -u)
+[[ $(grep -c . <<<"$digests") -eq 1 ]] || fail "The APK must have exactly one signing cert; it has: ${digests:-none}"
 pinned=$(tr -d ':' <<<"$cert" | tr 'A-F' 'a-f')
 [[ -n "$pinned" && "$digests" == "$pinned" ]] || fail "The APK's signing cert ($digests) isn't the pinned release cert. Check the release environment's keystore secret."
 
