@@ -6,7 +6,7 @@ using WorkoutLog.Core.Logging;
 namespace WorkoutLog.Core.Data;
 
 /// <summary>Seeds the Exercise table from <see cref="IExerciseCatalog"/> in one transaction.</summary>
-public sealed partial class ExerciseSeeder(SQLiteAsyncConnection connection, IExerciseCatalog catalog, ILogger<ExerciseSeeder> logger) : IExerciseSeeder
+internal sealed partial class ExerciseSeeder(SQLiteAsyncConnection connection, IExerciseCatalog catalog, ILogger<ExerciseSeeder> logger) : IExerciseSeeder
 {
     /// <inheritdoc />
     public async Task SeedAsync()

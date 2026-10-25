@@ -28,4 +28,5 @@ A personal Android app that replaces a paper workout notebook.
 - **Size:** the project's Size field: XS, S, M, L, XL. Relative effort only.
 - **Status:** the project's Status field: To do, In progress, Blocked, Done.
 - **Issue numbers:** EP-01…EP-09 are #1…#9 and US-01…US-38 are #10…#47. Later stories and PRs take the next free number.
+- **Ticket review:** on request, an agent runs three independent reviews of a story's branch (requirements, code and tests, security), fixes the dead certs and asks about the rest, before the local review ([ticket-review](../.agents/skills/ticket-review/SKILL.md), T100).
 - **Delivery:** one branch per story, `type/us-xx-slug`. After local review, the commit is pushed and a DRAFT PR opened that closes the story's issue. The PR build must pass; the reviewer marks the PR ready and squash-merges it, which closes the issue ([08](08-dev-setup-build.md#source-control), [11](11-product-goal.md)).

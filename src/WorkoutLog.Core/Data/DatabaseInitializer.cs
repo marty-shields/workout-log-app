@@ -5,7 +5,7 @@ using WorkoutLog.Core.Logging;
 namespace WorkoutLog.Core.Data;
 
 /// <summary>Upgrades the schema version stored in SQLite <c>user_version</c>, creates missing tables, then seeds the exercise list.</summary>
-public sealed partial class DatabaseInitializer : IDatabaseInitializer
+internal sealed partial class DatabaseInitializer : IDatabaseInitializer
 {
     /// <summary>The app's schema version.</summary>
     public const int CurrentVersion = 1;

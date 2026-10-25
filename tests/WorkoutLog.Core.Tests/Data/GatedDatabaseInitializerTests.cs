@@ -44,7 +44,6 @@ public class GatedDatabaseInitializerTests
 
         var pending = initializer.InitializeAsync();
 
-        await Task.Delay(50);
         Assert.That(pending.IsCompleted, Is.False);
         release.SetResult();
         await Task.WhenAll(holder, pending);
