@@ -18,8 +18,9 @@ env:
   AVD: WorkoutLog_API36
   # AOSP image: no Play services or Gboard, so less background work on the runner.
   SYSTEM_IMAGE: system-images;android-36;default;x86_64
-  CHROMEDRIVER_VERSION: ''
-  CHROMEDRIVER_SHA256: ''
+  # Chrome for Testing build for the image's WebView major version (133.0.6943.137).
+  CHROMEDRIVER_VERSION: 133.0.6943.141
+  CHROMEDRIVER_SHA256: d3826586626a8e91d8b1d2da76423e2b4fd7179148284afe4677c72dcd0f1a27
   CERT_SHA256: 'E4:37:88:10:3D:1A:15:73:71:D6:1E:D4:F8:30:9C:27:54:6B:1A:B8:44:46:52:16:44:D7:43:CA:5E:8C:A1:E9'
 
 jobs:
@@ -55,7 +56,7 @@ jobs:
   # One emulator per runner; each shard runs whole features (e2e-shard.sh). The matrix size matches E2E_SHARDS.
   e2e:
     needs: version
-    if: false # TEMP: off while fixing the release job
+    if: needs.version.outputs.release == 'true'
     name: e2e (${{ matrix.shard }}/8)
     runs-on: ubuntu-latest
     timeout-minutes: 90
@@ -152,7 +153,7 @@ jobs:
   # A Release build of the same commit (x64, debug key, never published) starts cleanly on an emulator.
   release-smoke:
     needs: version
-    if: false # TEMP: off while fixing the release job
+    if: needs.version.outputs.release == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 45
     env:
@@ -203,7 +204,7 @@ jobs:
           if-no-files-found: ignore
 
   release:
-    needs: [version] # TEMP: was [version, build, e2e, release-smoke]
+    needs: [version, build, e2e, release-smoke]
     if: needs.version.outputs.release == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 45
