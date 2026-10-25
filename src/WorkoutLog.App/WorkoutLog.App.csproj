@@ -12,8 +12,6 @@
 
     <ApplicationTitle>Workout Log</ApplicationTitle>
     <ApplicationId>uk.martinshields.workoutlog</ApplicationId>
-    <ApplicationDisplayVersion>1.0.0</ApplicationDisplayVersion>
-    <ApplicationVersion>1</ApplicationVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)' == 'Debug'">

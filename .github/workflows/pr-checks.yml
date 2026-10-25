@@ -1,0 +1,42 @@
+# Checks every PR to main: the title is a Conventional Commit and the PR has exactly one semver label.
+name: PR checks
+
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, edited, synchronize, reopened, labeled, unlabeled]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pr-checks-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  pr-checks:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      # The title is read from the environment, never written into the script.
+      - name: Title is a Conventional Commit
+        env:
+          TITLE: ${{ github.event.pull_request.title }}
+        run: |
+          pattern='^(build|chore|ci|docs|feat|fix|perf|refactor|revert|style|test)(\([^()]+\))?!?: [^ ]'
+          if [[ ! "$TITLE" =~ $pattern ]]; then
+            echo "::error title=PR title::The title must be a Conventional Commit: type(scope)!: description, with type one of build, chore, ci, docs, feat, fix, perf, refactor, revert, style, test. Scope and ! are optional."
+            exit 1
+          fi
+
+      # Runs even when the title check fails.
+      - name: Exactly one semver label
+        if: ${{ !cancelled() }}
+        env:
+          LABELS: ${{ toJSON(github.event.pull_request.labels.*.name) }}
+        run: |
+          count=$(jq '[.[] | select(test("^semver:(major|minor|patch)$"))] | length' <<<"$LABELS")
+          if [[ "$count" -ne 1 ]]; then
+            echo "::error title=Semver label::The PR needs exactly one of the labels semver:major, semver:minor, semver:patch; it has $count."
+            exit 1
+          fi

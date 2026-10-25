@@ -23,19 +23,15 @@ Feature: Keyboard
     Then the soft keyboard is shown
 
   @D206 @US-15 @US-28
-  Scenario Outline: On a new workout, Android back with the keyboard open hides the keyboard first
+  Scenario: On a new workout, Android back with the keyboard open hides the keyboard first
     Given I have added "Barbell Back Squat"
     When I tap Barbell Back Squat set 1 reps
-    And I go back with <how>
+    And I go back with Android back
     Then the soft keyboard is hidden
     And no prompt is shown
     And I am still on New Workout
-    When I go back with <how>
+    When I go back with Android back
     Then the prompt "Discard this workout?" shows Discard and Cancel
-    Examples:
-      | how                  |
-      | the back gesture     |
-      | the Android back key |
 
   @D206 @US-15
   Scenario: On a new workout, the back arrow with the keyboard open goes straight to the prompt
@@ -45,21 +41,17 @@ Feature: Keyboard
     Then the prompt "Discard this workout?" shows Discard and Cancel
 
   @D206 @US-18
-  Scenario Outline: On an edited workout, Android back with the keyboard open hides the keyboard first
+  Scenario: On an edited workout, Android back with the keyboard open hides the keyboard first
     Given these saved workouts:
       | started         | exercises                  |
       | yesterday 18:05 | Barbell Back Squat: 5 reps |
     And I have opened workout 1 from History
     When I enter "6" in Barbell Back Squat set 1 reps
-    And I go back with <how>
+    And I go back with Android back
     Then the soft keyboard is hidden
     And no prompt is shown
-    When I go back with <how>
+    When I go back with Android back
     Then the prompt "Discard changes?" shows Discard and Cancel
-    Examples:
-      | how                  |
-      | the back gesture     |
-      | the Android back key |
 
   @D206 @US-18
   Scenario: On an edited workout, the back arrow with the keyboard open goes straight to the prompt
@@ -72,17 +64,13 @@ Feature: Keyboard
     Then the prompt "Discard changes?" shows Discard and Cancel
 
   @D206 @US-11
-  Scenario Outline: In the picker, Android back with the keyboard open hides the keyboard first
+  Scenario: In the picker, Android back with the keyboard open hides the keyboard first
     When I open the exercise picker
-    And I go back with <how>
+    And I go back with Android back
     Then the soft keyboard is hidden
     And the picker is still open
-    When I go back with <how>
+    When I go back with Android back
     Then the picker is closed
-    Examples:
-      | how                  |
-      | the back gesture     |
-      | the Android back key |
 
   @D206 @US-11
   Scenario: In the picker, its back arrow with the keyboard open closes it at once

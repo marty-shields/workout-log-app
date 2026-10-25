@@ -73,10 +73,12 @@ public sealed class AppHooks(ScenarioContext scenario, DeviceClock clock, Native
         }
     }
 
+    /// <summary>Characters replaced in a failed scenario's folder name, with control characters and spaces: those Windows or Actions artifacts don't allow.</summary>
+    private static readonly char[] InvalidFileNameChars = ['"', '<', '>', ':', '|', '?', '*', '\\', '/'];
+
     private static string FileName(string title)
     {
-        var invalid = Path.GetInvalidFileNameChars();
-        var name = new string(title.Select(c => invalid.Contains(c) || c == ' ' ? '-' : c).ToArray());
+        var name = new string(title.Select(c => InvalidFileNameChars.Contains(c) || char.IsControl(c) || c == ' ' ? '-' : c).ToArray());
         return name.Length > 60 ? name[..60] : name;
     }
 

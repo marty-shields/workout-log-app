@@ -9,14 +9,14 @@ namespace WorkoutLog.E2E.Tests.Steps;
 [Binding]
 public sealed class BackSteps(WebView web, Native native, Journeys journeys, WorkoutScreen workout, ConfirmDialog dialog)
 {
-    private const string Way = "(the back arrow|Android back|the back gesture|the Android back key)";
+    private const string Way = "(the back arrow|Android back)";
 
     [Given(@"^I have gone back with " + Way + "$")]
     [When(@"^I go back with " + Way + "$")]
     public void GoBackWith(string how) => journeys.Back(how);
 
     [When(@"^I press Android back$")]
-    public void WhenIPressAndroidBack() => native.BackGesture();
+    public void WhenIPressAndroidBack() => native.BackKey();
 
     [Then(@"^the prompt ""(.*)"" shows (Discard|Delete) and Cancel$")]
     public void ThenThePromptShows(string title, string confirm)

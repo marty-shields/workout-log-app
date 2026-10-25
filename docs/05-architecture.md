@@ -154,7 +154,7 @@ Confirmed in US-02 (D75), updated by D218. This is the list of approved packages
 | Microsoft.Extensions.TimeProvider.Testing | Core.Tests, UI.Tests | `FakeTimeProvider` (T31) |
 | Microsoft.Extensions.Diagnostics.Testing | Core.Tests, UI.Tests | `FakeLogger` (T43) |
 | bunit | UI.Tests | Component tests |
-| GitHubActionsTestLogger | Core.Tests, UI.Tests | Reports test results in the PR build (T95) |
+| GitHubActionsTestLogger | Core.Tests, UI.Tests, E2E.Tests | Reports test results in the PR build and the release workflow (T95, T105) |
 | Appium.WebDriver | E2E.Tests | UI automation (Selenium). Checked against the Appium version in `package.json` (T76) |
 | Reqnroll.NUnit | E2E.Tests | Runs the Gherkin features on NUnit (T80). Brings in Reqnroll, Gherkin and the Cucumber packages |
 | Microsoft.Extensions.DependencyInjection | E2E.Tests | Builds Core's services to seed workouts (T81) |
@@ -166,7 +166,7 @@ npm devDependencies in `tests/WorkoutLog.E2E.Tests/package.json`, approved in US
 | Package | Purpose |
 |---|---|
 | appium | Appium server, started by the E2E tests |
-| appium-uiautomator2-driver | Android driver. Downloads Chromedriver for the device's WebView |
+| appium-uiautomator2-driver | Android driver. Downloads Chromedriver for the device's WebView; the release workflow passes a pinned one (T106) |
 
 GitHub Actions in `.github/workflows/`, pinned by commit SHA (T91):
 
@@ -174,6 +174,8 @@ GitHub Actions in `.github/workflows/`, pinned by commit SHA (T91):
 |---|---|
 | actions/checkout | Checks out the repo |
 | actions/setup-dotnet | Installs the .NET 10 SDK |
+| actions/setup-node | Installs Node.js 24 for Appium in the release workflow (T105) |
+| actions/upload-artifact | Keeps the E2E and release smoke results for 1 day (T105) |
 
 MAUI packages (`Microsoft.Maui.Controls`, `Microsoft.AspNetCore.Components.WebView.Maui`) come from the template, pinned with `MauiVersion` in the App project (T38).
 

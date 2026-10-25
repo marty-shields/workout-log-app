@@ -17,7 +17,8 @@ namespace WorkoutLog.E2E.Tests;
 /// installing the Debug APK and locking the screen in portrait. At the end it closes the Debug app, leaving it installed,
 /// puts back the rotation settings and removes Appium's helper apps from the device.
 /// Writes the server log to <c>TestResults/E2E/&lt;run&gt;/appium.log</c>.
-/// Run setting: optional <c>DeviceUdid</c>; without it the first device adb lists is used.
+/// Run settings: optional <c>DeviceUdid</c>; without it the first device adb lists is used.
+/// Optional <c>ChromedriverExecutable</c>, a Chromedriver binary to use; without it Chromedriver downloads itself.
 /// </summary>
 [SetUpFixture]
 [Explicit("Needs a device")]
@@ -68,7 +69,6 @@ public class AppiumSetup
         RunFolder = Path.Combine(project, "TestResults", "E2E", DateTime.Now.ToString("yyyyMMdd-HHmmss"));
         ServerLog = Path.Combine(RunFolder, "appium.log");
         Directory.CreateDirectory(RunFolder);
-        var chromedrivers = Directory.CreateDirectory(Path.Combine(project, ".chromedriver")).FullName;
 
         var options = new AppiumOptions
         {
@@ -77,7 +77,20 @@ public class AppiumSetup
         };
         options.AddAdditionalAppiumOption("recreateChromeDriverSessions", true);
         options.AddAdditionalAppiumOption("adbExecTimeout", (int)TimeSpan.FromMinutes(1).TotalMilliseconds);
-        options.AddAdditionalAppiumOption("chromedriverExecutableDir", chromedrivers);
+        var arguments = new OptionCollector();
+        var chromedriver = TestContext.Parameters.Get("ChromedriverExecutable");
+        if (chromedriver is null)
+        {
+            var chromedrivers = Directory.CreateDirectory(Path.Combine(project, ".chromedriver")).FullName;
+            options.AddAdditionalAppiumOption("chromedriverExecutableDir", chromedrivers);
+            arguments.AddArguments(new("--allow-insecure", "uiautomator2:chromedriver_autodownload"));
+        }
+        else
+        {
+            Require(File.Exists(chromedriver), $"ChromedriverExecutable {chromedriver} is missing.");
+            options.AddAdditionalAppiumOption("chromedriverExecutable", chromedriver);
+        }
+
         var udid = TestContext.Parameters.Get("DeviceUdid");
         adb = new Adb(udid);
         if (udid is not null)
@@ -93,7 +106,7 @@ public class AppiumSetup
                 .WithIPAddress("127.0.0.1")
                 .UsingAnyFreePort()
                 .WithEnvironment(new Dictionary<string, string> { ["APPIUM_HOME"] = project })
-                .WithArguments(new OptionCollector().AddArguments(new("--allow-insecure", "uiautomator2:chromedriver_autodownload")))
+                .WithArguments(arguments)
                 .WithLogFile(new FileInfo(ServerLog))
                 .Build();
             service.Start();
