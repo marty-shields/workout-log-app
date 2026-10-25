@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# SPIKE ONLY. Usage: e2e-shard.sh <shard> <shards>
+# Usage: e2e-shard.sh <shard> <shards>
 # Prints the dotnet test filter for one shard: whole features, the largest first, each to the shard with the fewest scenarios.
 # Needs the E2E project built.
 set -euo pipefail

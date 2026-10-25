@@ -73,7 +73,7 @@ public sealed class AppHooks(ScenarioContext scenario, DeviceClock clock, Native
         }
     }
 
-    /// <summary>Characters Windows and Actions artifacts don't allow in a path; Linux allows all but '/'.</summary>
+    /// <summary>Characters replaced in a failed scenario's folder name, with control characters and spaces: those Windows or Actions artifacts don't allow.</summary>
     private static readonly char[] InvalidFileNameChars = ['"', '<', '>', ':', '|', '?', '*', '\\', '/'];
 
     private static string FileName(string title)

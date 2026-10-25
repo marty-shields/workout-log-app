@@ -1,14 +1,16 @@
 #!/usr/bin/env bash
-# SPIKE ONLY. Usage: next-version.sh <tag prefix> <target sha>. Needs GH_TOKEN and GITHUB_REPOSITORY.
+# Usage: next-version.sh <tag prefix> <target sha>. Needs GH_TOKEN and GITHUB_REPOSITORY.
 # Writes release, version and code to $GITHUB_OUTPUT (or stdout).
 set -euo pipefail
 prefix="$1"
 target="$2"
 out="${GITHUB_OUTPUT:-/dev/stdout}"
 
-tags=$(git tag --list "${prefix}[0-9]*.[0-9]*.[0-9]*")
+# Release tags only: <prefix>X.Y.Z.
+semver="^${prefix}[0-9]+\.[0-9]+\.[0-9]+$"
+tags=$(git tag --list "${prefix}*" | grep -E "$semver" || true)
 code=$(( $(grep -c . <<<"$tags" || true) + 1 ))
-last=$(git tag --list "${prefix}[0-9]*.[0-9]*.[0-9]*" --merged "$target" --sort=-v:refname | head -n 1)
+last=$(git tag --list "${prefix}*" --merged "$target" --sort=-v:refname | { grep -E "$semver" || true; } | head -n 1)
 
 if [[ -z "$last" ]]; then
   version=1.0.0

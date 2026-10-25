@@ -79,7 +79,7 @@ public sealed class WebView
         {
             text = Find(testId).Text.Trim();
             return true;
-        }, $"no element {testId}");
+        }, $"{testId} kept changing while read");
         return text;
     }
 

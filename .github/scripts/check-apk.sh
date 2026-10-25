@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# SPIKE ONLY. Usage: check-apk.sh <apk> <version> <code> <cert SHA-256, keytool format> <out dir>
+# Usage: check-apk.sh <apk> <version> <code> <cert SHA-256, keytool format> <out dir>
 # Fails unless the APK is signed by the pinned cert, has the version and code, isn't debuggable and holds arm64 only.
 # Writes WorkoutLog-<version>.apk, its .sha256 and notes.md to the out dir.
 set -euo pipefail

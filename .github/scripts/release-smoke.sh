@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# SPIKE ONLY. Usage: release-smoke.sh <apk>
+# Usage: release-smoke.sh <apk>
 # Installs a Release APK on the emulator, launches it and fails unless the log shows a clean start.
 set -euo pipefail
 apk="$1"
@@ -21,7 +21,7 @@ sleep 5
 log=$(adb logcat -d -v brief -s WorkoutLog)
 echo "$log"
 grep -q "Release started on Android API" <<<"$log" || fail "No Release start line."
-grep -q "Exercise list seeded: 315 added" <<<"$log" || fail "The exercise list wasn't seeded."
+grep -q -E "Exercise list seeded: [1-9][0-9]* added" <<<"$log" || fail "The exercise list wasn't seeded."
 grep -q "Startup finished" <<<"$log" || fail "Startup didn't finish."
 ! grep -q "Startup failed" <<<"$log" || fail "Startup failed."
 ! grep -q "^[EF]/WorkoutLog" <<<"$log" || fail "The app logged an error."

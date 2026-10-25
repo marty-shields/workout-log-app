@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# SPIKE ONLY. Enables KVM, installs the emulator and $SYSTEM_IMAGE, creates the AVD $AVD and starts it in the background.
+# Enables KVM, installs the emulator and $SYSTEM_IMAGE, creates the AVD $AVD and starts it in the background.
 # Writes $RUNNER_TEMP/emulator.log and emulator.pid; adds platform-tools to the PATH and ANDROID_AVD_HOME to the job's env.
 set -euo pipefail
 sdk="$ANDROID_HOME/cmdline-tools/latest/bin"

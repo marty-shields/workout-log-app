@@ -1,4 +1,4 @@
-# SPIKE ONLY (US-26): the release workflow with spike settings. Never merged.
+# SPIKE ONLY (US-26): release.yml with spike settings. Never merged.
 name: Spike release
 
 on:
@@ -13,14 +13,13 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  TAG_PREFIX: spike-v
-  E2E_SHARDS: 8
   AVD: WorkoutLog_API36
   # AOSP image: no Play services or Gboard, so less background work on the runner.
   SYSTEM_IMAGE: system-images;android-36;default;x86_64
   # Chrome for Testing build for the image's WebView major version (133.0.6943.137).
   CHROMEDRIVER_VERSION: 133.0.6943.141
   CHROMEDRIVER_SHA256: d3826586626a8e91d8b1d2da76423e2b4fd7179148284afe4677c72dcd0f1a27
+  # The release signing cert's SHA-256 (08).
   CERT_SHA256: 'E4:37:88:10:3D:1A:15:73:71:D6:1E:D4:F8:30:9C:27:54:6B:1A:B8:44:46:52:16:44:D7:43:CA:5E:8C:A1:E9'
 
 jobs:
@@ -35,6 +34,12 @@ jobs:
       version: ${{ steps.next.outputs.version }}
       code: ${{ steps.next.outputs.code }}
     steps:
+      - name: Release cert pinned
+        if: env.CERT_SHA256 == ''
+        run: |
+          echo "::error title=Release::CERT_SHA256 in release.yml is empty: set it to the release cert's SHA-256 (docs/08-dev-setup-build.md)."
+          exit 1
+
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
@@ -44,20 +49,18 @@ jobs:
         id: next
         env:
           GH_TOKEN: ${{ github.token }}
-        run: |
-          target=$(git rev-parse origin/main)
-          .github/spike/next-version.sh "$TAG_PREFIX" "$target"
+        run: .github/scripts/next-version.sh spike-v "$(git rev-parse origin/main)"
 
   build:
     needs: version
     if: needs.version.outputs.release == 'true'
     uses: ./.github/workflows/pr-build.yml
 
-  # One emulator per runner; each shard runs whole features (e2e-shard.sh). The matrix size matches E2E_SHARDS.
+  # One emulator per runner; each shard runs whole features (e2e-shard.sh). The matrix sets the number of shards.
   e2e:
     needs: version
     if: needs.version.outputs.release == 'true'
-    name: e2e (${{ matrix.shard }}/8)
+    name: e2e (${{ matrix.shard }}/${{ strategy.job-total }})
     runs-on: ubuntu-latest
     timeout-minutes: 90
     strategy:
@@ -72,7 +75,7 @@ jobs:
           persist-credentials: false
 
       - name: Start the emulator
-        run: .github/spike/emulator-start.sh
+        run: .github/scripts/emulator-start.sh
 
       - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
         with:
@@ -95,10 +98,9 @@ jobs:
           dotnet build tests/WorkoutLog.E2E.Tests
 
       - name: Wait for the emulator
-        run: .github/spike/emulator-wait.sh "$RESULTS"
+        run: .github/scripts/emulator-wait.sh "$RESULTS"
 
       - name: Pinned Chromedriver
-        if: env.CHROMEDRIVER_VERSION != ''
         run: |
           webview=$(adb shell dumpsys webviewupdate | sed -n 's/.*Current WebView package (name, version): ([^,]*, \([0-9.]*\)).*/\1/p')
           if [[ "${webview%%.*}" != "${CHROMEDRIVER_VERSION%%.*}" ]]; then
@@ -111,26 +113,24 @@ jobs:
           unzip -q -d "$RUNNER_TEMP" "$RUNNER_TEMP/chromedriver.zip"
           echo "CHROMEDRIVER=$RUNNER_TEMP/chromedriver-linux64/chromedriver" >> "$GITHUB_ENV"
 
-      # A shard's tests take 3–6 minutes; a hang fails here and the logs still upload.
+      # A shard's tests take 3–8 minutes; a hang fails here and the logs still upload.
       - name: E2E tests
         timeout-minutes: 20
         run: |
-          filter=$(.github/spike/e2e-shard.sh "${{ matrix.shard }}" "$E2E_SHARDS")
+          filter=$(.github/scripts/e2e-shard.sh "${{ matrix.shard }}" "${{ strategy.job-total }}")
           if [[ -z "$filter" ]]; then
-            echo "::notice title=E2E::Shard ${{ matrix.shard }}/$E2E_SHARDS has no features."
-            exit 0
-          fi
-          parameters=('TestRunParameters.Parameter(name="DeviceUdid", value="emulator-5554")')
-          if [[ -n "${CHROMEDRIVER:-}" ]]; then
-            parameters+=("TestRunParameters.Parameter(name=\"ChromedriverExecutable\", value=\"$CHROMEDRIVER\")")
+            echo "::error title=E2E::Shard ${{ matrix.shard }}/${{ strategy.job-total }} has no features: check the test listing in e2e-shard.sh."
+            exit 1
           fi
           # Failed scenarios become annotations and the step writes a results table to the job summary (T95).
           dotnet test tests/WorkoutLog.E2E.Tests --no-build --filter "$filter" --logger "console;verbosity=detailed" \
             --logger GitHubActions --logger "trx;LogFileName=e2e.trx" --results-directory "$RESULTS/trx" \
-            -- "${parameters[@]}" RunConfiguration.CollectSourceInformation=true
+            -- 'TestRunParameters.Parameter(name="DeviceUdid", value="emulator-5554")' \
+            "TestRunParameters.Parameter(name=\"ChromedriverExecutable\", value=\"$CHROMEDRIVER\")" \
+            RunConfiguration.CollectSourceInformation=true
 
-      # Runs on a failure or a cancel too, so the logs are kept.
-      # Each adb call is time-limited: a hung emulator mustn't hold up a cancel.
+      # Runs on a failure or a cancel too, so the logs are kept. Each adb call is time-limited: a hung emulator mustn't
+      # hold up a cancel.
       - name: Keep the emulator log
         if: always()
         timeout-minutes: 3
@@ -164,7 +164,7 @@ jobs:
           persist-credentials: false
 
       - name: Start the emulator
-        run: .github/spike/emulator-start.sh
+        run: .github/scripts/emulator-start.sh
 
       - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
         with:
@@ -179,10 +179,10 @@ jobs:
             -r android-x64 -o "$RUNNER_TEMP/smoke"
 
       - name: Wait for the emulator
-        run: .github/spike/emulator-wait.sh "$RESULTS"
+        run: .github/scripts/emulator-wait.sh "$RESULTS"
 
       - name: Launch
-        run: .github/spike/release-smoke.sh "$RUNNER_TEMP/smoke/uk.martinshields.workoutlog-Signed.apk"
+        run: .github/scripts/release-smoke.sh "$RUNNER_TEMP/smoke/uk.martinshields.workoutlog-Signed.apk"
 
       # Runs on a failure or a cancel too, so the logs are kept.
       - name: Keep the emulator log
@@ -203,6 +203,7 @@ jobs:
           retention-days: 1
           if-no-files-found: ignore
 
+  # Waits for the owner's approval of the release environment, which holds the signing secrets.
   release:
     needs: [version, build, e2e, release-smoke]
     if: needs.version.outputs.release == 'true'
@@ -226,6 +227,10 @@ jobs:
       - name: Install the MAUI Android workload
         run: dotnet workload install maui-android --version 10.0.402.1
 
+      # Packages are downloaded before any secret is on the runner.
+      - name: Restore
+        run: dotnet restore src/WorkoutLog.App -r android-arm64
+
       - name: Keystore
         env:
           KEYSTORE_BASE64: ${{ secrets.RELEASE_KEYSTORE_BASE64 }}
@@ -238,7 +243,7 @@ jobs:
           RELEASE_KEY_ALIAS: ${{ secrets.RELEASE_KEY_ALIAS }}
         run: |
           dotnet publish src/WorkoutLog.App -c Release -f net10.0-android -p:AndroidPackageFormat=apk \
-            -r android-arm64 \
+            -r android-arm64 --no-restore \
             -p:ApplicationDisplayVersion="$VERSION" -p:ApplicationVersion="$CODE" \
             -p:AndroidKeyStore=true -p:AndroidSigningKeyStore="$RUNNER_TEMP/release.keystore" \
             -p:AndroidSigningKeyAlias="$RELEASE_KEY_ALIAS" \
@@ -250,13 +255,13 @@ jobs:
         run: rm -f "$RUNNER_TEMP/release.keystore"
 
       - name: Check the APK
-        run: .github/spike/check-apk.sh "$RUNNER_TEMP/release/uk.martinshields.workoutlog-Signed.apk" "$VERSION" "$CODE" "$CERT_SHA256" "$RUNNER_TEMP/out"
+        run: .github/scripts/check-apk.sh "$RUNNER_TEMP/release/uk.martinshields.workoutlog-Signed.apk" "$VERSION" "$CODE" "$CERT_SHA256" "$RUNNER_TEMP/out"
 
+      # Creates the v* tag on this commit with the release.
       - name: Publish the release
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          tag="$TAG_PREFIX$VERSION"
           apk="$RUNNER_TEMP/out/WorkoutLog-$VERSION.apk"
-          gh release create "$tag" "$apk" "$apk.sha256" --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" --title "$tag" \
+          gh release create "spike-v$VERSION" "$apk" "$apk.sha256" --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" --title "spike-v$VERSION" \
             --generate-notes --notes "$(cat "$RUNNER_TEMP/out/notes.md")" --draft

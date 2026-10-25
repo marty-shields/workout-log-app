@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
-# SPIKE ONLY. Usage: emulator-wait.sh <results dir>
+# Usage: emulator-wait.sh <results dir>
 # Waits for the emulator from emulator-start.sh to boot, reporting every 15 s; fails at once if its process ends, and after
-# 15 minutes. Then sets the device up for tests and starts a logcat capture into the results dir.
+# 15 minutes. Then sets the device up for tests and writes logcat and a health log (every 30 s) to the results dir.
 set -euo pipefail
 results="$1"
 pid=$(cat "$RUNNER_TEMP/emulator.pid")
@@ -37,7 +37,7 @@ echo "Booted in $((SECONDS - start))s."
 
 adb shell input keyevent 82
 adb shell wm dismiss-keyguard || true
-# System "isn't responding" dialogs (e.g. Play services on a busy CPU) would cover the app and take its taps.
+# System "isn't responding" dialogs would cover the app and take its taps and keys.
 adb shell settings put global hide_error_dialogs 1
 # No system animations, so the keyboard and its insets settle before the next key.
 adb shell settings put global window_animation_scale 0
@@ -47,10 +47,6 @@ adb shell settings put global animator_duration_scale 0
 adb shell svc wifi disable || true
 adb shell svc data disable || true
 adb shell svc power stayon true
-# Only on an image with Play services.
-if adb shell pm list packages com.google.android.gms | grep -q "package:com.google.android.gms$"; then
-  adb shell pm disable-user --user 0 com.google.android.gms || true
-fi
 
 echo "::group::Device"
 adb devices -l
