@@ -229,13 +229,15 @@ jobs:
         run: .github/spike/release-smoke.sh "$RUNNER_TEMP/smoke/uk.martinshields.workoutlog-Signed.apk"
 
       # Runs on a failure or a cancel too, so the logs are kept.
+      # Each adb call is time-limited: a hung emulator mustn't hold up a cancel.
       - name: Keep the emulator log
         if: always()
+        timeout-minutes: 3
         run: |
           mkdir -p "$RESULTS"
           cp "$RUNNER_TEMP/emulator.log" "$RESULTS/" || true
-          adb shell dumpsys activity activities > "$RESULTS/activities.txt" 2>&1 || true
-          adb exec-out screencap -p > "$RESULTS/final-screen.png" 2>/dev/null || true
+          timeout 30 adb shell dumpsys activity activities > "$RESULTS/activities.txt" 2>&1 || true
+          timeout 30 adb exec-out screencap -p > "$RESULTS/final-screen.png" 2>/dev/null || true
           ls -la "$RESULTS"
 
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
