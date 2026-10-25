@@ -3,7 +3,7 @@
 ## Goal
 > Replace my paper notebook: log every gym session on my phone, and look back at past workouts.
 
-See [12 Product goal](12-product-goal.md).
+See [11 Product goal](11-product-goal.md).
 
 ## User
 One person, the owner. There are no accounts, no sharing and no Play Store listing. The app is sideloaded onto one phone.
@@ -17,7 +17,7 @@ One person, the owner. There are no accounts, no sharing and no Play Store listi
 - All data stays on the phone.
 
 ## Out of scope (v1)
-- Backup, export and sync (see [11 Future ideas](11-future-ideas.md)).
+- Backup, export and sync (see [10 Future ideas](10-future-ideas.md)).
 - Adding, editing or deleting exercises in the app. The list changes only through an app update.
 - Progress charts, personal bests, templates, rest timer, "last time" numbers.
 - Logging a past session. Start and finish are always captured automatically.

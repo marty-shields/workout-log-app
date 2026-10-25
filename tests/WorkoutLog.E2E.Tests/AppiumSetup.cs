@@ -90,6 +90,7 @@ public class AppiumSetup
             service = new AppiumServiceBuilder()
                 .UsingDriverExecutable(new FileInfo(node))
                 .WithAppiumJS(new FileInfo(appium))
+                .WithIPAddress("127.0.0.1")
                 .UsingAnyFreePort()
                 .WithEnvironment(new Dictionary<string, string> { ["APPIUM_HOME"] = project })
                 .WithArguments(new OptionCollector().AddArguments(new("--allow-insecure", "uiautomator2:chromedriver_autodownload")))

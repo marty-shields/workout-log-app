@@ -1,4 +1,4 @@
-# 14 — Design System
+# 12 — Design System
 
 The design system is documented in the stories site, under **Design System** (D100). It covers tokens, components, screens and layout rules.
 

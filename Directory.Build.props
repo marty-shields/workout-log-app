@@ -1,0 +1,28 @@
+<!-- Applies to every project in the repo. A project's own value overrides one set here. -->
+<Project>
+
+  <PropertyGroup>
+    <NetVersion>net10.0</NetVersion>
+    <TargetFramework>$(NetVersion)</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <IsPackable>false</IsPackable>
+    <!-- Compiler and NuGet warnings fail the build. -->
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <!-- MSBuild task warnings (including the Android XA ones) fail the build. -->
+    <MSBuildTreatWarningsAsErrors>true</MSBuildTreatWarningsAsErrors>
+  </PropertyGroup>
+
+  <!-- Test projects (*.Tests): NUnit. -->
+  <ItemGroup Condition="$(MSBuildProjectName.EndsWith('.Tests'))">
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="NUnit" />
+    <PackageReference Include="NUnit.Analyzers">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="NUnit3TestAdapter" />
+    <Using Include="NUnit.Framework" />
+  </ItemGroup>
+
+</Project>

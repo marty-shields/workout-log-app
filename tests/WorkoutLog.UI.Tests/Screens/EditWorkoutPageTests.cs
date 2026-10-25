@@ -60,9 +60,9 @@ public class EditWorkoutPageTests : ComponentTestBase
     }
 
     [Test]
-    public void Loaded_ShowsTheStartDateAndTotalTimeInThePhonesTimeZone()
+    public async Task Loaded_ShowsTheStartDateAndTotalTimeInThePhonesTimeZone()
     {
-        var cut = RenderLoaded();
+        var cut = await RenderLoadedAsync();
 
         Assert.Multiple(() =>
         {
@@ -73,9 +73,9 @@ public class EditWorkoutPageTests : ComponentTestBase
     }
 
     [Test]
-    public void Loaded_ShowsTheSavedExercisesAndValuesInOrder()
+    public async Task Loaded_ShowsTheSavedExercisesAndValuesInOrder()
     {
-        var cut = RenderLoaded();
+        var cut = await RenderLoadedAsync();
 
         Assert.Multiple(() =>
         {
@@ -89,9 +89,9 @@ public class EditWorkoutPageTests : ComponentTestBase
     }
 
     [Test]
-    public void Loaded_CarrySetsStartClosed()
+    public async Task Loaded_CarrySetsStartClosed()
     {
-        var cut = RenderLoaded();
+        var cut = await RenderLoadedAsync();
 
         Assert.Multiple(() =>
         {
@@ -102,21 +102,23 @@ public class EditWorkoutPageTests : ComponentTestBase
     }
 
     [Test]
-    public void NotFound_ShowsTheMessage()
+    public async Task NotFound_ShowsTheMessage()
     {
         var cut = RenderPage();
 
         workouts.Complete(new WorkoutResult(null, WorkoutLoad.NotFound));
+        await WaitForRendererAsync();
 
         cut.WaitForAssertion(() => Assert.That(cut.FindAll("[data-testid=workout-not-found]"), Has.Count.EqualTo(1)));
         Assert.That(cut.FindAll("[data-testid=workout-load-retry]"), Is.Empty);
     }
 
     [Test]
-    public void LoadFails_ShowsTheErrorThenTryAgainReloads()
+    public async Task LoadFails_ShowsTheErrorThenTryAgainReloads()
     {
         var cut = RenderPage();
         workouts.Complete(new WorkoutResult(null, WorkoutLoad.Failed));
+        await WaitForRendererAsync();
         cut.WaitForAssertion(() => Assert.That(cut.FindAll("[data-testid=workout-load-error]"), Has.Count.EqualTo(1)));
 
         cut.Find("[data-testid=workout-load-retry]").Click();
@@ -129,19 +131,22 @@ public class EditWorkoutPageTests : ComponentTestBase
         });
 
         workouts.Complete(Loaded);
+        await WaitForRendererAsync();
 
         cut.WaitForAssertion(() => Assert.That(Names(cut), Has.Count.EqualTo(3)));
     }
 
     [Test]
-    public void TryAgain_FailsAgain_ShowsTheErrorAndFocusesTryAgainAgain()
+    public async Task TryAgain_FailsAgain_ShowsTheErrorAndFocusesTryAgainAgain()
     {
         var cut = RenderPage();
         workouts.Complete(new WorkoutResult(null, WorkoutLoad.Failed));
+        await WaitForRendererAsync();
         cut.WaitForAssertion(() => Assert.That(Focuses(), Has.Count.EqualTo(1)));
 
         cut.Find("[data-testid=workout-load-retry]").Click();
         workouts.Complete(new WorkoutResult(null, WorkoutLoad.Failed));
+        await WaitForRendererAsync();
 
         cut.WaitForAssertion(() => Assert.That(Focuses(), Has.Count.EqualTo(2)));
         Assert.That(cut.FindAll("[data-testid=workout-load-error]"), Has.Count.EqualTo(1));
@@ -149,22 +154,24 @@ public class EditWorkoutPageTests : ComponentTestBase
     }
 
     [Test]
-    public void LoadFails_LogsNothingInTheUi()
+    public async Task LoadFails_LogsNothingInTheUi()
     {
         var cut = RenderPage();
 
         workouts.Complete(new WorkoutResult(null, WorkoutLoad.Failed));
+        await WaitForRendererAsync();
 
         cut.WaitForAssertion(() => Assert.That(cut.FindAll("[data-testid=workout-load-error]"), Has.Count.EqualTo(1)));
         Assert.That(LoggedEvents.Of(logger), Is.Empty);
     }
 
     [Test]
-    public void UnknownExercise_LogsAnErrorAndShowsTheLoadFailure()
+    public async Task UnknownExercise_LogsAnErrorAndShowsTheLoadFailure()
     {
         var cut = RenderPage();
 
         workouts.Complete(new WorkoutResult(Saved with { Exercises = [Saved.Exercises[0], new StrengthExercise(9999, [])] }, WorkoutLoad.Loaded));
+        await WaitForRendererAsync();
 
         cut.WaitForAssertion(() => Assert.That(cut.FindAll("[data-testid=workout-load-error]"), Has.Count.EqualTo(1)));
         Assert.That(LoggedEvents.Of(logger), Is.EqualTo(new[]
@@ -174,11 +181,12 @@ public class EditWorkoutPageTests : ComponentTestBase
     }
 
     [Test]
-    public void WrongType_LogsAnErrorAndShowsTheLoadFailure()
+    public async Task WrongType_LogsAnErrorAndShowsTheLoadFailure()
     {
         var cut = RenderPage();
 
         workouts.Complete(new WorkoutResult(Saved with { Exercises = [new CardioExercise(6, new CardioEntry(TimeSpan.FromMinutes(1), null, null, null, null, null, null, null))] }, WorkoutLoad.Loaded));
+        await WaitForRendererAsync();
 
         cut.WaitForAssertion(() => Assert.That(cut.FindAll("[data-testid=workout-load-error]"), Has.Count.EqualTo(1)));
         Assert.That(LoggedEvents.Of(logger), Is.EqualTo(new[]
@@ -188,9 +196,9 @@ public class EditWorkoutPageTests : ComponentTestBase
     }
 
     [Test]
-    public void Loaded_LogsNothingInTheUi()
+    public async Task Loaded_LogsNothingInTheUi()
     {
-        RenderLoaded();
+        await RenderLoadedAsync();
 
         Assert.That(LoggedEvents.Of(logger), Is.Empty);
     }
@@ -199,7 +207,7 @@ public class EditWorkoutPageTests : ComponentTestBase
     public async Task Back_NoChanges_RaisesOnBackWithNoPrompt()
     {
         var backs = 0;
-        var cut = RenderLoaded(onBack: () => backs++);
+        var cut = await RenderLoadedAsync(onBack: () => backs++);
 
         cut.Find("[data-testid=back]").Click();
         await cut.InvokeAsync(BackButton.HandleAsync);
@@ -213,10 +221,10 @@ public class EditWorkoutPageTests : ComponentTestBase
     }
 
     [Test]
-    public void Back_AfterAnEdit_ShowsDiscardChangesAndFocusesCancel()
+    public async Task Back_AfterAnEdit_ShowsDiscardChangesAndFocusesCancel()
     {
         var backs = 0;
-        var cut = RenderLoaded(onBack: () => backs++);
+        var cut = await RenderLoadedAsync(onBack: () => backs++);
         cut.Find("[data-testid=exercise-1-set-1-reps]").Input("9");
 
         cut.Find("[data-testid=back]").Click();
@@ -242,7 +250,7 @@ public class EditWorkoutPageTests : ComponentTestBase
     public async Task AndroidBack_Changed_Asks(string change)
     {
         var backs = 0;
-        var cut = RenderLoaded(onBack: () => backs++);
+        var cut = await RenderLoadedAsync(onBack: () => backs++);
         switch (change)
         {
             case "value typed":
@@ -284,7 +292,7 @@ public class EditWorkoutPageTests : ComponentTestBase
     public async Task Back_NotChanged_RaisesOnBack(string action)
     {
         var backs = 0;
-        var cut = RenderLoaded(onBack: () => backs++);
+        var cut = await RenderLoadedAsync(onBack: () => backs++);
         switch (action)
         {
             case "picker opened and closed":
@@ -311,10 +319,10 @@ public class EditWorkoutPageTests : ComponentTestBase
     }
 
     [Test]
-    public void Cancel_ClosesThePromptKeepsTheEditsAndMovesNoFocus()
+    public async Task Cancel_ClosesThePromptKeepsTheEditsAndMovesNoFocus()
     {
         var backs = 0;
-        var cut = RenderLoaded(onBack: () => backs++);
+        var cut = await RenderLoadedAsync(onBack: () => backs++);
         cut.Find("[data-testid=exercise-1-set-1-reps]").Input("9");
         cut.Find("[data-testid=back]").Click();
         var cancel = cut.Find("[data-testid=confirm-dialog-cancel]").GetAttribute("blazor:elementreference");
@@ -337,7 +345,7 @@ public class EditWorkoutPageTests : ComponentTestBase
     public async Task AndroidBack_WithThePromptOpen_CancelsIt()
     {
         var backs = 0;
-        var cut = RenderLoaded(onBack: () => backs++);
+        var cut = await RenderLoadedAsync(onBack: () => backs++);
         cut.Find("[data-testid=exercise-1-set-1-reps]").Input("9");
         cut.Find("[data-testid=back]").Click();
 
@@ -352,10 +360,10 @@ public class EditWorkoutPageTests : ComponentTestBase
     }
 
     [Test]
-    public void Discard_LogsTheIdAndRaisesOnBack()
+    public async Task Discard_LogsTheIdAndRaisesOnBack()
     {
         var backs = 0;
-        var cut = RenderLoaded(onBack: () => backs++);
+        var cut = await RenderLoadedAsync(onBack: () => backs++);
         cut.Find("[data-testid=exercise-1-set-1-reps]").Input("9");
         cut.Find("[data-testid=back]").Click();
 
@@ -373,7 +381,7 @@ public class EditWorkoutPageTests : ComponentTestBase
     public async Task Discard_Twice_LogsAndRaisesOnceAndBackIsIgnored()
     {
         var backs = 0;
-        var cut = RenderLoaded(onBack: () => backs++);
+        var cut = await RenderLoadedAsync(onBack: () => backs++);
         cut.Find("[data-testid=exercise-1-set-1-reps]").Input("9");
         cut.Find("[data-testid=back]").Click();
 
@@ -395,7 +403,7 @@ public class EditWorkoutPageTests : ComponentTestBase
     public async Task Back_WhileSaving_IsIgnored(bool edited)
     {
         var backs = 0;
-        var cut = RenderLoaded(onBack: () => backs++);
+        var cut = await RenderLoadedAsync(onBack: () => backs++);
         workouts.Save = () => new TaskCompletionSource<SaveResult>().Task;
         if (edited)
         {
@@ -419,7 +427,7 @@ public class EditWorkoutPageTests : ComponentTestBase
     public async Task Back_AfterASuccessfulSave_IsIgnored(bool edited)
     {
         var backs = 0;
-        var cut = RenderLoaded(onBack: () => backs++);
+        var cut = await RenderLoadedAsync(onBack: () => backs++);
         if (edited)
         {
             cut.Find("[data-testid=exercise-1-set-1-reps]").Input("9");
@@ -438,10 +446,10 @@ public class EditWorkoutPageTests : ComponentTestBase
     }
 
     [Test]
-    public void Back_AfterASaveFails_WithChanges_Asks()
+    public async Task Back_AfterASaveFails_WithChanges_Asks()
     {
         var backs = 0;
-        var cut = RenderLoaded(onBack: () => backs++);
+        var cut = await RenderLoadedAsync(onBack: () => backs++);
         workouts.Save = () => Task.FromResult(new SaveResult(null, new WorkoutErrors(WorkoutError.SaveFailed, [])));
         cut.Find("[data-testid=exercise-1-set-1-reps]").Input("9");
         cut.Find("[data-testid=save-workout]").Click();
@@ -456,10 +464,10 @@ public class EditWorkoutPageTests : ComponentTestBase
     }
 
     [Test]
-    public void Discard_WhileSaving_ClosesThePromptAndDoesNothing()
+    public async Task Discard_WhileSaving_ClosesThePromptAndDoesNothing()
     {
         var backs = 0;
-        var cut = RenderLoaded(onBack: () => backs++);
+        var cut = await RenderLoadedAsync(onBack: () => backs++);
         workouts.Save = () => new TaskCompletionSource<SaveResult>().Task;
         cut.Find("[data-testid=exercise-1-set-1-reps]").Input("9");
         cut.Find("[data-testid=back]").Click();
@@ -476,10 +484,10 @@ public class EditWorkoutPageTests : ComponentTestBase
     }
 
     [Test]
-    public void Discard_AfterASuccessfulSave_DoesNothing()
+    public async Task Discard_AfterASuccessfulSave_DoesNothing()
     {
         var backs = 0;
-        var cut = RenderLoaded(onBack: () => backs++);
+        var cut = await RenderLoadedAsync(onBack: () => backs++);
         cut.Find("[data-testid=exercise-1-set-1-reps]").Input("9");
         cut.Find("[data-testid=back]").Click();
         cut.Find("[data-testid=save-workout]").Click();
@@ -496,7 +504,7 @@ public class EditWorkoutPageTests : ComponentTestBase
     }
 
     [Test]
-    public void Discard_HandlerFails_ShowsTheErrorScreen()
+    public async Task Discard_HandlerFails_ShowsTheErrorScreen()
     {
         var cut = Context.Render<AppErrorBoundary>(p => p
             .Add(x => x.OnRestart, () => { })
@@ -504,6 +512,7 @@ public class EditWorkoutPageTests : ComponentTestBase
                 .Add(x => x.WorkoutId, Id)
                 .Add(x => x.OnBack, () => throw new InvalidOperationException("Navigation failed"))));
         workouts.Complete(Loaded);
+        await WaitForRendererAsync();
         cut.WaitForAssertion(() => Assert.That(cut.FindAll("[data-testid=save-workout]"), Has.Count.EqualTo(1)));
         cut.Find("[data-testid=exercise-1-set-1-reps]").Input("9");
         cut.Find("[data-testid=back]").Click();
@@ -531,6 +540,7 @@ public class EditWorkoutPageTests : ComponentTestBase
         var backs = 0;
         var cut = RenderPage(onBack: () => backs++);
         workouts.Complete(new WorkoutResult(null, status));
+        await WaitForRendererAsync();
         cut.WaitForAssertion(() => Assert.That(cut.FindAll("[data-testid=workout-loading]"), Is.Empty));
 
         cut.Find("[data-testid=back]").Click();
@@ -540,9 +550,9 @@ public class EditWorkoutPageTests : ComponentTestBase
     }
 
     [Test]
-    public void Delete_ShowsDeleteThisWorkoutAndFocusesCancel()
+    public async Task Delete_ShowsDeleteThisWorkoutAndFocusesCancel()
     {
-        var cut = RenderLoaded();
+        var cut = await RenderLoadedAsync();
 
         cut.Find("[data-testid=delete-workout]").Click();
 
@@ -564,7 +574,7 @@ public class EditWorkoutPageTests : ComponentTestBase
     {
         var backs = 0;
         var deleted = 0;
-        var cut = RenderLoaded(onBack: () => backs++, onDeleted: () => deleted++);
+        var cut = await RenderLoadedAsync(onBack: () => backs++, onDeleted: () => deleted++);
         cut.Find("[data-testid=exercise-1-set-1-reps]").Input("9");
         cut.Find("[data-testid=delete-workout]").Click();
 
@@ -588,12 +598,12 @@ public class EditWorkoutPageTests : ComponentTestBase
     }
 
     [Test]
-    public void Delete_Confirmed_DeletesTheLoadedIdAndRaisesOnDeletedOnly()
+    public async Task Delete_Confirmed_DeletesTheLoadedIdAndRaisesOnDeletedOnly()
     {
         var backs = 0;
         var saved = 0;
         var deleted = 0;
-        var cut = RenderLoaded(onBack: () => backs++, onSaved: () => saved++, onDeleted: () => deleted++);
+        var cut = await RenderLoadedAsync(onBack: () => backs++, onSaved: () => saved++, onDeleted: () => deleted++);
         cut.Find("[data-testid=delete-workout]").Click();
 
         cut.Find("[data-testid=confirm-dialog-confirm]").Click();
@@ -610,9 +620,9 @@ public class EditWorkoutPageTests : ComponentTestBase
     }
 
     [Test]
-    public void Delete_AfterTheIdParameterChanges_DeletesTheLoadedId()
+    public async Task Delete_AfterTheIdParameterChanges_DeletesTheLoadedId()
     {
-        var cut = RenderLoaded();
+        var cut = await RenderLoadedAsync();
         cut.Render(p => p.Add(x => x.WorkoutId, Id + 1));
         cut.Find("[data-testid=delete-workout]").Click();
 
@@ -622,10 +632,10 @@ public class EditWorkoutPageTests : ComponentTestBase
     }
 
     [Test]
-    public void Delete_WithChanges_AsksTheSameAndDeletesWithoutDiscardingOrSaving()
+    public async Task Delete_WithChanges_AsksTheSameAndDeletesWithoutDiscardingOrSaving()
     {
         var deleted = 0;
-        var cut = RenderLoaded(onDeleted: () => deleted++);
+        var cut = await RenderLoadedAsync(onDeleted: () => deleted++);
         cut.Find("[data-testid=exercise-1-set-1-reps]").Input("9");
         cut.Find("[data-testid=delete-workout]").Click();
         var title = cut.Find("[data-testid=confirm-dialog] h2").TextContent;
@@ -643,10 +653,10 @@ public class EditWorkoutPageTests : ComponentTestBase
     }
 
     [Test]
-    public void Delete_Fails_ShowsDeleteFailedFocusesDeleteAndKeepsTheEdits()
+    public async Task Delete_Fails_ShowsDeleteFailedFocusesDeleteAndKeepsTheEdits()
     {
         var deleted = 0;
-        var cut = RenderLoaded(onDeleted: () => deleted++);
+        var cut = await RenderLoadedAsync(onDeleted: () => deleted++);
         var delete = cut.Find("[data-testid=delete-workout]").GetAttribute("blazor:elementreference");
         workouts.Delete = () => Task.FromResult(WorkoutDelete.Failed);
         cut.Find("[data-testid=exercise-1-set-1-reps]").Input("9");
@@ -671,7 +681,7 @@ public class EditWorkoutPageTests : ComponentTestBase
     {
         var backs = 0;
         var deleted = 0;
-        var cut = RenderLoaded(onBack: () => backs++, onDeleted: () => deleted++);
+        var cut = await RenderLoadedAsync(onBack: () => backs++, onDeleted: () => deleted++);
         workouts.Delete = () => Task.FromResult(WorkoutDelete.Failed);
         cut.Find("[data-testid=exercise-1-set-1-reps]").Input("9");
         cut.Find("[data-testid=delete-workout]").Click();
@@ -694,10 +704,10 @@ public class EditWorkoutPageTests : ComponentTestBase
     }
 
     [Test]
-    public void Delete_AfterItFails_SaveWorks()
+    public async Task Delete_AfterItFails_SaveWorks()
     {
         var saved = 0;
-        var cut = RenderLoaded(onSaved: () => saved++);
+        var cut = await RenderLoadedAsync(onSaved: () => saved++);
         workouts.Delete = () => Task.FromResult(WorkoutDelete.Failed);
         cut.Find("[data-testid=delete-workout]").Click();
         cut.Find("[data-testid=confirm-dialog-confirm]").Click();
@@ -712,17 +722,18 @@ public class EditWorkoutPageTests : ComponentTestBase
     }
 
     [Test]
-    public void ConfirmDelete_Twice_DeletesOnce()
+    public async Task ConfirmDelete_Twice_DeletesOnce()
     {
         var deleted = 0;
-        var cut = RenderLoaded(onDeleted: () => deleted++);
+        var cut = await RenderLoadedAsync(onDeleted: () => deleted++);
         var pending = new TaskCompletionSource<WorkoutDelete>();
         workouts.Delete = () => pending.Task;
         cut.Find("[data-testid=delete-workout]").Click();
 
         cut.Find("[data-testid=confirm-dialog-confirm]").Click();
         cut.Find("[data-testid=confirm-dialog-confirm]").Click();
-        cut.InvokeAsync(() => pending.SetResult(WorkoutDelete.Deleted));
+        await cut.InvokeAsync(() => pending.SetResult(WorkoutDelete.Deleted));
+        await WaitForRendererAsync();
         cut.WaitForAssertion(() => Assert.That(deleted, Is.EqualTo(1)));
         cut.Find("[data-testid=confirm-dialog-confirm]").Click();
 
@@ -738,7 +749,7 @@ public class EditWorkoutPageTests : ComponentTestBase
     public async Task WhileDeletingOrDeleted_BackSaveAndDeleteAreIgnored(bool finished)
     {
         var backs = 0;
-        var cut = RenderLoaded(onBack: () => backs++);
+        var cut = await RenderLoadedAsync(onBack: () => backs++);
         if (!finished)
         {
             workouts.Delete = () => new TaskCompletionSource<WorkoutDelete>().Task;
@@ -768,7 +779,7 @@ public class EditWorkoutPageTests : ComponentTestBase
     public async Task CancelOrAndroidBack_WhileDeletingOrDeleted_KeepsThePrompt(bool finished)
     {
         var backs = 0;
-        var cut = RenderLoaded(onBack: () => backs++);
+        var cut = await RenderLoadedAsync(onBack: () => backs++);
         if (!finished)
         {
             workouts.Delete = () => new TaskCompletionSource<WorkoutDelete>().Task;
@@ -789,10 +800,10 @@ public class EditWorkoutPageTests : ComponentTestBase
     }
 
     [Test]
-    public void Cancel_AfterADeleteFails_ClosesThePrompt()
+    public async Task Cancel_AfterADeleteFails_ClosesThePrompt()
     {
         workouts.Delete = () => Task.FromResult(WorkoutDelete.Failed);
-        var cut = RenderLoaded();
+        var cut = await RenderLoadedAsync();
         cut.Find("[data-testid=delete-workout]").Click();
         cut.Find("[data-testid=confirm-dialog-confirm]").Click();
 
@@ -804,9 +815,9 @@ public class EditWorkoutPageTests : ComponentTestBase
 
     [TestCase(false)]
     [TestCase(true)]
-    public void Delete_WhileSavingOrSaved_IsIgnored(bool finished)
+    public async Task Delete_WhileSavingOrSaved_IsIgnored(bool finished)
     {
-        var cut = RenderLoaded();
+        var cut = await RenderLoadedAsync();
         if (!finished)
         {
             workouts.Save = () => new TaskCompletionSource<SaveResult>().Task;
@@ -824,9 +835,9 @@ public class EditWorkoutPageTests : ComponentTestBase
     }
 
     [Test]
-    public void Delete_AfterADiscard_IsIgnored()
+    public async Task Delete_AfterADiscard_IsIgnored()
     {
-        var cut = RenderLoaded();
+        var cut = await RenderLoadedAsync();
         cut.Find("[data-testid=exercise-1-set-1-reps]").Input("9");
         cut.Find("[data-testid=back]").Click();
         cut.Find("[data-testid=confirm-dialog-confirm]").Click();
@@ -842,10 +853,10 @@ public class EditWorkoutPageTests : ComponentTestBase
 
     [TestCase(false)]
     [TestCase(true)]
-    public void ConfirmDelete_WhileSavingOrSaved_ClosesThePromptAndDoesNothing(bool finished)
+    public async Task ConfirmDelete_WhileSavingOrSaved_ClosesThePromptAndDoesNothing(bool finished)
     {
         var deleted = 0;
-        var cut = RenderLoaded(onDeleted: () => deleted++);
+        var cut = await RenderLoadedAsync(onDeleted: () => deleted++);
         if (!finished)
         {
             workouts.Save = () => new TaskCompletionSource<SaveResult>().Task;
@@ -865,10 +876,10 @@ public class EditWorkoutPageTests : ComponentTestBase
     }
 
     [Test]
-    public void ConfirmDelete_AfterADiscard_DoesNothing()
+    public async Task ConfirmDelete_AfterADiscard_DoesNothing()
     {
         var deleted = 0;
-        var cut = RenderLoaded(onDeleted: () => deleted++);
+        var cut = await RenderLoadedAsync(onDeleted: () => deleted++);
         cut.Find("[data-testid=exercise-1-set-1-reps]").Input("9");
         cut.Find("[data-testid=back]").Click();
         cut.Find("[data-testid=delete-workout]").Click();
@@ -885,10 +896,10 @@ public class EditWorkoutPageTests : ComponentTestBase
 
     [TestCase(false)]
     [TestCase(true)]
-    public void Discard_WhileDeletingOrDeleted_ClosesThePromptAndDoesNothing(bool finished)
+    public async Task Discard_WhileDeletingOrDeleted_ClosesThePromptAndDoesNothing(bool finished)
     {
         var backs = 0;
-        var cut = RenderLoaded(onBack: () => backs++);
+        var cut = await RenderLoadedAsync(onBack: () => backs++);
         if (!finished)
         {
             workouts.Delete = () => new TaskCompletionSource<WorkoutDelete>().Task;
@@ -910,7 +921,7 @@ public class EditWorkoutPageTests : ComponentTestBase
     }
 
     [Test]
-    public void Deleted_HandlerFails_ShowsTheErrorScreen()
+    public async Task Deleted_HandlerFails_ShowsTheErrorScreen()
     {
         var cut = Context.Render<AppErrorBoundary>(p => p
             .Add(x => x.OnRestart, () => { })
@@ -918,6 +929,7 @@ public class EditWorkoutPageTests : ComponentTestBase
                 .Add(x => x.WorkoutId, Id)
                 .Add(x => x.OnDeleted, () => throw new InvalidOperationException("Navigation failed"))));
         workouts.Complete(Loaded);
+        await WaitForRendererAsync();
         cut.WaitForAssertion(() => Assert.That(cut.FindAll("[data-testid=save-workout]"), Has.Count.EqualTo(1)));
         cut.Find("[data-testid=delete-workout]").Click();
 
@@ -927,10 +939,10 @@ public class EditWorkoutPageTests : ComponentTestBase
     }
 
     [Test]
-    public void Save_Unchanged_SavesTheSameRecordsUnderTheIdAndRaisesOnSaved()
+    public async Task Save_Unchanged_SavesTheSameRecordsUnderTheIdAndRaisesOnSaved()
     {
         var saved = 0;
-        var cut = RenderLoaded(onSaved: () => saved++);
+        var cut = await RenderLoadedAsync(onSaved: () => saved++);
 
         cut.Find("[data-testid=save-workout]").Click();
 
@@ -943,9 +955,9 @@ public class EditWorkoutPageTests : ComponentTestBase
     }
 
     [Test]
-    public void Save_AfterTheIdParameterChanges_SavesUnderTheLoadedId()
+    public async Task Save_AfterTheIdParameterChanges_SavesUnderTheLoadedId()
     {
-        var cut = RenderLoaded();
+        var cut = await RenderLoadedAsync();
         cut.Render(p => p.Add(x => x.WorkoutId, Id + 1));
 
         cut.Find("[data-testid=save-workout]").Click();
@@ -954,9 +966,9 @@ public class EditWorkoutPageTests : ComponentTestBase
     }
 
     [Test]
-    public void Save_Edited_SavesTheChanges()
+    public async Task Save_Edited_SavesTheChanges()
     {
-        var cut = RenderLoaded();
+        var cut = await RenderLoadedAsync();
         cut.Find("[data-testid=exercise-1-set-2-weight]").Input("65");
         cut.Find("[data-testid=exercise-1-add-set]").Click();
         cut.Find("[data-testid=exercise-1-set-3-reps]").Input("5");
@@ -976,10 +988,10 @@ public class EditWorkoutPageTests : ComponentTestBase
     }
 
     [Test]
-    public void Save_Invalid_ShowsTheErrorsAndDoesNotSave()
+    public async Task Save_Invalid_ShowsTheErrorsAndDoesNotSave()
     {
         var saved = 0;
-        var cut = RenderLoaded(onSaved: () => saved++);
+        var cut = await RenderLoadedAsync(onSaved: () => saved++);
         cut.Find("[data-testid=exercise-1-set-1-reps]").Input("");
 
         cut.Find("[data-testid=save-workout]").Click();
@@ -993,10 +1005,10 @@ public class EditWorkoutPageTests : ComponentTestBase
     }
 
     [Test]
-    public void Save_WriteFails_ShowsSaveFailedFocusesSaveAndKeepsTheWorkout()
+    public async Task Save_WriteFails_ShowsSaveFailedFocusesSaveAndKeepsTheWorkout()
     {
         var saved = 0;
-        var cut = RenderLoaded(onSaved: () => saved++);
+        var cut = await RenderLoadedAsync(onSaved: () => saved++);
         var save = cut.Find("[data-testid=save-workout]").GetAttribute("blazor:elementreference");
         workouts.Save = () => Task.FromResult(new SaveResult(null, new WorkoutErrors(WorkoutError.SaveFailed, [])));
 
@@ -1012,26 +1024,27 @@ public class EditWorkoutPageTests : ComponentTestBase
     }
 
     [Test]
-    public void Save_WhileSaving_IsIgnored()
+    public async Task Save_WhileSaving_IsIgnored()
     {
         var saved = 0;
-        var cut = RenderLoaded(onSaved: () => saved++);
+        var cut = await RenderLoadedAsync(onSaved: () => saved++);
         var pending = new TaskCompletionSource<SaveResult>();
         workouts.Save = () => pending.Task;
 
         cut.Find("[data-testid=save-workout]").Click();
         cut.Find("[data-testid=save-workout]").Click();
-        cut.InvokeAsync(() => pending.SetResult(new SaveResult(Id, new WorkoutErrors(null, []))));
+        await cut.InvokeAsync(() => pending.SetResult(new SaveResult(Id, new WorkoutErrors(null, []))));
+        await WaitForRendererAsync();
 
         cut.WaitForAssertion(() => Assert.That(saved, Is.EqualTo(1)));
         Assert.That(workouts.Saves, Has.Count.EqualTo(1));
     }
 
     [Test]
-    public void Save_AfterASuccessfulSave_IsIgnored()
+    public async Task Save_AfterASuccessfulSave_IsIgnored()
     {
         var saved = 0;
-        var cut = RenderLoaded(onSaved: () => saved++);
+        var cut = await RenderLoadedAsync(onSaved: () => saved++);
 
         cut.Find("[data-testid=save-workout]").Click();
         cut.Find("[data-testid=save-workout]").Click();
@@ -1044,9 +1057,9 @@ public class EditWorkoutPageTests : ComponentTestBase
     }
 
     [Test]
-    public void Pick_AddsAtTheBottomWithOneEmptySet()
+    public async Task Pick_AddsAtTheBottomWithOneEmptySet()
     {
-        var cut = RenderLoaded();
+        var cut = await RenderLoadedAsync();
 
         Add(cut, 132);
 
@@ -1059,9 +1072,9 @@ public class EditWorkoutPageTests : ComponentTestBase
     }
 
     [Test]
-    public void PickAgain_Strength_AddsASetToItsCard()
+    public async Task PickAgain_Strength_AddsASetToItsCard()
     {
-        var cut = RenderLoaded();
+        var cut = await RenderLoadedAsync();
 
         Add(cut, 6);
 
@@ -1073,9 +1086,9 @@ public class EditWorkoutPageTests : ComponentTestBase
     }
 
     [Test]
-    public void Pick_ClearsTheWorkoutError()
+    public async Task Pick_ClearsTheWorkoutError()
     {
-        var cut = RenderLoaded();
+        var cut = await RenderLoadedAsync();
         workouts.Save = () => Task.FromResult(new SaveResult(null, new WorkoutErrors(WorkoutError.SaveFailed, [])));
         cut.Find("[data-testid=save-workout]").Click();
 
@@ -1088,7 +1101,7 @@ public class EditWorkoutPageTests : ComponentTestBase
     public async Task AndroidBack_ClosesThePickerAndStays()
     {
         var backs = 0;
-        var cut = RenderLoaded(onBack: () => backs++);
+        var cut = await RenderLoadedAsync(onBack: () => backs++);
         cut.Find("[data-testid=add-exercise]").Click();
 
         await cut.InvokeAsync(BackButton.HandleAsync);
@@ -1130,10 +1143,11 @@ public class EditWorkoutPageTests : ComponentTestBase
             .Add(x => x.OnSaved, onSaved ?? (() => { }))
             .Add(x => x.OnDeleted, onDeleted ?? (() => { })));
 
-    private IRenderedComponent<EditWorkoutPage> RenderLoaded(Action? onBack = null, Action? onSaved = null, Action? onDeleted = null)
+    private async Task<IRenderedComponent<EditWorkoutPage>> RenderLoadedAsync(Action? onBack = null, Action? onSaved = null, Action? onDeleted = null)
     {
         var cut = RenderPage(onBack, onSaved, onDeleted);
         workouts.Complete(Loaded);
+        await WaitForRendererAsync();
         cut.WaitForAssertion(() => Assert.That(cut.FindAll("[data-testid=save-workout]"), Has.Count.EqualTo(1)));
         return cut;
     }

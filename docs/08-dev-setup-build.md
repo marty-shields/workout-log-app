@@ -7,13 +7,13 @@
 - Version: display version is SemVer (`1.0.0`, `1.1.0`…). The version code goes up by 1 on every release APK.
 
 ## Prerequisites (Windows)
-- .NET 10 SDK
+- .NET 10 SDK: the version in `global.json` or a later patch (T91)
 - One of (D132):
   - **Visual Studio** with the **.NET Multi-platform App UI development** workload. It installs the MAUI workloads, the Android SDK (`Android\android-sdk` under Program Files (x86)) and OpenJDK.
   - **VS Code** with the **.NET MAUI** extension (brings C# Dev Kit), plus `dotnet workload install maui-android`, the Android SDK (platform API 36, build tools, platform tools) and the JDK the .NET 10 Android workload needs.
 - Optional: an Android emulator for API 36, to run the E2E tests without the phone ([Use an emulator](#use-an-emulator)). Creating one needs admin rights when the SDK is in Program Files.
 - For the E2E tests: Node.js 20.19+, 22.12+ or 24+, and the `ANDROID_HOME` and `JAVA_HOME` environment variables ([E2E tests](#e2e-tests)). Appium and its driver come from the repo; Chromedriver downloads itself.
-- Git (local repo only)
+- Git, and the GitHub CLI (`gh`) signed in as the repo owner ([Source control](#source-control))
 - Optional: BlazingStory templates, to add story files with `dotnet new bstories`: `dotnet new install BlazingStory.ProjectTemplates::1.0.0-preview.96`
 
 The stories need only the .NET 10 SDK. They don't need the MAUI workload, Android SDK or phone.
@@ -107,12 +107,19 @@ The Debug APK holds both arm64 (phone) and x86_64 (emulator) code, so the same b
 3. Start it: `%ANDROID_HOME%\emulator\emulator.exe -avd WorkoutLog_API36`. `adb devices` lists it as `emulator-5554`.
 4. Run the tests as above, adding the run setting `DeviceUdid` = `emulator-5554` if the phone is connected too.
 
-### CI later
-A CI job needs:
+### E2E in CI later
+The [PR build](#ci) doesn't run the E2E tests. A CI job for them needs:
 - Node.js, `npm ci --ignore-scripts` in `tests/WorkoutLog.E2E.Tests`
 - the .NET 10 SDK with the `maui-android` workload, a JDK, and `ANDROID_HOME` and `JAVA_HOME`
 - an emulator: a Linux runner with KVM, started before the tests. Never the phone.
 - Steps: build the App, run the test command with the emulator's `DeviceUdid`, then keep `TestResults/E2E/` as the job's artifact with a short retention. Never publish the Debug APK: it is debuggable and has WebView debugging on.
+
+## CI
+- `.github/workflows/pr-build.yml` ("PR build") runs on every PR to `main` (T91). On `ubuntu-latest` it installs the SDK from `global.json` and the `maui-android` workload at a pinned workload set, runs `dotnet build WorkoutLog.slnx`, then the Core and UI tests. Its `build-and-test` check must pass before the PR can merge.
+- Failed tests show as annotations on the PR, linked to the test's source line, and each test step adds a results table to the run's summary (T95).
+- The workload set matches the SDK: when the SDK in `global.json` changes, set the workflow's `--version` to the matching set (`dotnet workload search version`) in the same PR.
+- `.github/dependabot.yml` opens update PRs weekly for NuGet, the E2E project's npm packages, the SDK in `global.json` and the GitHub Actions (T92). Minor and patch bumps come grouped, one PR per ecosystem; each major bump has its own PR. The PR build runs on them like any other PR.
+- Repo Actions settings: only GitHub-owned actions, pinned by full commit SHA; workflows from outside contributors' PRs wait for approval (T91).
 
 ## Release: signed APK
 1. Create a keystore once (`keytool -genkey ...`).
@@ -125,10 +132,15 @@ A CI job needs:
 
 ## Keystore handling
 - The keystore file lives outside the repo and is listed in `.gitignore`.
-- Keep a backup copy. **The location is an open item and must be decided before the first release APK.**
+- Keep a backup copy. **The location is still open ([US-25](https://github.com/marty-shields/workout-log-app/issues/34)) and must be decided before the first release APK.**
 
 ## Source control
-- `git init` locally. No remote.
-- `.gitignore` (T39): build output and logs, test results, IDE and per-user files (`*.user`), APKs, signing keys and secrets (`*.apk`, `*.aab`, `*.keystore`, `*.jks`, `*.pfx`, `*.p12`, `*.pem`, `*.key`, `.env`), tool output (including `node_modules/` and `.chromedriver/`) and OS files.
+- GitHub: [marty-shields/workout-log-app](https://github.com/marty-shields/workout-log-app), public, default branch `main` (T89).
+- The repo's own git config sets the author (`user.name`, `user.email`) and `credential.username`. The remote URL includes the username, so Git Credential Manager signs in as the owner in this repo only.
+- `gh` reads its login from the folder in `GH_CONFIG_DIR`, which holds only the owner's account. `.claude/settings.local.json` sets it for Claude Code and `.vscode/settings.json` for VS Code terminals; both are local and gitignored. Sign in once with `$env:GH_CONFIG_DIR="$HOME\.config\gh-personal"; gh auth login --web --scopes project,workflow`, and answer No to authenticating Git.
+- `main` is protected by the `Protect main` ruleset: no direct pushes, force pushes or deletion. Changes go through a PR, with no required approvals, and the PR build's `build-and-test` check must pass. PRs are opened as drafts; the reviewer marks them ready and squash-merges. The PR title becomes the commit title; merged branches are deleted.
+- Branches: `type/us-xx-slug`, the Conventional Commit type and the story ID (e.g. `feat/us-26-signed-release-apk`). Work that isn't a story leaves out the ID (e.g. `chore/update-readme`).
+- Backlog: the [Workout Log project](https://github.com/users/marty-shields/projects/2) ([ways of working](README.md#ways-of-working)).
+- `.gitignore` (T39, T90): build output and logs, test results, IDE and per-user files (`*.user`, `.vscode/`, `.claude/settings.local.json`), APKs, signing keys and secrets (`*.apk`, `*.aab`, `*.keystore`, `*.jks`, `*.pfx`, `*.p12`, `*.pem`, `*.key`, `.env`), tool output (including `node_modules/` and `.chromedriver/`) and OS files.
 - `nuget.config` restores from nuget.org only (T40).
-- Commit messages: Conventional Commits.
+- Commit messages and PR titles: Conventional Commits.
