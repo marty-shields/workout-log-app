@@ -43,6 +43,9 @@ adb shell settings put global hide_error_dialogs 1
 adb shell settings put global window_animation_scale 0
 adb shell settings put global transition_animation_scale 0
 adb shell settings put global animator_duration_scale 0
+# Gesture navigation, as on the phone: the AOSP image starts with 3-button navigation, where the back swipe does nothing.
+adb shell cmd overlay enable-exclusive --category com.android.internal.systemui.navbar.gestural
+echo "Navigation: $(adb shell settings get secure navigation_mode | tr -d '\r') (2 = gestures)"
 # The app is offline; no network means no background syncs or scans. The screen stays on for the whole run.
 adb shell svc wifi disable || true
 adb shell svc data disable || true
