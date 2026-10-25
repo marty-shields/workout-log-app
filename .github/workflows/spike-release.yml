@@ -14,7 +14,7 @@ concurrency:
 
 env:
   TAG_PREFIX: spike-v
-  E2E_FILTER: Category=smoke
+  E2E_SHARDS: 8
   CHROMEDRIVER_VERSION: ''
   CHROMEDRIVER_SHA256: ''
   CERT_SHA256: 'E4:37:88:10:3D:1A:15:73:71:D6:1E:D4:F8:30:9C:27:54:6B:1A:B8:44:46:52:16:44:D7:43:CA:5E:8C:A1:E9'
@@ -49,11 +49,17 @@ jobs:
     if: needs.version.outputs.release == 'true'
     uses: ./.github/workflows/pr-build.yml
 
+  # One emulator per runner; each shard runs whole features (e2e-shard.sh). The matrix size matches E2E_SHARDS.
   e2e:
     needs: version
     if: needs.version.outputs.release == 'true'
+    name: e2e (${{ matrix.shard }}/8)
     runs-on: ubuntu-latest
-    timeout-minutes: 150
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3, 4, 5, 6, 7, 8]
     env:
       AVD: WorkoutLog_API36
       SYSTEM_IMAGE: system-images;android-36;google_apis;x86_64
@@ -160,6 +166,8 @@ jobs:
           echo "Booted in $((SECONDS - start))s."
           adb shell input keyevent 82
           adb shell wm dismiss-keyguard || true
+          # System "isn't responding" dialogs (e.g. Play services on a busy CPU) would cover the app and take its taps.
+          adb shell settings put global hide_error_dialogs 1
           echo "::group::Device"
           adb devices -l
           adb shell getprop ro.build.fingerprint
@@ -186,17 +194,23 @@ jobs:
 
       - name: E2E tests
         run: |
+          dotnet build tests/WorkoutLog.E2E.Tests
+          filter=$(.github/spike/e2e-shard.sh "${{ matrix.shard }}" "$E2E_SHARDS")
+          if [[ -z "$filter" ]]; then
+            echo "::notice title=E2E::Shard ${{ matrix.shard }}/$E2E_SHARDS has no features."
+            exit 0
+          fi
           parameters=('TestRunParameters.Parameter(name="DeviceUdid", value="emulator-5554")')
           if [[ -n "${CHROMEDRIVER:-}" ]]; then
             parameters+=("TestRunParameters.Parameter(name=\"ChromedriverExecutable\", value=\"$CHROMEDRIVER\")")
           fi
-          dotnet test tests/WorkoutLog.E2E.Tests --filter "$E2E_FILTER" --logger "console;verbosity=detailed" \
+          dotnet test tests/WorkoutLog.E2E.Tests --no-build --filter "$filter" --logger "console;verbosity=detailed" \
             --logger "trx;LogFileName=e2e.trx" --results-directory "$RESULTS/trx" -- "${parameters[@]}"
 
-      # Runs even when the E2E tests fail, once the emulator and .NET are ready.
+      # Shard 1 only. Runs even when the E2E tests fail, once the emulator and .NET are ready.
       - name: Release smoke build (x64, debug key)
         id: smoke
-        if: ${{ !cancelled() && steps.app.outcome == 'success' && steps.boot.outcome == 'success' }}
+        if: ${{ !cancelled() && matrix.shard == 1 && steps.app.outcome == 'success' && steps.boot.outcome == 'success' }}
         run: |
           dotnet publish src/WorkoutLog.App -c Release -f net10.0-android -p:AndroidPackageFormat=apk \
             -r android-x64 -o "$RUNNER_TEMP/smoke"
@@ -218,7 +232,7 @@ jobs:
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         if: always()
         with:
-          name: e2e-results
+          name: e2e-results-${{ matrix.shard }}
           path: ${{ env.RESULTS }}/
           retention-days: 1
           if-no-files-found: ignore
