@@ -1,9 +1,11 @@
-# Builds the solution and runs the UI and Core tests on every PR to main. E2E tests need a device and are not run.
+# Builds the solution and runs the UI and Core tests on every PR to main, and for the release workflow.
+# E2E tests need a device and are not run.
 name: PR build
 
 on:
   pull_request:
     branches: [main]
+  workflow_call:
 
 permissions:
   contents: read
