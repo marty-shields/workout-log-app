@@ -22,6 +22,7 @@ A personal Android app (.NET 10 MAUI Blazor Hybrid) that replaces a paper workou
 ## Layout
 | Path | What |
 |---|---|
+| `README.md` | The repo's front page: what the app is, features, screenshots (`docs/images/readme/`) (D221) |
 | `WorkoutLog.slnx` | Solution |
 | `Directory.Build.props` | Settings for every project: target framework, nullable, implicit usings, warnings are errors; NUnit for `*.Tests` projects (T96, T98) |
 | `Directory.Packages.props` | NuGet package versions for every project (T97) |
