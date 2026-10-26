@@ -8,7 +8,7 @@ namespace WorkoutLog.UI;
 /// <summary>Registers the UI's services.</summary>
 public static class UiServiceCollectionExtensions
 {
-    /// <summary>Registers the back button, the app lifecycle (as <see cref="IAppStart"/> and <see cref="IAppLifecycle"/>, one instance) the set and workout checkers as singletons, and <see cref="WorkoutEditor"/> as transient, one per page. The host must register Core's services and logging.</summary>
+    /// <summary>Registers the UI's services. The host must register Core's services and logging.</summary>
     /// <param name="services">Service collection.</param>
     public static IServiceCollection AddUi(this IServiceCollection services) =>
         services

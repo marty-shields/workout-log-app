@@ -27,7 +27,7 @@ public class WorkoutEditorTests
     }
 
     [Test]
-    public void New_IsEmptyAndUnchanged()
+    public void Constructor_IsEmptyClosedUnchangedAndNotSaving()
     {
         Assert.Multiple(() =>
         {
@@ -79,6 +79,7 @@ public class WorkoutEditorTests
     public async Task Pick_New_AddsItAtTheBottomFocusesItClosesThePickerAndClearsTheError()
     {
         await editor.SaveAsync(_ => Task.FromResult(true));
+        Assume.That(editor.Error, Is.Not.Null);
         editor.Pick(Item(Treadmill));
         editor.OpenPicker();
 
@@ -156,11 +157,13 @@ public class WorkoutEditorTests
     [Test]
     public async Task Start_SetsTheExercisesAndResetsEverythingElse()
     {
-        editor.Pick(Item(Squat));
+        var squat = SampleData.Exercise(Catalog, Squat, ["8", "60"]);
+        editor.Start([squat]);
+        await editor.SaveAsync(_ => Task.FromResult(true));
+        editor.Pick(Item(Treadmill));
+        editor.ShowDeleteFailed();
         editor.OpenPicker();
         editor.Search("run");
-        await editor.SaveAsync(_ => Task.FromResult(false));
-        var squat = SampleData.Exercise(Catalog, Squat, ["8", "60"]);
 
         editor.Start([squat]);
 
@@ -174,16 +177,17 @@ public class WorkoutEditorTests
             Assert.That(editor.ErrorFocus, Is.Null);
             Assert.That(editor.Error, Is.Null);
             Assert.That(editor.Changed, Is.False);
+            Assert.That(editor.Saving, Is.False);
         });
     }
 
     [Test]
-    public async Task Start_TakesACopySoLaterEditsLeaveTheGivenAndThePreviousListsAlone()
+    public void Start_TakesACopySoLaterEditsLeaveTheGivenAndThePreviousListsAlone()
     {
         var given = new List<ExerciseState> { SampleData.Exercise(Catalog, Squat, ["8", "60"]) };
         editor.Start(given);
+        editor.Pick(Item(Treadmill));
         var previous = editor.Exercises;
-        await editor.SaveAsync(_ => Task.FromResult(true));
 
         editor.Start([]);
         editor.Pick(Item(Treadmill));
@@ -191,8 +195,7 @@ public class WorkoutEditorTests
         Assert.Multiple(() =>
         {
             Assert.That(given, Has.Count.EqualTo(1));
-            Assert.That(previous, Has.Count.EqualTo(1));
-            Assert.That(editor.Saving, Is.False);
+            Assert.That(previous, Has.Count.EqualTo(2));
         });
     }
 
