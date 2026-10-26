@@ -28,6 +28,7 @@ public class CoreServiceCollectionExtensionsTests
             (typeof(IWorkoutService), typeof(WorkoutService), ServiceLifetime.Singleton),
             (typeof(IHistoryService), typeof(HistoryService), ServiceLifetime.Singleton),
             (typeof(IDashboardService), typeof(DashboardService), ServiceLifetime.Singleton),
+            (typeof(IWeightHistoryService), typeof(WeightHistoryService), ServiceLifetime.Singleton),
         }));
     }
 
@@ -46,6 +47,7 @@ public class CoreServiceCollectionExtensionsTests
             Assert.That(provider.GetRequiredService<IWorkoutService>(), Is.InstanceOf<WorkoutService>());
             Assert.That(provider.GetRequiredService<IHistoryService>(), Is.InstanceOf<HistoryService>());
             Assert.That(provider.GetRequiredService<IDashboardService>(), Is.InstanceOf<DashboardService>());
+            Assert.That(provider.GetRequiredService<IWeightHistoryService>(), Is.InstanceOf<WeightHistoryService>());
         });
     }
 

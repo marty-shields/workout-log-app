@@ -159,6 +159,18 @@ public sealed class WorkoutSteps(WebView web, Native native, Journeys journeys, 
     [Then(@"^there (?:is|are) (\d+) exercises?$")]
     public void ThenThereAreExercises(int count) => web.Eventually(() => workout.ExerciseNames().Count, Is.EqualTo(count));
 
+    [Then(@"^(.+) has last and PB ""(.*)""$")]
+    public void ThenHasLastAndPb(string name, string text) => web.Eventually(() => workout.Weights(name), Is.EqualTo(text), $"{name} last and PB");
+
+    /// <summary>Waits for the card, then the settle time, then checks it has no last and PB line.</summary>
+    [Then(@"^(.+) has no last and PB$")]
+    public void ThenHasNoLastAndPb(string name)
+    {
+        workout.Card(name);
+        web.Settle();
+        Assert.That(workout.Weights(name), Is.Null, $"{name} last and PB");
+    }
+
     [When(@"^I remove every exercise$")]
     public void WhenIRemoveEveryExercise()
     {

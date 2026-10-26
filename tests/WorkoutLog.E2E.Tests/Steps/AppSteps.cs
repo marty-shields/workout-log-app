@@ -17,6 +17,11 @@ public sealed class AppSteps(
     {
         if (screen == "the Dashboard")
         {
+            if (!native.Launched)
+            {
+                native.Launch();
+            }
+
             journeys.WaitFor(Journeys.Screen.Dashboard);
             dashboard.LastWorkout();
         }

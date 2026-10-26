@@ -221,6 +221,71 @@ public class WorkoutRepositoryTests
     }
 
     [Test]
+    public async Task GetWeightsAsync_NoWorkoutHasTheExercise_ReturnsEmpty()
+    {
+        await repository.AddAsync(new NewWorkout(Start, Finish, [new StrengthExercise(2, [new StrengthSet(5, 60m, null, null)])]));
+
+        Assert.That(await repository.GetWeightsAsync(1), Is.Empty);
+    }
+
+    [Test]
+    public async Task GetWeightsAsync_OrdersByStartTimeNewestFirstNotById()
+    {
+        var middle = await AddWeightsAsync(Start, 60m);
+        var oldest = await AddWeightsAsync(Start.AddDays(-2), 50m);
+        var newest = await AddWeightsAsync(Start.AddHours(3), 70m);
+
+        Assert.That(await repository.GetWeightsAsync(1), Is.EqualTo(new[]
+        {
+            new WorkoutWeights(newest, [70m]),
+            new WorkoutWeights(middle, [60m]),
+            new WorkoutWeights(oldest, [50m]),
+        }).UsingPropertiesComparer());
+    }
+
+    [Test]
+    public async Task GetWeightsAsync_SameStartTime_NewestIdFirst()
+    {
+        var first = await AddWeightsAsync(Start, 60m);
+        var second = await AddWeightsAsync(Start, 70m);
+
+        Assert.That((await repository.GetWeightsAsync(1)).Select(w => w.WorkoutId), Is.EqualTo(new[] { second, first }));
+    }
+
+    [Test]
+    public async Task GetWeightsAsync_ReturnsEachSetsWeightAndSkipsSetsWithout()
+    {
+        var id = await repository.AddAsync(new NewWorkout(Start, Finish,
+        [
+            new StrengthExercise(1, [new StrengthSet(5, 22.75m, null, null), new StrengthSet(5, null, null, null), new StrengthSet(5, 0m, null, null)]),
+            new StrengthExercise(2, [new StrengthSet(5, 100m, null, null)]),
+        ]));
+
+        Assert.That(await repository.GetWeightsAsync(1), Is.EqualTo(new[] { new WorkoutWeights(id, [22.75m, 0m]) }).UsingPropertiesComparer());
+    }
+
+    [Test]
+    public async Task GetWeightsAsync_NoSetHasAWeight_ReturnsTheWorkoutWithNoWeights()
+    {
+        var noWeight = await repository.AddAsync(new NewWorkout(Start, Finish, [new StrengthExercise(1, [new StrengthSet(5, null, null, null)])]));
+        var noSets = await repository.AddAsync(new NewWorkout(Start.AddHours(1), Finish, [new StrengthExercise(1, [])]));
+
+        Assert.That(await repository.GetWeightsAsync(1), Is.EqualTo(new[]
+        {
+            new WorkoutWeights(noSets, []),
+            new WorkoutWeights(noWeight, []),
+        }).UsingPropertiesComparer());
+    }
+
+    [Test]
+    public async Task GetWeightsAsync_ExerciseTwiceInAWorkout_ReturnsOneEntryWithBothWeights()
+    {
+        var id = await repository.AddAsync(new NewWorkout(Start, Finish, Exercises()));
+
+        Assert.That(await repository.GetWeightsAsync(1), Is.EqualTo(new[] { new WorkoutWeights(id, [22.75m, 25m, 20m]) }).UsingPropertiesComparer());
+    }
+
+    [Test]
     public async Task ReplaceExercisesAsync_ReplacesTheChildrenAndKeepsTheTimes()
     {
         var id = await repository.AddAsync(new NewWorkout(Start, Finish, Exercises()));
@@ -315,6 +380,10 @@ public class WorkoutRepositoryTests
 
         return ids;
     }
+
+    /// <summary>Adds a workout starting at <paramref name="started"/> with one set of exercise 1 at <paramref name="weightKg"/>. Returns its id.</summary>
+    private Task<int> AddWeightsAsync(DateTimeOffset started, decimal weightKg) =>
+        repository.AddAsync(new NewWorkout(started, started.AddHours(1), [new StrengthExercise(1, [new StrengthSet(5, weightKg, null, null)])]));
 
     private sealed record OtherExercise(int ExerciseId) : WorkoutExercise(ExerciseId);
 

@@ -41,6 +41,36 @@
         </Template>
     </Story>
 
+    <Story Name="Last and PB - none">
+        <Template>
+            <ExerciseCard Exercise="@SampleData.WithWeights(SampleData.NewExercise(Catalog, 6), null, null)" />
+        </Template>
+    </Story>
+
+    <Story Name="Last and PB - one workout">
+        <Template>
+            <ExerciseCard Exercise="@SampleData.WithWeights(SampleData.NewExercise(Catalog, 6), 60m, 60m)" />
+        </Template>
+    </Story>
+
+    <Story Name="Last and PB - many workouts">
+        <Template>
+            <ExerciseCard Exercise="@SampleData.WithWeights(SampleData.NewExercise(Catalog, 6), 62.5m, 70m)" />
+        </Template>
+    </Story>
+
+    <Story Name="Last and PB - no weight last time">
+        <Template>
+            <ExerciseCard Exercise="@SampleData.WithWeights(SampleData.NewExercise(Catalog, 6), null, 70m)" />
+        </Template>
+    </Story>
+
+    <Story Name="Last and PB - assisted">
+        <Template>
+            <ExerciseCard Exercise="@SampleData.WithWeights(SampleData.NewExercise(Catalog, 218), 25m, 20m)" />
+        </Template>
+    </Story>
+
     <Story Name="Cardio">
         <Template>
             <ExerciseCard Exercise="@SampleData.Exercise(Catalog, 300, ["0:20:00", "3.2", "1.5", "210", "9.6"])" />

@@ -77,6 +77,23 @@ internal sealed class WorkoutRepository(SQLiteAsyncConnection connection) : IWor
     }
 
     /// <inheritdoc />
+    public async Task<IReadOnlyList<WorkoutWeights>> GetWeightsAsync(int exerciseId)
+    {
+        const string sql = """
+            SELECT w.Id AS WorkoutId, s.WeightKg AS WeightKg
+            FROM Workout w
+            JOIN WorkoutExercise e ON e.WorkoutId = w.Id
+            LEFT JOIN StrengthSet s ON s.WorkoutExerciseId = e.Id
+            WHERE e.ExerciseId = ?
+            ORDER BY w.StartedAt DESC, w.Id DESC, e.Position, s.Position
+            """;
+        var rows = await connection.QueryAsync<WeightRow>(sql, exerciseId);
+        return rows.GroupBy(r => r.WorkoutId)
+            .Select(g => new WorkoutWeights(g.Key, g.Where(r => r.WeightKg is not null).Select(r => r.WeightKg!.Value).ToList()))
+            .ToList();
+    }
+
+    /// <inheritdoc />
     public Task DeleteAsync(int id) =>
         connection.RunInTransactionAsync(db =>
         {
@@ -149,4 +166,12 @@ internal sealed class WorkoutRepository(SQLiteAsyncConnection connection) : IWor
 
     private static CardioEntry ToEntry(CardioEntryRow row) =>
         new(row.Duration, row.Distance, row.Floors, row.Level, row.Incline, row.Calories, row.Rate, row.Pace);
+
+    /// <summary>One set's weight with its workout id; null weight for a set without one or an exercise without sets.</summary>
+    private sealed class WeightRow
+    {
+        public int WorkoutId { get; set; }
+
+        public decimal? WeightKg { get; set; }
+    }
 }

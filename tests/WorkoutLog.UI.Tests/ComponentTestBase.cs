@@ -10,7 +10,8 @@ namespace WorkoutLog.UI.Tests;
 
 /// <summary>
 /// Creates a fresh bUnit context for each test with the UI's services (<see cref="UiServiceCollectionExtensions.AddUi"/>),
-/// a <see cref="BackButton"/>, the exercise catalog and a <see cref="SampleWorkoutService"/>. Tests may register their own workout service.
+/// a <see cref="BackButton"/>, the exercise catalog, a <see cref="SampleWorkoutService"/> and a <see cref="SampleWeightHistoryService"/>.
+/// Tests may register their own workout and weight history services.
 /// </summary>
 public abstract class ComponentTestBase
 {
@@ -31,6 +32,7 @@ public abstract class ComponentTestBase
         Context.Services.AddSingleton<IBackButton>(BackButton);
         Context.Services.AddSingleton(Catalog);
         Context.Services.AddSingleton<IWorkoutService>(new SampleWorkoutService(new FakeTimeProvider(), Catalog));
+        Context.Services.AddSingleton<IWeightHistoryService>(new SampleWeightHistoryService());
     }
 
     [TearDown]

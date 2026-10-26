@@ -8,6 +8,10 @@
         <h2 class="name">@Exercise.Name</h2>
         <AppButton @ref="remove" Variant="ButtonVariant.Text" TestId="@($"{TestId}-remove")" OnClick="OnRemove">Remove<span class="visually-hidden">@($" {Exercise.Name}")</span></AppButton>
     </header>
+    @if (Exercise.BestKg is { } best)
+    {
+        <p class="weights" data-testid="@($"{TestId}-weights")"><span>Last @DisplayFormat.Weight(Exercise.LastKg)</span> <span aria-hidden="true">·</span> <span>PB @DisplayFormat.Weight(best)</span></p>
+    }
     @if (Exercise.Error is not null)
     {
         <p class="error" role="alert" data-testid="@($"{TestId}-error")">@Exercise.Error</p>

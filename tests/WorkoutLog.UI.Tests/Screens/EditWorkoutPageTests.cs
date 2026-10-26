@@ -1098,6 +1098,17 @@ public class EditWorkoutPageTests : ComponentTestBase
     }
 
     [Test]
+    public async Task LoadedAndPicked_ShowNoLastAndPbLine()
+    {
+        var cut = await RenderLoadedAsync();
+
+        Add(cut, 132);
+        await WaitForRendererAsync();
+
+        Assert.That(cut.FindAll("[data-testid$=-weights]"), Is.Empty);
+    }
+
+    [Test]
     public async Task Pick_ClearsTheWorkoutError()
     {
         var cut = await RenderLoadedAsync();

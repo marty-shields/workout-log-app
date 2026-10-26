@@ -74,7 +74,7 @@ public sealed class WorkoutSeeder(Native native)
         }
     }
 
-    /// <summary>Stops the app and replaces its database with the file at <paramref name="path"/>.</summary>
+    /// <summary>Stops the app and replaces its database with the file at <paramref name="path"/>. The app need not have run yet.</summary>
     private static void Install(string path)
     {
         var adb = AppiumSetup.Adb;
@@ -83,6 +83,7 @@ public sealed class WorkoutSeeder(Native native)
         try
         {
             adb.Shell("chmod", "644", DeviceTemp);
+            adb.Shell("run-as", AppiumSetup.Package, "mkdir", "-p", "files");
             adb.Shell("run-as", AppiumSetup.Package, "rm", "-f", $"{AppDatabase}-journal", $"{AppDatabase}-wal", $"{AppDatabase}-shm");
             adb.Shell("run-as", AppiumSetup.Package, "cp", DeviceTemp, AppDatabase);
         }

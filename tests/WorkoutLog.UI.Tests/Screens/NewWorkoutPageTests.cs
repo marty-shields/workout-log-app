@@ -604,6 +604,127 @@ public class NewWorkoutPageTests : ComponentTestBase
     }
 
     [Test]
+    public async Task Pick_Strength_ShowsNothingWhileLoadingThenLastAndPb()
+    {
+        var weights = UseWeights();
+        var cut = RenderPage();
+
+        Add(cut, 6);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(weights.Loads, Is.EqualTo(new[] { 6 }));
+            Assert.That(cut.FindAll("[data-testid=exercise-1-weights]"), Is.Empty);
+        });
+        weights.Complete(new WeightHistoryResult(62.5m, 70m, Failed: false));
+        await WaitForRendererAsync();
+        cut.WaitForAssertion(() => Assert.That(cut.Find("[data-testid=exercise-1-weights]").TextContent, Is.EqualTo("Last 62.5kg · PB 70kg")));
+    }
+
+    [TestCase(false)]
+    [TestCase(true)]
+    public async Task Pick_NoWeightsOrFailedLoad_ShowsNoLineAndLogsNothing(bool failed)
+    {
+        var weights = UseWeights();
+        var cut = RenderPage();
+        Add(cut, 6);
+
+        weights.Complete(new WeightHistoryResult(null, null, failed));
+        await WaitForRendererAsync();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.FindAll("[data-testid=exercise-1-weights]"), Is.Empty);
+            Assert.That(cut.FindAll("[data-testid=exercise-1-set-1-reps]"), Has.Count.EqualTo(1));
+            Assert.That(LoggedEvents.Of(logger), Is.Empty);
+        });
+    }
+
+    [Test]
+    public void Pick_Cardio_LoadsNoWeights()
+    {
+        var weights = UseWeights();
+        var cut = RenderPage();
+
+        Add(cut, 300);
+
+        Assert.That(weights.Loads, Is.Empty);
+    }
+
+    [Test]
+    public async Task PickAgain_DoesNotReloadAndKeepsTheLine()
+    {
+        var weights = UseWeights();
+        var cut = RenderPage();
+        Add(cut, 6);
+        weights.Complete(new WeightHistoryResult(60m, 70m, Failed: false));
+        await WaitForRendererAsync();
+
+        Add(cut, 6);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(weights.Loads, Is.EqualTo(new[] { 6 }));
+            Assert.That(cut.Find("[data-testid=exercise-1-weights]").TextContent, Is.EqualTo("Last 60kg · PB 70kg"));
+        });
+    }
+
+    [Test]
+    public async Task PickAgain_AfterRemoving_LoadsAgain()
+    {
+        var weights = UseWeights();
+        var cut = RenderPage();
+        Add(cut, 6);
+        weights.Complete(new WeightHistoryResult(60m, 70m, Failed: false));
+        await WaitForRendererAsync();
+        cut.Find("[data-testid=exercise-1-remove]").Click();
+
+        Add(cut, 6);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(weights.Loads, Is.EqualTo(new[] { 6, 6 }));
+            Assert.That(cut.FindAll("[data-testid=exercise-1-weights]"), Is.Empty);
+        });
+    }
+
+    [Test]
+    public async Task LoadFinishingAfterRemove_ShowsNothing()
+    {
+        var weights = UseWeights();
+        var cut = RenderPage();
+        Add(cut, 6);
+        cut.Find("[data-testid=exercise-1-remove]").Click();
+
+        weights.Complete(new WeightHistoryResult(60m, 70m, Failed: false));
+        await WaitForRendererAsync();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(Names(cut), Is.Empty);
+            Assert.That(cut.FindAll("[data-testid$=-weights]"), Is.Empty);
+        });
+    }
+
+    [Test]
+    public async Task LoadFinishingAfterRemoveAndAddAgain_ShowsOnlyTheNewLoad()
+    {
+        var weights = UseWeights();
+        var cut = RenderPage();
+        Add(cut, 6);
+        cut.Find("[data-testid=exercise-1-remove]").Click();
+        Add(cut, 6);
+
+        weights.Complete(new WeightHistoryResult(50m, 55m, Failed: false), index: 0);
+        await WaitForRendererAsync();
+        Assert.That(cut.FindAll("[data-testid=exercise-1-weights]"), Is.Empty);
+
+        weights.Complete(new WeightHistoryResult(60m, 70m, Failed: false), index: 1);
+        await WaitForRendererAsync();
+        cut.WaitForAssertion(() => Assert.That(cut.Find("[data-testid=exercise-1-weights]").TextContent, Is.EqualTo("Last 60kg · PB 70kg")));
+    }
+
+    [Test]
     public void Save_ExerciseWithNoSets_ShowsWhyAndFocusesItsAddSet()
     {
         var cut = RenderPage();
@@ -940,6 +1061,32 @@ public class NewWorkoutPageTests : ComponentTestBase
         var workouts = new CountingWorkoutService(new SampleWorkoutService(draftClock, Catalog));
         Context.Services.AddSingleton<IWorkoutService>(workouts);
         return workouts;
+    }
+
+    private PendingWeightHistory UseWeights()
+    {
+        var weights = new PendingWeightHistory();
+        Context.Services.AddSingleton<IWeightHistoryService>(weights);
+        return weights;
+    }
+
+    /// <summary>Records the exercise id of each load; each load waits until the test completes it.</summary>
+    private sealed class PendingWeightHistory : IWeightHistoryService
+    {
+        private readonly List<TaskCompletionSource<WeightHistoryResult>> pending = [];
+
+        public List<int> Loads { get; } = [];
+
+        public Task<WeightHistoryResult> GetAsync(int exerciseId)
+        {
+            Loads.Add(exerciseId);
+            var load = new TaskCompletionSource<WeightHistoryResult>(TaskCreationOptions.RunContinuationsAsynchronously);
+            pending.Add(load);
+            return load.Task;
+        }
+
+        /// <summary>Completes a load: the latest, or the one at <paramref name="index"/> in call order.</summary>
+        public void Complete(WeightHistoryResult result, int? index = null) => pending[index ?? pending.Count - 1].SetResult(result);
     }
 
     /// <summary>A <see cref="FakeTimeProvider"/> that keeps the timers it creates and can fail reads of the time.</summary>
