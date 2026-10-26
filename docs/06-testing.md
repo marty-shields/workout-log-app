@@ -16,7 +16,7 @@
 - The UI is HTML inside an Android WebView. Appium switches from the `NATIVE_APP` context to `WEBVIEW_uk.martinshields.workoutlog.debug` to find elements. Debug builds turn on WebView debugging (`AddBlazorWebViewDeveloperTools`); Chromedriver for the device's WebView downloads itself (T76).
 - `AppiumSetup` (`[SetUpFixture]`, `[Explicit]`) starts Appium, opens one session for the run and installs the Debug APK. At the end it closes the Debug app, leaving it installed, and removes Appium's helper apps from the device (T77).
 - Scenarios are Gherkin in `tests/WorkoutLog.E2E.Tests/Features/`, run by Reqnroll on NUnit (T80). Each feature describes what it covers. Scenarios are tagged with their stories, FRs and decisions, on the feature when every scenario shares them; `@smoke` marks the core journeys (D204, D208).
-- `AppHooks` runs before each scenario: it fails at once if the device is locked, then clears the Debug app's data, launches the app and switches to the WebView. So every scenario starts as a fresh install.
+- `AppHooks` runs before each scenario: it fails at once if the device is locked, then clears the Debug app's data, so every scenario starts as a fresh install. Before the first step it launches the app and switches to the WebView, unless that step launches the app itself: the seeding steps and "Given I am on" (T115).
 - "Given these saved workouts" builds a database on the PC with Core and copies it into the app (T81). What a scenario is about is done through the UI.
 - Expected dates and counts come from the device's clock and time zone (D205).
 - Steps find elements by `data-testid` through the screen classes in `Screens/`. Typing goes a key at a time (T82).

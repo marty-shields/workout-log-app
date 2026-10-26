@@ -35,5 +35,6 @@ public class CoreEventTests
             [CoreEvent.HistoryLoadFailed] = 1302,
             [CoreEvent.DashboardLoaded] = 1401,
             [CoreEvent.DashboardLoadFailed] = 1402,
+            [CoreEvent.WeightHistoryLoadFailed] = 1501,
         }));
 }

@@ -50,7 +50,7 @@ public class SetSummaryTests : ComponentTestBase
         Assert.Multiple(() =>
         {
             Assert.That(cut.Find(".number").TextContent, Is.EqualTo("1"));
-            Assert.That(cut.Find(".text").TextContent, Is.EqualTo("40 m · 32 kg · 0:00:45"));
+            Assert.That(cut.Find(".text").TextContent, Is.EqualTo("40m · 32kg · 0:00:45"));
         });
     }
 
@@ -89,7 +89,7 @@ public class SetSummaryTests : ComponentTestBase
             .Add(x => x.Fields, Carry)
             .Add(x => x.Entry, Entry(("distance", "30"), ("weight", null), ("duration", "::"))));
 
-        Assert.That(cut.Find(".text").TextContent, Is.EqualTo("30 m"));
+        Assert.That(cut.Find(".text").TextContent, Is.EqualTo("30m"));
     }
 
     [Test]
@@ -139,7 +139,7 @@ public class SetSummaryTests : ComponentTestBase
             .Add(x => x.Entry, Entry(("distance", "40")))
             .Add(x => x.TestId, "set-2"));
 
-        Assert.That(TestText.Normalise(cut.Find("[data-testid=set-2-open]").TextContent), Is.EqualTo("Set 2 40 m ›"));
+        Assert.That(TestText.Normalise(cut.Find("[data-testid=set-2-open]").TextContent), Is.EqualTo("Set 2 40m ›"));
     }
 
     [Test]

@@ -54,6 +54,10 @@ public sealed partial class WorkoutScreen(WebView web, Native native)
         return web.FindAll($"[data-testid=\"{testId}\"] .error").Select(e => e.Text.Trim()).ToList();
     }
 
+    /// <summary>The card's last and PB line as its text content, e.g. "Last 60kg · PB 70kg", or null when it has none.</summary>
+    public string? Weights(string name) =>
+        web.Exists($"{Card(name)}-weights") ? web.Find($"{Card(name)}-weights").GetDomProperty("textContent")?.Trim() : null;
+
     public string? ExerciseError(string name) => web.Exists($"{Card(name)}-error") ? web.Text($"{Card(name)}-error") : null;
 
     /// <summary>Field labels of a set (<paramref name="set"/> given) or a cardio entry, in order.</summary>

@@ -6,11 +6,11 @@ Made from 2026-10-21 to 2026-10-26. Every decision is **Accepted** unless its Ch
 | Topic | Decisions |
 |---|---|
 | Product and scope | D01–D10, D26–D31, D45–D48, D69 |
-| Workouts, metrics and validation | D11–D25, D33–D44, D61, D63–D65, D70, D76–D78, D84–D93, D103–D108, D126–D130, D157–D179, D188, D236; T22–T34, T55 |
+| Workouts, metrics and validation | D11–D25, D33–D44, D61, D63–D65, D70, D76–D78, D84–D93, D103–D108, D126–D130, D157–D179, D188, D236–D238; T22–T34, T55 |
 | Exercise list and search | D04, D05, D72, D79–D83, D89–D92, D94, D122–D125, D146–D156 |
 | Screens and design system | D66, D67, D96–D121, D131, D133–D134, D138, D140, D143–D145, D180–D199, D209–D214 |
 | Architecture and logging | T01–T06, T13, T15, T19, T21, T25–T27, T35–T36, T38–T74, T99, T112; D139–D142 |
-| Testing | D200–D208, D215; T07, T14, T16–T18, T20, T75–T88, T94, T108–T109 |
+| Testing | D200–D208, D215; T07, T14, T16–T18, T20, T75–T88, T94, T108–T109, T115 |
 | Build, CI and release | D60, D68, D135–D136, D220, D223–D229; T08–T10, T89–T98, T101–T107, T111, T113–T114 |
 | Ways of working and docs | D49–D59, D73–D75, D193, D216–D219, D221–D222, D230–D235; T11–T12, T100, T110 |
 
@@ -253,6 +253,8 @@ Made from 2026-10-21 to 2026-10-26. Every decision is **Accepted** unless its Ch
 | D234 | README links (US-27) | The root README has no Documentation section; the docs are in `docs/`. Amends D221 | Keep the links to the docs, decisions, backlog and ideas |
 | D235 | Docs describe the app as it is (US-27) | The docs describe only what the released app has: no scope, plans or ideas; a change updates them as it lands. The Vision & scope doc is deleted and the docs renumbered 01–10 (Requirements 01 … Design system 10). Amends D231 | Keep Vision & scope; keep the old numbers |
 | D236 | Newest exercise first (#64) | Exercise cards show newest first; sets stay in the order added. A picked exercise goes on top and scrolls into view; picking one already in the workout moves its card to the top and is a change. Saved positions are the order added or last picked, from 0, so saved workouts need no migration ([05](05-screens-ux.md#new--edit-workout)). Amends D21, D151, D154, D189 | Bottom (as before); display only, keeping saved order; moving only when not on top |
+| D237 | Last and PB weight (#53) | New Workout strength cards show the best weight of the last saved workout with the exercise (latest start, then newest id) and of all saved workouts, from `IWeightHistoryService`. Best is the heaviest, or the lowest on an exercise whose weight is labelled `Assist`; 0 kg counts. Loaded once when the card is added; a failed load hides the line and Core logs Error 1501 ([05](05-screens-ux.md#new--edit-workout)) | Also on Edit; heaviest set's reps; a live "new PB" marker; highest assist as best |
+| D238 | Units in text (#53) | A value written with its unit has no space: *60kg*, *40m*, *3.2km*, in the last and PB line and set summaries; a count keeps its word, *8 reps* ([05](05-screens-ux.md#new--edit-workout)) | A space, e.g. *60 kg* |
 
 ## Technical
 | # | Decision | Choice | Alternatives |
@@ -371,3 +373,4 @@ Made from 2026-10-21 to 2026-10-26. Every decision is **Accepted** unless its Ch
 | T112 | Shared workout editing (#62) | `WorkoutEditor` (UI), a transient each workout page injects, holds the exercises, picker, changes and the check and save for New Workout, Edit Workout and the stories prototype; each page keeps its own load, timer, back, discard and delete ([04](04-architecture.md#dependency-injection)). Amends T47, T65 | A shared Razor component; a base page class; one page for New and Edit |
 | T113 | E2E on PRs (#62) | `e2e.yml` runs the E2E suite on every PR to `main` and in the release; its `emulator-e2e-tests` job is a required check; the emulator's AVD and image are set in `emulator-start.sh` ([07](07-dev-setup-build.md#qa-pipeline)). Amends T91, T104, T105, T106. Amended by T114 | Release only; skip docs-only PRs; required per shard |
 | T114 | E2E after the dev pipeline (#64) | The workflows are renamed: `pr-build.yml` is the PR caller, `dev-pipeline.yml` builds and runs the Core and UI tests, `qa-pipeline.yml` runs the E2E suite. On PRs to `main` the QA pipeline runs only if the dev pipeline passes; the required checks are `dev / build-and-test` and `qa / emulator-e2e-tests`; the release still runs both side by side ([07](07-dev-setup-build.md#ci)). Amends T91, T113 | Build and E2E side by side; one workflow for both |
+| T115 | One app launch per E2E scenario (#53) | `AppHooks` clears the app before each scenario and launches it before the first step, unless that step launches it itself (seeding steps, after copying the database in, and "Given I am on"), so every scenario starts the app once ([06](06-testing.md#e2e-tests-appium)) | Launch in the hook, then again after seeding |

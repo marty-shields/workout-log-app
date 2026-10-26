@@ -15,11 +15,13 @@ public class GatedWorkoutRepositoryMockTests
         var workout = new NewWorkout(Start, Start, Exercises);
         var stored = new Workout(3, Start, Start, Exercises);
         IReadOnlyList<WorkoutSummary> summaries = [new WorkoutSummary(3, Start)];
+        IReadOnlyList<WorkoutWeights> weights = [new WorkoutWeights(3, [20m])];
         var inner = new Mock<IWorkoutRepository>(MockBehavior.Strict);
         inner.Setup(r => r.AddAsync(workout)).ReturnsAsync(3);
         inner.Setup(r => r.ReplaceExercisesAsync(3, Exercises)).Returns(Task.CompletedTask);
         inner.Setup(r => r.GetAsync(3)).ReturnsAsync(stored);
         inner.Setup(r => r.ListAsync(Start, Start, 5)).ReturnsAsync(summaries);
+        inner.Setup(r => r.GetWeightsAsync(1)).ReturnsAsync(weights);
         inner.Setup(r => r.DeleteAsync(3)).Returns(Task.CompletedTask);
         var gated = new GatedWorkoutRepository(inner.Object, new DatabaseGate());
 
@@ -27,6 +29,7 @@ public class GatedWorkoutRepositoryMockTests
         await gated.ReplaceExercisesAsync(3, Exercises);
         Assert.That(await gated.GetAsync(3), Is.SameAs(stored));
         Assert.That(await gated.ListAsync(Start, Start, 5), Is.SameAs(summaries));
+        Assert.That(await gated.GetWeightsAsync(1), Is.SameAs(weights));
         await gated.DeleteAsync(3);
 
         inner.VerifyAll();
@@ -36,6 +39,7 @@ public class GatedWorkoutRepositoryMockTests
     [TestCase("Replace", nameof(IWorkoutRepository.ReplaceExercisesAsync))]
     [TestCase("Get", nameof(IWorkoutRepository.GetAsync))]
     [TestCase("List", nameof(IWorkoutRepository.ListAsync))]
+    [TestCase("Weights", nameof(IWorkoutRepository.GetWeightsAsync))]
     [TestCase("Delete", nameof(IWorkoutRepository.DeleteAsync))]
     public async Task Call_WhileTheGateIsHeld_DoesNotReachTheInner(string call, string method)
     {
@@ -51,6 +55,7 @@ public class GatedWorkoutRepositoryMockTests
             "Replace" => gated.ReplaceExercisesAsync(1, []),
             "Get" => gated.GetAsync(1),
             "List" => gated.ListAsync(),
+            "Weights" => gated.GetWeightsAsync(1),
             _ => gated.DeleteAsync(1),
         };
 

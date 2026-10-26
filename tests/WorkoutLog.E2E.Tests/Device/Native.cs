@@ -43,6 +43,9 @@ public sealed class Native(WebView web)
 
     public AppState State() => App.GetAppState(AppiumSetup.Package);
 
+    /// <summary>Whether <see cref="Launch"/> has run in this scenario.</summary>
+    public bool Launched { get; private set; }
+
     /// <summary>Stops the app, then starts it and switches to its WebView.</summary>
     public void Restart()
     {
@@ -57,5 +60,6 @@ public sealed class Native(WebView web)
         App.ActivateApp(AppiumSetup.Package);
         web.WaitUntil(() => App.Contexts.Contains(WebView), $"{WebView} didn't appear", LaunchTimeout);
         App.Context = WebView;
+        Launched = true;
     }
 }

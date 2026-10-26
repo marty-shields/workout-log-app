@@ -2,7 +2,7 @@ using System.Globalization;
 
 namespace WorkoutLog.UI;
 
-/// <summary>Text formats for dates and times.</summary>
+/// <summary>Text formats for dates, times and weights.</summary>
 internal static class DisplayFormat
 {
     /// <summary>Day and date, e.g. Tue 20 Oct 2026.</summary>
@@ -13,4 +13,7 @@ internal static class DisplayFormat
 
     /// <summary>Elapsed time as h:mm:ss.</summary>
     public static string Duration(TimeSpan value) => $"{(int)value.TotalHours}:{value.Minutes:00}:{value.Seconds:00}";
+
+    /// <summary>Weight with up to 2 decimal places, no trailing zeros and no space before the unit, e.g. 22.5kg; — when there is none.</summary>
+    public static string Weight(decimal? kg) => kg is { } value ? $"{value.ToString("0.##", CultureInfo.InvariantCulture)}kg" : "—";
 }

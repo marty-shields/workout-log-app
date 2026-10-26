@@ -67,6 +67,28 @@ public static class SampleData
         Exercise(catalog, 187, ["40", "32", null]),
     ];
 
+    /// <summary>Last and PB weights of the sample exercises, by id: squat, assisted pull-up, plank (no weight last time), carry and curl.</summary>
+    public static IReadOnlyDictionary<int, (decimal? LastKg, decimal BestKg)> Weights { get; } = new Dictionary<int, (decimal?, decimal)>
+    {
+        [6] = (62.5m, 70m),
+        [218] = (25m, 20m),
+        [258] = (null, 10m),
+        [187] = (32m, 36m),
+        [132] = (12m, 14m),
+    };
+
+    /// <summary>Sets the exercise's last and PB weights, as New Workout does after a pick, and returns it.</summary>
+    public static ExerciseState WithWeights(ExerciseState exercise, decimal? lastKg, decimal? bestKg)
+    {
+        exercise.LastKg = lastKg;
+        exercise.BestKg = bestKg;
+        return exercise;
+    }
+
+    /// <summary><see cref="StrengthWorkout"/> with each exercise's <see cref="Weights"/>.</summary>
+    public static List<ExerciseState> StrengthWorkoutWithWeights(IExerciseCatalog catalog) =>
+        StrengthWorkout(catalog).Select(e => WithWeights(e, Weights[e.ExerciseId].LastKg, Weights[e.ExerciseId].BestKg)).ToList();
+
     /// <summary>These exercises just after Dumbbell Curl is added: its card is on top, with one empty set.</summary>
     public static List<ExerciseState> NewestFirst(IExerciseCatalog catalog, List<ExerciseState> exercises) => [NewExercise(catalog, 132), .. exercises];
 

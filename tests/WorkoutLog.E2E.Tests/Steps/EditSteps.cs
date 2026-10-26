@@ -143,7 +143,7 @@ public sealed class EditSteps(WebView web, Journeys journeys, WorkoutScreen work
     private static Dictionary<string, string> Filled(IEnumerable<string> keys, EntryValues entry) =>
         keys.ToDictionary(k => k, k => entry.Values.GetValueOrDefault(k, ""));
 
-    /// <summary>A closed set's summary line, e.g. 40 m · 32 kg · 0:00:45.</summary>
+    /// <summary>A closed set's summary line, e.g. 40m · 32kg · 0:00:45.</summary>
     private static string Summary(ExerciseDefinition definition, EntryValues entry) =>
         string.Join(" · ", Exercises.Keys(definition).Where(entry.Values.ContainsKey).Select(key =>
         {
@@ -151,8 +151,8 @@ public sealed class EditSteps(WebView web, Journeys journeys, WorkoutScreen work
             return key switch
             {
                 "duration" or "pace" => value,
-                "weight" => $"{value} kg",
-                "distance" => $"{value} {DistanceUnit(definition)}",
+                "weight" => $"{value}kg",
+                "distance" => $"{value}{DistanceUnit(definition)}",
                 _ => $"{value} {key}",
             };
         }));

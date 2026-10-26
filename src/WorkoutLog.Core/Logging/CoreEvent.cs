@@ -59,4 +59,7 @@ internal enum CoreEvent
 
     /// <summary><see cref="Services.DashboardService"/>: reading the Dashboard failed.</summary>
     DashboardLoadFailed = 1402,
+
+    /// <summary><see cref="Services.WeightHistoryService"/>: reading an exercise's weights failed.</summary>
+    WeightHistoryLoadFailed = 1501,
 }

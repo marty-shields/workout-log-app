@@ -4,6 +4,7 @@
 @using WorkoutLog.UI.Components.Workout
 @implements IDisposable
 @inject IWorkoutService Workouts
+@inject IWeightHistoryService WeightHistory
 @inject TimeProvider Clock
 @inject ISetChecker Checker
 @inject WorkoutEditor Editor
@@ -24,7 +25,7 @@
     <Overlay>
         @if (Editor.PickerOpen)
         {
-            <ExercisePicker Query="@Editor.Query" QueryChanged="Editor.Search" Items="Editor.PickerItems" OnPick="Editor.Pick" OnClose="Editor.ClosePicker" />
+            <ExercisePicker Query="@Editor.Query" QueryChanged="Editor.Search" Items="Editor.PickerItems" OnPick="PickAsync" OnClose="Editor.ClosePicker" />
         }
         @if (discardOpen)
         {
@@ -71,6 +72,25 @@
     }
 
     private void CloseDiscard() => discardOpen = false;
+
+    /// <summary>
+    /// Picks the exercise (<see cref="WorkoutEditor.Pick"/>). A strength exercise not yet in the workout then loads its last and
+    /// best weights through <see cref="IWeightHistoryService.GetAsync"/> (FR-15); a failed load shows none.
+    /// </summary>
+    private async Task PickAsync(PickerItem item)
+    {
+        var added = Editor.Exercises.All(e => e.ExerciseId != item.Id);
+        Editor.Pick(item);
+        if (!added || item.Kind != ExerciseKind.Strength)
+        {
+            return;
+        }
+
+        var exercise = Editor.Exercises.Single(e => e.ExerciseId == item.Id);
+        var weights = await WeightHistory.GetAsync(item.Id);
+        exercise.LastKg = weights.LastKg;
+        exercise.BestKg = weights.BestKg;
+    }
 
     /// <summary>
     /// Logs the exercise count only (D142) and raises <see cref="OnDiscarded"/>, once. While a save runs or after one

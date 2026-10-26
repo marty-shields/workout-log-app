@@ -30,4 +30,10 @@ public sealed class ExerciseState(int exerciseId, string name, ExerciseKind kind
 
     /// <summary>Core's code behind <see cref="Error"/>, when Save set it.</summary>
     public ExerciseError? ErrorCode { get; set; }
+
+    /// <summary>New Workout, strength: best weight in the last saved workout with the exercise, in kg (FR-15). Null when that workout has none.</summary>
+    public decimal? LastKg { get; set; }
+
+    /// <summary>New Workout, strength: best weight in any saved workout (PB), in kg (FR-15). Null hides the last and PB line.</summary>
+    public decimal? BestKg { get; set; }
 }

@@ -12,7 +12,7 @@ Feature: Carry sets
   Scenario: Add set closes the valid set into a summary and opens the new one
     Given I have logged Farmer's Walk set 1: 40 m, 32 kg, 0:00:45
     When I tap Add set on Farmer's Walk
-    Then Farmer's Walk set 1 is a summary "40 m · 32 kg · 0:00:45"
+    Then Farmer's Walk set 1 is a summary "40m · 32kg · 0:00:45"
     And Farmer's Walk set 2 is open
 
   Scenario: Add set is blocked while the carry's distance is missing
@@ -25,7 +25,7 @@ Feature: Carry sets
     Given I have logged Farmer's Walk sets: 40 m 32 kg; 50 m 32 kg
     When I tap the summary of Farmer's Walk set 1
     Then Farmer's Walk set 1 is open
-    And Farmer's Walk set 2 is a summary "50 m · 32 kg"
+    And Farmer's Walk set 2 is a summary "50m · 32kg"
 
   Scenario: A summary doesn't open while the open set has errors
     Given I have logged Farmer's Walk set 1: 40 m, 32 kg

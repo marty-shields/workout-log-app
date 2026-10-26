@@ -20,6 +20,12 @@ internal interface IWorkoutRepository
     /// </summary>
     Task<IReadOnlyList<WorkoutSummary>> ListAsync(DateTimeOffset? from = null, DateTimeOffset? to = null, int? limit = null);
 
+    /// <summary>
+    /// Returns the set weights of each workout that has the exercise, by start time newest first, then by id newest first.
+    /// Weights are in set order.
+    /// </summary>
+    Task<IReadOnlyList<WorkoutWeights>> GetWeightsAsync(int exerciseId);
+
     /// <summary>Deletes the workout and its exercises, sets and entries. Throws <see cref="KeyNotFoundException"/> if the workout doesn't exist.</summary>
     Task DeleteAsync(int id);
 }

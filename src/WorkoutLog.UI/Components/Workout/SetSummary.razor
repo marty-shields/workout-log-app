@@ -61,6 +61,6 @@
             return value;
         }
 
-        return field.Unit is not null ? $"{value} {field.Unit}" : $"{value} {field.Label.ToLowerInvariant()}";
+        return field.Unit is not null ? $"{value}{field.Unit}" : $"{value} {field.Label.ToLowerInvariant()}";
     }
 }

@@ -638,6 +638,42 @@ public class ExerciseCardTests : ComponentTestBase
         Assert.That(checks, Is.Zero);
     }
 
+    [Test]
+    public void NoBest_ShowsNoLastAndPbLine()
+    {
+        var exercise = Strength(1);
+        exercise.LastKg = 60m;
+
+        var cut = Context.Render<ExerciseCard>(p => p
+            .Add(x => x.Exercise, exercise)
+            .Add(x => x.TestId, "exercise-1"));
+
+        Assert.That(cut.FindAll("[data-testid=exercise-1-weights]"), Is.Empty);
+    }
+
+    [TestCase(60, 60, "Last 60kg · PB 60kg")]
+    [TestCase(62.5, 70, "Last 62.5kg · PB 70kg")]
+    [TestCase(null, 70, "Last — · PB 70kg")]
+    [TestCase(0, 0, "Last 0kg · PB 0kg")]
+    [TestCase(22.75, 20.5, "Last 22.75kg · PB 20.5kg")]
+    public void Best_ShowsLastAndPbUnderTheName(double? last, double best, string text)
+    {
+        var exercise = Strength(1);
+        exercise.LastKg = (decimal?)last;
+        exercise.BestKg = (decimal)best;
+
+        var cut = Context.Render<ExerciseCard>(p => p
+            .Add(x => x.Exercise, exercise)
+            .Add(x => x.TestId, "exercise-1"));
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.Find("[data-testid=exercise-1-weights]").TextContent, Is.EqualTo(text));
+            Assert.That(cut.FindAll(".card-header + .weights + .sets"), Has.Count.EqualTo(1));
+            Assert.That(cut.FindAll(".weights button, .weights [blazor\\:onclick]"), Is.Empty);
+        });
+    }
+
     private static bool RequireReps(ExerciseState exercise, EntryState entry)
     {
         entry.Errors.Clear();

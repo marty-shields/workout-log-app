@@ -32,7 +32,7 @@ References: App → UI → Core. UI.Stories → UI. UI.Tests → UI, UI.Stories 
 
 ## Dependency injection
 - Everything is registered in `MauiProgram.CreateMauiApp()`. Core registers its types through `AddCore(databasePath)` (T19) and UI through `AddUi()` (T51); services and repositories are registered by interface.
-- Core's public services are `IWorkoutService`, `IHistoryService` and `IDashboardService`; the repository and validator are internal (T33, T60, T70).
+- Core's public services are `IWorkoutService`, `IHistoryService`, `IDashboardService` and `IWeightHistoryService`; the repository and validator are internal (T33, T60, T70, D237).
 - `AddCore` creates one database connection and gives it only to the initializer, the exercise seeder and the repository. The initializer and repository are decorators that run each call through one `DatabaseGate`, so database calls run one at a time; nothing can resolve a database type that skips the gate (T27, T99).
 - At startup `StartupGate` awaits `IDatabaseInitializer.InitializeAsync()`, which upgrades and creates the schema and seeds the exercise list, and shows the Startup screen until it completes, or its error if it throws (T25, T28, T36, D133).
 - `AddUi` registers `IBackButton`, `ISetChecker`, `IWorkoutChecker` and one `AppLifecycle` as `IAppStart` and `IAppLifecycle` (T54, T72), and `WorkoutEditor` as transient. `NewWorkoutPage`, `EditWorkoutPage` and the stories prototype each inject their own `WorkoutEditor`, which holds the exercises, the picker, changes, and the check and save (T112). The App adds `AndroidBackButton` ([Navigation](#navigation)) and the logging providers ([Logging](#logging)).
@@ -71,7 +71,7 @@ How back works (T46):
 ## Error handling
 What each error shows is in [05](05-screens-ux.md).
 - Validation failures are shown inline. Nothing is written. The service returns error codes; the page words them (T30).
-- Services turn any repository exception into a failed result and log it: `HistoryResult.Failed` (T60), `DashboardResult.Failed`, the week and month maths included (D195, T70), `WorkoutLoad.Failed` (D185, T63), `WorkoutError.SaveFailed` (T32) and `WorkoutDelete.Failed`, a missing workout included (D191, T68).
+- Services turn any repository exception into a failed result and log it: `HistoryResult.Failed` (T60), `DashboardResult.Failed`, the week and month maths included (D195, T70), `WorkoutLoad.Failed` (D185, T63), `WorkoutError.SaveFailed` (T32), `WorkoutDelete.Failed`, a missing workout included (D191, T68), and `WeightHistoryResult.Failed` (D237).
 - An unhandled error in a screen shows the Error screen. `AppErrorBoundary` in the App's `Routes` shows it and logs the error (D140).
 - Unhandled .NET exceptions are logged, then the app crashes. Unobserved task exceptions are logged only (T44).
 

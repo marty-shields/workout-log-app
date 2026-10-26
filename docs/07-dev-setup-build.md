@@ -70,7 +70,7 @@ Debug and Release builds both log to logcat and to a file ([04](04-architecture.
 What a run does:
 - Starts Appium from `node_modules` on a free port and stops it at the end.
 - Installs the APK over the Debug app.
-- Before each scenario, clears the Debug app's data and launches it. Any workouts in "Workout Log (Dev)" are deleted; the Release app is never touched.
+- Before each scenario, clears the Debug app's data, then launches the app once: before the first step, or after seeding when the scenario starts from saved workouts (T115). Any workouts in "Workout Log (Dev)" are deleted; the Release app is never touched.
 - A scenario that starts from saved workouts builds a database on the PC with Core and copies it into the Debug app with `run-as`, which needs the debuggable Debug build (T81). Build the App and run the tests from the same commit: a database from a newer Core can stop the app starting.
 - A `@today` scenario fails at its start within 5 minutes of midnight on the device; run it again after midnight (D205).
 - At the end, closes the Debug app. It stays installed with the last test's data, so a failure can be checked by hand.

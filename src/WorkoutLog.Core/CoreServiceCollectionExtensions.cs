@@ -12,7 +12,7 @@ public static class CoreServiceCollectionExtensions
 {
     /// <summary>
     /// Registers the exercise catalog, database initializer, workout repository, system time, workout validator,
-    /// workout service, history service and dashboard service as singletons.
+    /// workout service, history service, dashboard service and weight history service as singletons.
     /// The initializer and repository are registered only as their gated decorators, which run each call through one <see cref="DatabaseGate"/>.
     /// The database connection and exercise seeder are not registered; only the initializer and repository use them.
     /// Services log through <c>ILogger&lt;T&gt;</c>, so the host must register logging.
@@ -34,6 +34,7 @@ public static class CoreServiceCollectionExtensions
             .AddSingleton<IWorkoutValidator, WorkoutValidator>()
             .AddSingleton<IWorkoutService, WorkoutService>()
             .AddSingleton<IHistoryService, HistoryService>()
-            .AddSingleton<IDashboardService, DashboardService>();
+            .AddSingleton<IDashboardService, DashboardService>()
+            .AddSingleton<IWeightHistoryService, WeightHistoryService>();
     }
 }
