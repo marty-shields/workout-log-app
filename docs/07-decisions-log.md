@@ -1,6 +1,6 @@
 # 07 — Decisions Log
 
-Each decision states how the app and the repo work now, one row per subject. A change edits its decision; a new subject takes the next free ID. IDs aren't reused. Next free ID: D185.
+Each decision states how the app and the repo work now, one row per subject. A change edits its decision; a new subject takes the next free ID. IDs aren't reused. Next free ID: D186.
 
 ## Product and scope
 | # | Decision | Choice |
@@ -213,7 +213,8 @@ Each decision states how the app and the repo work now, one row per subject. A c
 | D178 | Backlog | The repo's GitHub issues: epics and stories (US-xx) are issues, each story a sub-issue of its epic, with milestones on GitHub; each idea is an `enhancement` issue with no milestone ([ways of working](README.md#ways-of-working)) |
 | D179 | Definition of Done | Code, Tests, Verified on phone (where the story changes the app), Docs and commit; new work logs its errors and unexpected events as in [04](04-architecture.md#logging) ([08](08-product-goal.md)) |
 | D180 | Story workflow | A branch per story; local review before the commit; a DRAFT PR that closes the story, squash-merged by the reviewer ([06](06-dev-setup-build.md#source-control)) |
-| D181 | Root README | `README.md` is the repo's front page: features, light and dark screenshots of the screen stories, an Install section, the PR build, latest-release and stories site badges, and the stack; no Documentation section. The Definition of Done checks it still matches the app; a changed screen retakes its README screenshots ([09](09-design-system.md#readme-screenshots)) |
+| D181 | Root README | `README.md` is the repo's front page: features, light and dark screenshots of the screen stories, an Install section, the PR build, latest-release, stories site and licence badges, the stack and a License section; no Documentation section. The Definition of Done checks it still matches the app; a changed screen retakes its README screenshots ([09](09-design-system.md#readme-screenshots)) |
 | D182 | Docs | The docs (01–09) describe only what the app has: no scope, plans or ideas; a change updates them as it lands. They name no packages or versions and don't repeat what code or config holds. The Testing doc lists no features; each feature file describes what it covers. Screen behaviour lives in the stories site (D95) |
 | D183 | Decisions log | One row per subject: its Choice states how things work now in 1–2 sentences, linking to the doc that holds the detail. A change edits its row; a new subject takes the next free ID; IDs aren't reused |
 | D184 | Ticket review skill | `.agents/skills/ticket-review/SKILL.md` runs three read-only reviews (requirements, code and tests, security) one at a time in fresh contexts, only on request; the agent fixes the dead certs and asks about the rest before the local review |
+| D185 | Licence | MIT, in `LICENSE` at the repo root; the README has its badge and a License section |
