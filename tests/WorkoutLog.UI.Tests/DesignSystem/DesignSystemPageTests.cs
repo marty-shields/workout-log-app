@@ -21,7 +21,7 @@ public partial class DesignSystemPageTests
     [TestCaseSource(nameof(Components))]
     public void Component_HasASectionOnItsGroupPage(string group, string name)
     {
-        var page = Page("Components", $"{group}.md");
+        var page = File.ReadAllText(Path.Combine(Folder("Components"), group, $"{group}.md"));
 
         Assert.That(Headings(page), Has.Member(name));
     }
@@ -46,11 +46,10 @@ public partial class DesignSystemPageTests
         Assert.That(named.Where(n => !names.Contains(n)), Is.Empty);
     }
 
-    private static string Folder(string folder) => RepoFiles.PathOf("src", "WorkoutLog.UI.Stories", "Stories", "DesignSystem", folder);
+    private static string Folder(string folder) => RepoFiles.PathOf("src", "WorkoutLog.UI.Stories", "Stories", folder);
 
-    private static string Page(string folder, string file) => File.ReadAllText(Path.Combine(Folder(folder), file));
-
-    private static IEnumerable<string> Pages(string folder) => Directory.EnumerateFiles(Folder(folder), "*.md").Select(File.ReadAllText);
+    private static IEnumerable<string> Pages(string folder) =>
+        Directory.EnumerateFiles(Folder(folder), "*.md", SearchOption.AllDirectories).Select(File.ReadAllText);
 
     private static IEnumerable<string> Headings(string page) => Heading().Matches(page).Select(m => m.Groups[1].Value);
 

@@ -18,7 +18,7 @@
         </Template>
     </Story>
 
-    <Story Name="Error">
+    <Story Name="Errors">
         <Template>
             @{ var exercise = SampleData.Exercise(Catalog, 132, [null, "10"]); Checker.Check([exercise]); }
             <SetRow Number="2" Fields="exercise.Fields" Entry="exercise.Entries[0]" />

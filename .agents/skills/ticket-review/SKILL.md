@@ -12,7 +12,7 @@ Run only when the user asks for a ticket review or a code review of a story. Nev
 - **Issue:** a GitHub issue link or number. Required.
 - **Extra notes or ACs:** optional, from the user, added to the issue text.
 
-Fetch the issue with `gh issue view <n> --repo marty-shields/workout-log-app --json title,body,url` ([08](../../../docs/07-dev-setup-build.md#source-control) has the `gh` sign-in). If it can't be fetched, stop and say so.
+Fetch the issue with `gh issue view <n> --repo marty-shields/workout-log-app --json title,body,url` ([06](../../../docs/06-dev-setup-build.md#source-control) has the `gh` sign-in). If it can't be fetched, stop and say so.
 
 ## What is reviewed
 The current branch against `main`: `git diff main` (branch commits and uncommitted changes) plus untracked files from `git status --short`.
@@ -87,11 +87,11 @@ Reply with one fenced JSON block and nothing else:
 ```
 
 ### Focus: requirements
-Does the change resolve the issue fully, without adding or removing scope? Give each AC, and the story statement, a verdict in `ac_table` with evidence. Check the Definition of Done in docs/09-product-goal.md and the AGENTS.md rules: decisions log, docs kept in step, logging. Report as findings anything beyond the issue's scope (`scope-addition`) and anything in scope that is missing (`scope-gap`). Search src/ and tests/, including the App, UI, E2E and UI test projects, for places that still depend on what changed.
+Does the change resolve the issue fully, without adding or removing scope? Give each AC, and the story statement, a verdict in `ac_table` with evidence. Check the Definition of Done in docs/08-product-goal.md and the AGENTS.md rules: decisions log, docs kept in step, logging. Report as findings anything beyond the issue's scope (`scope-addition`) and anything in scope that is missing (`scope-gap`). Search src/ and tests/, including the App, UI, E2E and UI test projects, for places that still depend on what changed.
 
 ### Focus: code and tests
 A general code and test review. Check:
-- correctness, readability, and consistency with the surrounding code and repo conventions (docs/04-architecture.md, docs/06-testing.md);
+- correctness, readability, and consistency with the surrounding code and repo conventions (docs/04-architecture.md, docs/05-testing.md);
 - test quality: are the tests meaningful, could they pass for the wrong reason, are they flaky on timing, are cases missing, do the names fit;
 - comment and doc accuracy;
 - anything dead or redundant.

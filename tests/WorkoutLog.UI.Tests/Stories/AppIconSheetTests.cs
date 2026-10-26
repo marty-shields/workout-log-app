@@ -1,5 +1,5 @@
 using System.Text;
-using WorkoutLog.UI.Stories.Stories.DesignSystem;
+using WorkoutLog.UI.Stories.Stories.Foundations;
 
 namespace WorkoutLog.UI.Tests.Stories;
 

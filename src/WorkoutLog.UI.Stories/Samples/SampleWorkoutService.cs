@@ -6,7 +6,7 @@ using WorkoutLog.Core.Services;
 namespace WorkoutLog.UI.Stories.Samples;
 
 /// <summary>
-/// <see cref="IWorkoutService"/> for the stories. Starts workouts and checks workouts, sets and entries with Core's validator.
+/// <see cref="IWorkoutService"/> for the stories and the UI tests. Starts workouts and checks workouts, sets and entries with Core's validator.
 /// <see cref="GetAsync"/> returns <see cref="SampleData.SavedStrengthWorkout"/> with the asked id.
 /// <see cref="SaveNewAsync"/> and <see cref="SaveAsync"/> store nothing and return an id when valid.
 /// <see cref="DeleteAsync"/> deletes nothing and returns <see cref="WorkoutDelete.Deleted"/>.

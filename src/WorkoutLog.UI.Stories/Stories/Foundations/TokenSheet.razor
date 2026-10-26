@@ -1,0 +1,152 @@
+@using Microsoft.JSInterop
+@* Shows every design token: colours in light and dark, then type, spacing, radius and sizes. Stories only. *@
+@implements IAsyncDisposable
+@inject IJSRuntime JS
+
+<div class="sheet" @ref="sheet">
+    <h2 class="heading">Colour</h2>
+    <table class="colours">
+        <thead>
+            <tr>
+                <th>Token</th>
+                <th>Light</th>
+                <th>Dark</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var name in Colours)
+            {
+                <tr data-token="@name">
+                    <td><code>@name</code></td>
+                    @foreach (var theme in Themes)
+                    {
+                        <td data-theme="@theme">
+                            <span class="swatch" style="background: var(@name)"></span>
+                            <code class="value">@Value($"{name} {theme}")</code>
+                        </td>
+                    }
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <h2 class="heading">Type</h2>
+    <ul class="list">
+        @foreach (var name in Type)
+        {
+            <li class="item" data-token="@name">
+                <code>@name</code>
+                <code class="value">@Value(name)</code>
+                <span class="sample" style="@SampleStyle(name)">Squat 3 × 5 @@ 100 kg</span>
+            </li>
+        }
+    </ul>
+
+    <h2 class="heading">Spacing</h2>
+    <ul class="list">
+        @foreach (var name in Spacing)
+        {
+            <li class="item" data-token="@name">
+                <code>@name</code>
+                <code class="value">@Value(name)</code>
+                <span class="bar" style="width: var(@name)"></span>
+            </li>
+        }
+    </ul>
+
+    <h2 class="heading">Radius</h2>
+    <ul class="list">
+        @foreach (var name in Radius)
+        {
+            <li class="item" data-token="@name">
+                <code>@name</code>
+                <code class="value">@Value(name)</code>
+                <span class="corner" style="border-radius: var(@name)"></span>
+            </li>
+        }
+    </ul>
+
+    <h2 class="heading">Sizes</h2>
+    <ul class="list">
+        @foreach (var name in Sizes)
+        {
+            <li class="item" data-token="@name">
+                <code>@name</code>
+                <code class="value">@Value(name)</code>
+            </li>
+        }
+    </ul>
+</div>
+
+@code {
+    private static readonly string[] Themes = ["light", "dark"];
+
+    private static readonly string[] Colours =
+    [
+        "--color-bg", "--color-surface", "--color-border", "--color-border-strong",
+        "--color-text", "--color-text-muted",
+        "--color-bar", "--color-on-bar", "--color-on-bar-muted",
+        "--color-primary", "--color-on-primary", "--color-secondary", "--color-on-secondary",
+        "--color-selected", "--color-accent", "--color-focus",
+        "--color-danger", "--color-on-danger", "--color-error", "--color-scrim",
+    ];
+
+    private static readonly string[] Type =
+    [
+        "--font-family",
+        "--font-size-sm", "--font-size-md", "--font-size-lg", "--font-size-xl", "--font-size-xxl", "--font-size-input",
+        "--font-weight-regular", "--font-weight-bold",
+        "--line-height", "--line-height-tight",
+    ];
+
+    private static readonly string[] Spacing = ["--space-1", "--space-2", "--space-3", "--space-4", "--space-6", "--space-8"];
+
+    private static readonly string[] Radius = ["--radius-sm", "--radius-md", "--radius-lg", "--radius-round"];
+
+    private static readonly string[] Sizes =
+    [
+        "--touch-target", "--border-width", "--border-width-error", "--focus-width", "--focus-offset",
+        "--opacity-disabled", "--set-number-width", "--dialog-max-width",
+        "--spinner-size", "--spinner-width", "--spinner-duration",
+    ];
+
+    private ElementReference sheet;
+    private IJSObjectReference? module;
+    private Dictionary<string, string> values = [];
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender)
+        {
+            return;
+        }
+
+        module = await JS.InvokeAsync<IJSObjectReference>("import", "./Stories/Foundations/TokenSheet.razor.js");
+        values = await module.InvokeAsync<Dictionary<string, string>>("read", sheet);
+        StateHasChanged();
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (module is not null)
+        {
+            try
+            {
+                await module.DisposeAsync();
+            }
+            catch (JSDisconnectedException)
+            {
+            }
+        }
+    }
+
+    private string? Value(string key) => values.GetValueOrDefault(key);
+
+    private static string SampleStyle(string name) => name switch
+    {
+        "--font-family" => $"font-family: var({name})",
+        _ when name.StartsWith("--font-size") => $"font-size: var({name})",
+        _ when name.StartsWith("--font-weight") => $"font-weight: var({name})",
+        _ => $"line-height: var({name})",
+    };
+}

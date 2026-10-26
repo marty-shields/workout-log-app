@@ -4,25 +4,19 @@
 
 <Stories TComponent="WorkoutView" Layout="typeof(PhoneLayout)">
 
-    <Story Name="Saved">
+    <Story Name="Strength">
         <Template>
             <WorkoutView Mode="WorkoutMode.Edit" StartedAt="SampleData.Started" Time="new TimeSpan(1, 4, 37)" Exercises="SampleData.Opened(SampleData.StrengthWorkout(Catalog))" OnBack="() => { }" OnDelete="() => { }" />
         </Template>
     </Story>
 
-    <Story Name="Newest first">
-        <Template>
-            <WorkoutView Mode="WorkoutMode.Edit" StartedAt="SampleData.Started" Time="new TimeSpan(1, 4, 37)" Exercises="SampleData.NewestFirst(Catalog, SampleData.Opened(SampleData.StrengthWorkout(Catalog)))" OnBack="() => { }" OnDelete="() => { }" />
-        </Template>
-    </Story>
-
-    <Story Name="Carry sets closed">
+    <Story Name="Carry">
         <Template>
             <WorkoutView Mode="WorkoutMode.Edit" StartedAt="SampleData.Started" Time="new TimeSpan(0, 52, 10)" Exercises="SampleData.Opened(SampleData.CarryWorkout(Catalog))" OnBack="() => { }" OnDelete="() => { }" />
         </Template>
     </Story>
 
-    <Story Name="Cardio entries">
+    <Story Name="Cardio">
         <Template>
             <WorkoutView Mode="WorkoutMode.Edit" StartedAt="SampleData.Started" Time="new TimeSpan(1, 2, 5)" Exercises="SampleData.Opened(SampleData.CardioWorkout(Catalog))" OnBack="() => { }" OnDelete="() => { }" />
         </Template>
@@ -81,18 +75,6 @@
     <Story Name="Not found">
         <Template>
             <WorkoutLoadView NotFound OnBack="() => { }" />
-        </Template>
-    </Story>
-
-    <Story Name="Live page">
-        <Template>
-            <EditWorkoutPage WorkoutId="1" OnBack="() => { }" OnDeleted="() => { }" />
-        </Template>
-    </Story>
-
-    <Story Name="Back, discard and delete">
-        <Template>
-            <EditWorkoutOutcome />
         </Template>
     </Story>
 

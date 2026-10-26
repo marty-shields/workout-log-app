@@ -1,11 +1,11 @@
 using System.Text.RegularExpressions;
-using WorkoutLog.UI.Stories.Stories.DesignSystem;
+using WorkoutLog.UI.Stories.Stories.Foundations;
 
 namespace WorkoutLog.UI.Tests.Stories;
 
 public partial class TokenSheetTests : ComponentTestBase
 {
-    private const string Module = "./Stories/DesignSystem/TokenSheet.razor.js";
+    private const string Module = "./Stories/Foundations/TokenSheet.razor.js";
 
     [Test]
     public void Render_ShowsEveryTokenInTokensCss()

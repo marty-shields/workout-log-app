@@ -6,12 +6,11 @@
 | [02 Data model](02-data-model.md) | Entities, metrics, validation rules |
 | [03 Exercise list](03-exercise-list.md) | Metrics per activity type. Full list: [exercises.json](../src/WorkoutLog.Core/Domain/Exercises/exercises.json) |
 | [04 Architecture](04-architecture.md) | Projects, layers, logging, error handling |
-| [05 Screens & UX](05-screens-ux.md) | Screen inventory and navigation |
-| [06 Testing](06-testing.md) | Test layers and E2E tests |
-| [07 Dev setup & build](07-dev-setup-build.md) | Tooling, running on the phone, release APK, source control, CI |
-| [08 Decisions log](08-decisions-log.md) | Every decision made so far |
-| [09 Product goal](09-product-goal.md) | Product goal and Definition of Done |
-| [10 Design system](10-design-system.md) | Where the design system lives (the stories site) |
+| [05 Testing](05-testing.md) | Test layers and E2E tests |
+| [06 Dev setup & build](06-dev-setup-build.md) | Tooling, running on the phone, release APK, source control, CI |
+| [07 Decisions log](07-decisions-log.md) | Every decision made so far |
+| [08 Product goal](08-product-goal.md) | Product goal and Definition of Done |
+| [09 Design system](09-design-system.md) | The stories site: tokens, components, screens and navigation |
 
 ## Ways of working
 - **Backlog:** the [Workout Log project](https://github.com/users/marty-shields/projects/2) over the repo's [issues](https://github.com/marty-shields/workout-log-app/issues) (D216).
@@ -21,4 +20,4 @@
 - **Acceptance criteria:** the linked FR-xx in [01](01-requirements.md), plus any extra ACs in the issue.
 - **Size and Status:** project fields. Size is XS, S, M, L or XL (relative effort); Status is To do, In progress, Blocked or Done.
 - **Ticket review:** on request, before the local review ([ticket-review](../.agents/skills/ticket-review/SKILL.md), T100).
-- **Delivery:** [07 Source control](07-dev-setup-build.md#source-control) and the [Definition of Done](09-product-goal.md).
+- **Delivery:** [06 Source control](06-dev-setup-build.md#source-control) and the [Definition of Done](08-product-goal.md).

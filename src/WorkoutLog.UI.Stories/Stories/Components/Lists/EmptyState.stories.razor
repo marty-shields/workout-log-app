@@ -3,11 +3,8 @@
 <Stories TComponent="EmptyState" Layout="typeof(ThemeLayout)">
 
     <Story Name="Default">
-        <Arguments>
-            <Arg For="_ => _.Message" Value='"No workouts yet"' />
-        </Arguments>
         <Template>
-            <EmptyState @attributes="context.Args" />
+            <EmptyState Message="No workouts yet" />
         </Template>
     </Story>
 
