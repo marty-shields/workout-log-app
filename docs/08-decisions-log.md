@@ -6,7 +6,7 @@ Made from 2026-10-21 to 2026-10-26. Every decision is **Accepted** unless its Ch
 | Topic | Decisions |
 |---|---|
 | Product and scope | D01–D10, D26–D31, D45–D48, D69 |
-| Workouts, metrics and validation | D11–D25, D33–D44, D61, D63–D65, D70, D76–D78, D84–D93, D103–D108, D126–D130, D157–D179, D188; T22–T34, T55 |
+| Workouts, metrics and validation | D11–D25, D33–D44, D61, D63–D65, D70, D76–D78, D84–D93, D103–D108, D126–D130, D157–D179, D188, D236; T22–T34, T55 |
 | Exercise list and search | D04, D05, D72, D79–D83, D89–D92, D94, D122–D125, D146–D156 |
 | Screens and design system | D66, D67, D96–D121, D131, D133–D134, D138, D140, D143–D145, D180–D199, D209–D214 |
 | Architecture and logging | T01–T06, T13, T15, T19, T21, T25–T27, T35–T36, T38–T74, T99, T112; D139–D142 |
@@ -37,7 +37,7 @@ Made from 2026-10-21 to 2026-10-26. Every decision is **Accepted** unless its Ch
 | D18 | Time edits | Fixed after first save; no override | Manually editable; re-save updates finish |
 | D19 | Unsaved workout | Back asks **Discard / Cancel** (saving only via the Save button); lost if the app is killed | Save/Discard/Cancel; auto-keep in progress; discard silently |
 | D20 | Save rule | At least one exercise; every exercise has a set or entry; every set/entry has its required metrics. Otherwise save is blocked (FR-09) | Anything, even empty; drop empty items silently; ask before dropping |
-| D21 | Reorder | No; order added | Exercises only; both |
+| D21 | Reorder | No; order added. Amended by D236 | Exercises only; both |
 | D22 | Duplicate exercise in a workout | Superseded by D154 | |
 | D23 | Remove items | Sets and exercises can be removed | Sets only; neither |
 | D24 | Delete workout | Confirm dialog, permanent | Undo; no confirm |
@@ -167,10 +167,10 @@ Made from 2026-10-21 to 2026-10-26. Every decision is **Accepted** unless its Ch
 | D148 | Search ranking | "Name starts with the query" compares the split name and query words. Amended by D156. Amends D92 | First words only |
 | D149 | Field labels and units | From the exercise definition, as in [03](03-exercise-list.md#field-labels-and-units); the assisted machines' label is `Assist` and weight always shows kg | Strip " (kg)" in code; `Assist (kg)` with no unit |
 | D150 | Remove exercise | Removes at once, with no confirm | A confirm dialog |
-| D151 | After a pick | The picker closes and focus moves to the new exercise's first field, scrolling it into view | No scroll; scroll without focus |
+| D151 | After a pick | The picker closes and focus moves to the new exercise's first field, scrolling it into view. Amended by D236 | No scroll; scroll without focus |
 | D152 | Picker search on open | Empty each time the picker opens | Keep the last search |
 | D153 | US-11 scope | Scope of US-11. Amended by D165, D179 | |
-| D154 | Picking an exercise already in the workout | Goes to its card instead of adding a second: strength adds a set as Add set does, cardio focuses its entry. Supersedes D22 | A second card; tag or block added exercises |
+| D154 | Picking an exercise already in the workout | Goes to its card instead of adding a second: strength adds a set as Add set does, cardio focuses its entry. Supersedes D22; amended by D236 | A second card; tag or block added exercises |
 | D155 | Search words, after review | Any character that isn't a letter or digit separates words; more plural variants; partly typed variants split; queries cut to 50 characters ([02](02-data-model.md#exercise-search)). Amends D91, D146 | Plurals only; leave as is; 100 characters |
 | D156 | Search ranking, after review | The first group is names where each query word, in order, starts the name's word in the same place. Amends D92, D148 | Only the last query word may be partial |
 | D157 | Number entry format | `.` is the only decimal separator, whatever the phone's language; the accepted forms are in [02](02-data-model.md#entry-formats-ui) | `.` and `,`; the phone's culture; accept `5.`, spaces or `+` |
@@ -205,7 +205,7 @@ Made from 2026-10-21 to 2026-10-26. Every decision is **Accepted** unless its Ch
 | D186 | History rows open Edit | Tapping a row opens `/workout/{id}`; rows are always tappable | Rows not tappable without `OnOpen` |
 | D187 | Edit Workout stories | Edit Workout gains its load, save and Live page stories, on a sample service that stores nothing. Amends D178 | Static states only |
 | D188 | Values Edit can't show | Accepted: Edit shows only the metrics in the exercise's current definition and decimals to 2 places; a definition change is made with its data change | Load failed for such a value; keep hidden values |
-| D189 | Discard changes on Edit Workout | A change is a value typed, a set added or removed, or an exercise added or removed, even if later undone. Back with changes asks "Discard changes?", without goes to History, and is guarded as D179 ([05](05-screens-ux.md#new--edit-workout)). Amends D184 | Compare with the loaded text or values |
+| D189 | Discard changes on Edit Workout | A change is a value typed, a set added or removed, or an exercise added or removed, even if later undone. Back with changes asks "Discard changes?", without goes to History, and is guarded as D179 ([05](05-screens-ux.md#new--edit-workout)). Amends D184; amended by D236 | Compare with the loaded text or values |
 | D190 | Back and discard story | Edit Workout gains a story that moves between the live page, History and the Dashboard as the App does. Amended by D192 | Live page screenshots only; live `HistoryPage` |
 | D191 | Delete on Edit Workout | "Delete this workout?" / Delete / Cancel, the same with or without unsaved edits; Delete goes to History; a failed delete keeps the workout and focuses Delete; guarded as D189 ([05](05-screens-ux.md#new--edit-workout)). Amends D184 | The Error screen; a missing id as deleted; visibly disabled buttons |
 | D192 | Delete stories | Edit Workout gains "Delete failed"; "Back and discard" becomes "Back, discard and delete". Amends D190 | A separate Delete story |
@@ -252,6 +252,7 @@ Made from 2026-10-21 to 2026-10-26. Every decision is **Accepted** unless its Ch
 | D233 | Features in the Testing doc (US-27) | The Testing doc lists no features; each feature file describes what it covers. Amends D207 | Keep the Features table |
 | D234 | README links (US-27) | The root README has no Documentation section; the docs are in `docs/`. Amends D221 | Keep the links to the docs, decisions, backlog and ideas |
 | D235 | Docs describe the app as it is (US-27) | The docs describe only what the released app has: no scope, plans or ideas; a change updates them as it lands. The Vision & scope doc is deleted and the docs renumbered 01–10 (Requirements 01 … Design system 10). Amends D231 | Keep Vision & scope; keep the old numbers |
+| D236 | Newest exercise first (#64) | Exercise cards show newest first; sets stay in the order added. A picked exercise goes on top and scrolls into view; picking one already in the workout moves its card to the top and is a change. Saved positions are the order added or last picked, from 0, so saved workouts need no migration ([05](05-screens-ux.md#new--edit-workout)). Amends D21, D151, D154, D189 | Bottom (as before); display only, keeping saved order; moving only when not on top |
 
 ## Technical
 | # | Decision | Choice | Alternatives |

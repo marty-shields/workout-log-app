@@ -67,6 +67,9 @@ public static class SampleData
         Exercise(catalog, 187, ["40", "32", null]),
     ];
 
+    /// <summary>The strength workout just after Dumbbell Curl is added: its card is on top, with one empty set.</summary>
+    public static List<ExerciseState> NewestFirst(IExerciseCatalog catalog) => [NewExercise(catalog, 132), .. StrengthWorkout(catalog)];
+
     /// <summary>A squat with two sets, and a carry with three sets: two filled, the last one partly filled.</summary>
     public static List<ExerciseState> CarryWorkout(IExerciseCatalog catalog) =>
     [

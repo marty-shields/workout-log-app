@@ -54,12 +54,12 @@ public sealed class EditSteps(WebView web, Journeys journeys, WorkoutScreen work
     [Then(@"^Delete is shown$")]
     public void ThenDeleteIsShown() => Assert.That(workout.IsEdit(), Is.True);
 
-    [Then(@"^it holds exactly what was saved, in the same order$")]
-    public void ThenItHoldsWhatWasSaved() => AssertHolds(state.SeededExercises[1]);
+    [Then(@"^it holds exactly what was saved, newest first$")]
+    public void ThenItHoldsWhatWasSaved() => AssertHolds(state.SeededExercises[1].Reverse().ToList());
 
-    [Then(@"^it holds exactly what I logged, in the same order$")]
+    [Then(@"^it holds exactly what I logged, newest first$")]
     public void ThenItHoldsWhatILogged() =>
-        AssertHolds(state.Logged.Select(e => new ExerciseValues(e.Name, e.Entries.Select(v => new EntryValues(v)).ToList())).ToList());
+        AssertHolds(state.Logged.Select(e => new ExerciseValues(e.Name, e.Entries.Select(v => new EntryValues(v)).ToList())).Reverse().ToList());
 
     [Then(@"^reopening workout (\d+) shows: (.+)$")]
     public void ThenReopeningShowsExercises(int id, string names)

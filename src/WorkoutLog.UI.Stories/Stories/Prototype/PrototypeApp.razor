@@ -146,16 +146,17 @@
         }
     }
 
-    /// <summary>Keeps the edited exercises as the new or edited sample workout.</summary>
+    /// <summary>Keeps the edited exercises, oldest first, as the new or edited sample workout.</summary>
     private bool Store()
     {
+        var exercises = Editor.Exercises.Reverse().ToList();
         if (editing is null)
         {
-            saved.Add(new SavedWorkout(saved.Select(w => w.Id).DefaultIfEmpty().Max() + 1, startedAt, DateTime.Now, Editor.Exercises));
+            saved.Add(new SavedWorkout(saved.Select(w => w.Id).DefaultIfEmpty().Max() + 1, startedAt, DateTime.Now, exercises));
         }
         else
         {
-            saved[saved.IndexOf(editing)] = editing with { Exercises = Editor.Exercises };
+            saved[saved.IndexOf(editing)] = editing with { Exercises = exercises };
         }
 
         return true;

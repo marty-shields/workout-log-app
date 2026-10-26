@@ -56,7 +56,7 @@ Each definition has an Id (one sequence for all exercises, never reused or chang
 - `WorkoutExercise`: one per exercise in a workout, → Workout (indexed) and → Exercise, with its position.
 - `StrengthSet`: → WorkoutExercise (indexed), its position, and one nullable column per strength metric.
 - `CardioEntry`: → WorkoutExercise, **unique** (one entry per exercise), and one nullable column per cardio metric; Duration is required.
-- Positions are the order added, from 0.
+- Positions are the order added or last picked, from 0. The workout screens show exercises newest first (D236).
 
 ## Diagram
 

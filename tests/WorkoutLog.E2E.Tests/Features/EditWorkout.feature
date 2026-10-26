@@ -12,7 +12,7 @@ Feature: Edit a workout
     Then the title is yesterday's date and day
     And the time shows "Total 0:47:00" and doesn't count up
     And Delete is shown
-    And it holds exactly what was saved, in the same order
+    And it holds exactly what was saved, newest first
 
   @D105
   Scenario: Carry sets start closed on Edit
@@ -43,7 +43,14 @@ Feature: Edit a workout
     And I add "Dumbbell Incline Press"
     And I log Dumbbell Incline Press set 1: 10 reps, 22 kg
     And I save the workout
-    Then reopening workout 1 shows: Barbell Back Squat, Farmer's Walk, Dumbbell Incline Press
+    Then reopening workout 1 shows: Dumbbell Incline Press, Farmer's Walk, Barbell Back Squat
+
+  @D154 @D236
+  Scenario: Picking an exercise again saves it on top
+    When I add "Barbell Back Squat"
+    And I log Barbell Back Squat set 4: 5 reps, 65 kg
+    And I save the workout
+    Then reopening workout 1 shows: Barbell Back Squat, Treadmill, Farmer's Walk
 
   Scenario: Change a cardio entry and save
     When I enter "4" in Treadmill distance

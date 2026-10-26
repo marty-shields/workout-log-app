@@ -140,6 +140,9 @@ public sealed class WorkoutSteps(WebView web, Native native, Journeys journeys, 
     [Then(@"^the workout error is gone$")]
     public void ThenTheWorkoutErrorIsGone() => web.Eventually(workout.Error, Is.Null);
 
+    [Given(@"^I have scrolled to the bottom of the workout$")]
+    public void GivenIHaveScrolledToTheBottom() => Assert.That(web.ScrollToBottom(), Is.True, "the workout didn't scroll");
+
     [Then(@"^the exercises are, in order: (.+)$")]
     public void ThenTheExercisesAreInOrder(string names) =>
         web.Eventually(workout.ExerciseNames, Is.EqualTo(names.Split(", ")));

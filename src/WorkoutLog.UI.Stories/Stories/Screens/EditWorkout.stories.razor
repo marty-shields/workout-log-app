@@ -10,6 +10,12 @@
         </Template>
     </Story>
 
+    <Story Name="Newest first">
+        <Template>
+            <WorkoutView Mode="WorkoutMode.Edit" StartedAt="SampleData.Started" Time="new TimeSpan(1, 4, 37)" Exercises="SampleData.NewestFirst(Catalog)" OnBack="() => { }" OnDelete="() => { }" />
+        </Template>
+    </Story>
+
     <Story Name="Carry sets closed">
         <Template>
             <WorkoutView Mode="WorkoutMode.Edit" StartedAt="SampleData.Started" Time="new TimeSpan(0, 52, 10)" Exercises="SampleData.CarryWorkout(Catalog)" OnBack="() => { }" OnDelete="() => { }" />

@@ -23,14 +23,14 @@
 - Header: date + day (from the start time)
   - New: live elapsed timer (h:mm:ss)
   - Edit: total time (h:mm:ss)
-- List of added exercises, in the order added. Each one shows the fields its definition declares ([03](03-exercise-list.md)):
+- List of added exercises, newest first (D236). Each one shows the fields its definition declares ([03](03-exercise-list.md)):
   - Strength: rows of sets (e.g. reps + weight, duration for Plank, distance for carries), **Add set**, remove set. Starts with one empty set. Add set does nothing while the last set (or the open set, below) is empty or has errors; the errors show on that set and focus moves to its first field at fault (D106, D162). Format errors and Core's rules are in [02](02-data-model.md#entry-formats-ui).
     - Exercises with more than two fields, one of them a duration (carries): one set is open, with every field labelled; the others show as a summary line (e.g. *40 m · 32 kg · 0:00:45*). Tap a summary to open it, once the open set is valid; Add set opens the new set. A new workout opens the last set; an edited workout starts with all sets closed. Errors on a closed set show under its summary, which gets a red outline (D105, D118).
   - Cardio: one entry (duration + the exercise's other metrics, with units). Starts empty; not removable on its own.
   - Fields use the exercise's label where it has one (e.g. Assist (kg), Resistance, Damper).
   - A partly filled duration or pace fills in when focus leaves it: empty boxes become 0, minutes and seconds two digits (e.g. *1:00:00*, *0:00:22*, *5:03*) (D107).
   - Remove exercise: removes it at once, with no confirm (D150)
-- **Add exercise** opens the Exercise picker. After a pick, focus moves to the new exercise's first field, which scrolls it into view (D151).
+- **Add exercise** opens the Exercise picker. A picked exercise goes on top; picking one already in the workout moves its card to the top (D154, D236). After a pick, focus moves to its first field, which scrolls it into view (D151).
 - **Save** button: validates (FR-09), saves and returns to the Dashboard.
   - Save failed: "Couldn't save the workout. Try again." shows at the top, the workout stays and focus moves to Save (D176).
   - Taps while a save runs are ignored (D177); on Edit, also while a delete runs and after one succeeds (D191).
@@ -43,7 +43,7 @@
   - Not found: "This workout no longer exists.", no Try again
 - Back:
   - New workout: **Discard / Cancel**, even with no exercises; ignored while a save runs and after one succeeds (D179)
-  - Edit with unsaved changes: **Discard changes? Discard / Cancel**; Discard goes to History. A change is a value typed, a set added or removed, or an exercise added or removed, even if later undone (D189)
+  - Edit with unsaved changes: **Discard changes? Discard / Cancel**; Discard goes to History. A change is a value typed, a set added or removed, or an exercise added, picked again or removed, even if later undone (D189, D236)
   - Edit with no unsaved changes: History, no prompt
   - Edit: ignored while a save runs and after one succeeds (D189), and while a delete runs and after one succeeds (D191)
   - Edit while loading, after a failed load or when not found: History (D185)
