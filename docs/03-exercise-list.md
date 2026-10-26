@@ -3,7 +3,7 @@
 The list ships with the app and changes only through an app update. The full list is [exercises.json](../src/WorkoutLog.Core/Domain/Exercises/exercises.json). It is Core's embedded definition file.
 
 ## Source
-Strength exercises are based on [free-exercise-db](https://github.com/yuhonas/free-exercise-db) (public domain; strength and powerlifting only), checked for gaps against muscleandstrength.com, and include the reviewer's 44 must-haves (D79). Cardio, carries and a few others were written by hand. Only names are used.
+Strength exercises are based on [free-exercise-db](https://github.com/yuhonas/free-exercise-db) (public domain; strength and powerlifting only), checked for gaps against muscleandstrength.com, and include the reviewer's 44 must-haves (D51). Cardio, carries and a few others were written by hand. Only names are used.
 
 ## Selection rules
 - **Folded into the base exercise:**
@@ -65,7 +65,7 @@ Duration (h:mm:ss) is required for every cardio exercise. Everything else is opt
 Stair Climber also covers StepMill.
 
 ## Field labels and units
-How each metric shows on a set or entry (D149). A label in the exercise file replaces the default. Entry formats: [02](02-data-model.md#entry-formats-ui).
+How each metric shows on a set or entry (D25). A label in the exercise file replaces the default. Entry formats: [02](02-data-model.md#entry-formats-ui).
 
 | Metric | Default label | Unit shown |
 |---|---|---|

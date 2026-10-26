@@ -27,7 +27,7 @@ Feature: Dashboard
     Then This week shows 0
     And This month counts it only if it started this month
 
-  @D196
+  @D66
   Scenario: A workout dated after now is the last workout but isn't counted
     Given these saved workouts:
       | started        | exercises        |

@@ -25,7 +25,7 @@ Feature: Save a workout
     Then Treadmill shows 0:20:00, 3.2 km, incline 1.5
     And Outdoor Run shows 0:25:30, 5 km, pace 5:06
 
-  @FR-05 @D236
+  @FR-05 @D42
   Scenario: Save a mixed workout and see it newest first
     Given I have started a new workout
     And I have logged:
@@ -39,7 +39,7 @@ Feature: Save a workout
     And I open the latest workout from History
     Then it holds exactly what I logged, newest first
 
-  @D127
+  @D33
   Scenario: Optional zero values are kept
     Given I have started a new workout
     And I have added "Treadmill"
@@ -55,7 +55,7 @@ Feature: Save a workout
     Then History lists 2 workouts, newest first
     And This week shows 2
 
-  @D177
+  @D41
   Scenario: Tapping Save twice saves once
     Given I have started a new workout
     And I have added "Push-up"

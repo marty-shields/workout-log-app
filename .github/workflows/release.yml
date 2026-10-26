@@ -169,6 +169,9 @@ jobs:
       - name: Check the APK
         run: .github/scripts/check-apk.sh "$RUNNER_TEMP/release/uk.martinshields.workoutlog-Signed.apk" "$VERSION" "$CODE" "$CERT_SHA256" "$RUNNER_TEMP/out"
 
+      - name: Check Android Auto Backup is on
+        run: .github/scripts/check-backup.sh "$RUNNER_TEMP/release/uk.martinshields.workoutlog-Signed.apk" true
+
       # Creates the v* tag on this commit with the release.
       - name: Publish the release
         env:

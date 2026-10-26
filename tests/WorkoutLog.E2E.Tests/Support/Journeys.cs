@@ -41,7 +41,7 @@ public sealed class Journeys(
         state.Started = (from, clock.LocalNow());
     }
 
-    /// <summary>Opens the picker and taps the exercise; a strength exercise already in the workout gets a set (D154).</summary>
+    /// <summary>Opens the picker and taps the exercise; a strength exercise already in the workout gets a set (D42).</summary>
     public void AddExercise(string name)
     {
         workout.OpenPicker();

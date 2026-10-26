@@ -2,7 +2,7 @@ using System.Xml.Linq;
 
 namespace WorkoutLog.UI.Tests.DesignSystem;
 
-/// <summary>The App's icon and splash use only the palette colours and white (D210).</summary>
+/// <summary>The App's icon and splash use only the palette colours and white (D89).</summary>
 public class AppIconColourTests
 {
     // Tokens whose light value is one of the five palette colours.

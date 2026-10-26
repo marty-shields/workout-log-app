@@ -1,6 +1,6 @@
 namespace WorkoutLog.Core.Domain.Exercises;
 
-/// <summary>Highest value each metric accepts (D130).</summary>
+/// <summary>Highest value each metric accepts (D33).</summary>
 public static class MetricLimits
 {
     /// <summary>Highest duration: 23:59:59.</summary>

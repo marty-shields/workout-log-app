@@ -1,4 +1,4 @@
-@US-35 @D142
+@US-35 @D135
 Feature: Logging
   The log records what happened, never what I typed.
 
@@ -38,7 +38,7 @@ Feature: Logging
     And the log shows "Workout 1 updated with 2 exercises"
     And the log shows "Edits to workout 1 discarded"
 
-  @D191 @US-19
+  @D46 @US-19
   Scenario: Deleting with unsaved edits logs the delete only
     Given these saved workouts:
       | started         | exercises        |

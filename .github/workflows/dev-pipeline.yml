@@ -1,4 +1,5 @@
-# Builds the solution and runs the UI and Core tests, for the PR build (pr-build.yml) and the release workflow.
+# Builds the solution and runs the UI and Core tests, and checks Android Auto Backup is on only in Release,
+# for the PR build (pr-build.yml) and the release workflow.
 name: Dev pipeline
 
 on:
@@ -40,3 +41,33 @@ jobs:
       - name: UI tests
         if: ${{ !cancelled() && steps.build.outcome == 'success' }}
         run: dotnet test tests/WorkoutLog.UI.Tests --no-build --logger GitHubActions -- RunConfiguration.CollectSourceInformation=true
+
+      # Android Auto Backup is off in the Debug APK.
+      - name: Check the Debug APK
+        if: ${{ !cancelled() && steps.build.outcome == 'success' }}
+        run: .github/scripts/check-backup.sh src/WorkoutLog.App/bin/Debug/net10.0-android/uk.martinshields.workoutlog.debug-Signed.apk false
+
+  # Android Auto Backup is on in the Release APK (x64, debug key, never published).
+  backup-manifest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
+        with:
+          global-json-file: global.json
+
+      # Workload set matching the SDK in global.json; bump both together.
+      - name: Install the MAUI Android workload
+        run: dotnet workload install maui-android --version 10.0.402.1
+
+      - name: Build the Release APK (x64, debug key)
+        run: |
+          dotnet publish src/WorkoutLog.App -c Release -f net10.0-android -p:AndroidPackageFormat=apk \
+            -r android-x64 -o "$RUNNER_TEMP/backup"
+
+      - name: Check the Release APK
+        run: .github/scripts/check-backup.sh "$RUNNER_TEMP/backup/uk.martinshields.workoutlog-Signed.apk" true

@@ -35,7 +35,7 @@
         registration?.Dispose();
     }
 
-    /// <summary>Loads the last workout and counts, with the start in the phone's time zone. Shows the spinner until it finishes (D195).</summary>
+    /// <summary>Loads the last workout and counts, with the start in the phone's time zone. Shows the spinner until it finishes (D67).</summary>
     private async Task LoadAsync()
     {
         if (loading)
@@ -52,7 +52,7 @@
         loading = false;
     }
 
-    /// <summary>Loads again when the app comes back on screen (D197). Does nothing once the page is disposed.</summary>
+    /// <summary>Loads again when the app comes back on screen (D67). Does nothing once the page is disposed.</summary>
     private async Task ReloadAsync()
     {
         if (disposed)

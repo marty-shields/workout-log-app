@@ -8,7 +8,7 @@ namespace WorkoutLog.E2E.Tests.Steps;
 
 /// <summary>
 /// Starting, filling in and saving a workout. "I have …" steps end with the soft keyboard hidden, so a later Android back acts
-/// on the page; the others leave it as a user would (D206).
+/// on the page; the others leave it as a user would (D78).
 /// </summary>
 [Binding]
 public sealed class WorkoutSteps(WebView web, Native native, Journeys journeys, WorkoutScreen workout, DeviceClock clock, ScenarioState state)

@@ -17,6 +17,6 @@ internal sealed class WorkoutExerciseRow
     /// <summary>Id of the exercise.</summary>
     public int ExerciseId { get; set; }
 
-    /// <summary>Order added or last picked, from 0 (D236).</summary>
+    /// <summary>Order added or last picked, from 0 (D42).</summary>
     public int Position { get; set; }
 }

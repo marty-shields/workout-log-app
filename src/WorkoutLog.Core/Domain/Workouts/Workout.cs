@@ -4,5 +4,5 @@ namespace WorkoutLog.Core.Domain.Workouts;
 /// <param name="Id">Workout id.</param>
 /// <param name="StartedAt">Start time, UTC.</param>
 /// <param name="FinishedAt">Finish time, UTC.</param>
-/// <param name="Exercises">Exercises, in the order added or last picked (D236).</param>
+/// <param name="Exercises">Exercises, in the order added or last picked (D42).</param>
 public sealed record Workout(int Id, DateTimeOffset StartedAt, DateTimeOffset FinishedAt, IReadOnlyList<WorkoutExercise> Exercises);

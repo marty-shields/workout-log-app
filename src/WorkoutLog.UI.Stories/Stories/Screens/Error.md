@@ -4,7 +4,7 @@ $attribute: CustomPage("Screens/Error/Overview")
 
 # Error
 
-Shown instead of any screen that hits an unhandled error (D140). View: `ErrorView`, shown by `AppErrorBoundary`.
+Shown instead of any screen that hits an unhandled error (D76). View: `ErrorView`, shown by `AppErrorBoundary`.
 
 | Part | Content |
 |---|---|
