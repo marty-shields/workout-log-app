@@ -1,6 +1,6 @@
 # 08 — Decisions Log
 
-Made from 2026-10-21 to 2026-10-25. Every decision is **Accepted** unless its Choice says Superseded. IDs never change; a new decision takes the next free ID. Format: T110.
+Made from 2026-10-21 to 2026-10-26. Every decision is **Accepted** unless its Choice says Superseded. IDs never change; a new decision takes the next free ID. Format: T110.
 
 ## Topics
 | Topic | Decisions |
@@ -9,9 +9,9 @@ Made from 2026-10-21 to 2026-10-25. Every decision is **Accepted** unless its Ch
 | Workouts, metrics and validation | D11–D25, D33–D44, D61, D63–D65, D70, D76–D78, D84–D93, D103–D108, D126–D130, D157–D179, D188; T22–T34, T55 |
 | Exercise list and search | D04, D05, D72, D79–D83, D89–D92, D94, D122–D125, D146–D156 |
 | Screens and design system | D66, D67, D96–D121, D131, D133–D134, D138, D140, D143–D145, D180–D199, D209–D214 |
-| Architecture and logging | T01–T06, T13, T15, T19, T21, T25–T27, T35–T36, T38–T74, T99; D139–D142 |
+| Architecture and logging | T01–T06, T13, T15, T19, T21, T25–T27, T35–T36, T38–T74, T99, T112; D139–D142 |
 | Testing | D200–D208, D215; T07, T14, T16–T18, T20, T75–T88, T94, T108–T109 |
-| Build, CI and release | D60, D68, D135–D136, D220, D223–D229; T08–T10, T89–T98, T101–T107, T111 |
+| Build, CI and release | D60, D68, D135–D136, D220, D223–D229; T08–T10, T89–T98, T101–T107, T111, T113 |
 | Ways of working and docs | D49–D59, D73–D75, D193, D216–D219, D221–D222, D230–D235; T11–T12, T100, T110 |
 
 ## Product
@@ -360,10 +360,12 @@ Made from 2026-10-21 to 2026-10-25. Every decision is **Accepted** unless its Ch
 | T102 | PR checks | `pr-checks.yml` requires a Conventional Commit title and exactly one `semver:*` label ([07](07-dev-setup-build.md#ci)) | A step in the PR build; the label from the type |
 | T103 | Dependabot labels | Dependabot PRs get `semver:patch` and the `chore(deps)` prefix. Amends T92 | A label per update type |
 | T104 | Release workflow | `release.yml`, run by hand on `main`, one run at a time; jobs `version`, then `build`, `e2e` and `release-smoke`, then `release`; its shell in `.github/scripts/` ([07](07-dev-setup-build.md#release-signed-apk)) | A release per merge; a tag push trigger; inline shell; third-party actions |
-| T105 | E2E on emulators | A matrix of jobs with one emulator each, set up by scripts with no third-party actions, on the AOSP image; scenarios split by whole feature; results uploaded for 1 day; the tests step times out at 30 minutes ([07](07-dev-setup-build.md#e2e-in-the-release-workflow)) | One emulator; the `google_apis` image; smaller emulators; split by scenario |
+| T105 | E2E on emulators | A matrix of jobs with one emulator each, set up by scripts with no third-party actions, on the AOSP image; scenarios split by whole feature; results uploaded for 1 day; the tests step times out at 30 minutes ([07](07-dev-setup-build.md#e2e-workflow)) | One emulator; the `google_apis` image; smaller emulators; split by scenario |
 | T106 | Chromedriver in CI | `release.yml` pins Chromedriver by version and SHA-256 and fails when the emulator's WebView major differs; local runs still download their own. Amends T76 | Autodownload in CI |
 | T107 | Release smoke | The Release APK of the same commit, x64 with the debug key, must start cleanly on an emulator: the start line, the exercise list seeded and startup finished, with no error or crash | Launch the signed arm64 APK; no check |
 | T108 | E2E harness fixes | `WebView.Text` reads inside its wait; failure folder names drop characters Windows and artifacts don't allow | |
 | T109 | E2E retries in CI | `e2e-run.sh` re-runs only the failed scenarios, up to 3 tries; a pass on a retry gets a warning. Local runs don't retry | NUnit `[Retry]`; a testing-platform extension; no retries |
 | T110 | Decisions log format (US-27) | Choice is the decision in 1–2 sentences, linking to the doc that holds the detail; Alternatives are option names; superseded rows keep only their title and successor; changed rows point both ways ("Amends" / "Amended by"); dates are in the header | Keep the full rows |
 | T111 | Exact SDK in CI (US-27) | `global.json` uses `rollForward: patch`, so CI installs exactly its SDK version; a new patch comes as a Dependabot PR. Locally a newer patch still works when that one isn't installed. Amends T91 | `latestPatch` (CI took 10.0.403, whose download failed); a version per workflow |
+| T112 | Shared workout editing (#62) | `WorkoutEditor` (UI), a transient each workout page injects, holds the exercises, picker, changes and the check and save for New Workout, Edit Workout and the stories prototype; each page keeps its own load, timer, back, discard and delete ([04](04-architecture.md#dependency-injection)). Amends T47, T65 | A shared Razor component; a base page class; one page for New and Edit |
+| T113 | E2E on PRs (#62) | `e2e.yml` runs the E2E suite on every PR to `main` and in the release; its `emulator-e2e-tests` job is a required check; the emulator's AVD and image are set in `emulator-start.sh` ([07](07-dev-setup-build.md#e2e-workflow)). Amends T91, T104, T105, T106 | Release only; skip docs-only PRs; required per shard |

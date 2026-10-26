@@ -7,10 +7,10 @@
 @inject IExerciseCatalog Catalog
 @inject TimeProvider Clock
 @inject ISetChecker Checker
-@inject IWorkoutChecker WorkoutChecker
+@inject WorkoutEditor Editor
 @inject ILogger<EditWorkoutPage> Logger
 
-@if (exercises is null)
+@if (!loaded)
 {
     <WorkoutLoadView Failed="failed" NotFound="notFound" OnRetry="LoadAsync" OnBack="OnBack" />
 }
@@ -19,21 +19,21 @@ else
     <WorkoutView Mode="WorkoutMode.Edit"
                  StartedAt="startedAt"
                  Time="total"
-                 Exercises="exercises"
-                 Error="@error"
-                 Focus="focus"
-                 ErrorFocus="errorFocus"
+                 Exercises="Editor.Exercises"
+                 Error="@Editor.Error"
+                 Focus="Editor.Focus"
+                 ErrorFocus="Editor.ErrorFocus"
                  ValidateSet="Checker.Check"
-                 OnChanged="() => changed = true"
+                 OnChanged="Editor.MarkChanged"
                  OnSave="SaveAsync"
-                 OnAddExercise="OpenPicker"
-                 OnRemoveExercise="RemoveExercise"
+                 OnAddExercise="Editor.OpenPicker"
+                 OnRemoveExercise="Editor.Remove"
                  OnBack="BackAsync"
                  OnDelete="OpenDelete">
         <Overlay>
-            @if (pickerOpen)
+            @if (Editor.PickerOpen)
             {
-                <ExercisePicker Query="@query" QueryChanged="Search" Items="pickerItems" OnPick="Pick" OnClose="ClosePicker" />
+                <ExercisePicker Query="@Editor.Query" QueryChanged="Editor.Search" Items="Editor.PickerItems" OnPick="Editor.Pick" OnClose="Editor.ClosePicker" />
             }
             @if (discardOpen)
             {
@@ -48,21 +48,13 @@ else
 }
 
 @code {
-    private List<ExerciseState>? exercises;
+    private bool loaded;
     private int loadedId;
     private DateTime startedAt;
     private TimeSpan total;
     private bool loading;
     private bool failed;
     private bool notFound;
-    private bool pickerOpen;
-    private string query = "";
-    private IReadOnlyList<PickerItem> pickerItems = [];
-    private ExerciseFocus? focus;
-    private ErrorFocus? errorFocus;
-    private string? error;
-    private bool saving;
-    private bool changed;
     private bool discardOpen;
     private bool discarded;
     private bool deleteOpen;
@@ -114,7 +106,7 @@ else
         }
 
         var workout = result.Workout!;
-        var loaded = new List<ExerciseState>();
+        var exercises = new List<ExerciseState>();
         foreach (var exercise in workout.Exercises)
         {
             if (Catalog.All.FirstOrDefault(e => e.Id == exercise.ExerciseId) is not { } definition
@@ -125,13 +117,14 @@ else
                 return;
             }
 
-            loaded.Add(state);
+            exercises.Add(state);
         }
 
         startedAt = TimeZoneInfo.ConvertTime(workout.StartedAt, Clock.LocalTimeZone).DateTime;
         total = workout.FinishedAt - workout.StartedAt;
         loadedId = workoutId;
-        exercises = loaded;
+        Editor.Start(exercises);
+        loaded = true;
     }
 
     /// <summary>
@@ -141,12 +134,12 @@ else
     /// </summary>
     private async Task BackAsync()
     {
-        if (saving || discarded || deleting)
+        if (Editor.Saving || discarded || deleting)
         {
             return;
         }
 
-        if (changed)
+        if (Editor.Changed)
         {
             discardOpen = true;
             return;
@@ -163,7 +156,7 @@ else
     /// </summary>
     private async Task DiscardAsync()
     {
-        if (saving || deleting)
+        if (Editor.Saving || deleting)
         {
             discardOpen = false;
             return;
@@ -182,7 +175,7 @@ else
     /// <summary>Asks Delete / Cancel (FR-24). Ignored while a save or delete runs, after one succeeds and after a discard (D191).</summary>
     private void OpenDelete()
     {
-        if (saving || deleting || discarded)
+        if (Editor.Saving || deleting || discarded)
         {
             return;
         }
@@ -206,7 +199,7 @@ else
     /// </summary>
     private async Task DeleteAsync()
     {
-        if (saving)
+        if (Editor.Saving)
         {
             deleteOpen = false;
             return;
@@ -222,86 +215,27 @@ else
         {
             deleting = false;
             deleteOpen = false;
-            error = WorkoutChecker.DeleteFailed;
-            errorFocus = new ErrorFocus(ErrorFocusTarget.Delete);
+            Editor.ShowDeleteFailed();
             return;
         }
 
         await OnDeleted.InvokeAsync();
     }
 
-    private void OpenPicker()
-    {
-        Search("");
-        pickerOpen = true;
-    }
-
-    /// <summary>Sets the search text and its results.</summary>
-    private void Search(string text)
-    {
-        query = text;
-        pickerItems = Catalog.Search(text).Select(ExerciseFields.PickerItem).ToList();
-    }
-
-    private void ClosePicker() => pickerOpen = false;
-
-    private void Pick(PickerItem item)
-    {
-        focus = Show(item.Id);
-        error = null;
-        pickerOpen = false;
-    }
-
     /// <summary>
-    /// Checks the workout (FR-09) and moves focus to the first error. A valid workout is saved under the id it was loaded with and raises <see cref="OnSaved"/>;
-    /// if nothing was saved, shows SaveFailed and focuses Save (D176). Ignored while a save or delete runs and after one succeeds
-    /// (D177, D191).
+    /// Saves under the id it was loaded with through <see cref="WorkoutEditor.SaveAsync"/> and raises <see cref="OnSaved"/>.
+    /// Ignored while a delete runs and after one succeeds (D191).
     /// </summary>
     private async Task SaveAsync()
     {
-        if (saving || deleting)
+        if (deleting)
         {
             return;
         }
 
-        var check = WorkoutChecker.Check(exercises!);
-        error = check.Error;
-        if (!check.IsValid)
+        if (await Editor.SaveAsync(async records => (await Workouts.SaveAsync(loadedId, records)).WorkoutId is not null))
         {
-            errorFocus = new ErrorFocus();
-            return;
+            await OnSaved.InvokeAsync();
         }
-
-        saving = true;
-        var result = await Workouts.SaveAsync(loadedId, exercises!.Select(Checker.Read).ToList());
-        saving = result.WorkoutId is not null;
-        if (result.WorkoutId is null)
-        {
-            error = WorkoutChecker.SaveFailed;
-            errorFocus = new ErrorFocus(ErrorFocusTarget.Save);
-            return;
-        }
-
-        await OnSaved.InvokeAsync();
-    }
-
-    /// <summary>Focuses the exercise already in the workout, adding a set to a strength one; otherwise adds it at the bottom.</summary>
-    private ExerciseFocus Show(int exerciseId)
-    {
-        if (exercises!.Find(e => e.ExerciseId == exerciseId) is { } existing)
-        {
-            return new ExerciseFocus(existing, addSet: existing.Kind == ExerciseKind.Strength);
-        }
-
-        var added = ExerciseFields.New(Catalog.All.Single(e => e.Id == exerciseId));
-        exercises.Add(added);
-        changed = true;
-        return new ExerciseFocus(added);
-    }
-
-    private void RemoveExercise(ExerciseState exercise)
-    {
-        exercises!.Remove(exercise);
-        changed = true;
     }
 }

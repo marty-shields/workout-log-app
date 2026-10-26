@@ -4,7 +4,7 @@
 @implements IDisposable
 @inject IExerciseCatalog Catalog
 @inject ISetChecker Checker
-@inject IWorkoutChecker WorkoutChecker
+@inject WorkoutEditor Editor
 
 <PhoneFrame OnSystemBack="Back" OnSimulateError="() => broken = true">
     <StartupGate Initialize="Start">
@@ -27,21 +27,21 @@
                     <WorkoutView Mode="mode"
                                  StartedAt="startedAt"
                                  Time="WorkoutTime"
-                                 Exercises="exercises"
-                                 Error="@error"
+                                 Exercises="Editor.Exercises"
+                                 Error="@Editor.Error"
                                  ValidateSet="Checker.Check"
-                                 OnChanged="() => changed = true"
-                                 OnAddExercise="OpenPicker"
-                                 OnRemoveExercise="RemoveExercise"
-                                 Focus="focus"
-                                 ErrorFocus="errorFocus"
-                                 OnSave="Save"
+                                 OnChanged="Editor.MarkChanged"
+                                 OnAddExercise="Editor.OpenPicker"
+                                 OnRemoveExercise="Editor.Remove"
+                                 Focus="Editor.Focus"
+                                 ErrorFocus="Editor.ErrorFocus"
+                                 OnSave="SaveAsync"
                                  OnBack="Back"
                                  OnDelete="() => dialog = Dialog.Delete">
                         <Overlay>
-                            @if (pickerOpen)
+                            @if (Editor.PickerOpen)
                             {
-                                <ExercisePicker Query="@query" QueryChanged="Search" Items="pickerItems" OnPick="Pick" OnClose="() => pickerOpen = false" />
+                                <ExercisePicker Query="@Editor.Query" QueryChanged="Editor.Search" Items="Editor.PickerItems" OnPick="Editor.Pick" OnClose="Editor.ClosePicker" />
                             }
                             @switch (dialog)
                             {
@@ -81,15 +81,7 @@
     private WorkoutMode mode;
     private SavedWorkout? editing;
     private DateTime startedAt;
-    private List<ExerciseState> exercises = [];
-    private bool changed;
-    private bool pickerOpen;
-    private string query = "";
-    private IReadOnlyList<PickerItem> pickerItems = [];
-    private ExerciseFocus? focus;
-    private ErrorFocus? errorFocus;
     private Dialog dialog;
-    private string? error;
     private bool broken;
 
     /// <summary>Starts with no saved workouts.</summary>
@@ -133,7 +125,7 @@
         mode = WorkoutMode.New;
         editing = null;
         startedAt = DateTime.Now;
-        exercises = [];
+        Editor.Start([]);
         Go(Screen.Workout);
     }
 
@@ -142,66 +134,31 @@
         editing = saved.Single(w => w.Id == row.Id);
         mode = WorkoutMode.Edit;
         startedAt = editing.StartedAt;
-        exercises = SampleData.Clone(editing.Exercises);
+        Editor.Start(SampleData.Clone(editing.Exercises));
         Go(Screen.Workout);
     }
 
-    private void OpenPicker()
+    private async Task SaveAsync()
     {
-        Search("");
-        pickerOpen = true;
-    }
-
-    private void Search(string text)
-    {
-        query = text;
-        pickerItems = SampleData.PickerItems(Catalog, text);
-    }
-
-    private void Pick(PickerItem item)
-    {
-        if (exercises.Find(e => e.ExerciseId == item.Id) is { } existing)
+        if (await Editor.SaveAsync(_ => Task.FromResult(Store())))
         {
-            focus = new ExerciseFocus(existing, addSet: existing.Kind == ExerciseKind.Strength);
+            Go(Screen.Dashboard);
         }
-        else
-        {
-            var added = SampleData.NewExercise(Catalog, item.Id);
-            exercises.Add(added);
-            focus = new ExerciseFocus(added);
-        }
-
-        error = null;
-        pickerOpen = false;
-        changed = true;
     }
 
-    private void RemoveExercise(ExerciseState exercise)
+    /// <summary>Keeps the edited exercises as the new or edited sample workout.</summary>
+    private bool Store()
     {
-        exercises.Remove(exercise);
-        changed = true;
-    }
-
-    private void Save()
-    {
-        var check = WorkoutChecker.Check(exercises);
-        error = check.Error;
-        if (!check.IsValid)
-        {
-            errorFocus = new ErrorFocus();
-            return;
-        }
-
         if (editing is null)
         {
-            saved.Add(new SavedWorkout(saved.Select(w => w.Id).DefaultIfEmpty().Max() + 1,startedAt, DateTime.Now, exercises));
+            saved.Add(new SavedWorkout(saved.Select(w => w.Id).DefaultIfEmpty().Max() + 1, startedAt, DateTime.Now, Editor.Exercises));
         }
         else
         {
-            saved[saved.IndexOf(editing)] = editing with { Exercises = exercises };
+            saved[saved.IndexOf(editing)] = editing with { Exercises = Editor.Exercises };
         }
 
-        Go(Screen.Dashboard);
+        return true;
     }
 
     private void Delete()
@@ -238,13 +195,13 @@
             case Screen.Workout when dialog != Dialog.None:
                 CloseDialog();
                 break;
-            case Screen.Workout when pickerOpen:
-                pickerOpen = false;
+            case Screen.Workout when Editor.PickerOpen:
+                Editor.ClosePicker();
                 break;
             case Screen.Workout when mode == WorkoutMode.New:
                 dialog = Dialog.Discard;
                 break;
-            case Screen.Workout when changed:
+            case Screen.Workout when Editor.Changed:
                 dialog = Dialog.DiscardChanges;
                 break;
             case Screen.Workout:
@@ -262,9 +219,6 @@
     private void Go(Screen next)
     {
         screen = next;
-        changed = false;
-        pickerOpen = false;
         dialog = Dialog.None;
-        error = null;
     }
 }

@@ -2,6 +2,9 @@
 # Enables KVM, installs the emulator and $SYSTEM_IMAGE, creates the AVD $AVD and starts it in the background.
 # Writes $RUNNER_TEMP/emulator.log and emulator.pid; adds platform-tools to the PATH and ANDROID_AVD_HOME to the job's env.
 set -euo pipefail
+AVD="${AVD:-WorkoutLog_API36}"
+# AOSP image: no Play services or Gboard, so less background work on the runner.
+SYSTEM_IMAGE="${SYSTEM_IMAGE:-system-images;android-36;default;x86_64}"
 sdk="$ANDROID_HOME/cmdline-tools/latest/bin"
 
 echo "::group::Host"
