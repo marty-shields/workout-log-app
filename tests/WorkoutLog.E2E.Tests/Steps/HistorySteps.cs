@@ -32,13 +32,6 @@ public sealed class HistorySteps(WebView web, Journeys journeys, HistoryScreen h
         web.Eventually(history.Rows, Is.EqualTo(expected));
     }
 
-    [Then(@"^workout (\d+) is above workout (\d+)$")]
-    public void ThenWorkoutIsAbove(int above, int below)
-    {
-        var ids = history.RowIds().ToList();
-        Assert.That(ids.IndexOf(above), Is.LessThan(ids.IndexOf(below)).And.Not.Negative, $"rows {string.Join(", ", ids)}");
-    }
-
     [Then(@"^History lists (\d+) workouts?$")]
     public void ThenHistoryLists(int count)
     {

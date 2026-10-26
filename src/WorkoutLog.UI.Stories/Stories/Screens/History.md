@@ -13,7 +13,7 @@ Saved workouts, newest first (FR-20, FR-21). View: `HistoryView`; page: `History
 | Loading | `Spinner` "Loading…" centred until the workouts load (D69). |
 | Load failed | Error "Couldn't load your history." and a Secondary **Try again** that reloads. Focus moves to Try again (D69). |
 
-Rows are newest first by start time; with the same start, newest saved first (D70). All load at once (D70).
+Rows are newest first by start time (D70). All load at once (D70).
 
 Tapping a row opens the workout in Edit Workout (D71). Back: Dashboard.
 

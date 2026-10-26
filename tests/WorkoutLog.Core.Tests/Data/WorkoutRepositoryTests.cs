@@ -55,9 +55,19 @@ public class WorkoutRepositoryTests
     public async Task AddAsync_TwoWorkouts_ReturnsDifferentIds()
     {
         var first = await repository.AddAsync(new NewWorkout(Start, Finish, Exercises()));
-        var second = await repository.AddAsync(new NewWorkout(Start, Finish, Exercises()));
+        var second = await repository.AddAsync(new NewWorkout(Start.AddHours(2), Finish.AddHours(2), Exercises()));
 
         Assert.That(second, Is.Not.EqualTo(first));
+    }
+
+    [Test]
+    public async Task AddAsync_StartAlreadySaved_ThrowsAndWritesNothing()
+    {
+        await repository.AddAsync(new NewWorkout(Start, Finish, Exercises()));
+
+        Assert.That(() => repository.AddAsync(new NewWorkout(Start, Finish.AddHours(1), Exercises())), Throws.InstanceOf<SQLiteException>());
+
+        Assert.That(await RowCounts(), Is.EqualTo((1, 3, 3, 1)));
     }
 
     [Test]
@@ -147,15 +157,6 @@ public class WorkoutRepositoryTests
     }
 
     [Test]
-    public async Task ListAsync_SameStartTime_NewestIdFirst()
-    {
-        var first = await repository.AddAsync(new NewWorkout(Start, Finish, Exercises()));
-        var second = await repository.AddAsync(new NewWorkout(Start, Finish, Exercises()));
-
-        Assert.That((await repository.ListAsync()).Select(w => w.Id), Is.EqualTo(new[] { second, first }));
-    }
-
-    [Test]
     public async Task ListAsync_TimesWithAnOffset_ReadBackAsUtc()
     {
         await repository.AddAsync(new NewWorkout(Start.ToOffset(TimeSpan.FromHours(1)), Finish, Exercises()));
@@ -213,7 +214,7 @@ public class WorkoutRepositoryTests
     public async Task StartedAtIndex_ServesTheListOrderWithoutASort()
     {
         var plan = (await connection.QueryAsync<QueryPlanRow>(
-                "EXPLAIN QUERY PLAN SELECT * FROM Workout ORDER BY StartedAt DESC, Id DESC"))
+                "EXPLAIN QUERY PLAN SELECT * FROM Workout ORDER BY StartedAt DESC"))
             .Select(r => r.Detail).ToList();
 
         Assert.That(plan, Has.Some.Contains("USING INDEX Workout_StartedAt"));
@@ -241,15 +242,6 @@ public class WorkoutRepositoryTests
             new WorkoutWeights(middle, [60m]),
             new WorkoutWeights(oldest, [50m]),
         }).UsingPropertiesComparer());
-    }
-
-    [Test]
-    public async Task GetWeightsAsync_SameStartTime_NewestIdFirst()
-    {
-        var first = await AddWeightsAsync(Start, 60m);
-        var second = await AddWeightsAsync(Start, 70m);
-
-        Assert.That((await repository.GetWeightsAsync(1)).Select(w => w.WorkoutId), Is.EqualTo(new[] { second, first }));
     }
 
     [Test]
@@ -302,12 +294,12 @@ public class WorkoutRepositoryTests
     public async Task ReplaceExercisesAsync_LeavesOtherWorkoutsAlone()
     {
         var replaced = await repository.AddAsync(new NewWorkout(Start, Finish, Exercises()));
-        var kept = await repository.AddAsync(new NewWorkout(Start, Finish, Exercises()));
+        var kept = await repository.AddAsync(new NewWorkout(Start.AddHours(2), Finish.AddHours(2), Exercises()));
 
         await repository.ReplaceExercisesAsync(replaced, [new StrengthExercise(5, [new StrengthSet(8, 40m, null, null)])]);
 
         Assert.That(await repository.GetAsync(kept),
-            Is.EqualTo(new Workout(kept, Start, Finish, Exercises())).UsingPropertiesComparer());
+            Is.EqualTo(new Workout(kept, Start.AddHours(2), Finish.AddHours(2), Exercises())).UsingPropertiesComparer());
         Assert.That(await RowCounts(), Is.EqualTo((2, 4, 4, 1)));
     }
 
@@ -323,13 +315,13 @@ public class WorkoutRepositoryTests
     public async Task DeleteAsync_RemovesTheWorkoutAndItsChildrenOnly()
     {
         var deleted = await repository.AddAsync(new NewWorkout(Start, Finish, Exercises()));
-        var kept = await repository.AddAsync(new NewWorkout(Start, Finish, Exercises()));
+        var kept = await repository.AddAsync(new NewWorkout(Start.AddHours(2), Finish.AddHours(2), Exercises()));
 
         await repository.DeleteAsync(deleted);
 
         Assert.That(await repository.GetAsync(deleted), Is.Null);
         Assert.That(await repository.GetAsync(kept),
-            Is.EqualTo(new Workout(kept, Start, Finish, Exercises())).UsingPropertiesComparer());
+            Is.EqualTo(new Workout(kept, Start.AddHours(2), Finish.AddHours(2), Exercises())).UsingPropertiesComparer());
         Assert.That(await RowCounts(), Is.EqualTo((1, 3, 3, 1)));
     }
 

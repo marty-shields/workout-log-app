@@ -1,4 +1,6 @@
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Logging.Testing;
 using Microsoft.Extensions.Time.Testing;
 using Moq;
@@ -165,6 +167,36 @@ public class WorkoutServiceTests
         var result = await service.SaveNewAsync(service.StartNew(), Exercises());
 
         Assert.That(result, Is.EqualTo(new SaveResult(null, SaveFailed)));
+    }
+
+    [Test]
+    public async Task SaveNewAsync_StartAlreadySaved_ReturnsSaveFailedAndKeepsTheFirst()
+    {
+        var path = TempDatabase.NewPath();
+        using var provider = new ServiceCollection()
+            .AddSingleton(typeof(ILogger<>), typeof(NullLogger<>))
+            .AddCore(path)
+            .AddSingleton<TimeProvider>(time)
+            .BuildServiceProvider();
+        try
+        {
+            await provider.GetRequiredService<IDatabaseInitializer>().InitializeAsync();
+            var saving = provider.GetRequiredService<IWorkoutService>();
+            WorkoutExercise[] exercises = [new StrengthExercise(Press, [new StrengthSet(10, 20m, null, null)])];
+            var first = await saving.SaveNewAsync(saving.StartNew(), exercises);
+
+            var second = await saving.SaveNewAsync(saving.StartNew(), exercises);
+
+            Assert.That(first.WorkoutId, Is.Not.Null);
+            Assert.That(second, Is.EqualTo(new SaveResult(null, SaveFailed)));
+            Assert.That(await provider.GetRequiredService<IWorkoutRepository>().ListAsync(),
+                Is.EqualTo(new[] { new WorkoutSummary(first.WorkoutId!.Value, Start) }));
+        }
+        finally
+        {
+            SQLiteAsyncConnection.ResetPool();
+            File.Delete(path);
+        }
     }
 
     [Test]

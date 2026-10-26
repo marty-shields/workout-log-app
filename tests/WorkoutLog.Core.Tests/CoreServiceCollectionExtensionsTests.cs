@@ -21,6 +21,7 @@ public class CoreServiceCollectionExtensionsTests
         {
             (typeof(DatabaseGate), typeof(DatabaseGate), ServiceLifetime.Singleton),
             (typeof(IExerciseCatalog), typeof(ExerciseCatalog), ServiceLifetime.Singleton),
+            (typeof(ISchemaUpgrade), typeof(WorkoutStartedAtUniqueIndex), ServiceLifetime.Singleton),
             (typeof(IDatabaseInitializer), (Type?)null, ServiceLifetime.Singleton),
             (typeof(IWorkoutRepository), (Type?)null, ServiceLifetime.Singleton),
             (typeof(TimeProvider), (Type?)null, ServiceLifetime.Singleton),

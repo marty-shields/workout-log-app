@@ -38,7 +38,7 @@ public class DatabaseInitializerTests
     [Test]
     public async Task InitializeAsync_NewDatabase_CreatesTheTablesInTheDataModel()
     {
-        await Initializer(DatabaseInitializer.CurrentVersion).InitializeAsync();
+        await Initializer(DatabaseInitializer.CurrentVersion, new WorkoutStartedAtUniqueIndex()).InitializeAsync();
 
         Assert.That(await Columns(), Is.EquivalentTo(new[]
         {
@@ -74,7 +74,7 @@ public class DatabaseInitializerTests
         {
             ("CardioEntry", "WorkoutExerciseId", true),
             ("StrengthSet", "WorkoutExerciseId", false),
-            ("Workout", "StartedAt", false),
+            ("Workout", "StartedAt", true),
             ("WorkoutExercise", "WorkoutId", false),
         }));
     }
@@ -131,7 +131,7 @@ public class DatabaseInitializerTests
         await connection.ExecuteAsync("INSERT INTO CardioEntry (WorkoutExerciseId, Duration) VALUES (1, 6000000000)");
         await SetVersion(DatabaseInitializer.CurrentVersion);
 
-        await Initializer(DatabaseInitializer.CurrentVersion).InitializeAsync();
+        await Initializer(DatabaseInitializer.CurrentVersion, new WorkoutStartedAtUniqueIndex()).InitializeAsync();
 
         Assert.Multiple(async () =>
         {
@@ -148,11 +148,11 @@ public class DatabaseInitializerTests
         await connection.ExecuteAsync("INSERT INTO Workout (StartedAt, FinishedAt) VALUES (1, 2)");
         await SetVersion(DatabaseInitializer.CurrentVersion);
 
-        await Initializer(DatabaseInitializer.CurrentVersion).InitializeAsync();
+        await Initializer(DatabaseInitializer.CurrentVersion, new WorkoutStartedAtUniqueIndex()).InitializeAsync();
 
         Assert.Multiple(async () =>
         {
-            Assert.That(await Indexes(), Does.Contain(("Workout", "StartedAt", false)));
+            Assert.That(await Indexes(), Does.Contain(("Workout", "StartedAt", true)));
             Assert.That(await connection.Table<WorkoutRow>().CountAsync(), Is.EqualTo(1));
         });
     }
@@ -281,7 +281,7 @@ public class DatabaseInitializerTests
     {
         var catalog = new ExerciseCatalog();
         var initializer = new DatabaseInitializer(
-            connection, [], new ExerciseSeeder(connection, catalog, NullLogger<ExerciseSeeder>.Instance), logger);
+            connection, [new WorkoutStartedAtUniqueIndex()], new ExerciseSeeder(connection, catalog, NullLogger<ExerciseSeeder>.Instance), logger);
 
         await initializer.InitializeAsync();
         await initializer.InitializeAsync();
@@ -289,6 +289,80 @@ public class DatabaseInitializerTests
         Assert.That(await Version(), Is.EqualTo(DatabaseInitializer.CurrentVersion));
         Assert.That(await connection.Table<Exercise>().CountAsync(), Is.EqualTo(catalog.All.Count));
     }
+
+    [Test]
+    public async Task InitializeAsync_Version1Database_MakesStartedAtUniqueAndKeepsEveryRow()
+    {
+        await CreateVersion1Async(startedAt: [100, 200]);
+
+        await Initializer(2, new WorkoutStartedAtUniqueIndex()).InitializeAsync();
+
+        Assert.Multiple(async () =>
+        {
+            Assert.That(await Version(), Is.EqualTo(2));
+            Assert.That(await Indexes(), Does.Contain(("Workout", "StartedAt", true)).And.Not.Contain(("Workout", "StartedAt", false)));
+            Assert.That(await RowCounts(), Is.EqualTo((2, 2, 2, 1, 1)));
+            Assert.That(await connection.QueryScalarsAsync<long>("SELECT StartedAt FROM Workout ORDER BY Id"), Is.EqualTo(new[] { 100L, 200L }));
+            Assert.That(calls, Is.EqualTo(new[] { "seed" }));
+        });
+    }
+
+    [Test]
+    public async Task InitializeAsync_Version1DatabaseWithEqualStarts_ThrowsAndChangesNothing()
+    {
+        await CreateVersion1Async(startedAt: [100, 100]);
+
+        Assert.That(() => Initializer(2, new WorkoutStartedAtUniqueIndex()).InitializeAsync(),
+            Throws.InstanceOf<SQLiteException>());
+
+        Assert.Multiple(async () =>
+        {
+            Assert.That(await Version(), Is.EqualTo(1));
+            Assert.That(await Indexes(), Does.Contain(("Workout", "StartedAt", false)).And.Not.Contain(("Workout", "StartedAt", true)));
+            Assert.That(await RowCounts(), Is.EqualTo((2, 2, 2, 1, 1)));
+            Assert.That(calls, Is.Empty);
+        });
+    }
+
+    /// <summary>
+    /// Creates the version 1 schema with two exercises and a workout at each of <paramref name="startedAt"/> (ticks);
+    /// the first workout has a strength exercise with one set, the second a cardio exercise with one entry.
+    /// </summary>
+    private async Task CreateVersion1Async(long[] startedAt)
+    {
+        string[] statements =
+        [
+            "CREATE TABLE Exercise (Id integer primary key not null, Name varchar, Type integer)",
+            "CREATE TABLE Workout (Id integer primary key autoincrement not null, StartedAt bigint not null, FinishedAt bigint not null)",
+            "CREATE INDEX Workout_StartedAt ON Workout(StartedAt)",
+            "CREATE TABLE WorkoutExercise (Id integer primary key autoincrement not null, WorkoutId integer not null, ExerciseId integer not null, Position integer not null)",
+            "CREATE INDEX WorkoutExercise_WorkoutId ON WorkoutExercise(WorkoutId)",
+            "CREATE TABLE StrengthSet (Id integer primary key autoincrement not null, WorkoutExerciseId integer not null, Position integer not null, " +
+            "Reps integer, WeightKg float, Duration bigint, Distance float)",
+            "CREATE INDEX StrengthSet_WorkoutExerciseId ON StrengthSet(WorkoutExerciseId)",
+            "CREATE TABLE CardioEntry (Id integer primary key autoincrement not null, WorkoutExerciseId integer not null, Duration bigint not null, " +
+            "Distance float, Floors integer, Level integer, Incline float, Calories integer, Rate float, Pace bigint)",
+            "CREATE UNIQUE INDEX CardioEntry_WorkoutExerciseId ON CardioEntry(WorkoutExerciseId)",
+            "INSERT INTO Exercise (Id, Name, Type) VALUES (1, 'Ab Wheel Rollout', 0), (300, 'Treadmill', 1)",
+            $"INSERT INTO Workout (StartedAt, FinishedAt) VALUES ({startedAt[0]}, {startedAt[0] + 1}), ({startedAt[1]}, {startedAt[1] + 1})",
+            "INSERT INTO WorkoutExercise (WorkoutId, ExerciseId, Position) VALUES (1, 1, 0), (2, 300, 0)",
+            "INSERT INTO StrengthSet (WorkoutExerciseId, Position, Reps, WeightKg) VALUES (1, 0, 5, 60)",
+            "INSERT INTO CardioEntry (WorkoutExerciseId, Duration) VALUES (2, 6000000000)",
+        ];
+        foreach (var statement in statements)
+        {
+            await connection.ExecuteAsync(statement);
+        }
+
+        await SetVersion(1);
+    }
+
+    private async Task<(int Exercises, int Workouts, int WorkoutExercises, int Sets, int Entries)> RowCounts() => (
+        await connection.Table<Exercise>().CountAsync(),
+        await connection.Table<WorkoutRow>().CountAsync(),
+        await connection.Table<WorkoutExerciseRow>().CountAsync(),
+        await connection.Table<StrengthSetRow>().CountAsync(),
+        await connection.Table<CardioEntryRow>().CountAsync());
 
     private DatabaseInitializer Initializer(int currentVersion, params ISchemaUpgrade[] steps) =>
         new(connection, steps, seeder.Object, logger, currentVersion);
