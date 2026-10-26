@@ -48,7 +48,6 @@
     bottom: 0;
     height: var(--inset-bottom);
     justify-content: center;
-    gap: 1rem;
 }
 
 .handle {
@@ -56,14 +55,6 @@
     height: 4px;
     border-radius: 2px;
     background: currentColor;
-}
-
-.system-button {
-    pointer-events: auto;
-    border: none;
-    background: transparent;
-    font-size: 0.75rem;
-    cursor: pointer;
 }
 
 /* Hides scrollbars inside the phone, as on Android. */

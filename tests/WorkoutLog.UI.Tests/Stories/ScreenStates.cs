@@ -1,8 +1,6 @@
 using AngleSharp.Dom;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Time.Testing;
 using WorkoutLog.Core.Domain.Exercises;
-using WorkoutLog.Core.Services;
 using WorkoutLog.UI.Components.Overlays;
 using WorkoutLog.UI.Components.Workout;
 using WorkoutLog.UI.Models.Dashboard;
@@ -10,7 +8,6 @@ using WorkoutLog.UI.Models.History;
 using WorkoutLog.UI.Models.Workout;
 using WorkoutLog.UI.Screens;
 using WorkoutLog.UI.Stories.Samples;
-using WorkoutLog.UI.Stories.Shared;
 
 namespace WorkoutLog.UI.Tests.Stories;
 
@@ -29,30 +26,25 @@ public static class ScreenStates
     public static IReadOnlyList<ScreenState> All { get; } =
     [
         new("Screens/Startup", "Loading", c => c.Render<StartupView>().FindAll("*")),
-        new("Screens/Startup", "Error", c => c.Render<StartupView>(p => p.Add(x => x.Failed, true)).FindAll("*")),
+        new("Screens/Startup", "Load failed", c => c.Render<StartupView>(p => p.Add(x => x.Failed, true)).FindAll("*")),
 
         new("Screens/Dashboard", "Empty", c => Dashboard(c, new DashboardSummary(null, 0, 0))),
         new("Screens/Dashboard", "With workouts", c => Dashboard(c, new DashboardSummary(SampleData.Started, 2, 9))),
         new("Screens/Dashboard", "Loading", c => Dashboard(c, new DashboardSummary(null, 0, 0), loading: true)),
         new("Screens/Dashboard", "Load failed", c => Dashboard(c, new DashboardSummary(null, 0, 0), failed: true)),
-        new("Screens/Dashboard", "Live page", DashboardPage),
 
         new("Screens/New Workout", "Empty", c => Workout(c, WorkoutMode.New, [])),
-        new("Screens/New Workout", "Live timer", NewWorkout),
-        new("Screens/New Workout", "Strength sets", c => Workout(c, WorkoutMode.New, SampleData.StrengthWorkout(Catalog(c)))),
-        new("Screens/New Workout", "Newest first", c => Workout(c, WorkoutMode.New, SampleData.NewestFirst(Catalog(c), SampleData.StrengthWorkout(Catalog(c))))),
-        new("Screens/New Workout", "Last and PB", c => Workout(c, WorkoutMode.New, SampleData.StrengthWorkoutWithWeights(Catalog(c)))),
-        new("Screens/New Workout", "Carry sets", c => Workout(c, WorkoutMode.New, SampleData.CarryWorkout(Catalog(c)))),
-        new("Screens/New Workout", "Cardio entries", c => Workout(c, WorkoutMode.New, SampleData.CardioWorkout(Catalog(c)))),
+        new("Screens/New Workout", "Strength", c => Workout(c, WorkoutMode.New, SampleData.StrengthWorkoutWithWeights(Catalog(c)))),
+        new("Screens/New Workout", "Carry", c => Workout(c, WorkoutMode.New, SampleData.CarryWorkout(Catalog(c)))),
+        new("Screens/New Workout", "Cardio", c => Workout(c, WorkoutMode.New, SampleData.CardioWorkout(Catalog(c)))),
         new("Screens/New Workout", "Save errors", c => Workout(c, WorkoutMode.New, SampleData.WorkoutWithErrors(Catalog(c), WorkoutChecker(c)))),
-        new("Screens/New Workout", "Save with no exercises", c => Workout(c, WorkoutMode.New, [], error: WorkoutChecker(c).Check([]).Error)),
+        new("Screens/New Workout", "No exercises error", c => Workout(c, WorkoutMode.New, [], error: WorkoutChecker(c).Check([]).Error)),
         new("Screens/New Workout", "Save failed", c => Workout(c, WorkoutMode.New, SampleData.StrengthWorkout(Catalog(c)), error: WorkoutChecker(c).SaveFailed)),
         new("Screens/New Workout", "Discard prompt", c => Workout(c, WorkoutMode.New, SampleData.StrengthWorkout(Catalog(c)), dialog: ("Discard this workout?", "Discard"))),
 
-        new("Screens/Edit Workout", "Saved", c => Workout(c, WorkoutMode.Edit, SampleData.Opened(SampleData.StrengthWorkout(Catalog(c))))),
-        new("Screens/Edit Workout", "Newest first", c => Workout(c, WorkoutMode.Edit, SampleData.NewestFirst(Catalog(c), SampleData.Opened(SampleData.StrengthWorkout(Catalog(c)))))),
-        new("Screens/Edit Workout", "Carry sets closed", c => Workout(c, WorkoutMode.Edit, SampleData.Opened(SampleData.CarryWorkout(Catalog(c))))),
-        new("Screens/Edit Workout", "Cardio entries", c => Workout(c, WorkoutMode.Edit, SampleData.Opened(SampleData.CardioWorkout(Catalog(c))))),
+        new("Screens/Edit Workout", "Strength", c => Workout(c, WorkoutMode.Edit, SampleData.Opened(SampleData.StrengthWorkout(Catalog(c))))),
+        new("Screens/Edit Workout", "Carry", c => Workout(c, WorkoutMode.Edit, SampleData.Opened(SampleData.CarryWorkout(Catalog(c))))),
+        new("Screens/Edit Workout", "Cardio", c => Workout(c, WorkoutMode.Edit, SampleData.Opened(SampleData.CardioWorkout(Catalog(c))))),
         new("Screens/Edit Workout", "Save errors", c => Workout(c, WorkoutMode.Edit, SampleData.EditWorkoutWithErrors(Catalog(c), WorkoutChecker(c)))),
         new("Screens/Edit Workout", "Save failed", c => Workout(c, WorkoutMode.Edit, SampleData.Opened(SampleData.StrengthWorkout(Catalog(c))), error: WorkoutChecker(c).SaveFailed)),
         new("Screens/Edit Workout", "Discard prompt", c => Workout(c, WorkoutMode.Edit, SampleData.Opened(SampleData.StrengthWorkout(Catalog(c))), dialog: ("Discard changes?", "Discard"))),
@@ -61,8 +53,6 @@ public static class ScreenStates
         new("Screens/Edit Workout", "Loading", c => WorkoutLoad(c)),
         new("Screens/Edit Workout", "Load failed", c => WorkoutLoad(c, failed: true)),
         new("Screens/Edit Workout", "Not found", c => WorkoutLoad(c, notFound: true)),
-        new("Screens/Edit Workout", "Live page", EditWorkout),
-        new("Screens/Edit Workout", "Back, discard and delete", EditWorkoutOutcome),
 
         new("Screens/Exercise Picker", "No search text", c => Workout(c, WorkoutMode.New, SampleData.StrengthWorkout(Catalog(c)), pickerQuery: "")),
         new("Screens/Exercise Picker", "Results", c => Workout(c, WorkoutMode.New, SampleData.StrengthWorkout(Catalog(c)), pickerQuery: "dumbbell")),
@@ -73,7 +63,7 @@ public static class ScreenStates
         new("Screens/History", "Loading", c => History(c, [], tappable: false, loading: true)),
         new("Screens/History", "Load failed", c => History(c, [], tappable: false, failed: true)),
 
-        new("Screens/Error", "Rendering error", c => c.Render<ErrorView>(p => p.Add(x => x.OnRestart, () => { })).FindAll("*")),
+        new("Screens/Error", "Error", c => c.Render<ErrorView>(p => p.Add(x => x.OnRestart, () => { })).FindAll("*")),
     ];
 
     private static IExerciseCatalog Catalog(BunitContext context) => context.Services.GetRequiredService<IExerciseCatalog>();
@@ -91,40 +81,6 @@ public static class ScreenStates
             .Add(x => x.OnNewWorkout, () => { })
             .Add(x => x.OnHistory, () => { }))
             .FindAll("*");
-
-    private static IReadOnlyList<IElement> DashboardPage(BunitContext context)
-    {
-        context.Services.AddSingleton<TimeProvider>(new FakeTimeProvider());
-        context.Services.AddSingleton<IDashboardService>(new SampleDashboardService());
-        return context.Render<DashboardPage>(p => p
-            .Add(x => x.OnNewWorkout, () => { })
-            .Add(x => x.OnHistory, () => { }))
-            .FindAll("*");
-    }
-
-    private static IReadOnlyList<IElement> NewWorkout(BunitContext context)
-    {
-        var clock = new FakeTimeProvider();
-        context.Services.AddSingleton<TimeProvider>(clock);
-        return context.Render<NewWorkoutPage>().FindAll("*");
-    }
-
-    private static IReadOnlyList<IElement> EditWorkout(BunitContext context)
-    {
-        context.Services.AddSingleton<TimeProvider>(new FakeTimeProvider());
-        return context.Render<EditWorkoutPage>(p => p
-            .Add(x => x.WorkoutId, 1)
-            .Add(x => x.OnBack, () => { })
-            .Add(x => x.OnSaved, () => { })
-            .Add(x => x.OnDeleted, () => { }))
-            .FindAll("*");
-    }
-
-    private static IReadOnlyList<IElement> EditWorkoutOutcome(BunitContext context)
-    {
-        context.Services.AddSingleton<TimeProvider>(new FakeTimeProvider());
-        return context.Render<EditWorkoutOutcome>().FindAll("*");
-    }
 
     private static IReadOnlyList<IElement> Workout(
         BunitContext context,

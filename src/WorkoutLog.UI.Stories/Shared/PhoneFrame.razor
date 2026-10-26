@@ -8,19 +8,8 @@
         <div class="status-bar" aria-hidden="true">
             <span>9:41</span>
         </div>
-        <div class="nav-bar">
-            @if (OnSystemBack.HasDelegate)
-            {
-                <button type="button" class="system-button" data-testid="system-back" @onclick="OnSystemBack">&#x25C1; Android back</button>
-            }
-            else
-            {
-                <span class="handle" aria-hidden="true"></span>
-            }
-            @if (OnSimulateError.HasDelegate)
-            {
-                <button type="button" class="system-button" data-testid="simulate-error" @onclick="OnSimulateError">&#x26A0; Simulate an error</button>
-            }
+        <div class="nav-bar" aria-hidden="true">
+            <span class="handle"></span>
         </div>
     </div>
 </div>
@@ -29,14 +18,6 @@
     /// <summary>Screen shown inside the frame.</summary>
     [Parameter]
     public RenderFragment? ChildContent { get; set; }
-
-    /// <summary>Raised by the simulated Android back button. The bar shows a gesture handle when unset.</summary>
-    [Parameter]
-    public EventCallback OnSystemBack { get; set; }
-
-    /// <summary>Raised by the Simulate an error button, shown in the bar when set.</summary>
-    [Parameter]
-    public EventCallback OnSimulateError { get; set; }
 
     private string? Theme { get; set; }
 }

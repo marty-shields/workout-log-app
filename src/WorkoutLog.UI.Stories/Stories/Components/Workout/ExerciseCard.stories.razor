@@ -10,6 +10,12 @@
         </Template>
     </Story>
 
+    <Story Name="Empty set">
+        <Template>
+            <ExerciseCard Exercise="@SampleData.NewExercise(Catalog, 132)" />
+        </Template>
+    </Story>
+
     <Story Name="Assisted">
         <Template>
             <ExerciseCard Exercise="@SampleData.Exercise(Catalog, 218, ["10", "25"])" />
@@ -22,44 +28,31 @@
         </Template>
     </Story>
 
-    <Story Name="Carry - several sets">
+    <Story Name="Carry">
         <Template>
             <ExerciseCard Exercise="@SampleData.Exercise(Catalog, 187, ["40", "32", "0:00:45"], ["40", "36", "0:00:50"], ["30", "40", null])" />
         </Template>
     </Story>
 
-    <Story Name="Carry - errors">
+    <Story Name="Cardio">
         <Template>
-            @{ var exercise = SampleData.Exercise(Catalog, 187, [null, "32", "0:00:75"], ["40", "36", "0:00:50"], ["30", null, "0:00:00"]); Checker.Check([exercise]); }
-            <ExerciseCard Exercise="exercise" />
+            <ExerciseCard Exercise="@SampleData.Exercise(Catalog, 300, ["0:20:00", "3.2", "1.5", "210", "9.6"])" />
         </Template>
     </Story>
 
-    <Story Name="New strength">
+    <Story Name="Pace">
         <Template>
-            <ExerciseCard Exercise="@SampleData.NewExercise(Catalog, 132)" />
+            <ExerciseCard Exercise="@SampleData.Exercise(Catalog, 311, ["0:25:30", "5", null, "5:06"])" />
         </Template>
     </Story>
 
-    <Story Name="Last and PB - none">
-        <Template>
-            <ExerciseCard Exercise="@SampleData.WithWeights(SampleData.NewExercise(Catalog, 6), null, null)" />
-        </Template>
-    </Story>
-
-    <Story Name="Last and PB - one workout">
-        <Template>
-            <ExerciseCard Exercise="@SampleData.WithWeights(SampleData.NewExercise(Catalog, 6), 60m, 60m)" />
-        </Template>
-    </Story>
-
-    <Story Name="Last and PB - many workouts">
+    <Story Name="Last and PB">
         <Template>
             <ExerciseCard Exercise="@SampleData.WithWeights(SampleData.NewExercise(Catalog, 6), 62.5m, 70m)" />
         </Template>
     </Story>
 
-    <Story Name="Last and PB - no weight last time">
+    <Story Name="Last and PB - no last">
         <Template>
             <ExerciseCard Exercise="@SampleData.WithWeights(SampleData.NewExercise(Catalog, 6), null, 70m)" />
         </Template>
@@ -71,28 +64,23 @@
         </Template>
     </Story>
 
-    <Story Name="Cardio">
+    <Story Name="Strength errors">
         <Template>
-            <ExerciseCard Exercise="@SampleData.Exercise(Catalog, 300, ["0:20:00", "3.2", "1.5", "210", "9.6"])" />
+            <ExerciseCard Exercise="@SampleData.WorkoutWithErrors(Catalog, Checker)[0]" />
         </Template>
     </Story>
 
-    <Story Name="Cardio with pace">
+    <Story Name="Carry errors">
         <Template>
-            <ExerciseCard Exercise="@SampleData.Exercise(Catalog, 311, ["0:25:30", "5", null, "5:06"])" />
-        </Template>
-    </Story>
-
-    <Story Name="Cardio with errors">
-        <Template>
-            @{ var exercise = SampleData.Exercise(Catalog, 305, [null, "2000", "5.5", "abc", "201"]); Checker.Check([exercise]); }
+            @{ var exercise = SampleData.Exercise(Catalog, 187, [null, "32", "0:00:75"], ["40", "36", "0:00:50"], ["30", null, "0:00:00"]); Checker.Check([exercise]); }
             <ExerciseCard Exercise="exercise" />
         </Template>
     </Story>
 
-    <Story Name="Errors">
+    <Story Name="Cardio errors">
         <Template>
-            <ExerciseCard Exercise="@SampleData.WorkoutWithErrors(Catalog, Checker)[0]" />
+            @{ var exercise = SampleData.Exercise(Catalog, 305, [null, "2000", "5.5", "abc", "201"]); Checker.Check([exercise]); }
+            <ExerciseCard Exercise="exercise" />
         </Template>
     </Story>
 

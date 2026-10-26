@@ -14,8 +14,6 @@ builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.
 builder.Services.AddUi();
 builder.Services.AddSingleton(TimeProvider.System);
 builder.Services.AddSingleton<IWorkoutService, SampleWorkoutService>();
-builder.Services.AddSingleton<IDashboardService, SampleDashboardService>();
-builder.Services.AddSingleton<IWeightHistoryService, SampleWeightHistoryService>();
 builder.Services.AddSingleton<IExerciseCatalog, ExerciseCatalog>();
 
 await builder.Build().RunAsync();

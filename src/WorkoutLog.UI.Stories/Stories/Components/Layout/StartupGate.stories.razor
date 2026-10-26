@@ -11,7 +11,7 @@
         </Template>
     </Story>
 
-    <Story Name="Error">
+    <Story Name="Load failed">
         <Template>
             <StartupGate Initialize="() => Task.FromException(new InvalidOperationException())">
                 <p>App content.</p>

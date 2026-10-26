@@ -4,12 +4,8 @@
 <Stories TComponent="LoadFailed" Layout="typeof(ThemeLayout)">
 
     <Story Name="Default">
-        <Arguments>
-            <Arg For="_ => _.Message" Value="@("Couldn't load your history.")" />
-            <Arg For="_ => _.TestId" Value='"history"' />
-        </Arguments>
         <Template>
-            <LoadFailed @attributes="context.Args" />
+            <LoadFailed Message="Couldn't load your history." TestId="history" />
         </Template>
     </Story>
 

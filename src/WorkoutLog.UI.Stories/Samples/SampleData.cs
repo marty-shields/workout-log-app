@@ -1,22 +1,14 @@
 using WorkoutLog.Core.Domain.Exercises;
 using WorkoutLog.Core.Domain.Workouts;
-using WorkoutLog.UI.Models.Dashboard;
 using WorkoutLog.UI.Models.History;
 using WorkoutLog.UI.Models.Workout;
 
 namespace WorkoutLog.UI.Stories.Samples;
 
-/// <summary>A saved workout in the prototype.</summary>
-/// <param name="Id">Workout id.</param>
-/// <param name="StartedAt">Start time.</param>
-/// <param name="FinishedAt">Finish time.</param>
-/// <param name="Exercises">Exercises and their sets or entries.</param>
-public sealed record SavedWorkout(int Id, DateTime StartedAt, DateTime FinishedAt, IReadOnlyList<ExerciseState> Exercises);
-
-/// <summary>Sample data for stories, plus stand-ins for the counts. Exercises come from the real catalog.</summary>
+/// <summary>Sample data for the stories and the UI tests. Exercises come from the real catalog.</summary>
 public static class SampleData
 {
-    /// <summary>Start time used by the static stories: Tue 20 Oct 2026 18:05.</summary>
+    /// <summary>Start time of the sample workouts: Tue 20 Oct 2026 18:05.</summary>
     public static readonly DateTime Started = new(2026, 10, 20, 18, 5, 0);
 
     /// <summary>A saved workout as Core returns it, started at <see cref="Started"/> UTC and 1:04:37 long: squat, assisted pull-up, plank and a carry with two sets.</summary>
@@ -89,9 +81,6 @@ public static class SampleData
     public static List<ExerciseState> StrengthWorkoutWithWeights(IExerciseCatalog catalog) =>
         StrengthWorkout(catalog).Select(e => WithWeights(e, Weights[e.ExerciseId].LastKg, Weights[e.ExerciseId].BestKg)).ToList();
 
-    /// <summary>These exercises just after Dumbbell Curl is added: its card is on top, with one empty set.</summary>
-    public static List<ExerciseState> NewestFirst(IExerciseCatalog catalog, List<ExerciseState> exercises) => [NewExercise(catalog, 132), .. exercises];
-
     /// <summary>A saved workout's exercises, given oldest first, in the order Edit Workout shows them: newest first.</summary>
     public static List<ExerciseState> Opened(List<ExerciseState> saved) => [.. saved.AsEnumerable().Reverse()];
 
@@ -136,19 +125,7 @@ public static class SampleData
         return exercises;
     }
 
-    /// <summary>Saved workouts relative to <paramref name="now"/>, for the prototype.</summary>
-    public static List<SavedWorkout> SavedWorkouts(IExerciseCatalog catalog, DateTime now)
-    {
-        var today = now.Date;
-        return
-        [
-            new(1, today.AddDays(-9).AddHours(17.75), today.AddDays(-9).AddHours(18.9), StrengthWorkout(catalog)),
-            new(2, today.AddDays(-3).AddHours(7.5), today.AddDays(-3).AddHours(8.3), CardioWorkout(catalog)),
-            new(3, today.AddDays(-1).AddHours(18.1), today.AddDays(-1).AddHours(19.2), StrengthWorkout(catalog)),
-        ];
-    }
-
-    /// <summary>History rows for the static stories, newest first.</summary>
+    /// <summary>History rows, newest first.</summary>
     public static IReadOnlyList<HistoryRow> HistoryRows { get; } =
     [
         new(4, new DateTime(2026, 10, 20, 18, 5, 0)),
@@ -156,36 +133,6 @@ public static class SampleData
         new(2, new DateTime(2026, 10, 19, 17, 45, 0)),
         new(1, new DateTime(2026, 10, 16, 18, 10, 0)),
     ];
-
-    /// <summary>Dashboard values: latest start, and counts from Monday 00:00 and from the 1st of the month.</summary>
-    public static DashboardSummary Summary(IReadOnlyCollection<SavedWorkout> saved, DateTime now)
-    {
-        var weekStart = now.Date.AddDays(-(((int)now.DayOfWeek + 6) % 7));
-        var monthStart = new DateTime(now.Year, now.Month, 1);
-        return new DashboardSummary(
-            saved.Count == 0 ? null : saved.Max(w => w.StartedAt),
-            saved.Count(w => w.StartedAt >= weekStart),
-            saved.Count(w => w.StartedAt >= monthStart));
-    }
-
-    /// <summary>Deep copy, so edits can be discarded.</summary>
-    public static List<ExerciseState> Clone(IEnumerable<ExerciseState> exercises) =>
-        exercises.Select(e =>
-        {
-            var copy = new ExerciseState(e.ExerciseId, e.Name, e.Kind, e.Fields);
-            foreach (var entry in e.Entries)
-            {
-                var entryCopy = new EntryState();
-                foreach (var (key, value) in entry.Values)
-                {
-                    entryCopy.Values[key] = value;
-                }
-
-                copy.Entries.Add(entryCopy);
-            }
-
-            return copy;
-        }).ToList();
 
     private static ExerciseDefinition Find(IExerciseCatalog catalog, int id) => catalog.All.Single(e => e.Id == id);
 }

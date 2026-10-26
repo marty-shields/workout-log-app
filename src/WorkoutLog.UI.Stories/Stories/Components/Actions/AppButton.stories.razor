@@ -3,47 +3,32 @@
 <Stories TComponent="AppButton" Layout="typeof(ThemeLayout)">
 
     <Story Name="Primary">
-        <Arguments>
-            <Arg For="_ => _.Variant" Value="ButtonVariant.Primary" />
-        </Arguments>
         <Template>
-            <AppButton @attributes="context.Args">New Workout</AppButton>
+            <AppButton Variant="ButtonVariant.Primary">New Workout</AppButton>
         </Template>
     </Story>
 
     <Story Name="Secondary">
-        <Arguments>
-            <Arg For="_ => _.Variant" Value="ButtonVariant.Secondary" />
-        </Arguments>
         <Template>
-            <AppButton @attributes="context.Args">Add exercise</AppButton>
+            <AppButton Variant="ButtonVariant.Secondary">Add exercise</AppButton>
         </Template>
     </Story>
 
     <Story Name="Danger">
-        <Arguments>
-            <Arg For="_ => _.Variant" Value="ButtonVariant.Danger" />
-        </Arguments>
         <Template>
-            <AppButton @attributes="context.Args">Delete</AppButton>
+            <AppButton Variant="ButtonVariant.Danger">Delete</AppButton>
         </Template>
     </Story>
 
     <Story Name="Text">
-        <Arguments>
-            <Arg For="_ => _.Variant" Value="ButtonVariant.Text" />
-        </Arguments>
         <Template>
-            <AppButton @attributes="context.Args">Remove</AppButton>
+            <AppButton Variant="ButtonVariant.Text">Remove</AppButton>
         </Template>
     </Story>
 
     <Story Name="Disabled">
-        <Arguments>
-            <Arg For="_ => _.Disabled" Value="true" />
-        </Arguments>
         <Template>
-            <AppButton @attributes="context.Args">Save</AppButton>
+            <AppButton Disabled>Save</AppButton>
         </Template>
     </Story>
 

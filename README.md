@@ -81,7 +81,7 @@ It's built for one person and one phone: no accounts, no sign-up, no cloud. Ever
   </tr>
 </table>
 
-<p align="center"><sub>The screenshots match your GitHub theme. They're taken from the stories site, which renders the app's own components.</sub></p>
+<p align="center"><sub>The screenshots match your GitHub theme. They're taken from the <a href="https://marty-shields.github.io/workout-log-app/">stories site</a>, which renders the app's own components.</sub></p>
 
 ## Install
 
@@ -98,7 +98,7 @@ Workout Log is sideloaded: it isn't on Google Play.
 | App | [.NET MAUI Blazor Hybrid](https://learn.microsoft.com/dotnet/maui/user-interface/controls/blazorwebview) on .NET 10: Razor components in a native Android shell |
 | Platform | Android 16 (API 36), sideloaded |
 | Data | SQLite via sqlite-net-pcl, on the device only |
-| Design system | Design tokens and components, documented and prototyped in a [BlazingStory](https://github.com/jsakamoto/BlazingStory) stories site |
+| Design system | Design tokens, components and screens, documented in a [BlazingStory](https://github.com/jsakamoto/BlazingStory) stories site, [published on GitHub Pages](https://marty-shields.github.io/workout-log-app/) |
 | Tests | NUnit unit tests, bUnit component tests, and end-to-end Gherkin features run by Reqnroll and Appium on a phone or emulator |
 | CI | GitHub Actions builds and tests every pull request, end-to-end tests on emulators included; the release workflow runs them again, then signs and publishes the APK; Dependabot keeps packages current |
 
@@ -121,7 +121,7 @@ tests/
 
 ## Getting started
 
-You need the .NET 10 SDK with the `maui-android` workload. The full setup, including the Android SDK and the phone, is in [Dev setup & build](docs/07-dev-setup-build.md).
+You need the .NET 10 SDK with the `maui-android` workload. The full setup, including the Android SDK and the phone, is in [Dev setup & build](docs/06-dev-setup-build.md).
 
 ```powershell
 # Build (warnings fail the build)
@@ -131,11 +131,11 @@ dotnet build WorkoutLog.slnx
 dotnet test tests/WorkoutLog.Core.Tests
 dotnet test tests/WorkoutLog.UI.Tests
 
-# Browse the stories site at http://localhost:5056
+# Browse the stories site at http://localhost:5056 (main is at https://marty-shields.github.io/workout-log-app/)
 dotnet run --project src/WorkoutLog.UI.Stories
 
 # Run on a connected Android phone
 dotnet build src/WorkoutLog.App -t:Run -f net10.0-android
 ```
 
-The end-to-end tests need a connected device or an emulator: see [E2E tests](docs/07-dev-setup-build.md#e2e-tests).
+The end-to-end tests need a connected device or an emulator: see [E2E tests](docs/06-dev-setup-build.md#e2e-tests).

@@ -10,37 +10,19 @@
         </Template>
     </Story>
 
-    <Story Name="Live timer">
-        <Template>
-            <NewWorkoutPage />
-        </Template>
-    </Story>
-
-    <Story Name="Strength sets">
-        <Template>
-            <WorkoutView Mode="WorkoutMode.New" StartedAt="SampleData.Started" Time="new TimeSpan(0, 34, 12)" Exercises="SampleData.StrengthWorkout(Catalog)" OnBack="() => { }" />
-        </Template>
-    </Story>
-
-    <Story Name="Newest first">
-        <Template>
-            <WorkoutView Mode="WorkoutMode.New" StartedAt="SampleData.Started" Time="new TimeSpan(0, 36, 50)" Exercises="SampleData.NewestFirst(Catalog, SampleData.StrengthWorkout(Catalog))" OnBack="() => { }" />
-        </Template>
-    </Story>
-
-    <Story Name="Last and PB">
+    <Story Name="Strength">
         <Template>
             <WorkoutView Mode="WorkoutMode.New" StartedAt="SampleData.Started" Time="new TimeSpan(0, 34, 12)" Exercises="SampleData.StrengthWorkoutWithWeights(Catalog)" OnBack="() => { }" />
         </Template>
     </Story>
 
-    <Story Name="Carry sets">
+    <Story Name="Carry">
         <Template>
             <WorkoutView Mode="WorkoutMode.New" StartedAt="SampleData.Started" Time="new TimeSpan(0, 28, 3)" Exercises="SampleData.CarryWorkout(Catalog)" OnBack="() => { }" />
         </Template>
     </Story>
 
-    <Story Name="Cardio entries">
+    <Story Name="Cardio">
         <Template>
             <WorkoutView Mode="WorkoutMode.New" StartedAt="SampleData.Started" Time="new TimeSpan(1, 2, 5)" Exercises="SampleData.CardioWorkout(Catalog)" OnBack="() => { }" />
         </Template>
@@ -52,7 +34,7 @@
         </Template>
     </Story>
 
-    <Story Name="Save with no exercises">
+    <Story Name="No exercises error">
         <Template>
             <WorkoutView Mode="WorkoutMode.New" StartedAt="SampleData.Started" Time="TimeSpan.FromSeconds(42)" Exercises="[]" Error="@Checker.Check([]).Error" OnBack="() => { }" />
         </Template>

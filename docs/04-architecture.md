@@ -8,7 +8,7 @@
 | Platform | Android only, minSdk = targetSdk = API 36 (Android 16) |
 | Database | SQLite file in the app data folder |
 | State | Blazor components + injected services. No MVVM toolkit. |
-| Tests | Unit, component and E2E ([06](06-testing.md)) |
+| Tests | Unit, component and E2E ([05](05-testing.md)) |
 
 ## Layers
 ```mermaid
@@ -21,7 +21,7 @@ flowchart LR
     UI --> C
     S --> X[Exercise definitions<br/>Core]
 ```
-References: App → UI → Core. UI.Stories → UI. UI.Tests → UI, UI.Stories (to play the prototype scenarios). E2E.Tests → Core (to seed workouts, T81). The App never references UI.Stories.
+References: App → UI → Core. UI.Stories → UI. UI.Tests → UI, UI.Stories (sample data and the stories' own components). E2E.Tests → Core (to seed workouts, T81). The App never references UI.Stories.
 
 - **App** hosts the BlazorWebView, registers DI and the logging providers, and handles the Android back button.
 - **UI** renders and calls services only. It never touches the database. Form fields come from the exercise's metric definition.
@@ -35,8 +35,8 @@ References: App → UI → Core. UI.Stories → UI. UI.Tests → UI, UI.Stories 
 - Core's public services are `IWorkoutService`, `IHistoryService`, `IDashboardService` and `IWeightHistoryService`; the repository and validator are internal (T33, T60, T70, D237).
 - `AddCore` creates one database connection and gives it only to the initializer, the exercise seeder and the repository. The initializer and repository are decorators that run each call through one `DatabaseGate`, so database calls run one at a time; nothing can resolve a database type that skips the gate (T27, T99).
 - At startup `StartupGate` awaits `IDatabaseInitializer.InitializeAsync()`, which upgrades and creates the schema and seeds the exercise list, and shows the Startup screen until it completes, or its error if it throws (T25, T28, T36, D133).
-- `AddUi` registers `IBackButton`, `ISetChecker`, `IWorkoutChecker` and one `AppLifecycle` as `IAppStart` and `IAppLifecycle` (T54, T72), and `WorkoutEditor` as transient. `NewWorkoutPage`, `EditWorkoutPage` and the stories prototype each inject their own `WorkoutEditor`, which holds the exercises, the picker, changes, and the check and save (T112). The App adds `AndroidBackButton` ([Navigation](#navigation)) and the logging providers ([Logging](#logging)).
-- The stories app registers sample services in place of Core's (T48, T50, T52, D198).
+- `AddUi` registers `IBackButton`, `ISetChecker`, `IWorkoutChecker` and one `AppLifecycle` as `IAppStart` and `IAppLifecycle` (T54, T72), and `WorkoutEditor` as transient. `NewWorkoutPage` and `EditWorkoutPage` each inject their own `WorkoutEditor`, which holds the exercises, the picker, changes, and the check and save (T112). The App adds `AndroidBackButton` ([Navigation](#navigation)) and the logging providers ([Logging](#logging)).
+- The stories app registers `SampleWorkoutService` in place of Core's workout service (T48, T50, T52, T117).
 
 ## Navigation
 Blazor routing (`@page`):
@@ -47,7 +47,7 @@ Blazor routing (`@page`):
 | `/workout/{id}` | Edit workout (T65) |
 | `/history` | History |
 
-The Exercise picker is an overlay on the workout page, not a route. What Android back does on each screen is in [05](05-screens-ux.md).
+The Exercise picker is an overlay on the workout page, not a route. What Android back does on each screen is on the [Navigation](../src/WorkoutLog.UI.Stories/Stories/Foundations/Navigation.md) page and the [screen pages](../src/WorkoutLog.UI.Stories/Stories/Screens/).
 
 How back works (T46):
 - `BackHandler` (UI) registers a handler with `IBackButton` while its `OnBack` is set. `AppScreen` uses it for `OnBack`, `ExercisePicker` for `OnClose` and `ConfirmDialog` for `OnCancel`, so Android back does what the on-screen back or Cancel does (D144). The newest registration runs, so the picker or a dialog takes back over its page.
@@ -69,7 +69,7 @@ How back works (T46):
 - Later saves update the exercises, sets and entries only. They never change the times.
 
 ## Error handling
-What each error shows is in [05](05-screens-ux.md).
+What each error shows is on the [screen pages](../src/WorkoutLog.UI.Stories/Stories/Screens/).
 - Validation failures are shown inline. Nothing is written. The service returns error codes; the page words them (T30).
 - Services turn any repository exception into a failed result and log it: `HistoryResult.Failed` (T60), `DashboardResult.Failed`, the week and month maths included (D195, T70), `WorkoutLoad.Failed` (D185, T63), `WorkoutError.SaveFailed` (T32), `WorkoutDelete.Failed`, a missing workout included (D191, T68), and `WeightHistoryResult.Failed` (D237).
 - An unhandled error in a screen shows the Error screen. `AppErrorBoundary` in the App's `Routes` shows it and logs the error (D140).
@@ -79,7 +79,7 @@ What each error shows is in [05](05-screens-ux.md).
 **How**
 - Core and UI inject `ILogger<T>` and never know where logs go. Each host registers its own `ILoggerProvider`s and levels in its startup (T41).
 - Each logging type has a nested `static partial class Log` of `[LoggerMessage]` methods, each with a fixed EventId and level (T43). Each project names its EventIds in an internal enum, used as `(int)UiEvent.X` (T66): `CoreEvent` 1000–1999 and `UiEvent` 2000–4999, a block of 100 per type; `AppEvent` 5000+, a block of 10 per group. In a Razor component the `Log` class goes in `<Component>.razor.cs`.
-- Tests check each event's EventId, level, message and exception ([06](06-testing.md)).
+- Tests check each event's EventId, level, message and exception ([05](05-testing.md)).
 
 **What to log**
 | Level | When |
@@ -97,8 +97,8 @@ What each error shows is in [05](05-screens-ux.md).
 **Android App**
 | Provider | Where | Read with |
 |---|---|---|
-| `AndroidLogProvider` (App) | logcat, tag `WorkoutLog` | `adb logcat -s WorkoutLog` ([07](07-dev-setup-build.md#reading-the-logs)) |
-| `FileLogProvider` (Core) | `logs/workoutlog.log` in the app-specific external files folder, or the app data folder if there is none; becomes `workoutlog.1.log` at 1 MB (T42) | `adb pull` ([07](07-dev-setup-build.md#reading-the-logs)) |
+| `AndroidLogProvider` (App) | logcat, tag `WorkoutLog` | `adb logcat -s WorkoutLog` ([06](06-dev-setup-build.md#reading-the-logs)) |
+| `FileLogProvider` (Core) | `logs/workoutlog.log` in the app-specific external files folder, or the app data folder if there is none; becomes `workoutlog.1.log` at 1 MB (T42) | `adb pull` ([06](06-dev-setup-build.md#reading-the-logs)) |
 
 - Levels: Debug builds from Debug, Release from Information, `Microsoft.*` from Warning (D139).
 - `AndroidDiagnostics` logs the start (version, version code, build, API level), the previous exit reason, activity created/started/stopped/destroyed and trim-memory requests. On start `MauiProgram` subscribes to unhandled and unobserved-task exceptions (T44).

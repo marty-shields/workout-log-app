@@ -59,8 +59,8 @@ public class AppiumSetup
         var apk = Path.Combine(root, "src", "WorkoutLog.App", "bin", "Debug", "net10.0-android", $"{Package}-Signed.apk");
         var buildHint = "build the App: dotnet build src/WorkoutLog.App -f net10.0-android";
 
-        Require(Environment.GetEnvironmentVariable("ANDROID_HOME") is { Length: > 0 }, "ANDROID_HOME is not set (docs/07-dev-setup-build.md).");
-        Require(Environment.GetEnvironmentVariable("JAVA_HOME") is { Length: > 0 }, "JAVA_HOME is not set (docs/07-dev-setup-build.md).");
+        Require(Environment.GetEnvironmentVariable("ANDROID_HOME") is { Length: > 0 }, "ANDROID_HOME is not set (docs/06-dev-setup-build.md).");
+        Require(Environment.GetEnvironmentVariable("JAVA_HOME") is { Length: > 0 }, "JAVA_HOME is not set (docs/06-dev-setup-build.md).");
         Require(File.Exists(appium), "Appium is not installed: run npm ci in tests/WorkoutLog.E2E.Tests.");
         Require(File.Exists(apk), $"{apk} is missing: {buildHint}.");
         Require(HasAssemblies(apk), $"{apk} has no assemblies (Fast Deployment): {buildHint}.");
@@ -202,7 +202,7 @@ public class AppiumSetup
     /// </summary>
     private static string NodePath()
     {
-        var message = "Node.js is not on the PATH (docs/07-dev-setup-build.md).";
+        var message = "Node.js is not on the PATH (docs/06-dev-setup-build.md).";
         try
         {
             using var node = Process.Start(new ProcessStartInfo("node", "-p process.execPath") { RedirectStandardOutput = true })!;
