@@ -140,8 +140,17 @@ public sealed class WorkoutSteps(WebView web, Native native, Journeys journeys, 
     [Then(@"^the workout error is gone$")]
     public void ThenTheWorkoutErrorIsGone() => web.Eventually(workout.Error, Is.Null);
 
+    /// <summary>Waits for the last add's focus and keyboard to settle, scrolls to the bottom and checks it stays there.</summary>
     [Given(@"^I have scrolled to the bottom of the workout$")]
-    public void GivenIHaveScrolledToTheBottom() => Assert.That(web.ScrollToBottom(), Is.True, "the workout didn't scroll");
+    public void GivenIHaveScrolledToTheBottom()
+    {
+        web.Eventually(web.Focused, Does.StartWith("exercise-"), "focus on the added exercise");
+        native.HideKeyboard();
+        web.Settle();
+        Assert.That(web.ScrollToBottom(), Is.True, "the workout didn't scroll");
+        web.Settle();
+        Assert.That(web.AtBottom(), Is.True, "the workout scrolled away from the bottom");
+    }
 
     [Then(@"^the exercises are, in order: (.+)$")]
     public void ThenTheExercisesAreInOrder(string names) =>

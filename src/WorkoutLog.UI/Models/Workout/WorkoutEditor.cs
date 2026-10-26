@@ -137,16 +137,17 @@ public sealed class WorkoutEditor(IExerciseCatalog catalog, ISetChecker setCheck
 
     private ExerciseFocus Show(int exerciseId)
     {
-        Changed = true;
         if (exercises.Find(e => e.ExerciseId == exerciseId) is { } existing)
         {
             exercises.Remove(existing);
             exercises.Insert(0, existing);
+            Changed = true;
             return new ExerciseFocus(existing, addSet: existing.Kind == ExerciseKind.Strength);
         }
 
         var added = ExerciseFields.New(catalog.All.Single(e => e.Id == exerciseId));
         exercises.Insert(0, added);
+        Changed = true;
         return new ExerciseFocus(added);
     }
 }

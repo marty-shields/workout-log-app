@@ -67,8 +67,11 @@ public static class SampleData
         Exercise(catalog, 187, ["40", "32", null]),
     ];
 
-    /// <summary>The strength workout just after Dumbbell Curl is added: its card is on top, with one empty set.</summary>
-    public static List<ExerciseState> NewestFirst(IExerciseCatalog catalog) => [NewExercise(catalog, 132), .. StrengthWorkout(catalog)];
+    /// <summary>These exercises just after Dumbbell Curl is added: its card is on top, with one empty set.</summary>
+    public static List<ExerciseState> NewestFirst(IExerciseCatalog catalog, List<ExerciseState> exercises) => [NewExercise(catalog, 132), .. exercises];
+
+    /// <summary>A saved workout's exercises, given oldest first, in the order Edit Workout shows them: newest first.</summary>
+    public static List<ExerciseState> Opened(List<ExerciseState> saved) => [.. saved.AsEnumerable().Reverse()];
 
     /// <summary>A squat with two sets, and a carry with three sets: two filled, the last one partly filled.</summary>
     public static List<ExerciseState> CarryWorkout(IExerciseCatalog catalog) =>

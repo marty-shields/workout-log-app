@@ -24,7 +24,7 @@
 
     <Story Name="Newest first">
         <Template>
-            <WorkoutView Mode="WorkoutMode.New" StartedAt="SampleData.Started" Time="new TimeSpan(0, 36, 50)" Exercises="SampleData.NewestFirst(Catalog)" OnBack="() => { }" />
+            <WorkoutView Mode="WorkoutMode.New" StartedAt="SampleData.Started" Time="new TimeSpan(0, 36, 50)" Exercises="SampleData.NewestFirst(Catalog, SampleData.StrengthWorkout(Catalog))" OnBack="() => { }" />
         </Template>
     </Story>
 

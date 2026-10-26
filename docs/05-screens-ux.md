@@ -54,7 +54,7 @@
 - Search box at the top, empty each time the picker opens (D152). How it matches: [02](02-data-model.md#exercise-search).
 - With no search text: the full list A–Z, grouped Strength / Cardio
 - Tap to add to the workout; the picker closes
-- Exercises already in the workout are still shown. Picking one goes to its card instead of adding it again: strength adds a set, cardio focuses its entry (FR-04, D154)
+- Exercises already in the workout are still shown. Picking one moves its card to the top instead of adding it again: strength adds a set, cardio focuses its entry (FR-04, D154, D236)
 
 ### History
 - Saved workouts, newest first by start time; same start, newest saved first (D182). All load at once (D183)

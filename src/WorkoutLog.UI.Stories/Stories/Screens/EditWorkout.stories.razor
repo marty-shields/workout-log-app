@@ -6,25 +6,25 @@
 
     <Story Name="Saved">
         <Template>
-            <WorkoutView Mode="WorkoutMode.Edit" StartedAt="SampleData.Started" Time="new TimeSpan(1, 4, 37)" Exercises="SampleData.StrengthWorkout(Catalog)" OnBack="() => { }" OnDelete="() => { }" />
+            <WorkoutView Mode="WorkoutMode.Edit" StartedAt="SampleData.Started" Time="new TimeSpan(1, 4, 37)" Exercises="SampleData.Opened(SampleData.StrengthWorkout(Catalog))" OnBack="() => { }" OnDelete="() => { }" />
         </Template>
     </Story>
 
     <Story Name="Newest first">
         <Template>
-            <WorkoutView Mode="WorkoutMode.Edit" StartedAt="SampleData.Started" Time="new TimeSpan(1, 4, 37)" Exercises="SampleData.NewestFirst(Catalog)" OnBack="() => { }" OnDelete="() => { }" />
+            <WorkoutView Mode="WorkoutMode.Edit" StartedAt="SampleData.Started" Time="new TimeSpan(1, 4, 37)" Exercises="SampleData.NewestFirst(Catalog, SampleData.Opened(SampleData.StrengthWorkout(Catalog)))" OnBack="() => { }" OnDelete="() => { }" />
         </Template>
     </Story>
 
     <Story Name="Carry sets closed">
         <Template>
-            <WorkoutView Mode="WorkoutMode.Edit" StartedAt="SampleData.Started" Time="new TimeSpan(0, 52, 10)" Exercises="SampleData.CarryWorkout(Catalog)" OnBack="() => { }" OnDelete="() => { }" />
+            <WorkoutView Mode="WorkoutMode.Edit" StartedAt="SampleData.Started" Time="new TimeSpan(0, 52, 10)" Exercises="SampleData.Opened(SampleData.CarryWorkout(Catalog))" OnBack="() => { }" OnDelete="() => { }" />
         </Template>
     </Story>
 
     <Story Name="Cardio entries">
         <Template>
-            <WorkoutView Mode="WorkoutMode.Edit" StartedAt="SampleData.Started" Time="new TimeSpan(1, 2, 5)" Exercises="SampleData.CardioWorkout(Catalog)" OnBack="() => { }" OnDelete="() => { }" />
+            <WorkoutView Mode="WorkoutMode.Edit" StartedAt="SampleData.Started" Time="new TimeSpan(1, 2, 5)" Exercises="SampleData.Opened(SampleData.CardioWorkout(Catalog))" OnBack="() => { }" OnDelete="() => { }" />
         </Template>
     </Story>
 
@@ -36,13 +36,13 @@
 
     <Story Name="Save failed">
         <Template>
-            <WorkoutView Mode="WorkoutMode.Edit" StartedAt="SampleData.Started" Time="new TimeSpan(1, 4, 37)" Exercises="SampleData.StrengthWorkout(Catalog)" Error="@Checker.SaveFailed" OnBack="() => { }" OnDelete="() => { }" />
+            <WorkoutView Mode="WorkoutMode.Edit" StartedAt="SampleData.Started" Time="new TimeSpan(1, 4, 37)" Exercises="SampleData.Opened(SampleData.StrengthWorkout(Catalog))" Error="@Checker.SaveFailed" OnBack="() => { }" OnDelete="() => { }" />
         </Template>
     </Story>
 
     <Story Name="Discard prompt">
         <Template>
-            <WorkoutView Mode="WorkoutMode.Edit" StartedAt="SampleData.Started" Time="new TimeSpan(1, 4, 37)" Exercises="SampleData.StrengthWorkout(Catalog)" OnBack="() => { }" OnDelete="() => { }">
+            <WorkoutView Mode="WorkoutMode.Edit" StartedAt="SampleData.Started" Time="new TimeSpan(1, 4, 37)" Exercises="SampleData.Opened(SampleData.StrengthWorkout(Catalog))" OnBack="() => { }" OnDelete="() => { }">
                 <Overlay>
                     <ConfirmDialog Title="Discard changes?" ConfirmText="Discard" Danger />
                 </Overlay>
@@ -52,7 +52,7 @@
 
     <Story Name="Delete prompt">
         <Template>
-            <WorkoutView Mode="WorkoutMode.Edit" StartedAt="SampleData.Started" Time="new TimeSpan(1, 4, 37)" Exercises="SampleData.StrengthWorkout(Catalog)" OnBack="() => { }" OnDelete="() => { }">
+            <WorkoutView Mode="WorkoutMode.Edit" StartedAt="SampleData.Started" Time="new TimeSpan(1, 4, 37)" Exercises="SampleData.Opened(SampleData.StrengthWorkout(Catalog))" OnBack="() => { }" OnDelete="() => { }">
                 <Overlay>
                     <ConfirmDialog Title="Delete this workout?" ConfirmText="Delete" Danger />
                 </Overlay>
@@ -62,7 +62,7 @@
 
     <Story Name="Delete failed">
         <Template>
-            <WorkoutView Mode="WorkoutMode.Edit" StartedAt="SampleData.Started" Time="new TimeSpan(1, 4, 37)" Exercises="SampleData.StrengthWorkout(Catalog)" Error="@Checker.DeleteFailed" OnBack="() => { }" OnDelete="() => { }" />
+            <WorkoutView Mode="WorkoutMode.Edit" StartedAt="SampleData.Started" Time="new TimeSpan(1, 4, 37)" Exercises="SampleData.Opened(SampleData.StrengthWorkout(Catalog))" Error="@Checker.DeleteFailed" OnBack="() => { }" OnDelete="() => { }" />
         </Template>
     </Story>
 
