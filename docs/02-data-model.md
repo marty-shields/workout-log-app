@@ -52,7 +52,7 @@ Each definition has an Id (one sequence for all exercises, never reused or chang
 
 ## Tables
 - `Exercise`: Id, Name and Type only, so other tables can reference it. All other fields come from the definition file, so changing them never needs a schema change.
-- `Workout`: `StartedAt` (set when New Workout opens, indexed, D111) and `FinishedAt` (set on first save), both UTC and never changed after save. Date, day of week and total time are calculated from them in the phone's current time zone, not stored.
+- `Workout`: `StartedAt` (set when New Workout opens, unique, D111) and `FinishedAt` (set on first save), both UTC and never changed after save. `StartedAt` identifies the workout across phones; the Id is used only inside one database (D186). A new workout whose start is already saved fails to save (`SaveFailed`). Date, day of week and total time are calculated from them in the phone's current time zone, not stored.
 - `WorkoutExercise`: one per exercise in a workout, → Workout (indexed) and → Exercise, with its position.
 - `StrengthSet`: → WorkoutExercise (indexed), its position, and one nullable column per strength metric.
 - `CardioEntry`: → WorkoutExercise, **unique** (one entry per exercise), and one nullable column per cardio metric; Duration is required.
@@ -123,5 +123,6 @@ A number too large for the set's types is capped (weight, distance, incline and 
   3. An existing database: runs each step after the stored version, each in its own transaction with its version bump. Then the ORM creates any missing tables and columns.
   4. Seeds the exercise list (D108).
 - A step sees the schema left by the previous step. Tables and columns the ORM adds from the row classes appear only after the last step.
-- Any change the ORM can't make itself (rename, move or transform data) is a numbered upgrade step.
+- Any change the ORM can't make itself (rename, move or transform data, or change an existing index) is a numbered upgrade step.
+- Step 2 (`WorkoutStartedAtUniqueIndex`) replaces the plain `Workout_StartedAt` index with a unique one. If two workouts have the same start, it fails, the version stays 1 and the Startup error shows (D75).
 

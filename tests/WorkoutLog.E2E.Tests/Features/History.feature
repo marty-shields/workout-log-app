@@ -19,15 +19,6 @@ Feature: History
       | 10 days ago 07:30 |
 
   @D70
-  Scenario: Workouts with the same start show the newest saved first
-    Given these saved workouts:
-      | started         | exercises        |
-      | yesterday 18:05 | Push-up: 10 reps |
-      | yesterday 18:05 | Push-up: 12 reps |
-    When I open History
-    Then workout 2 is above workout 1
-
-  @D70
   Scenario: Every workout loads at once
     Given 40 saved workouts on different days
     When I open History

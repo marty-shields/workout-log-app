@@ -10,8 +10,8 @@ internal sealed class WorkoutRow
     [PrimaryKey, AutoIncrement]
     public int Id { get; set; }
 
-    /// <summary>Start time. Stored as UTC ticks.</summary>
-    [Indexed]
+    /// <summary>Start time. Stored as UTC ticks. Unique.</summary>
+    [Indexed(Unique = true)]
     public DateTimeOffset StartedAt { get; set; }
 
     /// <summary>Finish time. Stored as UTC ticks.</summary>

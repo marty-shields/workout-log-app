@@ -63,7 +63,7 @@ public class GatedWorkoutRepositoryTests
 
         Task pending = call switch
         {
-            "Add" => repository.AddAsync(new NewWorkout(Start, Start, Exercises)),
+            "Add" => repository.AddAsync(new NewWorkout(Start.AddHours(1), Start.AddHours(1), Exercises)),
             "Replace" => repository.ReplaceExercisesAsync(id, []),
             "Get" => repository.GetAsync(id),
             "List" => repository.ListAsync(),

@@ -67,7 +67,7 @@ internal sealed class WorkoutRepository(SQLiteAsyncConnection connection) : IWor
             query = query.Where(w => w.StartedAt <= end);
         }
 
-        query = query.OrderByDescending(w => w.StartedAt).ThenByDescending(w => w.Id);
+        query = query.OrderByDescending(w => w.StartedAt);
         if (limit is { } count)
         {
             query = query.Take(count);
@@ -85,7 +85,7 @@ internal sealed class WorkoutRepository(SQLiteAsyncConnection connection) : IWor
             JOIN WorkoutExercise e ON e.WorkoutId = w.Id
             LEFT JOIN StrengthSet s ON s.WorkoutExerciseId = e.Id
             WHERE e.ExerciseId = ?
-            ORDER BY w.StartedAt DESC, w.Id DESC, e.Position, s.Position
+            ORDER BY w.StartedAt DESC, e.Position, s.Position
             """;
         var rows = await connection.QueryAsync<WeightRow>(sql, exerciseId);
         return rows.GroupBy(r => r.WorkoutId)

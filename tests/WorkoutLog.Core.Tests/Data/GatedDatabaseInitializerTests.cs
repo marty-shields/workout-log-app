@@ -18,7 +18,7 @@ public class GatedDatabaseInitializerTests
         databasePath = TempDatabase.NewPath();
         connection = new SQLiteAsyncConnection(databasePath);
         gate = new DatabaseGate();
-        initializer = new GatedDatabaseInitializer(new DatabaseInitializer(connection, [], Mock.Of<IExerciseSeeder>(), NullLogger<DatabaseInitializer>.Instance), gate);
+        initializer = new GatedDatabaseInitializer(new DatabaseInitializer(connection, [new WorkoutStartedAtUniqueIndex()], Mock.Of<IExerciseSeeder>(), NullLogger<DatabaseInitializer>.Instance), gate);
     }
 
     [TearDown]

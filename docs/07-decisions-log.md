@@ -1,6 +1,6 @@
 # 07 — Decisions Log
 
-Each decision states how the app and the repo work now, one row per subject. A change edits its decision; a new subject takes the next free ID. IDs aren't reused. Next free ID: D186.
+Each decision states how the app and the repo work now, one row per subject. A change edits its decision; a new subject takes the next free ID. IDs aren't reused. Next free ID: D187.
 
 ## Product and scope
 | # | Decision | Choice |
@@ -56,7 +56,7 @@ Each decision states how the app and the repo work now, one row per subject. A c
 | D45 | Leaving New Workout | Back always asks "Discard this workout?" with **Discard / Cancel**; saving is only through Save. Back is ignored while a save runs and after one succeeds; Discard runs once. The draft is lost if Android kills the app ([New Workout](../src/WorkoutLog.UI.Stories/Stories/Screens/NewWorkout.md)) |
 | D46 | Delete workout | Edit Workout's Delete asks "Delete this workout?" (**Delete / Cancel**), the same with or without unsaved edits. Deleting is permanent and goes to History; a failed delete keeps the workout and focuses Delete; guarded as D45 ([Edit Workout](../src/WorkoutLog.UI.Stories/Stories/Screens/EditWorkout.md)) |
 | D47 | Values Edit can't show | Edit shows only the metrics in the exercise's current definition, and decimals to 2 places; a definition change is made with its data change |
-| D48 | Last and PB weight | New Workout strength cards show the best weight of the last saved workout with the exercise (latest start, then newest id) and of all saved workouts, from `IWeightHistoryService`. Best is the heaviest, or the lowest on an exercise whose weight is labelled `Assist`; 0 kg counts. Loaded once when the card is added; a failed load hides the line and Core logs Error 1501 ([New Workout](../src/WorkoutLog.UI.Stories/Stories/Screens/NewWorkout.md)) |
+| D48 | Last and PB weight | New Workout strength cards show the best weight of the last saved workout with the exercise (latest start) and of all saved workouts, from `IWeightHistoryService`. Best is the heaviest, or the lowest on an exercise whose weight is labelled `Assist`; 0 kg counts. Loaded once when the card is added; a failed load hides the line and Core logs Error 1501 ([New Workout](../src/WorkoutLog.UI.Stories/Stories/Screens/NewWorkout.md)) |
 | D49 | Units in text | A value written with its unit has no space: *60kg*, *40m*, *3.2km*, in the last and PB line and set summaries; a count keeps its word, *8 reps* ([New Workout](../src/WorkoutLog.UI.Stories/Stories/Screens/NewWorkout.md)) |
 
 ## Exercise list and search
@@ -86,7 +86,7 @@ Each decision states how the app and the repo work now, one row per subject. A c
 | D67 | Dashboard loading and errors | Loads each time it's shown, and when the activity starts while it's shown; a load while one runs is ignored. A spinner, or "Couldn't load the Dashboard." and **Try again** (focused), replace the last workout and counts; History and New Workout still work |
 | D68 | History row | Date, day of week and start time; total time as h:mm:ss; "No workouts yet" when empty |
 | D69 | History loading and errors | `Spinner` "Loading…", shown at once; back works. "Couldn't load your history." and **Try again**, which takes focus and reloads |
-| D70 | History order | Start time newest first, then Id newest first; every workout loads at once (FR-20) |
+| D70 | History order | Start time newest first; every workout loads at once (FR-20) |
 | D71 | History rows open Edit | Tapping a row opens `/workout/{id}`; rows are always tappable |
 | D72 | Edit Workout | Saves as New Workout does. After any save the app returns to the Dashboard. Title "Workout" until it loads; Loading, Load failed with **Try again**, and Not found, where back goes to History |
 | D73 | Leaving Edit Workout | Back with changes asks "Discard changes?" with **Discard / Cancel**; without changes it goes to History (FR-23). A change is a value typed, a set added or removed, or an exercise added, removed or moved to the top, even if later undone. Guarded as D45 ([Edit Workout](../src/WorkoutLog.UI.Stories/Stories/Screens/EditWorkout.md)) |
@@ -125,13 +125,13 @@ Each decision states how the app and the repo work now, one row per subject. A c
 | D102 | Database | SQLite through a lightweight ORM |
 | D103 | Min Android | API 36 (Android 16) only |
 | D104 | Solution structure | `WorkoutLog.slnx`: the App host, `WorkoutLog.UI` (a Razor class library, tested with bUnit) and `WorkoutLog.Core`, with their test projects; App → UI → Core |
-| D105 | Core registration | `AddCore(databasePath)` registers only the gated interfaces, built around inner instances it creates with one connection; nothing outside the gate can reach the database |
+| D105 | Core registration | `AddCore(databasePath)` registers the gated interfaces, built around inner instances it creates with one connection, and the schema upgrade steps (`ISchemaUpgrade`); nothing outside the gate can reach the database |
 | D106 | One database call at a time | An internal `DatabaseGate` singleton; gated decorators run every repository and initializer call through it |
 | D107 | Core visibility | Only the services and their records are public; the rest is internal, visible to the mocking library and the stories |
 | D108 | Database startup | The schema version is stored in SQLite `user_version`. `StartupGate` awaits `IDatabaseInitializer.InitializeAsync()` and shows the Startup screen until it completes or throws. It throws on a version newer than the app's, runs the numbered upgrade steps (checked on every startup) before the ORM creates missing tables and columns, then seeds the exercise list ([02](02-data-model.md#schema-upgrades)) |
 | D109 | Exercise catalog load | The catalog reads exercises.json on first use, inside `StartupGate`, so a bad file shows the Startup error (D75) |
 | D110 | Workout repository | One `IWorkoutRepository` over the whole workout, taking and returning immutable domain records; the row classes are internal; position is list order. `AddAsync` returns the new Id; `ReplaceExercisesAsync` replaces all children in one transaction and can't change the times |
-| D111 | Repository checks and indexes | No checks beyond the schema's unique and plain indexes, including `StartedAt` for the History order ([02](02-data-model.md#tables)); a missing Id throws `KeyNotFoundException` |
+| D111 | Repository checks and indexes | No checks beyond the schema's unique and plain indexes, including the unique `StartedAt` index that serves the History order ([02](02-data-model.md#tables)); a missing Id throws `KeyNotFoundException` |
 | D112 | Workout service | `IWorkoutService` singleton: `StartNew()` returns a draft the page keeps; it saves new workouts and edits, and validates without saving. `GetAsync` returns Loaded, NotFound or Failed; `DeleteAsync` returns Deleted or Failed; each is logged |
 | D113 | Validation | `WorkoutValidator` checks the domain records against the catalog and returns codes the UI words; format checks stay in the UI ([02](02-data-model.md#validation)) |
 | D114 | Time source | .NET `TimeProvider`, faked in tests |
@@ -218,3 +218,4 @@ Each decision states how the app and the repo work now, one row per subject. A c
 | D183 | Decisions log | One row per subject: its Choice states how things work now in 1–2 sentences, linking to the doc that holds the detail. A change edits its row; a new subject takes the next free ID; IDs aren't reused |
 | D184 | Ticket review skill | `.agents/skills/ticket-review/SKILL.md` runs three read-only reviews (requirements, code and tests, security) one at a time in fresh contexts, only on request; the agent fixes the dead certs and asks about the rest before the local review |
 | D185 | Licence | MIT, in `LICENSE` at the repo root; the README has its badge and a License section |
+| D186 | Workout identity | A workout is identified across phones by its `StartedAt` (UTC, to the tick), unique in the database; the int Id is the primary key, used only inside one database ([02](02-data-model.md#tables)) |

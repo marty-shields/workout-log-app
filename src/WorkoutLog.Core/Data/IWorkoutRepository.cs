@@ -5,7 +5,10 @@ namespace WorkoutLog.Core.Data;
 /// <summary>Stores workouts with their exercises, sets and entries. Each write is one transaction.</summary>
 internal interface IWorkoutRepository
 {
-    /// <summary>Inserts the workout and its exercises, sets and entries. Returns the new workout id.</summary>
+    /// <summary>
+    /// Inserts the workout and its exercises, sets and entries. Returns the new workout id.
+    /// Throws <see cref="SQLite.SQLiteException"/> if a workout with the same start exists.
+    /// </summary>
     Task<int> AddAsync(NewWorkout workout);
 
     /// <summary>Replaces the workout's exercises, sets and entries. Times are not changed. Throws <see cref="KeyNotFoundException"/> if the workout doesn't exist.</summary>
@@ -15,13 +18,13 @@ internal interface IWorkoutRepository
     Task<Workout?> GetAsync(int id);
 
     /// <summary>
-    /// Returns workouts without their exercises, by start time newest first, then by id newest first.
+    /// Returns workouts without their exercises, by start time newest first.
     /// <paramref name="from"/> and <paramref name="to"/> limit the start time, both inclusive. <paramref name="limit"/> caps the number returned.
     /// </summary>
     Task<IReadOnlyList<WorkoutSummary>> ListAsync(DateTimeOffset? from = null, DateTimeOffset? to = null, int? limit = null);
 
     /// <summary>
-    /// Returns the set weights of each workout that has the exercise, by start time newest first, then by id newest first.
+    /// Returns the set weights of each workout that has the exercise, by start time newest first.
     /// Weights are in set order.
     /// </summary>
     Task<IReadOnlyList<WorkoutWeights>> GetWeightsAsync(int exerciseId);
