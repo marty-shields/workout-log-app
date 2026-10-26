@@ -1,5 +1,5 @@
 # Releases main by hand (Actions > Release > Run workflow): works out the next version from the semver labels of the PRs
-# merged since the last v* tag, builds and tests, runs the E2E suite on emulators (e2e.yml), then, after the owner approves
+# merged since the last v* tag, builds and tests, runs the E2E suite on emulators (qa-pipeline.yml), then, after the owner approves
 # the release environment, builds the signed APK and publishes the GitHub release with its v* tag (docs/07-dev-setup-build.md).
 name: Release
 
@@ -55,12 +55,12 @@ jobs:
   build:
     needs: version
     if: needs.version.outputs.release == 'true'
-    uses: ./.github/workflows/pr-build.yml
+    uses: ./.github/workflows/dev-pipeline.yml
 
   e2e:
     needs: version
     if: needs.version.outputs.release == 'true'
-    uses: ./.github/workflows/e2e.yml
+    uses: ./.github/workflows/qa-pipeline.yml
 
   # A Release build of the same commit (x64, debug key, never published) starts cleanly on an emulator.
   release-smoke:
