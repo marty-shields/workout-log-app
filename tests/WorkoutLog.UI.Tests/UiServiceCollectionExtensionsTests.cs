@@ -10,7 +10,7 @@ namespace WorkoutLog.UI.Tests;
 public class UiServiceCollectionExtensionsTests
 {
     [Test]
-    public void AddUi_RegistersSingletons()
+    public void AddUi_RegistersTheServices()
     {
         var services = new ServiceCollection().AddUi();
 
@@ -22,6 +22,7 @@ public class UiServiceCollectionExtensionsTests
             (typeof(IAppLifecycle), (Type?)null, ServiceLifetime.Singleton),
             (typeof(ISetChecker), typeof(SetChecker), ServiceLifetime.Singleton),
             (typeof(IWorkoutChecker), typeof(WorkoutChecker), ServiceLifetime.Singleton),
+            (typeof(WorkoutEditor), typeof(WorkoutEditor), ServiceLifetime.Transient),
         }));
     }
 

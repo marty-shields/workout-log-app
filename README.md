@@ -100,7 +100,7 @@ Workout Log is sideloaded: it isn't on Google Play.
 | Data | SQLite via sqlite-net-pcl, on the device only |
 | Design system | Design tokens and components, documented and prototyped in a [BlazingStory](https://github.com/jsakamoto/BlazingStory) stories site |
 | Tests | NUnit unit tests, bUnit component tests, and end-to-end Gherkin features run by Reqnroll and Appium on a phone or emulator |
-| CI | GitHub Actions builds and tests every pull request; the release workflow runs the end-to-end tests on emulators, then signs and publishes the APK; Dependabot keeps packages current |
+| CI | GitHub Actions builds and tests every pull request, end-to-end tests on emulators included; the release workflow runs them again, then signs and publishes the APK; Dependabot keeps packages current |
 
 <details>
 <summary><b>Project layout</b></summary>

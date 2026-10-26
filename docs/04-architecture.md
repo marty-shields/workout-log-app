@@ -35,7 +35,7 @@ References: App → UI → Core. UI.Stories → UI. UI.Tests → UI, UI.Stories 
 - Core's public services are `IWorkoutService`, `IHistoryService` and `IDashboardService`; the repository and validator are internal (T33, T60, T70).
 - `AddCore` creates one database connection and gives it only to the initializer, the exercise seeder and the repository. The initializer and repository are decorators that run each call through one `DatabaseGate`, so database calls run one at a time; nothing can resolve a database type that skips the gate (T27, T99).
 - At startup `StartupGate` awaits `IDatabaseInitializer.InitializeAsync()`, which upgrades and creates the schema and seeds the exercise list, and shows the Startup screen until it completes, or its error if it throws (T25, T28, T36, D133).
-- `AddUi` registers `IBackButton`, `ISetChecker`, `IWorkoutChecker` and one `AppLifecycle` as `IAppStart` and `IAppLifecycle` (T54, T72). The App adds `AndroidBackButton` ([Navigation](#navigation)) and the logging providers ([Logging](#logging)).
+- `AddUi` registers `IBackButton`, `ISetChecker`, `IWorkoutChecker` and one `AppLifecycle` as `IAppStart` and `IAppLifecycle` (T54, T72), and `WorkoutEditor` as transient. `NewWorkoutPage`, `EditWorkoutPage` and the stories prototype each inject their own `WorkoutEditor`, which holds the exercises, the picker, changes, and the check and save (T112). The App adds `AndroidBackButton` ([Navigation](#navigation)) and the logging providers ([Logging](#logging)).
 - The stories app registers sample services in place of Core's (T48, T50, T52, D198).
 
 ## Navigation

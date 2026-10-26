@@ -1,0 +1,123 @@
+# Runs the E2E suite on emulators on every PR to main, and for the release workflow. The emulator-e2e-tests job passes
+# only when every shard passes; it is the check the Protect main ruleset requires (docs/07-dev-setup-build.md).
+name: E2E tests (emulator)
+
+on:
+  pull_request:
+    branches: [main]
+  workflow_call:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: e2e-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  # Chrome for Testing build for the emulator image's WebView major version (133.0.6943.137).
+  CHROMEDRIVER_VERSION: 133.0.6943.141
+  CHROMEDRIVER_SHA256: d3826586626a8e91d8b1d2da76423e2b4fd7179148284afe4677c72dcd0f1a27
+
+jobs:
+  # One emulator per runner; each shard runs whole features (e2e-shard.sh). The matrix sets the number of shards.
+  shard:
+    name: Emulator shard (${{ matrix.shard }}/${{ strategy.job-total }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3, 4, 5, 6, 7, 8]
+    env:
+      RESULTS: tests/WorkoutLog.E2E.Tests/TestResults/E2E
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Start the emulator
+        run: .github/scripts/emulator-start.sh
+
+      - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
+        with:
+          global-json-file: global.json
+
+      - name: Install the MAUI Android workload
+        run: dotnet workload install maui-android --version 10.0.402.1
+
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24
+
+      - name: Install Appium
+        working-directory: tests/WorkoutLog.E2E.Tests
+        run: npm ci --ignore-scripts
+
+      - name: Build the App (Debug) and the tests
+        run: |
+          dotnet build src/WorkoutLog.App -f net10.0-android
+          dotnet build tests/WorkoutLog.E2E.Tests
+
+      - name: Wait for the emulator
+        run: .github/scripts/emulator-wait.sh "$RESULTS"
+
+      - name: Pinned Chromedriver
+        run: |
+          webview=$(adb shell dumpsys webviewupdate | sed -n 's/.*Current WebView package (name, version): ([^,]*, \([0-9.]*\)).*/\1/p')
+          if [[ "${webview%%.*}" != "${CHROMEDRIVER_VERSION%%.*}" ]]; then
+            echo "::error title=Chromedriver::WebView $webview, pinned Chromedriver $CHROMEDRIVER_VERSION: update the pin in e2e.yml (docs/07-dev-setup-build.md)."
+            exit 1
+          fi
+          curl -fsSL -o "$RUNNER_TEMP/chromedriver.zip" \
+            "https://storage.googleapis.com/chrome-for-testing-public/$CHROMEDRIVER_VERSION/linux64/chromedriver-linux64.zip"
+          echo "$CHROMEDRIVER_SHA256  $RUNNER_TEMP/chromedriver.zip" | sha256sum -c -
+          unzip -q -d "$RUNNER_TEMP" "$RUNNER_TEMP/chromedriver.zip"
+          echo "CHROMEDRIVER=$RUNNER_TEMP/chromedriver-linux64/chromedriver" >> "$GITHUB_ENV"
+
+      # A shard's tests take 3–8 minutes; a hang fails here and the logs still upload. Failed scenarios run again, up to
+      # 3 tries in all (e2e-run.sh).
+      - name: E2E tests
+        timeout-minutes: 30
+        run: |
+          filter=$(.github/scripts/e2e-shard.sh "${{ matrix.shard }}" "${{ strategy.job-total }}")
+          if [[ -z "$filter" ]]; then
+            echo "::error title=E2E::Shard ${{ matrix.shard }}/${{ strategy.job-total }} has no features: check the test listing in e2e-shard.sh."
+            exit 1
+          fi
+          .github/scripts/e2e-run.sh "$filter" 3
+
+      # Runs on a failure or a cancel too, so the logs are kept. Each adb call is time-limited: a hung emulator mustn't
+      # hold up a cancel.
+      - name: Keep the emulator log
+        if: always()
+        timeout-minutes: 3
+        run: |
+          mkdir -p "$RESULTS"
+          cp "$RUNNER_TEMP/emulator.log" "$RESULTS/" || true
+          timeout 30 adb shell dumpsys activity activities > "$RESULTS/activities.txt" 2>&1 || true
+          timeout 30 adb exec-out screencap -p > "$RESULTS/final-screen.png" 2>/dev/null || true
+          echo "::group::Health (last 20)"; tail -n 20 "$RESULTS/health.log" 2>/dev/null || true; echo "::endgroup::"
+          ls -la "$RESULTS"
+
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        if: always()
+        with:
+          name: e2e-results-${{ matrix.shard }}
+          path: ${{ env.RESULTS }}/
+          retention-days: 1
+          if-no-files-found: ignore
+
+  emulator-e2e-tests:
+    needs: shard
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Every shard passed
+        if: needs.shard.result != 'success'
+        env:
+          RESULT: ${{ needs.shard.result }}
+        run: |
+          echo "::error title=E2E::The shards' result is $RESULT, not success."
+          exit 1

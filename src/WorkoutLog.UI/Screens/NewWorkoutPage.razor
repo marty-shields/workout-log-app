@@ -1,32 +1,30 @@
 @using Microsoft.Extensions.Logging
-@using WorkoutLog.Core.Domain.Exercises
 @using WorkoutLog.Core.Services
 @using WorkoutLog.UI.Components.Overlays
 @using WorkoutLog.UI.Components.Workout
 @implements IDisposable
 @inject IWorkoutService Workouts
-@inject IExerciseCatalog Catalog
 @inject TimeProvider Clock
 @inject ISetChecker Checker
-@inject IWorkoutChecker WorkoutChecker
+@inject WorkoutEditor Editor
 @inject ILogger<NewWorkoutPage> Logger
 
 <WorkoutView Mode="WorkoutMode.New"
              StartedAt="startedAt"
              Time="Elapsed"
-             Exercises="exercises"
-             Error="@error"
-             Focus="focus"
-             ErrorFocus="errorFocus"
+             Exercises="Editor.Exercises"
+             Error="@Editor.Error"
+             Focus="Editor.Focus"
+             ErrorFocus="Editor.ErrorFocus"
              ValidateSet="Checker.Check"
              OnSave="SaveAsync"
-             OnAddExercise="OpenPicker"
-             OnRemoveExercise="RemoveExercise"
+             OnAddExercise="Editor.OpenPicker"
+             OnRemoveExercise="Editor.Remove"
              OnBack="Back">
     <Overlay>
-        @if (pickerOpen)
+        @if (Editor.PickerOpen)
         {
-            <ExercisePicker Query="@query" QueryChanged="Search" Items="pickerItems" OnPick="Pick" OnClose="ClosePicker" />
+            <ExercisePicker Query="@Editor.Query" QueryChanged="Editor.Search" Items="Editor.PickerItems" OnPick="Editor.Pick" OnClose="Editor.ClosePicker" />
         }
         @if (discardOpen)
         {
@@ -36,17 +34,9 @@
 </WorkoutView>
 
 @code {
-    private readonly List<ExerciseState> exercises = [];
     private WorkoutDraft draft = null!;
     private DateTime startedAt;
     private PeriodicTimer? timer;
-    private bool pickerOpen;
-    private string query = "";
-    private IReadOnlyList<PickerItem> pickerItems = [];
-    private ExerciseFocus? focus;
-    private ErrorFocus? errorFocus;
-    private string? error;
-    private bool saving;
     private bool discardOpen;
     private bool discarded;
 
@@ -71,25 +61,10 @@
 
     public void Dispose() => timer?.Dispose();
 
-    private void OpenPicker()
-    {
-        Search("");
-        pickerOpen = true;
-    }
-
-    /// <summary>Sets the search text and its results.</summary>
-    private void Search(string text)
-    {
-        query = text;
-        pickerItems = Catalog.Search(text).Select(ExerciseFields.PickerItem).ToList();
-    }
-
-    private void ClosePicker() => pickerOpen = false;
-
     /// <summary>Asks Discard / Cancel (FR-12). Ignored while a save runs, after one succeeds and after a discard (D179).</summary>
     private void Back()
     {
-        if (!saving && !discarded)
+        if (!Editor.Saving && !discarded)
         {
             discardOpen = true;
         }
@@ -103,7 +78,7 @@
     /// </summary>
     private async Task DiscardAsync()
     {
-        if (saving)
+        if (Editor.Saving)
         {
             discardOpen = false;
             return;
@@ -115,63 +90,18 @@
         }
 
         discarded = true;
-        Log.Discarded(Logger, exercises.Count);
+        Log.Discarded(Logger, Editor.Exercises.Count);
         await OnDiscarded.InvokeAsync();
     }
 
-    private void Pick(PickerItem item)
-    {
-        focus = Show(item.Id);
-        error = null;
-        pickerOpen = false;
-    }
-
-    /// <summary>
-    /// Checks the workout (FR-09) and moves focus to the first error. A valid workout is saved and raises <see cref="OnSaved"/>;
-    /// if nothing was saved, shows SaveFailed and focuses Save (D176). Ignored while a save runs and after one succeeds (D177).
-    /// </summary>
+    /// <summary>Saves through <see cref="IWorkoutService.SaveNewAsync"/> (<see cref="WorkoutEditor.SaveAsync"/>) and raises <see cref="OnSaved"/>.</summary>
     private async Task SaveAsync()
     {
-        if (saving)
+        if (await Editor.SaveAsync(async records => (await Workouts.SaveNewAsync(draft, records)).WorkoutId is not null))
         {
-            return;
+            await OnSaved.InvokeAsync();
         }
-
-        var check = WorkoutChecker.Check(exercises);
-        error = check.Error;
-        if (!check.IsValid)
-        {
-            errorFocus = new ErrorFocus();
-            return;
-        }
-
-        saving = true;
-        var result = await Workouts.SaveNewAsync(draft, exercises.Select(Checker.Read).ToList());
-        saving = result.WorkoutId is not null;
-        if (result.WorkoutId is null)
-        {
-            error = WorkoutChecker.SaveFailed;
-            errorFocus = new ErrorFocus(ErrorFocusTarget.Save);
-            return;
-        }
-
-        await OnSaved.InvokeAsync();
     }
-
-    /// <summary>Focuses the exercise already in the workout, adding a set to a strength one; otherwise adds it at the bottom.</summary>
-    private ExerciseFocus Show(int exerciseId)
-    {
-        if (exercises.Find(e => e.ExerciseId == exerciseId) is { } existing)
-        {
-            return new ExerciseFocus(existing, addSet: existing.Kind == ExerciseKind.Strength);
-        }
-
-        var added = ExerciseFields.New(Catalog.All.Single(e => e.Id == exerciseId));
-        exercises.Add(added);
-        return new ExerciseFocus(added);
-    }
-
-    private void RemoveExercise(ExerciseState exercise) => exercises.Remove(exercise);
 
     /// <summary>Re-renders every tick until the timer is disposed. A render error goes to the error boundary.</summary>
     private async Task TickAsync(PeriodicTimer ticks)

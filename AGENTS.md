@@ -33,7 +33,7 @@ A personal Android app (.NET 10 MAUI Blazor Hybrid) that replaces a paper workou
 | `tests/WorkoutLog.UI.Tests/` | bUnit tests for UI components and screens; plays the prototype scenarios |
 | `tests/WorkoutLog.Core.Tests/` | NUnit tests for Core |
 | `tests/WorkoutLog.E2E.Tests/` | Gherkin features run by Reqnroll + NUnit + Appium on a device; `[Explicit]`, so a plain `dotnet test` skips them ([06](docs/06-testing.md#e2e-tests-appium)) |
-| `.github/` | PR build and PR checks workflows, Dependabot config ([07](docs/07-dev-setup-build.md#ci)); release workflow and its scripts in `scripts/` ([07](docs/07-dev-setup-build.md#release-signed-apk)) |
+| `.github/` | PR build, PR checks and E2E workflows, Dependabot config ([07](docs/07-dev-setup-build.md#ci)); release workflow and its scripts in `scripts/` ([07](docs/07-dev-setup-build.md#release-signed-apk)) |
 | `.agents/skills/` | Agent skills in the open Agent Skills format; `ticket-review` (T100) |
 
 ## Commands

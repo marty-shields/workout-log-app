@@ -1,6 +1,6 @@
 # 08 — Decisions Log
 
-Made from 2026-10-21 to 2026-10-25. Every decision is **Accepted** unless its Choice says Superseded. IDs never change; a new decision takes the next free ID. Format: T110.
+Made from 2026-10-21 to 2026-10-26. Every decision is **Accepted** unless its Choice says Superseded. IDs never change; a new decision takes the next free ID. Format: T110.
 
 ## Topics
 | Topic | Decisions |
@@ -9,9 +9,9 @@ Made from 2026-10-21 to 2026-10-25. Every decision is **Accepted** unless its Ch
 | Workouts, metrics and validation | D11–D25, D33–D44, D61, D63–D65, D70, D76–D78, D84–D93, D103–D108, D126–D130, D157–D179, D188; T22–T34, T55 |
 | Exercise list and search | D04, D05, D72, D79–D83, D89–D92, D94, D122–D125, D146–D156 |
 | Screens and design system | D66, D67, D96–D121, D131, D133–D134, D138, D140, D143–D145, D180–D199, D209–D214 |
-| Architecture and logging | T01–T06, T13, T15, T19, T21, T25–T27, T35–T36, T38–T74, T99; D139–D142 |
+| Architecture and logging | T01–T06, T13, T15, T19, T21, T25–T27, T35–T36, T38–T74, T99, T112; D139–D142 |
 | Testing | D200–D208, D215; T07, T14, T16–T18, T20, T75–T88, T94, T108–T109 |
-| Build, CI and release | D60, D68, D135–D136, D220, D223–D229; T08–T10, T89–T98, T101–T107, T111 |
+| Build, CI and release | D60, D68, D135–D136, D220, D223–D229; T08–T10, T89–T98, T101–T107, T111, T113 |
 | Ways of working and docs | D49–D59, D73–D75, D193, D216–D219, D221–D222, D230–D235; T11–T12, T100, T110 |
 
 ## Product
@@ -302,7 +302,7 @@ Made from 2026-10-21 to 2026-10-25. Every decision is **Accepted** unless its Ch
 | T44 | Android hooks | Lifecycle and memory events through `ConfigureLifecycleEvents`; unhandled and unobserved exceptions logged; the WebView renderer's end and memory kills read from the next start's exit reason ([04](04-architecture.md#logging)) | `MainActivity` overrides; replace Blazor's WebView client |
 | T45 | Exercise catalog load | The catalog reads exercises.json on first use, inside `StartupGate`, so a bad file shows the D133 error | Load in the constructor |
 | T46 | Back button | A stack of back handlers in UI, the newest runs; an AndroidX callback in the App, on only while a handler exists; navigation keeps no WebView history ([04](04-architecture.md#navigation)). Amended by T74 | WebView history with `NavigationLock`; a handler per page; `OnBackPressed` |
-| T47 | New Workout page | `NewWorkoutPage` in UI starts the draft and runs the timer from `TimeProvider`; the App's page only hosts it. Amends T31 | Logic in the App; log in UI |
+| T47 | New Workout page | `NewWorkoutPage` in UI starts the draft and runs the timer from `TimeProvider`; the App's page only hosts it. Amends T31; amended by T112 | Logic in the App; log in UI |
 | T48 | Stories sample service | `SampleWorkoutService` implements `IWorkoutService` for the stories; the unused browser SQLite native file is removed from the stories build. Amends T33 | A public draft constructor; accept the warning |
 | T49 | Adding exercises | The catalog splits search words once; `ExerciseFields` maps definitions to fields; `WorkoutView.Focus` focuses or adds a set; a failed focus is logged and the workout stays open | Add the id in US-14; scroll by JS |
 | T50 | Stories on the real catalog | The stories and UI.Tests use the real `IExerciseCatalog`; the stand-in search is removed | Keep `SampleData.Search` |
@@ -320,7 +320,7 @@ Made from 2026-10-21 to 2026-10-25. Every decision is **Accepted** unless its Ch
 | T62 | History page | `HistoryPage` in UI loads through `IHistoryService` and shows the load states; the App's page only hosts it. Amended by T65, T73 | Load in the App page |
 | T63 | Opening a workout | `IWorkoutService.GetAsync` returns Loaded, NotFound or Failed, each logged | `Workout?` and catch in the page |
 | T64 | Saved values as text | `ExerciseFields.Saved` turns a saved exercise into the text the user would type; a kind that doesn't match gives Load failed | Map in the page; throw on a mismatch |
-| T65 | Edit Workout page | `EditWorkoutPage` in UI loads through `GetAsync`, checks each exercise against the catalog, and shows `WorkoutView` in Edit mode or the load states; the App's page only hosts it. Amends T62; amended by T73 | One page for New and Edit |
+| T65 | Edit Workout page | `EditWorkoutPage` in UI loads through `GetAsync`, checks each exercise against the catalog, and shows `WorkoutView` in Edit mode or the load states; the App's page only hosts it. Amends T62; amended by T73, T112 | One page for New and Edit |
 | T66 | EventId names | Each project has an internal enum of its EventIds in fixed ranges, checked by tests ([04](04-architecture.md#logging)). Amends T43 | Numbers in place; one shared enum |
 | T67 | Discarding edits | `EditWorkoutPage` keeps a changed flag, shows the Discard changes prompt and logs the discard | `OnDiscarded` as T59 |
 | T68 | Deleting a workout | `IWorkoutService.DeleteAsync` returns Deleted or Failed, each logged. Amends T29 | `Task<bool>`; a separate service; log in the UI |
@@ -346,7 +346,7 @@ Made from 2026-10-21 to 2026-10-25. Every decision is **Accepted** unless its Ch
 | T88 | E2E example rows | Scenario outlines keep one row per device path; other values of a rule are tested in UI.Tests or Core.Tests | Every row on the device; one row per outline |
 | T89 | Source control | Public GitHub repo [marty-shields/workout-log-app](https://github.com/marty-shields/workout-log-app), default branch `main`, protected by a ruleset; git and `gh` use the personal account in this repo only ([07](07-dev-setup-build.md#source-control)). Supersedes T09 | Private repo; switch the `gh` account per task |
 | T90 | Local settings ignored | `.vscode/` and `.claude/settings.local.json` are gitignored, as they hold machine-specific settings. Amends T39 | Shared VS Code settings in the repo |
-| T91 | PR build | `pr-build.yml` builds and runs the Core and UI tests on PRs to `main`, on `ubuntu-latest`, with the SDK and workload set pinned; actions pinned by SHA with least permissions; its check is required ([07](07-dev-setup-build.md#ci)). Amended by T96, T111 | Windows runner; floating SDK; one `ci.yml` |
+| T91 | PR build | `pr-build.yml` builds and runs the Core and UI tests on PRs to `main`, on `ubuntu-latest`, with the SDK and workload set pinned; actions pinned by SHA with least permissions; its check is required ([07](07-dev-setup-build.md#ci)). Amended by T96, T111, T113 | Windows runner; floating SDK; one `ci.yml` |
 | T92 | Dependabot | Weekly updates for NuGet, the E2E npm packages, the SDK and the Actions; minor and patch grouped per ecosystem. Amended by T103 | One PR per package; NuGet only |
 | T93 | E2E npm overrides | `overrides` lift packages Appium pins to vulnerable versions; the driver's bundled copies can't be overridden and stay tracked in [US-38](https://github.com/marty-shields/workout-log-app/issues/47) | `npm audit fix --force`; hide the bundled entries |
 | T94 | Appium on loopback | Appium binds to 127.0.0.1. Amends T77 | The library default |
@@ -359,11 +359,13 @@ Made from 2026-10-21 to 2026-10-25. Every decision is **Accepted** unless its Ch
 | T101 | Release signing | Keystore PKCS12, RSA 4096, 10000 days; the file, password and alias are `release` environment secrets; signing properties only on the release job's command line, passwords as `env:` references; restore before the keystore is written; the keystore deleted after the build | Signing in the `.csproj`; `apksigner` after an unsigned build |
 | T102 | PR checks | `pr-checks.yml` requires a Conventional Commit title and exactly one `semver:*` label ([07](07-dev-setup-build.md#ci)) | A step in the PR build; the label from the type |
 | T103 | Dependabot labels | Dependabot PRs get `semver:patch` and the `chore(deps)` prefix. Amends T92 | A label per update type |
-| T104 | Release workflow | `release.yml`, run by hand on `main`, one run at a time; jobs `version`, then `build`, `e2e` and `release-smoke`, then `release`; its shell in `.github/scripts/` ([07](07-dev-setup-build.md#release-signed-apk)) | A release per merge; a tag push trigger; inline shell; third-party actions |
-| T105 | E2E on emulators | A matrix of jobs with one emulator each, set up by scripts with no third-party actions, on the AOSP image; scenarios split by whole feature; results uploaded for 1 day; the tests step times out at 30 minutes ([07](07-dev-setup-build.md#e2e-in-the-release-workflow)) | One emulator; the `google_apis` image; smaller emulators; split by scenario |
-| T106 | Chromedriver in CI | `release.yml` pins Chromedriver by version and SHA-256 and fails when the emulator's WebView major differs; local runs still download their own. Amends T76 | Autodownload in CI |
+| T104 | Release workflow | `release.yml`, run by hand on `main`, one run at a time; jobs `version`, then `build`, `e2e` and `release-smoke`, then `release`; its shell in `.github/scripts/` ([07](07-dev-setup-build.md#release-signed-apk)). Amended by T113 | A release per merge; a tag push trigger; inline shell; third-party actions |
+| T105 | E2E on emulators | A matrix of jobs with one emulator each, set up by scripts with no third-party actions, on the AOSP image; scenarios split by whole feature; results uploaded for 1 day; the tests step times out at 30 minutes ([07](07-dev-setup-build.md#e2e-workflow)). Amended by T113 | One emulator; the `google_apis` image; smaller emulators; split by scenario |
+| T106 | Chromedriver in CI | `release.yml` pins Chromedriver by version and SHA-256 and fails when the emulator's WebView major differs; local runs still download their own. Amends T76; amended by T113 | Autodownload in CI |
 | T107 | Release smoke | The Release APK of the same commit, x64 with the debug key, must start cleanly on an emulator: the start line, the exercise list seeded and startup finished, with no error or crash | Launch the signed arm64 APK; no check |
 | T108 | E2E harness fixes | `WebView.Text` reads inside its wait; failure folder names drop characters Windows and artifacts don't allow | |
 | T109 | E2E retries in CI | `e2e-run.sh` re-runs only the failed scenarios, up to 3 tries; a pass on a retry gets a warning. Local runs don't retry | NUnit `[Retry]`; a testing-platform extension; no retries |
 | T110 | Decisions log format (US-27) | Choice is the decision in 1–2 sentences, linking to the doc that holds the detail; Alternatives are option names; superseded rows keep only their title and successor; changed rows point both ways ("Amends" / "Amended by"); dates are in the header | Keep the full rows |
 | T111 | Exact SDK in CI (US-27) | `global.json` uses `rollForward: patch`, so CI installs exactly its SDK version; a new patch comes as a Dependabot PR. Locally a newer patch still works when that one isn't installed. Amends T91 | `latestPatch` (CI took 10.0.403, whose download failed); a version per workflow |
+| T112 | Shared workout editing (#62) | `WorkoutEditor` (UI), a transient each workout page injects, holds the exercises, picker, changes and the check and save for New Workout, Edit Workout and the stories prototype; each page keeps its own load, timer, back, discard and delete ([04](04-architecture.md#dependency-injection)). Amends T47, T65 | A shared Razor component; a base page class; one page for New and Edit |
+| T113 | E2E on PRs (#62) | `e2e.yml` runs the E2E suite on every PR to `main` and in the release; its `emulator-e2e-tests` job is a required check; the emulator's AVD and image are set in `emulator-start.sh` ([07](07-dev-setup-build.md#e2e-workflow)). Amends T91, T104, T105, T106 | Release only; skip docs-only PRs; required per shard |

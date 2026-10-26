@@ -1,5 +1,5 @@
 # Builds the solution and runs the UI and Core tests on every PR to main, and for the release workflow.
-# E2E tests need a device and are not run.
+# E2E tests run in e2e.yml.
 name: PR build
 
 on:
