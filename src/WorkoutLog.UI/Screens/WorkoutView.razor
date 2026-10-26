@@ -53,7 +53,7 @@
     [Parameter]
     public TimeSpan Time { get; set; }
 
-    /// <summary>Exercises in the order added.</summary>
+    /// <summary>Exercises in screen order, newest first.</summary>
     [Parameter, EditorRequired]
     public IReadOnlyList<ExerciseState> Exercises { get; set; } = [];
 

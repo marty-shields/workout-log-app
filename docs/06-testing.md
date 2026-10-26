@@ -6,7 +6,7 @@
 | Unit | `WorkoutLog.Core.Tests` | NUnit, Moq | Metric validation, start/finish capture, dashboard counts in the phone's time zone (D196), exercise seeding, exercise file checks, search (FR-03), logged events and EventIds (T43, T66) |
 | Repository | `WorkoutLog.Core.Tests` | NUnit + temp SQLite file | Save, load, list, edit, cascade delete |
 | Component | `WorkoutLog.UI.Tests` | bUnit | Screens and components per exercise definition, prototype scenarios, design-system checks (D117), back and app start handlers (T74), the App's project file (T78), logged events and EventIds (T66, T73) |
-| UI (automated) | `WorkoutLog.E2E.Tests` | Reqnroll + NUnit + Appium (UiAutomator2) | User flows end to end on the Debug build, on the phone or an emulator, as Gherkin features (D200, T80). The E2E workflow runs them all on emulators, on every PR and in the release (T105, T113) |
+| UI (automated) | `WorkoutLog.E2E.Tests` | Reqnroll + NUnit + Appium (UiAutomator2) | User flows end to end on the Debug build, on the phone or an emulator, as Gherkin features (D200, T80). The QA pipeline runs them all on emulators, on every PR and in the release (T105, T113, T114) |
 | Release smoke | `release.yml` (`release-smoke.sh`) | adb | The Release build of each release, x64 with the debug key, starts cleanly on an emulator (T107) |
 
 ## E2E tests (Appium)

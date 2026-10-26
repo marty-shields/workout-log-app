@@ -28,7 +28,7 @@ public class EditWorkoutOutcomeTests : ComponentTestBase
     public void Discard_ShowsHistoryAndOpeningARowShowsTheSavedWorkout()
     {
         var cut = Context.Render<EditWorkoutOutcome>();
-        cut.Find("[data-testid=exercise-1-set-1-reps]").Input("9");
+        cut.Find("[data-testid=exercise-4-set-1-reps]").Input("9");
         cut.Find("[data-testid=back]").Click();
         cut.Find("[data-testid=confirm-dialog-confirm]").Click();
         var title = cut.Find("[data-testid=screen-title]").TextContent;
@@ -38,7 +38,7 @@ public class EditWorkoutOutcomeTests : ComponentTestBase
         Assert.Multiple(() =>
         {
             Assert.That(title, Is.EqualTo("History"));
-            Assert.That(cut.Find("[data-testid=exercise-1-set-1-reps]").GetAttribute("value"), Is.EqualTo("8"));
+            Assert.That(cut.Find("[data-testid=exercise-4-set-1-reps]").GetAttribute("value"), Is.EqualTo("8"));
         });
     }
 

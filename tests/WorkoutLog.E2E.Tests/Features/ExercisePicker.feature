@@ -44,19 +44,20 @@ Feature: Exercise picker
     And I open the exercise picker
     Then the search box is empty and every exercise shows
 
-  @smoke @D151
-  Scenario: Picking an exercise adds it at the bottom and focuses its first field
+  @smoke @D151 @D236
+  Scenario: Picking an exercise adds it at the top and focuses its first field
     Given I have added "Barbell Back Squat"
     When I add "Dumbbell Curl"
-    Then the exercises are, in order: Barbell Back Squat, Dumbbell Curl
+    Then the exercises are, in order: Dumbbell Curl, Barbell Back Squat
     And the picker is closed
     And focus is on Dumbbell Curl set 1 reps
 
-  @D151
-  Scenario: A picked exercise below the screen scrolls into view
+  @D151 @D236
+  Scenario: A picked exercise above the screen scrolls into view
     Given I have added "Treadmill"
     And I have added "Rowing Machine"
     And I have added "Farmer's Walk"
+    And I have scrolled to the bottom of the workout
     When I add "Dumbbell Curl"
     Then focus is on Dumbbell Curl set 1 reps
     And the focused field is in view
@@ -97,10 +98,22 @@ Feature: Exercise picker
     And Barbell Back Squat set 1 shows "Enter reps"
     And focus is on Barbell Back Squat set 1 reps
 
-  @D154
-  Scenario: Picking a cardio exercise already added focuses its entry
+  @D154 @D236
+  Scenario: Picking a cardio exercise already added moves it to the top and focuses its entry
     Given I have added "Rowing Machine"
     And I have added "Barbell Back Squat"
     When I add "Rowing Machine"
-    Then there are 2 exercises
+    Then the exercises are, in order: Rowing Machine, Barbell Back Squat
     And focus is on Rowing Machine duration hours
+
+  @D154 @D236
+  Scenario: Picking a strength exercise already added moves it to the top with a new set
+    Given I have added "Barbell Back Squat"
+    And I have logged Barbell Back Squat set 1: 5 reps, 60 kg
+    And I have added "Treadmill"
+    And I have added "Plank"
+    When I add "Barbell Back Squat"
+    Then the exercises are, in order: Barbell Back Squat, Plank, Treadmill
+    And Barbell Back Squat has 2 sets
+    And focus is on Barbell Back Squat set 2 reps
+    And the focused field is in view

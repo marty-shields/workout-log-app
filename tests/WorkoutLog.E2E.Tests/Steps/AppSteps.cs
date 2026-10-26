@@ -63,6 +63,9 @@ public sealed class AppSteps(
         journeys.WaitFor(Journeys.Screen.Dashboard);
     }
 
+    [When(@"^I close the keyboard$")]
+    public void WhenICloseTheKeyboard() => native.HideKeyboard();
+
     [Then(@"^the soft keyboard is (shown|hidden)$")]
     public void ThenTheSoftKeyboardIs(string shown) =>
         web.Eventually(native.IsKeyboardShown, Is.EqualTo(shown == "shown"), "soft keyboard shown");

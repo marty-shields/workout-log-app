@@ -17,9 +17,10 @@ Feature: Discard edits
       | the back arrow |
       | Android back   |
 
-  @D189
+  @D189 @D236
   Scenario Outline: Any change makes back ask "Discard changes?"
     When I <change>
+    And I close the keyboard
     And I go back with the back arrow
     Then the prompt "Discard changes?" shows Discard and Cancel
     And focus is on Cancel
@@ -27,16 +28,16 @@ Feature: Discard edits
       | change                                          |
       | enter "62.5" in Barbell Back Squat set 1 weight |
       | add "Push-up"                                   |
+      | add "Rowing Machine"                            |
 
   @D189
-  Scenario Outline: Opening the picker or re-picking cardio isn't a change
+  Scenario Outline: Opening the picker isn't a change
     When I <action>
     And I go back with the back arrow
     Then I am on History with no prompt
     Examples:
       | action                                |
       | open the exercise picker and close it |
-      | add "Rowing Machine"                  |
 
   Scenario: Cancel keeps my edit
     Given I have entered "62.5" in Barbell Back Squat set 1 weight

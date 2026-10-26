@@ -105,19 +105,19 @@ The Debug APK holds both arm64 (phone) and x86_64 (emulator) code, so the same b
 3. Start it: `%ANDROID_HOME%\emulator\emulator.exe -avd WorkoutLog_API36`. `adb devices` lists it as `emulator-5554`.
 4. Run the tests as above, adding the run setting `DeviceUdid` = `emulator-5554` if the phone is connected too.
 
-### E2E workflow
-`.github/workflows/e2e.yml` ("E2E tests (emulator)") runs all the E2E tests on emulators on every PR to `main`, and in the [release workflow](#release-signed-apk) (T113).
+### QA pipeline
+`.github/workflows/qa-pipeline.yml` ("QA pipeline") runs all the E2E tests on emulators on every PR to `main` once the [dev pipeline](#ci) passes, and in the [release workflow](#release-signed-apk) (T113, T114).
 - Its `shard` matrix runs one job per shard, each with one API 36 emulator (`emulator-start.sh`, `emulator-wait.sh`). The script sets the AVD and the AOSP system image.
-- Its `emulator-e2e-tests` job passes only when every shard passes. It is a required check on PRs ([Source control](#source-control)).
+- Its `emulator-e2e-tests` job passes only when every shard passes. It is a required check on PRs, as `qa / emulator-e2e-tests` ([Source control](#source-control)).
 - `e2e-shard.sh` splits the scenarios by whole feature, the largest first, each to the job with the fewest scenarios. A job that gets no features fails.
 - Each job builds the Debug App and runs its features with `DeviceUdid` = `emulator-5554` and the run setting `ChromedriverExecutable` (`e2e-run.sh`). Failed scenarios show as annotations and each run adds a results table to the run's summary.
 - Only the scenarios that failed run again, up to 3 tries in all; the job fails if one still fails. A scenario that passes on a retry gets a warning annotation, and its failed try stays in the summary (T109). Local runs don't retry.
-- Chromedriver is pinned in `e2e.yml` (`CHROMEDRIVER_VERSION`, `CHROMEDRIVER_SHA256`, from [Chrome for Testing](https://googlechromelabs.github.io/chrome-for-testing/)). The job fails when the emulator's WebView major version differs: pin a Chromedriver of that major version and its zip's SHA-256. Local runs still download their own.
+- Chromedriver is pinned in `qa-pipeline.yml` (`CHROMEDRIVER_VERSION`, `CHROMEDRIVER_SHA256`, from [Chrome for Testing](https://googlechromelabs.github.io/chrome-for-testing/)). The job fails when the emulator's WebView major version differs: pin a Chromedriver of that major version and its zip's SHA-256. Local runs still download their own.
 - Each job keeps `TestResults/E2E/` (with logcat, a health log and the emulator log) as the artifact `e2e-results-<n>`, for 1 day. The Debug APK is never uploaded: it is debuggable and has WebView debugging on.
 - In the release only, a `release-smoke` job in `release.yml` builds the Release APK for x64 with the debug key, installs it on an emulator and launches it (`release-smoke.sh`). It fails unless the app's log shows the Release start line, the exercise list seeded and "Startup finished", with no error and no crash.
 
 ## CI
-- `.github/workflows/pr-build.yml` ("PR build") runs on every PR to `main` (T91). On `ubuntu-latest` it installs the exact SDK in `global.json` (T111) and the `maui-android` workload at a pinned workload set, runs `dotnet build WorkoutLog.slnx`, then the Core and UI tests. Its `build-and-test` check must pass before the PR can merge. The [E2E workflow](#e2e-workflow) runs on every PR too.
+- `.github/workflows/pr-build.yml` ("PR build") runs on every PR to `main`: its `dev` job runs `.github/workflows/dev-pipeline.yml` ("Dev pipeline"), then its `qa` job runs the [QA pipeline](#qa-pipeline) if the dev pipeline passes (T91, T114). The dev pipeline, on `ubuntu-latest`, installs the exact SDK in `global.json` (T111) and the `maui-android` workload at a pinned workload set, runs `dotnet build WorkoutLog.slnx`, then the Core and UI tests. Its `dev / build-and-test` check must pass before the PR can merge.
 - Failed tests show as annotations on the PR, linked to the test's source line, and each test step adds a results table to the run's summary (T95).
 - The workload set matches the SDK: when the SDK in `global.json` changes, set the workflow's `--version` to the matching set (`dotnet workload search version`) in the same PR.
 - `.github/workflows/pr-checks.yml` ("PR checks") runs on every PR to `main` when it opens, changes or is relabelled. Its `pr-checks` check fails unless:
@@ -130,8 +130,8 @@ The Debug APK holds both arm64 (phone) and x86_64 (emulator) code, so the same b
 `.github/workflows/release.yml` ("Release") builds, tests, signs and publishes from `main`. Run it from Actions → Release → **Run workflow** on `main`.
 
 - `version`: fails off `main`. Works out the next version from the highest `semver:*` label among the PRs merged since the last `vX.Y.Z` tag, or `1.0.0` for the first (`next-version.sh`). Version code: number of `v*` tags + 1. A PR without exactly one label fails the run; no PRs ends it green with nothing released.
-- `build`: the [PR build](#ci).
-- `e2e`, `release-smoke`: the [E2E workflow](#e2e-workflow) and the release smoke.
+- `build`: the [dev pipeline](#ci).
+- `e2e`, `release-smoke`: the [QA pipeline](#qa-pipeline) and the release smoke.
 - `release`: waits for the owner to approve the `release` environment, builds the arm64 Release APK signed with the release keystore, checks it (`check-apk.sh`: the pinned cert `CERT_SHA256`, version, not debuggable, arm64 only), then creates the release `vX.Y.Z` and its tag on the run's commit.
 
 A failed run creates no tag or release: fix the cause and run it again. The release holds `WorkoutLog-X.Y.Z.apk`, its `.sha256`, and notes listing the merged PRs under the signing cert's fingerprint.
@@ -157,7 +157,7 @@ See the README's [Install](../README.md#install). An update installs over the ap
 - GitHub: [marty-shields/workout-log-app](https://github.com/marty-shields/workout-log-app), public, default branch `main` (T89).
 - The repo's own git config sets the author (`user.name`, `user.email`) and `credential.username`. The remote URL includes the username, so Git Credential Manager signs in as the owner in this repo only.
 - `gh` reads its login from the folder in `GH_CONFIG_DIR`, which holds only the owner's account. `.claude/settings.local.json` sets it for Claude Code and `.vscode/settings.json` for VS Code terminals; both are local and gitignored. Sign in once with `$env:GH_CONFIG_DIR="$HOME\.config\gh-personal"; gh auth login --web --scopes project,workflow`, and answer No to authenticating Git.
-- `main` is protected by the `Protect main` ruleset: no direct pushes, force pushes or deletion. Changes go through a PR, with no required approvals, and the `build-and-test`, `pr-checks` and `emulator-e2e-tests` checks must pass. PRs are opened as drafts; the reviewer marks them ready and squash-merges. The PR title becomes the commit title; merged branches are deleted.
+- `main` is protected by the `Protect main` ruleset: no direct pushes, force pushes or deletion. Changes go through a PR, with no required approvals, and the `dev / build-and-test`, `pr-checks` and `qa / emulator-e2e-tests` checks must pass. PRs are opened as drafts; the reviewer marks them ready and squash-merges. The PR title becomes the commit title; merged branches are deleted.
 - Branches: `type/us-xx-slug`, the Conventional Commit type and the story ID (e.g. `feat/us-26-signed-release-apk`). Work that isn't a story leaves out the ID (e.g. `chore/update-readme`).
 - `.gitignore` keeps build output, logs, test results, per-user files, APKs, signing keys and secrets out of the repo (T39, T90).
 - `nuget.config` restores from nuget.org only (T40).

@@ -184,7 +184,7 @@ public class NewWorkoutPageTests : ComponentTestBase
         var cut = RenderPage(() => discards++);
         Add(cut, 132);
         Add(cut, 305);
-        cut.Find("[data-testid=exercise-1-set-1-reps]").Input("8");
+        cut.Find("[data-testid=exercise-2-set-1-reps]").Input("8");
         cut.Find("[data-testid=back]").Click();
 
         cut.Find("[data-testid=confirm-dialog-confirm]").Click();
@@ -392,7 +392,7 @@ public class NewWorkoutPageTests : ComponentTestBase
     }
 
     [Test]
-    public void Pick_StrengthAddsAtTheBottomWithOneEmptySetAndClosesThePicker()
+    public void Pick_StrengthAddsAtTheTopWithOneEmptySetAndClosesThePicker()
     {
         var cut = RenderPage();
         Add(cut, 132);
@@ -401,9 +401,9 @@ public class NewWorkoutPageTests : ComponentTestBase
 
         Assert.Multiple(() =>
         {
-            Assert.That(Names(cut), Is.EqualTo(new[] { "Dumbbell Curl", "Barbell Back Squat" }));
-            Assert.That(cut.FindAll("[data-testid^=exercise-2-set-][data-testid$=-reps]"), Has.Count.EqualTo(1));
-            Assert.That(cut.Find("[data-testid=exercise-2-set-1-reps]").GetAttribute("value"), Is.Null.Or.Empty);
+            Assert.That(Names(cut), Is.EqualTo(new[] { "Barbell Back Squat", "Dumbbell Curl" }));
+            Assert.That(cut.FindAll("[data-testid^=exercise-1-set-][data-testid$=-reps]"), Has.Count.EqualTo(1));
+            Assert.That(cut.Find("[data-testid=exercise-1-set-1-reps]").GetAttribute("value"), Is.Null.Or.Empty);
             Assert.That(cut.FindAll("[data-testid=exercise-picker]"), Is.Empty);
         });
     }
@@ -447,9 +447,9 @@ public class NewWorkoutPageTests : ComponentTestBase
     {
         var cut = RenderPage();
         Add(cut, 132);
-        Add(cut, 6);
         // bUnit drops the reference id from the markup once the input re-renders, so read it first.
         var reps = cut.Find("[data-testid=exercise-1-set-1-reps]").GetAttribute("blazor:elementreference");
+        Add(cut, 6);
 
         Add(cut, 132);
 
@@ -462,17 +462,17 @@ public class NewWorkoutPageTests : ComponentTestBase
     }
 
     [Test]
-    public void PickAgain_Cardio_FocusesItsEntryWithoutAdding()
+    public void PickAgain_Cardio_MovesItToTheTopAndFocusesItsEntryWithoutAdding()
     {
         var cut = RenderPage();
         Add(cut, 305);
+        var hours = ReferenceId(cut, "exercise-1-duration-h");
         Add(cut, 132);
 
         Add(cut, 305);
 
         Assert.That(Names(cut), Is.EqualTo(new[] { "Rowing Machine", "Dumbbell Curl" }));
-        cut.WaitForAssertion(() => LastFocus().Arguments[0]
-            .ShouldBeElementReferenceTo(cut.Find("[data-testid=exercise-1-duration-h]")));
+        cut.WaitForAssertion(() => Assert.That(((ElementReference)LastFocus().Arguments[0]!).Id, Is.EqualTo(hours)));
     }
 
     [Test]
@@ -621,8 +621,8 @@ public class NewWorkoutPageTests : ComponentTestBase
     public void Save_ChecksEverySetAndEntryAndFocusesTheFirstError()
     {
         var cut = RenderPage();
-        Add(cut, 311);
         Add(cut, 6);
+        Add(cut, 311);
         cut.Find("[data-testid=exercise-1-pace-m]").Input("5");
         cut.Find("[data-testid=exercise-1-pace-ss]").Input("75");
         var hours = ReferenceId(cut, "exercise-1-duration-h");
@@ -812,7 +812,7 @@ public class NewWorkoutPageTests : ComponentTestBase
 
         cut.Find("[data-testid=exercise-2-remove]").Click();
 
-        Assert.That(Names(cut), Is.EqualTo(new[] { "Dumbbell Curl", "Rowing Machine" }));
+        Assert.That(Names(cut), Is.EqualTo(new[] { "Rowing Machine", "Dumbbell Curl" }));
     }
 
     [Test]

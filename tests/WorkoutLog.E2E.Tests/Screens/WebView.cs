@@ -116,6 +116,14 @@ public sealed class WebView
     /// <summary>Whether the focused element is inside the viewport and the topmost element at its centre.</summary>
     public bool FocusedInView() => App.ExecuteScript(FocusedUncovered) is true;
 
+    /// <summary>Scrolls the screen's content to the bottom; true when it moved.</summary>
+    public bool ScrollToBottom() =>
+        App.ExecuteScript("const c = document.querySelector('main.content'); const top = c.scrollTop; c.scrollTop = c.scrollHeight; return c.scrollTop > top;") is true;
+
+    /// <summary>Whether the screen's content is scrolled down and still at the bottom.</summary>
+    public bool AtBottom() =>
+        App.ExecuteScript("const c = document.querySelector('main.content'); return c.scrollTop > 0 && c.scrollTop + c.clientHeight >= c.scrollHeight - 1;") is true;
+
     /// <summary>Runs a script that returns an array, as a list.</summary>
     public IReadOnlyList<object> List(string script) => (ReadOnlyCollection<object>)App.ExecuteScript(script)!;
 

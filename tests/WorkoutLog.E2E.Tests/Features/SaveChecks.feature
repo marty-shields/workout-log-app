@@ -27,7 +27,7 @@ Feature: Save checks
     When I tap Add set on Barbell Back Squat
     Then Barbell Back Squat shows no exercise error
 
-  @D171
+  @D171 @D236
   Scenario: Save shows every error and focuses the first
     Given I have added "Barbell Back Squat"
     And I have logged Barbell Back Squat set 1: 8 reps, 60 kg
@@ -38,7 +38,7 @@ Feature: Save checks
     When I save the workout
     Then Machine Assisted Pull-up set 1 shows "Assist must be 1,000 or less"
     And Plank set 1 shows "Duration must be more than 0"
-    And focus is on Machine Assisted Pull-up set 1 weight
+    And focus is on Plank set 1 duration hours
     And I am still on New Workout
 
   Scenario: Fixing every error lets the workout save

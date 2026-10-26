@@ -14,7 +14,7 @@ public sealed class WorkoutEditor(IExerciseCatalog catalog, ISetChecker setCheck
 {
     private List<ExerciseState> exercises = [];
 
-    /// <summary>Exercises in the order added.</summary>
+    /// <summary>Exercises in screen order, newest first (D236).</summary>
     public IReadOnlyList<ExerciseState> Exercises => exercises;
 
     /// <summary>The exercise picker is open.</summary>
@@ -38,13 +38,16 @@ public sealed class WorkoutEditor(IExerciseCatalog catalog, ISetChecker setCheck
     /// <summary>A save is running or has succeeded.</summary>
     public bool Saving { get; private set; }
 
-    /// <summary>A value was typed, a set added or removed, or an exercise added or removed since <see cref="Start"/>, even if later undone (D189).</summary>
+    /// <summary>
+    /// A value was typed, a set added or removed, or an exercise added, picked again or removed since <see cref="Start"/>, even if
+    /// later undone (D189).
+    /// </summary>
     public bool Changed { get; private set; }
 
-    /// <summary>Edits a copy of these exercises, with nothing else open, shown or changed.</summary>
+    /// <summary>Edits a copy of these exercises, given oldest first, with nothing else open, shown or changed.</summary>
     public void Start(IEnumerable<ExerciseState> loaded)
     {
-        exercises = [.. loaded];
+        exercises = [.. loaded.Reverse()];
         PickerOpen = false;
         Query = "";
         PickerItems = [];
@@ -73,8 +76,8 @@ public sealed class WorkoutEditor(IExerciseCatalog catalog, ISetChecker setCheck
     public void ClosePicker() => PickerOpen = false;
 
     /// <summary>
-    /// Focuses the exercise already in the workout, adding a set to a strength one; otherwise adds it at the bottom. Clears the
-    /// workout's error and closes the picker.
+    /// Moves the exercise already in the workout to the top and focuses it, adding a set to a strength one; otherwise adds it at
+    /// the top. Either is a change. Clears the workout's error and closes the picker.
     /// </summary>
     public void Pick(PickerItem item)
     {
@@ -94,9 +97,9 @@ public sealed class WorkoutEditor(IExerciseCatalog catalog, ISetChecker setCheck
     public void MarkChanged() => Changed = true;
 
     /// <summary>
-    /// Checks the workout (FR-09) and asks to focus the first error. A valid workout goes to <paramref name="save"/> as records;
-    /// returns true when it was saved. If not, shows SaveFailed and asks to focus Save (D176). Ignored while a save runs and
-    /// after one succeeds (D177).
+    /// Checks the workout (FR-09) and asks to focus the first error. A valid workout goes to <paramref name="save"/> as records,
+    /// oldest first; returns true when it was saved. If not, shows SaveFailed and asks to focus Save (D176). Ignored while a save
+    /// runs and after one succeeds (D177).
     /// </summary>
     /// <param name="save">Saves the records; true when saved.</param>
     public async Task<bool> SaveAsync(Func<IReadOnlyList<WorkoutExercise>, Task<bool>> save)
@@ -115,7 +118,7 @@ public sealed class WorkoutEditor(IExerciseCatalog catalog, ISetChecker setCheck
         }
 
         Saving = true;
-        Saving = await save(exercises.Select(setChecker.Read).ToList());
+        Saving = await save(exercises.Select(setChecker.Read).Reverse().ToList());
         if (!Saving)
         {
             Error = workoutChecker.SaveFailed;
@@ -136,11 +139,14 @@ public sealed class WorkoutEditor(IExerciseCatalog catalog, ISetChecker setCheck
     {
         if (exercises.Find(e => e.ExerciseId == exerciseId) is { } existing)
         {
+            exercises.Remove(existing);
+            exercises.Insert(0, existing);
+            Changed = true;
             return new ExerciseFocus(existing, addSet: existing.Kind == ExerciseKind.Strength);
         }
 
         var added = ExerciseFields.New(catalog.All.Single(e => e.Id == exerciseId));
-        exercises.Add(added);
+        exercises.Insert(0, added);
         Changed = true;
         return new ExerciseFocus(added);
     }

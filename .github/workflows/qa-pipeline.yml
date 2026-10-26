@@ -1,17 +1,15 @@
-# Runs the E2E suite on emulators on every PR to main, and for the release workflow. The emulator-e2e-tests job passes
-# only when every shard passes; it is the check the Protect main ruleset requires (docs/07-dev-setup-build.md).
-name: E2E tests (emulator)
+# Runs the E2E suite on emulators, for the PR build (pr-build.yml) and the release workflow. The emulator-e2e-tests job
+# passes only when every shard passes; it is the check the Protect main ruleset requires (docs/07-dev-setup-build.md).
+name: QA pipeline
 
 on:
-  pull_request:
-    branches: [main]
   workflow_call:
 
 permissions:
   contents: read
 
 concurrency:
-  group: e2e-${{ github.ref }}
+  group: qa-pipeline-${{ github.ref }}
   cancel-in-progress: true
 
 env:
@@ -66,7 +64,7 @@ jobs:
         run: |
           webview=$(adb shell dumpsys webviewupdate | sed -n 's/.*Current WebView package (name, version): ([^,]*, \([0-9.]*\)).*/\1/p')
           if [[ "${webview%%.*}" != "${CHROMEDRIVER_VERSION%%.*}" ]]; then
-            echo "::error title=Chromedriver::WebView $webview, pinned Chromedriver $CHROMEDRIVER_VERSION: update the pin in e2e.yml (docs/07-dev-setup-build.md)."
+            echo "::error title=Chromedriver::WebView $webview, pinned Chromedriver $CHROMEDRIVER_VERSION: update the pin in qa-pipeline.yml (docs/07-dev-setup-build.md)."
             exit 1
           fi
           curl -fsSL -o "$RUNNER_TEMP/chromedriver.zip" \
