@@ -20,6 +20,7 @@ Feature: Discard edits
   @D189 @D236
   Scenario Outline: Any change makes back ask "Discard changes?"
     When I <change>
+    And I close the keyboard
     And I go back with the back arrow
     Then the prompt "Discard changes?" shows Discard and Cancel
     And focus is on Cancel
