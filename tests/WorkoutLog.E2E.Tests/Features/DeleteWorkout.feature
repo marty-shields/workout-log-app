@@ -9,7 +9,7 @@ Feature: Delete a workout
       | yesterday 18:05  | Push-up: 12 reps |
     And I have opened workout 2 from History
 
-  @D109
+  @D81
   Scenario: Delete asks "Delete this workout?"
     When I tap Delete
     Then the prompt "Delete this workout?" shows Delete and Cancel
@@ -28,7 +28,7 @@ Feature: Delete a workout
     Then I am on History
     And History lists only workout 1
 
-  @D191
+  @D46
   Scenario: Delete with unsaved edits removes the workout too
     Given I have entered "15" in Push-up set 1 reps
     When I tap Delete
@@ -47,7 +47,7 @@ Feature: Delete a workout
     Then History shows "No workouts yet"
     And on the Dashboard the last workout shows "No workouts yet", This week 0 and This month 0
 
-  @D144 @US-28
+  @D78 @US-28
   Scenario: Android back on the prompt cancels it
     Given I have tapped Delete
     When I press Android back

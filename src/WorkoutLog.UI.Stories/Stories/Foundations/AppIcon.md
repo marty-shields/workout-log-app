@@ -4,7 +4,7 @@ $attribute: CustomPage("Foundations/App Icon/Overview")
 
 # App icon and splash
 
-A pixel-art notebook: a dumbbell header and ruled lines cut out of the page, with a spiral binding (D209–D214).
+A pixel-art notebook: a dumbbell header and ruled lines cut out of the page, with a spiral binding (D88–D93).
 
 | Item | Rule |
 |---|---|

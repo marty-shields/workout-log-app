@@ -62,7 +62,7 @@
 
     public void Dispose() => timer?.Dispose();
 
-    /// <summary>Asks Discard / Cancel (FR-12). Ignored while a save runs, after one succeeds and after a discard (D179).</summary>
+    /// <summary>Asks Discard / Cancel (FR-12). Ignored while a save runs, after one succeeds and after a discard (D45).</summary>
     private void Back()
     {
         if (!Editor.Saving && !discarded)
@@ -93,8 +93,8 @@
     }
 
     /// <summary>
-    /// Logs the exercise count only (D142) and raises <see cref="OnDiscarded"/>, once. While a save runs or after one
-    /// succeeds, closes the prompt and does nothing else (D179).
+    /// Logs the exercise count only (D135) and raises <see cref="OnDiscarded"/>, once. While a save runs or after one
+    /// succeeds, closes the prompt and does nothing else (D45).
     /// </summary>
     private async Task DiscardAsync()
     {

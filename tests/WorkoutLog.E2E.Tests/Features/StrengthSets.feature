@@ -22,7 +22,7 @@ Feature: Strength sets
     Then Barbell Back Squat has 2 sets
     And set 1 still shows 8 reps, 60 kg
 
-  @D162
+  @D37
   Scenario: Add set on an empty set is blocked and shows why
     Given I have added "Barbell Back Squat"
     When I tap Add set on Barbell Back Squat
@@ -60,7 +60,7 @@ Feature: Strength sets
     And I tap Add set on Barbell Back Squat
     Then Barbell Back Squat has 2 sets
 
-  @D174
+  @D38
   Scenario: Once a set fails, each change re-checks it
     Given I have added "Barbell Back Squat"
     And I have entered "60.255" in Barbell Back Squat set 1 weight
@@ -85,7 +85,7 @@ Feature: Strength sets
     When I remove Barbell Back Squat set 2
     Then Barbell Back Squat sets are: 5 reps 60 kg; 5 reps 65 kg
 
-  @D150 @US-11
+  @D43 @US-11
   Scenario: Remove exercise removes it at once
     Given I have added "Barbell Back Squat"
     And I have added "Dumbbell Curl"
@@ -93,7 +93,7 @@ Feature: Strength sets
     Then no prompt is shown
     And the exercises are, in order: Dumbbell Curl
 
-  @D107
+  @D31
   Scenario: A partly filled duration fills in when I leave it
     Given I have added "Plank"
     When I enter "1::" in Plank set 1 duration and leave the field

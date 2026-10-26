@@ -28,7 +28,7 @@ Feature: Cardio entry
     Then Treadmill has no Add set and its entry can't be removed on its own
     And Treadmill can be removed as an exercise
 
-  @D166
+  @D39
   Scenario: A cardio entry isn't checked until Save
     Given I have added "Treadmill"
     When I enter "1001" in Treadmill distance
@@ -47,7 +47,7 @@ Feature: Cardio entry
       | Rowing Machine | 0:10:00 | calories | abc     | Calories must be a number                  |
       | Outdoor Run    | 0:25:30 | pace     | 5:75    | Pace seconds must be 00–59                 |
 
-  @D171
+  @D40
   Scenario: Save shows every problem on an entry and focuses the first field at fault
     Given I have added "Treadmill"
     And I have entered "1001" in Treadmill distance
@@ -59,7 +59,7 @@ Feature: Cardio entry
       | Incline can have up to 2 decimal places |
     And focus is on Treadmill duration hours
 
-  @D174
+  @D38
   Scenario: After a failed Save each change re-checks the entry
     Given I have added "Treadmill"
     And I have logged Treadmill: 0:20:00
@@ -68,7 +68,7 @@ Feature: Cardio entry
     When I enter "1.5" in Treadmill incline
     Then Treadmill shows no errors
 
-  @D107 @D167
+  @D31
   Scenario: A partly filled pace fills in when I leave it
     Given I have added "Outdoor Run"
     When I enter "5:3" in Outdoor Run pace and leave the field

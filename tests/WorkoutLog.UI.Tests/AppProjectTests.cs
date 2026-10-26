@@ -3,7 +3,7 @@ using System.Xml.Linq;
 namespace WorkoutLog.UI.Tests;
 
 /// <summary>
-/// Debug builds of the App embed their assemblies, so the E2E tests can install the APK (T78).
+/// Debug builds of the App embed their assemblies, so the E2E tests can install the APK (D143).
 /// The App can't be referenced, so its project file is read.
 /// </summary>
 public class AppProjectTests

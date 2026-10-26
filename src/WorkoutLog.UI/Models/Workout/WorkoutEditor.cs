@@ -5,7 +5,7 @@ namespace WorkoutLog.UI.Models.Workout;
 
 /// <summary>
 /// The exercises of a new or saved workout while it is edited: the exercise picker, adding and removing exercises, changes
-/// (D189), and the check and save. One instance per workout page.
+/// (D73), and the check and save. One instance per workout page.
 /// </summary>
 /// <param name="catalog">Exercise list.</param>
 /// <param name="setChecker">Reads each exercise as a record to save.</param>
@@ -14,7 +14,7 @@ public sealed class WorkoutEditor(IExerciseCatalog catalog, ISetChecker setCheck
 {
     private List<ExerciseState> exercises = [];
 
-    /// <summary>Exercises in screen order, newest first (D236).</summary>
+    /// <summary>Exercises in screen order, newest first (D42).</summary>
     public IReadOnlyList<ExerciseState> Exercises => exercises;
 
     /// <summary>The exercise picker is open.</summary>
@@ -40,7 +40,7 @@ public sealed class WorkoutEditor(IExerciseCatalog catalog, ISetChecker setCheck
 
     /// <summary>
     /// A value was typed, a set added or removed, or an exercise added, picked again or removed since <see cref="Start"/>, even if
-    /// later undone (D189).
+    /// later undone (D73).
     /// </summary>
     public bool Changed { get; private set; }
 
@@ -98,8 +98,8 @@ public sealed class WorkoutEditor(IExerciseCatalog catalog, ISetChecker setCheck
 
     /// <summary>
     /// Checks the workout (FR-09) and asks to focus the first error. A valid workout goes to <paramref name="save"/> as records,
-    /// oldest first; returns true when it was saved. If not, shows SaveFailed and asks to focus Save (D176). Ignored while a save
-    /// runs and after one succeeds (D177).
+    /// oldest first; returns true when it was saved. If not, shows SaveFailed and asks to focus Save (D40). Ignored while a save
+    /// runs and after one succeeds (D41).
     /// </summary>
     /// <param name="save">Saves the records; true when saved.</param>
     public async Task<bool> SaveAsync(Func<IReadOnlyList<WorkoutExercise>, Task<bool>> save)
@@ -128,7 +128,7 @@ public sealed class WorkoutEditor(IExerciseCatalog catalog, ISetChecker setCheck
         return Saving;
     }
 
-    /// <summary>Shows DeleteFailed and asks to focus Delete (D191).</summary>
+    /// <summary>Shows DeleteFailed and asks to focus Delete (D46).</summary>
     public void ShowDeleteFailed()
     {
         Error = workoutChecker.DeleteFailed;

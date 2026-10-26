@@ -8,6 +8,7 @@
 
 [![PR build](https://github.com/marty-shields/workout-log-app/actions/workflows/pr-build.yml/badge.svg?event=pull_request)](https://github.com/marty-shields/workout-log-app/actions/workflows/pr-build.yml)
 [![Latest release](https://img.shields.io/github/v/release/marty-shields/workout-log-app?label=release)](https://github.com/marty-shields/workout-log-app/releases/latest)
+[![Stories site](https://img.shields.io/badge/stories-GitHub_Pages-305252?logo=storybook&logoColor=white)](https://marty-shields.github.io/workout-log-app/)
 ![.NET 10](https://img.shields.io/badge/.NET-10-512BD4?logo=dotnet&logoColor=white)
 ![MAUI Blazor Hybrid](https://img.shields.io/badge/MAUI-Blazor_Hybrid-512BD4?logo=blazor&logoColor=white)
 ![Android 16](https://img.shields.io/badge/Android-16_(API_36)-34A853?logo=android&logoColor=white)
@@ -23,7 +24,7 @@
 
 Every gym session used to go in a paper notebook: date, start and finish times, exercises, sets, reps and weights. Workout Log keeps that simple flow and drops the paper. Open the app, add exercises, log sets as you go, then look back at past sessions.
 
-It's built for one person and one phone: no accounts, no sign-up, no cloud. Everything stays on the device.
+It's built for one person and one phone: no accounts, no sign-up.
 
 ## Features
 
@@ -35,7 +36,7 @@ It's built for one person and one phone: no accounts, no sign-up, no cloud. Ever
 - 📊 **Dashboard.** Your last workout and how many sessions you've done this week and this month.
 - ✅ **Clear checks.** Save checks every set and entry, and points to the exact field at fault.
 - 🌗 **Light and dark.** Follows the phone's theme.
-- 🔒 **Offline and private.** Data lives in SQLite on the phone. No network calls, no accounts.
+- ☁️ **Backup.** Supports Android Auto Backup, so your workouts come back on a new phone.
 
 ## Screenshots
 
@@ -81,7 +82,7 @@ It's built for one person and one phone: no accounts, no sign-up, no cloud. Ever
   </tr>
 </table>
 
-<p align="center"><sub>The screenshots match your GitHub theme. They're taken from the <a href="https://marty-shields.github.io/workout-log-app/">stories site</a>, which renders the app's own components.</sub></p>
+<p align="center"><sub>The screenshots match your GitHub theme. They're taken from the stories site, which renders the app's own components.</sub></p>
 
 ## Install
 
@@ -97,7 +98,7 @@ Workout Log is sideloaded: it isn't on Google Play.
 |---|---|
 | App | [.NET MAUI Blazor Hybrid](https://learn.microsoft.com/dotnet/maui/user-interface/controls/blazorwebview) on .NET 10: Razor components in a native Android shell |
 | Platform | Android 16 (API 36), sideloaded |
-| Data | SQLite via sqlite-net-pcl, on the device only |
+| Data | SQLite via sqlite-net-pcl, on the device |
 | Design system | Design tokens, components and screens, documented in a [BlazingStory](https://github.com/jsakamoto/BlazingStory) stories site, [published on GitHub Pages](https://marty-shields.github.io/workout-log-app/) |
 | Tests | NUnit unit tests, bUnit component tests, and end-to-end Gherkin features run by Reqnroll and Appium on a phone or emulator |
 | CI | GitHub Actions builds and tests every pull request, end-to-end tests on emulators included; the release workflow runs them again, then signs and publishes the APK; Dependabot keeps packages current |

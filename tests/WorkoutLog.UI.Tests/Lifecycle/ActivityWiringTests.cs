@@ -1,7 +1,7 @@
 namespace WorkoutLog.UI.Tests.Lifecycle;
 
 /// <summary>
-/// The App passes the activity's lifecycle to <c>IBackButton</c>, <c>IAppLifecycle</c> and <c>AndroidDiagnostics</c> (T46, T72, T74).
+/// The App passes the activity's lifecycle to <c>IBackButton</c>, <c>IAppLifecycle</c> and <c>AndroidDiagnostics</c> (D119).
 /// The App can't be referenced, so its files are read. Whitespace is ignored.
 /// </summary>
 public class ActivityWiringTests

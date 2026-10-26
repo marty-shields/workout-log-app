@@ -14,7 +14,7 @@ Feature: Edit a workout
     And Delete is shown
     And it holds exactly what was saved, newest first
 
-  @D105
+  @D80
   Scenario: Carry sets start closed on Edit
     Then every Farmer's Walk set is a summary
 
@@ -45,7 +45,7 @@ Feature: Edit a workout
     And I save the workout
     Then reopening workout 1 shows: Dumbbell Incline Press, Farmer's Walk, Barbell Back Squat
 
-  @D154 @D236
+  @D42
   Scenario: Picking an exercise again saves it on top
     When I add "Barbell Back Squat"
     And I log Barbell Back Squat set 4: 5 reps, 65 kg

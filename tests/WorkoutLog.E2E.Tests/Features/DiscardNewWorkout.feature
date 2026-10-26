@@ -7,7 +7,7 @@ Feature: Discard a new workout
     And I have added "Barbell Back Squat"
     And I have logged Barbell Back Squat set 1: 5 reps
 
-  @D109 @US-28
+  @D81 @US-28
   Scenario Outline: Back asks "Discard this workout?"
     When I go back with <how>
     Then the prompt "Discard this workout?" shows Discard and Cancel
@@ -31,14 +31,14 @@ Feature: Discard a new workout
     And the last workout shows "No workouts yet"
     And History is empty
 
-  @D144 @US-28
+  @D78 @US-28
   Scenario: Android back on the prompt cancels it
     Given I have gone back with the back arrow
     When I press Android back
     Then the prompt is closed
     And I am still on New Workout
 
-  @D179
+  @D45
   Scenario: Back asks even with no exercises
     Given I have removed Barbell Back Squat
     When I go back with the back arrow

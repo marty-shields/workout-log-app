@@ -17,7 +17,7 @@ Feature: Discard edits
       | the back arrow |
       | Android back   |
 
-  @D189 @D236
+  @D73 @D42
   Scenario Outline: Any change makes back ask "Discard changes?"
     When I <change>
     And I close the keyboard
@@ -30,7 +30,7 @@ Feature: Discard edits
       | add "Push-up"                                   |
       | add "Rowing Machine"                            |
 
-  @D189
+  @D73
   Scenario Outline: Opening the picker isn't a change
     When I <action>
     And I go back with the back arrow
@@ -54,7 +54,7 @@ Feature: Discard edits
     Then I am on History
     And reopening workout 1 shows Barbell Back Squat set 1 at 60 kg
 
-  @D144 @US-28
+  @D78 @US-28
   Scenario: Android back on the prompt cancels it
     Given I have entered "62.5" in Barbell Back Squat set 1 weight
     And I have gone back with the back arrow

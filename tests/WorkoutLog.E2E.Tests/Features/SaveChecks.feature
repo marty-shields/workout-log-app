@@ -5,14 +5,14 @@ Feature: Save checks
   Background:
     Given I have started a new workout
 
-  @smoke @D171
+  @smoke @D40
   Scenario: Save with no exercises is blocked
     When I save the workout
     Then the workout shows "Add at least one exercise"
     And focus is on Add exercise
     And I am still on New Workout
 
-  @D108
+  @D38
   Scenario: Adding an exercise clears the workout error
     Given I have saved the workout
     When I add "Barbell Back Squat"
@@ -27,7 +27,7 @@ Feature: Save checks
     When I tap Add set on Barbell Back Squat
     Then Barbell Back Squat shows no exercise error
 
-  @D171 @D236
+  @D40 @D42
   Scenario: Save shows every error and focuses the first
     Given I have added "Barbell Back Squat"
     And I have logged Barbell Back Squat set 1: 8 reps, 60 kg

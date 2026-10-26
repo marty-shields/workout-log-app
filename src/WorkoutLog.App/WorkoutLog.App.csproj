@@ -12,11 +12,13 @@
 
     <ApplicationTitle>Workout Log</ApplicationTitle>
     <ApplicationId>uk.martinshields.workoutlog</ApplicationId>
+    <AndroidManifestPlaceholders>allowBackup=true</AndroidManifestPlaceholders>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
     <ApplicationTitle>Workout Log (Dev)</ApplicationTitle>
     <ApplicationId>uk.martinshields.workoutlog.debug</ApplicationId>
+    <AndroidManifestPlaceholders>allowBackup=false</AndroidManifestPlaceholders>
     <EmbedAssembliesIntoApk>true</EmbedAssembliesIntoApk>
   </PropertyGroup>
 

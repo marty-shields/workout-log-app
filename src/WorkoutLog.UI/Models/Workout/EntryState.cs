@@ -9,6 +9,6 @@ public sealed class EntryState
     /// <summary>Validation message per <see cref="Fields.FieldSpec.Key"/>, for fields at fault.</summary>
     public Dictionary<string, string> Errors { get; } = new();
 
-    /// <summary>Re-check on each change (D174). Set when a check fails; cleared when the set passes Add set or opening another set, or the workout passes Save.</summary>
+    /// <summary>Re-check on each change (D38). Set when a check fails; cleared when the set passes Add set or opening another set, or the workout passes Save.</summary>
     public bool CheckOnChange { get; set; }
 }

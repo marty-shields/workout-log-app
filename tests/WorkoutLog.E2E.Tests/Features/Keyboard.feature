@@ -22,7 +22,7 @@ Feature: Keyboard
     When I open the exercise picker
     Then the soft keyboard is shown
 
-  @D206 @US-15 @US-28
+  @D78 @US-15 @US-28
   Scenario: On a new workout, Android back with the keyboard open hides the keyboard first
     Given I have added "Barbell Back Squat"
     When I tap Barbell Back Squat set 1 reps
@@ -33,14 +33,14 @@ Feature: Keyboard
     When I go back with Android back
     Then the prompt "Discard this workout?" shows Discard and Cancel
 
-  @D206 @US-15
+  @D78 @US-15
   Scenario: On a new workout, the back arrow with the keyboard open goes straight to the prompt
     Given I have added "Barbell Back Squat"
     When I tap Barbell Back Squat set 1 reps
     And I go back with the back arrow
     Then the prompt "Discard this workout?" shows Discard and Cancel
 
-  @D206 @US-18
+  @D78 @US-18
   Scenario: On an edited workout, Android back with the keyboard open hides the keyboard first
     Given these saved workouts:
       | started         | exercises                  |
@@ -53,7 +53,7 @@ Feature: Keyboard
     When I go back with Android back
     Then the prompt "Discard changes?" shows Discard and Cancel
 
-  @D206 @US-18
+  @D78 @US-18
   Scenario: On an edited workout, the back arrow with the keyboard open goes straight to the prompt
     Given these saved workouts:
       | started         | exercises                  |
@@ -63,7 +63,7 @@ Feature: Keyboard
     And I go back with the back arrow
     Then the prompt "Discard changes?" shows Discard and Cancel
 
-  @D206 @US-11
+  @D78 @US-11
   Scenario: In the picker, Android back with the keyboard open hides the keyboard first
     When I open the exercise picker
     And I go back with Android back
@@ -72,7 +72,7 @@ Feature: Keyboard
     When I go back with Android back
     Then the picker is closed
 
-  @D206 @US-11
+  @D78 @US-11
   Scenario: In the picker, its back arrow with the keyboard open closes it at once
     When I open the exercise picker
     And I close the picker with the picker back arrow

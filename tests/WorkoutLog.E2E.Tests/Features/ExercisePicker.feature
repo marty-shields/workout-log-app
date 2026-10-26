@@ -5,7 +5,7 @@ Feature: Exercise picker
   Background:
     Given I have started a new workout
 
-  @D109 @D152
+  @D81 @D64
   Scenario: The picker opens with the search box focused and empty
     When I open the exercise picker
     Then the search box is empty and focused
@@ -24,7 +24,7 @@ Feature: Exercise picker
       | pec deck               | Machine Chest Fly        |
       | deck pec               | Machine Chest Fly        |
 
-  @D156
+  @D63
   Scenario: Names that start with the query come first
     When I search the picker for "dumb curl"
     Then the first result is "Dumbbell Curl"
@@ -37,14 +37,14 @@ Feature: Exercise picker
     When I type 60 characters into the picker search
     Then the search box holds the first 50
 
-  @D152
+  @D64
   Scenario: The search is cleared each time the picker opens
     Given I have searched the picker for "squat"
     When I close the picker with Android back
     And I open the exercise picker
     Then the search box is empty and every exercise shows
 
-  @smoke @D151 @D236
+  @smoke @D42
   Scenario: Picking an exercise adds it at the top and focuses its first field
     Given I have added "Barbell Back Squat"
     When I add "Dumbbell Curl"
@@ -52,7 +52,7 @@ Feature: Exercise picker
     And the picker is closed
     And focus is on Dumbbell Curl set 1 reps
 
-  @D151 @D236
+  @D42
   Scenario: A picked exercise above the screen scrolls into view
     Given I have added "Treadmill"
     And I have added "Rowing Machine"
@@ -81,7 +81,7 @@ Feature: Exercise picker
       | the picker back arrow |
       | Android back          |
 
-  @D154
+  @D42
   Scenario: Picking a strength exercise already added adds a set to its card
     Given I have added "Barbell Back Squat"
     And I have logged Barbell Back Squat set 1: 5 reps
@@ -90,7 +90,7 @@ Feature: Exercise picker
     And Barbell Back Squat has 2 sets
     And focus is on Barbell Back Squat set 2 reps
 
-  @D154
+  @D42
   Scenario: Picking a strength exercise again while its last set is empty is blocked like Add set
     Given I have added "Barbell Back Squat"
     When I add "Barbell Back Squat"
@@ -98,7 +98,7 @@ Feature: Exercise picker
     And Barbell Back Squat set 1 shows "Enter reps"
     And focus is on Barbell Back Squat set 1 reps
 
-  @D154 @D236
+  @D42
   Scenario: Picking a cardio exercise already added moves it to the top and focuses its entry
     Given I have added "Rowing Machine"
     And I have added "Barbell Back Squat"
@@ -106,7 +106,7 @@ Feature: Exercise picker
     Then the exercises are, in order: Rowing Machine, Barbell Back Squat
     And focus is on Rowing Machine duration hours
 
-  @D154 @D236
+  @D42
   Scenario: Picking a strength exercise already added moves it to the top with a new set
     Given I have added "Barbell Back Squat"
     And I have logged Barbell Back Squat set 1: 5 reps, 60 kg

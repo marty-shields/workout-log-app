@@ -74,7 +74,7 @@ else
 
     /// <summary>
     /// Raised by back while the workout is loading, failed to load or doesn't exist; on a loaded workout with no changes; and after
-    /// Discard is confirmed. Nothing is saved (D189).
+    /// Discard is confirmed. Nothing is saved (D73).
     /// </summary>
     [Parameter]
     public EventCallback OnBack { get; set; }
@@ -129,7 +129,7 @@ else
 
     /// <summary>
     /// With changes, asks Discard / Cancel (FR-23); without, raises <see cref="OnBack"/>. Ignored while a save runs, after one
-    /// succeeds and after a discard (D189), and while a delete runs and after one succeeds (D191). The picker takes back first
+    /// succeeds and after a discard (D73), and while a delete runs and after one succeeds (D46). The picker takes back first
     /// while it is open.
     /// </summary>
     private async Task BackAsync()
@@ -151,8 +151,8 @@ else
     private void CloseDiscard() => discardOpen = false;
 
     /// <summary>
-    /// Logs the workout id only (D142) and raises <see cref="OnBack"/>, once. While a save or delete runs or after one succeeds,
-    /// closes the prompt and does nothing else (D189, D191).
+    /// Logs the workout id only (D135) and raises <see cref="OnBack"/>, once. While a save or delete runs or after one succeeds,
+    /// closes the prompt and does nothing else (D73, D46).
     /// </summary>
     private async Task DiscardAsync()
     {
@@ -172,7 +172,7 @@ else
         await OnBack.InvokeAsync();
     }
 
-    /// <summary>Asks Delete / Cancel (FR-24). Ignored while a save or delete runs, after one succeeds and after a discard (D191).</summary>
+    /// <summary>Asks Delete / Cancel (FR-24). Ignored while a save or delete runs, after one succeeds and after a discard (D46).</summary>
     private void OpenDelete()
     {
         if (Editor.Saving || deleting || discarded)
@@ -183,7 +183,7 @@ else
         deleteOpen = true;
     }
 
-    /// <summary>Closes the prompt. Ignored while a delete runs and after one succeeds (D191).</summary>
+    /// <summary>Closes the prompt. Ignored while a delete runs and after one succeeds (D46).</summary>
     private void CloseDelete()
     {
         if (!deleting)
@@ -195,7 +195,7 @@ else
     /// <summary>
     /// Deletes the workout under the id it was loaded with and raises <see cref="OnDeleted"/>, once. If nothing was deleted,
     /// closes the prompt, shows DeleteFailed and focuses Delete. While a save runs or after one succeeds, closes the prompt and
-    /// does nothing else; after a discard, does nothing (D191).
+    /// does nothing else; after a discard, does nothing (D46).
     /// </summary>
     private async Task DeleteAsync()
     {
@@ -224,7 +224,7 @@ else
 
     /// <summary>
     /// Saves under the id it was loaded with through <see cref="WorkoutEditor.SaveAsync"/> and raises <see cref="OnSaved"/>.
-    /// Ignored while a delete runs and after one succeeds (D191).
+    /// Ignored while a delete runs and after one succeeds (D46).
     /// </summary>
     private async Task SaveAsync()
     {
