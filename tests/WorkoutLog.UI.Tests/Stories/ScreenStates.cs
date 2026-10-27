@@ -5,6 +5,7 @@ using WorkoutLog.UI.Components.Overlays;
 using WorkoutLog.UI.Components.Workout;
 using WorkoutLog.UI.Models.Dashboard;
 using WorkoutLog.UI.Models.History;
+using WorkoutLog.UI.Models.Settings;
 using WorkoutLog.UI.Models.Workout;
 using WorkoutLog.UI.Screens;
 using WorkoutLog.UI.Stories.Samples;
@@ -63,7 +64,14 @@ public static class ScreenStates
         new("Screens/History", "Loading", c => History(c, [], tappable: false, loading: true)),
         new("Screens/History", "Load failed", c => History(c, [], tappable: false, failed: true)),
 
-        new("Screens/Settings", "Empty", c => c.Render<SettingsView>(p => p.Add(x => x.OnBack, () => { })).FindAll("*")),
+        new("Screens/Settings", "With workouts", c => Settings(c, 42)),
+        new("Screens/Settings", "One workout", c => Settings(c, 1)),
+        new("Screens/Settings", "No workouts", c => Settings(c, 0)),
+        new("Screens/Settings", "Loading", c => Settings(c, 0, loading: true)),
+        new("Screens/Settings", "Load failed", c => Settings(c, 0, failed: true)),
+        new("Screens/Settings", "Exporting", c => Settings(c, 42, exporting: true)),
+        new("Screens/Settings", "Export failed", c => Settings(c, 42, message: ExportMessage.Failed)),
+        new("Screens/Settings", "Too many workouts", c => Settings(c, 12345, message: ExportMessage.TooLarge)),
 
         new("Screens/Error", "Error", c => c.Render<ErrorView>(p => p.Add(x => x.OnRestart, () => { })).FindAll("*")),
     ];
@@ -152,4 +160,17 @@ public static class ScreenStates
                 p.Add(x => x.OnOpen, (HistoryRow _) => { });
             }
         }).FindAll("*");
+
+    private static IReadOnlyList<IElement> Settings(
+        BunitContext context, int count, bool loading = false, bool failed = false, bool exporting = false, ExportMessage message = ExportMessage.None) =>
+        context.Render<SettingsView>(p => p
+            .Add(x => x.Count, count)
+            .Add(x => x.Loading, loading)
+            .Add(x => x.Failed, failed)
+            .Add(x => x.Exporting, exporting)
+            .Add(x => x.ExportMessage, message)
+            .Add(x => x.OnRetry, () => { })
+            .Add(x => x.OnExport, () => { })
+            .Add(x => x.OnBack, () => { }))
+            .FindAll("*");
 }

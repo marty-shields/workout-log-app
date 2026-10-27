@@ -85,7 +85,7 @@ public class DashboardPageTests : ComponentTestBase
             .ShouldBeElementReferenceTo(cut.Find("[data-testid=dashboard-retry]")));
         Assert.Multiple(() =>
         {
-            Assert.That(cut.Find("[data-testid=dashboard-error]").TextContent, Is.EqualTo("Couldn't load the Dashboard."));
+            Assert.That(cut.Find("[data-testid=dashboard-error]").TextContent, Is.EqualTo("Couldn't load the Dashboard"));
             Assert.That(cut.FindAll("[data-testid=history-link]"), Has.Count.EqualTo(1));
             Assert.That(cut.FindAll("[data-testid=new-workout]"), Has.Count.EqualTo(1));
         });

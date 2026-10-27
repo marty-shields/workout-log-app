@@ -53,6 +53,7 @@ public sealed class SeedSteps(WorkoutSeeder seeder, DeviceClock clock, ScenarioS
         for (var i = 0; i < workouts.Count; i++)
         {
             state.Seeded[i + 1] = workouts[i].Started;
+            state.SeededFinished[i + 1] = workouts[i].Finished;
             state.SeededExercises[i + 1] = exercises[i];
         }
     }

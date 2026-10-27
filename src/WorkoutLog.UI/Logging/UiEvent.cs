@@ -56,4 +56,10 @@ internal enum UiEvent
 
     /// <summary><see cref="Components.Feedback.LoadFailed"/>: focusing Try again failed.</summary>
     LoadFailedFocusFailed = 3301,
+
+    /// <summary><see cref="Screens.SettingsPage"/>: opening the share sheet failed.</summary>
+    ShareFailed = 3401,
+
+    /// <summary><see cref="Screens.SettingsView"/>: focusing Export failed.</summary>
+    ExportFocusFailed = 3501,
 }

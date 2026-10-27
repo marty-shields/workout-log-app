@@ -40,13 +40,13 @@ public class WorkoutCheckerTests
     [Test]
     public void SaveFailed_CouldntSaveTheWorkout()
     {
-        Assert.That(checker.SaveFailed, Is.EqualTo("Couldn't save the workout. Try again."));
+        Assert.That(checker.SaveFailed, Is.EqualTo("Couldn't save the workout. Try again"));
     }
 
     [Test]
     public void DeleteFailed_CouldntDeleteTheWorkout()
     {
-        Assert.That(checker.DeleteFailed, Is.EqualTo("Couldn't delete the workout. Try again."));
+        Assert.That(checker.DeleteFailed, Is.EqualTo("Couldn't delete the workout. Try again"));
     }
 
     [Test]

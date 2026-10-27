@@ -20,6 +20,9 @@ Component and screen stories have a System / Light / Dark switch (D96). Stories 
 
 Run the stories: see [06](06-dev-setup-build.md#stories-design-system).
 
+## Messages
+Messages (errors, empty states, prompts' text) have no final full stop; a two-sentence message keeps its inner one: "Couldn't export your workouts. Try again" (D189). Titles, labels and button text have none either.
+
 ## Process
 Every new or changed screen or component goes through these steps (D98):
 1. Build it in `WorkoutLog.UI` with its stories and its Overview page.
@@ -29,7 +32,7 @@ Every new or changed screen or component goes through these steps (D98):
 5. If the screen is in the README, retake its [README screenshots](#readme-screenshots) (D181).
 
 ## README screenshots
-`README.md` shows five screen stories, light and dark, from `docs/images/readme/` (D181). To retake one:
+`README.md` shows six screen stories, light and dark, from `docs/images/readme/` (D181). To retake one:
 1. Run the stories ([06](06-dev-setup-build.md#stories-design-system)).
 2. With Playwright, set the colour scheme (light, then dark) and open `http://localhost:5056/iframe.html?id=<story id>&viewMode=story`.
 3. Screenshot the `.phone` element with a transparent background, to `<file>-light.png` and `<file>-dark.png`.
@@ -41,5 +44,6 @@ Every new or changed screen or component goes through these steps (D98):
 | `cardio` | `screens-new-workout--cardio` |
 | `exercise-picker` | `screens-exercise-picker--results` |
 | `history` | `screens-history--with-workouts` |
+| `settings` | `screens-settings--with-workouts` |
 
 `icon.svg` is the app icon's foreground on its background with rounded corners; rebuild it when the icon changes.

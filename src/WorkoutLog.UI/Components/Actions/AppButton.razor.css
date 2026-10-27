@@ -28,3 +28,34 @@
     opacity: var(--opacity-disabled);
     cursor: default;
 }
+
+.busy {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2);
+    cursor: default;
+}
+
+.ring {
+    flex: none;
+    width: var(--spinner-size-small);
+    height: var(--spinner-size-small);
+    border: var(--spinner-width-small) solid transparent;
+    border-top-color: currentColor;
+    border-right-color: currentColor;
+    border-radius: var(--radius-round);
+    animation: spin var(--spinner-duration) linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .ring {
+        animation: none;
+    }
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(1turn);
+    }
+}

@@ -15,6 +15,7 @@ A button with a 48px touch target.
 
 - `FullWidth` fills the row; bottom-bar buttons use it.
 - `Disabled` dims the button with `--opacity-disabled`.
+- `Busy` shows a turning ring, `--spinner-size-small` across in the text colour, beside the text, sets `aria-busy` and ignores taps. The caller sets the text, e.g. "Exporting…". The ring stands still when the phone asks for reduced motion.
 - `data-testid`: `TestId`.
 
 ## `Icon`

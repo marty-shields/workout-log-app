@@ -1,9 +1,14 @@
 <button @ref="button"
         type="button"
-        class="btn @VariantClass @(FullWidth ? "full" : null)"
+        class="btn @VariantClass @(FullWidth ? "full" : null) @(Busy ? "busy" : null)"
         disabled="@Disabled"
+        aria-busy="@(Busy ? "true" : null)"
         data-testid="@TestId"
-        @onclick="OnClick">
+        @onclick="ClickAsync">
+    @if (Busy)
+    {
+        <span class="ring" aria-hidden="true"></span>
+    }
     @ChildContent
 </button>
 
@@ -20,11 +25,15 @@
     [Parameter]
     public bool Disabled { get; set; }
 
+    /// <summary>Shows a spinner beside the text and ignores taps. The caller sets the text, e.g. Exporting…</summary>
+    [Parameter]
+    public bool Busy { get; set; }
+
     /// <summary>Value of the data-testid attribute.</summary>
     [Parameter]
     public string? TestId { get; set; }
 
-    /// <summary>Raised when the button is tapped.</summary>
+    /// <summary>Raised when the button is tapped, unless it is busy.</summary>
     [Parameter]
     public EventCallback OnClick { get; set; }
 
@@ -36,6 +45,8 @@
 
     /// <summary>Moves focus to the button.</summary>
     public ValueTask FocusAsync() => button.FocusAsync();
+
+    private Task ClickAsync() => Busy ? Task.CompletedTask : OnClick.InvokeAsync();
 
     private string VariantClass => Variant switch
     {

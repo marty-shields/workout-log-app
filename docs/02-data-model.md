@@ -27,6 +27,8 @@ SQLite on the device, accessed through `IWorkoutRepository`, `IExerciseSeeder` a
 
 The database stores `decimal` as REAL (floating point), `TimeSpan` as ticks and `DateTimeOffset` as UTC ticks.
 
+Decimals are shown, edited and exported rounded to 2 places, halves away from zero, through one helper, `Decimals.Round2`: a stored 62.4999… is 62.5 (D29, D47).
+
 ## Exercise definition (Core project)
 The definitions are an embedded JSON file in Core, from [exercises.json](../src/WorkoutLog.Core/Domain/Exercises/exercises.json). It is loaded once at startup into `IExerciseCatalog`, a singleton that every screen and service uses.
 
@@ -82,7 +84,7 @@ erDiagram
 | Level | Code | When | Message (UI) |
 |---|---|---|---|
 | Workout | `NoExercises` | No exercises | Add at least one exercise |
-| Workout | `SaveFailed` | The database write failed (D115) | Couldn't save the workout. Try again. |
+| Workout | `SaveFailed` | The database write failed (D115) | Couldn't save the workout. Try again |
 | Exercise | `UnknownExercise` | Id not in the list; its sets aren't checked | Exercise not found (on Save only, D35) |
 | Exercise | `WrongType` | Strength for a cardio exercise or the other way round; its sets aren't checked | Exercise type doesn't match (on Save only, D35) |
 | Exercise | `NoSets` | A strength exercise with no sets | Add at least one set |
@@ -109,6 +111,23 @@ At most one code per metric, in the order Missing, NotPositive or Negative, NotW
 | Pace | Seconds 00–59; minutes any (D31) | {Label} seconds must be 00–59 |
 
 A number too large for the set's types is capped (weight, distance, incline and rate at the largest decimal; reps, floors, level and calories at the largest int; duration just over 23:59:59 and pace just over 60:00), so Core reports `TooLarge`. The TooLarge message has no unit; a duration's maximum shows as 23:59:59 and a pace's as 60:00 (D35, D31). `NotShown` can't come from the UI and has no message; the set still fails and Warning 2502 is logged (D35).
+
+## Export file
+`IExportService` writes every saved workout to one JSON file (FR-51, D188):
+- Named `workout-log-YYYY-MM-DD-HHmm.json` in the phone's local time, in the app's cache folder; a file of the same name is replaced.
+- UTF-8, camelCase, no indentation. At most 5 MB (5,242,880 bytes); a larger file isn't written.
+- Header: `formatVersion` (1), `exportedAt` (UTC to the second, `yyyy-MM-ddTHH:mm:ssZ`), `appVersion` (the App's display version), then `workouts`.
+- Workouts by start time, oldest first: `startedAt` and `finishedAt` (UTC, 7 fractional digits, `yyyy-MM-ddTHH:mm:ss.fffffffZ`), and `exercises` in position order.
+- Each exercise: `exercise` with `id`, `name`, `type`, and `distanceUnit`, `rateUnit` and `paceUnit` where the exercise has the metric; then `sets` in the order added (strength) or `entry` (cardio). An id not in the exercise list is written as `{ "id": n }` only.
+- Metrics use the names in [Metrics](#metrics), camelCase; ones with no value are left out. Decimals are JSON numbers rounded to 2 places; duration and pace are `hh:mm:ss`.
+
+```json
+{"formatVersion":1,"exportedAt":"2026-10-26T18:05:12Z","appVersion":"1.4.0","workouts":[{"startedAt":"2026-10-21T17:05:00.1234567Z",
+ "finishedAt":"2026-10-21T18:02:41.7654321Z","exercises":[
+  {"exercise":{"id":8,"name":"Barbell Bench Press","type":"Strength"},"sets":[{"reps":8,"weightKg":60},{"reps":6,"weightKg":62.5}]},
+  {"exercise":{"id":311,"name":"Outdoor Run","type":"Cardio","distanceUnit":"Km","paceUnit":"PerKm"},"entry":{"duration":"00:30:00","distance":5.2,"pace":"00:05:46"}}]}]}
+```
+(Line breaks added here for reading.)
 
 ## Seeding the exercise list
 - On startup, `IExerciseSeeder` inserts any exercise Id from the definition file that is missing from the database. It never removes rows, and exercises are never hidden from the picker.

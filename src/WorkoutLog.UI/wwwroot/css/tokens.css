@@ -57,6 +57,8 @@
     --dialog-max-width: 22rem;
     --spinner-size: 40px;
     --spinner-width: 4px;
+    --spinner-size-small: 1.125rem;
+    --spinner-width-small: 2px;
     --spinner-duration: 1s;
 }
 

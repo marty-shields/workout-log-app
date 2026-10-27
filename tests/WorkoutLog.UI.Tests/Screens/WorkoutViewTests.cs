@@ -395,7 +395,7 @@ public class WorkoutViewTests : ComponentTestBase
         var cut = Context.Render<WorkoutView>(p => p
             .Add(x => x.StartedAt, Started)
             .Add(x => x.Exercises, [Curl()])
-            .Add(x => x.Error, "Couldn't save the workout. Try again.")
+            .Add(x => x.Error, "Couldn't save the workout. Try again")
             .Add(x => x.ErrorFocus, new ErrorFocus(ErrorFocusTarget.Save)));
 
         Context.JSInterop.VerifyFocusAsyncInvoke().Arguments[0].ShouldBeElementReferenceTo(cut.Find("[data-testid=save-workout]"));
@@ -408,7 +408,7 @@ public class WorkoutViewTests : ComponentTestBase
             .Add(x => x.Mode, WorkoutMode.Edit)
             .Add(x => x.StartedAt, Started)
             .Add(x => x.Exercises, [Curl()])
-            .Add(x => x.Error, "Couldn't delete the workout. Try again.")
+            .Add(x => x.Error, "Couldn't delete the workout. Try again")
             .Add(x => x.ErrorFocus, new ErrorFocus(ErrorFocusTarget.Delete)));
 
         Context.JSInterop.VerifyFocusAsyncInvoke().Arguments[0].ShouldBeElementReferenceTo(cut.Find("[data-testid=delete-workout]"));
@@ -592,7 +592,7 @@ public class WorkoutViewTests : ComponentTestBase
         var cut = Context.Render<WorkoutView>(p => p
             .Add(x => x.StartedAt, Started)
             .Add(x => x.Exercises, [Curl()])
-            .Add(x => x.Error, "Couldn't save the workout. Try again.")
+            .Add(x => x.Error, "Couldn't save the workout. Try again")
             .Add(x => x.ErrorFocus, new ErrorFocus(ErrorFocusTarget.Save)));
 
         cut.WaitForAssertion(() => Assert.That(LoggedEvents.Of(logger), Is.EqualTo(new[] { (UiEvent.ErrorFocusFailed, LogLevel.Warning, "Focusing the first error failed") })));
@@ -610,7 +610,7 @@ public class WorkoutViewTests : ComponentTestBase
             .Add(x => x.Mode, WorkoutMode.Edit)
             .Add(x => x.StartedAt, Started)
             .Add(x => x.Exercises, [Curl()])
-            .Add(x => x.Error, "Couldn't delete the workout. Try again.")
+            .Add(x => x.Error, "Couldn't delete the workout. Try again")
             .Add(x => x.ErrorFocus, new ErrorFocus(ErrorFocusTarget.Delete)));
 
         cut.WaitForAssertion(() => Assert.That(LoggedEvents.Of(logger), Is.EqualTo(new[] { (UiEvent.ErrorFocusFailed, LogLevel.Warning, "Focusing the first error failed") })));

@@ -1,7 +1,120 @@
-<SettingsView OnBack="OnBack" />
+@using Microsoft.Extensions.Logging
+@using WorkoutLog.Core.Services
+@using WorkoutLog.UI.Lifecycle
+@using WorkoutLog.UI.Models.Settings
+@using WorkoutLog.UI.Sharing
+@implements IDisposable
+@inject IExportService Export
+@inject IFileShare FileShare
+@inject IAppStart AppStart
+@inject ILogger<SettingsPage> Logger
+
+<SettingsView Loading="loading" Failed="failed" Count="count" Exporting="exporting" ExportMessage="message"
+              OnRetry="LoadAsync" OnExport="ExportAsync" OnBack="OnBack" />
 
 @code {
+    private bool loading;
+    private bool failed;
+    private int count;
+    private bool exporting;
+    private ExportMessage message;
+    private IDisposable? registration;
+    private bool disposed;
+
     /// <summary>Raised by the back arrow and the Android back button.</summary>
     [Parameter]
     public EventCallback OnBack { get; set; }
+
+    protected override Task OnInitializedAsync()
+    {
+        registration = AppStart.Register(() => InvokeAsync(ReloadAsync));
+        return LoadAsync();
+    }
+
+    public void Dispose()
+    {
+        disposed = true;
+        registration?.Dispose();
+    }
+
+    /// <summary>
+    /// Loads the workout count and clears the export message. Shows the spinner until it finishes.
+    /// Ignored while a load or an export runs. Does nothing more once the page is disposed.
+    /// </summary>
+    private async Task LoadAsync()
+    {
+        if (loading || exporting)
+        {
+            return;
+        }
+
+        loading = true;
+        message = ExportMessage.None;
+        StateHasChanged();
+        var result = await Export.CountAsync();
+        if (disposed)
+        {
+            return;
+        }
+
+        count = result.Count;
+        failed = result.Failed;
+        loading = false;
+    }
+
+    /// <summary>Loads again when the app comes back on screen (D67). Does nothing once the page is disposed, before or during the load.</summary>
+    private async Task ReloadAsync()
+    {
+        if (disposed)
+        {
+            return;
+        }
+
+        await LoadAsync();
+        if (!disposed)
+        {
+            StateHasChanged();
+        }
+    }
+
+    /// <summary>
+    /// Writes the file and opens the share sheet. Shows Export busy until both finish; taps meanwhile are ignored.
+    /// A failed export or share shows the failed message; a file too large shows Too many workouts.
+    /// Once the page is disposed, the share sheet doesn't open.
+    /// </summary>
+    private async Task ExportAsync()
+    {
+        if (exporting || loading)
+        {
+            return;
+        }
+
+        exporting = true;
+        message = ExportMessage.None;
+        StateHasChanged();
+        var result = await Export.ExportAsync();
+        if (disposed)
+        {
+            return;
+        }
+
+        if (result is { Status: ExportStatus.Exported, FilePath: { } path })
+        {
+            try
+            {
+                await FileShare.ShareAsync(path, "Export workouts");
+            }
+            catch (Exception exception)
+            {
+                Log.ShareFailed(Logger, exception);
+                message = ExportMessage.Failed;
+            }
+        }
+        else
+        {
+            message = result.Status == ExportStatus.TooLarge ? ExportMessage.TooLarge : ExportMessage.Failed;
+        }
+
+        exporting = false;
+    }
 }

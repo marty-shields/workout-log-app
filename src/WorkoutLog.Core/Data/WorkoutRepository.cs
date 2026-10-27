@@ -46,11 +46,22 @@ internal sealed class WorkoutRepository(SQLiteAsyncConnection connection) : IWor
                 .Where(c => exerciseIds.Contains(c.WorkoutExerciseId)).ToListAsync())
             .ToDictionary(c => c.WorkoutExerciseId);
 
-        var exercises = exerciseRows.Select(e => entries.TryGetValue(e.Id, out var entry)
-                ? (WorkoutExercise)new CardioExercise(e.ExerciseId, ToEntry(entry))
-                : new StrengthExercise(e.ExerciseId, sets[e.Id].Select(ToSet).ToList()))
+        return new Workout(row.Id, row.StartedAt, row.FinishedAt, ToExercises(exerciseRows, sets, entries));
+    }
+
+    /// <inheritdoc />
+    public async Task<IReadOnlyList<Workout>> GetAllAsync()
+    {
+        var rows = await connection.Table<WorkoutRow>().OrderBy(w => w.StartedAt).ToListAsync();
+        var exerciseRows = (await connection.Table<WorkoutExerciseRow>().OrderBy(e => e.Position).ToListAsync())
+            .ToLookup(e => e.WorkoutId);
+        var sets = (await connection.Table<StrengthSetRow>().OrderBy(s => s.Position).ToListAsync())
+            .ToLookup(s => s.WorkoutExerciseId);
+        var entries = (await connection.Table<CardioEntryRow>().ToListAsync())
+            .ToDictionary(c => c.WorkoutExerciseId);
+
+        return rows.Select(w => new Workout(w.Id, w.StartedAt, w.FinishedAt, ToExercises(exerciseRows[w.Id], sets, entries)))
             .ToList();
-        return new Workout(row.Id, row.StartedAt, row.FinishedAt, exercises);
     }
 
     /// <inheritdoc />
@@ -161,6 +172,14 @@ internal sealed class WorkoutRepository(SQLiteAsyncConnection connection) : IWor
         Rate = entry.Rate,
         Pace = entry.Pace,
     };
+
+    /// <summary>Builds each exercise: cardio when it has an entry, otherwise strength with its sets.</summary>
+    private static List<WorkoutExercise> ToExercises(
+        IEnumerable<WorkoutExerciseRow> exerciseRows, ILookup<int, StrengthSetRow> sets, Dictionary<int, CardioEntryRow> entries) =>
+        exerciseRows.Select(e => entries.TryGetValue(e.Id, out var entry)
+                ? (WorkoutExercise)new CardioExercise(e.ExerciseId, ToEntry(entry))
+                : new StrengthExercise(e.ExerciseId, sets[e.Id].Select(ToSet).ToList()))
+            .ToList();
 
     private static StrengthSet ToSet(StrengthSetRow row) => new(row.Reps, row.WeightKg, row.Duration, row.Distance);
 

@@ -1,6 +1,6 @@
 # 07 — Decisions Log
 
-Each decision states how the app and the repo work now, one row per subject. A change edits its decision; a new subject takes the next free ID. IDs aren't reused. Next free ID: D188.
+Each decision states how the app and the repo work now, one row per subject. A change edits its decision; a new subject takes the next free ID. IDs aren't reused. Next free ID: D190.
 
 ## Product and scope
 | # | Decision | Choice |
@@ -37,7 +37,7 @@ Each decision states how the app and the repo work now, one row per subject. A c
 | D26 | Workout times | Start is when New Workout opens; finish is the first save; both are fixed after the first save. New Workout shows the elapsed time as h:mm:ss; while the clock is before the start it shows 0:00:00 and nothing is logged. If the clock is before the start at the first save, the finish is set to the start (total 0:00:00), the save succeeds and it is logged |
 | D27 | Time storage | `DateTimeOffset` stored as UTC ticks, shown in the phone's current time zone. A workout's date and counts come from its start time |
 | D28 | Number entry format | `.` is the only decimal separator, whatever the phone's language; the accepted forms are in [02](02-data-model.md#entry-formats-ui) |
-| D29 | Decimal places | Every decimal metric, weight included, takes at most 2 places, counting typed digits |
+| D29 | Decimal places | Every decimal metric, weight included, takes at most 2 places, counting typed digits. Shown, edited and exported values are rounded to 2 places, halves away from zero, by one Core helper, `Decimals.Round2` ([02](02-data-model.md#metrics)) |
 | D30 | Whole numbers | Any `.` in a whole-number field is "{Label} must be a whole number" |
 | D31 | Duration and pace text | Duration is h:mm:ss in three boxes, pace m:ss in two. An empty box counts as 0 and all empty is empty; non-digits and minutes or seconds over 59 are format errors. When focus leaves the field, empty boxes become 0 and minutes and seconds are padded to two digits ([02](02-data-model.md#entry-formats-ui)) |
 | D32 | Whole seconds | A duration or pace with part of a second is `NotWholeSeconds`; one code per metric, in a fixed order ([02](02-data-model.md#validation)) |
@@ -48,14 +48,14 @@ Each decision states how the app and the repo work now, one row per subject. A c
 | D37 | Set checks before moving on | Add set, and opening another set, wait while the current set is empty or has errors: its errors show on it and focus moves to its first field at fault. A failed focus logs a Warning and the workout stays open. The rules come from Core |
 | D38 | When errors clear | Once a set or entry fails a check, every change re-checks it, even after it becomes valid, until it passes Add set, opening another set or Save. Add set clears the exercise error; adding an exercise clears the workout error |
 | D39 | When a cardio entry is checked | On Save, then on each change after that (D38); a re-pick doesn't check it |
-| D40 | Focus after a failed Save | The first error in screen order takes focus; a closed set stays closed. On `SaveFailed`, "Couldn't save the workout. Try again." shows as the workout error, focus moves to Save and the workout stays ([New Workout](../src/WorkoutLog.UI.Stories/Stories/Screens/NewWorkout.md)) |
+| D40 | Focus after a failed Save | The first error in screen order takes focus; a closed set stays closed. On `SaveFailed`, "Couldn't save the workout. Try again" shows as the workout error, focus moves to Save and the workout stays ([New Workout](../src/WorkoutLog.UI.Stories/Stories/Screens/NewWorkout.md)) |
 | D41 | Save while saving | Taps on Save while a save runs, or after one succeeds, are ignored with no visual change |
 | D42 | Exercise order | Exercise cards show newest first; sets stay in the order added; there is no manual reorder. After a pick the picker closes, the exercise goes on top, scrolls into view and its first field takes focus. Picking an exercise already in the workout moves its card to the top instead of adding a second: strength adds a set as Add set does, cardio focuses its entry. Saved positions are the order added or last picked, from 0 ([New Workout](../src/WorkoutLog.UI.Stories/Stories/Screens/NewWorkout.md)) |
 | D43 | Removing items | Sets and exercises can be removed; an exercise is removed at once, with no confirm. A cardio entry is removed only with its exercise (FR-08) |
 | D44 | New exercise contents | Starts with one empty set (strength) or its empty entry (cardio) |
 | D45 | Leaving New Workout | Back always asks "Discard this workout?" with **Discard / Cancel**; saving is only through Save. Back is ignored while a save runs and after one succeeds; Discard runs once. The draft is lost if Android kills the app ([New Workout](../src/WorkoutLog.UI.Stories/Stories/Screens/NewWorkout.md)) |
 | D46 | Delete workout | Edit Workout's Delete asks "Delete this workout?" (**Delete / Cancel**), the same with or without unsaved edits. Deleting is permanent and goes to History; a failed delete keeps the workout and focuses Delete; guarded as D45 ([Edit Workout](../src/WorkoutLog.UI.Stories/Stories/Screens/EditWorkout.md)) |
-| D47 | Values Edit can't show | Edit shows only the metrics in the exercise's current definition, and decimals to 2 places; a definition change is made with its data change |
+| D47 | Values Edit can't show | Edit shows only the metrics in the exercise's current definition, and decimals rounded to 2 places by `Decimals.Round2` (D29); a definition change is made with its data change |
 | D48 | Last and PB weight | New Workout strength cards show the best weight of the last saved workout with the exercise (latest start) and of all saved workouts, from `IWeightHistoryService`. Best is the heaviest, or the lowest on an exercise whose weight is labelled `Assist`; 0 kg counts. Loaded once when the card is added; a failed load hides the line and Core logs Error 1501 ([New Workout](../src/WorkoutLog.UI.Stories/Stories/Screens/NewWorkout.md)) |
 | D49 | Units in text | A value written with its unit has no space: *60kg*, *40m*, *3.2km*, in the last and PB line and set summaries; a count keeps its word, *8 reps* ([New Workout](../src/WorkoutLog.UI.Stories/Stories/Screens/NewWorkout.md)) |
 
@@ -83,16 +83,16 @@ Each decision states how the app and the repo work now, one row per subject. A c
 |---|---|---|
 | D65 | Home screen | The Dashboard: New Workout, the last workout, week and month counts, and a History link |
 | D66 | Dashboard counts | In the phone's time zone: this week from Monday 00:00 and this month from the 1st at 00:00, to now. The last workout is the latest start, even after now. A skipped or repeated midnight starts at its first local time |
-| D67 | Dashboard loading and errors | Loads each time it's shown, and when the activity starts while it's shown; a load while one runs is ignored. A spinner, or "Couldn't load the Dashboard." and **Try again** (focused), replace the last workout and counts; History and New Workout still work |
+| D67 | Dashboard loading and errors | Loads each time it's shown, and when the activity starts while it's shown; a load while one runs is ignored. A spinner, or "Couldn't load the Dashboard" and **Try again** (focused), replace the last workout and counts; History and New Workout still work |
 | D68 | History row | Date, day of week and start time; total time as h:mm:ss; "No workouts yet" when empty |
-| D69 | History loading and errors | `Spinner` "Loading…", shown at once; back works. "Couldn't load your history." and **Try again**, which takes focus and reloads |
+| D69 | History loading and errors | `Spinner` "Loading…", shown at once; back works. "Couldn't load your history" and **Try again**, which takes focus and reloads |
 | D70 | History order | Start time newest first; every workout loads at once (FR-20) |
 | D71 | History rows open Edit | Tapping a row opens `/workout/{id}`; rows are always tappable |
 | D72 | Edit Workout | Saves as New Workout does. After any save the app returns to the Dashboard. Title "Workout" until it loads; Loading, Load failed with **Try again**, and Not found, where back goes to History |
 | D73 | Leaving Edit Workout | Back with changes asks "Discard changes?" with **Discard / Cancel**; without changes it goes to History (FR-23). A change is a value typed, a set added or removed, or an exercise added, removed or moved to the top, even if later undone. Guarded as D45 ([Edit Workout](../src/WorkoutLog.UI.Stories/Stories/Screens/EditWorkout.md)) |
 | D74 | Load failed component | One `LoadFailed` component for History, Edit Workout and the Dashboard |
-| D75 | Startup screen | `Spinner` with "Loading…" under the top bar; on failure "Couldn't open the workout database." with no details |
-| D76 | Rendering error | An Error screen: "Something went wrong." and **Restart**, to the Dashboard; an unsaved workout is lost |
+| D75 | Startup screen | `Spinner` with "Loading…" under the top bar; on failure "Couldn't open the workout database" with no details |
+| D76 | Rendering error | An Error screen: "Something went wrong" and **Restart**, to the Dashboard; an unsaved workout is lost |
 | D77 | Exercise picker | An overlay on the workout page; back closes it |
 | D78 | Back | History goes to the Dashboard; back on the Dashboard isn't taken, so the app closes ([04](04-architecture.md#navigation)). Back with a dialog open cancels it and stays on the page. With the soft keyboard open, Android back only hides it; the back arrows act at once |
 | D79 | Number entry | The phone's numeric keyboard; duration in three boxes (h, mm, ss) |
@@ -220,3 +220,5 @@ Each decision states how the app and the repo work now, one row per subject. A c
 | D185 | Licence | MIT, in `LICENSE` at the repo root; the README has its badge and a License section. Third-party notices (Material Symbols, Apache-2.0) are in `NOTICE` at the repo root, linked from the License section |
 | D186 | Workout identity | A workout is identified across phones by its `StartedAt` (UTC, to the tick), unique in the database; the int Id is the primary key, used only inside one database ([02](02-data-model.md#tables)) |
 | D187 | Settings | The Dashboard top bar has a Settings gear that opens Settings (`/settings`); back returns to the Dashboard. Icons are Material Symbols Outlined (weight 400) SVG paths copied into the `Icon` component, which `IconButton` uses: settings, arrow_back (the back arrows), close (remove a set), delete (Delete workout, remove an exercise) and chevron_right (the end of a tappable row) |
+| D188 | Export | Settings shows the workout count and exports every workout to one JSON file in the cache folder, then opens the share sheet; nothing shows afterwards. A file over 5 MB isn't written. Core's `IExportService` writes it; the App supplies the version and folder (`IExportEnvironment`) and the share sheet (`IFileShare`) ([02](02-data-model.md#export-file), [Settings](../src/WorkoutLog.UI.Stories/Stories/Screens/Settings.md)) |
+| D189 | Message punctuation | No message in the app ends with a full stop; a two-sentence message keeps its inner one, e.g. "Couldn't export your workouts. Try again" ([09](09-design-system.md#messages)) |

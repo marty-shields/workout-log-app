@@ -17,7 +17,7 @@ public class LoadFailedTests : ComponentTestBase
         var error = cut.Find("[data-testid=history-error]");
         Assert.Multiple(() =>
         {
-            Assert.That(error.TextContent, Is.EqualTo("Couldn't load your history."));
+            Assert.That(error.TextContent, Is.EqualTo("Couldn't load your history"));
             Assert.That(error.GetAttribute("role"), Is.EqualTo("alert"));
             Assert.That(cut.Find("[data-testid=history-retry]").TextContent.Trim(), Is.EqualTo("Try again"));
         });
@@ -49,7 +49,7 @@ public class LoadFailedTests : ComponentTestBase
         var cut = Render();
         cut.WaitForAssertion(() => Assert.That(Focuses(), Has.Count.EqualTo(1)));
 
-        cut.Render(p => p.Add(x => x.Message, "Couldn't load your history."));
+        cut.Render(p => p.Add(x => x.Message, "Couldn't load your history"));
 
         Assert.That(Focuses(), Has.Count.EqualTo(1));
     }
@@ -73,7 +73,7 @@ public class LoadFailedTests : ComponentTestBase
 
     private IRenderedComponent<LoadFailed> Render(Action? onRetry = null) =>
         Context.Render<LoadFailed>(p => p
-            .Add(x => x.Message, "Couldn't load your history.")
+            .Add(x => x.Message, "Couldn't load your history")
             .Add(x => x.TestId, "history")
             .Add(x => x.OnRetry, onRetry ?? (() => { })));
 

@@ -151,7 +151,9 @@ public class ExerciseFieldsTests
     [TestCase("0.05", "0.05")]
     [TestCase("0", "0")]
     [TestCase("1000", "1000")]
-    public void Saved_DecimalsWithoutTrailingZeros(string saved, string shown) =>
+    [TestCase("62.4999999999", "62.5")]
+    [TestCase("22.505", "22.51")]
+    public void Saved_DecimalsRoundedTo2PlacesWithoutTrailingZeros(string saved, string shown) =>
         Assert.That(Values(ExerciseFields.Saved(Find(6), new StrengthExercise(6, [new StrengthSet(1, decimal.Parse(saved, CultureInfo.InvariantCulture), null, null)])))[0]["weight"],
             Is.EqualTo(shown));
 

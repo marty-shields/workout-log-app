@@ -63,7 +63,7 @@ public class HistoryViewTests : ComponentTestBase
 
         Assert.Multiple(() =>
         {
-            Assert.That(cut.Find("[data-testid=history-error]").TextContent, Is.EqualTo("Couldn't load your history."));
+            Assert.That(cut.Find("[data-testid=history-error]").TextContent, Is.EqualTo("Couldn't load your history"));
             Assert.That(cut.Find("[data-testid=history-error]").GetAttribute("role"), Is.EqualTo("alert"));
             Assert.That(cut.Find("[data-testid=history-retry]").TextContent.Trim(), Is.EqualTo("Try again"));
             Assert.That(cut.FindAll("[data-testid=history-empty]"), Is.Empty);

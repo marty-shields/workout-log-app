@@ -34,7 +34,7 @@ Save runs `IWorkoutChecker.Check` (FR-09): every set and entry, then the workout
 - Focus moves to the first error in screen order (D40): Add exercise for the workout error, an exercise's Add set or Remove, the first field at fault, or a closed set's summary line.
 - Once a set or entry fails a check, every change re-checks it until it passes Add set or opening another set, or the whole workout passes Save (D38). Adding a set clears "Add at least one set"; adding an exercise clears the workout error (D38). Cardio entries are first checked on Save (D39).
 
-A valid Save calls `IWorkoutService.SaveNewAsync` with `ISetChecker.Read`'s records, oldest first, then raises `OnSaved`; the App goes to the Dashboard. If nothing was saved, the workout error shows "Couldn't save the workout. Try again.", the workout stays and focus moves to Save (D40). Taps on Save while a save runs are ignored (D41).
+A valid Save calls `IWorkoutService.SaveNewAsync` with `ISetChecker.Read`'s records, oldest first, then raises `OnSaved`; the App goes to the Dashboard. If nothing was saved, the workout error shows "Couldn't save the workout. Try again", the workout stays and focus moves to Save (D40). Taps on Save while a save runs are ignored (D41).
 
 ## Back
 Back (arrow or Android) opens `ConfirmDialog` "Discard this workout?", even with no exercises (FR-12). Cancel, or Android back, closes it and the workout stays. Discard logs Information 2701 "New workout discarded with {ExerciseCount} exercises" and raises `OnDiscarded`; the App goes to the Dashboard. Back is ignored while a save runs, after one succeeds and after a discard. Discard runs once; while a save runs or after one succeeds it closes the prompt and does nothing else (D45).

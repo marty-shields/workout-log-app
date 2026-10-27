@@ -23,7 +23,7 @@ public class StartupViewTests : ComponentTestBase
 
         Assert.Multiple(() =>
         {
-            Assert.That(cut.Find("[data-testid=startup-error]").TextContent, Is.EqualTo("Couldn't open the workout database."));
+            Assert.That(cut.Find("[data-testid=startup-error]").TextContent, Is.EqualTo("Couldn't open the workout database"));
             Assert.That(cut.FindAll("[data-testid=startup-loading]"), Is.Empty);
         });
     }

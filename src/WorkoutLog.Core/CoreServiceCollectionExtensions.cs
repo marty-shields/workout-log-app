@@ -12,10 +12,10 @@ public static class CoreServiceCollectionExtensions
 {
     /// <summary>
     /// Registers the exercise catalog, database initializer, workout repository, system time, workout validator,
-    /// workout service, history service, dashboard service, weight history service and schema upgrade steps as singletons.
+    /// workout service, history service, dashboard service, weight history service, export service and schema upgrade steps as singletons.
     /// The initializer and repository are registered only as their gated decorators, which run each call through one <see cref="DatabaseGate"/>.
     /// The database connection and exercise seeder are not registered; only the initializer and repository use them.
-    /// Services log through <c>ILogger&lt;T&gt;</c>, so the host must register logging.
+    /// Services log through <c>ILogger&lt;T&gt;</c>, so the host must register logging. The host must also register <see cref="IExportEnvironment"/>.
     /// </summary>
     /// <param name="services">Service collection.</param>
     /// <param name="databasePath">Full path of the SQLite database file.</param>
@@ -51,5 +51,6 @@ public static class CoreServiceCollectionExtensions
             .AddSingleton<IWorkoutService, WorkoutService>()
             .AddSingleton<IHistoryService, HistoryService>()
             .AddSingleton<IDashboardService, DashboardService>()
-            .AddSingleton<IWeightHistoryService, WeightHistoryService>();
+            .AddSingleton<IWeightHistoryService, WeightHistoryService>()
+            .AddSingleton<IExportService, ExportService>();
 }

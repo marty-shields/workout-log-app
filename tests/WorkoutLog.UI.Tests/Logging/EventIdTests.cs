@@ -42,6 +42,8 @@ public partial class EventIdTests
             [UiEvent.EditsDiscarded] = 2902,
             [UiEvent.AppStartHandlerFailed] = 3201,
             [UiEvent.LoadFailedFocusFailed] = 3301,
+            [UiEvent.ShareFailed] = 3401,
+            [UiEvent.ExportFocusFailed] = 3501,
         }));
 
     [Test]

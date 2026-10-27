@@ -2,11 +2,11 @@
 <AppScreen Title="Workout" OnBack="OnBack">
     @if (NotFound)
     {
-        <EmptyState Message="This workout no longer exists." TestId="workout-not-found" />
+        <EmptyState Message="This workout no longer exists" TestId="workout-not-found" />
     }
     else if (Failed)
     {
-        <LoadFailed Message="Couldn't load the workout." OnRetry="OnRetry" TestId="workout-load" />
+        <LoadFailed Message="Couldn't load the workout" OnRetry="OnRetry" TestId="workout-load" />
     }
     else
     {
