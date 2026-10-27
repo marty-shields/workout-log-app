@@ -6,7 +6,7 @@
 @inject TimeProvider Clock
 @inject IAppStart AppStart
 
-<DashboardView Summary="summary" Loading="loading" Failed="failed" OnRetry="LoadAsync" OnNewWorkout="OnNewWorkout" OnHistory="OnHistory" />
+<DashboardView Summary="summary" Loading="loading" Failed="failed" OnRetry="LoadAsync" OnNewWorkout="OnNewWorkout" OnHistory="OnHistory" OnSettings="OnSettings" />
 
 @code {
     private DashboardSummary summary = new(null, 0, 0);
@@ -23,6 +23,10 @@
     [Parameter]
     public EventCallback OnHistory { get; set; }
 
+    /// <summary>Raised by the Settings gear.</summary>
+    [Parameter]
+    public EventCallback OnSettings { get; set; }
+
     protected override Task OnInitializedAsync()
     {
         registration = AppStart.Register(() => InvokeAsync(ReloadAsync));
@@ -35,7 +39,7 @@
         registration?.Dispose();
     }
 
-    /// <summary>Loads the last workout and counts, with the start in the phone's time zone. Shows the spinner until it finishes (D67).</summary>
+    /// <summary>Loads the last workout and counts, with the start in the phone's time zone. Shows the spinner until it finishes (D67). Does nothing more once the page is disposed.</summary>
     private async Task LoadAsync()
     {
         if (loading)
@@ -46,13 +50,18 @@
         loading = true;
         StateHasChanged();
         var result = await Dashboard.GetAsync();
+        if (disposed)
+        {
+            return;
+        }
+
         var last = result.LastStartedAt is { } startedAt ? TimeZoneInfo.ConvertTime(startedAt, Clock.LocalTimeZone).DateTime : (DateTime?)null;
         summary = new DashboardSummary(last, result.ThisWeek, result.ThisMonth);
         failed = result.Failed;
         loading = false;
     }
 
-    /// <summary>Loads again when the app comes back on screen (D67). Does nothing once the page is disposed.</summary>
+    /// <summary>Loads again when the app comes back on screen (D67). Does nothing once the page is disposed, before or during the load.</summary>
     private async Task ReloadAsync()
     {
         if (disposed)
@@ -61,6 +70,9 @@
         }
 
         await LoadAsync();
-        StateHasChanged();
+        if (!disposed)
+        {
+            StateHasChanged();
+        }
     }
 }

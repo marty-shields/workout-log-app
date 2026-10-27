@@ -5,7 +5,7 @@ $attribute: CustomPage("Components/Workout/Overview")
 # Workout
 
 ## `ExerciseCard`
-One exercise in a workout: name, Remove, and its sets (strength) or entry (cardio). Remove is small muted text, so the name leads (D83).
+One exercise in a workout: name, Remove, and its sets (strength) or entry (cardio). Remove is a muted trash `IconButton` (Delete), so the name leads (D83).
 - Strength with up to two fields, or no duration: one `SetRow` per set and Add set.
 - Strength with more than two fields, one a duration (carries): one `SetPanel` open, the other sets as `SetSummary` lines (D80).
 - Cardio: one entry with every field labelled. Pace is two boxes, m:ss.
@@ -16,15 +16,15 @@ One exercise in a workout: name, Remove, and its sets (strength) or entry (cardi
 - `data-testid`: `TestId`, `{TestId}-remove`, `{TestId}-weights`, `{TestId}-error`, `{TestId}-add-set`, `{TestId}-set-{n}`, `{TestId}-{field}` (cardio).
 
 ## `SetRow`
-One set on one row: number, a box per field, remove. Column headers come from the card.
+One set on one row: number, a box per field, remove (`IconButton` Close, muted, small). Column headers come from the card.
 - `data-testid`: `TestId`, `{TestId}-{field}`, `{TestId}-remove`, `{TestId}-error`.
 
 ## `SetPanel`
-The open set of a carry: every field labelled, duration full width. Aqua background; sets muted text, input border and focus to the text colour.
+The open set of a carry: number, remove (`IconButton` Close, muted, small), every field labelled, duration full width. Aqua background; sets muted text, input border and focus to the text colour.
 - `data-testid`: `TestId`, `{TestId}-{field}`, `{TestId}-remove`, `{TestId}-error`.
 
 ## `SetSummary`
-A closed set as one line, e.g. *40m · 32kg · 0:00:45*. Tap to open. With errors, the line has a red outline and the messages show under it (D80). `FocusAsync` focuses the line.
+A closed set as one line, e.g. *40m · 32kg · 0:00:45*, ending in a small muted chevron `Icon`. Tap to open. With errors, the line has a red outline and the messages show under it (D80). `FocusAsync` focuses the line.
 - `data-testid`: `TestId`, `{TestId}-open`, `{TestId}-error`.
 
 ## `EntryErrors`
@@ -32,7 +32,7 @@ One message per faulty field under a set or entry, in field order (D36).
 - `data-testid`: `TestId`.
 
 ## `ExercisePicker`
-Full-screen overlay: back, search box, results grouped Strength / Cardio. The back arrow and Android back raise `OnClose`. Focus moves to the search box when it opens (D81).
+Full-screen overlay: back (`IconButton`), search box, results grouped Strength / Cardio. The back arrow and Android back raise `OnClose`. Focus moves to the search box when it opens (D81).
 - `data-testid`: `exercise-picker`, `picker-back`, `picker-search`, `picker-group-{kind}`, `picker-item-{id}`, `picker-none`.
 
 Stories: [ExerciseCard](./?path=/docs/components-workout-exercisecard--docs) · [SetRow](./?path=/docs/components-workout-setrow--docs) · [SetPanel](./?path=/docs/components-workout-setpanel--docs) · [SetSummary](./?path=/docs/components-workout-setsummary--docs) · [EntryErrors](./?path=/docs/components-workout-entryerrors--docs). `ExercisePicker` is shown on its screen: [Exercise Picker](./?path=/custom/screens-exercise-picker-overview).

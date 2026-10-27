@@ -62,6 +62,37 @@ public class DashboardViewTests : ComponentTestBase
         });
     }
 
+    [TestCase(false, false)]
+    [TestCase(true, false)]
+    [TestCase(false, true)]
+    public void SettingsGear_RaisesOnSettingsInEveryState(bool loading, bool failed)
+    {
+        var settings = 0;
+        var cut = Context.Render<DashboardView>(p => p
+            .Add(x => x.Summary, new DashboardSummary(null, 0, 0))
+            .Add(x => x.Loading, loading)
+            .Add(x => x.Failed, failed)
+            .Add(x => x.OnSettings, () => settings++));
+
+        var gear = cut.Find("[data-testid=settings]");
+        gear.Click();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(gear.GetAttribute("aria-label"), Is.EqualTo("Settings"));
+            Assert.That(settings, Is.EqualTo(1));
+        });
+    }
+
+    [Test]
+    public void SettingsGear_IsInTopBar()
+    {
+        var cut = Context.Render<DashboardView>(p => p
+            .Add(x => x.Summary, new DashboardSummary(null, 0, 0)));
+
+        Assert.That(cut.Find("header [data-testid=settings]"), Is.Not.Null);
+    }
+
     [Test]
     public void NewWorkout_IsInBottomBar()
     {

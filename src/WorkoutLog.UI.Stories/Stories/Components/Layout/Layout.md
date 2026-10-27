@@ -9,7 +9,7 @@ The frame of every screen:
 
 | Part | Content |
 |---|---|
-| Top bar | Back arrow (when `OnBack` is set; Android back raises `OnBack` too), title, subtitle, `Actions` on the right. Dark teal bar; sets text, muted text and focus to the on-bar colours. |
+| Top bar | Back arrow `IconButton` (when `OnBack` is set; Android back raises `OnBack` too), title, subtitle, `Actions` on the right. Dark teal bar; sets text, muted text and focus to the on-bar colours. |
 | Content | Scrolls. 16px padding. |
 | Bottom bar | `BottomBar` actions, in thumb reach. Optional. |
 

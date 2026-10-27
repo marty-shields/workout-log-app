@@ -177,6 +177,22 @@ public class DashboardPageTests : ComponentTestBase
     }
 
     [Test]
+    public async Task Disposed_WhileLoading_LoadFinishesWithoutError()
+    {
+        Context.Render<DashboardPage>();
+
+        await Context.DisposeComponentsAsync();
+        dashboard.Complete(new DashboardResult(null, 1, 1, Failed: false));
+        await WaitForRendererAsync();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(dashboard.Calls, Is.EqualTo(1));
+            Assert.That(lifecycleLogger.Collector.Count, Is.Zero);
+        });
+    }
+
+    [Test]
     public async Task Disposed_WhileReloading_ReloadFinishesWithoutError()
     {
         var cut = Context.Render<DashboardPage>();
@@ -219,17 +235,21 @@ public class DashboardPageTests : ComponentTestBase
     {
         var newWorkout = 0;
         var history = 0;
+        var settings = 0;
         var cut = Context.Render<DashboardPage>(p => p
             .Add(x => x.OnNewWorkout, () => newWorkout++)
-            .Add(x => x.OnHistory, () => history++));
+            .Add(x => x.OnHistory, () => history++)
+            .Add(x => x.OnSettings, () => settings++));
 
         cut.Find("[data-testid=new-workout]").Click();
         cut.Find("[data-testid=history-link]").Click();
+        cut.Find("[data-testid=settings]").Click();
 
         Assert.Multiple(() =>
         {
             Assert.That(newWorkout, Is.EqualTo(1));
             Assert.That(history, Is.EqualTo(1));
+            Assert.That(settings, Is.EqualTo(1));
         });
     }
 

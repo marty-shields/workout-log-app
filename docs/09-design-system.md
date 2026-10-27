@@ -23,7 +23,7 @@ Run the stories: see [06](06-dev-setup-build.md#stories-design-system).
 ## Process
 Every new or changed screen or component goes through these steps (D98):
 1. Build it in `WorkoutLog.UI` with its stories and its Overview page.
-2. Run the stories and take Playwright screenshots of each state, light and dark, at phone width.
+2. Run the stories and take Playwright screenshots of each state, light and dark, at phone width. Open and check every screenshot: the look and position of what changed, in every story that shows it, including screens that use a changed component (D98).
 3. Stop for review: leave the stories running and open each new or changed story and page in the reviewer's browser (D98). Change it until the reviewer approves, then stop the stories.
 4. Only then use it in the App or in other screens.
 5. If the screen is in the README, retake its [README screenshots](#readme-screenshots) (D181).

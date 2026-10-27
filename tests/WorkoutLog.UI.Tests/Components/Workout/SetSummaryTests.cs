@@ -139,7 +139,7 @@ public class SetSummaryTests : ComponentTestBase
             .Add(x => x.Entry, Entry(("distance", "40")))
             .Add(x => x.TestId, "set-2"));
 
-        Assert.That(TestText.Normalise(cut.Find("[data-testid=set-2-open]").TextContent), Is.EqualTo("Set 2 40m ›"));
+        Assert.That(TestText.Normalise(cut.Find("[data-testid=set-2-open]").TextContent), Is.EqualTo("Set 2 40m"));
     }
 
     [Test]

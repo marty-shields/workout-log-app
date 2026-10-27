@@ -10,9 +10,11 @@ The app opens on [Startup](./?path=/custom/screens-startup-overview), then the D
 |---|---|---|
 | Dashboard | New Workout | New Workout |
 | Dashboard | History | History |
+| Dashboard | Settings gear | Settings |
 | Dashboard | Back | Leaves the app |
 | History | Tap a row | Edit Workout |
 | History | Back | Dashboard |
+| Settings | Back | Dashboard |
 | New Workout | Add exercise | Exercise Picker |
 | New Workout | Save | Dashboard |
 | New Workout | Back, then Discard | Dashboard |
@@ -27,4 +29,4 @@ The app opens on [Startup](./?path=/custom/screens-startup-overview), then the D
 ## Back
 - The back arrow and Android back do the same, except with the soft keyboard open: Android back then only hides the keyboard, and the next back acts as below. The back arrow acts at once (D78).
 - An open `ConfirmDialog` closes on Android back, as Cancel does (D78).
-- What back does on each screen is on its page: [New Workout](./?path=/custom/screens-new-workout-overview), [Edit Workout](./?path=/custom/screens-edit-workout-overview), [Exercise Picker](./?path=/custom/screens-exercise-picker-overview), [History](./?path=/custom/screens-history-overview).
+- What back does on each screen is on its page: [New Workout](./?path=/custom/screens-new-workout-overview), [Edit Workout](./?path=/custom/screens-edit-workout-overview), [Exercise Picker](./?path=/custom/screens-exercise-picker-overview), [History](./?path=/custom/screens-history-overview), [Settings](./?path=/custom/screens-settings-overview).

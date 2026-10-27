@@ -47,6 +47,7 @@ Blazor routing (`@page`):
 | `/workout/new` | New workout (D117) |
 | `/workout/{id}` | Edit workout (D117) |
 | `/history` | History |
+| `/settings` | Settings (D187) |
 
 The Exercise picker is an overlay on the workout page, not a route. What Android back does on each screen is on the [Navigation](../src/WorkoutLog.UI.Stories/Stories/Foundations/Navigation.md) page and the [screen pages](../src/WorkoutLog.UI.Stories/Stories/Screens/).
 

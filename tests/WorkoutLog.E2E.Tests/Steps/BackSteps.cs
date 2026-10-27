@@ -76,7 +76,7 @@ public sealed class BackSteps(WebView web, Native native, Journeys journeys, Wor
         journeys.Delete();
     }
 
-    [Then(@"^I am ((?:still )?)on (the Dashboard|History|New Workout|Edit Workout)$")]
+    [Then(@"^I am ((?:still )?)on (the Dashboard|History|Settings|New Workout|Edit Workout)$")]
     public void ThenIAmOn(string still, string screen)
     {
         if (still.Length > 0)
@@ -91,6 +91,9 @@ public sealed class BackSteps(WebView web, Native native, Journeys journeys, Wor
                 break;
             case "History":
                 journeys.WaitFor(Journeys.Screen.History);
+                break;
+            case "Settings":
+                journeys.WaitFor(Journeys.Screen.Settings);
                 break;
             default:
                 journeys.WaitFor(Journeys.Screen.Workout);

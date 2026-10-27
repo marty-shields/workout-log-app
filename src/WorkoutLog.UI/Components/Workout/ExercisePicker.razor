@@ -4,7 +4,7 @@
 <div class="overlay" role="dialog" aria-modal="true" aria-label="Add exercise" data-testid="exercise-picker">
     <BackHandler OnBack="OnClose" />
     <header class="picker-bar">
-        <button type="button" class="back" aria-label="Back" data-testid="picker-back" @onclick="OnClose">&#x2190;</button>
+        <IconButton Icon="IconName.Back" AriaLabel="Back" TestId="picker-back" OnClick="OnClose" />
         <input @ref="search"
                type="search"
                class="search"

@@ -39,6 +39,12 @@
 | FR-33 | This week | Count of workouts started from Monday 00:00 to now. |
 | FR-34 | This month | Count of workouts started from the 1st at 00:00 to now (D66). |
 | FR-35 | History link | Opens the History list. |
+| FR-36 | Settings | A gear in the top bar opens Settings. |
+
+### Settings
+| ID | Requirement | Acceptance criteria |
+|---|---|---|
+| FR-50 | Settings screen | Shows the title "Settings" and a back arrow. Back, or Android back, returns to the Dashboard. |
 
 ### Exercise list
 | ID | Requirement | Acceptance criteria |

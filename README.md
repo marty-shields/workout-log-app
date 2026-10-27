@@ -144,4 +144,4 @@ The end-to-end tests need a connected device or an emulator: see [E2E tests](doc
 
 ## License
 
-[MIT](LICENSE)
+[MIT](LICENSE). Third-party notices are in [NOTICE](NOTICE).

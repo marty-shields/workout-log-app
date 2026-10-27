@@ -16,5 +16,5 @@ A story in the [backlog](https://github.com/marty-shields/workout-log-app/issues
 | Code | Builds with no errors or warnings (warnings are errors in `Directory.Build.props`). No new packages without approval. |
 | Tests | New behaviour has unit or bUnit tests. All tests pass. |
 | Logging | Errors and unexpected events in new code are logged as in [04](04-architecture.md#logging), with tests. No workout contents in logs. |
-| Verified on phone | Where the story changes the app, its acceptance criteria have been checked by hand on the real phone. |
+| Verified | Where the story changes the app, its acceptance criteria are covered by E2E scenarios that pass on the phone or an emulator before the PR. Anything E2E can't check is checked by hand on the phone. |
 | Docs + PR | Affected docs are updated and `README.md` still matches the app (D181). The reviewer approved the change locally before the commit, and it reached `main` through a PR as in [06](06-dev-setup-build.md#source-control). |

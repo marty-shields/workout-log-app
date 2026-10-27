@@ -1,0 +1,39 @@
+<button @ref="button"
+        type="button"
+        class="icon-btn"
+        aria-label="@AriaLabel"
+        data-testid="@TestId"
+        @onclick="OnClick">
+    <Icon Name="Icon" Muted="Muted" Size="Size" />
+</button>
+
+@code {
+    /// <summary>Icon to show.</summary>
+    [Parameter, EditorRequired]
+    public IconName Icon { get; set; }
+
+    /// <summary>Accessible name of the button.</summary>
+    [Parameter, EditorRequired]
+    public string AriaLabel { get; set; } = "";
+
+    /// <summary>Value of the data-testid attribute.</summary>
+    [Parameter]
+    public string? TestId { get; set; }
+
+    /// <summary>Shows the icon in the muted text colour.</summary>
+    [Parameter]
+    public bool Muted { get; set; }
+
+    /// <summary>Size of the icon.</summary>
+    [Parameter]
+    public IconSize Size { get; set; }
+
+    /// <summary>Raised when the button is tapped.</summary>
+    [Parameter]
+    public EventCallback OnClick { get; set; }
+
+    private ElementReference button;
+
+    /// <summary>Moves focus to the button.</summary>
+    public ValueTask FocusAsync() => button.FocusAsync();
+}

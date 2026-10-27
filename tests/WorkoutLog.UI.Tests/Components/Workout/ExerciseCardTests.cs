@@ -126,7 +126,7 @@ public class ExerciseCardTests : ComponentTestBase
             .Add(x => x.Exercise, Strength(1))
             .Add(x => x.TestId, "exercise-1"));
 
-        Assert.That(TestText.Normalise(cut.Find("[data-testid=exercise-1-remove]").TextContent), Is.EqualTo("Remove Dumbbell Curl"));
+        Assert.That(cut.Find("[data-testid=exercise-1-remove]").GetAttribute("aria-label"), Is.EqualTo("Remove Dumbbell Curl"));
     }
 
     [Test]

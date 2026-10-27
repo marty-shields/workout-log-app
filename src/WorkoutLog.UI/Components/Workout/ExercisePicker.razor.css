@@ -17,14 +17,8 @@
     color: var(--color-on-bar);
 }
 
-.back {
-    min-width: var(--touch-target);
-    min-height: var(--touch-target);
-    margin-left: calc(-1 * var(--space-3));
-    border: none;
-    background: transparent;
-    font-size: var(--font-size-xl);
-    cursor: pointer;
+.picker-bar ::deep .icon-btn {
+    color: var(--color-on-bar);
 }
 
 .search {
