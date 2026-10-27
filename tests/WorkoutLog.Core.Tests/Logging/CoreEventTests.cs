@@ -41,5 +41,11 @@ public class CoreEventTests
             [CoreEvent.ExportFailed] = 1603,
             [CoreEvent.ExportUnknownExercise] = 1604,
             [CoreEvent.ExportCountFailed] = 1605,
+            [CoreEvent.ImportDone] = 1701,
+            [CoreEvent.ImportWorkoutSkipped] = 1702,
+            [CoreEvent.ImportFileUnreadable] = 1703,
+            [CoreEvent.ImportPhoneReadFailed] = 1704,
+            [CoreEvent.ImportWriteFailed] = 1705,
+            [CoreEvent.ImportFileRejected] = 1706,
         }));
 }

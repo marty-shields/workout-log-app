@@ -13,6 +13,7 @@ public sealed class Journeys(
         Dashboard,
         History,
         Settings,
+        ImportReview,
         Workout,
         Other,
     }
@@ -26,6 +27,7 @@ public sealed class Journeys(
             DashboardScreen.Title => Screen.Dashboard,
             HistoryScreen.Title => Screen.History,
             SettingsScreen.Title => Screen.Settings,
+            ImportReviewScreen.Title => Screen.ImportReview,
             _ when workout.IsShown() => Screen.Workout,
             _ => Screen.Other,
         };

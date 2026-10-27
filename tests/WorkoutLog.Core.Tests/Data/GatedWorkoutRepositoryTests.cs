@@ -21,7 +21,7 @@ public class GatedWorkoutRepositoryTests
         connection = new SQLiteAsyncConnection(databasePath);
         await connection.CreateTablesAsync<WorkoutRow, WorkoutExerciseRow, StrengthSetRow, CardioEntryRow>();
         gate = new DatabaseGate();
-        repository = new GatedWorkoutRepository(new WorkoutRepository(connection), gate);
+        repository = new GatedWorkoutRepository(new WorkoutRepository(connection, new WorkoutWriterFactory()), gate);
     }
 
     [TearDown]

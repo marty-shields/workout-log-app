@@ -1,16 +1,20 @@
 @using Microsoft.Extensions.Logging
 @using WorkoutLog.Core.Services
+@using WorkoutLog.UI.Import
 @using WorkoutLog.UI.Lifecycle
 @using WorkoutLog.UI.Models.Settings
 @using WorkoutLog.UI.Sharing
 @implements IDisposable
 @inject IExportService Export
 @inject IFileShare FileShare
+@inject IImportFileOpener Opener
+@inject ImportSession Session
 @inject IAppStart AppStart
 @inject ILogger<SettingsPage> Logger
 
 <SettingsView Loading="loading" Failed="failed" Count="count" Exporting="exporting" ExportMessage="message"
-              OnRetry="LoadAsync" OnExport="ExportAsync" OnBack="OnBack" />
+              Reading="reading" ImportFailed="importFailed" Imported="imported"
+              OnRetry="LoadAsync" OnExport="ExportAsync" OnImport="ImportAsync" OnBack="OnBack" />
 
 @code {
     private bool loading;
@@ -18,6 +22,9 @@
     private int count;
     private bool exporting;
     private ExportMessage message;
+    private bool reading;
+    private bool importFailed;
+    private ImportResult? imported;
     private IDisposable? registration;
     private bool disposed;
 
@@ -25,10 +32,17 @@
     [Parameter]
     public EventCallback OnBack { get; set; }
 
-    protected override Task OnInitializedAsync()
+    /// <summary>Raised when a picked file is read and <see cref="ImportSession.Review"/> holds it.</summary>
+    [Parameter]
+    public EventCallback OnImportReview { get; set; }
+
+    /// <summary>Loads the count, then shows the finished import from <see cref="ImportSession"/>, once.</summary>
+    protected override async Task OnInitializedAsync()
     {
         registration = AppStart.Register(() => InvokeAsync(ReloadAsync));
-        return LoadAsync();
+        var done = Session.TakeDone();
+        await LoadAsync();
+        imported = done;
     }
 
     public void Dispose()
@@ -38,18 +52,18 @@
     }
 
     /// <summary>
-    /// Loads the workout count and clears the export message. Shows the spinner until it finishes.
-    /// Ignored while a load or an export runs. Does nothing more once the page is disposed.
+    /// Loads the workout count and clears the messages. Shows the spinner until it finishes.
+    /// Ignored while a load, an export or a read runs. Does nothing more once the page is disposed.
     /// </summary>
     private async Task LoadAsync()
     {
-        if (loading || exporting)
+        if (loading || exporting || reading)
         {
             return;
         }
 
         loading = true;
-        message = ExportMessage.None;
+        ClearMessages();
         StateHasChanged();
         var result = await Export.CountAsync();
         if (disposed)
@@ -84,13 +98,13 @@
     /// </summary>
     private async Task ExportAsync()
     {
-        if (exporting || loading)
+        if (exporting || loading || reading)
         {
             return;
         }
 
         exporting = true;
-        message = ExportMessage.None;
+        ClearMessages();
         StateHasChanged();
         var result = await Export.ExportAsync();
         if (disposed)
@@ -116,5 +130,59 @@
         }
 
         exporting = false;
+    }
+
+    /// <summary>
+    /// Picks and reads a file, showing Import busy until it finishes; taps meanwhile are ignored. Cancelling the picker changes nothing.
+    /// A failed picker or read of the phone's workouts shows the failed message; any other result opens Import Review.
+    /// Does nothing more once the page is disposed.
+    /// </summary>
+    private async Task ImportAsync()
+    {
+        if (reading || exporting || loading)
+        {
+            return;
+        }
+
+        reading = true;
+        ClearMessages();
+        StateHasChanged();
+        ImportReview? review = null;
+        try
+        {
+            review = await Opener.OpenAsync();
+        }
+        catch (Exception exception)
+        {
+            Log.PickFailed(Logger, exception);
+            importFailed = true;
+        }
+
+        if (disposed)
+        {
+            return;
+        }
+
+        reading = false;
+        if (review is null)
+        {
+            return;
+        }
+
+        if (review.Error == ImportError.Failed)
+        {
+            importFailed = true;
+            return;
+        }
+
+        Session.Review = review;
+        await OnImportReview.InvokeAsync();
+    }
+
+    private void ClearMessages()
+    {
+        message = ExportMessage.None;
+        importFailed = false;
+        imported = null;
     }
 }

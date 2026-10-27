@@ -1,17 +1,18 @@
 namespace WorkoutLog.UI.Tests.Lifecycle;
 
 /// <summary>
-/// The App passes the activity's lifecycle to <c>IBackButton</c>, <c>IAppLifecycle</c> and <c>AndroidDiagnostics</c> (D119).
+/// The App passes the activity's lifecycle to <c>IBackButton</c>, <c>IAppLifecycle</c> and <c>AndroidDiagnostics</c> (D119);
+/// the back button and app start follow only <c>MainActivity</c>, not MAUI's own activities.
 /// The App can't be referenced, so its files are read. Whitespace is ignored.
 /// </summary>
 public class ActivityWiringTests
 {
     [TestCase("MauiProgram.cs", "AddBackButton(builder);")]
-    [TestCase("MauiProgram.cs", ".OnCreate((activity, _) => BackButton().Attach((AndroidX.Activity.ComponentActivity)activity))")]
+    [TestCase("MauiProgram.cs", "if (activity is MainActivity main) { BackButton().Attach(main); }")]
     [TestCase("MauiProgram.cs", ".OnDestroy(activity => BackButton().Detach(activity))")]
     [TestCase("MauiProgram.cs", "AddAppLifecycle(builder);")]
-    [TestCase("MauiProgram.cs", ".OnCreate((activity, _) => Lifecycle().Attach(activity))")]
-    [TestCase("MauiProgram.cs", ".OnStart(activity => _ = Lifecycle().NotifyStartedAsync())")]
+    [TestCase("MauiProgram.cs", "if (activity is MainActivity) { Lifecycle().Attach(activity); }")]
+    [TestCase("MauiProgram.cs", "if (activity is MainActivity) { _ = Lifecycle().NotifyStartedAsync(); }")]
     [TestCase("MauiProgram.cs", ".OnDestroy(activity => Lifecycle().Detach(activity))")]
     [TestCase("MauiProgram.cs", "AddDiagnostics(builder);")]
     [TestCase("MauiProgram.cs", ".OnStart(_ => Diagnostics().ActivityStarted())")]

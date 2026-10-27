@@ -77,4 +77,22 @@ internal enum CoreEvent
 
     /// <summary><see cref="Services.ExportService"/>: counting the workouts failed.</summary>
     ExportCountFailed = 1605,
+
+    /// <summary><see cref="Services.ImportService"/>: import written.</summary>
+    ImportDone = 1701,
+
+    /// <summary><see cref="Services.ImportService"/>: a workout in the file can't be imported.</summary>
+    ImportWorkoutSkipped = 1702,
+
+    /// <summary><see cref="Services.ImportService"/>: reading or parsing the file threw.</summary>
+    ImportFileUnreadable = 1703,
+
+    /// <summary><see cref="Services.ImportService"/>: reading the phone's workouts failed.</summary>
+    ImportPhoneReadFailed = 1704,
+
+    /// <summary><see cref="Services.ImportService"/>: writing the import failed.</summary>
+    ImportWriteFailed = 1705,
+
+    /// <summary><see cref="Services.ImportService"/>: the file isn't an export, is newer, has no workouts or is too large.</summary>
+    ImportFileRejected = 1706,
 }

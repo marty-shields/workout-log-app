@@ -1,6 +1,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
+using WorkoutLog.UI.Import;
 using WorkoutLog.UI.Lifecycle;
 using WorkoutLog.UI.Models.Workout;
 using WorkoutLog.UI.Navigation;
@@ -16,6 +17,8 @@ public class UiServiceCollectionExtensionsTests
 
         Assert.That(services.Select(s => (s.ServiceType, s.ImplementationType, s.Lifetime)), Is.EquivalentTo(new[]
         {
+            (typeof(ImportSession), typeof(ImportSession), ServiceLifetime.Singleton),
+            (typeof(IImportFileOpener), typeof(ImportFileOpener), ServiceLifetime.Singleton),
             (typeof(IBackButton), typeof(BackButton), ServiceLifetime.Singleton),
             (typeof(AppLifecycle), typeof(AppLifecycle), ServiceLifetime.Singleton),
             (typeof(IAppStart), (Type?)null, ServiceLifetime.Singleton),

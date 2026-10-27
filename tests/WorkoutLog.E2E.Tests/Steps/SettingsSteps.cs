@@ -2,8 +2,6 @@ using System.Globalization;
 using System.Text.Json.Nodes;
 using System.Text.RegularExpressions;
 using Reqnroll;
-using WorkoutLog.Core.Domain.Exercises;
-using WorkoutLog.Core.Domain.Workouts;
 using WorkoutLog.E2E.Tests.Device;
 using WorkoutLog.E2E.Tests.Screens;
 using WorkoutLog.E2E.Tests.Support;
@@ -61,7 +59,7 @@ public sealed partial class SettingsSteps(
         {
             ["startedAt"] = UtcText(s.Value),
             ["finishedAt"] = UtcText(state.SeededFinished[s.Key]),
-            ["exercises"] = new JsonArray(state.SeededExercises[s.Key].Select(Exercise).ToArray()),
+            ["exercises"] = new JsonArray(state.SeededExercises[s.Key].Select(ExportJson.Exercise).ToArray()),
         }).ToArray());
         var workouts = new JsonArray(file["workouts"]!.AsArray().Select(w => (JsonNode)new JsonObject
         {
@@ -74,7 +72,7 @@ public sealed partial class SettingsSteps(
 
     /// <summary>A device local time as the file writes it: UTC with 7 fractional digits.</summary>
     private string UtcText(DateTime local) =>
-        clock.FromLocal(local).UtcDateTime.ToString("yyyy-MM-dd'T'HH:mm:ss.fffffff'Z'", CultureInfo.InvariantCulture);
+        ExportJson.Time(clock.FromLocal(local));
 
     /// <summary>The one export file in the app's cache folder.</summary>
     private static string ExportedFileName()
@@ -85,61 +83,6 @@ public sealed partial class SettingsSteps(
             .ToList();
         Assert.That(files, Has.Count.EqualTo(1), "export files in the cache folder");
         return files[0];
-    }
-
-    /// <summary>An exercise as the file writes it: id, name, type and units, then its sets or entry.</summary>
-    private static JsonNode Exercise(ExerciseValues values)
-    {
-        var definition = values.Definition;
-        var exercise = new JsonObject { ["id"] = definition.Id, ["name"] = definition.Name, ["type"] = definition.Type.ToString() };
-        AddIf(exercise, "distanceUnit", definition.DistanceUnit?.ToString());
-        AddIf(exercise, "rateUnit", definition.RateUnit?.ToString());
-        AddIf(exercise, "paceUnit", definition.PaceUnit?.ToString());
-        var node = new JsonObject { ["exercise"] = exercise };
-        switch (values.ToWorkoutExercise())
-        {
-            case StrengthExercise strength:
-                node["sets"] = new JsonArray(strength.Sets.Select(s => (JsonNode)Values(
-                    ("reps", s.Reps), ("weightKg", s.WeightKg), ("duration", s.Duration), ("distance", s.Distance))).ToArray());
-                break;
-            case CardioExercise { Entry: var e }:
-                node["entry"] = Values(("duration", e.Duration), ("distance", e.Distance), ("floors", e.Floors), ("level", e.Level),
-                    ("incline", e.Incline), ("calories", e.Calories), ("rate", e.Rate), ("pace", e.Pace));
-                break;
-        }
-
-        return node;
-    }
-
-    /// <summary>The values that are set, in order: numbers as JSON numbers, times as hh:mm:ss.</summary>
-    private static JsonObject Values(params (string Key, object? Value)[] values)
-    {
-        var node = new JsonObject();
-        foreach (var (key, value) in values)
-        {
-            switch (value)
-            {
-                case int whole:
-                    node[key] = whole;
-                    break;
-                case decimal number:
-                    node[key] = JsonNode.Parse(number.ToString("0.##", CultureInfo.InvariantCulture));
-                    break;
-                case TimeSpan time:
-                    node[key] = time.ToString(@"hh\:mm\:ss", CultureInfo.InvariantCulture);
-                    break;
-            }
-        }
-
-        return node;
-    }
-
-    private static void AddIf(JsonObject node, string key, string? value)
-    {
-        if (value is not null)
-        {
-            node[key] = value;
-        }
     }
 
     [GeneratedRegex(@"^workout-log-\d{4}-\d{2}-\d{2}-\d{4}\.json$")]

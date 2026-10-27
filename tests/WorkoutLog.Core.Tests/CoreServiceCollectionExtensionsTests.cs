@@ -7,6 +7,9 @@ using WorkoutLog.Core.Data;
 using WorkoutLog.Core.Domain.Exercises;
 using WorkoutLog.Core.Domain.Workouts;
 using WorkoutLog.Core.Domain.Workouts.Validation;
+using WorkoutLog.Core.Import;
+using WorkoutLog.Core.Import.Checks;
+using WorkoutLog.Core.Import.Upgrades;
 using WorkoutLog.Core.Services;
 
 namespace WorkoutLog.Core.Tests;
@@ -32,7 +35,27 @@ public class CoreServiceCollectionExtensionsTests
             (typeof(IDashboardService), typeof(DashboardService), ServiceLifetime.Singleton),
             (typeof(IWeightHistoryService), typeof(WeightHistoryService), ServiceLifetime.Singleton),
             (typeof(IExportService), typeof(ExportService), ServiceLifetime.Singleton),
+            (typeof(IWorkoutWriterFactory), typeof(WorkoutWriterFactory), ServiceLifetime.Singleton),
+            (typeof(IUnitOfWork), (Type?)null, ServiceLifetime.Singleton),
+            (typeof(IImportFileReader), typeof(ImportFileReader), ServiceLifetime.Singleton),
+            (typeof(IImportCheck), typeof(StartCheck), ServiceLifetime.Singleton),
+            (typeof(IImportCheck), typeof(RepeatedStartCheck), ServiceLifetime.Singleton),
+            (typeof(IImportCheck), typeof(FinishCheck), ServiceLifetime.Singleton),
+            (typeof(IImportCheck), typeof(UnknownExerciseCheck), ServiceLifetime.Singleton),
+            (typeof(IImportCheck), typeof(ExerciseDefinitionCheck), ServiceLifetime.Singleton),
+            (typeof(IImportCheck), typeof(SaveRulesCheck), ServiceLifetime.Singleton),
+            (typeof(IImportChecker), typeof(ImportChecker), ServiceLifetime.Singleton),
+            (typeof(IWorkoutContentComparer), typeof(WorkoutContentComparer), ServiceLifetime.Singleton),
+            (typeof(IImportService), typeof(ImportService), ServiceLifetime.Singleton),
         }));
+    }
+
+    [Test]
+    public void AddCore_RegistersNoFormatUpgradeSteps()
+    {
+        using var provider = new ServiceCollection().AddCore(TempDatabase.NewPath()).BuildServiceProvider();
+
+        Assert.That(provider.GetServices<IFormatUpgrade>(), Is.Empty);
     }
 
     [Test]
@@ -53,6 +76,8 @@ public class CoreServiceCollectionExtensionsTests
             Assert.That(provider.GetRequiredService<IDashboardService>(), Is.InstanceOf<DashboardService>());
             Assert.That(provider.GetRequiredService<IWeightHistoryService>(), Is.InstanceOf<WeightHistoryService>());
             Assert.That(provider.GetRequiredService<IExportService>(), Is.InstanceOf<ExportService>());
+            Assert.That(provider.GetRequiredService<IImportService>(), Is.InstanceOf<ImportService>());
+            Assert.That(provider.GetRequiredService<IUnitOfWork>(), Is.InstanceOf<GatedUnitOfWork>());
         });
     }
 
@@ -66,6 +91,7 @@ public class CoreServiceCollectionExtensionsTests
             Assert.That(provider.GetService<SQLiteAsyncConnection>(), Is.Null);
             Assert.That(provider.GetService<DatabaseInitializer>(), Is.Null);
             Assert.That(provider.GetService<WorkoutRepository>(), Is.Null);
+            Assert.That(provider.GetService<UnitOfWork>(), Is.Null);
             Assert.That(provider.GetService<IExerciseSeeder>(), Is.Null);
             Assert.That(provider.GetService<ExerciseSeeder>(), Is.Null);
         });

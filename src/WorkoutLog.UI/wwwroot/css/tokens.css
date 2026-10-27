@@ -60,6 +60,8 @@
     --spinner-size-small: 1.125rem;
     --spinner-width-small: 2px;
     --spinner-duration: 1s;
+    --radio-size: 1.5rem;
+    --radio-dot-size: 0.75rem;
 }
 
 /* Forces a theme on an element and its children. */

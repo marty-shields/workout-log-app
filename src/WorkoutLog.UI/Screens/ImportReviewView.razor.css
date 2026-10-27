@@ -1,0 +1,41 @@
+.content {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+}
+
+.file {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+}
+
+.name {
+    margin: 0;
+    font-weight: var(--font-weight-bold);
+    overflow-wrap: anywhere;
+}
+
+.total,
+.text {
+    margin: 0;
+}
+
+.total {
+    color: var(--color-text-muted);
+}
+
+.tiles {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-3);
+}
+
+.error {
+    margin: 0;
+    padding: var(--space-3);
+    border: var(--border-width-error) solid var(--color-error);
+    border-radius: var(--radius-md);
+    color: var(--color-error);
+    font-weight: var(--font-weight-bold);
+}

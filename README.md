@@ -36,6 +36,7 @@ It's built for one person and one phone: no accounts, no sign-up.
 - 🗂️ **History.** Browse every session, open one to edit it, or delete it.
 - 📊 **Dashboard.** Your last workout and how many sessions you've done this week and this month.
 - 📤 **Export.** Save every workout to one JSON file and share it to Drive, email or another app.
+- 📥 **Import.** Bring an exported file back: review what's new, already there or different, then add or replace.
 - ✅ **Clear checks.** Save checks every set and entry, and points to the exact field at fault.
 - 🌗 **Light and dark.** Follows the phone's theme.
 - ☁️ **Backup.** Supports Android Auto Backup, so your workouts come back on a new phone.
@@ -77,7 +78,7 @@ It's built for one person and one phone: no accounts, no sign-up.
     <td align="center">
       <picture>
         <source media="(prefers-color-scheme: dark)" srcset="docs/images/readme/settings-dark.png" />
-        <img src="docs/images/readme/settings-light.png" alt="Settings with Export" width="150" />
+        <img src="docs/images/readme/settings-light.png" alt="Settings with Export and Import" width="150" />
       </picture>
     </td>
   </tr>
@@ -87,7 +88,7 @@ It's built for one person and one phone: no accounts, no sign-up.
     <td align="center"><sub><b>Cardio</b></sub></td>
     <td align="center"><sub><b>Exercise picker</b></sub></td>
     <td align="center"><sub><b>History</b></sub></td>
-    <td align="center"><sub><b>Export</b></sub></td>
+    <td align="center"><sub><b>Export and import</b></sub></td>
   </tr>
 </table>
 

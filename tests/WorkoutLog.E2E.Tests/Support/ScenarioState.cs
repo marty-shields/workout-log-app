@@ -21,6 +21,9 @@ public sealed class ScenarioState
     /// <summary>Seeded workouts' exercises by id.</summary>
     internal Dictionary<int, IReadOnlyList<ExerciseValues>> SeededExercises { get; } = [];
 
+    /// <summary>Names of the files the scenario put in the device's Download folder.</summary>
+    internal List<string> Downloads { get; } = [];
+
     /// <summary>The app's log when the scenario's starting point was reached, for counting new lines.</summary>
     internal string LogAtStart { get; set; } = "";
 
