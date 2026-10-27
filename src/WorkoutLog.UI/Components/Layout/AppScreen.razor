@@ -5,7 +5,7 @@
     <header class="top-bar">
         @if (OnBack.HasDelegate)
         {
-            <button type="button" class="back" aria-label="Back" data-testid="back" @onclick="OnBack">&#x2190;</button>
+            <IconButton Icon="IconName.Back" AriaLabel="Back" TestId="back" OnClick="OnBack" />
         }
         <div class="titles">
             <h1 class="title" data-testid="screen-title">@Title</h1>

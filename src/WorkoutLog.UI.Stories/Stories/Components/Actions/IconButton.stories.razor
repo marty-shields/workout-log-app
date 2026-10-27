@@ -1,0 +1,41 @@
+@attribute [Stories("Components/Actions/IconButton")]
+
+<Stories TComponent="IconButton" Layout="typeof(ThemeLayout)">
+
+    <Story Name="Settings">
+        <Template>
+            <IconButton Icon="IconName.Settings" AriaLabel="Settings" />
+        </Template>
+    </Story>
+
+    <Story Name="Back">
+        <Template>
+            <IconButton Icon="IconName.Back" AriaLabel="Back" />
+        </Template>
+    </Story>
+
+    <Story Name="Close">
+        <Template>
+            <IconButton Icon="IconName.Close" AriaLabel="Close" />
+        </Template>
+    </Story>
+
+    <Story Name="Delete">
+        <Template>
+            <IconButton Icon="IconName.Delete" AriaLabel="Delete" />
+        </Template>
+    </Story>
+
+    <Story Name="Muted">
+        <Template>
+            <IconButton Icon="IconName.Close" AriaLabel="Remove set" Muted />
+        </Template>
+    </Story>
+
+    <Story Name="Small">
+        <Template>
+            <IconButton Icon="IconName.Close" AriaLabel="Remove set" Muted Size="IconSize.Small" />
+        </Template>
+    </Story>
+
+</Stories>

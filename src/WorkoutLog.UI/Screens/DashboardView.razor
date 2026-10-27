@@ -1,6 +1,9 @@
 @using WorkoutLog.UI.Components.Feedback
 @using WorkoutLog.UI.Models.Dashboard
 <AppScreen Title="Workout Log">
+    <Actions>
+        <IconButton Icon="IconName.Settings" AriaLabel="Settings" TestId="settings" OnClick="OnSettings" />
+    </Actions>
     <ChildContent>
         @if (Loading)
         {
@@ -63,4 +66,8 @@
     /// <summary>Raised by the History link.</summary>
     [Parameter]
     public EventCallback OnHistory { get; set; }
+
+    /// <summary>Raised by the Settings gear.</summary>
+    [Parameter]
+    public EventCallback OnSettings { get; set; }
 }

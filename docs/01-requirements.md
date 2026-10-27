@@ -39,6 +39,7 @@
 | FR-33 | This week | Count of workouts started from Monday 00:00 to now. |
 | FR-34 | This month | Count of workouts started from the 1st at 00:00 to now (D66). |
 | FR-35 | History link | Opens the History list. |
+| FR-36 | Settings | A gear in the top bar opens Settings. |
 
 ### Exercise list
 | ID | Requirement | Acceptance criteria |
@@ -47,6 +48,11 @@
 | FR-41 | Type | Each exercise is Strength or Cardio. |
 | FR-42 | Metrics | Each exercise declares which metrics it shows, which are required and any field label (e.g. Assist (kg), Resistance, Damper), plus its distance, rate and pace units where relevant. |
 | FR-43 | Exercise details | Each exercise has nicknames for search. Strength exercises also have a primary muscle, equipment and mechanic (compound/isolation), which are stored but not shown. |
+
+### Settings
+| ID | Requirement | Acceptance criteria |
+|---|---|---|
+| FR-50 | Settings screen | Shows the title "Settings" and a back arrow. Back, or Android back, returns to the Dashboard. |
 
 ## Non-functional
 | ID | Requirement |

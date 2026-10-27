@@ -24,11 +24,6 @@
     color: var(--color-on-danger);
 }
 
-.text {
-    background: transparent;
-    color: var(--color-text);
-}
-
 .btn:disabled {
     opacity: var(--opacity-disabled);
     cursor: default;

@@ -190,7 +190,7 @@ public sealed partial class SetSteps(WebView web, Native native, WorkoutScreen w
     {
         Assert.That(workout.HasAddSet(name), Is.False, "Add set");
         Assert.That(web.FindAll($"[data-testid^=\"{workout.Card(name)}-set-\"]"), Is.Empty, "sets");
-        Assert.That(web.FindAll($"[data-testid=\"{workout.Card(name)}\"] .remove"), Is.Empty, "a remove button on the entry");
+        Assert.That(web.FindAll($"[data-testid=\"{workout.Card(name)}\"] [data-testid$=\"-remove\"]:not([data-testid=\"{workout.Card(name)}-remove\"])"), Is.Empty, "a remove button on the entry");
     });
 
     [Then(@"^(.+) can be removed as an exercise$")]

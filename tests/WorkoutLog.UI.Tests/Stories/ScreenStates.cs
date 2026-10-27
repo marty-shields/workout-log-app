@@ -63,6 +63,8 @@ public static class ScreenStates
         new("Screens/History", "Loading", c => History(c, [], tappable: false, loading: true)),
         new("Screens/History", "Load failed", c => History(c, [], tappable: false, failed: true)),
 
+        new("Screens/Settings", "Empty", c => c.Render<SettingsView>(p => p.Add(x => x.OnBack, () => { })).FindAll("*")),
+
         new("Screens/Error", "Error", c => c.Render<ErrorView>(p => p.Add(x => x.OnRestart, () => { })).FindAll("*")),
     ];
 
@@ -79,7 +81,8 @@ public static class ScreenStates
             .Add(x => x.Failed, failed)
             .Add(x => x.OnRetry, () => { })
             .Add(x => x.OnNewWorkout, () => { })
-            .Add(x => x.OnHistory, () => { }))
+            .Add(x => x.OnHistory, () => { })
+            .Add(x => x.OnSettings, () => { }))
             .FindAll("*");
 
     private static IReadOnlyList<IElement> Workout(

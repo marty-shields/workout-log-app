@@ -6,7 +6,7 @@
     {
         <FieldInput @ref="fields[field.Key]" Field="field" Entry="Entry" ShowLabel="false" OnChanged="OnChanged" TestId="@($"{TestId}-{field.Key}")" />
     }
-    <button type="button" class="remove" aria-label="@RemoveLabel" data-testid="@($"{TestId}-remove")" @onclick="OnRemove">&#x2715;</button>
+    <IconButton Icon="IconName.Close" AriaLabel="@RemoveLabel" TestId="@($"{TestId}-remove")" Muted Size="IconSize.Small" OnClick="OnRemove" />
 </div>
 @if (Entry.Errors.Count > 0)
 {

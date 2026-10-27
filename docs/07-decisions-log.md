@@ -1,6 +1,6 @@
 # 07 — Decisions Log
 
-Each decision states how the app and the repo work now, one row per subject. A change edits its decision; a new subject takes the next free ID. IDs aren't reused. Next free ID: D187.
+Each decision states how the app and the repo work now, one row per subject. A change edits its decision; a new subject takes the next free ID. IDs aren't reused. Next free ID: D188.
 
 ## Product and scope
 | # | Decision | Choice |
@@ -99,7 +99,7 @@ Each decision states how the app and the repo work now, one row per subject. A c
 | D80 | Sets with more than two fields | One open set with every field labelled; the others show as summary lines and open on tap. A closed set with errors gets the red error outline as well as its messages ([New Workout](../src/WorkoutLog.UI.Stories/Stories/Screens/NewWorkout.md)) |
 | D81 | Overlay focus | A confirm dialog focuses Cancel; the Exercise picker focuses its search box |
 | D82 | Confirm dialogs | Anchored to the bottom, inside the safe area, with Cancel and the confirm button full width side by side |
-| D83 | Remove exercise | Small muted text, so the exercise name leads the card header |
+| D83 | Remove exercise | A muted trash icon (`IconButton` Delete), so the exercise name leads the card header |
 | D84 | Themes | Light and dark, following the phone's setting. Colour tokens are `light-dark()` pairs; `data-theme` forces a theme on an element; the stories have a System / Light / Dark switch |
 | D85 | Palette and colour roles | A teal palette with derived shades and roles for light and dark, all meeting WCAG AA ([Tokens story](09-design-system.md)). Error text and borders are red; danger buttons are filled with the same red |
 | D86 | Type and shape | System font; body 16px, number inputs 20px; radius and spacing from the tokens |
@@ -114,7 +114,7 @@ Each decision states how the app and the repo work now, one row per subject. A c
 | D95 | Stories structure | Three sections: Foundations (Introduction, Tokens, Navigation, App Icon); Components, one folder per group with an Overview page and one stories file per component; Screens, one folder per screen the user sees, with an Overview page holding its parts, behaviour and `data-testid`s. Dialogs are states of their screen. The transitions and back rules are on Foundations / Navigation ([09](09-design-system.md)) |
 | D96 | Story content | Screen stories show static states only, one story per state, named by the state with the same name for the same state on every screen. Component stories are one story per state, with values in the template and no `Arguments`; outside the phone frame they use `ThemeLayout`'s System / Light / Dark switch |
 | D97 | Design-system checks | UI.Tests fail on literal colours or sizes, unknown tokens, token pairs below WCAG AA, small touch targets, missing `data-testid`, and screen stories that differ from the tests' screen states. They also fail unless each component has one stories file in its group, each `*View` is shown by a screen story, and stories show nothing else. `ExercisePicker` is shown on its screen instead of its own stories |
-| D98 | Front-end process | New or changed screens and components are built in the stories site and approved there before the App uses them. The stories site is left running and each new or changed story and page is opened in the reviewer's browser, then stopped once approved ([09](09-design-system.md#process)) |
+| D98 | Front-end process | New or changed screens and components are built in the stories site and approved there before the App uses them. Every screenshot is checked, light and dark, for the look and position of what changed, in every story that shows it. The stories site is left running and each new or changed story and page is opened in the reviewer's browser, then stopped once approved ([09](09-design-system.md#process)) |
 
 ## Architecture and logging
 | # | Decision | Choice |
@@ -211,11 +211,12 @@ Each decision states how the app and the repo work now, one row per subject. A c
 | # | Decision | Choice |
 |---|---|---|
 | D178 | Backlog | The repo's GitHub issues: epics and stories (US-xx) are issues, each story a sub-issue of its epic, with milestones on GitHub; each idea is an `enhancement` issue with no milestone ([ways of working](README.md#ways-of-working)) |
-| D179 | Definition of Done | Code, Tests, Verified on phone (where the story changes the app), Docs and commit; new work logs its errors and unexpected events as in [04](04-architecture.md#logging) ([08](08-product-goal.md)) |
+| D179 | Definition of Done | Code, Tests, Verified (where the story changes the app: E2E scenarios where possible, else by hand on the phone), Docs and commit; new work logs its errors and unexpected events as in [04](04-architecture.md#logging) ([08](08-product-goal.md)) |
 | D180 | Story workflow | A branch per story; local review before the commit; a DRAFT PR that closes the story, squash-merged by the reviewer ([06](06-dev-setup-build.md#source-control)) |
 | D181 | Root README | `README.md` is the repo's front page: features, light and dark screenshots of the screen stories, an Install section, the PR build, latest-release, stories site and licence badges, the stack and a License section; no Documentation section. The Definition of Done checks it still matches the app; a changed screen retakes its README screenshots ([09](09-design-system.md#readme-screenshots)) |
 | D182 | Docs | The docs (01–09) describe only what the app has: no scope, plans or ideas; a change updates them as it lands. They name no packages or versions and don't repeat what code or config holds. The Testing doc lists no features; each feature file describes what it covers. Screen behaviour lives in the stories site (D95) |
 | D183 | Decisions log | One row per subject: its Choice states how things work now in 1–2 sentences, linking to the doc that holds the detail. A change edits its row; a new subject takes the next free ID; IDs aren't reused |
 | D184 | Ticket review skill | `.agents/skills/ticket-review/SKILL.md` runs three read-only reviews (requirements, code and tests, security) one at a time in fresh contexts, only on request; the agent fixes the dead certs and asks about the rest before the local review |
-| D185 | Licence | MIT, in `LICENSE` at the repo root; the README has its badge and a License section |
+| D185 | Licence | MIT, in `LICENSE` at the repo root; the README has its badge and a License section. Third-party notices (Material Symbols, Apache-2.0) are in `NOTICE` at the repo root, linked from the License section |
 | D186 | Workout identity | A workout is identified across phones by its `StartedAt` (UTC, to the tick), unique in the database; the int Id is the primary key, used only inside one database ([02](02-data-model.md#tables)) |
+| D187 | Settings | The Dashboard top bar has a Settings gear that opens Settings (`/settings`); back returns to the Dashboard. Icons are Material Symbols Outlined (weight 400) SVG paths copied into the `Icon` component, which `IconButton` uses: settings, arrow_back (the back arrows), close (remove a set), delete (Delete workout, remove an exercise) and chevron_right (the end of a tappable row) |

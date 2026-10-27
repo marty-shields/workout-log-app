@@ -1,3 +1,4 @@
+using WorkoutLog.UI.Components.Actions;
 using WorkoutLog.UI.Models.Dashboard;
 using WorkoutLog.UI.Screens;
 
@@ -60,6 +61,48 @@ public class DashboardViewTests : ComponentTestBase
             Assert.That(newWorkout, Is.True);
             Assert.That(history, Is.True);
         });
+    }
+
+    [TestCase(false, false)]
+    [TestCase(true, false)]
+    [TestCase(false, true)]
+    public void SettingsGear_RaisesOnSettingsInEveryState(bool loading, bool failed)
+    {
+        var settings = 0;
+        var cut = Context.Render<DashboardView>(p => p
+            .Add(x => x.Summary, new DashboardSummary(null, 0, 0))
+            .Add(x => x.Loading, loading)
+            .Add(x => x.Failed, failed)
+            .Add(x => x.OnSettings, () => settings++));
+
+        var gear = cut.Find("[data-testid=settings]");
+        gear.Click();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(gear.GetAttribute("aria-label"), Is.EqualTo("Settings"));
+            Assert.That(settings, Is.EqualTo(1));
+        });
+    }
+
+    [Test]
+    public void SettingsGear_IsInTopBar()
+    {
+        var cut = Context.Render<DashboardView>(p => p
+            .Add(x => x.Summary, new DashboardSummary(null, 0, 0)));
+
+        Assert.That(cut.Find("header [data-testid=settings]"), Is.Not.Null);
+    }
+
+    [Test]
+    public void SettingsGear_IsTheSettingsIcon()
+    {
+        var cut = Context.Render<DashboardView>(p => p
+            .Add(x => x.Summary, new DashboardSummary(null, 0, 0)));
+
+        var gear = cut.FindComponent<IconButton>().Instance;
+
+        Assert.That((gear.TestId, gear.Icon, gear.Muted, gear.Size), Is.EqualTo(("settings", IconName.Settings, false, IconSize.Default)));
     }
 
     [Test]

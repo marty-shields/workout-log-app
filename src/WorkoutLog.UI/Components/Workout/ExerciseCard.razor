@@ -6,7 +6,7 @@
 <section class="card @(Exercise.Error is not null ? "has-error" : null)" data-testid="@TestId">
     <header class="card-header">
         <h2 class="name">@Exercise.Name</h2>
-        <AppButton @ref="remove" Variant="ButtonVariant.Text" TestId="@($"{TestId}-remove")" OnClick="OnRemove">Remove<span class="visually-hidden">@($" {Exercise.Name}")</span></AppButton>
+        <IconButton @ref="remove" Icon="IconName.Delete" AriaLabel="@($"Remove {Exercise.Name}")" TestId="@($"{TestId}-remove")" Muted OnClick="OnRemove" />
     </header>
     @if (Exercise.BestKg is { } best)
     {
@@ -124,7 +124,7 @@
     private readonly Dictionary<EntryState, SetSummary> summaries = new();
     private readonly Dictionary<string, FieldInput> cardioFields = new();
     private SetPanel? openPanel;
-    private AppButton? remove;
+    private IconButton? remove;
     private AppButton? addSet;
     private TaskCompletionSource? pendingFocus;
 
@@ -155,8 +155,12 @@
     {
         if (Exercise.Error is not null)
         {
-            var button = Exercise.ErrorCode == ExerciseError.NoSets ? addSet : remove;
-            return button?.FocusAsync() ?? ValueTask.CompletedTask;
+            if (Exercise.ErrorCode == ExerciseError.NoSets)
+            {
+                return addSet?.FocusAsync() ?? ValueTask.CompletedTask;
+            }
+
+            return remove?.FocusAsync() ?? ValueTask.CompletedTask;
         }
 
         if (Exercise.Entries.FirstOrDefault(e => e.Errors.Count > 0) is not { } entry)

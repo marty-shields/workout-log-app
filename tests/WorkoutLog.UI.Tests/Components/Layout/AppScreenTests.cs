@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Components;
+using WorkoutLog.UI.Components.Actions;
 using WorkoutLog.UI.Components.Layout;
 
 namespace WorkoutLog.UI.Tests.Components.Layout;
@@ -38,6 +39,18 @@ public class AppScreenTests : ComponentTestBase
         cut.Find("[data-testid=back]").Click();
 
         Assert.That(back, Is.True);
+    }
+
+    [Test]
+    public void BackArrow_IsTheBackIcon()
+    {
+        var cut = Context.Render<AppScreen>(p => p
+            .Add(x => x.Title, "History")
+            .Add(x => x.OnBack, () => { }));
+
+        var back = cut.FindComponent<IconButton>().Instance;
+
+        Assert.That((back.TestId, back.Icon, back.Muted, back.Size), Is.EqualTo(("back", IconName.Back, false, IconSize.Default)));
     }
 
     [Test]

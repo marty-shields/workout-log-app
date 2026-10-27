@@ -177,6 +177,24 @@ public class DashboardPageTests : ComponentTestBase
     }
 
     [Test]
+    public async Task Disposed_WhileLoading_SkipsTheUpdate()
+    {
+        var clock = new ZoneReadCounter();
+        Context.Services.AddSingleton<TimeProvider>(clock);
+        Context.Render<DashboardPage>();
+
+        await Context.DisposeComponentsAsync();
+        dashboard.Complete(new DashboardResult(new DateTimeOffset(2026, 10, 20, 23, 30, 0, TimeSpan.Zero), 1, 1, Failed: false));
+        await WaitForRendererAsync();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(dashboard.Calls, Is.EqualTo(1));
+            Assert.That(clock.Reads, Is.Zero);
+        });
+    }
+
+    [Test]
     public async Task Disposed_WhileReloading_ReloadFinishesWithoutError()
     {
         var cut = Context.Render<DashboardPage>();
@@ -219,17 +237,21 @@ public class DashboardPageTests : ComponentTestBase
     {
         var newWorkout = 0;
         var history = 0;
+        var settings = 0;
         var cut = Context.Render<DashboardPage>(p => p
             .Add(x => x.OnNewWorkout, () => newWorkout++)
-            .Add(x => x.OnHistory, () => history++));
+            .Add(x => x.OnHistory, () => history++)
+            .Add(x => x.OnSettings, () => settings++));
 
         cut.Find("[data-testid=new-workout]").Click();
         cut.Find("[data-testid=history-link]").Click();
+        cut.Find("[data-testid=settings]").Click();
 
         Assert.Multiple(() =>
         {
             Assert.That(newWorkout, Is.EqualTo(1));
             Assert.That(history, Is.EqualTo(1));
+            Assert.That(settings, Is.EqualTo(1));
         });
     }
 
@@ -260,5 +282,20 @@ public class DashboardPageTests : ComponentTestBase
 
         /// <summary>Completes the latest call.</summary>
         public void Complete(DashboardResult result) => pending.SetResult(result);
+    }
+
+    /// <summary>Counts reads of the local time zone.</summary>
+    private sealed class ZoneReadCounter : TimeProvider
+    {
+        public int Reads { get; private set; }
+
+        public override TimeZoneInfo LocalTimeZone
+        {
+            get
+            {
+                Reads++;
+                return TimeZoneInfo.Utc;
+            }
+        }
     }
 }

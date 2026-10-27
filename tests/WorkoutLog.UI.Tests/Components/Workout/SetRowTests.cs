@@ -1,4 +1,5 @@
 using WorkoutLog.Core.Domain.Exercises;
+using WorkoutLog.UI.Components.Actions;
 using WorkoutLog.UI.Components.Workout;
 using WorkoutLog.UI.Models.Fields;
 using WorkoutLog.UI.Models.Workout;
@@ -42,6 +43,20 @@ public class SetRowTests : ComponentTestBase
             .Add(x => x.TestId, "set-2"));
 
         Assert.That(cut.Find("[data-testid=set-2-remove]").GetAttribute("aria-label"), Is.EqualTo(expected));
+    }
+
+    [Test]
+    public void Remove_IsASmallMutedCross()
+    {
+        var cut = Context.Render<SetRow>(p => p
+            .Add(x => x.Number, 2)
+            .Add(x => x.Fields, Fields)
+            .Add(x => x.Entry, new EntryState())
+            .Add(x => x.TestId, "set-2"));
+
+        var remove = cut.FindComponent<IconButton>().Instance;
+
+        Assert.That((remove.TestId, remove.Icon, remove.Muted, remove.Size), Is.EqualTo(("set-2-remove", IconName.Close, true, IconSize.Small)));
     }
 
     [Test]

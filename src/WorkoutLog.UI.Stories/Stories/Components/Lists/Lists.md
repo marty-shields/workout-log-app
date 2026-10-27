@@ -5,7 +5,7 @@ $attribute: CustomPage("Components/Lists/Overview")
 # Lists
 
 ## `ListRow`
-A full-width row of text. With `OnClick` it is a button with a chevron; without, plain text.
+A full-width row of text. With `OnClick` it is a button ending in a muted chevron `Icon`; without, plain text.
 - `data-testid`: `TestId`.
 
 ## `StatTile`

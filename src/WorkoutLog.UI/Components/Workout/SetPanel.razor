@@ -3,7 +3,7 @@
 <section class="panel" data-testid="@TestId">
     <header class="panel-header">
         <h3 class="title">Set @Number</h3>
-        <button type="button" class="remove" aria-label="@RemoveLabel" data-testid="@($"{TestId}-remove")" @onclick="OnRemove">&#x2715;</button>
+        <IconButton Icon="IconName.Close" AriaLabel="@RemoveLabel" TestId="@($"{TestId}-remove")" Muted Size="IconSize.Small" OnClick="OnRemove" />
     </header>
     <div class="fields">
         @foreach (var field in Fields)

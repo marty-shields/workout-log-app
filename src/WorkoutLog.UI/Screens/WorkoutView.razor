@@ -5,7 +5,7 @@
     <Actions>
         @if (Mode == WorkoutMode.Edit)
         {
-            <AppButton @ref="delete" Variant="ButtonVariant.Text" TestId="delete-workout" OnClick="OnDelete">Delete</AppButton>
+            <IconButton @ref="delete" Icon="IconName.Delete" AriaLabel="Delete" TestId="delete-workout" OnClick="OnDelete" />
         }
     </Actions>
     <ChildContent>
@@ -109,7 +109,7 @@
     private ErrorFocus? handledError;
     private AppButton? addExercise;
     private AppButton? save;
-    private AppButton? delete;
+    private IconButton? delete;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {

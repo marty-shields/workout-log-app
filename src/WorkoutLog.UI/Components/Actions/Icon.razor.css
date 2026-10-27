@@ -1,0 +1,16 @@
+.icon {
+    --icon-size: var(--font-size-xl);
+    display: block;
+    flex-shrink: 0;
+    width: var(--icon-size);
+    height: var(--icon-size);
+    fill: currentColor;
+}
+
+.muted {
+    color: var(--color-text-muted);
+}
+
+.small {
+    --icon-size: var(--font-size-lg);
+}
