@@ -36,7 +36,7 @@ A button that shows an `Icon`, with a 48px touch target.
 | Delete | Deleting the workout in the Edit Workout top bar; removing an exercise from its card (`Muted`). |
 
 - `AriaLabel` names the button.
-- The icon is `--color-text`; on the top bar that is `--color-on-bar`. `Muted` uses `--color-text-muted`.
+- The icon is `--color-text`; on the top bar and the Exercise Picker bar that is `--color-on-bar`. `Muted` uses `--color-text-muted`.
 - `Size`: `Default` is `--font-size-xl`, `Small` is `--font-size-lg`.
 - `data-testid`: `TestId`.
 

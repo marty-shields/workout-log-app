@@ -1,4 +1,5 @@
 using WorkoutLog.Core.Domain.Exercises;
+using WorkoutLog.UI.Components.Actions;
 using WorkoutLog.UI.Components.Workout;
 using WorkoutLog.UI.Models.Fields;
 using WorkoutLog.UI.Models.Workout;
@@ -140,6 +141,20 @@ public class SetSummaryTests : ComponentTestBase
             .Add(x => x.TestId, "set-2"));
 
         Assert.That(TestText.Normalise(cut.Find("[data-testid=set-2-open]").TextContent), Is.EqualTo("Set 2 40m"));
+    }
+
+    [Test]
+    public void Line_EndsInASmallMutedChevron()
+    {
+        var cut = Context.Render<SetSummary>(p => p
+            .Add(x => x.Number, 2)
+            .Add(x => x.Fields, Carry)
+            .Add(x => x.Entry, Entry(("distance", "40")))
+            .Add(x => x.TestId, "set-2"));
+
+        var chevron = cut.FindComponent<Icon>().Instance;
+
+        Assert.That((chevron.Name, chevron.Muted, chevron.Size), Is.EqualTo((IconName.Chevron, true, IconSize.Small)));
     }
 
     [Test]

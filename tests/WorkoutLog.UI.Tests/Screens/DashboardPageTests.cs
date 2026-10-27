@@ -177,18 +177,20 @@ public class DashboardPageTests : ComponentTestBase
     }
 
     [Test]
-    public async Task Disposed_WhileLoading_LoadFinishesWithoutError()
+    public async Task Disposed_WhileLoading_SkipsTheUpdate()
     {
+        var clock = new ZoneReadCounter();
+        Context.Services.AddSingleton<TimeProvider>(clock);
         Context.Render<DashboardPage>();
 
         await Context.DisposeComponentsAsync();
-        dashboard.Complete(new DashboardResult(null, 1, 1, Failed: false));
+        dashboard.Complete(new DashboardResult(new DateTimeOffset(2026, 10, 20, 23, 30, 0, TimeSpan.Zero), 1, 1, Failed: false));
         await WaitForRendererAsync();
 
         Assert.Multiple(() =>
         {
             Assert.That(dashboard.Calls, Is.EqualTo(1));
-            Assert.That(lifecycleLogger.Collector.Count, Is.Zero);
+            Assert.That(clock.Reads, Is.Zero);
         });
     }
 
@@ -280,5 +282,20 @@ public class DashboardPageTests : ComponentTestBase
 
         /// <summary>Completes the latest call.</summary>
         public void Complete(DashboardResult result) => pending.SetResult(result);
+    }
+
+    /// <summary>Counts reads of the local time zone.</summary>
+    private sealed class ZoneReadCounter : TimeProvider
+    {
+        public int Reads { get; private set; }
+
+        public override TimeZoneInfo LocalTimeZone
+        {
+            get
+            {
+                Reads++;
+                return TimeZoneInfo.Utc;
+            }
+        }
     }
 }

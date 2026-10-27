@@ -1,3 +1,4 @@
+using WorkoutLog.UI.Components.Actions;
 using WorkoutLog.UI.Models.Dashboard;
 using WorkoutLog.UI.Screens;
 
@@ -91,6 +92,17 @@ public class DashboardViewTests : ComponentTestBase
             .Add(x => x.Summary, new DashboardSummary(null, 0, 0)));
 
         Assert.That(cut.Find("header [data-testid=settings]"), Is.Not.Null);
+    }
+
+    [Test]
+    public void SettingsGear_IsTheSettingsIcon()
+    {
+        var cut = Context.Render<DashboardView>(p => p
+            .Add(x => x.Summary, new DashboardSummary(null, 0, 0)));
+
+        var gear = cut.FindComponent<IconButton>().Instance;
+
+        Assert.That((gear.TestId, gear.Icon, gear.Muted, gear.Size), Is.EqualTo(("settings", IconName.Settings, false, IconSize.Default)));
     }
 
     [Test]

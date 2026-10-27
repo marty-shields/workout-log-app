@@ -1,6 +1,7 @@
 using System.Globalization;
 using Microsoft.AspNetCore.Components;
 using WorkoutLog.Core.Domain.Exercises;
+using WorkoutLog.UI.Components.Actions;
 using WorkoutLog.UI.Components.Layout;
 using WorkoutLog.UI.Components.Workout;
 using WorkoutLog.UI.Models.Workout;
@@ -132,6 +133,16 @@ public class ExercisePickerTests : ComponentTestBase
         cut.Find("[data-testid=picker-back]").Click();
 
         Assert.That(closed, Is.True);
+    }
+
+    [Test]
+    public void Back_IsTheBackIcon()
+    {
+        var cut = Context.Render<ExercisePicker>(p => p.Add(x => x.Items, Items));
+
+        var back = cut.FindComponent<IconButton>().Instance;
+
+        Assert.That((back.TestId, back.Icon, back.Muted, back.Size), Is.EqualTo(("picker-back", IconName.Back, false, IconSize.Default)));
     }
 
     [Test]

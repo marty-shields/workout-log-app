@@ -1,6 +1,6 @@
 @FR-36 @FR-50
 Feature: Settings
-  The gear on the Dashboard opens Settings.
+  The gear on the Dashboard opens Settings; back returns to the Dashboard.
 
   @smoke
   Scenario: The gear on the Dashboard opens Settings

@@ -5,6 +5,7 @@ using Microsoft.Extensions.Logging.Testing;
 using Microsoft.JSInterop;
 using WorkoutLog.Core.Domain.Exercises;
 using WorkoutLog.Core.Domain.Workouts.Validation;
+using WorkoutLog.UI.Components.Actions;
 using WorkoutLog.UI.Logging;
 using WorkoutLog.UI.Models.Fields;
 using WorkoutLog.UI.Models.Workout;
@@ -97,8 +98,23 @@ public class WorkoutViewTests : ComponentTestBase
         Assert.Multiple(() =>
         {
             Assert.That(cut.Find("[data-testid=screen-subtitle]").TextContent, Is.EqualTo("Total 1:02:03"));
+            Assert.That(cut.Find("[data-testid=delete-workout]").GetAttribute("aria-label"), Is.EqualTo("Delete"));
             Assert.That(deleted, Is.True);
         });
+    }
+
+    [Test]
+    public void Edit_DeleteIsATrash()
+    {
+        var cut = Context.Render<WorkoutView>(p => p
+            .Add(x => x.Mode, WorkoutMode.Edit)
+            .Add(x => x.StartedAt, Started)
+            .Add(x => x.Time, new TimeSpan(1, 2, 3))
+            .Add(x => x.Exercises, []));
+
+        var delete = cut.FindComponents<IconButton>().Single(b => b.Instance.TestId == "delete-workout").Instance;
+
+        Assert.That((delete.Icon, delete.Muted, delete.Size), Is.EqualTo((IconName.Delete, false, IconSize.Default)));
     }
 
     [Test]

@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Testing;
 using Microsoft.JSInterop;
 using WorkoutLog.Core.Domain.Exercises;
+using WorkoutLog.UI.Components.Actions;
 using WorkoutLog.UI.Components.Workout;
 using WorkoutLog.UI.Logging;
 using WorkoutLog.UI.Models.Fields;
@@ -127,6 +128,18 @@ public class ExerciseCardTests : ComponentTestBase
             .Add(x => x.TestId, "exercise-1"));
 
         Assert.That(cut.Find("[data-testid=exercise-1-remove]").GetAttribute("aria-label"), Is.EqualTo("Remove Dumbbell Curl"));
+    }
+
+    [Test]
+    public void Remove_IsAMutedTrash()
+    {
+        var cut = Context.Render<ExerciseCard>(p => p
+            .Add(x => x.Exercise, Strength(1))
+            .Add(x => x.TestId, "exercise-1"));
+
+        var remove = cut.FindComponents<IconButton>().Single(b => b.Instance.TestId == "exercise-1-remove").Instance;
+
+        Assert.That((remove.Icon, remove.Muted, remove.Size), Is.EqualTo((IconName.Delete, true, IconSize.Default)));
     }
 
     [Test]

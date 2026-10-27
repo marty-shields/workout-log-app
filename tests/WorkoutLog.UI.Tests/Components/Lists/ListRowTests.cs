@@ -1,3 +1,4 @@
+using WorkoutLog.UI.Components.Actions;
 using WorkoutLog.UI.Components.Lists;
 
 namespace WorkoutLog.UI.Tests.Components.Lists;
@@ -15,6 +16,18 @@ public class ListRowTests : ComponentTestBase
         cut.Find("button").Click();
 
         Assert.That(clicked, Is.True);
+    }
+
+    [Test]
+    public void WithOnClick_EndsInAMutedChevron()
+    {
+        var cut = Context.Render<ListRow>(p => p
+            .Add(x => x.Text, "History")
+            .Add(x => x.OnClick, () => { }));
+
+        var chevron = cut.FindComponent<Icon>().Instance;
+
+        Assert.That((chevron.Name, chevron.Muted, chevron.Size), Is.EqualTo((IconName.Chevron, true, IconSize.Default)));
     }
 
     [Test]
