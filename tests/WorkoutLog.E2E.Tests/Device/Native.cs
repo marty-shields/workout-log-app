@@ -17,8 +17,8 @@ public sealed class Native(WebView web)
     /// <summary>The package that shows Android's share sheet.</summary>
     private const string ShareSheetPackage = "com.android.intentresolver";
 
-    /// <summary>The package that shows Android's file picker.</summary>
-    private const string FilePickerPackage = "com.google.android.documentsui";
+    /// <summary>How long the file picker's first list may take to show a file before Downloads is opened.</summary>
+    private static readonly TimeSpan FirstListTimeout = TimeSpan.FromSeconds(5);
 
     private static readonly TimeSpan KeyboardTimeout = TimeSpan.FromSeconds(5);
     private static readonly TimeSpan LaunchTimeout = TimeSpan.FromSeconds(30);
@@ -65,19 +65,22 @@ public sealed class Native(WebView web)
     }
 
     /// <summary>
-    /// Waits until Android's file picker is in front, opens its Downloads list and taps <paramref name="name"/>,
-    /// then waits for the app and switches back to its WebView. Fails if the picker or the file doesn't show.
+    /// Waits until the file picker is in front and taps the item showing <paramref name="name"/>. When the picker doesn't list it
+    /// at first and has a roots menu, it opens Downloads. Then waits for the app and switches back to its WebView.
+    /// Fails if the picker or the file doesn't show.
     /// </summary>
     public void PickFile(string name)
     {
         InFilePicker(() =>
         {
-            var file = By.XPath($"//*[@resource-id='android:id/title' and @text='{name}']");
-            if (App.FindElements(file).Count == 0)
+            var file = By.XPath($"//*[@text='{name}']");
+            var roots = By.XPath("//*[@content-desc='Show roots']");
+            if (!Shows(file, FirstListTimeout) && App.FindElements(roots).Count > 0)
             {
-                App.FindElement(By.XPath("//*[@content-desc='Show roots']")).Click();
-                web.WaitUntil(() => App.FindElements(By.XPath("//*[@text='Downloads']")).Count > 0, "the picker's Downloads root didn't show", LaunchTimeout);
-                App.FindElement(By.XPath("//*[@text='Downloads']")).Click();
+                App.FindElement(roots).Click();
+                var downloads = By.XPath("//*[@text='Downloads']");
+                web.WaitUntil(() => App.FindElements(downloads).Count > 0, "the picker's Downloads root didn't show", LaunchTimeout);
+                App.FindElement(downloads).Click();
             }
 
             web.WaitUntil(() => App.FindElements(file).Count > 0, $"{name} didn't show in the picker", LaunchTimeout);
@@ -85,16 +88,36 @@ public sealed class Native(WebView web)
         });
     }
 
-    /// <summary>Waits until Android's file picker is in front, closes it with the back key and switches back to the app's WebView.</summary>
+    /// <summary>Waits until the file picker is in front, closes it with the back key and switches back to the app's WebView.</summary>
     public void CancelFilePicker() => InFilePicker(() => App.PressKeyCode(AndroidKeyCode.Back));
 
-    /// <summary>Waits for the file picker, runs <paramref name="act"/> in the native context, then waits for the app's WebView.</summary>
+    /// <summary>Whether an element matching <paramref name="by"/> shows within <paramref name="timeout"/>.</summary>
+    private static bool Shows(By by, TimeSpan timeout)
+    {
+        var deadline = DateTime.UtcNow + timeout;
+        while (App.FindElements(by).Count == 0)
+        {
+            if (DateTime.UtcNow > deadline)
+            {
+                return false;
+            }
+
+            Thread.Sleep(TimeSpan.FromMilliseconds(200));
+        }
+
+        return true;
+    }
+
+    /// <summary>
+    /// Waits for the file picker, whichever app shows it: any package other than the app's in front. Runs <paramref name="act"/>
+    /// in the native context, then waits for the app's WebView.
+    /// </summary>
     private void InFilePicker(Action act)
     {
         App.Context = NativeApp;
         try
         {
-            web.WaitUntil(() => App.CurrentPackage == FilePickerPackage, "the file picker didn't open", LaunchTimeout);
+            web.WaitUntil(() => App.CurrentPackage is { Length: > 0 } package && package != AppiumSetup.Package, "the file picker didn't open", LaunchTimeout);
             act();
             web.WaitUntil(() => App.CurrentPackage == AppiumSetup.Package, "the app didn't come back from the file picker", LaunchTimeout);
         }
