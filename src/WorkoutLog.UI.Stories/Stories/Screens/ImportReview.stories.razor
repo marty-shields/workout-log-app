@@ -1,0 +1,100 @@
+@using WorkoutLog.Core.Services
+@using Checked = WorkoutLog.Core.Services.ImportReview
+@attribute [Stories("Screens/Import Review")]
+
+<Stories TComponent="ImportReviewView" Layout="typeof(PhoneLayout)">
+
+    <Story Name="New only">
+        <Template>
+            <ImportReviewView Review="@(Review(fresh: 44))" OnImport="() => { }" OnCancel="() => { }" OnBack="() => { }" />
+        </Template>
+    </Story>
+
+    <Story Name="With all groups">
+        <Template>
+            <ImportReviewView Review="@(Review(fresh: 3, already: 38, different: 2, skipped: 1))" OnImport="() => { }" OnCancel="() => { }" OnBack="() => { }" />
+        </Template>
+    </Story>
+
+    <Story Name="Different">
+        <Template>
+            <ImportReviewView Review="@(Review(already: 40, different: 2))" Different="DifferentChoice.UseFiles" OnImport="() => { }" OnCancel="() => { }" OnBack="() => { }" />
+        </Template>
+    </Story>
+
+    <Story Name="Can't be imported">
+        <Template>
+            <ImportReviewView Review="@(Review(fresh: 40, skipped: 4))" OnImport="() => { }" OnCancel="() => { }" OnBack="() => { }" />
+        </Template>
+    </Story>
+
+    <Story Name="Nothing new">
+        <Template>
+            <ImportReviewView Review="@(Review(already: 41))" OnImport="() => { }" OnCancel="() => { }" OnBack="() => { }" />
+        </Template>
+    </Story>
+
+    <Story Name="Replace all">
+        <Template>
+            <ImportReviewView Review="@(Review(fresh: 3, already: 38, different: 2, skipped: 1))" Mode="ImportMode.ReplaceAll" OnImport="() => { }" OnCancel="() => { }" OnBack="() => { }" />
+        </Template>
+    </Story>
+
+    <Story Name="Replace confirm">
+        <Template>
+            <ImportReviewView Review="@(Review(fresh: 3, already: 38, different: 2, skipped: 1))" Mode="ImportMode.ReplaceAll" Confirming
+                              OnImport="() => { }" OnConfirmReplace="() => { }" OnCancelReplace="() => { }" OnCancel="() => { }" OnBack="() => { }" />
+        </Template>
+    </Story>
+
+    <Story Name="Importing">
+        <Template>
+            <ImportReviewView Review="@(Review(fresh: 3, already: 38, different: 2, skipped: 1))" Importing OnImport="() => { }" OnCancel="() => { }" OnBack="() => { }" />
+        </Template>
+    </Story>
+
+    <Story Name="Import failed">
+        <Template>
+            <ImportReviewView Review="@(Review(fresh: 3, already: 38, different: 2, skipped: 1))" Failed OnImport="() => { }" OnCancel="() => { }" OnBack="() => { }" />
+        </Template>
+    </Story>
+
+    <Story Name="Not an export">
+        <Template>
+            <ImportReviewView Review="@(Checked.Rejected("photo.json", ImportError.NotAnExport))" OnChooseAnother="() => { }" OnCancel="() => { }" OnBack="() => { }" />
+        </Template>
+    </Story>
+
+    <Story Name="Newer version">
+        <Template>
+            <ImportReviewView Review="@(Checked.Rejected(FileName, ImportError.NewerVersion))" OnChooseAnother="() => { }" OnCancel="() => { }" OnBack="() => { }" />
+        </Template>
+    </Story>
+
+    <Story Name="No workouts">
+        <Template>
+            <ImportReviewView Review="@(Checked.Rejected(FileName, ImportError.NoWorkouts))" OnChooseAnother="() => { }" OnCancel="() => { }" OnBack="() => { }" />
+        </Template>
+    </Story>
+
+    <Story Name="Too large">
+        <Template>
+            <ImportReviewView Review="@(Checked.Rejected(FileName, ImportError.TooLarge))" OnChooseAnother="() => { }" OnCancel="() => { }" OnBack="() => { }" />
+        </Template>
+    </Story>
+
+    <Story Name="Reading another file">
+        <Template>
+            <ImportReviewView Review="@(Checked.Rejected("photo.json", ImportError.NotAnExport))" Reading OnChooseAnother="() => { }" OnCancel="() => { }" OnBack="() => { }" />
+        </Template>
+    </Story>
+
+</Stories>
+
+@code {
+    private const string FileName = "workout-log-2026-10-26-1805.json";
+
+    /// <summary>A review of <see cref="FileName"/> against 41 workouts on the phone.</summary>
+    private static Checked Review(int fresh = 0, int already = 0, int different = 0, int skipped = 0) =>
+        new(FileName, fresh + already + different + skipped, fresh, already, different, skipped, PhoneCount: 41);
+}

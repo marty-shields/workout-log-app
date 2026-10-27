@@ -1,0 +1,31 @@
+@attribute [Stories("Components/Inputs/RadioGroup")]
+
+<Stories TComponent="RadioGroup<string>" Layout="typeof(ThemeLayout)">
+
+    <Story Name="First chosen">
+        <Template>
+            <RadioGroup TValue="string" Label="How to import" Options="Options" Value="@("add")" ValueChanged="(string _) => { }" TestId="import-mode" />
+        </Template>
+    </Story>
+
+    <Story Name="Second chosen">
+        <Template>
+            <RadioGroup TValue="string" Label="How to import" Options="Options" Value="@("replace")" ValueChanged="(string _) => { }" TestId="import-mode" />
+        </Template>
+    </Story>
+
+    <Story Name="Disabled">
+        <Template>
+            <RadioGroup TValue="string" Label="How to import" Options="Options" Value="@("add")" Disabled TestId="import-mode" />
+        </Template>
+    </Story>
+
+</Stories>
+
+@code {
+    private static readonly IReadOnlyList<RadioOption<string>> Options =
+    [
+        new("add", "Add to my workouts", "import-add"),
+        new("replace", "Replace all my workouts", "import-replace", "Deletes the 41 on this phone"),
+    ];
+}

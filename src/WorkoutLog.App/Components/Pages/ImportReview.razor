@@ -1,0 +1,5 @@
+@page "/settings/import"
+@using WorkoutLog.UI.Screens
+@inject NavigationManager Navigation
+
+<ImportReviewPage OnBack="@(() => Navigation.GoTo("settings"))" OnImported="@(() => Navigation.GoTo("settings"))" />

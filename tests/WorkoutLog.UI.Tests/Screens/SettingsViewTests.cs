@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Testing;
 using Microsoft.JSInterop;
+using WorkoutLog.Core.Services;
 using WorkoutLog.UI.Logging;
 using WorkoutLog.UI.Models.Settings;
 using WorkoutLog.UI.Screens;
@@ -204,6 +205,123 @@ public class SettingsViewTests : ComponentTestBase
         {
             Assert.That(logger.LatestRecord.Exception, Is.TypeOf<JSException>());
             Assert.That(cut.FindAll("[data-testid=export-error]"), Has.Count.EqualTo(1));
+        });
+    }
+
+    [Test]
+    public void Loaded_ShowsTheImportTextAndAnEnabledSecondaryImport()
+    {
+        var cut = Render(count: 0);
+
+        var import = cut.Find("[data-testid=import]");
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.Find("[data-testid=import-text]").TextContent, Is.EqualTo("Import workouts from a JSON file exported by Workout Log"));
+            Assert.That(import.TextContent.Trim(), Is.EqualTo("Import"));
+            Assert.That(import.HasAttribute("disabled"), Is.False);
+            Assert.That(import.ClassList, Does.Contain("secondary").And.Contain("full"));
+            Assert.That(cut.FindAll("[data-testid=import-error]"), Is.Empty);
+            Assert.That(cut.FindAll("[data-testid=import-done]"), Is.Empty);
+        });
+    }
+
+    [Test]
+    public void Import_RaisesOnImport()
+    {
+        var imports = 0;
+        var cut = Context.Render<SettingsView>(p => p.Add(x => x.OnImport, () => imports++));
+
+        cut.Find("[data-testid=import]").Click();
+
+        Assert.That(imports, Is.EqualTo(1));
+    }
+
+    [Test]
+    public void Reading_ShowsImportBusyIgnoresTapsAndDisablesExport()
+    {
+        var imports = 0;
+        var cut = Context.Render<SettingsView>(p => p.Add(x => x.Count, 3).Add(x => x.Reading, true).Add(x => x.OnImport, () => imports++));
+
+        var import = cut.Find("[data-testid=import]");
+        import.Click();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(import.TextContent.Trim(), Is.EqualTo("Reading…"));
+            Assert.That(import.GetAttribute("aria-busy"), Is.EqualTo("true"));
+            Assert.That(imports, Is.Zero);
+            Assert.That(cut.Find("[data-testid=export]").HasAttribute("disabled"), Is.True);
+        });
+    }
+
+    [Test]
+    public void Exporting_DisablesImport()
+    {
+        var cut = Context.Render<SettingsView>(p => p.Add(x => x.Count, 3).Add(x => x.Exporting, true));
+
+        Assert.That(cut.Find("[data-testid=import]").HasAttribute("disabled"), Is.True);
+    }
+
+    [Test]
+    public void ImportFailed_ShowsTheErrorUnderImportAndFocusesImport()
+    {
+        var cut = Render(count: 3);
+        var import = cut.Find("[data-testid=import]").GetAttribute("blazor:elementReference");
+
+        cut.Render(p => p.Add(x => x.ImportFailed, true));
+
+        var error = cut.Find("[data-testid=import-error]");
+        Assert.Multiple(() =>
+        {
+            Assert.That(error.TextContent, Is.EqualTo("Couldn't import your workouts. Try again"));
+            Assert.That(error.GetAttribute("role"), Is.EqualTo("alert"));
+            Assert.That(error.PreviousElementSibling!.GetAttribute("data-testid"), Is.EqualTo("import"));
+        });
+        cut.WaitForAssertion(() => Assert.That(((ElementReference)Focuses().Single().Arguments[0]!).Id, Is.EqualTo(import)));
+    }
+
+    [Test]
+    public void ImportFailed_RenderedAgain_DoesNotFocusAgain()
+    {
+        var cut = Render(count: 3);
+        cut.Render(p => p.Add(x => x.ImportFailed, true));
+        cut.WaitForAssertion(() => Assert.That(Focuses(), Has.Count.EqualTo(1)));
+
+        cut.Render(p => p.Add(x => x.Count, 4));
+
+        Assert.That(Focuses(), Has.Count.EqualTo(1));
+    }
+
+    [Test]
+    public void ImportFocusFails_LogsAWarningAndKeepsTheMessage()
+    {
+        var logger = new FakeLogger<SettingsView>();
+        Context.Services.AddSingleton<ILogger<SettingsView>>(logger);
+        Context.JSInterop.SetupVoid("Blazor._internal.domWrapper.focus", _ => true).SetException(new JSException("Focus failed"));
+
+        var cut = Render(count: 3);
+        cut.Render(p => p.Add(x => x.ImportFailed, true));
+
+        cut.WaitForAssertion(() => Assert.That(LoggedEvents.Of(logger), Is.EqualTo(new[] { (UiEvent.SettingsImportFocusFailed, LogLevel.Warning, "Focusing Import failed") })));
+        Assert.That(cut.FindAll("[data-testid=import-error]"), Has.Count.EqualTo(1));
+    }
+
+    [TestCase(3, 2, 1, "Added 3 workouts, replaced 2, skipped 1")]
+    [TestCase(1, 0, 0, "Added 1 workout")]
+    [TestCase(0, 2, 0, "Added 0 workouts, replaced 2")]
+    [TestCase(44, 0, 1, "Added 44 workouts, skipped 1")]
+    [TestCase(1042, 1001, 1500, "Added 1,042 workouts, replaced 1,001, skipped 1,500")]
+    public void Imported_ShowsTheDoneMessageUnderImport(int added, int replaced, int skipped, string text)
+    {
+        var cut = Context.Render<SettingsView>(p => p.Add(x => x.Imported, new ImportResult(ImportStatus.Imported, added, replaced, skipped)));
+
+        var done = cut.Find("[data-testid=import-done]");
+        Assert.Multiple(() =>
+        {
+            Assert.That(done.TextContent, Is.EqualTo(text));
+            Assert.That(done.GetAttribute("role"), Is.EqualTo("status"));
+            Assert.That(done.PreviousElementSibling!.GetAttribute("data-testid"), Is.EqualTo("import"));
+            Assert.That(Context.JSInterop.Invocations.Where(i => i.Identifier == "Blazor._internal.domWrapper.focus"), Is.Empty);
         });
     }
 

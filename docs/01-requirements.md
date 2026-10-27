@@ -15,7 +15,7 @@
 | FR-08 | Remove | A set or a whole exercise can be removed while logging or editing. A cardio entry is removed only with its exercise. |
 | FR-09 | Save button | The workout page has a Save button. Save is allowed only when the workout has at least one exercise, every exercise has at least one set or entry, and every set and entry has all its required metrics. Otherwise the page stays open, the error shows on the exercise or set at fault, and nothing is saved. |
 | FR-10 | Finish time | The first save records the finish time. Total time = finish − start. |
-| FR-11 | Times fixed | After the first save, start and finish never change. There is no manual edit. |
+| FR-11 | Times fixed | After the first save, start and finish never change. There is no manual edit. The one exception is Import's **Use the file's**, which sets the finish from the file (FR-52). |
 | FR-12 | Leave unsaved new workout | The back button asks **Discard / Cancel**. Discard drops the workout; Cancel stays on the page. If the app is killed or crashes, the workout is lost. |
 | FR-13 | After save | Saving (new or edit) returns to the Dashboard. |
 | FR-14 | Multiple per day | More than one workout can be logged on the same day. |
@@ -54,6 +54,7 @@
 |---|---|---|
 | FR-50 | Settings screen | Shows the title "Settings" and a back arrow. Back, or Android back, returns to the Dashboard. |
 | FR-51 | Export workouts | Settings shows how many workouts are saved and exports them all to one JSON file ([format](02-data-model.md#export-file)), then opens Android's share sheet. With no workouts, Export is disabled. A file over 5 MB isn't written. |
+| FR-52 | Import workouts | Settings imports a file made by Export, picked with Android's file picker. The whole file is read and checked ([rules](02-data-model.md#import)), then [Import Review](../src/WorkoutLog.UI.Stories/Stories/Screens/ImportReview.md) shows how many workouts are new, already on the phone, different or can't be imported. **Add to my workouts** adds the new ones and, for different ones, keeps the phone's or uses the file's; **Replace all my workouts** deletes the phone's after a prompt and adds every one that can be imported. Nothing is written until Import; the write is all or nothing. Settings then says what was added, replaced and skipped. |
 
 ## Non-functional
 | ID | Requirement |

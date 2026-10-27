@@ -1,0 +1,210 @@
+@using System.Globalization
+@using Microsoft.Extensions.Logging
+@using WorkoutLog.Core.Services
+@using WorkoutLog.UI.Components.Inputs
+@using WorkoutLog.UI.Components.Overlays
+@inject ILogger<ImportReviewView> Logger
+<AppScreen Title="Import workouts" OnBack="OnBack">
+    <ChildContent>
+        <div class="content">
+            <div class="file">
+                <p class="name" data-testid="review-file-name">@Review.FileName</p>
+                @if (Review.Error == ImportError.None)
+                {
+                    <p class="total" data-testid="review-total">@Workouts(Review.Total) in the file</p>
+                }
+            </div>
+            @if (Review.Error != ImportError.None)
+            {
+                <p class="error" role="alert" data-testid="review-error">@ErrorText</p>
+            }
+            else
+            {
+                <div class="tiles">
+                    <StatTile Label="New" Value="Review.New" TestId="review-new" />
+                    <StatTile Label="Already on this phone" Value="Review.Already" TestId="review-already" />
+                    <StatTile Label="Different on this phone" Value="Review.Different" TestId="review-different" />
+                    <StatTile Label="Can't be imported" Value="Review.Skipped" TestId="review-skipped" />
+                </div>
+                <RadioGroup TValue="ImportMode" Label="How to import" Options="ModeOptions" Value="Mode" ValueChanged="ModeChanged"
+                            Disabled="Importing" TestId="review-mode" />
+                @if (Mode == ImportMode.Add && Review.Different > 0)
+                {
+                    <RadioGroup TValue="DifferentChoice" Label="Different workouts" Options="DifferentOptions" Value="Different"
+                                ValueChanged="DifferentChanged" Disabled="Importing" TestId="review-different-choice" />
+                }
+                @if (Review.Skipped > 0)
+                {
+                    <p class="text" data-testid="review-skipped-text">@SkippedText</p>
+                }
+                @if (NothingNew)
+                {
+                    <p class="text" role="status" data-testid="review-nothing-new">Nothing new to import</p>
+                }
+                @if (Failed)
+                {
+                    <p class="error" role="alert" data-testid="review-failed">Couldn't import your workouts. Try again</p>
+                }
+            }
+        </div>
+    </ChildContent>
+    <BottomBar>
+        <AppButton Variant="ButtonVariant.Secondary" FullWidth Disabled="Importing" TestId="review-cancel" OnClick="OnCancel">Cancel</AppButton>
+        @if (Review.Error != ImportError.None)
+        {
+            <AppButton FullWidth Busy="Reading" TestId="review-choose" OnClick="OnChooseAnother">@(Reading ? "Reading…" : "Choose another file")</AppButton>
+        }
+        else if (Mode == ImportMode.ReplaceAll)
+        {
+            <AppButton @ref="import" Variant="ButtonVariant.Danger" FullWidth Disabled="Importable == 0" Busy="Importing" TestId="review-import" OnClick="OnImport">
+                @(Importing ? "Importing…" : "Replace all")
+            </AppButton>
+        }
+        else
+        {
+            <AppButton @ref="import" FullWidth Disabled="NothingNew" Busy="Importing" TestId="review-import" OnClick="OnImport">
+                @(Importing ? "Importing…" : "Import")
+            </AppButton>
+        }
+    </BottomBar>
+</AppScreen>
+@if (Confirming)
+{
+    <ConfirmDialog Title="@ConfirmTitle" ConfirmText="Replace" Danger OnConfirm="OnConfirmReplace" OnCancel="OnCancelReplace" TestId="replace-dialog" />
+}
+
+@code {
+    /// <summary>The checked file. When its <see cref="ImportReview.Error"/> isn't None, the error shows instead of the counts.</summary>
+    [Parameter, EditorRequired]
+    public ImportReview Review { get; set; } = null!;
+
+    /// <summary>Chosen way to import.</summary>
+    [Parameter]
+    public ImportMode Mode { get; set; }
+
+    /// <summary>Raised when How to import changes.</summary>
+    [Parameter]
+    public EventCallback<ImportMode> ModeChanged { get; set; }
+
+    /// <summary>Chosen handling of different workouts. Shown for Add when there are any.</summary>
+    [Parameter]
+    public DifferentChoice Different { get; set; }
+
+    /// <summary>Raised when the Different workouts choice changes.</summary>
+    [Parameter]
+    public EventCallback<DifferentChoice> DifferentChanged { get; set; }
+
+    /// <summary>Shows the Replace all confirm dialog.</summary>
+    [Parameter]
+    public bool Confirming { get; set; }
+
+    /// <summary>Shows Import busy, as "Importing…", and disables Cancel and the choices.</summary>
+    [Parameter]
+    public bool Importing { get; set; }
+
+    /// <summary>
+    /// Shows "Couldn't import your workouts. Try again": above the bottom bar, moving focus to Import;
+    /// or in place of the file's error.
+    /// </summary>
+    [Parameter]
+    public bool Failed { get; set; }
+
+    /// <summary>Shows Choose another file busy, as "Reading…", and ignores its taps.</summary>
+    [Parameter]
+    public bool Reading { get; set; }
+
+    /// <summary>Raised by Import and Replace all.</summary>
+    [Parameter]
+    public EventCallback OnImport { get; set; }
+
+    /// <summary>Raised by Replace in the confirm dialog.</summary>
+    [Parameter]
+    public EventCallback OnConfirmReplace { get; set; }
+
+    /// <summary>Raised by Cancel in the confirm dialog and by back while it shows.</summary>
+    [Parameter]
+    public EventCallback OnCancelReplace { get; set; }
+
+    /// <summary>Raised by Cancel.</summary>
+    [Parameter]
+    public EventCallback OnCancel { get; set; }
+
+    /// <summary>Raised by Choose another file.</summary>
+    [Parameter]
+    public EventCallback OnChooseAnother { get; set; }
+
+    /// <summary>Raised by the back arrow and the Android back button.</summary>
+    [Parameter]
+    public EventCallback OnBack { get; set; }
+
+    private AppButton? import;
+    private bool failedShown;
+    private bool focusImport;
+
+    private int Importable => Review.New + Review.Already + Review.Different;
+
+    private bool NothingNew => Mode == ImportMode.Add && Review.New == 0 && (Review.Different == 0 || Different == DifferentChoice.KeepPhones);
+
+    private IReadOnlyList<RadioOption<ImportMode>> ModeOptions =>
+    [
+        new(ImportMode.Add, "Add to my workouts", "review-add"),
+        new(ImportMode.ReplaceAll, "Replace all my workouts", "review-replace", ReplaceHint),
+    ];
+
+    private static readonly IReadOnlyList<RadioOption<DifferentChoice>> DifferentOptions =
+    [
+        new(DifferentChoice.KeepPhones, "Keep this phone's", "review-keep"),
+        new(DifferentChoice.UseFiles, "Use the file's", "review-use-file"),
+    ];
+
+    private string ReplaceHint => Review.PhoneCount == 0
+        ? "No workouts on this phone to delete"
+        : string.Create(CultureInfo.InvariantCulture, $"Deletes the {Review.PhoneCount:N0} on this phone");
+
+    private string SkippedText => Review.Skipped == 1
+        ? "1 workout can't be imported and will be skipped"
+        : string.Create(CultureInfo.InvariantCulture, $"{Review.Skipped:N0} workouts can't be imported and will be skipped");
+
+    private string ConfirmTitle =>
+        string.Create(CultureInfo.InvariantCulture, $"Delete your {Workouts(Review.PhoneCount)} and import {Importable:N0}?");
+
+    private string ErrorText => Failed
+        ? "Couldn't import your workouts. Try again"
+        : Review.Error switch
+        {
+            ImportError.NotAnExport => "This file isn't a Workout Log export",
+            ImportError.NewerVersion => "This file is from a newer version of Workout Log. Update the app to import it",
+            ImportError.NoWorkouts => "This file has no workouts",
+            ImportError.TooLarge => "This file is too large to import",
+            _ => "Couldn't import your workouts. Try again",
+        };
+
+    private static string Workouts(int count) =>
+        string.Create(CultureInfo.InvariantCulture, $"{count:N0} {(count == 1 ? "workout" : "workouts")}");
+
+    protected override void OnParametersSet()
+    {
+        var importFailed = Failed && Review.Error == ImportError.None;
+        focusImport |= importFailed && !failedShown;
+        failedShown = importFailed;
+    }
+
+    /// <summary>Moves focus to Import when the failed message shows.</summary>
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!focusImport || import is null)
+        {
+            return;
+        }
+
+        focusImport = false;
+        try
+        {
+            await import.FocusAsync();
+        }
+        catch (Exception exception)
+        {
+            Log.ImportFocusFailed(Logger, exception);
+        }
+    }
+}

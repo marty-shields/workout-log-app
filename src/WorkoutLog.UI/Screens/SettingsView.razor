@@ -1,5 +1,6 @@
 @using System.Globalization
 @using Microsoft.Extensions.Logging
+@using WorkoutLog.Core.Services
 @using WorkoutLog.UI.Components.Feedback
 @using WorkoutLog.UI.Models.Settings
 @inject ILogger<SettingsView> Logger
@@ -19,12 +20,24 @@
         <section class="section">
             <h2 class="heading">Your data</h2>
             <p class="text" data-testid="export-text">@ExportText</p>
-            <AppButton @ref="export" Variant="ButtonVariant.Secondary" FullWidth Disabled="Count == 0" Busy="Exporting" TestId="export" OnClick="OnExport">
+            <AppButton @ref="export" Variant="ButtonVariant.Secondary" FullWidth Disabled="Count == 0 || Reading" Busy="Exporting" TestId="export" OnClick="OnExport">
                 @(Exporting ? "Exporting…" : "Export")
             </AppButton>
             @if (MessageText is { } message)
             {
                 <p class="error" role="alert" data-testid="export-error">@message</p>
+            }
+            <p class="text" data-testid="import-text">Import workouts from a JSON file exported by Workout Log</p>
+            <AppButton @ref="import" Variant="ButtonVariant.Secondary" FullWidth Disabled="Exporting" Busy="Reading" TestId="import" OnClick="OnImport">
+                @(Reading ? "Reading…" : "Import")
+            </AppButton>
+            @if (ImportFailed)
+            {
+                <p class="error" role="alert" data-testid="import-error">Couldn't import your workouts. Try again</p>
+            }
+            else if (Imported is { } imported)
+            {
+                <p class="text" role="status" data-testid="import-done">@DoneText(imported)</p>
             }
         </section>
     }
@@ -43,13 +56,25 @@
     [Parameter]
     public int Count { get; set; }
 
-    /// <summary>Shows Export busy, as "Exporting…", and ignores its taps.</summary>
+    /// <summary>Shows Export busy, as "Exporting…", and ignores its taps. Disables Import.</summary>
     [Parameter]
     public bool Exporting { get; set; }
 
     /// <summary>Message under Export. Focus moves to Export when <see cref="ExportMessage.Failed"/> shows.</summary>
     [Parameter]
     public ExportMessage ExportMessage { get; set; }
+
+    /// <summary>Shows Import busy, as "Reading…", and ignores its taps. Disables Export.</summary>
+    [Parameter]
+    public bool Reading { get; set; }
+
+    /// <summary>Shows "Couldn't import your workouts. Try again" under Import and moves focus to Import.</summary>
+    [Parameter]
+    public bool ImportFailed { get; set; }
+
+    /// <summary>A finished import, shown under Import as "Added 3 workouts, replaced 2, skipped 1". Null for none.</summary>
+    [Parameter]
+    public ImportResult? Imported { get; set; }
 
     /// <summary>Raised by Try again.</summary>
     [Parameter]
@@ -59,13 +84,20 @@
     [Parameter]
     public EventCallback OnExport { get; set; }
 
+    /// <summary>Raised by Import.</summary>
+    [Parameter]
+    public EventCallback OnImport { get; set; }
+
     /// <summary>Raised by the back arrow and the Android back button.</summary>
     [Parameter]
     public EventCallback OnBack { get; set; }
 
     private AppButton? export;
+    private AppButton? import;
     private ExportMessage shown;
+    private bool importFailedShown;
     private bool focusExport;
+    private bool focusImport;
 
     private string ExportText => Count switch
     {
@@ -81,28 +113,58 @@
         _ => null,
     };
 
+    /// <summary>"Added N workouts", then ", replaced N" and ", skipped N" when not 0.</summary>
+    private static string DoneText(ImportResult result)
+    {
+        var text = string.Create(CultureInfo.InvariantCulture, $"Added {result.Added:N0} {(result.Added == 1 ? "workout" : "workouts")}");
+        if (result.Replaced > 0)
+        {
+            text += string.Create(CultureInfo.InvariantCulture, $", replaced {result.Replaced:N0}");
+        }
+
+        if (result.Skipped > 0)
+        {
+            text += string.Create(CultureInfo.InvariantCulture, $", skipped {result.Skipped:N0}");
+        }
+
+        return text;
+    }
+
     protected override void OnParametersSet()
     {
         focusExport |= ExportMessage == ExportMessage.Failed && shown != ExportMessage.Failed;
         shown = ExportMessage;
+        focusImport |= ImportFailed && !importFailedShown;
+        importFailedShown = ImportFailed;
     }
 
-    /// <summary>Moves focus to Export when the failed message shows.</summary>
+    /// <summary>Moves focus to Export or Import when its failed message shows.</summary>
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (!focusExport || export is null)
+        if (focusExport && export is not null)
         {
-            return;
+            focusExport = false;
+            try
+            {
+                await export.FocusAsync();
+            }
+            catch (Exception exception)
+            {
+                Log.ExportFocusFailed(Logger, exception);
+            }
         }
 
-        focusExport = false;
-        try
+        if (focusImport && import is not null)
         {
-            await export.FocusAsync();
-        }
-        catch (Exception exception)
-        {
-            Log.ExportFocusFailed(Logger, exception);
+            focusImport = false;
+            try
+            {
+                await import.FocusAsync();
+            }
+            catch (Exception exception)
+            {
+                Log.ImportFocusFailed(Logger, exception);
+            }
         }
     }
 }

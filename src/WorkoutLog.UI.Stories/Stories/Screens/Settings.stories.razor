@@ -1,3 +1,4 @@
+@using WorkoutLog.Core.Services
 @using WorkoutLog.UI.Models.Settings
 @attribute [Stories("Screens/Settings")]
 
@@ -5,19 +6,19 @@
 
     <Story Name="With workouts">
         <Template>
-            <SettingsView Count="42" OnExport="() => { }" OnBack="() => { }" />
+            <SettingsView Count="42" OnExport="() => { }" OnImport="() => { }" OnBack="() => { }" />
         </Template>
     </Story>
 
     <Story Name="One workout">
         <Template>
-            <SettingsView Count="1" OnExport="() => { }" OnBack="() => { }" />
+            <SettingsView Count="1" OnExport="() => { }" OnImport="() => { }" OnBack="() => { }" />
         </Template>
     </Story>
 
     <Story Name="No workouts">
         <Template>
-            <SettingsView Count="0" OnExport="() => { }" OnBack="() => { }" />
+            <SettingsView Count="0" OnExport="() => { }" OnImport="() => { }" OnBack="() => { }" />
         </Template>
     </Story>
 
@@ -35,19 +36,37 @@
 
     <Story Name="Exporting">
         <Template>
-            <SettingsView Count="42" Exporting OnExport="() => { }" OnBack="() => { }" />
+            <SettingsView Count="42" Exporting OnExport="() => { }" OnImport="() => { }" OnBack="() => { }" />
         </Template>
     </Story>
 
     <Story Name="Export failed">
         <Template>
-            <SettingsView Count="42" ExportMessage="ExportMessage.Failed" OnExport="() => { }" OnBack="() => { }" />
+            <SettingsView Count="42" ExportMessage="ExportMessage.Failed" OnExport="() => { }" OnImport="() => { }" OnBack="() => { }" />
         </Template>
     </Story>
 
     <Story Name="Too many workouts">
         <Template>
-            <SettingsView Count="12345" ExportMessage="ExportMessage.TooLarge" OnExport="() => { }" OnBack="() => { }" />
+            <SettingsView Count="12345" ExportMessage="ExportMessage.TooLarge" OnExport="() => { }" OnImport="() => { }" OnBack="() => { }" />
+        </Template>
+    </Story>
+
+    <Story Name="Reading">
+        <Template>
+            <SettingsView Count="42" Reading OnExport="() => { }" OnImport="() => { }" OnBack="() => { }" />
+        </Template>
+    </Story>
+
+    <Story Name="Import failed">
+        <Template>
+            <SettingsView Count="42" ImportFailed OnExport="() => { }" OnImport="() => { }" OnBack="() => { }" />
+        </Template>
+    </Story>
+
+    <Story Name="Imported">
+        <Template>
+            <SettingsView Count="45" Imported="new ImportResult(ImportStatus.Imported, 3, 2, 1)" OnExport="() => { }" OnImport="() => { }" OnBack="() => { }" />
         </Template>
     </Story>
 

@@ -15,7 +15,8 @@ public partial class StoryCoverageTests
     private static IEnumerable<TestCaseData> Components() =>
         UiTypes
             .Where(t => typeof(IComponent).IsAssignableFrom(t) && t.Namespace!.StartsWith("WorkoutLog.UI.Components.") && !ShownOnScreens.Contains(t.Name))
-            .Select(t => new TestCaseData(t.Namespace!.Split('.')[^1], t.Name).SetArgDisplayNames(t.Name));
+            .Select(t => (Group: t.Namespace!.Split('.')[^1], Name: t.Name.Split('`')[0]))
+            .Select(c => new TestCaseData(c.Group, c.Name).SetArgDisplayNames(c.Name));
 
     private static IEnumerable<TestCaseData> Views() =>
         UiTypes
@@ -80,7 +81,7 @@ public partial class StoryCoverageTests
     [GeneratedRegex("""\[Stories\("([^"]+)"\)\]""")]
     private static partial Regex StoriesTitle();
 
-    [GeneratedRegex(@"<Stories TComponent=""([A-Za-z]+)""")]
+    [GeneratedRegex(@"<Stories TComponent=""([A-Za-z]+)(?:<[^""]*>)?""")]
     private static partial Regex TComponent();
 
     [GeneratedRegex(@"<Template>\s*(?:@\{[^\n]*\}\s*)?<([A-Za-z]+)")]

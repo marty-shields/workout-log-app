@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Testing;
 using WorkoutLog.Core.Services;
+using WorkoutLog.UI.Import;
 using WorkoutLog.UI.Lifecycle;
 using WorkoutLog.UI.Logging;
 using WorkoutLog.UI.Screens;
@@ -19,6 +20,8 @@ public class SettingsPageTests : ComponentTestBase
     private FakeFileShare share = null!;
     private FakeLogger<SettingsPage> logger = null!;
     private AppLifecycle lifecycle = null!;
+    private FakeImportFileOpener opener = null!;
+    private ImportSession session = null!;
 
     [SetUp]
     public void SetUp()
@@ -31,6 +34,10 @@ public class SettingsPageTests : ComponentTestBase
         Context.Services.AddSingleton<ILogger<SettingsPage>>(logger);
         lifecycle = new AppLifecycle(new FakeLogger<AppLifecycle>());
         Context.Services.AddSingleton<IAppStart>(lifecycle);
+        opener = new FakeImportFileOpener();
+        Context.Services.AddSingleton<IImportFileOpener>(opener);
+        session = new ImportSession();
+        Context.Services.AddSingleton(session);
     }
 
     [Test]
@@ -289,9 +296,231 @@ public class SettingsPageTests : ComponentTestBase
         Assert.That(share.Calls, Is.Empty);
     }
 
-    private async Task<IRenderedComponent<SettingsPage>> LoadedAsync(int count)
+    [Test]
+    public async Task Import_ShowsReadingThenOpensTheReviewWithTheFileInTheSession()
     {
-        var cut = Context.Render<SettingsPage>(p => p.Add(x => x.OnBack, () => { }));
+        var reviews = 0;
+        var cut = await LoadedAsync(3, onImportReview: () => reviews++);
+        var review = new ImportReview("f.json", 1, 1, 0, 0, 0, 3);
+
+        cut.Find("[data-testid=import]").Click();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.Find("[data-testid=import]").TextContent.Trim(), Is.EqualTo("Reading…"));
+            Assert.That(cut.Find("[data-testid=export]").HasAttribute("disabled"), Is.True);
+            Assert.That(opener.Calls, Is.EqualTo(1));
+        });
+        opener.Complete(review);
+        await WaitForRendererAsync();
+
+        cut.WaitForAssertion(() => Assert.That(reviews, Is.EqualTo(1)));
+        Assert.That(session.Review, Is.SameAs(review));
+    }
+
+    [TestCase(ImportError.NotAnExport)]
+    [TestCase(ImportError.NewerVersion)]
+    [TestCase(ImportError.NoWorkouts)]
+    [TestCase(ImportError.TooLarge)]
+    public async Task Import_FileThatCantBeImported_OpensTheReview(ImportError error)
+    {
+        var reviews = 0;
+        var cut = await LoadedAsync(3, onImportReview: () => reviews++);
+
+        cut.Find("[data-testid=import]").Click();
+        opener.Complete(ImportReview.Rejected("f.json", error));
+        await WaitForRendererAsync();
+
+        cut.WaitForAssertion(() => Assert.That(reviews, Is.EqualTo(1)));
+        Assert.That(session.Review!.Error, Is.EqualTo(error));
+    }
+
+    [Test]
+    public async Task Import_PickerCancelled_LeavesSettingsAsItWas()
+    {
+        var reviews = 0;
+        var cut = await LoadedAsync(3, onImportReview: () => reviews++);
+
+        cut.Find("[data-testid=import]").Click();
+        opener.Complete(null);
+        await WaitForRendererAsync();
+
+        cut.WaitForAssertion(() => Assert.That(cut.Find("[data-testid=import]").TextContent.Trim(), Is.EqualTo("Import")));
+        Assert.Multiple(() =>
+        {
+            Assert.That(reviews, Is.Zero);
+            Assert.That(session.Review, Is.Null);
+            Assert.That(cut.FindAll("[data-testid=import-error]"), Is.Empty);
+        });
+    }
+
+    [Test]
+    public async Task Import_PickerThrows_ShowsTheFailedMessageAndLogsTheError()
+    {
+        var reviews = 0;
+        var cut = await LoadedAsync(3, onImportReview: () => reviews++);
+        var exception = new InvalidOperationException("No picker");
+
+        cut.Find("[data-testid=import]").Click();
+        opener.Fail(exception);
+        await WaitForRendererAsync();
+
+        cut.WaitForAssertion(() => Assert.That(cut.Find("[data-testid=import-error]").TextContent, Is.EqualTo("Couldn't import your workouts. Try again")));
+        Assert.Multiple(() =>
+        {
+            Assert.That(reviews, Is.Zero);
+            Assert.That(cut.Find("[data-testid=import]").TextContent.Trim(), Is.EqualTo("Import"));
+            Assert.That(LoggedEvents.Of(logger), Is.EqualTo(new[] { (UiEvent.SettingsPickFailed, LogLevel.Error, "Picking or opening the import file failed") }));
+            Assert.That(logger.LatestRecord.Exception, Is.SameAs(exception));
+        });
+    }
+
+    [Test]
+    public async Task Import_ReadFailed_ShowsTheFailedMessageAndStays()
+    {
+        var reviews = 0;
+        var cut = await LoadedAsync(3, onImportReview: () => reviews++);
+
+        cut.Find("[data-testid=import]").Click();
+        opener.Complete(ImportReview.Rejected("f.json", ImportError.Failed));
+        await WaitForRendererAsync();
+
+        cut.WaitForAssertion(() => Assert.That(cut.FindAll("[data-testid=import-error]"), Has.Count.EqualTo(1)));
+        Assert.Multiple(() =>
+        {
+            Assert.That(reviews, Is.Zero);
+            Assert.That(session.Review, Is.Null);
+        });
+    }
+
+    [Test]
+    public async Task Import_TapsAndReloadsWhileReading_AreIgnored()
+    {
+        var cut = await LoadedAsync(3);
+
+        cut.Find("[data-testid=import]").Click();
+        cut.Find("[data-testid=import]").Click();
+        cut.Find("[data-testid=export]").Click();
+        await lifecycle.NotifyStartedAsync();
+        opener.Complete(null);
+        await WaitForRendererAsync();
+        cut.WaitForAssertion(() => Assert.That(cut.Find("[data-testid=import]").TextContent.Trim(), Is.EqualTo("Import")));
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(opener.Calls, Is.EqualTo(1));
+            Assert.That(export.ExportCalls, Is.Zero);
+            Assert.That(export.CountCalls, Is.EqualTo(1));
+        });
+    }
+
+    [Test]
+    public async Task Import_TapWhileExporting_IsIgnored()
+    {
+        var cut = await LoadedAsync(3);
+
+        cut.Find("[data-testid=export]").Click();
+        cut.Find("[data-testid=import]").Click();
+
+        Assert.That(opener.Calls, Is.Zero);
+    }
+
+    [Test]
+    public async Task Import_Disposed_WhileReading_DoesNotOpenTheReview()
+    {
+        var reviews = 0;
+        var cut = await LoadedAsync(3, onImportReview: () => reviews++);
+        cut.Find("[data-testid=import]").Click();
+
+        await Context.DisposeComponentsAsync();
+        opener.Complete(new ImportReview("f.json", 1, 1, 0, 0, 0, 3));
+        await WaitForRendererAsync();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(reviews, Is.Zero);
+            Assert.That(session.Review, Is.Null);
+        });
+    }
+
+    [Test]
+    public async Task Imported_ShowsTheDoneMessageOnce()
+    {
+        session.Done = new ImportResult(ImportStatus.Imported, 3, 2, 1);
+
+        var cut = await LoadedAsync(45);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.Find("[data-testid=import-done]").TextContent, Is.EqualTo("Added 3 workouts, replaced 2, skipped 1"));
+            Assert.That(session.Done, Is.Null);
+        });
+    }
+
+    [Test]
+    public async Task DoneMessage_ClearsOnTheNextExportTap()
+    {
+        session.Done = new ImportResult(ImportStatus.Imported, 3, 0, 0);
+        var cut = await LoadedAsync(3);
+
+        cut.Find("[data-testid=export]").Click();
+
+        Assert.That(cut.FindAll("[data-testid=import-done]"), Is.Empty);
+    }
+
+    [Test]
+    public async Task DoneMessage_ClearsOnTheNextImportTap()
+    {
+        session.Done = new ImportResult(ImportStatus.Imported, 3, 0, 0);
+        var cut = await LoadedAsync(3);
+
+        cut.Find("[data-testid=import]").Click();
+
+        Assert.That(cut.FindAll("[data-testid=import-done]"), Is.Empty);
+    }
+
+    [Test]
+    public async Task DoneMessage_ClearsOnAppStartReload()
+    {
+        session.Done = new ImportResult(ImportStatus.Imported, 3, 0, 0);
+        var cut = await LoadedAsync(3);
+
+        var started = lifecycle.NotifyStartedAsync();
+        export.CompleteCount(new ExportCount(3, Failed: false));
+        await WaitForRendererAsync();
+        await started;
+
+        cut.WaitForAssertion(() => Assert.That(cut.FindAll("[data-testid=import]"), Has.Count.EqualTo(1)));
+        Assert.That(cut.FindAll("[data-testid=import-done]"), Is.Empty);
+    }
+
+    [Test]
+    public async Task ImportFailedMessage_ClearsOnTheNextExportTap()
+    {
+        var cut = await LoadedAsync(3);
+        cut.Find("[data-testid=import]").Click();
+        opener.Fail(new InvalidOperationException("No picker"));
+        await WaitForRendererAsync();
+        cut.WaitForAssertion(() => Assert.That(cut.FindAll("[data-testid=import-error]"), Has.Count.EqualTo(1)));
+
+        cut.Find("[data-testid=export]").Click();
+
+        Assert.That(cut.FindAll("[data-testid=import-error]"), Is.Empty);
+    }
+
+    [Test]
+    public async Task ExportMessage_ClearsOnTheNextImportTap()
+    {
+        var cut = await ExportFailedAsync();
+
+        cut.Find("[data-testid=import]").Click();
+
+        Assert.That(cut.FindAll("[data-testid=export-error]"), Is.Empty);
+    }
+
+    private async Task<IRenderedComponent<SettingsPage>> LoadedAsync(int count, Action? onImportReview = null)
+    {
+        var cut = Context.Render<SettingsPage>(p => p.Add(x => x.OnBack, () => { }).Add(x => x.OnImportReview, onImportReview ?? (() => { })));
         export.CompleteCount(new ExportCount(count, Failed: false));
         await WaitForRendererAsync();
         cut.WaitForAssertion(() => Assert.That(cut.FindAll("[data-testid=export]"), Has.Count.EqualTo(1)));

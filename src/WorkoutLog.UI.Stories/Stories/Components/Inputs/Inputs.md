@@ -18,4 +18,8 @@ One text box with `inputmode="numeric"` (whole) or `"decimal"`.
 Three boxes, h : mm : ss, or two for pace, m : ss. When focus leaves, empty boxes become 0 and minutes and seconds are padded to two digits (D31).
 - `data-testid`: `{TestId}-h`, `{TestId}-mm`, `{TestId}-ss` (pace: `{TestId}-m`, `{TestId}-ss`).
 
-Stories: [FieldInput](./?path=/docs/components-inputs-fieldinput--docs) · [NumberField](./?path=/docs/components-inputs-numberfield--docs) · [DurationField](./?path=/docs/components-inputs-durationfield--docs)
+## `RadioGroup`
+A labelled group of choices; one is chosen. Each choice is a full-width row with a radio, its label and an optional hint under it. The chosen row is highlighted. Disabled dims every row and ignores taps.
+- `data-testid`: `TestId` on the group; each option's `TestId` on its radio.
+
+Stories: [FieldInput](./?path=/docs/components-inputs-fieldinput--docs) · [NumberField](./?path=/docs/components-inputs-numberfield--docs) · [DurationField](./?path=/docs/components-inputs-durationfield--docs) · [RadioGroup](./?path=/docs/components-inputs-radiogroup--docs)

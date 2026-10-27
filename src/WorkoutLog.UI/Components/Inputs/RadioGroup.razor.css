@@ -1,0 +1,91 @@
+.group {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+    border: 0;
+}
+
+.legend {
+    margin-bottom: var(--space-2);
+    padding: 0;
+    font-weight: var(--font-weight-bold);
+}
+
+.option {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    min-height: var(--touch-target);
+    padding: var(--space-2) var(--space-3);
+    border: var(--border-width) solid var(--color-border);
+    border-radius: var(--radius-md);
+    background: var(--color-surface);
+    cursor: pointer;
+}
+
+.option:has(.radio:checked) {
+    border-color: var(--color-primary);
+    background: var(--color-selected);
+}
+
+/* The whole option is the hit area; the dot draws the radio. */
+.radio {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    min-height: var(--touch-target);
+    margin: 0;
+    opacity: 0;
+    cursor: pointer;
+}
+
+.dot {
+    flex: none;
+    display: grid;
+    place-items: center;
+    width: var(--radio-size);
+    height: var(--radio-size);
+    border: var(--border-width-error) solid var(--color-border-strong);
+    border-radius: var(--radius-round);
+    background: var(--color-bg);
+}
+
+.radio:checked + .dot {
+    border-color: var(--color-primary);
+}
+
+.radio:checked + .dot::after {
+    content: "";
+    width: var(--radio-dot-size);
+    height: var(--radio-dot-size);
+    border-radius: var(--radius-round);
+    background: var(--color-primary);
+}
+
+.radio:focus-visible + .dot {
+    outline: var(--focus-width) solid var(--color-focus);
+    outline-offset: var(--focus-offset);
+}
+
+.texts {
+    display: flex;
+    flex-direction: column;
+}
+
+.hint {
+    color: var(--color-text-muted);
+    font-size: var(--font-size-sm);
+}
+
+.group:disabled .option {
+    opacity: var(--opacity-disabled);
+    cursor: default;
+}
+
+.group:disabled .radio {
+    cursor: default;
+}

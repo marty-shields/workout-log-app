@@ -2,4 +2,4 @@
 @using WorkoutLog.UI.Screens
 @inject NavigationManager Navigation
 
-<SettingsPage OnBack="@(() => Navigation.GoTo(string.Empty))" />
+<SettingsPage OnBack="@(() => Navigation.GoTo(string.Empty))" OnImportReview="@(() => Navigation.GoTo("settings/import"))" />

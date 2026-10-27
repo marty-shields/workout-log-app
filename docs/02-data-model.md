@@ -129,6 +129,22 @@ A number too large for the set's types is capped (weight, distance, incline and 
 ```
 (Line breaks added here for reading.)
 
+## Import
+`IImportService` reads a file made by Export (FR-52, D190):
+- At most 5 MB (5,242,880 bytes): checked by the picked file's size when known, and by the read.
+- **Not an export**: not JSON, not an object, no `workouts` list, `formatVersion` missing or not a whole number of 1 or more, `exportedAt` not `yyyy-MM-ddTHH:mm:ssZ`, or `appVersion` missing or blank. A newer `formatVersion` than the app's is its own error; so is an empty `workouts` list.
+- Each workout is read on its own. One that can't be read (a missing or wrong-typed value, an exercise with both or neither of `sets` and `entry`) is **malformed**; the others still import.
+- Then each workout is checked; it can't be imported when it is malformed, or:
+  - `startedAt` is missing or not in the export's format, or another workout in the file has the same start (malformed ones count);
+  - `finishedAt` is missing, not in the export's format, or before the start;
+  - an exercise id isn't in the exercise list, or an exercise's `type`, `distanceUnit`, `rateUnit` or `paceUnit` differs from the list's (missing or extra counts; names are ignored, D61);
+  - it fails Save's checks (FR-09, limits D33).
+- A workout that passes is **new** when no phone workout has its start (D186), **already on this phone** when one has it with the same contents, and **different** otherwise. Contents compare as the export writes them: finish to the tick, exercises and sets in order, decimals rounded to 2 places, durations and paces to the second.
+- **Add** adds the new ones; **Use the file's** replaces a different workout's finish, exercises, sets and entries. **Replace all** deletes every phone workout and adds every one that can be imported. Either runs in one transaction.
+
+## Format upgrades
+- An older `formatVersion` is upgraded on the whole file before it is read, by numbered steps (`IFormatUpgrade`) from 2, exactly one for each version up to the app's. Version 1 is the only one so far, so there are none.
+
 ## Seeding the exercise list
 - On startup, `IExerciseSeeder` inserts any exercise Id from the definition file that is missing from the database. It never removes rows, and exercises are never hidden from the picker.
 - A changed name or type in a later app version updates the row by Id (D61).

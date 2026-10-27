@@ -19,7 +19,7 @@ public class WorkoutRepositoryTests
         databasePath = TempDatabase.NewPath();
         connection = new SQLiteAsyncConnection(databasePath);
         await connection.CreateTablesAsync<WorkoutRow, WorkoutExerciseRow, StrengthSetRow, CardioEntryRow>();
-        repository = new WorkoutRepository(connection);
+        repository = new WorkoutRepository(connection, new WorkoutWriterFactory());
     }
 
     [TearDown]

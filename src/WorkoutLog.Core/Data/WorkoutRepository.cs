@@ -3,29 +3,20 @@ using WorkoutLog.Core.Domain.Workouts;
 
 namespace WorkoutLog.Core.Data;
 
-/// <summary>Stores workouts in SQLite and deletes child rows in code.</summary>
-internal sealed class WorkoutRepository(SQLiteAsyncConnection connection) : IWorkoutRepository
+/// <summary>Reads workouts from SQLite and runs each write in its own transaction through an <see cref="IWorkoutWriter"/>.</summary>
+internal sealed class WorkoutRepository(SQLiteAsyncConnection connection, IWorkoutWriterFactory writers) : IWorkoutRepository
 {
     /// <inheritdoc />
     public async Task<int> AddAsync(NewWorkout workout)
     {
-        var row = new WorkoutRow { StartedAt = workout.StartedAt, FinishedAt = workout.FinishedAt };
-        await connection.RunInTransactionAsync(db =>
-        {
-            db.Insert(row);
-            InsertExercises(db, row.Id, workout.Exercises);
-        });
-        return row.Id;
+        var id = 0;
+        await connection.RunInTransactionAsync(db => id = writers.Create(db).Add(workout));
+        return id;
     }
 
     /// <inheritdoc />
     public Task ReplaceExercisesAsync(int workoutId, IReadOnlyList<WorkoutExercise> exercises) =>
-        connection.RunInTransactionAsync(db =>
-        {
-            EnsureExists(db, workoutId);
-            DeleteExercises(db, workoutId);
-            InsertExercises(db, workoutId, exercises);
-        });
+        connection.RunInTransactionAsync(db => writers.Create(db).ReplaceExercises(workoutId, exercises));
 
     /// <inheritdoc />
     public async Task<Workout?> GetAsync(int id)
@@ -106,72 +97,7 @@ internal sealed class WorkoutRepository(SQLiteAsyncConnection connection) : IWor
 
     /// <inheritdoc />
     public Task DeleteAsync(int id) =>
-        connection.RunInTransactionAsync(db =>
-        {
-            EnsureExists(db, id);
-            DeleteExercises(db, id);
-            db.Delete<WorkoutRow>(id);
-        });
-
-    private static void EnsureExists(SQLiteConnection db, int workoutId)
-    {
-        if (db.Find<WorkoutRow>(workoutId) is null)
-        {
-            throw new KeyNotFoundException($"Workout {workoutId} not found");
-        }
-    }
-
-    private static void DeleteExercises(SQLiteConnection db, int workoutId)
-    {
-        const string exerciseIds = "SELECT Id FROM WorkoutExercise WHERE WorkoutId = ?";
-        db.Execute($"DELETE FROM StrengthSet WHERE WorkoutExerciseId IN ({exerciseIds})", workoutId);
-        db.Execute($"DELETE FROM CardioEntry WHERE WorkoutExerciseId IN ({exerciseIds})", workoutId);
-        db.Execute("DELETE FROM WorkoutExercise WHERE WorkoutId = ?", workoutId);
-    }
-
-    private static void InsertExercises(SQLiteConnection db, int workoutId, IReadOnlyList<WorkoutExercise> exercises)
-    {
-        for (var i = 0; i < exercises.Count; i++)
-        {
-            var exerciseRow = new WorkoutExerciseRow { WorkoutId = workoutId, ExerciseId = exercises[i].ExerciseId, Position = i };
-            db.Insert(exerciseRow);
-
-            switch (exercises[i])
-            {
-                case StrengthExercise strength:
-                    db.InsertAll(strength.Sets.Select((s, position) => ToRow(s, exerciseRow.Id, position)), runInTransaction: false);
-                    break;
-                case CardioExercise cardio:
-                    db.Insert(ToRow(cardio.Entry, exerciseRow.Id));
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(exercises), $"Unknown exercise type {exercises[i].GetType().Name}");
-            }
-        }
-    }
-
-    private static StrengthSetRow ToRow(StrengthSet set, int workoutExerciseId, int position) => new()
-    {
-        WorkoutExerciseId = workoutExerciseId,
-        Position = position,
-        Reps = set.Reps,
-        WeightKg = set.WeightKg,
-        Duration = set.Duration,
-        Distance = set.Distance,
-    };
-
-    private static CardioEntryRow ToRow(CardioEntry entry, int workoutExerciseId) => new()
-    {
-        WorkoutExerciseId = workoutExerciseId,
-        Duration = entry.Duration ?? throw new ArgumentException("Cardio entry has no duration", nameof(entry)),
-        Distance = entry.Distance,
-        Floors = entry.Floors,
-        Level = entry.Level,
-        Incline = entry.Incline,
-        Calories = entry.Calories,
-        Rate = entry.Rate,
-        Pace = entry.Pace,
-    };
+        connection.RunInTransactionAsync(db => writers.Create(db).Delete(id));
 
     /// <summary>Builds each exercise: cardio when it has an entry, otherwise strength with its sets.</summary>
     private static List<WorkoutExercise> ToExercises(

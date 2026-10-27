@@ -43,7 +43,12 @@ public partial class EventIdTests
             [UiEvent.AppStartHandlerFailed] = 3201,
             [UiEvent.LoadFailedFocusFailed] = 3301,
             [UiEvent.ShareFailed] = 3401,
+            [UiEvent.SettingsPickFailed] = 3402,
             [UiEvent.ExportFocusFailed] = 3501,
+            [UiEvent.SettingsImportFocusFailed] = 3502,
+            [UiEvent.ReviewImportFocusFailed] = 3601,
+            [UiEvent.ReviewPickFailed] = 3701,
+            [UiEvent.ImportFileTooLarge] = 3801,
         }));
 
     [Test]

@@ -1,0 +1,160 @@
+@using Microsoft.Extensions.Logging
+@using WorkoutLog.Core.Services
+@using WorkoutLog.UI.Import
+@implements IDisposable
+@inject IImportService Import
+@inject IImportFileOpener Opener
+@inject ImportSession Session
+@inject ILogger<ImportReviewPage> Logger
+
+@if (review is not null)
+{
+    <ImportReviewView Review="review" Mode="mode" ModeChanged="OnModeChanged" Different="different" DifferentChanged="OnDifferentChanged"
+                      Confirming="confirming" Importing="importing" Failed="failed" Reading="reading"
+                      OnImport="OnImportAsync" OnConfirmReplace="OnConfirmReplaceAsync" OnCancelReplace="OnCancelReplace"
+                      OnCancel="LeaveAsync" OnChooseAnother="ChooseAnotherAsync" OnBack="LeaveAsync" />
+}
+
+@code {
+    private ImportReview? review;
+    private ImportMode mode;
+    private DifferentChoice different;
+    private bool confirming;
+    private bool importing;
+    private bool failed;
+    private bool reading;
+    private bool disposed;
+
+    /// <summary>Raised by Cancel and back, and when there is no file to review. <see cref="ImportSession.Review"/> is cleared first.</summary>
+    [Parameter]
+    public EventCallback OnBack { get; set; }
+
+    /// <summary>Raised after an import is written. <see cref="ImportSession.Done"/> holds its result.</summary>
+    [Parameter]
+    public EventCallback OnImported { get; set; }
+
+    /// <summary>Shows <see cref="ImportSession.Review"/>; with none, goes back.</summary>
+    protected override async Task OnInitializedAsync()
+    {
+        review = Session.Review;
+        if (review is null)
+        {
+            await OnBack.InvokeAsync();
+        }
+    }
+
+    public void Dispose() => disposed = true;
+
+    private void OnModeChanged(ImportMode value) => mode = value;
+
+    private void OnDifferentChanged(DifferentChoice value) => different = value;
+
+    /// <summary>Import runs the import; Replace all asks first.</summary>
+    private Task OnImportAsync()
+    {
+        if (importing)
+        {
+            return Task.CompletedTask;
+        }
+
+        if (mode == ImportMode.ReplaceAll)
+        {
+            confirming = true;
+            return Task.CompletedTask;
+        }
+
+        return RunAsync();
+    }
+
+    private Task OnConfirmReplaceAsync()
+    {
+        confirming = false;
+        return RunAsync();
+    }
+
+    private void OnCancelReplace() => confirming = false;
+
+    /// <summary>
+    /// Writes the import, showing Import busy; ignored while one runs. On success goes to Settings with the result; on failure shows the failed message.
+    /// </summary>
+    private async Task RunAsync()
+    {
+        if (importing)
+        {
+            return;
+        }
+
+        importing = true;
+        failed = false;
+        StateHasChanged();
+        var result = await Import.ImportAsync(review!, mode, different);
+        if (result.Status == ImportStatus.Imported)
+        {
+            Session.Review = null;
+            Session.Done = result;
+            await OnImported.InvokeAsync();
+            return;
+        }
+
+        if (!disposed)
+        {
+            importing = false;
+            failed = true;
+        }
+    }
+
+    /// <summary>Goes back to Settings, unless an import is running. Nothing has been written.</summary>
+    private async Task LeaveAsync()
+    {
+        if (importing)
+        {
+            return;
+        }
+
+        Session.Review = null;
+        await OnBack.InvokeAsync();
+    }
+
+    /// <summary>
+    /// Picks and reads another file, showing Choose another file busy. Cancelling the picker keeps the current error.
+    /// A failed picker or read shows the failed message; any other result is reviewed here. Does nothing more once the page is disposed.
+    /// </summary>
+    private async Task ChooseAnotherAsync()
+    {
+        if (reading)
+        {
+            return;
+        }
+
+        reading = true;
+        StateHasChanged();
+        ImportReview? next = null;
+        var pickFailed = false;
+        try
+        {
+            next = await Opener.OpenAsync();
+        }
+        catch (Exception exception)
+        {
+            Log.PickFailed(Logger, exception);
+            pickFailed = true;
+        }
+
+        if (disposed)
+        {
+            return;
+        }
+
+        reading = false;
+        if (pickFailed || next?.Error == ImportError.Failed)
+        {
+            failed = true;
+        }
+        else if (next is not null)
+        {
+            review = next;
+            Session.Review = next;
+            failed = false;
+        }
+    }
+}

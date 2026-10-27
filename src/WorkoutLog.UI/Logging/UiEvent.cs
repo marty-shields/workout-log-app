@@ -60,6 +60,21 @@ internal enum UiEvent
     /// <summary><see cref="Screens.SettingsPage"/>: opening the share sheet failed.</summary>
     ShareFailed = 3401,
 
+    /// <summary><see cref="Screens.SettingsPage"/>: picking or opening an import file failed.</summary>
+    SettingsPickFailed = 3402,
+
     /// <summary><see cref="Screens.SettingsView"/>: focusing Export failed.</summary>
     ExportFocusFailed = 3501,
+
+    /// <summary><see cref="Screens.SettingsView"/>: focusing Import failed.</summary>
+    SettingsImportFocusFailed = 3502,
+
+    /// <summary><see cref="Screens.ImportReviewView"/>: focusing Import failed.</summary>
+    ReviewImportFocusFailed = 3601,
+
+    /// <summary><see cref="Screens.ImportReviewPage"/>: picking or opening another import file failed.</summary>
+    ReviewPickFailed = 3701,
+
+    /// <summary><see cref="Import.ImportFileOpener"/>: the picked file is over the size limit.</summary>
+    ImportFileTooLarge = 3801,
 }
