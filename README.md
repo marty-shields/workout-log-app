@@ -35,6 +35,7 @@ It's built for one person and one phone: no accounts, no sign-up.
 - ⏱️ **Automatic timing.** Start and finish times are captured for you, with a live timer while you log.
 - 🗂️ **History.** Browse every session, open one to edit it, or delete it.
 - 📊 **Dashboard.** Your last workout and how many sessions you've done this week and this month.
+- 📤 **Export.** Save every workout to one JSON file and share it to Drive, email or another app.
 - ✅ **Clear checks.** Save checks every set and entry, and points to the exact field at fault.
 - 🌗 **Light and dark.** Follows the phone's theme.
 - ☁️ **Backup.** Supports Android Auto Backup, so your workouts come back on a new phone.
@@ -73,6 +74,12 @@ It's built for one person and one phone: no accounts, no sign-up.
         <img src="docs/images/readme/history-light.png" alt="History" width="150" />
       </picture>
     </td>
+    <td align="center">
+      <picture>
+        <source media="(prefers-color-scheme: dark)" srcset="docs/images/readme/settings-dark.png" />
+        <img src="docs/images/readme/settings-light.png" alt="Settings with Export" width="150" />
+      </picture>
+    </td>
   </tr>
   <tr>
     <td align="center"><sub><b>Dashboard</b></sub></td>
@@ -80,6 +87,7 @@ It's built for one person and one phone: no accounts, no sign-up.
     <td align="center"><sub><b>Cardio</b></sub></td>
     <td align="center"><sub><b>Exercise picker</b></sub></td>
     <td align="center"><sub><b>History</b></sub></td>
+    <td align="center"><sub><b>Export</b></sub></td>
   </tr>
 </table>
 

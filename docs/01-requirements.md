@@ -53,6 +53,7 @@
 | ID | Requirement | Acceptance criteria |
 |---|---|---|
 | FR-50 | Settings screen | Shows the title "Settings" and a back arrow. Back, or Android back, returns to the Dashboard. |
+| FR-51 | Export workouts | Settings shows how many workouts are saved and exports them all to one JSON file ([format](02-data-model.md#export-file)), then opens Android's share sheet. With no workouts, Export is disabled. A file over 5 MB isn't written. |
 
 ## Non-functional
 | ID | Requirement |

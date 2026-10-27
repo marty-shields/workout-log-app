@@ -2,12 +2,16 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
 using Microsoft.Maui.LifecycleEvents;
 using WorkoutLog.App.Diagnostics;
+using WorkoutLog.App.Export;
 using WorkoutLog.App.Logging;
 using WorkoutLog.App.Navigation;
+using WorkoutLog.App.Sharing;
 using WorkoutLog.Core;
 using WorkoutLog.Core.Logging;
+using WorkoutLog.Core.Services;
 using WorkoutLog.UI;
 using WorkoutLog.UI.Lifecycle;
+using WorkoutLog.UI.Sharing;
 
 namespace WorkoutLog.App;
 
@@ -21,6 +25,8 @@ public static class MauiProgram
         builder.Services.AddMauiBlazorWebView();
         builder.Services.AddCore(Path.Combine(FileSystem.AppDataDirectory, "workoutlog.db3"));
         builder.Services.AddUi();
+        builder.Services.AddSingleton<IExportEnvironment, MauiExportEnvironment>();
+        builder.Services.AddSingleton<IFileShare, MauiFileShare>();
 
 #if DEBUG
         builder.Services.AddBlazorWebViewDeveloperTools();

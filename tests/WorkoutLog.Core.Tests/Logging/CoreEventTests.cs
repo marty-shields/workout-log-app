@@ -36,5 +36,10 @@ public class CoreEventTests
             [CoreEvent.DashboardLoaded] = 1401,
             [CoreEvent.DashboardLoadFailed] = 1402,
             [CoreEvent.WeightHistoryLoadFailed] = 1501,
+            [CoreEvent.ExportWritten] = 1601,
+            [CoreEvent.ExportTooLarge] = 1602,
+            [CoreEvent.ExportFailed] = 1603,
+            [CoreEvent.ExportUnknownExercise] = 1604,
+            [CoreEvent.ExportCountFailed] = 1605,
         }));
 }

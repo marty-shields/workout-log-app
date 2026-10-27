@@ -15,6 +15,9 @@ public sealed class ScenarioState
     /// <summary>Seeded workouts by id, with their local start.</summary>
     internal Dictionary<int, DateTime> Seeded { get; } = [];
 
+    /// <summary>Seeded workouts by id, with their local finish.</summary>
+    internal Dictionary<int, DateTime> SeededFinished { get; } = [];
+
     /// <summary>Seeded workouts' exercises by id.</summary>
     internal Dictionary<int, IReadOnlyList<ExerciseValues>> SeededExercises { get; } = [];
 

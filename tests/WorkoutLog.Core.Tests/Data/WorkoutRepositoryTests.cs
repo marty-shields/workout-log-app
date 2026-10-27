@@ -136,6 +136,47 @@ public class WorkoutRepositoryTests
     }
 
     [Test]
+    public async Task GetAllAsync_NoWorkouts_ReturnsEmpty()
+    {
+        Assert.That(await repository.GetAllAsync(), Is.Empty);
+    }
+
+    [Test]
+    public async Task GetAllAsync_ReturnsEveryFullWorkoutByStartTimeOldestFirstNotById()
+    {
+        WorkoutExercise[] other = [new CardioExercise(300, Entry()), new StrengthExercise(2, [new StrengthSet(5, 40m, null, null)])];
+        var middle = await repository.AddAsync(new NewWorkout(Start, Finish, Exercises()));
+        var newest = await repository.AddAsync(new NewWorkout(Start.AddHours(3), Finish.AddHours(3), []));
+        var oldest = await repository.AddAsync(new NewWorkout(Start.AddDays(-2), Finish.AddDays(-2), other));
+
+        Assert.That(await repository.GetAllAsync(), Is.EqualTo(new[]
+        {
+            new Workout(oldest, Start.AddDays(-2), Finish.AddDays(-2), other),
+            new Workout(middle, Start, Finish, Exercises()),
+            new Workout(newest, Start.AddHours(3), Finish.AddHours(3), []),
+        }).UsingPropertiesComparer());
+    }
+
+    [Test]
+    public async Task GetAllAsync_ExercisesAndSetsInPositionOrderNotByRowId()
+    {
+        WorkoutExercise[] exercises =
+        [
+            new StrengthExercise(1, [new StrengthSet(1, null, null, null), new StrengthSet(2, null, null, null)]),
+            new StrengthExercise(2, [new StrengthSet(3, null, null, null)]),
+        ];
+        var id = await repository.AddAsync(new NewWorkout(Start, Finish, exercises));
+        await connection.ExecuteAsync("UPDATE WorkoutExercise SET Position = 1 - Position WHERE WorkoutId = ?", id);
+        await connection.ExecuteAsync("UPDATE StrengthSet SET Position = 1 - Position WHERE Reps IN (1, 2)");
+
+        Assert.That((await repository.GetAllAsync()).Single().Exercises, Is.EqualTo(new WorkoutExercise[]
+        {
+            new StrengthExercise(2, [new StrengthSet(3, null, null, null)]),
+            new StrengthExercise(1, [new StrengthSet(2, null, null, null), new StrengthSet(1, null, null, null)]),
+        }).UsingPropertiesComparer());
+    }
+
+    [Test]
     public async Task ListAsync_NoWorkouts_ReturnsEmpty()
     {
         Assert.That(await repository.ListAsync(), Is.Empty);

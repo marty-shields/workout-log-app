@@ -13,6 +13,9 @@ public sealed class Native(WebView web)
     internal const string NativeApp = "NATIVE_APP";
     internal const string WebView = $"WEBVIEW_{AppiumSetup.Package}";
 
+    /// <summary>The package that shows Android's share sheet.</summary>
+    private const string ShareSheetPackage = "com.android.intentresolver";
+
     private static readonly TimeSpan KeyboardTimeout = TimeSpan.FromSeconds(5);
     private static readonly TimeSpan LaunchTimeout = TimeSpan.FromSeconds(30);
 
@@ -36,6 +39,25 @@ public sealed class Native(WebView web)
 
         App.PressKeyCode(AndroidKeyCode.Back);
         web.WaitUntil(() => !App.IsKeyboardShown(), "the soft keyboard didn't hide", KeyboardTimeout);
+    }
+
+    /// <summary>
+    /// Waits until Android's share sheet is in front, then closes it with the back key and switches back to the app's WebView.
+    /// Fails if it doesn't open.
+    /// </summary>
+    public void CloseShareSheet()
+    {
+        App.Context = NativeApp;
+        try
+        {
+            web.WaitUntil(() => App.CurrentPackage == ShareSheetPackage, "the share sheet didn't open", LaunchTimeout);
+            App.PressKeyCode(AndroidKeyCode.Back);
+            web.WaitUntil(() => App.CurrentPackage == AppiumSetup.Package, "the app didn't come back from the share sheet", LaunchTimeout);
+        }
+        finally
+        {
+            App.Context = WebView;
+        }
     }
 
     /// <summary>Sends the app to the background for <paramref name="time"/>, then brings it back.</summary>

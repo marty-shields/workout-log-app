@@ -91,7 +91,7 @@ public class HistoryPageTests : ComponentTestBase
 
         cut.WaitForAssertion(() => Focuses().Single().Arguments[0]
             .ShouldBeElementReferenceTo(cut.Find("[data-testid=history-retry]")));
-        Assert.That(cut.Find("[data-testid=history-error]").TextContent, Is.EqualTo("Couldn't load your history."));
+        Assert.That(cut.Find("[data-testid=history-error]").TextContent, Is.EqualTo("Couldn't load your history"));
     }
 
     [Test]

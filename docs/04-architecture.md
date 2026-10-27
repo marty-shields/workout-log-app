@@ -33,7 +33,8 @@ References: App → UI → Core. UI.Stories → UI. UI.Tests → UI, UI.Stories 
 
 ## Dependency injection
 - Everything is registered in `MauiProgram.CreateMauiApp()`. Core registers its types through `AddCore(databasePath)` (D105) and UI through `AddUi()` (D123); services and repositories are registered by interface.
-- Core's public services are `IWorkoutService`, `IHistoryService`, `IDashboardService` and `IWeightHistoryService`; the repository and validator are internal (D107, D116, D48).
+- Core's public services are `IWorkoutService`, `IHistoryService`, `IDashboardService`, `IWeightHistoryService` and `IExportService`; the repository and validator are internal (D107, D116, D48, D188).
+- The host registers two interfaces for Export (D188): `IExportEnvironment` (Core: the app's display version and cache folder) as `MauiExportEnvironment`, and `IFileShare` (UI: opens the share sheet) as `MauiFileShare`, which uses MAUI `Share`.
 - `AddCore` creates one database connection and gives it only to the initializer, the exercise seeder and the repository. The initializer and repository are decorators that run each call through one `DatabaseGate`, so database calls run one at a time; nothing can resolve a database type that skips the gate (D106, D105).
 - At startup `StartupGate` awaits `IDatabaseInitializer.InitializeAsync()`, which upgrades and creates the schema and seeds the exercise list, and shows the Startup screen until it completes, or its error if it throws (D108, D75).
 - `AddUi` registers `IBackButton`, `ISetChecker`, `IWorkoutChecker` and one `AppLifecycle` as `IAppStart` and `IAppLifecycle` (D125, D119), and `WorkoutEditor` as transient. `NewWorkoutPage` and `EditWorkoutPage` each inject their own `WorkoutEditor`, which holds the exercises, the picker, changes, and the check and save (D117). The App adds `AndroidBackButton` ([Navigation](#navigation)) and the logging providers ([Logging](#logging)).
@@ -73,7 +74,7 @@ How back works (D119):
 ## Error handling
 What each error shows is on the [screen pages](../src/WorkoutLog.UI.Stories/Stories/Screens/).
 - Validation failures are shown inline. Nothing is written. The service returns error codes; the page words them (D113).
-- Services turn any repository exception into a failed result and log it: `HistoryResult.Failed` (D116), `DashboardResult.Failed`, the week and month maths included (D67, D116), `WorkoutLoad.Failed` (D72, D112), `WorkoutError.SaveFailed` (D115), `WorkoutDelete.Failed`, a missing workout included (D46, D112), and `WeightHistoryResult.Failed` (D48).
+- Services turn any repository exception into a failed result and log it: `HistoryResult.Failed` (D116), `DashboardResult.Failed`, the week and month maths included (D67, D116), `WorkoutLoad.Failed` (D72, D112), `WorkoutError.SaveFailed` (D115), `WorkoutDelete.Failed`, a missing workout included (D46, D112), `WeightHistoryResult.Failed` (D48), and `ExportCount.Failed` and `ExportStatus.Failed` (D188).
 - An unhandled error in a screen shows the Error screen. `AppErrorBoundary` in the App's `Routes` shows it and logs the error (D76).
 - Unhandled .NET exceptions are logged, then the app crashes. Unobserved task exceptions are logged only (D133).
 

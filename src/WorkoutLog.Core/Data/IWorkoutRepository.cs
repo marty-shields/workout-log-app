@@ -17,6 +17,9 @@ internal interface IWorkoutRepository
     /// <summary>Returns the workout, or null if it doesn't exist.</summary>
     Task<Workout?> GetAsync(int id);
 
+    /// <summary>Returns every workout with its exercises, by start time oldest first. Exercises and sets are in position order.</summary>
+    Task<IReadOnlyList<Workout>> GetAllAsync();
+
     /// <summary>
     /// Returns workouts without their exercises, by start time newest first.
     /// <paramref name="from"/> and <paramref name="to"/> limit the start time, both inclusive. <paramref name="limit"/> caps the number returned.

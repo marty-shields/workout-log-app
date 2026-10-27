@@ -1,4 +1,5 @@
 using System.Globalization;
+using WorkoutLog.Core.Domain.Exercises;
 
 namespace WorkoutLog.UI;
 
@@ -14,6 +15,8 @@ internal static class DisplayFormat
     /// <summary>Elapsed time as h:mm:ss.</summary>
     public static string Duration(TimeSpan value) => $"{(int)value.TotalHours}:{value.Minutes:00}:{value.Seconds:00}";
 
-    /// <summary>Weight with up to 2 decimal places, no trailing zeros and no space before the unit, e.g. 22.5kg; — when there is none.</summary>
-    public static string Weight(decimal? kg) => kg is { } value ? $"{value.ToString("0.##", CultureInfo.InvariantCulture)}kg" : "—";
+    /// <summary>
+    /// Weight rounded by <see cref="Decimals.Round2"/>, no trailing zeros and no space before the unit, e.g. 22.5kg; — when there is none.
+    /// </summary>
+    public static string Weight(decimal? kg) => kg is { } value ? $"{Decimals.Round2(value).ToString("0.##", CultureInfo.InvariantCulture)}kg" : "—";
 }

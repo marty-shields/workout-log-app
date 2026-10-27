@@ -62,4 +62,19 @@ internal enum CoreEvent
 
     /// <summary><see cref="Services.WeightHistoryService"/>: reading an exercise's weights failed.</summary>
     WeightHistoryLoadFailed = 1501,
+
+    /// <summary><see cref="Services.ExportService"/>: export file written.</summary>
+    ExportWritten = 1601,
+
+    /// <summary><see cref="Services.ExportService"/>: export file over the size limit; not written.</summary>
+    ExportTooLarge = 1602,
+
+    /// <summary><see cref="Services.ExportService"/>: exporting failed.</summary>
+    ExportFailed = 1603,
+
+    /// <summary><see cref="Services.ExportService"/>: a saved exercise id is not in the exercise list.</summary>
+    ExportUnknownExercise = 1604,
+
+    /// <summary><see cref="Services.ExportService"/>: counting the workouts failed.</summary>
+    ExportCountFailed = 1605,
 }

@@ -1,10 +1,53 @@
+@using WorkoutLog.UI.Models.Settings
 @attribute [Stories("Screens/Settings")]
 
 <Stories TComponent="SettingsView" Layout="typeof(PhoneLayout)">
 
-    <Story Name="Empty">
+    <Story Name="With workouts">
         <Template>
-            <SettingsView OnBack="() => { }" />
+            <SettingsView Count="42" OnExport="() => { }" OnBack="() => { }" />
+        </Template>
+    </Story>
+
+    <Story Name="One workout">
+        <Template>
+            <SettingsView Count="1" OnExport="() => { }" OnBack="() => { }" />
+        </Template>
+    </Story>
+
+    <Story Name="No workouts">
+        <Template>
+            <SettingsView Count="0" OnExport="() => { }" OnBack="() => { }" />
+        </Template>
+    </Story>
+
+    <Story Name="Loading">
+        <Template>
+            <SettingsView Loading OnBack="() => { }" />
+        </Template>
+    </Story>
+
+    <Story Name="Load failed">
+        <Template>
+            <SettingsView Failed OnRetry="() => { }" OnBack="() => { }" />
+        </Template>
+    </Story>
+
+    <Story Name="Exporting">
+        <Template>
+            <SettingsView Count="42" Exporting OnExport="() => { }" OnBack="() => { }" />
+        </Template>
+    </Story>
+
+    <Story Name="Export failed">
+        <Template>
+            <SettingsView Count="42" ExportMessage="ExportMessage.Failed" OnExport="() => { }" OnBack="() => { }" />
+        </Template>
+    </Story>
+
+    <Story Name="Too many workouts">
+        <Template>
+            <SettingsView Count="12345" ExportMessage="ExportMessage.TooLarge" OnExport="() => { }" OnBack="() => { }" />
         </Template>
     </Story>
 

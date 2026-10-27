@@ -6,7 +6,7 @@ public class ErrorViewTests : ComponentTestBase
 {
     [Test]
     public void ShowsTheMessage() =>
-        Assert.That(Context.Render<ErrorView>().Find("[data-testid=error-message]").TextContent, Is.EqualTo("Something went wrong."));
+        Assert.That(Context.Render<ErrorView>().Find("[data-testid=error-message]").TextContent, Is.EqualTo("Something went wrong"));
 
     [Test]
     public void Restart_RaisesOnRestart()

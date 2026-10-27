@@ -667,7 +667,7 @@ public class EditWorkoutPageTests : ComponentTestBase
         Assert.Multiple(() =>
         {
             Assert.That(cut.FindAll("[data-testid=confirm-dialog]"), Is.Empty);
-            Assert.That(cut.Find("[data-testid=workout-error]").TextContent, Is.EqualTo("Couldn't delete the workout. Try again."));
+            Assert.That(cut.Find("[data-testid=workout-error]").TextContent, Is.EqualTo("Couldn't delete the workout. Try again"));
             Assert.That(Names(cut), Has.Count.EqualTo(3));
             Assert.That(Value(cut, "exercise-3-set-1-reps"), Is.EqualTo("9"));
             Assert.That(deleted, Is.Zero);
@@ -1028,7 +1028,7 @@ public class EditWorkoutPageTests : ComponentTestBase
 
         Assert.Multiple(() =>
         {
-            Assert.That(cut.Find("[data-testid=workout-error]").TextContent, Is.EqualTo("Couldn't save the workout. Try again."));
+            Assert.That(cut.Find("[data-testid=workout-error]").TextContent, Is.EqualTo("Couldn't save the workout. Try again"));
             Assert.That(Names(cut), Has.Count.EqualTo(3));
             Assert.That(saved, Is.Zero);
         });

@@ -1,7 +1,108 @@
-<AppScreen Title="Settings" OnBack="OnBack" />
+@using System.Globalization
+@using Microsoft.Extensions.Logging
+@using WorkoutLog.UI.Components.Feedback
+@using WorkoutLog.UI.Models.Settings
+@inject ILogger<SettingsView> Logger
+<AppScreen Title="Settings" OnBack="OnBack">
+    @if (Loading)
+    {
+        <div class="centre">
+            <Spinner Label="Loading…" TestId="settings-loading" />
+        </div>
+    }
+    else if (Failed)
+    {
+        <LoadFailed Message="Couldn't load your workouts" OnRetry="OnRetry" TestId="settings" />
+    }
+    else
+    {
+        <section class="section">
+            <h2 class="heading">Your data</h2>
+            <p class="text" data-testid="export-text">@ExportText</p>
+            <AppButton @ref="export" Variant="ButtonVariant.Secondary" FullWidth Disabled="Count == 0" Busy="Exporting" TestId="export" OnClick="OnExport">
+                @(Exporting ? "Exporting…" : "Export")
+            </AppButton>
+            @if (MessageText is { } message)
+            {
+                <p class="error" role="alert" data-testid="export-error">@message</p>
+            }
+        </section>
+    }
+</AppScreen>
 
 @code {
+    /// <summary>Shows a full-screen spinner instead of the content while the count loads.</summary>
+    [Parameter]
+    public bool Loading { get; set; }
+
+    /// <summary>Shows the load error and Try again instead of the content, and moves focus to Try again.</summary>
+    [Parameter]
+    public bool Failed { get; set; }
+
+    /// <summary>Saved workouts. With none, Export is disabled.</summary>
+    [Parameter]
+    public int Count { get; set; }
+
+    /// <summary>Shows Export busy, as "Exporting…", and ignores its taps.</summary>
+    [Parameter]
+    public bool Exporting { get; set; }
+
+    /// <summary>Message under Export. Focus moves to Export when <see cref="ExportMessage.Failed"/> shows.</summary>
+    [Parameter]
+    public ExportMessage ExportMessage { get; set; }
+
+    /// <summary>Raised by Try again.</summary>
+    [Parameter]
+    public EventCallback OnRetry { get; set; }
+
+    /// <summary>Raised by Export.</summary>
+    [Parameter]
+    public EventCallback OnExport { get; set; }
+
     /// <summary>Raised by the back arrow and the Android back button.</summary>
     [Parameter]
     public EventCallback OnBack { get; set; }
+
+    private AppButton? export;
+    private ExportMessage shown;
+    private bool focusExport;
+
+    private string ExportText => Count switch
+    {
+        0 => "No workouts to export",
+        1 => "Export 1 workout to a JSON file",
+        _ => string.Create(CultureInfo.InvariantCulture, $"Export all {Count:N0} workouts to a JSON file"),
+    };
+
+    private string? MessageText => ExportMessage switch
+    {
+        ExportMessage.Failed => "Couldn't export your workouts. Try again",
+        ExportMessage.TooLarge => "Too many workouts to export",
+        _ => null,
+    };
+
+    protected override void OnParametersSet()
+    {
+        focusExport |= ExportMessage == ExportMessage.Failed && shown != ExportMessage.Failed;
+        shown = ExportMessage;
+    }
+
+    /// <summary>Moves focus to Export when the failed message shows.</summary>
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!focusExport || export is null)
+        {
+            return;
+        }
+
+        focusExport = false;
+        try
+        {
+            await export.FocusAsync();
+        }
+        catch (Exception exception)
+        {
+            Log.ExportFocusFailed(Logger, exception);
+        }
+    }
 }

@@ -109,7 +109,7 @@ public static class ExerciseFields
     {
         (_, null) => null,
         (FieldKind.Whole, int whole) => whole.ToString(CultureInfo.InvariantCulture),
-        (FieldKind.Decimal, decimal number) => number.ToString("0.##", CultureInfo.InvariantCulture),
+        (FieldKind.Decimal, decimal number) => Decimals.Round2(number).ToString("0.##", CultureInfo.InvariantCulture),
         (FieldKind.Duration, TimeSpan time) => $"{(int)time.TotalHours}:{time.Minutes:00}:{time.Seconds:00}",
         (FieldKind.Pace, TimeSpan time) => $"{(int)time.TotalMinutes}:{time.Seconds:00}",
         _ => throw new ArgumentOutOfRangeException(nameof(value), kind, "Value doesn't fit the field"),

@@ -1,6 +1,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
+using Moq;
 using SQLite;
 using WorkoutLog.Core.Data;
 using WorkoutLog.Core.Domain.Exercises;
@@ -30,14 +31,16 @@ public class CoreServiceCollectionExtensionsTests
             (typeof(IHistoryService), typeof(HistoryService), ServiceLifetime.Singleton),
             (typeof(IDashboardService), typeof(DashboardService), ServiceLifetime.Singleton),
             (typeof(IWeightHistoryService), typeof(WeightHistoryService), ServiceLifetime.Singleton),
+            (typeof(IExportService), typeof(ExportService), ServiceLifetime.Singleton),
         }));
     }
 
     [Test]
-    public void AddCore_WithLogging_ResolvesThePublicServices()
+    public void AddCore_WithLoggingAndExportEnvironment_ResolvesThePublicServices()
     {
         using var provider = new ServiceCollection()
             .AddSingleton(typeof(ILogger<>), typeof(NullLogger<>))
+            .AddSingleton(Mock.Of<IExportEnvironment>())
             .AddCore(TempDatabase.NewPath())
             .BuildServiceProvider();
 
@@ -49,6 +52,7 @@ public class CoreServiceCollectionExtensionsTests
             Assert.That(provider.GetRequiredService<IHistoryService>(), Is.InstanceOf<HistoryService>());
             Assert.That(provider.GetRequiredService<IDashboardService>(), Is.InstanceOf<DashboardService>());
             Assert.That(provider.GetRequiredService<IWeightHistoryService>(), Is.InstanceOf<WeightHistoryService>());
+            Assert.That(provider.GetRequiredService<IExportService>(), Is.InstanceOf<ExportService>());
         });
     }
 
