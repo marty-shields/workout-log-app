@@ -125,6 +125,39 @@ internal sealed class WorkoutRepository(SQLiteAsyncConnection connection, IWorko
     }
 
     /// <inheritdoc />
+    public async Task<IReadOnlyList<WorkoutSession>> GetSessionsAsync(int exerciseId)
+    {
+        const string exercisesSql = """
+            SELECT e.Id, e.WorkoutId, e.ExerciseId, e.Position, w.StartedAt
+            FROM WorkoutExercise e
+            JOIN Workout w ON w.Id = e.WorkoutId
+            WHERE e.ExerciseId = ?
+            ORDER BY w.StartedAt, e.Position
+            """;
+        const string setsSql = """
+            SELECT s.*
+            FROM StrengthSet s
+            JOIN WorkoutExercise e ON e.Id = s.WorkoutExerciseId
+            WHERE e.ExerciseId = ?
+            ORDER BY s.Position
+            """;
+        const string entriesSql = """
+            SELECT c.*
+            FROM CardioEntry c
+            JOIN WorkoutExercise e ON e.Id = c.WorkoutExerciseId
+            WHERE e.ExerciseId = ?
+            """;
+        var rows = await connection.QueryAsync<LastExerciseRow>(exercisesSql, exerciseId);
+        var sets = (await connection.QueryAsync<StrengthSetRow>(setsSql, exerciseId)).ToLookup(s => s.WorkoutExerciseId);
+        var entries = (await connection.QueryAsync<CardioEntryRow>(entriesSql, exerciseId)).ToDictionary(c => c.WorkoutExerciseId);
+
+        return rows.GroupBy(r => r.WorkoutId)
+            .Select(g => new WorkoutSession(g.Key, new DateTimeOffset(g.First().StartedAt, TimeSpan.Zero),
+                ToExercises(g.Select(r => new WorkoutExerciseRow { Id = r.Id, WorkoutId = r.WorkoutId, ExerciseId = r.ExerciseId, Position = r.Position }), sets, entries)))
+            .ToList();
+    }
+
+    /// <inheritdoc />
     public Task DeleteAsync(int id) =>
         connection.RunInTransactionAsync(db => writers.Create(db).Delete(id));
 

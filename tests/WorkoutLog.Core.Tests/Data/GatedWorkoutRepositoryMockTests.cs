@@ -18,6 +18,7 @@ public class GatedWorkoutRepositoryMockTests
         IReadOnlyList<WorkoutSummary> summaries = [new WorkoutSummary(3, Start)];
         IReadOnlyList<WorkoutWeights> weights = [new WorkoutWeights(3, [20m])];
         IReadOnlyList<LastSession> sessions = [new LastSession(1, Start, Exercises)];
+        IReadOnlyList<WorkoutSession> workoutSessions = [new WorkoutSession(3, Start, Exercises)];
         var inner = new Mock<IWorkoutRepository>(MockBehavior.Strict);
         inner.Setup(r => r.AddAsync(workout)).ReturnsAsync(3);
         inner.Setup(r => r.ReplaceExercisesAsync(3, Exercises)).Returns(Task.CompletedTask);
@@ -26,6 +27,7 @@ public class GatedWorkoutRepositoryMockTests
         inner.Setup(r => r.ListAsync(Start, Start, 5)).ReturnsAsync(summaries);
         inner.Setup(r => r.GetWeightsAsync(1)).ReturnsAsync(weights);
         inner.Setup(r => r.GetLastSessionsAsync()).ReturnsAsync(sessions);
+        inner.Setup(r => r.GetSessionsAsync(1)).ReturnsAsync(workoutSessions);
         inner.Setup(r => r.DeleteAsync(3)).Returns(Task.CompletedTask);
         var gated = new GatedWorkoutRepository(inner.Object, new DatabaseGate());
 
@@ -36,6 +38,7 @@ public class GatedWorkoutRepositoryMockTests
         Assert.That(await gated.ListAsync(Start, Start, 5), Is.SameAs(summaries));
         Assert.That(await gated.GetWeightsAsync(1), Is.SameAs(weights));
         Assert.That(await gated.GetLastSessionsAsync(), Is.SameAs(sessions));
+        Assert.That(await gated.GetSessionsAsync(1), Is.SameAs(workoutSessions));
         await gated.DeleteAsync(3);
 
         inner.VerifyAll();
@@ -48,6 +51,7 @@ public class GatedWorkoutRepositoryMockTests
     [TestCase("List", nameof(IWorkoutRepository.ListAsync))]
     [TestCase("Weights", nameof(IWorkoutRepository.GetWeightsAsync))]
     [TestCase("LastSessions", nameof(IWorkoutRepository.GetLastSessionsAsync))]
+    [TestCase("Sessions", nameof(IWorkoutRepository.GetSessionsAsync))]
     [TestCase("Delete", nameof(IWorkoutRepository.DeleteAsync))]
     public async Task Call_WhileTheGateIsHeld_DoesNotReachTheInner(string call, string method)
     {
@@ -66,6 +70,7 @@ public class GatedWorkoutRepositoryMockTests
             "List" => gated.ListAsync(),
             "Weights" => gated.GetWeightsAsync(1),
             "LastSessions" => gated.GetLastSessionsAsync(),
+            "Sessions" => gated.GetSessionsAsync(1),
             _ => gated.DeleteAsync(1),
         };
 

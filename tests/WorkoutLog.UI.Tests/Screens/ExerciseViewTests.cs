@@ -1,3 +1,4 @@
+using WorkoutLog.Core.Domain.Exercises.Progress;
 using WorkoutLog.UI.Components.Charts;
 using WorkoutLog.UI.Models.Exercises;
 using WorkoutLog.UI.Screens;

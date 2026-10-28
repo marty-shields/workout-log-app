@@ -1,4 +1,5 @@
 @using System.Globalization
+@using WorkoutLog.Core.Domain.Exercises.Progress
 @using WorkoutLog.UI.Components.Charts
 @using WorkoutLog.UI.Components.Feedback
 @using WorkoutLog.UI.Components.Inputs
@@ -148,13 +149,7 @@
     [Parameter]
     public EventCallback OnBack { get; set; }
 
-    private string RangeText => Range switch
-    {
-        ChartRange.ThreeMonths => "last 3 months",
-        ChartRange.SixMonths => "last 6 months",
-        ChartRange.Year => "last year",
-        _ => "all time",
-    };
+    private string RangeText => ChartRanges.Text(Range);
 
     private string NoSessionsMessage => Range == ChartRange.All ? "No sessions yet" : $"No sessions in the {RangeText}";
 

@@ -1,4 +1,4 @@
-namespace WorkoutLog.UI.Models.Exercises;
+namespace WorkoutLog.Core.Domain.Exercises.Progress;
 
 /// <summary>Time the Exercise chart and records cover, back from today.</summary>
 public enum ChartRange

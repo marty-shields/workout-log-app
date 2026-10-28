@@ -51,6 +51,23 @@ public class ExerciseListTests : ComponentTestBase
     }
 
     [Test]
+    public void CanPick_OnlyThoseRowsAreTappableWithAChevron()
+    {
+        var cut = Context.Render<ExerciseList>(p => p
+            .Add(x => x.Items, SampleExercises.All)
+            .Add(x => x.OnPick, (ExerciseListItem _) => { })
+            .Add(x => x.CanPick, item => item.Opens)
+            .Add(x => x.TestId, "list"));
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.FindAll("button[data-testid^=list-row-]").Select(r => r.GetAttribute("data-testid")), Is.EqualTo(new[] { "list-row-6", "list-row-132" }));
+            Assert.That(cut.FindAll("button[data-testid^=list-row-] .chevron"), Has.Count.EqualTo(2));
+            Assert.That(cut.FindAll("div[data-testid^=list-row-]"), Has.Count.EqualTo(SampleExercises.All.Count - 2));
+        });
+    }
+
+    [Test]
     public void NoItems_ShowsNoMatch() =>
         Assert.That(Render([]).Find("[data-testid=list-none]").TextContent, Is.EqualTo("No exercises match"));
 

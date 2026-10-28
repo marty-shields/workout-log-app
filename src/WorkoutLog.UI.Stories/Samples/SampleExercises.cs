@@ -41,17 +41,17 @@ public static class SampleExercises
     /// <summary>Seconds as m:ss, e.g. 1:45.</summary>
     public static readonly Func<decimal, string> Clock = value => $"{(int)value / 60}:{(int)value % 60:00}";
 
-    /// <summary>Logged exercises, most recent first.</summary>
+    /// <summary>Logged exercises, most recent first; the lifts open their Exercise page.</summary>
     public static IReadOnlyList<ExerciseListItem> All { get; } =
     [
-        new(6, "Barbell Back Squat", ExerciseKind.Strength, "Tue 20 Oct · 70kg × 3"),
+        new(6, "Barbell Back Squat", ExerciseKind.Strength, "Tue 20 Oct · 70kg × 3", Opens: true),
         new(264, "Push-up", ExerciseKind.Strength, "Tue 20 Oct · 25 reps"),
         new(218, "Machine Assisted Pull-up", ExerciseKind.Strength, "Thu 15 Oct · 20kg × 10"),
         new(258, "Plank", ExerciseKind.Strength, "Thu 15 Oct · 1:45"),
         new(311, "Outdoor Run", ExerciseKind.Cardio, "Sun 11 Oct · 5.2km"),
         new(187, "Farmer's Walk", ExerciseKind.Strength, "Thu 8 Oct · 32kg · 40m"),
         new(315, "Jump Rope", ExerciseKind.Cardio, "Mon 5 Oct · 10:00"),
-        new(132, "Dumbbell Curl", ExerciseKind.Strength, "Wed 15 Oct 2025"),
+        new(132, "Dumbbell Curl", ExerciseKind.Strength, "Wed 15 Oct 2025", Opens: true),
     ];
 
     /// <summary>The strength exercises in <see cref="All"/>.</summary>
@@ -123,6 +123,15 @@ public static class SampleExercises
         Tab = "e1rm",
         Points = [P("18 Aug", 72.8m), P("25 Aug", 76), P("1 Sep", 76), P("8 Sep", 79.2m), P("29 Sep", 79.2m), P("6 Oct", 79.2m), P("13 Oct", 82.3m), P("20 Oct", 79.2m)],
         Caption = "Estimated one-rep max",
+    };
+
+    /// <summary>A barbell lift on its e1RM tab, with only sets over 12 reps.</summary>
+    public static SampleExercise LiftE1rmNoData { get; } = LiftE1rm with
+    {
+        Points = [],
+        Records = [new("Heaviest weight", "40kg × 15", "20 Oct"), new("Best e1RM", null, null)],
+        Sessions = [new(81, "Tue 20 Oct", "40kg × 15", "40×15 · 40×15 · 40×14")],
+        NoDataMessage = "No sets of 12 reps or fewer in the last 3 months",
     };
 
     /// <summary>A bodyweight move on its Best set tab.</summary>

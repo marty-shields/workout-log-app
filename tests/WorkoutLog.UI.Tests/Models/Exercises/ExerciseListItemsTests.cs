@@ -13,6 +13,8 @@ public class ExerciseListItemsTests
     private const int DumbbellCurl = 132;
     private const int FarmersWalk = 187;
     private const int Plank = 258;
+    private const int PlateFrontRaise = 259;
+    private const int PushUp = 264;
     private const int Run = 311;
 
     private static readonly IExerciseCatalog Catalog = new ExerciseCatalog();
@@ -25,8 +27,8 @@ public class ExerciseListItemsTests
 
     [Test]
     public void Exercises_AreTheOnesNamed() =>
-        Assert.That(new[] { Squat, BarbellCurl, DumbbellCurl, FarmersWalk, Plank, Run }.Select(id => Find(id).Name),
-            Is.EqualTo(new[] { "Barbell Back Squat", "Barbell Curl", "Dumbbell Curl", "Farmer's Walk", "Plank", "Outdoor Run" }));
+        Assert.That(new[] { Squat, BarbellCurl, DumbbellCurl, FarmersWalk, Plank, PlateFrontRaise, PushUp, Run }.Select(id => Find(id).Name),
+            Is.EqualTo(new[] { "Barbell Back Squat", "Barbell Curl", "Dumbbell Curl", "Farmer's Walk", "Plank", "Plate Front Raise", "Push-up", "Outdoor Run" }));
 
     [Test]
     public void Item_NotLogged_HasNoLast() =>
@@ -35,7 +37,17 @@ public class ExerciseListItemsTests
     [Test]
     public void Item_Logged_HasTheDateAndBest() =>
         Assert.That(ExerciseListItems.Item(Find(Squat), Logged(Squat, Now.AddDays(-8), new ExerciseBest(70m, 3, null, null)), TimeZoneInfo.Utc, Now),
-            Is.EqualTo(new ExerciseListItem(Squat, "Barbell Back Squat", ExerciseKind.Strength, "Tue 20 Oct · 70kg × 3")));
+            Is.EqualTo(new ExerciseListItem(Squat, "Barbell Back Squat", ExerciseKind.Strength, "Tue 20 Oct · 70kg × 3", Opens: true)));
+
+    [TestCase(Squat, true)]
+    [TestCase(DumbbellCurl, true)]
+    [TestCase(PlateFrontRaise, true)]
+    [TestCase(PushUp, false)]
+    [TestCase(FarmersWalk, false)]
+    [TestCase(Plank, false)]
+    [TestCase(Run, false)]
+    public void Item_OpensForLiftsOnly(int id, bool expected) =>
+        Assert.That(ExerciseListItems.Item(Find(id), null, TimeZoneInfo.Utc, Now).Opens, Is.EqualTo(expected));
 
     [Test]
     public void Last_NoBest_IsTheDateOnly() =>

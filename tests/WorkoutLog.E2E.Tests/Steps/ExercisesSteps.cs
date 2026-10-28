@@ -1,5 +1,6 @@
 using System.Globalization;
 using Reqnroll;
+using WorkoutLog.Core.Domain.Exercises;
 using WorkoutLog.E2E.Tests.Device;
 using WorkoutLog.E2E.Tests.Screens;
 using WorkoutLog.E2E.Tests.Seeding;
@@ -35,7 +36,7 @@ public sealed class ExercisesSteps(WebView web, Native native, Journeys journeys
         {
             Assert.That(exercises.Lasts(), Is.EqualTo(rows.Select(r => r.Last)), "last sessions");
             Assert.That(exercises.Kinds(), Is.EqualTo(rows.Select(r => r.Kind)), "kinds");
-            Assert.That(exercises.HasTappableRows(), Is.False, "tappable rows");
+            Assert.That(exercises.TappableNames(), Is.EqualTo(rows.Where(r => Exercises.Named(r.Name).Category == ExerciseCategory.Lift).Select(r => r.Name)), "tappable rows: the lifts");
         });
     }
 

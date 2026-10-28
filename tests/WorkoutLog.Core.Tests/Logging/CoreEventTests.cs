@@ -50,5 +50,9 @@ public class CoreEventTests
             [CoreEvent.LoggedExercisesLoaded] = 1801,
             [CoreEvent.LoggedExercisesLoadFailed] = 1802,
             [CoreEvent.LoggedExercisesUnknownExercise] = 1803,
+            [CoreEvent.ExerciseProgressLoaded] = 1901,
+            [CoreEvent.ExerciseProgressLoadFailed] = 1902,
+            [CoreEvent.ExerciseProgressUnknownExercise] = 1903,
+            [CoreEvent.ExerciseProgressNotALift] = 1904,
         }));
 }

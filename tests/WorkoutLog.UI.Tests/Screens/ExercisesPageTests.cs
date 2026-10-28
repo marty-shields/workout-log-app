@@ -58,8 +58,20 @@ public class ExercisesPageTests : ComponentTestBase
             Assert.That(cut.FindAll("[data-testid^=exercises-row-] .detail").Select(d => d.TextContent),
                 Is.EqualTo(new[] { "Last Tue 27 Oct · 5.2km", "Last Tue 20 Oct · 70kg × 3", "Last Tue 28 Oct 2025" }));
             Assert.That(cut.FindAll("[data-testid^=exercises-row-] .aside").Select(a => a.TextContent), Is.EqualTo(new[] { "Cardio", "Strength", "Strength" }));
-            Assert.That(cut.FindAll("button[data-testid^=exercises-row-]"), Is.Empty);
+            Assert.That(cut.FindAll("button[data-testid^=exercises-row-]").Select(r => r.GetAttribute("data-testid")),
+                Is.EqualTo(new[] { "exercises-row-6", "exercises-row-132" }));
         });
+    }
+
+    [Test]
+    public void TappingALift_RaisesOnOpenWithItsId()
+    {
+        var opened = new List<int>();
+        var cut = Context.Render<ExercisesPage>(p => p.Add(x => x.OnOpen, (int id) => opened.Add(id)));
+
+        cut.Find("[data-testid=exercises-row-132]").Click();
+
+        Assert.That(opened, Is.EqualTo(new[] { Curl }));
     }
 
     [Test]

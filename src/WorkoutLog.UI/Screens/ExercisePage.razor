@@ -1,0 +1,97 @@
+@using WorkoutLog.Core.Domain.Exercises
+@using WorkoutLog.Core.Domain.Exercises.Progress
+@using WorkoutLog.Core.Services
+@using WorkoutLog.UI.Components.Charts
+@using WorkoutLog.UI.Models.Exercises
+@inject IExerciseProgressService Progress
+@inject IExerciseCatalog Catalog
+@inject TimeProvider Clock
+
+<ExerciseView Name="@(definition?.Name ?? "")"
+              Subtitle="@(definition is null ? null : ExerciseProgressItems.Subtitle(definition))"
+              Tabs="ExerciseProgressItems.Tabs"
+              Tab="@tab"
+              TabChanged="ChooseTab"
+              Points="points"
+              Format="@(tab == ExerciseProgressItems.E1rmTab ? ExerciseProgressItems.E1rm : ExerciseProgressItems.Weight)"
+              Caption="@ExerciseProgressItems.Caption(tab)"
+              NoDataMessage="@noDataMessage"
+              Range="range"
+              RangeChanged="ChooseRange"
+              Records="records"
+              Sessions="sessions"
+              Loading="loading"
+              Failed="failed"
+              OnRetry="LoadAsync"
+              OnBack="OnBack" />
+
+@code {
+    private ExerciseDefinition? definition;
+    private IReadOnlyList<LiftSession> loaded = [];
+    private string tab = ExerciseProgressItems.TopSetTab;
+    private ChartRange range = ChartRange.ThreeMonths;
+    private IReadOnlyList<ChartPoint> points = [];
+    private string? noDataMessage;
+    private IReadOnlyList<RecordRow> records = [];
+    private IReadOnlyList<ExerciseSession> sessions = [];
+    private bool loading;
+    private bool failed;
+
+    /// <summary>Id of the lift to show.</summary>
+    [Parameter, EditorRequired]
+    public int ExerciseId { get; set; }
+
+    /// <summary>Raised by the back arrow and the Android back button.</summary>
+    [Parameter]
+    public EventCallback OnBack { get; set; }
+
+    protected override Task OnInitializedAsync()
+    {
+        definition = Catalog.All.FirstOrDefault(e => e.Id == ExerciseId);
+        return LoadAsync();
+    }
+
+    /// <summary>
+    /// Loads the lift's sessions through <see cref="IExerciseProgressService.LoadAsync"/> and summarises them.
+    /// Shows the spinner until it finishes (D69).
+    /// </summary>
+    private async Task LoadAsync()
+    {
+        if (loading)
+        {
+            return;
+        }
+
+        loading = true;
+        StateHasChanged();
+        var result = await Progress.LoadAsync(ExerciseId);
+        loaded = result.Sessions;
+        failed = result.Failed;
+        loading = false;
+        Summarise();
+    }
+
+    private void ChooseTab(string value)
+    {
+        tab = value;
+        Summarise();
+    }
+
+    private void ChooseRange(ChartRange value)
+    {
+        range = value;
+        Summarise();
+    }
+
+    /// <summary>Works out the chart, records and sessions for the tab and range from the loaded sessions, in the phone's time zone.</summary>
+    private void Summarise()
+    {
+        var progress = Progress.Summarise(loaded, range);
+        var zone = Clock.LocalTimeZone;
+        var now = Clock.GetUtcNow();
+        points = ExerciseProgressItems.Points(progress, tab, zone, now);
+        noDataMessage = ExerciseProgressItems.NoDataMessage(progress, tab, range);
+        records = ExerciseProgressItems.Records(progress, zone, now);
+        sessions = ExerciseProgressItems.Sessions(progress, zone, now);
+    }
+}

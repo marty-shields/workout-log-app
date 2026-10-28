@@ -1,4 +1,5 @@
 @attribute [Stories("Screens/Exercise")]
+@using WorkoutLog.Core.Domain.Exercises.Progress
 
 <Stories TComponent="ExerciseView" Layout="typeof(PhoneLayout)">
 
@@ -12,6 +13,13 @@
     <Story Name="Lift e1RM">
         <Template>
             @{ var s = SampleExercises.LiftE1rm; }
+            <ExerciseView Name="@s.Name" Subtitle="@s.Subtitle" Tabs="s.Tabs" Tab="@s.Tab" TabChanged="(string _) => { }" ChartTitle="@s.ChartTitle" Points="s.Points" Flipped="s.Flipped" Format="s.Format" TimeScale="s.TimeScale" Caption="@s.Caption" NoDataMessage="@s.NoDataMessage" RangeChanged="(ChartRange _) => { }" Records="s.Records" Sessions="s.Sessions" OnBack="() => { }" />
+        </Template>
+    </Story>
+
+    <Story Name="Lift e1RM no data">
+        <Template>
+            @{ var s = SampleExercises.LiftE1rmNoData; }
             <ExerciseView Name="@s.Name" Subtitle="@s.Subtitle" Tabs="s.Tabs" Tab="@s.Tab" TabChanged="(string _) => { }" ChartTitle="@s.ChartTitle" Points="s.Points" Flipped="s.Flipped" Format="s.Format" TimeScale="s.TimeScale" Caption="@s.Caption" NoDataMessage="@s.NoDataMessage" RangeChanged="(ChartRange _) => { }" Records="s.Records" Sessions="s.Sessions" OnBack="() => { }" />
         </Template>
     </Story>
