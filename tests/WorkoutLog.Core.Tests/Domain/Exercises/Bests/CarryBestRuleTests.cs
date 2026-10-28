@@ -41,4 +41,13 @@ public class CarryBestRuleTests
     [Test]
     public void Best_NoSetHasAWeight_IsNull() =>
         Assert.That(rule.Best(Definition(FarmersWalk), Sets(FarmersWalk, Set(null, null, null, 40m))), Is.Null);
+
+    [Test]
+    public void Best_ZeroKgSets_AreIgnored() =>
+        Assert.That(rule.Best(Definition(FarmersWalk), Sets(FarmersWalk, Set(null, 0m, null, 100m), Set(null, 10m, null, 20m))),
+            Is.EqualTo(new ExerciseBest(10m, null, null, 20m)));
+
+    [Test]
+    public void Best_OnlyZeroKgSets_IsNull() =>
+        Assert.That(rule.Best(Definition(FarmersWalk), Sets(FarmersWalk, Set(null, 0m, null, 40m))), Is.Null);
 }

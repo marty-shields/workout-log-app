@@ -41,15 +41,15 @@ public static class SampleExercises
     /// <summary>Seconds as m:ss, e.g. 1:45.</summary>
     public static readonly Func<decimal, string> Clock = value => $"{(int)value / 60}:{(int)value % 60:00}";
 
-    /// <summary>Logged exercises, most recent first; the lifts and bodyweight moves open their Exercise page.</summary>
+    /// <summary>Logged exercises, most recent first; the strength exercises open their Exercise page.</summary>
     public static IReadOnlyList<ExerciseListItem> All { get; } =
     [
         new(6, "Barbell Back Squat", ExerciseKind.Strength, "Tue 20 Oct · 70kg × 3", Opens: true),
         new(264, "Push-up", ExerciseKind.Strength, "Tue 20 Oct · 25 reps", Opens: true),
-        new(218, "Machine Assisted Pull-up", ExerciseKind.Strength, "Thu 15 Oct · 20kg × 10"),
-        new(258, "Plank", ExerciseKind.Strength, "Thu 15 Oct · 1:45"),
+        new(218, "Machine Assisted Pull-up", ExerciseKind.Strength, "Thu 15 Oct · 20kg × 10", Opens: true),
+        new(258, "Plank", ExerciseKind.Strength, "Thu 15 Oct · 1:45", Opens: true),
         new(311, "Outdoor Run", ExerciseKind.Cardio, "Sun 11 Oct · 5.2km"),
-        new(187, "Farmer's Walk", ExerciseKind.Strength, "Thu 8 Oct · 32kg · 40m"),
+        new(187, "Farmer's Walk", ExerciseKind.Strength, "Thu 8 Oct · 32kg · 40m", Opens: true),
         new(315, "Jump Rope", ExerciseKind.Cardio, "Mon 5 Oct · 10:00"),
         new(132, "Dumbbell Curl", ExerciseKind.Strength, "Wed 15 Oct 2025", Opens: true),
     ];
@@ -190,6 +190,15 @@ public static class SampleExercises
         TimeScale = false,
     };
 
+    /// <summary>A hold on its Weight tab, never done with weight.</summary>
+    public static SampleExercise HoldWeightNoData { get; } = HoldWeight with
+    {
+        Points = [],
+        Records = [new("Longest hold", "1:45", "15 Oct"), new("Heaviest weight", null, null)],
+        Sessions = [new(41, "Thu 15 Oct", "1:45", "1:45 · 1:30 · 1:20")],
+        NoDataMessage = "No sets in the last 3 months",
+    };
+
     /// <summary>A carry on its Weight tab.</summary>
     public static SampleExercise CarryWeight { get; } = new(
         "Farmer's Walk", "Forearms · Other", CarryTabs, "weight",
@@ -202,6 +211,15 @@ public static class SampleExercises
         Tab = "distance",
         Points = [P("8 Sep", 40, "24kg"), P("15 Sep", 60, "24kg"), P("22 Sep", 40, "28kg"), P("6 Oct", 40, "30kg"), P("8 Oct", 40, "32kg")],
         Format = Metres,
+    };
+
+    /// <summary>A carry on its Weight tab, never done with weight.</summary>
+    public static SampleExercise CarryWeightNoData { get; } = CarryWeight with
+    {
+        Points = [],
+        Records = [new("Heaviest weight", null, null), new("Longest distance", "60m", "8 Oct")],
+        Sessions = [new(51, "Thu 8 Oct", "60m", "60m · 40m 0:30 · 40m")],
+        NoDataMessage = "No sets in the last 3 months",
     };
 
     /// <summary>A cardio exercise on its Distance tab.</summary>

@@ -2,9 +2,23 @@ using OpenQA.Selenium;
 
 namespace WorkoutLog.E2E.Tests.Screens;
 
-/// <summary>An Exercise page: a lift's or bodyweight move's chart, records and sessions.</summary>
+/// <summary>An Exercise page: an exercise's chart, records and sessions.</summary>
 public sealed class ExerciseScreen(WebView web)
 {
+    /// <summary>True when the tab switcher shows.</summary>
+    public bool HasTabs()
+    {
+        WaitUntilLoaded();
+        return web.Exists("exercise-tabs");
+    }
+
+    /// <summary>The chart card's title; null when it has none.</summary>
+    public string? ChartTitle()
+    {
+        WaitUntilLoaded();
+        return web.FindAll("[data-testid=\"exercise-chart-card\"] .card-title").SingleOrDefault()?.Text.Trim();
+    }
+
     /// <summary>True once the page shows its content, spinner or load error.</summary>
     public bool IsShown() => web.Exists("exercise-chart-card") || web.Exists("exercise-loading") || web.Exists("exercise-error");
 

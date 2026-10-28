@@ -12,6 +12,7 @@ public class ExerciseListItemsTests
     private const int BarbellCurl = 15;
     private const int DumbbellCurl = 132;
     private const int FarmersWalk = 187;
+    private const int AssistedPullUp = 218;
     private const int Plank = 258;
     private const int PlateFrontRaise = 259;
     private const int PushUp = 264;
@@ -27,8 +28,8 @@ public class ExerciseListItemsTests
 
     [Test]
     public void Exercises_AreTheOnesNamed() =>
-        Assert.That(new[] { Squat, BarbellCurl, DumbbellCurl, FarmersWalk, Plank, PlateFrontRaise, PushUp, Run }.Select(id => Find(id).Name),
-            Is.EqualTo(new[] { "Barbell Back Squat", "Barbell Curl", "Dumbbell Curl", "Farmer's Walk", "Plank", "Plate Front Raise", "Push-up", "Outdoor Run" }));
+        Assert.That(new[] { Squat, BarbellCurl, DumbbellCurl, FarmersWalk, AssistedPullUp, Plank, PlateFrontRaise, PushUp, Run }.Select(id => Find(id).Name),
+            Is.EqualTo(new[] { "Barbell Back Squat", "Barbell Curl", "Dumbbell Curl", "Farmer's Walk", "Machine Assisted Pull-up", "Plank", "Plate Front Raise", "Push-up", "Outdoor Run" }));
 
     [Test]
     public void Item_NotLogged_HasNoLast() =>
@@ -43,10 +44,11 @@ public class ExerciseListItemsTests
     [TestCase(DumbbellCurl, true)]
     [TestCase(PlateFrontRaise, true)]
     [TestCase(PushUp, true)]
-    [TestCase(FarmersWalk, false)]
-    [TestCase(Plank, false)]
+    [TestCase(FarmersWalk, true)]
+    [TestCase(AssistedPullUp, true)]
+    [TestCase(Plank, true)]
     [TestCase(Run, false)]
-    public void Item_OpensForLiftsAndBodyweightMovesOnly(int id, bool expected) =>
+    public void Item_OpensForStrengthExercises(int id, bool expected) =>
         Assert.That(ExerciseListItems.Item(Find(id), null, TimeZoneInfo.Utc, Now).Opens, Is.EqualTo(expected));
 
     [Test]

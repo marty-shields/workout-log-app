@@ -30,7 +30,7 @@ public static class ExerciseProgressItems
     /// <summary>The lift tabs: Top set, e1RM.</summary>
     public static IReadOnlyList<RadioOption<string>> Tabs { get; } = [TopSetOption, E1rmOption];
 
-    /// <summary>Weight on the Top set chart, e.g. 70kg.</summary>
+    /// <summary>Weight on a weight chart, e.g. 70kg.</summary>
     public static readonly Func<decimal, string> Weight = value => DisplayFormat.Weight(value);
 
     /// <summary>An estimated one-rep max to up to 1 decimal place, halves away from zero, e.g. 82.3kg or 80kg.</summary>

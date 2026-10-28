@@ -84,7 +84,7 @@ public static class CoreServiceCollectionExtensions
             .AddSingleton<IBestRule, CarryBestRule>()
             .AddSingleton<IBestRule, CardioBestRule>();
 
-    /// <summary>Registers the Exercise page's range filter and the lift and bodyweight rules.</summary>
+    /// <summary>Registers the Exercise page's range filter and the rules of each category.</summary>
     private static IServiceCollection AddProgressRules(this IServiceCollection services) =>
         services
             .AddSingleton<IRangeFilter, RangeFilter>()
@@ -92,7 +92,13 @@ public static class CoreServiceCollectionExtensions
             .AddSingleton<IE1rmRule, E1rmRule>()
             .AddSingleton<IRecordsRule, RecordsRule>()
             .AddSingleton<IBodyweightRule, BodyweightRule>()
-            .AddSingleton<IBodyweightRecordsRule, BodyweightRecordsRule>();
+            .AddSingleton<IBodyweightRecordsRule, BodyweightRecordsRule>()
+            .AddSingleton<ILeastAssistRule, LeastAssistRule>()
+            .AddSingleton<IAssistedRecordsRule, AssistedRecordsRule>()
+            .AddSingleton<IHoldRule, HoldRule>()
+            .AddSingleton<IHoldRecordsRule, HoldRecordsRule>()
+            .AddSingleton<ICarryRule, CarryRule>()
+            .AddSingleton<ICarryRecordsRule, CarryRecordsRule>();
 
     /// <summary>Registers the exercise catalog, system time, workout validator, best rules, progress rules and the services.</summary>
     private static IServiceCollection AddServices(this IServiceCollection services) =>

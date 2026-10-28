@@ -20,6 +20,12 @@ internal sealed partial class ExerciseProgressService(
     IRecordsRule recordsRule,
     IBodyweightRule bodyweightRule,
     IBodyweightRecordsRule bodyweightRecordsRule,
+    ILeastAssistRule leastAssistRule,
+    IAssistedRecordsRule assistedRecordsRule,
+    IHoldRule holdRule,
+    IHoldRecordsRule holdRecordsRule,
+    ICarryRule carryRule,
+    ICarryRecordsRule carryRecordsRule,
     ILogger<ExerciseProgressService> logger) : IExerciseProgressService
 {
     /// <inheritdoc />
@@ -70,6 +76,33 @@ internal sealed partial class ExerciseProgressService(
     {
         var inRange = InRange(sessions, range).Select(bodyweightRule.Progress).ToList();
         return new BodyweightProgress(inRange, bodyweightRecordsRule.Records(inRange));
+    }
+
+    /// <inheritdoc />
+    public AssistedProgress SummariseAssisted(IReadOnlyList<StrengthSession> sessions, ChartRange range)
+    {
+        var inRange = InRange(sessions, range)
+            .Select(s => new AssistedSessionProgress(s, leastAssistRule.LeastAssist(s.Sets)))
+            .ToList();
+        return new AssistedProgress(inRange, assistedRecordsRule.Records(inRange));
+    }
+
+    /// <inheritdoc />
+    public HoldProgress SummariseHold(IReadOnlyList<StrengthSession> sessions, ChartRange range)
+    {
+        var inRange = InRange(sessions, range)
+            .Select(s => new HoldSessionProgress(s, holdRule.Longest(s.Sets), holdRule.Heaviest(s.Sets)))
+            .ToList();
+        return new HoldProgress(inRange, holdRecordsRule.Records(inRange));
+    }
+
+    /// <inheritdoc />
+    public CarryProgress SummariseCarry(IReadOnlyList<StrengthSession> sessions, ChartRange range)
+    {
+        var inRange = InRange(sessions, range)
+            .Select(s => new CarrySessionProgress(s, carryRule.Heaviest(s.Sets), carryRule.Longest(s.Sets)))
+            .ToList();
+        return new CarryProgress(inRange, carryRecordsRule.Records(inRange));
     }
 
     /// <summary>The sessions in <paramref name="range"/>, by start time oldest first.</summary>
