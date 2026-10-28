@@ -32,7 +32,7 @@ Decimals are shown, edited and exported rounded to 2 places, halves away from ze
 ## Exercise definition (Core project)
 The definitions are an embedded JSON file in Core, from [exercises.json](../src/WorkoutLog.Core/Domain/Exercises/exercises.json). It is loaded once at startup into `IExerciseCatalog`, a singleton that every screen and service uses.
 
-Each definition has an Id (one sequence for all exercises, never reused or changed; new exercises take the next number), a unique Name, a Type (`Strength` or `Cardio`), Aliases (nicknames for search, unique across the list), the strength-only PrimaryMuscle, Equipment and Mechanic (values in [03](03-exercise-list.md#fields-per-exercise)), its Metrics (which show, which are required, and an optional field label), and its DistanceUnit, RateUnit and PaceUnit where it has those metrics (D19).
+Each definition has an Id (one sequence for all exercises, never reused or changed; new exercises take the next number), a unique Name, a Type (`Strength` or `Cardio`), a Category (how its sets are measured, which picks its best: [03](03-exercise-list.md#fields-per-exercise)), Aliases (nicknames for search, unique across the list), the strength-only PrimaryMuscle, Equipment and Mechanic (values in [03](03-exercise-list.md#fields-per-exercise)), its Metrics (which show, which are required, and an optional field label), and its DistanceUnit, RateUnit and PaceUnit where it has those metrics (D19).
 
 ## Exercise search
 - At load, each exercise's name and aliases are split into words: lower case, apostrophes removed, and any other character that isn't a letter or digit as a space. These variants are replaced (D62):

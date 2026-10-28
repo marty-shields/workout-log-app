@@ -67,7 +67,7 @@ else
     [Parameter, EditorRequired]
     public string TestId { get; set; } = "";
 
-    protected override void OnParametersSet() =>
+    protected override void OnInitialized() =>
         filters =
         [
             new(ExerciseFilter.All, "All", $"{TestId}-filter-all"),

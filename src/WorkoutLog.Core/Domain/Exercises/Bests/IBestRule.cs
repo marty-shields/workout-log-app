@@ -2,7 +2,7 @@ using WorkoutLog.Core.Domain.Workouts;
 
 namespace WorkoutLog.Core.Domain.Exercises.Bests;
 
-/// <summary>Picks the best of a session for one type of exercise. Each exercise in the list matches one rule.</summary>
+/// <summary>Picks the best of a session for one <see cref="ExerciseCategory"/>. Each category has one rule.</summary>
 internal interface IBestRule
 {
     /// <summary>True when the rule is for <paramref name="exercise"/>.</summary>

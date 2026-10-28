@@ -2,12 +2,11 @@ using WorkoutLog.Core.Domain.Workouts;
 
 namespace WorkoutLog.Core.Domain.Exercises.Bests;
 
-/// <summary>Holds: strength with a required duration. Best is the longest.</summary>
+/// <summary>Holds (<see cref="ExerciseCategory.Hold"/>). Best is the longest.</summary>
 internal sealed class HoldBestRule : IBestRule
 {
     /// <inheritdoc />
-    public bool AppliesTo(ExerciseDefinition exercise) =>
-        exercise.Type == ExerciseType.Strength && exercise.Metrics.Any(m => m is { Metric: Metric.Duration, Required: true });
+    public bool AppliesTo(ExerciseDefinition exercise) => exercise.Category == ExerciseCategory.Hold;
 
     /// <inheritdoc />
     public ExerciseBest? Best(ExerciseDefinition exercise, IReadOnlyList<WorkoutExercise> logged) =>

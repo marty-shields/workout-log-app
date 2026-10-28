@@ -127,7 +127,7 @@ public static class SampleExercises
 
     /// <summary>A bodyweight move on its Best set tab.</summary>
     public static SampleExercise BodyweightBestSet { get; } = new(
-        "Push-up", "Chest · Bodyweight", BodyweightTabs, "best-set",
+        "Push-up", "Chest", BodyweightTabs, "best-set",
         [P("1 Sep", 15), P("8 Sep", 18), P("15 Sep", 18), P("22 Sep", 20), P("6 Oct", 22), P("13 Oct", 25)],
         Count, BodyweightRecords, BodyweightSessions);
 
@@ -149,7 +149,7 @@ public static class SampleExercises
 
     /// <summary>A bodyweight move done with dumbbells, on its Top set tab.</summary>
     public static SampleExercise LoadedBodyweight { get; } = new(
-        "Bulgarian Split Squat", "Quadriceps · Bodyweight", [.. BodyweightTabs, Tab("e1rm", "e1RM")], "top-set",
+        "Bulgarian Split Squat", "Quadriceps", [.. BodyweightTabs, Tab("e1rm", "e1RM")], "top-set",
         [P("1 Sep", 10, "×10"), P("15 Sep", 12, "×10"), P("22 Sep", 12, "×12"), P("6 Oct", 14, "×10"), P("13 Oct", 16, "×8")],
         Kg,
         [new("Most reps in a set", null, null), new("Most reps in a session", null, null), new("Heaviest weight", "16kg × 8", "13 Oct"), new("Best e1RM", "20.3kg", "13 Oct")],
@@ -169,7 +169,7 @@ public static class SampleExercises
 
     /// <summary>A hold on its Duration tab.</summary>
     public static SampleExercise HoldDuration { get; } = new(
-        "Plank", "Abdominals · Bodyweight", HoldTabs, "duration",
+        "Plank", "Abdominals", HoldTabs, "duration",
         [P("15 Sep", 60), P("22 Sep", 70), P("29 Sep", 75), P("6 Oct", 90), P("13 Oct", 90), P("15 Oct", 105)],
         Clock, HoldRecords, HoldSessions, TimeScale: true);
 

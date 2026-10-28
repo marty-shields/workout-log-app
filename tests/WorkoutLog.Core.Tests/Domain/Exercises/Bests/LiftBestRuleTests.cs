@@ -9,10 +9,11 @@ public class LiftBestRuleTests
 
     [Test]
     public void Exercises_AreTheOnesNamed() =>
-        Assert.That(new[] { Squat, Curl }.Select(id => Definition(id).Name), Is.EqualTo(new[] { "Barbell Back Squat", "Dumbbell Curl" }));
+        Assert.That(new[] { Squat, Curl, PlateFrontRaise }.Select(id => Definition(id).Name), Is.EqualTo(new[] { "Barbell Back Squat", "Dumbbell Curl", "Plate Front Raise" }));
 
     [TestCase(Squat, true)]
     [TestCase(Curl, true)]
+    [TestCase(PlateFrontRaise, true)]
     [TestCase(PushUp, false)]
     [TestCase(BandPullApart, false)]
     [TestCase(AssistedPullUp, false)]

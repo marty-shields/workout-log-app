@@ -2,11 +2,11 @@ using WorkoutLog.Core.Domain.Workouts;
 
 namespace WorkoutLog.Core.Domain.Exercises.Bests;
 
-/// <summary>Cardio. Best is the distance when the exercise has one, null when not logged; otherwise the duration.</summary>
+/// <summary>Cardio (<see cref="ExerciseCategory.Cardio"/>). Best is the distance when the exercise has one, null when not logged; otherwise the duration.</summary>
 internal sealed class CardioBestRule : IBestRule
 {
     /// <inheritdoc />
-    public bool AppliesTo(ExerciseDefinition exercise) => exercise.Type == ExerciseType.Cardio;
+    public bool AppliesTo(ExerciseDefinition exercise) => exercise.Category == ExerciseCategory.Cardio;
 
     /// <inheritdoc />
     public ExerciseBest? Best(ExerciseDefinition exercise, IReadOnlyList<WorkoutExercise> logged)

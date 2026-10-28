@@ -137,8 +137,14 @@ public class LoggedExercisesServiceTests
         });
     }
 
+    /// <summary>A last session with one set, or a 30-minute entry for cardio.</summary>
     private static LastSession Session(int exerciseId, DateTimeOffset startedAt) =>
-        new(exerciseId, startedAt, [new StrengthExercise(exerciseId, [new StrengthSet(5, 20m, null, null)])]);
+        new(exerciseId, startedAt,
+        [
+            Catalog.All.FirstOrDefault(e => e.Id == exerciseId)?.Type == ExerciseType.Cardio
+                ? new CardioExercise(exerciseId, new CardioEntry(TimeSpan.FromMinutes(30), null, null, null, null, null, null, null))
+                : new StrengthExercise(exerciseId, [new StrengthSet(5, 20m, null, null)]),
+        ]);
 
     private void Setup(params LastSession[] sessions) =>
         repository.Setup(r => r.GetLastSessionsAsync()).ReturnsAsync(sessions);

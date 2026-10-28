@@ -8,7 +8,7 @@ One exercise's progress: a chart, its records and its sessions. View: `ExerciseV
 
 | Part | Content |
 |---|---|
-| Top bar | Back arrow; the exercise name, and under it primary muscle · equipment, or "Cardio". |
+| Top bar | Back arrow; the exercise name, and under it primary muscle · equipment (the muscle only when the equipment is None), or "Cardio". |
 | Tabs | `SegmentedControl` of the exercise's charts. Hidden when it has one. |
 | Chart card | Optional title, the `Chart`, a range `SegmentedControl` (3M, 6M, 1Y, All) and an optional caption. |
 | Records | `RecordsCard` titled with the range, e.g. "Records · last 3 months". |

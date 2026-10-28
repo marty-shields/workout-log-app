@@ -110,7 +110,7 @@ public class WorkoutEditorTests
     }
 
     [Test]
-    public async Task OpenListAsync_ReopenWhileLoading_HasNoRows()
+    public async Task OpenListAsync_Reopened_ClearsTheEarlierRowsWhileLoading()
     {
         await editor.OpenListAsync();
         Assume.That(editor.ListItems, Is.Not.Empty);

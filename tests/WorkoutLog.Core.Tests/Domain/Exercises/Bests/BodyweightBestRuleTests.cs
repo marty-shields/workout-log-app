@@ -13,6 +13,7 @@ public class BodyweightBestRuleTests
 
     [TestCase(PushUp, true)]
     [TestCase(BandPullApart, true)]
+    [TestCase(PlateFrontRaise, false)]
     [TestCase(Squat, false)]
     [TestCase(AssistedPullUp, false)]
     [TestCase(Plank, false)]
@@ -38,6 +39,10 @@ public class BodyweightBestRuleTests
     public void Best_AWeightedSet_IsTheTopSet() =>
         Assert.That(rule.Best(Definition(PushUp), Sets(PushUp, Set(30, null), Set(8, 10m), Set(10, 5m))),
             Is.EqualTo(new ExerciseBest(10m, 8, null, null)));
+
+    [Test]
+    public void Best_ZeroKgSets_AreUnweighted() =>
+        Assert.That(rule.Best(Definition(PushUp), Sets(PushUp, Set(25, null), Set(20, 0m))), Is.EqualTo(new ExerciseBest(null, 25, null, null)));
 
     [Test]
     public void Best_TiedWeight_TakesTheMostReps() =>

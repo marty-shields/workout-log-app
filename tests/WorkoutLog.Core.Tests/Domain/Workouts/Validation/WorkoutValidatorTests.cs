@@ -25,7 +25,7 @@ public class WorkoutValidatorTests
             Strength(Press, new MetricDefinition(Metric.Reps, Required: true), new MetricDefinition(Metric.WeightKg, Required: false)),
             Strength(Carry, new MetricDefinition(Metric.Distance, Required: true), new MetricDefinition(Metric.WeightKg, Required: false),
                 new MetricDefinition(Metric.Duration, Required: false)),
-            new ExerciseDefinition(Bike, "Bike", ExerciseType.Cardio, [], null, null, null,
+            new ExerciseDefinition(Bike, "Bike", ExerciseType.Cardio, ExerciseCategory.Cardio, [], null, null, null,
             [
                 new MetricDefinition(Metric.Duration, Required: true),
                 new MetricDefinition(Metric.Distance, Required: false),
@@ -34,13 +34,13 @@ public class WorkoutValidatorTests
                 new MetricDefinition(Metric.Rate, Required: false),
             ], DistanceUnit.Km, RateUnit.Rpm, null),
             Strength(Plank, new MetricDefinition(Metric.Duration, Required: true), new MetricDefinition(Metric.WeightKg, Required: false)),
-            new ExerciseDefinition(Climber, "Climber", ExerciseType.Cardio, [], null, null, null,
+            new ExerciseDefinition(Climber, "Climber", ExerciseType.Cardio, ExerciseCategory.Cardio, [], null, null, null,
             [
                 new MetricDefinition(Metric.Duration, Required: true),
                 new MetricDefinition(Metric.Floors, Required: false),
                 new MetricDefinition(Metric.Incline, Required: false),
             ], null, null, null),
-            new ExerciseDefinition(Run, "Run", ExerciseType.Cardio, [], null, null, null,
+            new ExerciseDefinition(Run, "Run", ExerciseType.Cardio, ExerciseCategory.Cardio, [], null, null, null,
             [
                 new MetricDefinition(Metric.Duration, Required: true),
                 new MetricDefinition(Metric.Distance, Required: false),
@@ -336,8 +336,16 @@ public class WorkoutValidatorTests
     }
 
     private static ExerciseDefinition Strength(int id, params MetricDefinition[] metrics) =>
-        new(id, $"Exercise {id}", ExerciseType.Strength, [], Muscle.Chest, Equipment.Barbell, Mechanic.Compound, metrics,
+        new(id, $"Exercise {id}", ExerciseType.Strength, Category(metrics), [], Muscle.Chest, Equipment.Barbell, Mechanic.Compound, metrics,
             metrics.Any(m => m.Metric == Metric.Distance) ? DistanceUnit.Metres : null, null, null);
+
+    private static ExerciseCategory Category(MetricDefinition[] metrics) =>
+        metrics.FirstOrDefault(m => m.Required)?.Metric switch
+        {
+            Metric.Distance => ExerciseCategory.Carry,
+            Metric.Duration => ExerciseCategory.Hold,
+            _ => ExerciseCategory.Lift,
+        };
 
     private static CardioEntry Entry() => new(TimeSpan.FromMinutes(20), null, null, null, null, null, null, null);
 

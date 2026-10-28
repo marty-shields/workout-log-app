@@ -2,15 +2,11 @@ using WorkoutLog.Core.Domain.Workouts;
 
 namespace WorkoutLog.Core.Domain.Exercises.Bests;
 
-/// <summary>Lifts: strength with required reps, not assisted, equipment other than Bodyweight, Other or Band. Best is the top set.</summary>
+/// <summary>Lifts (<see cref="ExerciseCategory.Lift"/>). Best is the top set.</summary>
 internal sealed class LiftBestRule : IBestRule
 {
     /// <inheritdoc />
-    public bool AppliesTo(ExerciseDefinition exercise) =>
-        exercise.Type == ExerciseType.Strength
-        && !exercise.IsAssisted
-        && exercise.Metrics.Any(m => m is { Metric: Metric.Reps, Required: true })
-        && !BodyweightBestRule.IsBodyweightEquipment(exercise.Equipment);
+    public bool AppliesTo(ExerciseDefinition exercise) => exercise.Category == ExerciseCategory.Lift;
 
     /// <inheritdoc />
     public ExerciseBest? Best(ExerciseDefinition exercise, IReadOnlyList<WorkoutExercise> logged) =>

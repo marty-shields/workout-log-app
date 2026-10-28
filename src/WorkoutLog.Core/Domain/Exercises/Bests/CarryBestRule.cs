@@ -2,12 +2,11 @@ using WorkoutLog.Core.Domain.Workouts;
 
 namespace WorkoutLog.Core.Domain.Exercises.Bests;
 
-/// <summary>Carries: strength with a required distance. Best is the heaviest set with its distance; tie → longest. Null when no set has a weight.</summary>
+/// <summary>Carries (<see cref="ExerciseCategory.Carry"/>). Best is the heaviest set with its distance; tie → longest. Null when no set has a weight.</summary>
 internal sealed class CarryBestRule : IBestRule
 {
     /// <inheritdoc />
-    public bool AppliesTo(ExerciseDefinition exercise) =>
-        exercise.Type == ExerciseType.Strength && exercise.Metrics.Any(m => m is { Metric: Metric.Distance, Required: true });
+    public bool AppliesTo(ExerciseDefinition exercise) => exercise.Category == ExerciseCategory.Carry;
 
     /// <inheritdoc />
     public ExerciseBest? Best(ExerciseDefinition exercise, IReadOnlyList<WorkoutExercise> logged) =>

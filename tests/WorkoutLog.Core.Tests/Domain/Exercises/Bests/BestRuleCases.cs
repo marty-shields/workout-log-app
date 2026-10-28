@@ -12,11 +12,14 @@ internal static class BestRuleCases
     /// <summary>Dumbbell Curl: lift.</summary>
     public const int Curl = 132;
 
-    /// <summary>Push-up: bodyweight-style, equipment Bodyweight.</summary>
+    /// <summary>Push-up: bodyweight, equipment None.</summary>
     public const int PushUp = 264;
 
-    /// <summary>Band Pull-Apart: bodyweight-style, equipment Band.</summary>
+    /// <summary>Band Pull-Apart: bodyweight, equipment Band.</summary>
     public const int BandPullApart = 4;
+
+    /// <summary>Plate Front Raise: lift, equipment Other.</summary>
+    public const int PlateFrontRaise = 259;
 
     /// <summary>Farmer's Walk: carry, equipment Other.</summary>
     public const int FarmersWalk = 187;
