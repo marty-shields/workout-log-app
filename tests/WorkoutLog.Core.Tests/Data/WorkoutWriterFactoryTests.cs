@@ -1,5 +1,6 @@
 using SQLite;
 using WorkoutLog.Core.Data;
+using WorkoutLog.Core.Domain.Exercises;
 
 namespace WorkoutLog.Core.Tests.Data;
 
@@ -10,6 +11,6 @@ public class WorkoutWriterFactoryTests
     {
         using var db = new SQLiteConnection(":memory:");
 
-        Assert.That(new WorkoutWriterFactory().Create(db), Is.InstanceOf<WorkoutWriter>());
+        Assert.That(new WorkoutWriterFactory(new ExerciseCatalog()).Create(db), Is.InstanceOf<WorkoutWriter>());
     }
 }

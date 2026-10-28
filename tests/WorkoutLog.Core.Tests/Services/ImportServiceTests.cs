@@ -19,6 +19,9 @@ public class ImportServiceTests
 {
     private const string FileName = "workout-log-2026-10-26-1805.json";
 
+    /// <summary>Machine Assisted Pull-up: weight labelled Assist.</summary>
+    private const int AssistedPullUp = 218;
+
     /// <summary>Bench as saved on the phone: 8 × 60 kg.</summary>
     private static readonly WorkoutExercise[] BenchSaved = [new StrengthExercise(8, [new StrengthSet(8, 60m, null, null)])];
 
@@ -37,8 +40,8 @@ public class ImportServiceTests
         databasePath = TempDatabase.NewPath();
         connection = new SQLiteAsyncConnection(databasePath);
         await connection.CreateTablesAsync<WorkoutRow, WorkoutExerciseRow, StrengthSetRow, CardioEntryRow>();
-        repository = new WorkoutRepository(connection, new WorkoutWriterFactory());
-        unitOfWork = new UnitOfWork(connection, new WorkoutWriterFactory());
+        repository = new WorkoutRepository(connection, new WorkoutWriterFactory(Catalog));
+        unitOfWork = new UnitOfWork(connection, new WorkoutWriterFactory(Catalog));
         logger = new FakeLogger<ImportService>();
         service = Service(repository, unitOfWork);
     }
@@ -270,6 +273,17 @@ public class ImportServiceTests
     }
 
     [Test]
+    public async Task ReadAsync_BlankAssistInTheFile_MatchesThePhonesZero()
+    {
+        await repository.AddAsync(new NewWorkout(Start, Start.AddHours(1), [new StrengthExercise(AssistedPullUp, [new StrengthSet(8, 0m, null, null)])]));
+
+        var review = await ReadAsync(File(Workout(0, $$"""{"exercise":{"id":{{AssistedPullUp}},"name":"Machine Assisted Pull-up","type":"Strength"},"sets":[{"reps":8}]}""")));
+
+        Assert.That(review with { Groups = ImportGroups.Empty },
+            Is.EqualTo(new ImportReview(FileName, Total: 1, New: 0, Already: 1, Different: 0, Skipped: 0, PhoneCount: 1)));
+    }
+
+    [Test]
     public async Task ImportAsync_FileWrittenByExport_IsAllAlreadyOnThePhone()
     {
         var start = new DateTimeOffset(2026, 10, 21, 17, 5, 0, TimeSpan.Zero).AddTicks(1234567);
@@ -327,7 +341,7 @@ public class ImportServiceTests
             new StartCheck(), new RepeatedStartCheck(), new FinishCheck(), new UnknownExerciseCheck(Catalog), new ExerciseDefinitionCheck(Catalog),
             new SaveRulesCheck(new WorkoutValidator(Catalog)),
         ];
-        return new ImportService(new ImportFileReader([]), new ImportChecker(checks), workouts, new WorkoutContentComparer(), writes, logger);
+        return new ImportService(new ImportFileReader([]), new ImportChecker(checks), workouts, new WorkoutContentComparer(Catalog), writes, logger);
     }
 
     private Task<ImportReview> ReadAsync(string json) => service.ReadAsync(Stream(json), FileName);

@@ -1,10 +1,14 @@
 using SQLite;
+using WorkoutLog.Core.Domain.Exercises;
 using WorkoutLog.Core.Domain.Workouts;
 
 namespace WorkoutLog.Core.Data;
 
-/// <summary>Writes workout rows on <paramref name="db"/> and deletes child rows in code.</summary>
-internal sealed class WorkoutWriter(SQLiteConnection db) : IWorkoutWriter
+/// <summary>
+/// Writes workout rows on <paramref name="db"/> and deletes child rows in code.
+/// A blank weight on an assisted machine (<see cref="ExerciseDefinition.IsAssisted"/>) is written as 0 (D23).
+/// </summary>
+internal sealed class WorkoutWriter(SQLiteConnection db, IExerciseCatalog catalog) : IWorkoutWriter
 {
     /// <inheritdoc />
     public int Add(NewWorkout workout)
@@ -78,7 +82,8 @@ internal sealed class WorkoutWriter(SQLiteConnection db) : IWorkoutWriter
             switch (exercises[i])
             {
                 case StrengthExercise strength:
-                    db.InsertAll(strength.Sets.Select((s, position) => ToRow(s, exerciseRow.Id, position)), runInTransaction: false);
+                    var blankKg = catalog.IsAssisted(strength.ExerciseId) ? 0m : (decimal?)null;
+                    db.InsertAll(strength.Sets.Select((s, position) => ToRow(s, exerciseRow.Id, position, blankKg)), runInTransaction: false);
                     break;
                 case CardioExercise cardio:
                     db.Insert(ToRow(cardio.Entry, exerciseRow.Id));
@@ -89,12 +94,13 @@ internal sealed class WorkoutWriter(SQLiteConnection db) : IWorkoutWriter
         }
     }
 
-    private static StrengthSetRow ToRow(StrengthSet set, int workoutExerciseId, int position) => new()
+    /// <summary>Builds the set's row; a blank weight takes <paramref name="blankKg"/>.</summary>
+    private static StrengthSetRow ToRow(StrengthSet set, int workoutExerciseId, int position, decimal? blankKg) => new()
     {
         WorkoutExerciseId = workoutExerciseId,
         Position = position,
         Reps = set.Reps,
-        WeightKg = set.WeightKg,
+        WeightKg = set.WeightKg ?? blankKg,
         Duration = set.Duration,
         Distance = set.Distance,
     };

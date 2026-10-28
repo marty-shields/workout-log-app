@@ -43,6 +43,9 @@ public sealed class ExerciseCatalog : IExerciseCatalog
     public IReadOnlyList<ExerciseDefinition> All => all.Value;
 
     /// <inheritdoc />
+    public bool IsAssisted(int exerciseId) => All.FirstOrDefault(e => e.Id == exerciseId) is { IsAssisted: true };
+
+    /// <inheritdoc />
     public IReadOnlyList<ExerciseDefinition> Search(string? query)
     {
         var words = SearchText.Words(query is { Length: > MaxQueryLength } ? query[..MaxQueryLength] : query);

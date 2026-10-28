@@ -1,6 +1,6 @@
 # 07 — Decisions Log
 
-Each decision states how the app and the repo work now, one row per subject. A change edits its decision; a new subject takes the next free ID. IDs aren't reused. Next free ID: D190.
+Each decision states how the app and the repo work now, one row per subject. A change edits its decision; a new subject takes the next free ID. IDs aren't reused. Next free ID: D191.
 
 ## Product and scope
 | # | Decision | Choice |
@@ -31,7 +31,7 @@ Each decision states how the app and the repo work now, one row per subject. A c
 | D20 | Level and Incline | Level is a whole number with a per-exercise label; Incline is a decimal % |
 | D21 | Distance | Decimal; unit set per exercise |
 | D22 | Units storage | Nullable enums on the exercise definition; no lookup table |
-| D23 | Assisted machines | Separate exercises; assistance stored in WeightKg, labelled Assist |
+| D23 | Assisted machines | Separate exercises; assistance stored in WeightKg, labelled Assist. A blank assist is saved as 0 kg, and import counts a blank and a 0 assist as the same ([02](02-data-model.md#metrics)) |
 | D24 | Dumbbell weight | Per dumbbell |
 | D25 | Field labels and units | An optional label per metric in the definition; labels and units as in [03](03-exercise-list.md#field-labels-and-units). The assisted machines' label is `Assist` and weight always shows kg |
 | D26 | Workout times | Start is when New Workout opens; finish is the first save; both are fixed after the first save. New Workout shows the elapsed time as h:mm:ss; while the clock is before the start it shows 0:00:00 and nothing is logged. If the clock is before the start at the first save, the finish is set to the start (total 0:00:00), the save succeeds and it is logged |

@@ -1,12 +1,20 @@
 using SQLite;
 using WorkoutLog.Core.Data;
+using WorkoutLog.Core.Domain.Exercises;
 using WorkoutLog.Core.Domain.Workouts;
 
 namespace WorkoutLog.Core.Tests.Data;
 
-/// <summary>Replace and DeleteAll. Add, ReplaceExercises and Delete are covered through <see cref="WorkoutRepositoryTests"/>.</summary>
+/// <summary>
+/// Replace, DeleteAll and the blank assist on each write. Add, ReplaceExercises and Delete are otherwise covered through <see cref="WorkoutRepositoryTests"/>.
+/// </summary>
 public class WorkoutWriterTests
 {
+    /// <summary>Machine Assisted Pull-up: weight labelled Assist.</summary>
+    private const int AssistedPullUp = 218;
+
+    private static readonly IExerciseCatalog Catalog = new ExerciseCatalog();
+
     private static readonly DateTimeOffset Start = new DateTimeOffset(2026, 10, 21, 17, 5, 0, TimeSpan.Zero).AddTicks(1234567);
     private static readonly DateTimeOffset Finish = Start.AddMinutes(62);
 
@@ -23,8 +31,8 @@ public class WorkoutWriterTests
         connection = new SQLiteAsyncConnection(databasePath);
         await connection.CreateTablesAsync<WorkoutRow, WorkoutExerciseRow, StrengthSetRow, CardioEntryRow>();
         db = new SQLiteConnection(databasePath);
-        writer = new WorkoutWriter(db);
-        repository = new WorkoutRepository(connection, new WorkoutWriterFactory());
+        writer = new WorkoutWriter(db, Catalog);
+        repository = new WorkoutRepository(connection, new WorkoutWriterFactory(Catalog));
     }
 
     [TearDown]
@@ -80,6 +88,49 @@ public class WorkoutWriterTests
 
         Assert.That(RowCounts(), Is.EqualTo((0, 0, 0, 0)));
     }
+
+    [Test]
+    public async Task Add_BlankWeight_IsZeroOnAnAssistedMachineOnly()
+    {
+        writer.Add(new NewWorkout(Start, Finish, BlankWeights()));
+
+        await AssertBlankAssistIsZeroAsync();
+    }
+
+    [Test]
+    public async Task Replace_BlankWeight_IsZeroOnAnAssistedMachineOnly()
+    {
+        writer.Add(new NewWorkout(Start, Finish, []));
+
+        writer.Replace(new NewWorkout(Start, Finish, BlankWeights()));
+
+        await AssertBlankAssistIsZeroAsync();
+    }
+
+    [Test]
+    public async Task ReplaceExercises_BlankWeight_IsZeroOnAnAssistedMachineOnly()
+    {
+        var id = writer.Add(new NewWorkout(Start, Finish, []));
+
+        writer.ReplaceExercises(id, BlankWeights());
+
+        await AssertBlankAssistIsZeroAsync();
+    }
+
+    /// <summary>An assisted pull-up with a blank and a 25 kg set, and exercise 1 with a blank weight.</summary>
+    private static WorkoutExercise[] BlankWeights() =>
+    [
+        new StrengthExercise(AssistedPullUp, [new StrengthSet(8, null, null, null), new StrengthSet(6, 25m, null, null)]),
+        new StrengthExercise(1, [new StrengthSet(5, null, null, null)]),
+    ];
+
+    /// <summary>The one saved workout holds <see cref="BlankWeights"/> with the assisted blank as 0.</summary>
+    private async Task AssertBlankAssistIsZeroAsync() =>
+        Assert.That((await repository.GetAllAsync()).Single().Exercises, Is.EqualTo(new WorkoutExercise[]
+        {
+            new StrengthExercise(AssistedPullUp, [new StrengthSet(8, 0m, null, null), new StrengthSet(6, 25m, null, null)]),
+            new StrengthExercise(1, [new StrengthSet(5, null, null, null)]),
+        }).UsingPropertiesComparer());
 
     private static WorkoutExercise[] Exercises() =>
     [

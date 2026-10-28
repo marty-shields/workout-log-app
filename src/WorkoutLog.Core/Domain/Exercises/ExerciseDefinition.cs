@@ -23,4 +23,11 @@ public sealed record ExerciseDefinition(
     IReadOnlyList<MetricDefinition> Metrics,
     DistanceUnit? DistanceUnit,
     RateUnit? RateUnit,
-    PaceUnit? PaceUnit);
+    PaceUnit? PaceUnit)
+{
+    /// <summary>Weight label of the assisted machines.</summary>
+    private const string AssistLabel = "Assist";
+
+    /// <summary>True for an assisted machine: its weight is labelled <see cref="AssistLabel"/> and is the assistance.</summary>
+    public bool IsAssisted => Metrics.Any(m => m is { Metric: Metric.WeightKg, Label: AssistLabel });
+}

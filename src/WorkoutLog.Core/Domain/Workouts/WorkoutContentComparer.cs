@@ -2,8 +2,8 @@ using WorkoutLog.Core.Domain.Exercises;
 
 namespace WorkoutLog.Core.Domain.Workouts;
 
-/// <summary>Compares workouts as their export would write them.</summary>
-internal sealed class WorkoutContentComparer : IWorkoutContentComparer
+/// <summary>Compares workouts as their export would write them. A blank weight on an assisted machine counts as 0 (D23).</summary>
+internal sealed class WorkoutContentComparer(IExerciseCatalog catalog) : IWorkoutContentComparer
 {
     /// <inheritdoc />
     public bool AreSame(Workout saved, NewWorkout imported) =>
@@ -11,17 +11,27 @@ internal sealed class WorkoutContentComparer : IWorkoutContentComparer
         && saved.Exercises.Count == imported.Exercises.Count
         && saved.Exercises.Zip(imported.Exercises).All(pair => AreSame(pair.First, pair.Second));
 
-    private static bool AreSame(WorkoutExercise saved, WorkoutExercise imported) =>
+    private bool AreSame(WorkoutExercise saved, WorkoutExercise imported) =>
         saved.ExerciseId == imported.ExerciseId
         && (saved, imported) switch
         {
-            (StrengthExercise a, StrengthExercise b) => a.Sets.Count == b.Sets.Count && a.Sets.Zip(b.Sets).All(s => AreSame(s.First, s.Second)),
+            (StrengthExercise a, StrengthExercise b) => AreSame(a, b),
             (CardioExercise a, CardioExercise b) => AreSame(a.Entry, b.Entry),
             _ => false,
         };
 
-    private static bool AreSame(StrengthSet a, StrengthSet b) =>
-        a.Reps == b.Reps && Same(a.WeightKg, b.WeightKg) && Same(a.Duration, b.Duration) && Same(a.Distance, b.Distance);
+    private bool AreSame(StrengthExercise a, StrengthExercise b)
+    {
+        var blankKg = catalog.IsAssisted(a.ExerciseId) ? 0m : (decimal?)null;
+        return a.Sets.Count == b.Sets.Count && a.Sets.Zip(b.Sets).All(s => AreSame(s.First, s.Second, blankKg));
+    }
+
+    /// <summary>Compares two sets; a blank weight counts as <paramref name="blankKg"/>.</summary>
+    private static bool AreSame(StrengthSet a, StrengthSet b, decimal? blankKg) =>
+        a.Reps == b.Reps
+        && Same(a.WeightKg ?? blankKg, b.WeightKg ?? blankKg)
+        && Same(a.Duration, b.Duration)
+        && Same(a.Distance, b.Distance);
 
     private static bool AreSame(CardioEntry a, CardioEntry b) =>
         Same(a.Duration, b.Duration)

@@ -45,6 +45,13 @@ Feature: Edit a workout
     And I save the workout
     Then reopening workout 1 shows: Dumbbell Incline Press, Farmer's Walk, Barbell Back Squat
 
+  @D23
+  Scenario: A blank assist is saved as 0 kg
+    When I add "Machine Assisted Pull-up"
+    And I log Machine Assisted Pull-up set 1: 8 reps
+    And I save the workout
+    Then reopening workout 1 shows Machine Assisted Pull-up sets: 8 reps 0 kg
+
   @D42
   Scenario: Picking an exercise again saves it on top
     When I add "Barbell Back Squat"

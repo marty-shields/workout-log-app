@@ -1,5 +1,6 @@
 using SQLite;
 using WorkoutLog.Core.Data;
+using WorkoutLog.Core.Domain.Exercises;
 using WorkoutLog.Core.Domain.Workouts;
 
 namespace WorkoutLog.Core.Tests.Data;
@@ -20,8 +21,8 @@ public class UnitOfWorkTests
         databasePath = TempDatabase.NewPath();
         connection = new SQLiteAsyncConnection(databasePath);
         await connection.CreateTablesAsync<WorkoutRow, WorkoutExerciseRow, StrengthSetRow, CardioEntryRow>();
-        repository = new WorkoutRepository(connection, new WorkoutWriterFactory());
-        unitOfWork = new UnitOfWork(connection, new WorkoutWriterFactory());
+        repository = new WorkoutRepository(connection, new WorkoutWriterFactory(new ExerciseCatalog()));
+        unitOfWork = new UnitOfWork(connection, new WorkoutWriterFactory(new ExerciseCatalog()));
     }
 
     [TearDown]

@@ -50,7 +50,9 @@ public static class CoreServiceCollectionExtensions
 
     /// <summary>Registers the schema upgrade steps.</summary>
     private static IServiceCollection AddSchemaUpgrades(this IServiceCollection services) =>
-        services.AddSingleton<ISchemaUpgrade, WorkoutStartedAtUniqueIndex>();
+        services
+            .AddSingleton<ISchemaUpgrade, WorkoutStartedAtUniqueIndex>()
+            .AddSingleton<ISchemaUpgrade, BlankAssistToZero>();
 
     /// <summary>Registers the import file reader, each import check, the checker and the workout comparer. There are no format upgrade steps yet.</summary>
     private static IServiceCollection AddImport(this IServiceCollection services) =>

@@ -13,7 +13,7 @@ SQLite on the device, accessed through `IWorkoutRepository`, `IExerciseSeeder` a
 | Metric | Type | Strength | Cardio | Notes |
 |---|---|---|---|---|
 | Reps | int | ✓ | | > 0 |
-| WeightKg | decimal | ✓ | | ≥ 0, any decimal; the UI takes up to 2 places (D29). Per dumbbell. Assistance on assisted machines. |
+| WeightKg | decimal | ✓ | | ≥ 0, any decimal; the UI takes up to 2 places (D29). Per dumbbell. Assistance on assisted machines, where a blank is saved as 0 (D23). |
 | Duration | TimeSpan | ✓ | ✓ (always required) | > 0 when required, otherwise ≥ 0. Whole seconds (D32). Entered as h:mm:ss |
 | Distance | decimal | ✓ (carries) | ✓ | > 0 when required (carries), otherwise ≥ 0. Unit from the exercise. The UI takes up to 2 places (D29) |
 | Floors | int | | ✓ | ≥ 0 |
@@ -139,7 +139,7 @@ A number too large for the set's types is capped (weight, distance, incline and 
   - `finishedAt` is missing, not in the export's format, or before the start;
   - an exercise id isn't in the exercise list, or an exercise's `type`, `distanceUnit`, `rateUnit` or `paceUnit` differs from the list's (missing or extra counts; names are ignored, D61);
   - it fails Save's checks (FR-09, limits D33).
-- A workout that passes is **new** when no phone workout has its start (D186), **already on this phone** when one has it with the same contents, and **different** otherwise. Contents compare as the export writes them: finish to the tick, exercises and sets in order, decimals rounded to 2 places, durations and paces to the second.
+- A workout that passes is **new** when no phone workout has its start (D186), **already on this phone** when one has it with the same contents, and **different** otherwise. Contents compare as the export writes them: finish to the tick, exercises and sets in order, decimals rounded to 2 places, durations and paces to the second, a blank assist as 0 (D23).
 - **Add** adds the new ones; **Use the file's** replaces a different workout's finish, exercises, sets and entries. **Replace all** deletes every phone workout and adds every one that can be imported. Either runs in one transaction.
 
 ## Format upgrades
@@ -160,4 +160,5 @@ A number too large for the set's types is capped (weight, distance, incline and 
 - A step sees the schema left by the previous step. Tables and columns the ORM adds from the row classes appear only after the last step.
 - Any change the ORM can't make itself (rename, move or transform data, or change an existing index) is a numbered upgrade step.
 - Step 2 (`WorkoutStartedAtUniqueIndex`) replaces the plain `Workout_StartedAt` index with a unique one. If two workouts have the same start, it fails, the version stays 1 and the Startup error shows (D75).
+- Step 3 (`BlankAssistToZero`) sets each blank weight on an assisted machine to 0 (D23).
 
