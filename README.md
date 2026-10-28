@@ -6,7 +6,6 @@
 
 **A paper gym notebook, rebuilt as a fast, offline Android app.**
 
-[![PR build](https://github.com/marty-shields/workout-log-app/actions/workflows/pr-build.yml/badge.svg?event=pull_request)](https://github.com/marty-shields/workout-log-app/actions/workflows/pr-build.yml)
 [![Latest release](https://img.shields.io/github/v/release/marty-shields/workout-log-app?label=release)](https://github.com/marty-shields/workout-log-app/releases/latest)
 [![Stories site](https://img.shields.io/badge/stories-GitHub_Pages-305252?logo=storybook&logoColor=white)](https://marty-shields.github.io/workout-log-app/)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
