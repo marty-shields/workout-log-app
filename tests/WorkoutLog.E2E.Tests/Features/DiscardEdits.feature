@@ -6,12 +6,12 @@ Feature: Discard edits
     Given these saved workouts:
       | started         | exercises                                                  |
       | yesterday 18:05 | Barbell Back Squat: 5 reps 60 kg / Rowing Machine: 0:10:00 |
-    And I have opened workout 1 from History
+    And I have opened workout 1 from Workouts
 
   @US-28
-  Scenario Outline: Back with no changes goes straight to History
+  Scenario Outline: Back with no changes goes straight to Workouts
     When I go back with <how>
-    Then I am on History with no prompt
+    Then I am on Workouts with no prompt
     Examples:
       | how            |
       | the back arrow |
@@ -34,7 +34,7 @@ Feature: Discard edits
   Scenario Outline: Opening the picker isn't a change
     When I <action>
     And I go back with the back arrow
-    Then I am on History with no prompt
+    Then I am on Workouts with no prompt
     Examples:
       | action                                |
       | open the exercise picker and close it |
@@ -47,11 +47,11 @@ Feature: Discard edits
     And Barbell Back Squat set 1 still shows 62.5 kg
 
   @smoke
-  Scenario: Discard returns to History and keeps the saved workout as it was
+  Scenario: Discard returns to Workouts and keeps the saved workout as it was
     Given I have entered "62.5" in Barbell Back Squat set 1 weight
     And I have gone back with the back arrow
     When I tap Discard
-    Then I am on History
+    Then I am on Workouts
     And reopening workout 1 shows Barbell Back Squat set 1 at 60 kg
 
   @D78 @US-28

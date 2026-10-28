@@ -14,7 +14,7 @@ namespace WorkoutLog.E2E.Tests.Steps;
 [Binding]
 public sealed partial class SetSteps(WebView web, Native native, WorkoutScreen workout, ScenarioState state)
 {
-    private const string NotAnExercise = "(?!the |History |This |reopening |I |.* is still open and shows )";
+    private const string NotAnExercise = "(?!the |Workouts |This |reopening |I |.* is still open and shows )";
 
     [When(@"^I enter ""(.*)"" in (.+?)((?: and leave the field)?)$")]
     public void WhenIEnter(string text, string field, string leave)

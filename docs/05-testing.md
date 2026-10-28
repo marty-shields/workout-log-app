@@ -27,6 +27,6 @@
 - A failed scenario saves its evidence ([06 Results](06-dev-setup-build.md#results), D144).
 
 ### In UI.Tests, not E2E
-A user can't cause these on the phone, or they aren't behaviour (D138): startup failure (D75); load failures and Try again on the Dashboard, History and Edit (D69, D72, D67); Not found (D72); save and delete failures (D40, D46); the Error screen and Restart (D76); taps ignored while a save or delete runs, beyond a double Save (D41, D73, D46); DST at midnight (D66); exercise file checks; themes, tokens, contrast and touch targets.
+A user can't cause these on the phone, or they aren't behaviour (D138): startup failure (D75); load failures and Try again on the Dashboard, Workouts and Edit (D69, D72, D67); Not found (D72); save and delete failures (D40, D46); the Error screen and Restart (D76); taps ignored while a save or delete runs, beyond a double Save (D41, D73, D46); DST at midnight (D66); exercise file checks; themes, tokens, contrast and touch targets.
 
 Scenario outlines keep one row per device path; other values of the same rule are tested in UI.Tests or Core.Tests (D151).

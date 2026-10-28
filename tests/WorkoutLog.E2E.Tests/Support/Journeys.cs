@@ -3,15 +3,15 @@ using WorkoutLog.E2E.Tests.Screens;
 
 namespace WorkoutLog.E2E.Tests.Support;
 
-/// <summary>What a user does across screens: start, log and save a workout, open History or a saved workout, go back.</summary>
+/// <summary>What a user does across screens: start, log and save a workout, open Workouts or a saved workout, go back.</summary>
 public sealed class Journeys(
     WebView web, Native native, DeviceClock clock, ScenarioState state,
-    DashboardScreen dashboard, WorkoutScreen workout, PickerScreen picker, HistoryScreen history, ConfirmDialog dialog)
+    DashboardScreen dashboard, WorkoutScreen workout, PickerScreen picker, WorkoutsScreen workouts, ConfirmDialog dialog)
 {
     public enum Screen
     {
         Dashboard,
-        History,
+        Workouts,
         Settings,
         ImportReview,
         Workout,
@@ -25,7 +25,7 @@ public sealed class Journeys(
         return title switch
         {
             DashboardScreen.Title => Screen.Dashboard,
-            HistoryScreen.Title => Screen.History,
+            WorkoutsScreen.Title => Screen.Workouts,
             SettingsScreen.Title => Screen.Settings,
             ImportReviewScreen.Title => Screen.ImportReview,
             _ when workout.IsShown() => Screen.Workout,
@@ -113,53 +113,53 @@ public sealed class Journeys(
         SaveAndWait();
     }
 
-    /// <summary>Goes to History from the Dashboard, History or an unchanged workout.</summary>
-    public void GoToHistory()
+    /// <summary>Goes to Workouts from the Dashboard, Workouts or an unchanged workout.</summary>
+    public void GoToWorkouts()
     {
         switch (Current())
         {
             case Screen.Dashboard:
-                dashboard.OpenHistory();
+                dashboard.OpenWorkouts();
                 break;
             case Screen.Workout:
                 workout.Back();
                 break;
         }
 
-        WaitFor(Screen.History);
-        history.Rows();
+        WaitFor(Screen.Workouts);
+        workouts.Rows();
     }
 
-    /// <summary>Goes to the Dashboard from History, or from an unchanged workout through History.</summary>
+    /// <summary>Goes to the Dashboard from Workouts, or from an unchanged workout through Workouts.</summary>
     public void GoToDashboard()
     {
         if (Current() == Screen.Workout)
         {
-            GoToHistory();
+            GoToWorkouts();
         }
 
-        if (Current() == Screen.History)
+        if (Current() == Screen.Workouts)
         {
-            history.Back();
+            workouts.Back();
         }
 
         WaitFor(Screen.Dashboard);
         dashboard.LastWorkout();
     }
 
-    /// <summary>Opens a saved workout from History and waits for it to load.</summary>
+    /// <summary>Opens a saved workout from Workouts and waits for it to load.</summary>
     public void OpenWorkout(int id)
     {
-        GoToHistory();
-        history.Open(id);
+        GoToWorkouts();
+        workouts.Open(id);
         WaitForWorkout();
     }
 
-    /// <summary>Opens the top row in History.</summary>
+    /// <summary>Opens the top row in Workouts.</summary>
     public void OpenLatestWorkout()
     {
-        GoToHistory();
-        history.Open(history.RowIds()[0]);
+        GoToWorkouts();
+        workouts.Open(workouts.RowIds()[0]);
         WaitForWorkout();
     }
 
@@ -187,13 +187,13 @@ public sealed class Journeys(
         dialog.Confirm();
     }
 
-    /// <summary>Delete, then Delete on the prompt; waits for History.</summary>
+    /// <summary>Delete, then Delete on the prompt; waits for Workouts.</summary>
     public void Delete()
     {
         workout.Delete();
         web.WaitUntil(dialog.IsOpen, "the prompt didn't show");
         dialog.Confirm();
-        WaitFor(Screen.History);
+        WaitFor(Screen.Workouts);
     }
 
     private void WaitForWorkout()

@@ -1,19 +1,19 @@
 @using WorkoutLog.UI.Components.Feedback
-@using WorkoutLog.UI.Models.History
-<AppScreen Title="History" OnBack="OnBack">
+@using WorkoutLog.UI.Models.Workouts
+<AppScreen Title="Workouts" OnBack="OnBack">
     @if (Loading)
     {
         <div class="centre">
-            <Spinner Label="Loading…" TestId="history-loading" />
+            <Spinner Label="Loading…" TestId="workouts-loading" />
         </div>
     }
     else if (Failed)
     {
-        <LoadFailed Message="Couldn't load your history" OnRetry="OnRetry" TestId="history" />
+        <LoadFailed Message="Couldn't load your workouts" OnRetry="OnRetry" TestId="workouts" />
     }
     else if (Rows.Count == 0)
     {
-        <EmptyState Message="No workouts yet" TestId="history-empty" />
+        <EmptyState Message="No workouts yet" TestId="workouts-empty" />
     }
     else
     {
@@ -21,7 +21,7 @@
             @foreach (var row in Rows)
             {
                 <li>
-                    <ListRow Text="@DisplayFormat.DateAndTime(row.StartedAt)" OnClick="() => OnOpen.InvokeAsync(row)" TestId="@($"history-row-{row.Id}")" />
+                    <ListRow Text="@DisplayFormat.DateAndTime(row.StartedAt)" OnClick="() => OnOpen.InvokeAsync(row)" TestId="@($"workouts-row-{row.Id}")" />
                 </li>
             }
         </ul>
@@ -31,7 +31,7 @@
 @code {
     /// <summary>Saved workouts, newest first.</summary>
     [Parameter, EditorRequired]
-    public IReadOnlyList<HistoryRow> Rows { get; set; } = [];
+    public IReadOnlyList<WorkoutsRow> Rows { get; set; } = [];
 
     /// <summary>Shows a spinner instead of the content while the workouts load.</summary>
     [Parameter]
@@ -47,7 +47,7 @@
 
     /// <summary>Raised when a row is tapped.</summary>
     [Parameter, EditorRequired]
-    public EventCallback<HistoryRow> OnOpen { get; set; }
+    public EventCallback<WorkoutsRow> OnOpen { get; set; }
 
     /// <summary>Raised by the back arrow and the Android back button.</summary>
     [Parameter]

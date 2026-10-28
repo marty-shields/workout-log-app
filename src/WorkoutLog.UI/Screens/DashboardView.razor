@@ -35,7 +35,7 @@
                 <StatTile Label="This month" Value="Summary.ThisMonth" TestId="count-month" />
             </div>
         }
-        <ListRow Text="History" OnClick="OnHistory" TestId="history-link" />
+        <ListRow Text="Workouts" OnClick="OnWorkouts" TestId="workouts-link" />
     </ChildContent>
     <BottomBar>
         <AppButton FullWidth TestId="new-workout" OnClick="OnNewWorkout">New Workout</AppButton>
@@ -63,9 +63,9 @@
     [Parameter]
     public EventCallback OnNewWorkout { get; set; }
 
-    /// <summary>Raised by the History link.</summary>
+    /// <summary>Raised by the Workouts link.</summary>
     [Parameter]
-    public EventCallback OnHistory { get; set; }
+    public EventCallback OnWorkouts { get; set; }
 
     /// <summary>Raised by the Settings gear.</summary>
     [Parameter]

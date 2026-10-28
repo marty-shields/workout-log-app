@@ -1,7 +1,7 @@
 using WorkoutLog.Core.Domain.Exercises;
 using WorkoutLog.Core.Domain.Workouts;
-using WorkoutLog.UI.Models.History;
 using WorkoutLog.UI.Models.Workout;
+using WorkoutLog.UI.Models.Workouts;
 
 namespace WorkoutLog.UI.Stories.Samples;
 
@@ -125,8 +125,8 @@ public static class SampleData
         return exercises;
     }
 
-    /// <summary>History rows, newest first.</summary>
-    public static IReadOnlyList<HistoryRow> HistoryRows { get; } =
+    /// <summary>Workouts rows, newest first.</summary>
+    public static IReadOnlyList<WorkoutsRow> WorkoutsRows { get; } =
     [
         new(4, new DateTime(2026, 10, 20, 18, 5, 0)),
         new(3, new DateTime(2026, 10, 20, 7, 30, 0)),

@@ -11,14 +11,14 @@ namespace WorkoutLog.E2E.Tests.Steps;
 [Binding]
 public sealed class EditSteps(WebView web, Journeys journeys, WorkoutScreen workout, DeviceClock clock, ScenarioState state)
 {
-    [Given(@"^I have opened workout (\d+) from History$")]
-    [When(@"^I open workout (\d+) from History$")]
+    [Given(@"^I have opened workout (\d+) from Workouts$")]
+    [When(@"^I open workout (\d+) from Workouts$")]
     public void OpenWorkout(int id) => journeys.OpenWorkout(id);
 
-    [When(@"^I open the latest workout from History$")]
+    [When(@"^I open the latest workout from Workouts$")]
     public void WhenIOpenTheLatestWorkout() => journeys.OpenLatestWorkout();
 
-    [When(@"^I open the latest workout from History and save it$")]
+    [When(@"^I open the latest workout from Workouts and save it$")]
     public void WhenIOpenTheLatestWorkoutAndSaveIt()
     {
         journeys.OpenLatestWorkout();
@@ -91,7 +91,7 @@ public sealed class EditSteps(WebView web, Journeys journeys, WorkoutScreen work
         Assert.That(workout.ReadAll(name, number, expected.Keys), Is.EquivalentTo(expected), name);
     }
 
-    /// <summary>Opens the workout from History: by id, or the top row when <paramref name="id"/> is null.</summary>
+    /// <summary>Opens the workout from Workouts: by id, or the top row when <paramref name="id"/> is null.</summary>
     private void Reopen(int? id)
     {
         if (id is null)

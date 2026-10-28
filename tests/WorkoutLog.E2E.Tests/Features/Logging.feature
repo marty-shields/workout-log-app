@@ -29,9 +29,9 @@ Feature: Logging
     Given these saved workouts:
       | started         | exercises                                     |
       | yesterday 18:05 | Barbell Back Squat: 5 reps / Push-up: 10 reps |
-    When I open workout 1 from History
+    When I open workout 1 from Workouts
     And I save the workout
-    And I open workout 1 from History
+    And I open workout 1 from Workouts
     And I tap Add set on Push-up
     And I discard the changes
     Then the log shows "Workout 1 loaded with 2 exercises"
@@ -43,7 +43,7 @@ Feature: Logging
     Given these saved workouts:
       | started         | exercises        |
       | yesterday 18:05 | Push-up: 10 reps |
-    And I have opened workout 1 from History
+    And I have opened workout 1 from Workouts
     And I have entered "12" in Push-up set 1 reps
     When I delete the workout
     Then the log shows "Workout 1 deleted"
@@ -55,7 +55,7 @@ Feature: Logging
     And I have logged Barbell Back Squat set 1: 5 reps, 987.65 kg
     And I have logged Treadmill: 0:20:00, 876.54 km, incline 87.65, 76.54 km/h
     When I save the workout
-    And I open the latest workout from History and save it
+    And I open the latest workout from Workouts and save it
     Then the log contains none of: 987.65, 876.54, 87.65, 76.54
 
   @US-12 @US-13

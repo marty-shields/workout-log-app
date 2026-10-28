@@ -2,7 +2,7 @@ using OpenQA.Selenium;
 
 namespace WorkoutLog.E2E.Tests.Screens;
 
-/// <summary>The Dashboard: last workout, counts, History, New Workout and the Settings gear.</summary>
+/// <summary>The Dashboard: last workout, counts, Workouts, New Workout and the Settings gear.</summary>
 public sealed class DashboardScreen(WebView web)
 {
     public const string Title = "Workout Log";
@@ -19,13 +19,13 @@ public sealed class DashboardScreen(WebView web)
 
     public string ThisMonth() => Count("count-month");
 
-    public bool HasHistoryLink() => web.Exists("history-link");
+    public bool HasWorkoutsLink() => web.Exists("workouts-link");
 
     public bool HasNewWorkout() => web.Exists("new-workout");
 
     public bool HasStartupError() => web.Exists("startup-error");
 
-    public void OpenHistory() => web.Tap("history-link");
+    public void OpenWorkouts() => web.Tap("workouts-link");
 
     public void OpenSettings() => web.Tap("settings");
 

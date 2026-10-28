@@ -76,7 +76,7 @@ public sealed class BackSteps(WebView web, Native native, Journeys journeys, Wor
         journeys.Delete();
     }
 
-    [Then(@"^I am ((?:still )?)on (the Dashboard|History|Settings|New Workout|Edit Workout)$")]
+    [Then(@"^I am ((?:still )?)on (the Dashboard|Workouts|Settings|New Workout|Edit Workout)$")]
     public void ThenIAmOn(string still, string screen)
     {
         if (still.Length > 0)
@@ -89,8 +89,8 @@ public sealed class BackSteps(WebView web, Native native, Journeys journeys, Wor
             case "the Dashboard":
                 journeys.WaitFor(Journeys.Screen.Dashboard);
                 break;
-            case "History":
-                journeys.WaitFor(Journeys.Screen.History);
+            case "Workouts":
+                journeys.WaitFor(Journeys.Screen.Workouts);
                 break;
             case "Settings":
                 journeys.WaitFor(Journeys.Screen.Settings);
@@ -102,10 +102,10 @@ public sealed class BackSteps(WebView web, Native native, Journeys journeys, Wor
         }
     }
 
-    [Then(@"^I am on History with no prompt$")]
-    public void ThenIAmOnHistoryWithNoPrompt()
+    [Then(@"^I am on Workouts with no prompt$")]
+    public void ThenIAmOnWorkoutsWithNoPrompt()
     {
-        journeys.WaitFor(Journeys.Screen.History);
+        journeys.WaitFor(Journeys.Screen.Workouts);
         Assert.That(dialog.IsOpen(), Is.False, "prompt open");
     }
 }

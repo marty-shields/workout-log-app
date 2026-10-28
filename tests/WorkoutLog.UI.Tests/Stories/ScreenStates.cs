@@ -5,9 +5,9 @@ using WorkoutLog.Core.Services;
 using WorkoutLog.UI.Components.Overlays;
 using WorkoutLog.UI.Components.Workout;
 using WorkoutLog.UI.Models.Dashboard;
-using WorkoutLog.UI.Models.History;
 using WorkoutLog.UI.Models.Settings;
 using WorkoutLog.UI.Models.Workout;
+using WorkoutLog.UI.Models.Workouts;
 using WorkoutLog.UI.Screens;
 using WorkoutLog.UI.Stories.Samples;
 
@@ -60,10 +60,10 @@ public static class ScreenStates
         new("Screens/Exercise Picker", "Results", c => Workout(c, WorkoutMode.New, SampleData.StrengthWorkout(Catalog(c)), pickerQuery: "dumbbell")),
         new("Screens/Exercise Picker", "No match", c => Workout(c, WorkoutMode.New, SampleData.StrengthWorkout(Catalog(c)), pickerQuery: "zumba")),
 
-        new("Screens/History", "Empty", c => History(c, [], tappable: true)),
-        new("Screens/History", "With workouts", c => History(c, SampleData.HistoryRows, tappable: true)),
-        new("Screens/History", "Loading", c => History(c, [], tappable: false, loading: true)),
-        new("Screens/History", "Load failed", c => History(c, [], tappable: false, failed: true)),
+        new("Screens/Workouts", "Empty", c => Workouts(c, [], tappable: true)),
+        new("Screens/Workouts", "With workouts", c => Workouts(c, SampleData.WorkoutsRows, tappable: true)),
+        new("Screens/Workouts", "Loading", c => Workouts(c, [], tappable: false, loading: true)),
+        new("Screens/Workouts", "Load failed", c => Workouts(c, [], tappable: false, failed: true)),
 
         new("Screens/Settings", "With workouts", c => Settings(c, 42)),
         new("Screens/Settings", "One workout", c => Settings(c, 1)),
@@ -108,7 +108,7 @@ public static class ScreenStates
             .Add(x => x.Failed, failed)
             .Add(x => x.OnRetry, () => { })
             .Add(x => x.OnNewWorkout, () => { })
-            .Add(x => x.OnHistory, () => { })
+            .Add(x => x.OnWorkouts, () => { })
             .Add(x => x.OnSettings, () => { }))
             .FindAll("*");
 
@@ -165,9 +165,9 @@ public static class ScreenStates
             .Add(x => x.OnBack, () => { }))
             .FindAll("*");
 
-    private static IReadOnlyList<IElement> History(
-        BunitContext context, IReadOnlyList<HistoryRow> rows, bool tappable, bool loading = false, bool failed = false) =>
-        context.Render<HistoryView>(p =>
+    private static IReadOnlyList<IElement> Workouts(
+        BunitContext context, IReadOnlyList<WorkoutsRow> rows, bool tappable, bool loading = false, bool failed = false) =>
+        context.Render<WorkoutsView>(p =>
         {
             p.Add(x => x.Rows, rows)
                 .Add(x => x.Loading, loading)
@@ -176,7 +176,7 @@ public static class ScreenStates
                 .Add(x => x.OnBack, () => { });
             if (tappable)
             {
-                p.Add(x => x.OnOpen, (HistoryRow _) => { });
+                p.Add(x => x.OnOpen, (WorkoutsRow _) => { });
             }
         }).FindAll("*");
 

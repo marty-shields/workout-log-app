@@ -92,7 +92,7 @@ public sealed class WorkoutSteps(WebView web, Native native, Journeys journeys, 
     public void WhenIDiscardTheChanges()
     {
         journeys.Discard();
-        journeys.WaitFor(Journeys.Screen.History);
+        journeys.WaitFor(Journeys.Screen.Workouts);
     }
 
     [When(@"^I delete the workout$")]

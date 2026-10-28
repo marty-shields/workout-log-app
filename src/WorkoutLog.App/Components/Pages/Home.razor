@@ -4,5 +4,5 @@
 
 @* Back has no handler here, so it leaves the app. *@
 <DashboardPage OnNewWorkout="@(() => Navigation.GoTo("workout/new"))"
-               OnHistory="@(() => Navigation.GoTo("history"))"
+               OnWorkouts="@(() => Navigation.GoTo("workouts"))"
                OnSettings="@(() => Navigation.GoTo("settings"))" />

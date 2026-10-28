@@ -1,0 +1,5 @@
+@page "/workouts"
+@using WorkoutLog.UI.Screens
+@inject NavigationManager Navigation
+
+<WorkoutsPage OnBack="@(() => Navigation.GoTo(string.Empty))" OnOpen="@(id => Navigation.GoTo($"workout/{id}"))" />

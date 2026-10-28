@@ -43,7 +43,7 @@ Every new or changed screen or component goes through these steps (D98):
 | `new-workout` | `screens-new-workout--strength` |
 | `cardio` | `screens-new-workout--cardio` |
 | `exercise-picker` | `screens-exercise-picker--results` |
-| `history` | `screens-history--with-workouts` |
+| `workouts` | `screens-workouts--with-workouts` |
 | `settings` | `screens-settings--with-workouts` |
 
 `icon.svg` is the app icon's foreground on its background with rounded corners; rebuild it when the icon changes.

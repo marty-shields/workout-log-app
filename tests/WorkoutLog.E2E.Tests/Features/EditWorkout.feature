@@ -6,7 +6,7 @@ Feature: Edit a workout
     Given these saved workouts:
       | started         | finished        | exercises                                                                                                                                                |
       | yesterday 18:05 | yesterday 18:52 | Barbell Back Squat: 5 reps 60 kg; 5 reps 62.5 kg; 5 reps 65 kg / Farmer's Walk: 40 m 32 kg 0:00:45; 50 m 32 kg 0:00:45 / Treadmill: 0:20:00, 3.2 km, incline 1.5 |
-    And I have opened workout 1 from History
+    And I have opened workout 1 from Workouts
 
   Scenario: The saved workout shows with its total time
     Then the title is yesterday's date and day
@@ -31,7 +31,7 @@ Feature: Edit a workout
     And I save the workout
     Then reopening workout 1 shows 4 Barbell Back Squat sets
     And the time still shows "Total 0:47:00"
-    And History still shows workout 1 at yesterday 18:05
+    And Workouts still shows workout 1 at yesterday 18:05
 
   Scenario: Remove a set and save
     When I remove Barbell Back Squat set 2

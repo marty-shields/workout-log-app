@@ -3,10 +3,10 @@ using System.Text.RegularExpressions;
 namespace WorkoutLog.UI.Tests.Navigation;
 
 /// <summary>
-/// The App adds no WebView history, so the BlazorWebView's own back callback never runs (D119).
+/// The App adds no WebView back-stack entries, so the BlazorWebView's own back callback never runs (D119).
 /// Navigation goes through <c>GoTo</c> only, and there are no links.
 /// </summary>
-public partial class NoWebViewHistoryTests
+public partial class NoWebViewBackStackTests
 {
     private static IEnumerable<TestCaseData> AppFiles() =>
         new[] { "*.razor", "*.cs" }

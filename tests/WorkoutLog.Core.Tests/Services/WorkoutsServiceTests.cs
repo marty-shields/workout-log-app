@@ -8,20 +8,20 @@ using WorkoutLog.Core.Services;
 
 namespace WorkoutLog.Core.Tests.Services;
 
-public class HistoryServiceTests
+public class WorkoutsServiceTests
 {
     private static readonly DateTimeOffset Start = new(2026, 10, 21, 17, 5, 0, TimeSpan.Zero);
 
     private Mock<IWorkoutRepository> repository = null!;
-    private FakeLogger<HistoryService> logger = null!;
-    private HistoryService service = null!;
+    private FakeLogger<WorkoutsService> logger = null!;
+    private WorkoutsService service = null!;
 
     [SetUp]
     public void SetUp()
     {
         repository = new Mock<IWorkoutRepository>(MockBehavior.Strict);
-        logger = new FakeLogger<HistoryService>();
-        service = new HistoryService(repository.Object, logger);
+        logger = new FakeLogger<WorkoutsService>();
+        service = new WorkoutsService(repository.Object, logger);
     }
 
     [Test]
@@ -44,7 +44,7 @@ public class HistoryServiceTests
 
         await service.GetAllAsync();
 
-        Assert.That(LoggedEvents.Of(logger), Is.EqualTo(new[] { (CoreEvent.HistoryLoaded, LogLevel.Debug, $"History loaded with {count} workouts") }));
+        Assert.That(LoggedEvents.Of(logger), Is.EqualTo(new[] { (CoreEvent.WorkoutsLoaded, LogLevel.Debug, $"Loaded {count} workouts") }));
         Assert.That(logger.LatestRecord.Exception, Is.Null);
     }
 
@@ -67,7 +67,7 @@ public class HistoryServiceTests
 
         await service.GetAllAsync();
 
-        Assert.That(LoggedEvents.Of(logger), Is.EqualTo(new[] { (CoreEvent.HistoryLoadFailed, LogLevel.Error, "Loading the history failed") }));
+        Assert.That(LoggedEvents.Of(logger), Is.EqualTo(new[] { (CoreEvent.WorkoutsLoadFailed, LogLevel.Error, "Loading the workouts failed") }));
         Assert.That(logger.LatestRecord.Exception, Is.SameAs(exception));
     }
 }

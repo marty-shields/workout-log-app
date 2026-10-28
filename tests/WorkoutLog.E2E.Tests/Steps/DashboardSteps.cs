@@ -60,23 +60,23 @@ public sealed class DashboardSteps(WebView web, DashboardScreen dashboard, Journ
         Assert.That(dashboard.ThisMonth(), Is.EqualTo(expected), $"This month, for a workout on {started:d MMM}");
     }
 
-    [Then(@"^I can open History and start a New Workout$")]
-    public void ThenHistoryAndNewWorkoutShow() => Assert.Multiple(() =>
+    [Then(@"^I can open Workouts and start a New Workout$")]
+    public void ThenWorkoutsAndNewWorkoutShow() => Assert.Multiple(() =>
     {
-        Assert.That(dashboard.HasHistoryLink(), Is.True, "History");
+        Assert.That(dashboard.HasWorkoutsLink(), Is.True, "Workouts");
         Assert.That(dashboard.HasNewWorkout(), Is.True, "New Workout");
     });
 
     [Then(@"^no startup error is shown$")]
     public void ThenNoStartupError() => Assert.That(dashboard.HasStartupError(), Is.False);
 
-    [When(@"^I tap (History|New Workout) on the Dashboard$")]
+    [When(@"^I tap (Workouts|New Workout) on the Dashboard$")]
     public void WhenITapOnTheDashboard(string link)
     {
         journeys.WaitFor(Journeys.Screen.Dashboard);
-        if (link == "History")
+        if (link == "Workouts")
         {
-            dashboard.OpenHistory();
+            dashboard.OpenWorkouts();
         }
         else
         {

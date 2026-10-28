@@ -47,5 +47,5 @@ Feature: Last and PB weight
       | started           | exercises                       |
       | 3 days ago 18:05  | Barbell Back Squat: 5 reps 70 kg |
       | yesterday 18:05   | Barbell Back Squat: 5 reps 60 kg |
-    When I open the latest workout from History
+    When I open the latest workout from Workouts
     Then Barbell Back Squat has no last and PB

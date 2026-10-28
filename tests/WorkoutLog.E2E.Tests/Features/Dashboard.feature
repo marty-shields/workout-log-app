@@ -36,10 +36,10 @@ Feature: Dashboard
     And This week shows 0 and This month shows 0
 
   @FR-31 @FR-35
-  Scenario Outline: The Dashboard links to History and New Workout
+  Scenario Outline: The Dashboard links to Workouts and New Workout
     When I tap <link> on the Dashboard
     Then I am on <screen>
     Examples:
       | link        | screen      |
-      | History     | History     |
+      | Workouts    | Workouts    |
       | New Workout | New Workout |

@@ -10,7 +10,7 @@ public class ListRowTests : ComponentTestBase
     {
         var clicked = false;
         var cut = Context.Render<ListRow>(p => p
-            .Add(x => x.Text, "History")
+            .Add(x => x.Text, "Workouts")
             .Add(x => x.OnClick, () => clicked = true));
 
         cut.Find("button").Click();
@@ -22,7 +22,7 @@ public class ListRowTests : ComponentTestBase
     public void WithOnClick_EndsInAMutedChevron()
     {
         var cut = Context.Render<ListRow>(p => p
-            .Add(x => x.Text, "History")
+            .Add(x => x.Text, "Workouts")
             .Add(x => x.OnClick, () => { }));
 
         var chevron = cut.FindComponent<Icon>().Instance;

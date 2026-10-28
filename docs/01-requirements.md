@@ -21,13 +21,13 @@
 | FR-14 | Multiple per day | More than one workout can be logged on the same day. |
 | FR-15 | Last and PB weight | On New Workout, a strength exercise added to the workout shows *Last 60kg · PB 70kg* under its name: the best weight in the last saved workout with it, and in any saved workout. Best is the heaviest, or the lowest assist on an assisted machine; 0 kg counts. With no weight last time, Last shows —; with no saved weight at all, there is no line (D48). |
 
-### History
+### Workouts
 | ID | Requirement | Acceptance criteria |
 |---|---|---|
-| FR-20 | History list | All saved workouts, newest first. Each row shows date, day of week and start time (e.g. *Tue 21 Oct 2026 · 18:05*). With no workouts it shows "No workouts yet". |
+| FR-20 | Workouts list | All saved workouts, newest first. Each row shows date, day of week and start time (e.g. *Tue 21 Oct 2026 · 18:05*). With no workouts it shows "No workouts yet". |
 | FR-21 | Open | Tapping a row opens the workout in edit mode. |
 | FR-22 | Edit | Exercises and sets can be added, changed and removed; cardio entries can be changed (FR-08). FR-09 still applies. Times do not change (FR-11). |
-| FR-23 | Leave unsaved edits | If there are unsaved changes, the back button asks **Discard / Cancel**. With no unsaved changes, back returns to History with no prompt. |
+| FR-23 | Leave unsaved edits | If there are unsaved changes, the back button asks **Discard / Cancel**. With no unsaved changes, back returns to Workouts with no prompt. |
 | FR-24 | Delete | A confirm dialog appears ("Delete this workout?"). On confirm the workout is permanently removed. |
 
 ### Dashboard
@@ -38,7 +38,7 @@
 | FR-32 | Last workout | Shows the date + day of the workout with the latest start time. Shows an empty state if there are none. |
 | FR-33 | This week | Count of workouts started from Monday 00:00 to now. |
 | FR-34 | This month | Count of workouts started from the 1st at 00:00 to now (D66). |
-| FR-35 | History link | Opens the History list. |
+| FR-35 | Workouts link | Opens the Workouts list. |
 | FR-36 | Settings | A gear in the top bar opens Settings. |
 
 ### Exercise list

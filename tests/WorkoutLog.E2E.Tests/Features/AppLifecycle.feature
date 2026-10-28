@@ -27,5 +27,5 @@ Feature: App lifecycle
   @D67 @US-20
   Scenario: The Dashboard reloads each time it is shown
     Given I am on the Dashboard
-    When I open History and go back
+    When I open Workouts and go back
     Then the log shows "Dashboard loaded" once more
