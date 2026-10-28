@@ -44,8 +44,14 @@ public sealed class FakeExerciseProgressService : IExerciseProgressService
     /// <summary>Sessions and range of each bodyweight summary, in call order.</summary>
     public List<(IReadOnlyList<StrengthSession> Sessions, ChartRange Range)> BodyweightSummaries { get; } = [];
 
-    /// <summary>Sessions and range of each assisted machine, hold or carry summary, in call order.</summary>
-    public List<(IReadOnlyList<StrengthSession> Sessions, ChartRange Range)> OtherSummaries { get; } = [];
+    /// <summary>Sessions and range of each assisted machine summary, in call order.</summary>
+    public List<(IReadOnlyList<StrengthSession> Sessions, ChartRange Range)> AssistedSummaries { get; } = [];
+
+    /// <summary>Sessions and range of each hold summary, in call order.</summary>
+    public List<(IReadOnlyList<StrengthSession> Sessions, ChartRange Range)> HoldSummaries { get; } = [];
+
+    /// <summary>Sessions and range of each carry summary, in call order.</summary>
+    public List<(IReadOnlyList<StrengthSession> Sessions, ChartRange Range)> CarrySummaries { get; } = [];
 
     /// <inheritdoc />
     public Task<ExerciseProgressResult> LoadAsync(int exerciseId)
@@ -78,21 +84,21 @@ public sealed class FakeExerciseProgressService : IExerciseProgressService
     /// <inheritdoc />
     public AssistedProgress SummariseAssisted(IReadOnlyList<StrengthSession> sessions, ChartRange range)
     {
-        OtherSummaries.Add((sessions, range));
+        AssistedSummaries.Add((sessions, range));
         return AssistedSummary(sessions, range);
     }
 
     /// <inheritdoc />
     public HoldProgress SummariseHold(IReadOnlyList<StrengthSession> sessions, ChartRange range)
     {
-        OtherSummaries.Add((sessions, range));
+        HoldSummaries.Add((sessions, range));
         return HoldSummary(sessions, range);
     }
 
     /// <inheritdoc />
     public CarryProgress SummariseCarry(IReadOnlyList<StrengthSession> sessions, ChartRange range)
     {
-        OtherSummaries.Add((sessions, range));
+        CarrySummaries.Add((sessions, range));
         return CarrySummary(sessions, range);
     }
 

@@ -221,7 +221,7 @@ public class ExercisePageTests : ComponentTestBase
         var view = cut.FindComponent<ExerciseView>().Instance;
         Assert.Multiple(() =>
         {
-            Assert.That(progress.OtherSummaries.Select(s => s.Range), Is.EqualTo(new[] { ChartRange.ThreeMonths }));
+            Assert.That(progress.AssistedSummaries.Select(s => s.Range), Is.EqualTo(new[] { ChartRange.ThreeMonths }));
             Assert.That(cut.FindAll("[data-testid=exercise-tabs]"), Is.Empty);
             Assert.That(cut.Find("[data-testid=exercise-chart-card] .card-title").TextContent, Is.EqualTo("Least assist per session"));
             Assert.That(view.Flipped, Is.True);
@@ -240,9 +240,9 @@ public class ExercisePageTests : ComponentTestBase
             [new HoldSessionProgress(Planked, TimeSpan.FromSeconds(105), heaviest)],
             new HoldRecords(new ProgressRecord<TimeSpan>(TimeSpan.FromSeconds(105), Planked.StartedAt), new ProgressRecord<ExerciseBest>(heaviest, Planked.StartedAt)));
         var cut = Render(Plank);
-        Assume.That(cut.FindAll("[data-testid=exercise-tabs] input[checked]").Select(i => i.GetAttribute("data-testid")), Is.EqualTo(new[] { "exercise-tab-duration" }));
-        Assume.That(cut.FindAll("[data-testid=exercise-chart-values] li").Select(v => v.TextContent), Is.EqualTo(new[] { "20 Oct: 1:45" }));
-        Assume.That(cut.FindComponent<ExerciseView>().Instance.TimeScale, Is.True);
+        Assert.That(cut.FindAll("[data-testid=exercise-tabs] input[checked]").Select(i => i.GetAttribute("data-testid")), Is.EqualTo(new[] { "exercise-tab-duration" }));
+        Assert.That(cut.FindAll("[data-testid=exercise-chart-values] li").Select(v => v.TextContent), Is.EqualTo(new[] { "20 Oct: 1:45" }));
+        Assert.That(cut.FindComponent<ExerciseView>().Instance.TimeScale, Is.True);
 
         cut.Find("[data-testid=exercise-tab-weight]").Change(true);
 
@@ -275,8 +275,8 @@ public class ExercisePageTests : ComponentTestBase
             [new CarrySessionProgress(Walked, best, best)],
             new CarryRecords(new ProgressRecord<ExerciseBest>(best, Walked.StartedAt), new ProgressRecord<ExerciseBest>(best, Walked.StartedAt)));
         var cut = Render(FarmersWalk);
-        Assume.That(cut.FindAll("[data-testid=exercise-tabs] input[checked]").Select(i => i.GetAttribute("data-testid")), Is.EqualTo(new[] { "exercise-tab-weight" }));
-        Assume.That(cut.FindAll("[data-testid=exercise-chart-values] li").Select(v => v.TextContent), Is.EqualTo(new[] { "20 Oct: 32kg 40m" }));
+        Assert.That(cut.FindAll("[data-testid=exercise-tabs] input[checked]").Select(i => i.GetAttribute("data-testid")), Is.EqualTo(new[] { "exercise-tab-weight" }));
+        Assert.That(cut.FindAll("[data-testid=exercise-chart-values] li").Select(v => v.TextContent), Is.EqualTo(new[] { "20 Oct: 32kg 40m" }));
 
         cut.Find("[data-testid=exercise-tab-distance]").Change(true);
 
