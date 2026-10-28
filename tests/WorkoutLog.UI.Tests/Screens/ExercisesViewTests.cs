@@ -17,9 +17,9 @@ public class ExercisesViewTests : ComponentTestBase
             Assert.That(cut.Find("[data-testid=screen-title]").TextContent, Is.EqualTo("Exercises"));
             Assert.That(cut.Find("[data-testid=exercises-search]").GetAttribute("placeholder"), Is.EqualTo("Search exercises"));
             Assert.That(cut.FindAll("[data-testid=exercises-filter] .text").Select(t => t.TextContent), Is.EqualTo(new[] { "All", "Strength", "Cardio" }));
-            Assert.That(cut.FindAll("[data-testid^=exercises-row-] .text").Select(t => t.TextContent), Is.EqualTo(new[] { "Barbell Back Squat", "Push-up" }));
+            Assert.That(cut.FindAll("[data-testid^=exercises-row-] .text").Select(t => t.TextContent), Is.EqualTo(new[] { "Barbell Back Squat", "Machine Assisted Pull-up" }));
             Assert.That(cut.FindAll("[data-testid^=exercises-row-] .detail").Select(d => d.TextContent),
-                Is.EqualTo(new[] { "Last Tue 20 Oct · 70kg × 3", "Last Tue 20 Oct · 25 reps" }));
+                Is.EqualTo(new[] { "Last Tue 20 Oct · 70kg × 3", "Last Tue 20 Oct · 0kg × 5" }));
         });
     }
 

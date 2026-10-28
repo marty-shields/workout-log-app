@@ -60,10 +60,11 @@ public sealed class DashboardSteps(WebView web, DashboardScreen dashboard, Journ
         Assert.That(dashboard.ThisMonth(), Is.EqualTo(expected), $"This month, for a workout on {started:d MMM}");
     }
 
-    [Then(@"^I can open Workouts and start a New Workout$")]
-    public void ThenWorkoutsAndNewWorkoutShow() => Assert.Multiple(() =>
+    [Then(@"^I can open Workouts and Exercises and start a New Workout$")]
+    public void ThenWorkoutsExercisesAndNewWorkoutShow() => Assert.Multiple(() =>
     {
         Assert.That(dashboard.HasWorkoutsLink(), Is.True, "Workouts");
+        Assert.That(dashboard.HasExercisesLink(), Is.True, "Exercises");
         Assert.That(dashboard.HasNewWorkout(), Is.True, "New Workout");
     });
 

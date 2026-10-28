@@ -47,7 +47,7 @@ public class CoreServiceCollectionExtensionsTests
             (typeof(IRangeFilter), typeof(RangeFilter), ServiceLifetime.Singleton),
             (typeof(ITopSetRule), typeof(TopSetRule), ServiceLifetime.Singleton),
             (typeof(IE1rmRule), typeof(E1rmRule), ServiceLifetime.Singleton),
-            (typeof(IRecordsRule), typeof(RecordsRule), ServiceLifetime.Singleton),
+            (typeof(ILiftRecordsRule), typeof(LiftRecordsRule), ServiceLifetime.Singleton),
             (typeof(IBodyweightRule), typeof(BodyweightRule), ServiceLifetime.Singleton),
             (typeof(IBodyweightRecordsRule), typeof(BodyweightRecordsRule), ServiceLifetime.Singleton),
             (typeof(ILeastAssistRule), typeof(LeastAssistRule), ServiceLifetime.Singleton),

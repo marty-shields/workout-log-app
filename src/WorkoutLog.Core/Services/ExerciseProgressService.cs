@@ -17,7 +17,7 @@ internal sealed partial class ExerciseProgressService(
     IRangeFilter rangeFilter,
     ITopSetRule topSetRule,
     IE1rmRule e1rmRule,
-    IRecordsRule recordsRule,
+    ILiftRecordsRule liftRecordsRule,
     IBodyweightRule bodyweightRule,
     IBodyweightRecordsRule bodyweightRecordsRule,
     ILeastAssistRule leastAssistRule,
@@ -68,7 +68,7 @@ internal sealed partial class ExerciseProgressService(
         var inRange = InRange(sessions, range)
             .Select(s => new LiftSessionProgress(s, topSetRule.TopSet(s.Sets), e1rmRule.Best(s.Sets)))
             .ToList();
-        return new LiftProgress(inRange, recordsRule.Records(inRange));
+        return new LiftProgress(inRange, liftRecordsRule.Records(inRange));
     }
 
     /// <inheritdoc />

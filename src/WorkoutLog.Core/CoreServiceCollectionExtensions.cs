@@ -17,7 +17,8 @@ public static class CoreServiceCollectionExtensions
 {
     /// <summary>
     /// Registers the exercise catalog, database initializer, workout repository, unit of work, workout writer factory, system time, workout validator,
-    /// workout service, workouts service, dashboard service, weight history service, the best rules and logged exercises service, the progress rules, exercise progress service and cardio progress service, export service, import service, the import reader, checks,
+    /// workout service, workouts service, dashboard service, weight history service, the best rules and logged exercises service,
+    /// the progress rules, exercise progress service and cardio progress service, export service, import service, the import reader, checks,
     /// checker and workout comparer, and schema upgrade steps as singletons.
     /// The initializer, repository and unit of work are registered only as their gated decorators, which run each call through one <see cref="DatabaseGate"/>.
     /// The database connection and exercise seeder are not registered; only the initializer, repository and unit of work use them.
@@ -90,7 +91,7 @@ public static class CoreServiceCollectionExtensions
             .AddSingleton<IRangeFilter, RangeFilter>()
             .AddSingleton<ITopSetRule, TopSetRule>()
             .AddSingleton<IE1rmRule, E1rmRule>()
-            .AddSingleton<IRecordsRule, RecordsRule>()
+            .AddSingleton<ILiftRecordsRule, LiftRecordsRule>()
             .AddSingleton<IBodyweightRule, BodyweightRule>()
             .AddSingleton<IBodyweightRecordsRule, BodyweightRecordsRule>()
             .AddSingleton<ILeastAssistRule, LeastAssistRule>()

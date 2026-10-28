@@ -1,4 +1,4 @@
-using WorkoutLog.Core.Domain.Exercises.Bests;
+using static WorkoutLog.Core.Domain.Exercises.Progress.RecordPick;
 
 namespace WorkoutLog.Core.Domain.Exercises.Progress;
 
@@ -6,14 +6,6 @@ namespace WorkoutLog.Core.Domain.Exercises.Progress;
 internal sealed class AssistedRecordsRule : IAssistedRecordsRule
 {
     /// <inheritdoc />
-    public AssistedRecords Records(IReadOnlyList<AssistedSessionProgress> sessions)
-    {
-        var byStart = sessions.OrderBy(s => s.Session.StartedAt).ToList();
-        var least = byStart.Where(s => s.LeastAssist is not null)
-            .OrderBy(s => s.LeastAssist!.WeightKg)
-            .ThenByDescending(s => s.LeastAssist!.Reps)
-            .Select(s => new ProgressRecord<ExerciseBest>(s.LeastAssist!, s.Session.StartedAt))
-            .FirstOrDefault();
-        return new AssistedRecords(least);
-    }
+    public AssistedRecords Records(IReadOnlyList<AssistedSessionProgress> sessions) => new(
+        First(sessions, s => s.Session.StartedAt, s => s.LeastAssist, r => r.OrderBy(x => x.Value.WeightKg).ThenByDescending(x => x.Value.Reps)));
 }

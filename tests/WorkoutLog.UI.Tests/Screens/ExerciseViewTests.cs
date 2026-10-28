@@ -137,8 +137,8 @@ public class ExerciseViewTests : ComponentTestBase
         {
             Assert.That(cut.Find("h2.heading").TextContent, Is.EqualTo("Sessions"));
             Assert.That(cut.FindAll("[data-testid^=exercise-session-]").Select(s => s.GetAttribute("data-testid")),
-                Is.EqualTo(new[] { "exercise-session-3", "exercise-session-2", "exercise-session-1" }));
-            Assert.That(TestText.Normalise(cut.Find("[data-testid=exercise-session-3]").TextContent), Is.EqualTo("Tue 20 Oct 70kg × 3 60×8 · 62.5×8 · 70×3"));
+                Is.EqualTo(Enumerable.Range(1, 8).Reverse().Select(id => $"exercise-session-{id}")));
+            Assert.That(TestText.Normalise(cut.Find("[data-testid=exercise-session-8]").TextContent), Is.EqualTo("Tue 20 Oct 70kg × 3 60×8 · 62.5×8 · 70×3"));
         });
     }
 
@@ -152,7 +152,7 @@ public class ExerciseViewTests : ComponentTestBase
             Assert.That(cut.Find("[data-testid=exercise-chart-empty]").TextContent, Is.EqualTo("No sets in the last 3 months"));
             Assert.That(cut.FindComponents<Chart>(), Is.Empty);
             Assert.That(cut.FindAll("[data-testid=exercise-range]"), Has.Count.EqualTo(1));
-            Assert.That(cut.FindAll("[data-testid^=exercise-session-]"), Has.Count.EqualTo(2));
+            Assert.That(cut.FindAll("[data-testid^=exercise-session-]"), Has.Count.EqualTo(6));
         });
     }
 
@@ -246,7 +246,7 @@ public class ExerciseViewTests : ComponentTestBase
     private IRenderedComponent<ExerciseView> Render(SampleExercise sample, Action<ComponentParameterCollectionBuilder<ExerciseView>>? more = null) =>
         Context.Render<ExerciseView>(p =>
         {
-            ScreenStates.AddExercise(p, sample);
+            ScreenStates.ExerciseParameters(p, sample);
             more?.Invoke(p);
         });
 }

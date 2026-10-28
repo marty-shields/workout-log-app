@@ -26,6 +26,12 @@
         </Template>
     </Story>
 
+    <Story Name="All zero">
+        <Template>
+            <Chart Points="AllZero" Format="SampleExercises.Kg" Flipped Name="Least assist per session, last 3 months" TestId="exercise-chart" />
+        </Template>
+    </Story>
+
     <Story Name="One point">
         <Template>
             <Chart Points="SampleExercises.OneSession.Points" Format="SampleExercises.Kg" Name="Top set, last 3 months" TestId="exercise-chart" />
@@ -41,6 +47,8 @@
 </Stories>
 
 @code {
+    private static readonly IReadOnlyList<ChartPoint> AllZero = [new("13 Oct", 0, "×4"), new("20 Oct", 0, "×5")];
+
     private static readonly IReadOnlyList<ChartPoint> Gaps =
     [
         new("1 Sep", 10, "×10"),

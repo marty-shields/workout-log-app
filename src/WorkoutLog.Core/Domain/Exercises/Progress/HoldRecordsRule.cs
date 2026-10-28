@@ -1,4 +1,4 @@
-using WorkoutLog.Core.Domain.Exercises.Bests;
+using static WorkoutLog.Core.Domain.Exercises.Progress.RecordPick;
 
 namespace WorkoutLog.Core.Domain.Exercises.Progress;
 
@@ -9,18 +9,7 @@ namespace WorkoutLog.Core.Domain.Exercises.Progress;
 internal sealed class HoldRecordsRule : IHoldRecordsRule
 {
     /// <inheritdoc />
-    public HoldRecords Records(IReadOnlyList<HoldSessionProgress> sessions)
-    {
-        var byStart = sessions.OrderBy(s => s.Session.StartedAt).ToList();
-        var longest = byStart.Where(s => s.Longest is not null)
-            .OrderByDescending(s => s.Longest)
-            .Select(s => new ProgressRecord<TimeSpan>(s.Longest!.Value, s.Session.StartedAt))
-            .FirstOrDefault();
-        var heaviest = byStart.Where(s => s.Heaviest is not null)
-            .OrderByDescending(s => s.Heaviest!.WeightKg)
-            .ThenByDescending(s => s.Heaviest!.Duration)
-            .Select(s => new ProgressRecord<ExerciseBest>(s.Heaviest!, s.Session.StartedAt))
-            .FirstOrDefault();
-        return new HoldRecords(longest, heaviest);
-    }
+    public HoldRecords Records(IReadOnlyList<HoldSessionProgress> sessions) => new(
+        Highest(sessions, s => s.Session.StartedAt, s => s.Longest),
+        First(sessions, s => s.Session.StartedAt, s => s.Heaviest, r => r.OrderByDescending(x => x.Value.WeightKg).ThenByDescending(x => x.Value.Duration)));
 }

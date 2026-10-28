@@ -47,33 +47,18 @@ public class BodyweightProgressItemsTests
             Is.EqualTo(new[] { new ChartPoint("13 Oct", 63), new ChartPoint("20 Oct", 20) }));
 
     [Test]
-    public void Points_TopSet_SkipSessionsWithNoWeightedSet() =>
+    public void Points_TopSet_SessionWithNoWeightedSet_HasNoValue() =>
         Assert.That(BodyweightProgressItems.Points(Progress(Unweighted, Mixed), "top-set", TimeZoneInfo.Utc, Now),
-            Is.EqualTo(new[] { new ChartPoint("20 Oct", 16m, "×8") }));
+            Is.EqualTo(new[] { new ChartPoint("13 Oct", null), new ChartPoint("20 Oct", 16m, "×8") }));
 
     [Test]
     public void Points_E1rm_AreTheUnroundedEstimates() =>
         Assert.That(BodyweightProgressItems.Points(Progress(Unweighted, Mixed), "e1rm", TimeZoneInfo.Utc, Now),
-            Is.EqualTo(new[] { new ChartPoint("20 Oct", 16m * (1 + 8 / 30m)) }));
+            Is.EqualTo(new[] { new ChartPoint("13 Oct", null), new ChartPoint("20 Oct", 16m * (1 + 8 / 30m)) }));
 
-    [Test]
-    public void NoDataMessage_NoSessions_IsNoneSoTheViewShowsItsOwn() =>
-        Assert.That(BodyweightProgressItems.NoDataMessage(Progress(), "best-set", ChartRange.ThreeMonths), Is.Null);
 
-    [Test]
-    public void NoDataMessage_TabHasValues_IsNone() =>
-        Assert.That(BodyweightProgressItems.NoDataMessage(Progress(Unweighted, Mixed), "top-set", ChartRange.ThreeMonths), Is.Null);
 
-    [TestCase("top-set", ChartRange.ThreeMonths, "No sets in the last 3 months")]
-    [TestCase("e1rm", ChartRange.All, "No sets yet")]
-    public void NoDataMessage_NoWeightedSets_IsNoSets(string tab, ChartRange range, string expected) =>
-        Assert.That(BodyweightProgressItems.NoDataMessage(Progress(Unweighted), tab, range), Is.EqualTo(expected));
 
-    [TestCase("best-set")]
-    [TestCase("total")]
-    public void NoDataMessage_OnlyWeightedSets_IsNoSets(string tab) =>
-        Assert.That(BodyweightProgressItems.NoDataMessage(Progress(Session(4, Now, [Set(8, 16m)], null, null, Top(16m, 8), null)), tab, ChartRange.SixMonths),
-            Is.EqualTo("No sets in the last 6 months"));
 
     [Test]
     public void Records_AreTheMostRepsAndHeaviestWeightWithTheirDates() =>

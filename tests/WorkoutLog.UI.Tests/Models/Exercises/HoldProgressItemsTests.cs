@@ -34,26 +34,13 @@ public class HoldProgressItemsTests
             Is.EqualTo(new[] { new ChartPoint("8 Oct", 90m), new ChartPoint("15 Oct", 105m) }));
 
     [Test]
-    public void Points_Weight_AreTheHeaviestLabelledWithTheirDurationAndSkipUnweightedSessions() =>
+    public void Points_Weight_AreTheHeaviestLabelledWithTheirDuration_UnweightedHasNoValue() =>
         Assert.That(HoldProgressItems.Points(Progress(Unweighted, Weighted), HoldProgressItems.WeightTab, TimeZoneInfo.Utc, Now),
-            Is.EqualTo(new[] { new ChartPoint("15 Oct", 10m, "1:00") }));
+            Is.EqualTo(new[] { new ChartPoint("8 Oct", null), new ChartPoint("15 Oct", 10m, "1:00") }));
 
-    [Test]
-    public void NoDataMessage_NoSessions_IsNull() =>
-        Assert.That(HoldProgressItems.NoDataMessage(Progress(), HoldProgressItems.WeightTab, ChartRange.ThreeMonths), Is.Null);
 
-    [Test]
-    public void NoDataMessage_WeightTabWithAWeightedSession_IsNull() =>
-        Assert.That(HoldProgressItems.NoDataMessage(Progress(Unweighted, Weighted), HoldProgressItems.WeightTab, ChartRange.ThreeMonths), Is.Null);
 
-    [TestCase(ChartRange.ThreeMonths, "No sets in the last 3 months")]
-    [TestCase(ChartRange.All, "No sets yet")]
-    public void NoDataMessage_WeightTabWithNoWeightedSession_IsNoSets(ChartRange range, string expected) =>
-        Assert.That(HoldProgressItems.NoDataMessage(Progress(Unweighted), HoldProgressItems.WeightTab, range), Is.EqualTo(expected));
 
-    [Test]
-    public void NoDataMessage_DurationTab_IsNull() =>
-        Assert.That(HoldProgressItems.NoDataMessage(Progress(Unweighted), HoldProgressItems.DurationTab, ChartRange.ThreeMonths), Is.Null);
 
     [Test]
     public void Records_ShowTheLongestHoldAndHeaviestWeightWithTheirDates() =>

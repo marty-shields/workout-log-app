@@ -1,3 +1,5 @@
+using static WorkoutLog.Core.Domain.Exercises.Progress.RecordPick;
+
 namespace WorkoutLog.Core.Domain.Exercises.Progress;
 
 /// <summary>
@@ -7,28 +9,10 @@ namespace WorkoutLog.Core.Domain.Exercises.Progress;
 internal sealed class CardioRecordsRule : ICardioRecordsRule
 {
     /// <inheritdoc />
-    public CardioRecords Records(IReadOnlyList<CardioSessionProgress> sessions)
-    {
-        var byStart = sessions.OrderBy(s => s.Session.StartedAt).ToList();
-        return new CardioRecords(
-            Highest(byStart, s => s.Best.Distance),
-            Highest(byStart, s => s.Best.Duration),
-            Lowest(byStart, s => s.Best.Pace),
-            Highest(byStart, s => s.Best.Floors),
-            Highest(byStart, s => s.Best.Calories));
-    }
-
-    private static ProgressRecord<T>? Highest<T>(List<CardioSessionProgress> byStart, Func<CardioSessionProgress, T?> value)
-        where T : struct =>
-        byStart.Where(s => value(s) is not null)
-            .OrderByDescending(s => value(s))
-            .Select(s => new ProgressRecord<T>(value(s)!.Value, s.Session.StartedAt))
-            .FirstOrDefault();
-
-    private static ProgressRecord<T>? Lowest<T>(List<CardioSessionProgress> byStart, Func<CardioSessionProgress, T?> value)
-        where T : struct =>
-        byStart.Where(s => value(s) is not null)
-            .OrderBy(s => value(s))
-            .Select(s => new ProgressRecord<T>(value(s)!.Value, s.Session.StartedAt))
-            .FirstOrDefault();
+    public CardioRecords Records(IReadOnlyList<CardioSessionProgress> sessions) => new(
+        Highest(sessions, s => s.Session.StartedAt, s => s.Best.Distance),
+        Highest(sessions, s => s.Session.StartedAt, s => s.Best.Duration),
+        Lowest(sessions, s => s.Session.StartedAt, s => s.Best.Pace),
+        Highest(sessions, s => s.Session.StartedAt, s => s.Best.Floors),
+        Highest(sessions, s => s.Session.StartedAt, s => s.Best.Calories));
 }

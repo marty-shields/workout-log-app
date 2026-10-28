@@ -49,31 +49,17 @@ public static class ExerciseProgressItems
     public static string? Caption(string tab) => tab == E1rmTab ? "Estimated one-rep max" : null;
 
     /// <summary>
-    /// One point per session with a value for <paramref name="tab"/>, oldest first: the top set's weight labelled ×reps, or the unrounded e1RM.
+    /// One point per session, oldest first: the top set's weight labelled ×reps, or the unrounded e1RM. A session with no value for
+    /// <paramref name="tab"/> has a point with no value.
     /// </summary>
     public static IReadOnlyList<ChartPoint> Points(LiftProgress progress, string tab, TimeZoneInfo zone, DateTimeOffset now) =>
         progress.Sessions
             .Select(s => tab == E1rmTab
-                ? s.E1rmKg is { } e1rm ? new ChartPoint(Day(s.Session.StartedAt, zone, now), e1rm) : null
-                : s.TopSet is { WeightKg: { } kg } top ? new ChartPoint(Day(s.Session.StartedAt, zone, now), kg, top.Reps is { } reps ? $"×{reps}" : null) : null)
-            .OfType<ChartPoint>()
+                ? new ChartPoint(Day(s.Session.StartedAt, zone, now), s.E1rmKg)
+                : Point(s.Session.StartedAt, s.TopSet, zone, now))
             .ToList();
 
-    /// <summary>
-    /// Text in place of the chart when sessions are in the range but none has a value for <paramref name="tab"/> (<see cref="NoSets"/>).
-    /// Null when the chart has points or there are no sessions, which shows the view's own message.
-    /// </summary>
-    public static string? NoDataMessage(LiftProgress progress, string tab, ChartRange range)
-    {
-        if (progress.Sessions.Count == 0 || progress.Sessions.Any(s => tab == E1rmTab ? s.E1rmKg is not null : s.TopSet is not null))
-        {
-            return null;
-        }
-
-        return NoSets(range);
-    }
-
-    /// <summary>Text in place of a chart with no points: No sets in the last 3 months, or No sets yet on All.</summary>
+    /// <summary>Text in place of a chart with no values: No sets in the last 3 months, or No sets yet on All.</summary>
     public static string NoSets(ChartRange range) => range == ChartRange.All ? "No sets yet" : $"No sets in the {ChartRanges.Text(range)}";
 
     /// <summary>Heaviest weight (e.g. 70kg × 3) and Best e1RM (e.g. 82.3kg), each with its date; no value shows —.</summary>
@@ -83,10 +69,6 @@ public static class ExerciseProgressItems
         Row("Best e1RM", progress.Records.BestE1rmKg, E1rm, zone, now),
     ];
 
-    /// <summary>A record row: its value as <paramref name="text"/> with its date, or no value and no date when there is no record.</summary>
-    internal static RecordRow Row<T>(string label, ProgressRecord<T>? record, Func<T, string> text, TimeZoneInfo zone, DateTimeOffset now) =>
-        record is null ? new RecordRow(label, null, null) : new RecordRow(label, text(record.Value), Day(record.StartedAt, zone, now));
-
     /// <summary>
     /// Each session newest first: its date, its top set (e.g. 70kg × 3) or, with no weighted set, its most reps (e.g. 8 reps), and every set
     /// in order (e.g. 60×8 · 8 reps).
@@ -94,29 +76,24 @@ public static class ExerciseProgressItems
     public static IReadOnlyList<ExerciseSession> Sessions(LiftProgress progress, TimeZoneInfo zone, DateTimeOffset now) =>
         progress.Sessions
             .OrderByDescending(s => s.Session.StartedAt)
-            .Select(s => new ExerciseSession(
-                s.Session.WorkoutId,
-                DisplayFormat.ShortDate(Local(s.Session.StartedAt, zone), Local(now, zone)),
-                Headline(s),
-                string.Join(" · ", s.Session.Sets.Select(SetText))))
+            .Select(s => Session(s.Session, Headline(s), string.Join(" · ", s.Session.Sets.Select(SetText)), zone, now))
             .ToList();
 
-    private static string Headline(LiftSessionProgress session) =>
-        session.TopSet is { } top ? TopSet(top)
-        : session.Session.Sets.Max(s => s.Reps) is { } reps ? $"{reps} reps"
-        : "—";
+    /// <summary>A record row: its value as <paramref name="text"/> with its date, or no value and no date when there is no record.</summary>
+    internal static RecordRow Row<T>(string label, ProgressRecord<T>? record, Func<T, string> text, TimeZoneInfo zone, DateTimeOffset now) =>
+        record is null ? new RecordRow(label, null, null) : new RecordRow(label, text(record.Value), Day(record.StartedAt, zone, now));
+
+    /// <summary>A session row dated in the phone's time zone.</summary>
+    internal static ExerciseSession Session(StrengthSession session, string headline, string detail, TimeZoneInfo zone, DateTimeOffset now) =>
+        new(session.WorkoutId, DisplayFormat.ShortDate(Local(session.StartedAt, zone), Local(now, zone)), headline, detail);
+
+    /// <summary>A point for a weight best: its weight labelled ×reps; no value when there is no best or it has no weight.</summary>
+    internal static ChartPoint Point(DateTimeOffset startedAt, ExerciseBest? best, TimeZoneInfo zone, DateTimeOffset now) =>
+        new(Day(startedAt, zone, now), best?.WeightKg, best?.Reps is { } reps ? $"×{reps}" : null);
 
     /// <summary>A top set, e.g. 70kg × 3.</summary>
     internal static string TopSet(ExerciseBest top) =>
         top.Reps is { } reps ? $"{DisplayFormat.Weight(top.WeightKg)} × {reps}" : DisplayFormat.Weight(top.WeightKg);
-
-    private static string SetText(StrengthSet set) => set switch
-    {
-        { WeightKg: { } kg, Reps: { } reps } => $"{Number(kg)}×{reps}",
-        { WeightKg: { } kg } => DisplayFormat.Weight(kg),
-        { Reps: { } reps } => $"{reps} reps",
-        _ => "—",
-    };
 
     /// <summary>A weight without its unit, e.g. 62.5.</summary>
     internal static string Number(decimal value) => Decimals.Round2(value).ToString("0.##", CultureInfo.InvariantCulture);
@@ -127,6 +104,19 @@ public static class ExerciseProgressItems
 
     /// <summary><paramref name="value"/> in <paramref name="zone"/>.</summary>
     internal static DateTime Local(DateTimeOffset value, TimeZoneInfo zone) => TimeZoneInfo.ConvertTime(value, zone).DateTime;
+
+    private static string Headline(LiftSessionProgress session) =>
+        session.TopSet is { } top ? TopSet(top)
+        : session.Session.Sets.Max(s => s.Reps) is { } reps ? $"{reps} reps"
+        : "—";
+
+    private static string SetText(StrengthSet set) => set switch
+    {
+        { WeightKg: { } kg, Reps: { } reps } => $"{Number(kg)}×{reps}",
+        { WeightKg: { } kg } => DisplayFormat.Weight(kg),
+        { Reps: { } reps } => $"{reps} reps",
+        _ => "—",
+    };
 
     private static string MuscleText(Muscle muscle) => muscle switch
     {

@@ -26,43 +26,24 @@ public static class CarryProgressItems
         [new(WeightTab, "Weight", $"exercise-tab-{WeightTab}"), new(DistanceTab, "Distance", $"exercise-tab-{DistanceTab}")];
 
     /// <summary>A distance in the exercise's unit, e.g. 40m.</summary>
-    public static Func<decimal, string> Distance(ExerciseDefinition exercise) =>
-        value => $"{ExerciseProgressItems.Number(value)}{ExerciseFields.DistanceText(exercise)}";
+    public static Func<decimal, string> Distance(ExerciseDefinition exercise) => value => ExerciseFields.Distance(exercise, value);
 
     /// <summary>
-    /// One point per session with a value for <paramref name="tab"/>, oldest first: the heaviest weight labelled with its distance,
-    /// or the longest distance labelled with its weight.
+    /// One point per session, oldest first: the heaviest weight labelled with its distance, or the longest distance labelled with its weight.
+    /// A session with no value for <paramref name="tab"/> has a point with no value.
     /// </summary>
-    public static IReadOnlyList<ChartPoint> Points(CarryProgress progress, string tab, ExerciseDefinition exercise, TimeZoneInfo zone, DateTimeOffset now)
-    {
-        var distance = Distance(exercise);
-        return progress.Sessions
+    public static IReadOnlyList<ChartPoint> Points(CarryProgress progress, string tab, ExerciseDefinition exercise, TimeZoneInfo zone, DateTimeOffset now) =>
+        progress.Sessions
             .Select(s => tab == DistanceTab
-                ? s.Longest is { Distance: { } metres } longest
-                    ? new ChartPoint(ExerciseProgressItems.Day(s.Session.StartedAt, zone, now), metres, longest.WeightKg is { } weight ? DisplayFormat.Weight(weight) : null)
-                    : null
-                : s.Heaviest is { WeightKg: { } kg } heaviest
-                    ? new ChartPoint(ExerciseProgressItems.Day(s.Session.StartedAt, zone, now), kg, heaviest.Distance is { } d ? distance(d) : null)
-                    : null)
-            .OfType<ChartPoint>()
+                ? new ChartPoint(ExerciseProgressItems.Day(s.Session.StartedAt, zone, now), s.Longest?.Distance, s.Longest?.WeightKg is { } kg ? DisplayFormat.Weight(kg) : null)
+                : new ChartPoint(ExerciseProgressItems.Day(s.Session.StartedAt, zone, now), s.Heaviest?.WeightKg, s.Heaviest?.Distance is { } d ? ExerciseFields.Distance(exercise, d) : null))
             .ToList();
-    }
-
-    /// <summary>No sets in the range text when sessions are in the range but none has a value for <paramref name="tab"/>; otherwise null.</summary>
-    public static string? NoDataMessage(CarryProgress progress, string tab, ChartRange range) =>
-        progress.Sessions.Count > 0 && progress.Sessions.All(s => tab == DistanceTab ? s.Longest is null : s.Heaviest is null)
-            ? ExerciseProgressItems.NoSets(range)
-            : null;
 
     /// <summary>Heaviest weight (e.g. 32kg · 40m) and Longest distance (e.g. 60m · 24kg, or 60m), each with its date; no value shows —.</summary>
     public static IReadOnlyList<RecordRow> Records(CarryProgress progress, ExerciseDefinition exercise, TimeZoneInfo zone, DateTimeOffset now) =>
     [
-        progress.Records.HeaviestWeight is { } heaviest
-            ? new RecordRow("Heaviest weight", Heaviest(heaviest.Value, exercise), ExerciseProgressItems.Day(heaviest.StartedAt, zone, now))
-            : new RecordRow("Heaviest weight", null, null),
-        progress.Records.LongestDistance is { } longest
-            ? new RecordRow("Longest distance", Longest(longest.Value, exercise), ExerciseProgressItems.Day(longest.StartedAt, zone, now))
-            : new RecordRow("Longest distance", null, null),
+        ExerciseProgressItems.Row("Heaviest weight", progress.Records.HeaviestWeight, best => Heaviest(best, exercise), zone, now),
+        ExerciseProgressItems.Row("Longest distance", progress.Records.LongestDistance, best => Longest(best, exercise), zone, now),
     ];
 
     /// <summary>
@@ -72,22 +53,23 @@ public static class CarryProgressItems
     public static IReadOnlyList<ExerciseSession> Sessions(CarryProgress progress, ExerciseDefinition exercise, TimeZoneInfo zone, DateTimeOffset now) =>
         progress.Sessions
             .OrderByDescending(s => s.Session.StartedAt)
-            .Select(s => new ExerciseSession(
-                s.Session.WorkoutId,
-                DisplayFormat.ShortDate(ExerciseProgressItems.Local(s.Session.StartedAt, zone), ExerciseProgressItems.Local(now, zone)),
+            .Select(s => ExerciseProgressItems.Session(
+                s.Session,
                 s.Heaviest is { } heaviest ? Heaviest(heaviest, exercise) : s.Longest is { } longest ? Longest(longest, exercise) : "—",
-                string.Join(" · ", s.Session.Sets.Select(set => SetText(set, exercise)))))
+                string.Join(" · ", s.Session.Sets.Select(set => SetText(set, exercise))),
+                zone,
+                now))
             .ToList();
 
     private static string Heaviest(ExerciseBest best, ExerciseDefinition exercise) =>
-        Join(" · ", DisplayFormat.Weight(best.WeightKg), best.Distance is { } d ? Distance(exercise)(d) : null);
+        Join(" · ", DisplayFormat.Weight(best.WeightKg), best.Distance is { } d ? ExerciseFields.Distance(exercise, d) : null);
 
     private static string Longest(ExerciseBest best, ExerciseDefinition exercise) =>
-        Join(" · ", best.Distance is { } d ? Distance(exercise)(d) : null, best.WeightKg is { } kg ? DisplayFormat.Weight(kg) : null);
+        Join(" · ", best.Distance is { } d ? ExerciseFields.Distance(exercise, d) : null, best.WeightKg is { } kg ? DisplayFormat.Weight(kg) : null);
 
     private static string SetText(StrengthSet set, ExerciseDefinition exercise)
     {
-        var text = Join(" ", set.WeightKg > 0m ? DisplayFormat.Weight(set.WeightKg) : null, set.Distance is { } d ? Distance(exercise)(d) : null,
+        var text = Join(" ", set.WeightKg > 0m ? DisplayFormat.Weight(set.WeightKg) : null, set.Distance is { } d ? ExerciseFields.Distance(exercise, d) : null,
             set.Duration is { } duration ? DisplayFormat.Clock(duration) : null);
         return text.Length > 0 ? text : "—";
     }

@@ -10,13 +10,14 @@ Feature: Exercise page: assisted machines, holds and carries
     Then the tappable rows on Exercises are: <name>
     When I open "<name>" on Exercises
     Then the Exercise page is titled "<name>" with "<subtitle>"
+    And <tabs>
     When I go back with the back arrow
     Then I am on Exercises
     Examples:
-      | exercise                                  | name                     | subtitle          |
-      | Machine Assisted Pull-up: 8 reps 10 kg    | Machine Assisted Pull-up | Lats · Machine    |
-      | Plank: 0:01:00                            | Plank                    | Abdominals        |
-      | Farmer's Walk: 40 m 32 kg 0:00:45         | Farmer's Walk            | Forearms · Other  |
+      | exercise                                  | name                     | subtitle          | tabs                                    |
+      | Machine Assisted Pull-up: 8 reps 10 kg    | Machine Assisted Pull-up | Lats · Machine    | the Exercise page has no tab switcher   |
+      | Plank: 0:01:00                            | Plank                    | Abdominals        | the Exercise tabs are: Duration, Weight |
+      | Farmer's Walk: 40 m 32 kg 0:00:45         | Farmer's Walk            | Forearms · Other  | the Exercise tabs are: Weight, Distance |
 
   Scenario: An assisted machine shows its least assist per session, a blank assist as 0kg
     Given these saved workouts:

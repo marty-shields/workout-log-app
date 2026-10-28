@@ -30,6 +30,9 @@ internal static class BestRuleCases
     /// <summary>Plank: hold.</summary>
     public const int Plank = 258;
 
+    /// <summary>Stair Climber: cardio without distance.</summary>
+    public const int StairClimber = 309;
+
     /// <summary>Outdoor Run: cardio with distance.</summary>
     public const int Run = 311;
 

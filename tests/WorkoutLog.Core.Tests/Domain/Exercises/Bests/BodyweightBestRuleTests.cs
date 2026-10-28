@@ -1,11 +1,12 @@
 using WorkoutLog.Core.Domain.Exercises.Bests;
+using WorkoutLog.Core.Domain.Exercises.Progress;
 using static WorkoutLog.Core.Tests.Domain.Exercises.Bests.BestRuleCases;
 
 namespace WorkoutLog.Core.Tests.Domain.Exercises.Bests;
 
 public class BodyweightBestRuleTests
 {
-    private readonly BodyweightBestRule rule = new();
+    private readonly BodyweightBestRule rule = new(new BodyweightRule(new TopSetRule(), new E1rmRule()));
 
     [Test]
     public void Exercises_AreTheOnesNamed() =>
@@ -42,7 +43,7 @@ public class BodyweightBestRuleTests
 
     [Test]
     public void Best_ZeroKgSets_AreUnweighted() =>
-        Assert.That(rule.Best(Definition(PushUp), Sets(PushUp, Set(25, null), Set(20, 0m))), Is.EqualTo(new ExerciseBest(null, 25, null, null)));
+        Assert.That(rule.Best(Definition(PushUp), Sets(PushUp, Set(20, null), Set(25, 0m))), Is.EqualTo(new ExerciseBest(null, 25, null, null)));
 
     [Test]
     public void Best_TiedWeight_TakesTheMostReps() =>

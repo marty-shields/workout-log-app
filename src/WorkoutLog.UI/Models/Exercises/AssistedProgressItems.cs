@@ -15,37 +15,20 @@ public static class AssistedProgressItems
     /// <summary>Caption under the range.</summary>
     public const string Caption = "Up = less assist";
 
-    /// <summary>One point per session with a set, oldest first: the least assist labelled ×reps.</summary>
+    /// <summary>One point per session, oldest first: the least assist labelled ×reps. A session with no set has a point with no value.</summary>
     public static IReadOnlyList<ChartPoint> Points(AssistedProgress progress, TimeZoneInfo zone, DateTimeOffset now) =>
-        progress.Sessions
-            .Where(s => s.LeastAssist is not null)
-            .Select(s => new ChartPoint(
-                ExerciseProgressItems.Day(s.Session.StartedAt, zone, now),
-                s.LeastAssist!.WeightKg,
-                s.LeastAssist.Reps is { } reps ? $"×{reps}" : null))
-            .ToList();
-
-    /// <summary>No sets in the range text when sessions are in the range but none has a set; otherwise null, which shows the view's own message.</summary>
-    public static string? NoDataMessage(AssistedProgress progress, ChartRange range) =>
-        progress.Sessions.Count > 0 && progress.Sessions.All(s => s.LeastAssist is null) ? ExerciseProgressItems.NoSets(range) : null;
+        progress.Sessions.Select(s => ExerciseProgressItems.Point(s.Session.StartedAt, s.LeastAssist, zone, now)).ToList();
 
     /// <summary>Least assist (e.g. 0kg × 5) with its date; no value shows —.</summary>
     public static IReadOnlyList<RecordRow> Records(AssistedProgress progress, TimeZoneInfo zone, DateTimeOffset now) =>
-    [
-        progress.Records.LeastAssist is { } least
-            ? new RecordRow("Least assist", Assist(least.Value), ExerciseProgressItems.Day(least.StartedAt, zone, now))
-            : new RecordRow("Least assist", null, null),
-    ];
+        [ExerciseProgressItems.Row("Least assist", progress.Records.LeastAssist, Assist, zone, now)];
 
     /// <summary>Each session newest first: its date, its least assist (e.g. 0kg × 5), and every set in order (e.g. 5kg×8 · 0kg×5).</summary>
     public static IReadOnlyList<ExerciseSession> Sessions(AssistedProgress progress, TimeZoneInfo zone, DateTimeOffset now) =>
         progress.Sessions
             .OrderByDescending(s => s.Session.StartedAt)
-            .Select(s => new ExerciseSession(
-                s.Session.WorkoutId,
-                DisplayFormat.ShortDate(ExerciseProgressItems.Local(s.Session.StartedAt, zone), ExerciseProgressItems.Local(now, zone)),
-                s.LeastAssist is { } least ? Assist(least) : "—",
-                string.Join(" · ", s.Session.Sets.Select(SetText))))
+            .Select(s => ExerciseProgressItems.Session(
+                s.Session, s.LeastAssist is { } least ? Assist(least) : "—", string.Join(" · ", s.Session.Sets.Select(SetText)), zone, now))
             .ToList();
 
     private static string Assist(ExerciseBest best) =>

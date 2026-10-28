@@ -1,4 +1,4 @@
-using WorkoutLog.Core.Domain.Exercises.Bests;
+using static WorkoutLog.Core.Domain.Exercises.Progress.RecordPick;
 
 namespace WorkoutLog.Core.Domain.Exercises.Progress;
 
@@ -9,19 +9,7 @@ namespace WorkoutLog.Core.Domain.Exercises.Progress;
 internal sealed class CarryRecordsRule : ICarryRecordsRule
 {
     /// <inheritdoc />
-    public CarryRecords Records(IReadOnlyList<CarrySessionProgress> sessions)
-    {
-        var byStart = sessions.OrderBy(s => s.Session.StartedAt).ToList();
-        var heaviest = byStart.Where(s => s.Heaviest is not null)
-            .OrderByDescending(s => s.Heaviest!.WeightKg)
-            .ThenByDescending(s => s.Heaviest!.Distance)
-            .Select(s => new ProgressRecord<ExerciseBest>(s.Heaviest!, s.Session.StartedAt))
-            .FirstOrDefault();
-        var longest = byStart.Where(s => s.Longest is not null)
-            .OrderByDescending(s => s.Longest!.Distance)
-            .ThenByDescending(s => s.Longest!.WeightKg ?? 0m)
-            .Select(s => new ProgressRecord<ExerciseBest>(s.Longest!, s.Session.StartedAt))
-            .FirstOrDefault();
-        return new CarryRecords(heaviest, longest);
-    }
+    public CarryRecords Records(IReadOnlyList<CarrySessionProgress> sessions) => new(
+        First(sessions, s => s.Session.StartedAt, s => s.Heaviest, r => r.OrderByDescending(x => x.Value.WeightKg).ThenByDescending(x => x.Value.Distance)),
+        First(sessions, s => s.Session.StartedAt, s => s.Longest, r => r.OrderByDescending(x => x.Value.Distance).ThenByDescending(x => x.Value.WeightKg ?? 0m)));
 }

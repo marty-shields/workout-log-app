@@ -1,11 +1,12 @@
 using WorkoutLog.Core.Domain.Exercises.Bests;
+using WorkoutLog.Core.Domain.Exercises.Progress;
 using static WorkoutLog.Core.Tests.Domain.Exercises.Bests.BestRuleCases;
 
 namespace WorkoutLog.Core.Tests.Domain.Exercises.Bests;
 
 public class AssistedBestRuleTests
 {
-    private readonly AssistedBestRule rule = new();
+    private readonly AssistedBestRule rule = new(new LeastAssistRule());
 
     [Test]
     public void Exercise_IsTheOneNamed() =>

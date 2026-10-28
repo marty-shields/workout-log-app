@@ -134,7 +134,7 @@ public static class ScreenStates
     ];
 
     /// <summary>Adds what an Exercise sample shows: every <c>ExerciseView</c> parameter except range, state and callbacks.</summary>
-    public static void AddExercise(ComponentParameterCollectionBuilder<ExerciseView> parameters, SampleExercise sample) =>
+    public static void ExerciseParameters(ComponentParameterCollectionBuilder<ExerciseView> parameters, SampleExercise sample) =>
         parameters
             .Add(x => x.Name, sample.Name)
             .Add(x => x.Subtitle, sample.Subtitle)
@@ -287,8 +287,8 @@ public static class ScreenStates
     private static IReadOnlyList<IElement> ExercisePage(BunitContext context, SampleExercise sample) =>
         context.Render<ExerciseView>(p =>
         {
-            AddExercise(p, sample);
-            AddExerciseCallbacks(p);
+            ExerciseParameters(p, sample);
+            ExerciseCallbacks(p);
         }).FindAll("*");
 
     private static IReadOnlyList<IElement> ExerciseLoad(BunitContext context, bool loading = false, bool failed = false) =>
@@ -298,10 +298,10 @@ public static class ScreenStates
                 .Add(x => x.Subtitle, "Quadriceps · Barbell")
                 .Add(x => x.Loading, loading)
                 .Add(x => x.Failed, failed);
-            AddExerciseCallbacks(p);
+            ExerciseCallbacks(p);
         }).FindAll("*");
 
-    private static void AddExerciseCallbacks(ComponentParameterCollectionBuilder<ExerciseView> parameters) =>
+    private static void ExerciseCallbacks(ComponentParameterCollectionBuilder<ExerciseView> parameters) =>
         parameters
             .Add(x => x.TabChanged, (string _) => { })
             .Add(x => x.RangeChanged, (ChartRange _) => { })

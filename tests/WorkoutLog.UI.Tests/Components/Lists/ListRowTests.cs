@@ -72,7 +72,7 @@ public class ListRowTests : ComponentTestBase
     [Test]
     public void WithoutDetail_HasOneLine()
     {
-        var cut = Context.Render<ListRow>(p => p.Add(x => x.Text, "History").Add(x => x.OnClick, () => { }));
+        var cut = Context.Render<ListRow>(p => p.Add(x => x.Text, "Workouts").Add(x => x.OnClick, () => { }));
 
         Assert.Multiple(() =>
         {

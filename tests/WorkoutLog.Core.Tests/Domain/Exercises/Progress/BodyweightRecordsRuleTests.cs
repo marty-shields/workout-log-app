@@ -7,7 +7,7 @@ public class BodyweightRecordsRuleTests
 {
     private static readonly DateTimeOffset Start = new(2026, 10, 20, 17, 0, 0, TimeSpan.Zero);
 
-    private readonly BodyweightRecordsRule rule = new(new RecordsRule());
+    private readonly BodyweightRecordsRule rule = new(new LiftRecordsRule());
 
     [Test]
     public void Records_NoSessions_AreNone() =>

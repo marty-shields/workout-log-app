@@ -8,25 +8,13 @@ using WorkoutLog.Core.Domain.Exercises.Progress;
 using WorkoutLog.Core.Domain.Workouts;
 using WorkoutLog.Core.Logging;
 using WorkoutLog.Core.Services;
+using static WorkoutLog.Core.Tests.Domain.Exercises.Bests.BestRuleCases;
 
 namespace WorkoutLog.Core.Tests.Services;
 
 public class CardioProgressServiceTests
 {
-    /// <summary>Barbell Back Squat: lift.</summary>
-    private const int Squat = 6;
-
-    /// <summary>Plank: hold.</summary>
-    private const int Plank = 258;
-
-    /// <summary>Stair Climber: cardio, no distance.</summary>
-    private const int StairClimber = 309;
-
-    /// <summary>Outdoor Run: cardio.</summary>
-    private const int Run = 311;
-
     private static readonly DateTimeOffset Now = new(2026, 10, 28, 9, 0, 0, TimeSpan.Zero);
-    private static readonly IExerciseCatalog Catalog = new ExerciseCatalog();
 
     private Mock<IWorkoutRepository> repository = null!;
     private FakeLogger<CardioProgressService> logger = null!;

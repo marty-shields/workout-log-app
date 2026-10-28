@@ -102,14 +102,14 @@ internal sealed class WorkoutRepository(SQLiteAsyncConnection connection, IWorko
             SELECT e.Id, e.WorkoutId, e.ExerciseId, e.Position, w.StartedAt
             FROM WorkoutExercise e
             JOIN Workout w ON w.Id = e.WorkoutId
-            WHERE w.StartedAt = (
-                SELECT MAX(w2.StartedAt)
-                FROM Workout w2
-                JOIN WorkoutExercise e2 ON e2.WorkoutId = w2.Id
-                WHERE e2.ExerciseId = e.ExerciseId)
+            JOIN (
+                SELECT e2.ExerciseId, MAX(w2.StartedAt) AS LastStartedAt
+                FROM WorkoutExercise e2
+                JOIN Workout w2 ON w2.Id = e2.WorkoutId
+                GROUP BY e2.ExerciseId) latest ON latest.ExerciseId = e.ExerciseId AND latest.LastStartedAt = w.StartedAt
             ORDER BY e.ExerciseId, e.Position
             """;
-        var rows = await connection.QueryAsync<LastExerciseRow>(sql);
+        var rows = await connection.QueryAsync<ExerciseStartRow>(sql);
         var exerciseIds = rows.Select(r => r.Id).ToList();
         var sets = (await connection.Table<StrengthSetRow>()
                 .Where(s => exerciseIds.Contains(s.WorkoutExerciseId)).OrderBy(s => s.Position).ToListAsync())
@@ -147,7 +147,7 @@ internal sealed class WorkoutRepository(SQLiteAsyncConnection connection, IWorko
             JOIN WorkoutExercise e ON e.Id = c.WorkoutExerciseId
             WHERE e.ExerciseId = ?
             """;
-        var rows = await connection.QueryAsync<LastExerciseRow>(exercisesSql, exerciseId);
+        var rows = await connection.QueryAsync<ExerciseStartRow>(exercisesSql, exerciseId);
         var sets = (await connection.QueryAsync<StrengthSetRow>(setsSql, exerciseId)).ToLookup(s => s.WorkoutExerciseId);
         var entries = (await connection.QueryAsync<CardioEntryRow>(entriesSql, exerciseId)).ToDictionary(c => c.WorkoutExerciseId);
 
@@ -183,7 +183,7 @@ internal sealed class WorkoutRepository(SQLiteAsyncConnection connection, IWorko
     }
 
     /// <summary>A workout exercise row with its workout's start, in UTC ticks.</summary>
-    private sealed class LastExerciseRow
+    private sealed class ExerciseStartRow
     {
         public int Id { get; set; }
 

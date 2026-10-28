@@ -126,6 +126,7 @@ public sealed class AddExerciseSteps(WebView web, Native native, WorkoutScreen w
     public void ThenTheRowShowsNoLast(string name)
     {
         web.Eventually(list.IsLoaded, Is.True, "list loaded");
+        Assert.That(list.Names(), Does.Contain(name), "row shows");
         Assert.That(list.Last(Exercises.Named(name).Id), Is.Null);
     }
 

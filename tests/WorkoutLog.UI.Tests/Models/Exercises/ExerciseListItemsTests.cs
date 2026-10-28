@@ -14,6 +14,7 @@ public class ExerciseListItemsTests
     private const int FarmersWalk = 187;
     private const int Plank = 258;
     private const int Run = 311;
+    private const int BodyweightSquat = 291;
 
     private static readonly IExerciseCatalog Catalog = new ExerciseCatalog();
 
@@ -25,8 +26,8 @@ public class ExerciseListItemsTests
 
     [Test]
     public void Exercises_AreTheOnesNamed() =>
-        Assert.That(new[] { Squat, BarbellCurl, DumbbellCurl, FarmersWalk, Plank, Run }.Select(id => Find(id).Name),
-            Is.EqualTo(new[] { "Barbell Back Squat", "Barbell Curl", "Dumbbell Curl", "Farmer's Walk", "Plank", "Outdoor Run" }));
+        Assert.That(new[] { Squat, BarbellCurl, DumbbellCurl, FarmersWalk, Plank, Run, BodyweightSquat }.Select(id => Find(id).Name),
+            Is.EqualTo(new[] { "Barbell Back Squat", "Barbell Curl", "Dumbbell Curl", "Farmer's Walk", "Plank", "Outdoor Run", "Squat" }));
 
     [Test]
     public void Item_NotLogged_HasNoLast() =>
@@ -98,9 +99,9 @@ public class ExerciseListItemsTests
     [Test]
     public void Find_SearchText_IsRankedAsTheCatalogsSearchAndOnlyTheItemsGiven()
     {
-        ExerciseListItem[] items = [Item(DumbbellCurl), Item(Run), Item(BarbellCurl), Item(Squat)];
+        ExerciseListItem[] items = [Item(Squat), Item(Run), Item(BodyweightSquat), Item(DumbbellCurl)];
 
-        Assert.That(ExerciseListItems.Find(items, Catalog, "curl", ExerciseFilter.All).Select(i => i.Id), Is.EqualTo(new[] { BarbellCurl, DumbbellCurl }));
+        Assert.That(ExerciseListItems.Find(items, Catalog, "squat", ExerciseFilter.All).Select(i => i.Id), Is.EqualTo(new[] { BodyweightSquat, Squat }));
     }
 
     [TestCase(ExerciseFilter.Strength, new[] { Squat, Plank })]
