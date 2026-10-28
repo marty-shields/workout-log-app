@@ -369,6 +369,59 @@ public class WorkoutRepositoryTests
     }
 
     [Test]
+    public async Task GetSessionsAsync_NoWorkoutHasTheExercise_ReturnsEmpty()
+    {
+        await repository.AddAsync(new NewWorkout(Start, Finish, [new StrengthExercise(2, [new StrengthSet(5, 60m, null, null)])]));
+
+        Assert.That(await repository.GetSessionsAsync(1), Is.Empty);
+    }
+
+    [Test]
+    public async Task GetSessionsAsync_OrdersByStartTimeOldestFirstNotById()
+    {
+        var middle = await repository.AddAsync(new NewWorkout(Start, Finish, [new StrengthExercise(1, [new StrengthSet(5, 60m, null, null)])]));
+        var newest = await repository.AddAsync(new NewWorkout(Start.AddDays(2), Finish.AddDays(2), [new StrengthExercise(1, [new StrengthSet(3, 70m, null, null)])]));
+        var oldest = await repository.AddAsync(new NewWorkout(Start.AddDays(-2), Finish.AddDays(-2), [new StrengthExercise(1, [new StrengthSet(8, 50m, null, null)])]));
+
+        Assert.That(await repository.GetSessionsAsync(1), Is.EqualTo(new[]
+        {
+            new WorkoutSession(oldest, Start.AddDays(-2), [new StrengthExercise(1, [new StrengthSet(8, 50m, null, null)])]),
+            new WorkoutSession(middle, Start, [new StrengthExercise(1, [new StrengthSet(5, 60m, null, null)])]),
+            new WorkoutSession(newest, Start.AddDays(2), [new StrengthExercise(1, [new StrengthSet(3, 70m, null, null)])]),
+        }).UsingPropertiesComparer());
+    }
+
+    [Test]
+    public async Task GetSessionsAsync_ReturnsOnlyTheExerciseWithItsSetsInOrder()
+    {
+        StrengthSet[] sets = [new StrengthSet(10, 22.75m, null, null), new StrengthSet(8, null, null, null), new StrengthSet(6, 25m, null, null)];
+        var id = await repository.AddAsync(new NewWorkout(Start, Finish,
+            [new StrengthExercise(2, [new StrengthSet(5, 100m, null, null)]), new StrengthExercise(1, sets)]));
+
+        Assert.That(await repository.GetSessionsAsync(1),
+            Is.EqualTo(new[] { new WorkoutSession(id, Start, [new StrengthExercise(1, sets)]) }).UsingPropertiesComparer());
+    }
+
+    [Test]
+    public async Task GetSessionsAsync_ExerciseTwiceInAWorkout_ReturnsOneSessionWithBothInPositionOrder()
+    {
+        var exercises = Exercises();
+        var id = await repository.AddAsync(new NewWorkout(Start, Finish, exercises));
+
+        Assert.That(await repository.GetSessionsAsync(1),
+            Is.EqualTo(new[] { new WorkoutSession(id, Start, [exercises[0], exercises[2]]) }).UsingPropertiesComparer());
+    }
+
+    [Test]
+    public async Task GetSessionsAsync_Cardio_ReturnsItsEntry()
+    {
+        var id = await repository.AddAsync(new NewWorkout(Start, Finish, Exercises()));
+
+        Assert.That(await repository.GetSessionsAsync(300),
+            Is.EqualTo(new[] { new WorkoutSession(id, Start, [new CardioExercise(300, Entry())]) }).UsingPropertiesComparer());
+    }
+
+    [Test]
     public async Task ReplaceExercisesAsync_ReplacesTheChildrenAndKeepsTheTimes()
     {
         var id = await repository.AddAsync(new NewWorkout(Start, Finish, Exercises()));

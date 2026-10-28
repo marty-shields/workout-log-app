@@ -104,4 +104,16 @@ internal enum CoreEvent
 
     /// <summary><see cref="Services.LoggedExercisesService"/>: a saved exercise id is not in the exercise list.</summary>
     LoggedExercisesUnknownExercise = 1803,
+
+    /// <summary><see cref="Services.ExerciseProgressService"/>: a lift's sessions read.</summary>
+    ExerciseProgressLoaded = 1901,
+
+    /// <summary><see cref="Services.ExerciseProgressService"/>: reading a lift's sessions failed.</summary>
+    ExerciseProgressLoadFailed = 1902,
+
+    /// <summary><see cref="Services.ExerciseProgressService"/>: the exercise id is not in the exercise list.</summary>
+    ExerciseProgressUnknownExercise = 1903,
+
+    /// <summary><see cref="Services.ExerciseProgressService"/>: the exercise is not a lift.</summary>
+    ExerciseProgressNotALift = 1904,
 }

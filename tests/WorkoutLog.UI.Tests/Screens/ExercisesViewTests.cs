@@ -65,14 +65,23 @@ public class ExercisesViewTests : ComponentTestBase
     }
 
     [Test]
-    public void TappingARow_RaisesOnOpenWithIt()
+    public void TappingALiftRow_RaisesOnOpenWithIt()
     {
         ExerciseListItem? opened = null;
         var cut = Context.Render<ExercisesView>(p => p.Add(x => x.Items, SampleExercises.All).Add(x => x.OnOpen, (ExerciseListItem item) => opened = item));
 
-        cut.Find("[data-testid=exercises-row-258]").Click();
+        cut.Find("[data-testid=exercises-row-6]").Click();
 
-        Assert.That(opened, Is.EqualTo(SampleExercises.All.Single(e => e.Id == 258)));
+        Assert.That(opened, Is.EqualTo(SampleExercises.All.Single(e => e.Id == 6)));
+    }
+
+    [Test]
+    public void WithOnOpen_OnlyRowsThatOpenAreTappable()
+    {
+        var cut = Context.Render<ExercisesView>(p => p.Add(x => x.Items, SampleExercises.All).Add(x => x.OnOpen, (ExerciseListItem _) => { }));
+
+        Assert.That(cut.FindAll("button[data-testid^=exercises-row-]").Select(r => r.GetAttribute("data-testid")),
+            Is.EqualTo(SampleExercises.All.Where(e => e.Opens).Select(e => $"exercises-row-{e.Id}")));
     }
 
     [Test]

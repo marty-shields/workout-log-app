@@ -35,6 +35,7 @@ It's built for one person and one phone: no accounts, no sign-up.
 - ⏱️ **Automatic timing.** Start and finish times are captured for you, with a live timer while you log.
 - 🗂️ **Workouts.** Browse every session, open one to edit it, or delete it.
 - 🏆 **Exercises.** Every exercise you've logged, latest first, with when you last did it and that session's best.
+- 📈 **Lift progress.** Open a lift to chart its top set or estimated one-rep max over 3 months, 6 months, a year or all time, with its records and every session.
 - 📊 **Dashboard.** Your last workout and how many sessions you've done this week and this month.
 - 📤 **Export.** Save every workout to one JSON file and share it to Drive, email or another app.
 - 📥 **Import.** Bring an exported file back: review what's new, already there or different, then add or replace.
@@ -78,6 +79,12 @@ It's built for one person and one phone: no accounts, no sign-up.
     </td>
     <td align="center">
       <picture>
+        <source media="(prefers-color-scheme: dark)" srcset="docs/images/readme/exercise-lift-dark.png" />
+        <img src="docs/images/readme/exercise-lift-light.png" alt="A lift's top set chart, records and sessions" width="150" />
+      </picture>
+    </td>
+    <td align="center">
+      <picture>
         <source media="(prefers-color-scheme: dark)" srcset="docs/images/readme/settings-dark.png" />
         <img src="docs/images/readme/settings-light.png" alt="Settings with Export and Import" width="150" />
       </picture>
@@ -89,6 +96,7 @@ It's built for one person and one phone: no accounts, no sign-up.
     <td align="center"><sub><b>Cardio</b></sub></td>
     <td align="center"><sub><b>Add exercise</b></sub></td>
     <td align="center"><sub><b>Workouts</b></sub></td>
+    <td align="center"><sub><b>Lift progress</b></sub></td>
     <td align="center"><sub><b>Export and import</b></sub></td>
   </tr>
 </table>

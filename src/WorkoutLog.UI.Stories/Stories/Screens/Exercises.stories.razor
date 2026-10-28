@@ -4,25 +4,25 @@
 
     <Story Name="List">
         <Template>
-            <ExercisesView Items="SampleExercises.All" QueryChanged="(string _) => { }" FilterChanged="(ExerciseFilter _) => { }" OnBack="() => { }" />
+            <ExercisesView Items="SampleExercises.All" QueryChanged="(string _) => { }" FilterChanged="(ExerciseFilter _) => { }" OnOpen="(ExerciseListItem _) => { }" OnBack="() => { }" />
         </Template>
     </Story>
 
     <Story Name="Strength">
         <Template>
-            <ExercisesView Items="SampleExercises.Strength" Filter="ExerciseFilter.Strength" QueryChanged="(string _) => { }" FilterChanged="(ExerciseFilter _) => { }" OnBack="() => { }" />
+            <ExercisesView Items="SampleExercises.Strength" Filter="ExerciseFilter.Strength" QueryChanged="(string _) => { }" FilterChanged="(ExerciseFilter _) => { }" OnOpen="(ExerciseListItem _) => { }" OnBack="() => { }" />
         </Template>
     </Story>
 
     <Story Name="Cardio">
         <Template>
-            <ExercisesView Items="SampleExercises.Cardio" Filter="ExerciseFilter.Cardio" QueryChanged="(string _) => { }" FilterChanged="(ExerciseFilter _) => { }" OnBack="() => { }" />
+            <ExercisesView Items="SampleExercises.Cardio" Filter="ExerciseFilter.Cardio" QueryChanged="(string _) => { }" FilterChanged="(ExerciseFilter _) => { }" OnOpen="(ExerciseListItem _) => { }" OnBack="() => { }" />
         </Template>
     </Story>
 
     <Story Name="No match">
         <Template>
-            <ExercisesView Items="[]" Query="deadlift" QueryChanged="(string _) => { }" FilterChanged="(ExerciseFilter _) => { }" OnBack="() => { }" />
+            <ExercisesView Items="[]" Query="deadlift" QueryChanged="(string _) => { }" FilterChanged="(ExerciseFilter _) => { }" OnOpen="(ExerciseListItem _) => { }" OnBack="() => { }" />
         </Template>
     </Story>
 

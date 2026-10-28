@@ -35,6 +35,11 @@ internal interface IWorkoutRepository
     /// <summary>Returns each saved exercise id with its last workout: the one with the latest start that has it, with its sets or entry.</summary>
     Task<IReadOnlyList<LastSession>> GetLastSessionsAsync();
 
+    /// <summary>
+    /// Returns each workout that has the exercise, by start time oldest first, with the exercise's blocks in position order and their sets or entry.
+    /// </summary>
+    Task<IReadOnlyList<WorkoutSession>> GetSessionsAsync(int exerciseId);
+
     /// <summary>Deletes the workout and its exercises, sets and entries. Throws <see cref="KeyNotFoundException"/> if the workout doesn't exist.</summary>
     Task DeleteAsync(int id);
 }

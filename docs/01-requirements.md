@@ -59,7 +59,8 @@
 ### Exercises
 | ID | Requirement | Acceptance criteria |
 |---|---|---|
-| FR-60 | Exercises list | Lists each exercise with a saved workout, latest start first; exercises from the same workout A–Z. Each row shows the name, its type, and `Last <date> · <best>` of its last session, the date in the phone's time zone with the year only when it isn't this year (D191). A search box and All / Strength / Cardio chips filter it, combined. Shows a message when nothing is logged and when nothing matches. Back returns to the Dashboard ([Exercises](../src/WorkoutLog.UI.Stories/Stories/Screens/Exercises.md)). |
+| FR-60 | Exercises list | Lists each exercise with a saved workout, latest start first; exercises from the same workout A–Z. Each row shows the name, its type, and `Last <date> · <best>` of its last session, the date in the phone's time zone with the year only when it isn't this year (D191). A search box and All / Strength / Cardio chips filter it, combined. Shows a message when nothing is logged and when nothing matches. Lift rows have a chevron and open the lift's Exercise page (FR-61); other rows aren't tappable. Back returns to the Dashboard ([Exercises](../src/WorkoutLog.UI.Stories/Stories/Screens/Exercises.md)). |
+| FR-61 | Exercise page: lifts | Shows a lift's progress (D192): Top set and e1RM tabs, a chart for the last 3 months, 6 months, year or all time (opens on Top set and 3 months), the records in the range (heaviest weight, best e1RM) and every session in the range, newest first, with its sets. Top set is the heaviest set, tie → most reps; e1RM is the best Epley estimate of the sets with a weight and 12 reps or fewer. Shows a message when the range has no sessions, or none with a value for the tab. Back returns to the Exercises list ([Exercise](../src/WorkoutLog.UI.Stories/Stories/Screens/Exercise.md)). |
 
 ## Non-functional
 | ID | Requirement |

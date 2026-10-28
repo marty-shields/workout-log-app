@@ -13,6 +13,10 @@ internal static class DisplayFormat
     public static string ShortDate(DateTime value, DateTime today) =>
         value.ToString(value.Year == today.Year ? "ddd d MMM" : "ddd d MMM yyyy", CultureInfo.InvariantCulture);
 
+    /// <summary>Date, with the year only when it isn't <paramref name="today"/>'s, e.g. 20 Oct or 15 Oct 2025.</summary>
+    public static string DayMonth(DateTime value, DateTime today) =>
+        value.ToString(value.Year == today.Year ? "d MMM" : "d MMM yyyy", CultureInfo.InvariantCulture);
+
     /// <summary>Time as m:ss, or h:mm:ss from an hour, e.g. 1:45 or 1:02:30.</summary>
     public static string Clock(TimeSpan value) =>
         value.TotalHours >= 1 ? Duration(value) : $"{(int)value.TotalMinutes}:{value.Seconds:00}";

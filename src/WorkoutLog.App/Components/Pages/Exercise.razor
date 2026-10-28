@@ -1,0 +1,9 @@
+@page "/exercises/{Id:int}"
+@using WorkoutLog.UI.Screens
+@inject NavigationManager Navigation
+
+<ExercisePage ExerciseId="Id" OnBack="@(() => Navigation.GoTo("exercises"))" />
+
+@code {
+    [Parameter] public int Id { get; set; }
+}

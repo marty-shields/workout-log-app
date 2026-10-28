@@ -29,5 +29,8 @@ internal sealed class GatedWorkoutRepository(IWorkoutRepository inner, DatabaseG
     public Task<IReadOnlyList<LastSession>> GetLastSessionsAsync() => gate.RunAsync(inner.GetLastSessionsAsync);
 
     /// <inheritdoc />
+    public Task<IReadOnlyList<WorkoutSession>> GetSessionsAsync(int exerciseId) => gate.RunAsync(() => inner.GetSessionsAsync(exerciseId));
+
+    /// <inheritdoc />
     public Task DeleteAsync(int id) => gate.RunAsync(() => inner.DeleteAsync(id));
 }

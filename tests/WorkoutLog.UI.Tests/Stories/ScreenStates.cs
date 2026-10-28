@@ -1,6 +1,7 @@
 using AngleSharp.Dom;
 using Microsoft.Extensions.DependencyInjection;
 using WorkoutLog.Core.Domain.Exercises;
+using WorkoutLog.Core.Domain.Exercises.Progress;
 using WorkoutLog.Core.Services;
 using WorkoutLog.UI.Components.Overlays;
 using WorkoutLog.UI.Components.Workout;
@@ -109,6 +110,7 @@ public static class ScreenStates
 
         new("Screens/Exercise", "Lift top set", c => ExercisePage(c, SampleExercises.LiftTopSet)),
         new("Screens/Exercise", "Lift e1RM", c => ExercisePage(c, SampleExercises.LiftE1rm)),
+        new("Screens/Exercise", "Lift e1RM no data", c => ExercisePage(c, SampleExercises.LiftE1rmNoData)),
         new("Screens/Exercise", "Bodyweight best set", c => ExercisePage(c, SampleExercises.BodyweightBestSet)),
         new("Screens/Exercise", "Bodyweight total", c => ExercisePage(c, SampleExercises.BodyweightTotal)),
         new("Screens/Exercise", "Bodyweight top set never weighted", c => ExercisePage(c, SampleExercises.BodyweightTopSetNeverWeighted)),

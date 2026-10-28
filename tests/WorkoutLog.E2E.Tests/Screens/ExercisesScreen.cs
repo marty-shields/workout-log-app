@@ -34,8 +34,15 @@ public sealed class ExercisesScreen(WebView web)
         return web.FindAll($"{RowSelector} .aside").Select(e => e.Text.Trim()).ToList();
     }
 
-    /// <summary>True when any row is a button.</summary>
-    public bool HasTappableRows() => web.FindAll($"button{RowSelector}").Count > 0;
+    /// <summary>Names of the rows that are buttons, in order.</summary>
+    public IReadOnlyList<string> TappableNames()
+    {
+        WaitUntilLoaded();
+        return web.FindAll($"button{RowSelector} .text").Select(e => e.Text.Trim()).ToList();
+    }
+
+    /// <summary>Taps the row of the exercise.</summary>
+    public void Open(int exerciseId) => web.Tap($"exercises-row-{exerciseId}");
 
     public string? EmptyText() => web.Exists("exercises-empty") ? web.Text("exercises-empty") : null;
 

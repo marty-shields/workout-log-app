@@ -14,6 +14,7 @@
                Loading="loading"
                Failed="failed"
                OnRetry="LoadAsync"
+               OnOpen="item => OnOpen.InvokeAsync(item.Id)"
                OnBack="OnBack" />
 
 @code {
@@ -23,6 +24,10 @@
     private ExerciseFilter filter;
     private bool loading;
     private bool failed;
+
+    /// <summary>Raised with the exercise id when a lift row is tapped.</summary>
+    [Parameter]
+    public EventCallback<int> OnOpen { get; set; }
 
     /// <summary>Raised by the back arrow and the Android back button.</summary>
     [Parameter]
