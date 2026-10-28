@@ -29,13 +29,13 @@ It's built for one person and one phone: no accounts, no sign-up.
 
 ## Features
 
-### 🏋️ Log as you train
+### Logging
 
-- **Log sets as you go.** Add exercises and record each set; the fields fit the exercise: reps and weight for Bench Press, duration for Plank, distance and weight for carries.
-- **315 exercises built in.** Strength and cardio, searchable as you type.
-- **Cardio entries.** Duration plus each machine's own metrics: distance, incline, floors, level, calories, rate.
-- **Automatic timing.** Start and finish times are captured for you, with a live timer while you log.
-- **Clear checks.** Save checks every set and entry, and points to the exact field at fault.
+- Add exercises and log sets. Each exercise shows the fields it needs: reps and weight, duration, or distance.
+- 315 built-in strength and cardio exercises, with search.
+- Cardio entries record duration plus the machine's metrics: distance, incline, floors, level, calories and rate.
+- Start and finish times are recorded for you, with a timer while you log.
+- Saving checks every set and points to the field that's wrong.
 
 <table align="center">
   <tr>
@@ -65,13 +65,17 @@ It's built for one person and one phone: no accounts, no sign-up.
   </tr>
 </table>
 
-### 📈 See your progress
+### Progress
 
-- **Workouts.** Browse every session, open one to edit it, or delete it.
-- **Exercises.** Every exercise you've logged, latest first, with when you last did it and that session's best.
-- **Strength progress.** Chart a lift's top set and estimated one-rep max, a bodyweight move's best set and total reps, an assisted machine's least assist, a hold's duration and weight, or a carry's weight and distance, with records and every session.
-- **Cardio progress.** Chart distance, duration, pace, floors or calories, with records and every session.
-- **Any range.** Every chart covers 3 months, 6 months, a year or all time.
+- Workouts lists every session; open one to edit or delete it.
+- Exercises lists every exercise you've logged, with its last session and best.
+- Each exercise has a chart, records and its sessions over 3 months, 6 months, a year or all time:
+  - lifts: top set and estimated one-rep max
+  - bodyweight moves: best set, total reps and top set
+  - assisted machines: least assist
+  - holds: duration and weight
+  - carries: weight and distance
+  - cardio: distance, duration, pace, floors and calories
 
 <table align="center">
   <tr>
@@ -101,13 +105,13 @@ It's built for one person and one phone: no accounts, no sign-up.
   </tr>
 </table>
 
-### 📊 Dashboard and your data
+### Dashboard and data
 
-- **Dashboard.** Your last workout and how many sessions you've done this week and this month.
-- **Export.** Save every workout to one JSON file and share it to Drive, email or another app.
-- **Import.** Bring an exported file back: review what's new, already there or different, then add or replace.
-- **Backup.** Supports Android Auto Backup, so your workouts come back on a new phone.
-- **Light and dark.** Follows the phone's theme.
+- The Dashboard shows your last workout and how many you've done this week and this month.
+- Export saves every workout to a JSON file you can share.
+- Import reads an exported file, shows what's new, already there or different, and adds or replaces them.
+- Android Auto Backup restores your workouts on a new phone.
+- Light and dark themes follow the phone.
 
 <table align="center">
   <tr>
