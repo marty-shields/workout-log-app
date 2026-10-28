@@ -42,6 +42,16 @@ Feature: Last and PB weight
     When I add "Machine Assisted Pull-up"
     Then Machine Assisted Pull-up has last and PB "Last 25kg · PB 20kg"
 
+  @D23
+  Scenario: A blank assist counts as 0 kg
+    Given these saved workouts:
+      | started           | exercises                              |
+      | 3 days ago 18:05  | Machine Assisted Pull-up: 8 reps 20 kg |
+      | yesterday 18:05   | Machine Assisted Pull-up: 8 reps       |
+    And I have started a new workout
+    When I add "Machine Assisted Pull-up"
+    Then Machine Assisted Pull-up has last and PB "Last 0kg · PB 0kg"
+
   Scenario: Edit Workout shows no last and PB
     Given these saved workouts:
       | started           | exercises                       |

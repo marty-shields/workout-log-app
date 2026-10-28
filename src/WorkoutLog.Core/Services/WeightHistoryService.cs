@@ -7,15 +7,12 @@ using WorkoutLog.Core.Logging;
 namespace WorkoutLog.Core.Services;
 
 /// <summary>
-/// Reads an exercise's weights through <see cref="IWorkoutRepository"/> and logs a failure. An exercise whose weight is
-/// labelled <see cref="AssistLabel"/> takes the lowest as best (D48).
+/// Reads an exercise's weights through <see cref="IWorkoutRepository"/> and logs a failure. An assisted machine
+/// (<see cref="ExerciseDefinition.IsAssisted"/>) takes the lowest as best (D48).
 /// </summary>
 internal sealed partial class WeightHistoryService(IWorkoutRepository repository, IExerciseCatalog catalog, ILogger<WeightHistoryService> logger)
     : IWeightHistoryService
 {
-    /// <summary>Weight label of the assisted machines.</summary>
-    private const string AssistLabel = "Assist";
-
     /// <inheritdoc />
     public async Task<WeightHistoryResult> GetAsync(int exerciseId)
     {
@@ -30,7 +27,7 @@ internal sealed partial class WeightHistoryService(IWorkoutRepository repository
             return new WeightHistoryResult(null, null, Failed: true);
         }
 
-        Func<IEnumerable<decimal>, decimal?> best = IsAssisted(exerciseId)
+        Func<IEnumerable<decimal>, decimal?> best = catalog.IsAssisted(exerciseId)
             ? weights => weights.Select(w => (decimal?)w).Min()
             : weights => weights.Select(w => (decimal?)w).Max();
         return new WeightHistoryResult(
@@ -38,10 +35,6 @@ internal sealed partial class WeightHistoryService(IWorkoutRepository repository
             best(workouts.SelectMany(w => w.WeightsKg)),
             Failed: false);
     }
-
-    private bool IsAssisted(int exerciseId) =>
-        catalog.All.FirstOrDefault(e => e.Id == exerciseId) is { } exercise
-        && exercise.Metrics.Any(m => m is { Metric: Metric.WeightKg, Label: AssistLabel });
 
     private static partial class Log
     {

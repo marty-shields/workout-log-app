@@ -12,4 +12,7 @@ public interface IExerciseCatalog
     /// An empty query returns every exercise, Strength then Cardio, A–Z. Text past <see cref="ExerciseCatalog.MaxQueryLength"/> is ignored.
     /// </summary>
     IReadOnlyList<ExerciseDefinition> Search(string? query);
+
+    /// <summary>True when the exercise with <paramref name="exerciseId"/> is an assisted machine (<see cref="ExerciseDefinition.IsAssisted"/>); false for an unknown id.</summary>
+    bool IsAssisted(int exerciseId);
 }

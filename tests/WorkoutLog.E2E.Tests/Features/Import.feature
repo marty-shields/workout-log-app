@@ -76,6 +76,18 @@ Feature: Import
     And the review shows "Nothing new to import"
     And Import on the review is disabled
 
+  @D23
+  Scenario: A blank assist in the file matches the phone's 0 kg
+    Given these saved workouts:
+      | started         | exercises                        |
+      | yesterday 18:05 | Machine Assisted Pull-up: 8 reps |
+    And an export file "e2e-import.json" in Downloads with these workouts:
+      | started         | exercises                        |
+      | yesterday 18:05 | Machine Assisted Pull-up: 8 reps |
+    And I have opened Settings
+    When I import "e2e-import.json"
+    Then the review counts 0 new, 1 already on this phone, 0 different and 0 that can't be imported
+
   Scenario: A file that isn't an export shows an error, and another file can be chosen
     Given a file "e2e-notes.json" in Downloads holding "{}"
     And an export file "e2e-import.json" in Downloads with these workouts:

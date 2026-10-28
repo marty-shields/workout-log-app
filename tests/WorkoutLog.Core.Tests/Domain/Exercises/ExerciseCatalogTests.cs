@@ -48,6 +48,17 @@ public class ExerciseCatalogTests
     }
 
     [Test]
+    public void IsAssisted_OnlyTheAssistedMachines() =>
+        Assert.That(catalog.All.Where(e => e.IsAssisted).Select(e => e.Name),
+            Is.EquivalentTo(new[] { "Machine Assisted Chin-up", "Machine Assisted Dip", "Machine Assisted Pull-up" }));
+
+    [TestCase(218, true)]
+    [TestCase(6, false)]
+    [TestCase(999, false)]
+    public void IsAssisted_ById_TrueForAnAssistedMachineOnly(int exerciseId, bool assisted) =>
+        Assert.That(catalog.IsAssisted(exerciseId), Is.EqualTo(assisted));
+
+    [Test]
     public void All_ReadsCardioUnits()
     {
         var exercise = Find("Outdoor Run");

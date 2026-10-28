@@ -19,7 +19,7 @@
 | FR-12 | Leave unsaved new workout | The back button asks **Discard / Cancel**. Discard drops the workout; Cancel stays on the page. If the app is killed or crashes, the workout is lost. |
 | FR-13 | After save | Saving (new or edit) returns to the Dashboard. |
 | FR-14 | Multiple per day | More than one workout can be logged on the same day. |
-| FR-15 | Last and PB weight | On New Workout, a strength exercise added to the workout shows *Last 60kg · PB 70kg* under its name: the best weight in the last saved workout with it, and in any saved workout. Best is the heaviest, or the lowest assist on an assisted machine; 0 kg counts. With no weight last time, Last shows —; with no saved weight at all, there is no line (D48). |
+| FR-15 | Last and PB weight | On New Workout, a strength exercise added to the workout shows *Last 60kg · PB 70kg* under its name: the best weight in the last saved workout with it, and in any saved workout. Best is the heaviest, or the lowest assist on an assisted machine; 0 kg counts, and a blank assist is saved as 0 kg (D23). With no weight last time, Last shows —; with no saved weight at all, there is no line (D48). |
 
 ### Workouts
 | ID | Requirement | Acceptance criteria |

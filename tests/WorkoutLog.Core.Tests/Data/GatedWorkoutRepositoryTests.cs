@@ -1,5 +1,6 @@
 using SQLite;
 using WorkoutLog.Core.Data;
+using WorkoutLog.Core.Domain.Exercises;
 using WorkoutLog.Core.Domain.Workouts;
 
 namespace WorkoutLog.Core.Tests.Data;
@@ -21,7 +22,7 @@ public class GatedWorkoutRepositoryTests
         connection = new SQLiteAsyncConnection(databasePath);
         await connection.CreateTablesAsync<WorkoutRow, WorkoutExerciseRow, StrengthSetRow, CardioEntryRow>();
         gate = new DatabaseGate();
-        repository = new GatedWorkoutRepository(new WorkoutRepository(connection, new WorkoutWriterFactory()), gate);
+        repository = new GatedWorkoutRepository(new WorkoutRepository(connection, new WorkoutWriterFactory(new ExerciseCatalog())), gate);
     }
 
     [TearDown]

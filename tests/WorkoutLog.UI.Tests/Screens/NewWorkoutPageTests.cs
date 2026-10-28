@@ -1135,6 +1135,8 @@ public class NewWorkoutPageTests : ComponentTestBase
 
         public IReadOnlyList<ExerciseDefinition> All => inner.All;
 
+        public bool IsAssisted(int exerciseId) => inner.IsAssisted(exerciseId);
+
         public IReadOnlyList<ExerciseDefinition> Search(string? query)
         {
             Searches++;

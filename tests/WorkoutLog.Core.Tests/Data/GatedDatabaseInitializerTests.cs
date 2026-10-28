@@ -2,6 +2,7 @@ using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 using SQLite;
 using WorkoutLog.Core.Data;
+using WorkoutLog.Core.Domain.Exercises;
 
 namespace WorkoutLog.Core.Tests.Data;
 
@@ -18,7 +19,8 @@ public class GatedDatabaseInitializerTests
         databasePath = TempDatabase.NewPath();
         connection = new SQLiteAsyncConnection(databasePath);
         gate = new DatabaseGate();
-        initializer = new GatedDatabaseInitializer(new DatabaseInitializer(connection, [new WorkoutStartedAtUniqueIndex()], Mock.Of<IExerciseSeeder>(), NullLogger<DatabaseInitializer>.Instance), gate);
+        ISchemaUpgrade[] steps = [new WorkoutStartedAtUniqueIndex(), new BlankAssistToZero(new ExerciseCatalog())];
+        initializer = new GatedDatabaseInitializer(new DatabaseInitializer(connection, steps, Mock.Of<IExerciseSeeder>(), NullLogger<DatabaseInitializer>.Instance), gate);
     }
 
     [TearDown]

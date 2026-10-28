@@ -35,7 +35,7 @@ Strength exercises are based on [free-exercise-db](https://github.com/yuhonas/fr
 |---|---|---|---|---|---|
 | Lift | 284 | R | o | | |
 | Hold (e.g. Plank, Wall Sit, Dead Hang) | 6 | | o | R | |
-| Assisted (Machine Assisted Pull-up, Chin-up, Dip) | 3 | R | o, labelled **Assist (kg)** | | |
+| Assisted (Machine Assisted Pull-up, Chin-up, Dip) | 3 | R | o, labelled **Assist (kg)**; blank is saved as 0 (D23) | | |
 | Carry (Farmer's Walk, Suitcase Carry, Overhead Carry, Sled Push, Sled Pull, Yoke Walk) | 6 | | o | o | R (metres) |
 
 - On bodyweight moves, weight is extra load.

@@ -8,7 +8,7 @@ namespace WorkoutLog.Core.Data;
 internal sealed partial class DatabaseInitializer : IDatabaseInitializer
 {
     /// <summary>The app's schema version.</summary>
-    public const int CurrentVersion = 2;
+    public const int CurrentVersion = 3;
 
     private readonly SQLiteAsyncConnection connection;
     private readonly IReadOnlyList<ISchemaUpgrade> upgrades;

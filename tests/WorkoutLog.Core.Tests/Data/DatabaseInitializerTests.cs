@@ -11,6 +11,8 @@ namespace WorkoutLog.Core.Tests.Data;
 
 public class DatabaseInitializerTests
 {
+    private static readonly ExerciseCatalog Catalog = new();
+
     private readonly List<string> calls = [];
     private string databasePath = "";
     private SQLiteAsyncConnection connection = null!;
@@ -38,7 +40,7 @@ public class DatabaseInitializerTests
     [Test]
     public async Task InitializeAsync_NewDatabase_CreatesTheTablesInTheDataModel()
     {
-        await Initializer(DatabaseInitializer.CurrentVersion, new WorkoutStartedAtUniqueIndex()).InitializeAsync();
+        await Initializer(DatabaseInitializer.CurrentVersion, AppSteps()).InitializeAsync();
 
         Assert.That(await Columns(), Is.EquivalentTo(new[]
         {
@@ -131,7 +133,7 @@ public class DatabaseInitializerTests
         await connection.ExecuteAsync("INSERT INTO CardioEntry (WorkoutExerciseId, Duration) VALUES (1, 6000000000)");
         await SetVersion(DatabaseInitializer.CurrentVersion);
 
-        await Initializer(DatabaseInitializer.CurrentVersion, new WorkoutStartedAtUniqueIndex()).InitializeAsync();
+        await Initializer(DatabaseInitializer.CurrentVersion, AppSteps()).InitializeAsync();
 
         Assert.Multiple(async () =>
         {
@@ -148,7 +150,7 @@ public class DatabaseInitializerTests
         await connection.ExecuteAsync("INSERT INTO Workout (StartedAt, FinishedAt) VALUES (1, 2)");
         await SetVersion(DatabaseInitializer.CurrentVersion);
 
-        await Initializer(DatabaseInitializer.CurrentVersion, new WorkoutStartedAtUniqueIndex()).InitializeAsync();
+        await Initializer(DatabaseInitializer.CurrentVersion, AppSteps()).InitializeAsync();
 
         Assert.Multiple(async () =>
         {
@@ -279,15 +281,14 @@ public class DatabaseInitializerTests
     [Test]
     public async Task InitializeAsync_Twice_SeedsEveryExerciseOnce()
     {
-        var catalog = new ExerciseCatalog();
         var initializer = new DatabaseInitializer(
-            connection, [new WorkoutStartedAtUniqueIndex()], new ExerciseSeeder(connection, catalog, NullLogger<ExerciseSeeder>.Instance), logger);
+            connection, AppSteps(), new ExerciseSeeder(connection, Catalog, NullLogger<ExerciseSeeder>.Instance), logger);
 
         await initializer.InitializeAsync();
         await initializer.InitializeAsync();
 
         Assert.That(await Version(), Is.EqualTo(DatabaseInitializer.CurrentVersion));
-        Assert.That(await connection.Table<Exercise>().CountAsync(), Is.EqualTo(catalog.All.Count));
+        Assert.That(await connection.Table<Exercise>().CountAsync(), Is.EqualTo(Catalog.All.Count));
     }
 
     [Test]
@@ -323,6 +324,25 @@ public class DatabaseInitializerTests
             Assert.That(calls, Is.Empty);
         });
     }
+
+    [Test]
+    public async Task InitializeAsync_Version2Database_SetsBlankAssistsToZeroOnly()
+    {
+        await CreateVersion1Async(startedAt: [100, 200]);
+        await connection.ExecuteAsync("INSERT INTO WorkoutExercise (WorkoutId, ExerciseId, Position) VALUES (1, 218, 1)");
+        await connection.ExecuteAsync("INSERT INTO StrengthSet (WorkoutExerciseId, Position, Reps, WeightKg) VALUES (1, 1, 5, NULL), (3, 0, 8, NULL), (3, 1, 6, 25)");
+        await SetVersion(2);
+
+        await Initializer(3, new WorkoutStartedAtUniqueIndex(), new BlankAssistToZero(Catalog)).InitializeAsync();
+
+        Assert.Multiple(async () =>
+        {
+            Assert.That(await Version(), Is.EqualTo(3));
+            Assert.That(await connection.QueryScalarsAsync<double?>("SELECT WeightKg FROM StrengthSet ORDER BY Id"), Is.EqualTo(new double?[] { 60, null, 0, 25 }));
+        });
+    }
+
+    private static ISchemaUpgrade[] AppSteps() => [new WorkoutStartedAtUniqueIndex(), new BlankAssistToZero(Catalog)];
 
     /// <summary>
     /// Creates the version 1 schema with two exercises and a workout at each of <paramref name="startedAt"/> (ticks);
