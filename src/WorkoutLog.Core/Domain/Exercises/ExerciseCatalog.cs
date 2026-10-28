@@ -46,9 +46,12 @@ public sealed class ExerciseCatalog : IExerciseCatalog
     public bool IsAssisted(int exerciseId) => All.FirstOrDefault(e => e.Id == exerciseId) is { IsAssisted: true };
 
     /// <inheritdoc />
+    public bool HasSearchWords(string? query) => Words(query).Length > 0;
+
+    /// <inheritdoc />
     public IReadOnlyList<ExerciseDefinition> Search(string? query)
     {
-        var words = SearchText.Words(query is { Length: > MaxQueryLength } ? query[..MaxQueryLength] : query);
+        var words = Words(query);
         if (words.Length == 0)
         {
             return entries.Value.OrderBy(e => e.Exercise.Type).Select(e => e.Exercise).ToList();
@@ -80,6 +83,10 @@ public sealed class ExerciseCatalog : IExerciseCatalog
 
     private static bool StartsName(string[] name, string[] words) =>
         words.Length <= name.Length && words.Select((w, i) => name[i].StartsWith(w, StringComparison.Ordinal)).All(match => match);
+
+    /// <summary>The query's search words, after cutting it to <see cref="MaxQueryLength"/>.</summary>
+    private static string[] Words(string? query) =>
+        SearchText.Words(query is { Length: > MaxQueryLength } ? query[..MaxQueryLength] : query);
 
     private static bool HasPrefix(string[] words, string prefix) => words.Any(w => w.StartsWith(prefix, StringComparison.Ordinal));
 

@@ -27,6 +27,15 @@ public class ExerciseFileTests
             Assert.That(Exercises, Has.Count.EqualTo(315));
             Assert.That(Exercises.Count(e => e.Type == ExerciseType.Strength), Is.EqualTo(299));
             Assert.That(Exercises.Count(e => e.Type == ExerciseType.Cardio), Is.EqualTo(16));
+            Assert.That(Exercises.GroupBy(e => e.Category).ToDictionary(g => g.Key, g => g.Count()), Is.EqualTo(new Dictionary<ExerciseCategory, int>
+            {
+                [ExerciseCategory.Lift] = 228,
+                [ExerciseCategory.Bodyweight] = 56,
+                [ExerciseCategory.Assisted] = 3,
+                [ExerciseCategory.Hold] = 6,
+                [ExerciseCategory.Carry] = 6,
+                [ExerciseCategory.Cardio] = 16,
+            }));
         });
     }
 
@@ -48,6 +57,7 @@ public class ExerciseFileTests
         Assert.Multiple(() =>
         {
             Assert.That(Enum.IsDefined(exercise.Type), Is.True);
+            Assert.That(Enum.IsDefined(exercise.Category), Is.True);
             Assert.That(exercise.PrimaryMuscle is not { } muscle || Enum.IsDefined(muscle), Is.True);
             Assert.That(exercise.Equipment is not { } equipment || Enum.IsDefined(equipment), Is.True);
             Assert.That(exercise.Mechanic is not { } mechanic || Enum.IsDefined(mechanic), Is.True);
@@ -67,6 +77,24 @@ public class ExerciseFileTests
             Assert.That(exercise.PrimaryMuscle.HasValue, Is.EqualTo(strength));
             Assert.That(exercise.Equipment.HasValue, Is.EqualTo(strength));
             Assert.That(exercise.Mechanic.HasValue, Is.EqualTo(strength));
+        });
+    }
+
+    [TestCaseSource(nameof(Each))]
+    public void Category_FitsTheTypeAndMetrics(ExerciseDefinition exercise)
+    {
+        bool Requires(Metric metric) => exercise.Metrics.Any(m => m.Metric == metric && m.Required);
+        var assistLabel = exercise.Metrics.Any(m => m is { Metric: Metric.WeightKg, Label: "Assist" });
+        Assert.Multiple(() =>
+        {
+            Assert.That(exercise.Category == ExerciseCategory.Cardio, Is.EqualTo(exercise.Type == ExerciseType.Cardio), "cardio");
+            Assert.That(exercise.Category == ExerciseCategory.Assisted, Is.EqualTo(assistLabel), "assisted");
+            Assert.That(exercise.Category == ExerciseCategory.Carry, Is.EqualTo(exercise.Type == ExerciseType.Strength && Requires(Metric.Distance)), "carry");
+            Assert.That(exercise.Category == ExerciseCategory.Hold, Is.EqualTo(exercise.Type == ExerciseType.Strength && Requires(Metric.Duration)), "hold");
+            if (exercise.Category is ExerciseCategory.Lift or ExerciseCategory.Bodyweight)
+            {
+                Assert.That(Requires(Metric.Reps), Is.True, "reps");
+            }
         });
     }
 

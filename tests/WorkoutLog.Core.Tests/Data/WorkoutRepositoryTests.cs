@@ -320,6 +320,55 @@ public class WorkoutRepositoryTests
     }
 
     [Test]
+    public async Task GetLastSessionsAsync_NoWorkouts_ReturnsEmpty() =>
+        Assert.That(await repository.GetLastSessionsAsync(), Is.Empty);
+
+    [Test]
+    public async Task GetLastSessionsAsync_OneWorkout_ReturnsEachExerciseWithItsSetsOrEntry()
+    {
+        WorkoutExercise[] exercises =
+        [
+            new StrengthExercise(2, [new StrengthSet(5, 60m, null, null), new StrengthSet(3, 70m, null, null)]),
+            new CardioExercise(300, Entry()),
+        ];
+        await repository.AddAsync(new NewWorkout(Start, Finish, exercises));
+
+        Assert.That(await repository.GetLastSessionsAsync(), Is.EqualTo(new[]
+        {
+            new LastSession(2, Start, [exercises[0]]),
+            new LastSession(300, Start, [exercises[1]]),
+        }).UsingPropertiesComparer());
+    }
+
+    [Test]
+    public async Task GetLastSessionsAsync_ManyWorkouts_TakesEachExercisesLatestStartNotLatestId()
+    {
+        await repository.AddAsync(new NewWorkout(Start, Finish,
+            [new StrengthExercise(2, [new StrengthSet(5, 60m, null, null)]), new StrengthExercise(3, [new StrengthSet(8, 20m, null, null)])]));
+        await repository.AddAsync(new NewWorkout(Start.AddDays(-1), Finish.AddDays(-1), [new StrengthExercise(2, [new StrengthSet(5, 90m, null, null)])]));
+        await repository.AddAsync(new NewWorkout(Start.AddDays(1), Finish.AddDays(1), [new StrengthExercise(3, [new StrengthSet(6, 25m, null, null)])]));
+
+        Assert.That(await repository.GetLastSessionsAsync(), Is.EqualTo(new[]
+        {
+            new LastSession(2, Start, [new StrengthExercise(2, [new StrengthSet(5, 60m, null, null)])]),
+            new LastSession(3, Start.AddDays(1), [new StrengthExercise(3, [new StrengthSet(6, 25m, null, null)])]),
+        }).UsingPropertiesComparer());
+    }
+
+    [Test]
+    public async Task GetLastSessionsAsync_ExerciseTwiceInAWorkout_ReturnsBothInPositionOrder()
+    {
+        var exercises = Exercises();
+        await repository.AddAsync(new NewWorkout(Start, Finish, exercises));
+
+        Assert.That(await repository.GetLastSessionsAsync(), Is.EqualTo(new[]
+        {
+            new LastSession(1, Start, [exercises[0], exercises[2]]),
+            new LastSession(300, Start, [exercises[1]]),
+        }).UsingPropertiesComparer());
+    }
+
+    [Test]
     public async Task ReplaceExercisesAsync_ReplacesTheChildrenAndKeepsTheTimes()
     {
         var id = await repository.AddAsync(new NewWorkout(Start, Finish, Exercises()));

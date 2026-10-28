@@ -5,6 +5,7 @@ using Moq;
 using SQLite;
 using WorkoutLog.Core.Data;
 using WorkoutLog.Core.Domain.Exercises;
+using WorkoutLog.Core.Domain.Exercises.Bests;
 using WorkoutLog.Core.Domain.Workouts;
 using WorkoutLog.Core.Domain.Workouts.Validation;
 using WorkoutLog.Core.Import;
@@ -35,6 +36,13 @@ public class CoreServiceCollectionExtensionsTests
             (typeof(IWorkoutsService), typeof(WorkoutsService), ServiceLifetime.Singleton),
             (typeof(IDashboardService), typeof(DashboardService), ServiceLifetime.Singleton),
             (typeof(IWeightHistoryService), typeof(WeightHistoryService), ServiceLifetime.Singleton),
+            (typeof(ILoggedExercisesService), typeof(LoggedExercisesService), ServiceLifetime.Singleton),
+            (typeof(IBestRule), typeof(LiftBestRule), ServiceLifetime.Singleton),
+            (typeof(IBestRule), typeof(BodyweightBestRule), ServiceLifetime.Singleton),
+            (typeof(IBestRule), typeof(AssistedBestRule), ServiceLifetime.Singleton),
+            (typeof(IBestRule), typeof(HoldBestRule), ServiceLifetime.Singleton),
+            (typeof(IBestRule), typeof(CarryBestRule), ServiceLifetime.Singleton),
+            (typeof(IBestRule), typeof(CardioBestRule), ServiceLifetime.Singleton),
             (typeof(IExportService), typeof(ExportService), ServiceLifetime.Singleton),
             (typeof(IWorkoutWriterFactory), typeof(WorkoutWriterFactory), ServiceLifetime.Singleton),
             (typeof(IUnitOfWork), (Type?)null, ServiceLifetime.Singleton),
@@ -76,6 +84,7 @@ public class CoreServiceCollectionExtensionsTests
             Assert.That(provider.GetRequiredService<IWorkoutsService>(), Is.InstanceOf<WorkoutsService>());
             Assert.That(provider.GetRequiredService<IDashboardService>(), Is.InstanceOf<DashboardService>());
             Assert.That(provider.GetRequiredService<IWeightHistoryService>(), Is.InstanceOf<WeightHistoryService>());
+            Assert.That(provider.GetRequiredService<ILoggedExercisesService>(), Is.InstanceOf<LoggedExercisesService>());
             Assert.That(provider.GetRequiredService<IExportService>(), Is.InstanceOf<ExportService>());
             Assert.That(provider.GetRequiredService<IImportService>(), Is.InstanceOf<ImportService>());
             Assert.That(provider.GetRequiredService<IUnitOfWork>(), Is.InstanceOf<GatedUnitOfWork>());

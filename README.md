@@ -34,6 +34,7 @@ It's built for one person and one phone: no accounts, no sign-up.
 - 🏃 **Cardio entries.** Duration plus each machine's own metrics: distance, incline, floors, level, calories, rate.
 - ⏱️ **Automatic timing.** Start and finish times are captured for you, with a live timer while you log.
 - 🗂️ **Workouts.** Browse every session, open one to edit it, or delete it.
+- 🏆 **Exercises.** Every exercise you've logged, latest first, with when you last did it and that session's best.
 - 📊 **Dashboard.** Your last workout and how many sessions you've done this week and this month.
 - 📤 **Export.** Save every workout to one JSON file and share it to Drive, email or another app.
 - 📥 **Import.** Bring an exported file back: review what's new, already there or different, then add or replace.
@@ -65,8 +66,8 @@ It's built for one person and one phone: no accounts, no sign-up.
     </td>
     <td align="center">
       <picture>
-        <source media="(prefers-color-scheme: dark)" srcset="docs/images/readme/exercise-picker-dark.png" />
-        <img src="docs/images/readme/exercise-picker-light.png" alt="Exercise picker" width="150" />
+        <source media="(prefers-color-scheme: dark)" srcset="docs/images/readme/add-exercise-dark.png" />
+        <img src="docs/images/readme/add-exercise-light.png" alt="Add exercise" width="150" />
       </picture>
     </td>
     <td align="center">
@@ -86,7 +87,7 @@ It's built for one person and one phone: no accounts, no sign-up.
     <td align="center"><sub><b>Dashboard</b></sub></td>
     <td align="center"><sub><b>Strength sets</b></sub></td>
     <td align="center"><sub><b>Cardio</b></sub></td>
-    <td align="center"><sub><b>Exercise picker</b></sub></td>
+    <td align="center"><sub><b>Add exercise</b></sub></td>
     <td align="center"><sub><b>Workouts</b></sub></td>
     <td align="center"><sub><b>Export and import</b></sub></td>
   </tr>

@@ -13,7 +13,7 @@ Log a workout as you go (FR-01–FR-15). View: `WorkoutView` with `Mode` New; pa
 | Top bar | Back arrow; date and day; "Elapsed h:mm:ss". |
 | Content | Workout error, if any; `EmptyState` "No exercises yet" or one `ExerciseCard` per exercise, newest first (D42). Sets in a card are in the order added. |
 | Bottom bar | Add exercise (secondary) and Save (primary), side by side. |
-| Overlays | `ExercisePicker` ([Exercise Picker](./?path=/custom/screens-exercise-picker-overview)); `ConfirmDialog` "Discard this workout?" on back. |
+| Overlays | `AddExerciseView` ([Add Exercise](./?path=/custom/screens-add-exercise-overview)); `ConfirmDialog` "Discard this workout?" on back. |
 
 ## Exercises
 Each card shows the fields its definition declares ([exercise list](https://github.com/marty-shields/workout-log-app/blob/main/docs/03-exercise-list.md)), with the exercise's label where it has one (e.g. Assist (kg), Resistance, Damper). Card parts: [Workout components](./?path=/custom/components-workout-overview).
@@ -24,7 +24,7 @@ Each card shows the fields its definition declares ([exercise list](https://gith
 - Remove takes the exercise out at once, with no confirm (D43).
 
 ## Adding an exercise
-Add exercise opens the Exercise Picker. A picked exercise goes on top, and focus moves to its first field, scrolling it into view (D42). Picking an exercise already in the workout moves its card to the top: strength adds a set as Add set does, cardio focuses its entry (D42).
+Add exercise opens [Add Exercise](./?path=/custom/screens-add-exercise-overview), which loads the last sessions through `ILoggedExercisesService.GetAsync` each time it opens. A picked exercise goes on top, and focus moves to its first field, scrolling it into view (D42). Picking an exercise already in the workout moves its card to the top: strength adds a set as Add set does, cardio focuses its entry (D42).
 
 A strength exercise just added loads its last and PB weights through `IWeightHistoryService.GetAsync` and shows them under its name, e.g. *Last 60kg · PB 70kg* (FR-15, D48). Nothing shows while they load, when there are none, or when the load fails; Core logs the failure. They don't change while logging. Picking it again doesn't reload; adding it again after Remove does.
 

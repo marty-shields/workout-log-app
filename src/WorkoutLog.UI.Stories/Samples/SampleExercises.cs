@@ -3,6 +3,7 @@ using WorkoutLog.UI.Components.Charts;
 using WorkoutLog.UI.Components.Inputs;
 using WorkoutLog.UI.Components.Lists;
 using WorkoutLog.UI.Models.Exercises;
+using WorkoutLog.UI.Models.Workout;
 
 namespace WorkoutLog.UI.Stories.Samples;
 
@@ -43,20 +44,21 @@ public static class SampleExercises
     /// <summary>Logged exercises, most recent first.</summary>
     public static IReadOnlyList<ExerciseListItem> All { get; } =
     [
-        new(6, "Barbell Back Squat", "Tue 20 Oct · 70kg × 3"),
-        new(264, "Push-up", "Tue 20 Oct · 25 reps"),
-        new(218, "Machine Assisted Pull-up", "Thu 15 Oct · 20kg × 10"),
-        new(258, "Plank", "Thu 15 Oct · 1:45"),
-        new(311, "Outdoor Run", "Sun 11 Oct · 5.2km"),
-        new(187, "Farmer's Walk", "Thu 8 Oct · 32kg · 40m"),
-        new(315, "Jump Rope", "Mon 5 Oct · 10:00"),
+        new(6, "Barbell Back Squat", ExerciseKind.Strength, "Tue 20 Oct · 70kg × 3"),
+        new(264, "Push-up", ExerciseKind.Strength, "Tue 20 Oct · 25 reps"),
+        new(218, "Machine Assisted Pull-up", ExerciseKind.Strength, "Thu 15 Oct · 20kg × 10"),
+        new(258, "Plank", ExerciseKind.Strength, "Thu 15 Oct · 1:45"),
+        new(311, "Outdoor Run", ExerciseKind.Cardio, "Sun 11 Oct · 5.2km"),
+        new(187, "Farmer's Walk", ExerciseKind.Strength, "Thu 8 Oct · 32kg · 40m"),
+        new(315, "Jump Rope", ExerciseKind.Cardio, "Mon 5 Oct · 10:00"),
+        new(132, "Dumbbell Curl", ExerciseKind.Strength, "Wed 15 Oct 2025"),
     ];
 
     /// <summary>The strength exercises in <see cref="All"/>.</summary>
-    public static IReadOnlyList<ExerciseListItem> Strength { get; } = [.. All.Where(e => e.Id is not (311 or 315))];
+    public static IReadOnlyList<ExerciseListItem> Strength { get; } = [.. All.Where(e => e.Kind == ExerciseKind.Strength)];
 
     /// <summary>The cardio exercises in <see cref="All"/>.</summary>
-    public static IReadOnlyList<ExerciseListItem> Cardio { get; } = [.. All.Where(e => e.Id is 311 or 315)];
+    public static IReadOnlyList<ExerciseListItem> Cardio { get; } = [.. All.Where(e => e.Kind == ExerciseKind.Cardio)];
 
     private static readonly IReadOnlyList<RadioOption<string>> LiftTabs = [Tab("top-set", "Top set"), Tab("e1rm", "e1RM")];
 
@@ -125,7 +127,7 @@ public static class SampleExercises
 
     /// <summary>A bodyweight move on its Best set tab.</summary>
     public static SampleExercise BodyweightBestSet { get; } = new(
-        "Push-up", "Chest · Bodyweight", BodyweightTabs, "best-set",
+        "Push-up", "Chest", BodyweightTabs, "best-set",
         [P("1 Sep", 15), P("8 Sep", 18), P("15 Sep", 18), P("22 Sep", 20), P("6 Oct", 22), P("13 Oct", 25)],
         Count, BodyweightRecords, BodyweightSessions);
 
@@ -147,7 +149,7 @@ public static class SampleExercises
 
     /// <summary>A bodyweight move done with dumbbells, on its Top set tab.</summary>
     public static SampleExercise LoadedBodyweight { get; } = new(
-        "Bulgarian Split Squat", "Quadriceps · Bodyweight", [.. BodyweightTabs, Tab("e1rm", "e1RM")], "top-set",
+        "Bulgarian Split Squat", "Quadriceps", [.. BodyweightTabs, Tab("e1rm", "e1RM")], "top-set",
         [P("1 Sep", 10, "×10"), P("15 Sep", 12, "×10"), P("22 Sep", 12, "×12"), P("6 Oct", 14, "×10"), P("13 Oct", 16, "×8")],
         Kg,
         [new("Most reps in a set", null, null), new("Most reps in a session", null, null), new("Heaviest weight", "16kg × 8", "13 Oct"), new("Best e1RM", "20.3kg", "13 Oct")],
@@ -167,7 +169,7 @@ public static class SampleExercises
 
     /// <summary>A hold on its Duration tab.</summary>
     public static SampleExercise HoldDuration { get; } = new(
-        "Plank", "Abdominals · Bodyweight", HoldTabs, "duration",
+        "Plank", "Abdominals", HoldTabs, "duration",
         [P("15 Sep", 60), P("22 Sep", 70), P("29 Sep", 75), P("6 Oct", 90), P("13 Oct", 90), P("15 Oct", 105)],
         Clock, HoldRecords, HoldSessions, TimeScale: true);
 

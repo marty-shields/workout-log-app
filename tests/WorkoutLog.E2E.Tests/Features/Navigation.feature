@@ -7,9 +7,9 @@ Feature: Back navigation
     When I press Android back
     Then <result>
     Examples:
-      | screen                       | result                               |
-      | the picker on Edit Workout   | the picker is closed on Edit Workout |
-      | the Dashboard                | the app is in the background         |
+      | screen                               | result                                         |
+      | the add-exercise list on Edit Workout | the add-exercise list is closed on Edit Workout |
+      | the Dashboard                        | the app is in the background                   |
 
   Scenario: Leaving with back and coming back shows the Dashboard
     Given I have pressed Android back on the Dashboard

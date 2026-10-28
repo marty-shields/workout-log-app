@@ -4,6 +4,7 @@ namespace WorkoutLog.Core.Domain.Exercises;
 /// <param name="Id">Exercise id. Never reused or changed.</param>
 /// <param name="Name">Unique name.</param>
 /// <param name="Type">Strength or cardio.</param>
+/// <param name="Category">How its sets are measured: lift, bodyweight, assisted, hold, carry or cardio.</param>
 /// <param name="Aliases">Nicknames for search. Unique across the list.</param>
 /// <param name="PrimaryMuscle">Strength only.</param>
 /// <param name="Equipment">Strength only.</param>
@@ -16,6 +17,7 @@ public sealed record ExerciseDefinition(
     int Id,
     string Name,
     ExerciseType Type,
+    ExerciseCategory Category,
     IReadOnlyList<string> Aliases,
     Muscle? PrimaryMuscle,
     Equipment? Equipment,
@@ -25,9 +27,6 @@ public sealed record ExerciseDefinition(
     RateUnit? RateUnit,
     PaceUnit? PaceUnit)
 {
-    /// <summary>Weight label of the assisted machines.</summary>
-    private const string AssistLabel = "Assist";
-
-    /// <summary>True for an assisted machine: its weight is labelled <see cref="AssistLabel"/> and is the assistance.</summary>
-    public bool IsAssisted => Metrics.Any(m => m is { Metric: Metric.WeightKg, Label: AssistLabel });
+    /// <summary>True for an assisted machine (<see cref="ExerciseCategory.Assisted"/>): its weight is the assistance.</summary>
+    public bool IsAssisted => Category == ExerciseCategory.Assisted;
 }

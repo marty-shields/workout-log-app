@@ -57,9 +57,13 @@ public static class ScreenStates
         new("Screens/Edit Workout", "Load failed", c => WorkoutLoad(c, failed: true)),
         new("Screens/Edit Workout", "Not found", c => WorkoutLoad(c, notFound: true)),
 
-        new("Screens/Exercise Picker", "No search text", c => Workout(c, WorkoutMode.New, SampleData.StrengthWorkout(Catalog(c)), pickerQuery: "")),
-        new("Screens/Exercise Picker", "Results", c => Workout(c, WorkoutMode.New, SampleData.StrengthWorkout(Catalog(c)), pickerQuery: "dumbbell")),
-        new("Screens/Exercise Picker", "No match", c => Workout(c, WorkoutMode.New, SampleData.StrengthWorkout(Catalog(c)), pickerQuery: "zumba")),
+        new("Screens/Add Exercise", "No search text", c => AddExercise(c, null)),
+        new("Screens/Add Exercise", "Strength", c => AddExercise(c, null, ExerciseFilter.Strength)),
+        new("Screens/Add Exercise", "Cardio", c => AddExercise(c, null, ExerciseFilter.Cardio)),
+        new("Screens/Add Exercise", "Results", c => AddExercise(c, "run")),
+        new("Screens/Add Exercise", "No match", c => AddExercise(c, "zumba")),
+        new("Screens/Add Exercise", "Loading", c => AddExercise(c, null, loading: true)),
+        new("Screens/Add Exercise", "Load failed", c => AddExercise(c, null, withLast: false)),
 
         new("Screens/Workouts", "Empty", c => Workouts(c, [], tappable: true)),
         new("Screens/Workouts", "With workouts", c => Workouts(c, SampleData.WorkoutsRows, tappable: true)),
@@ -155,6 +159,7 @@ public static class ScreenStates
             .Add(x => x.OnRetry, () => { })
             .Add(x => x.OnNewWorkout, () => { })
             .Add(x => x.OnWorkouts, () => { })
+            .Add(x => x.OnExercises, () => { })
             .Add(x => x.OnSettings, () => { }))
             .FindAll("*");
 
@@ -163,8 +168,7 @@ public static class ScreenStates
         WorkoutMode mode,
         List<ExerciseState> exercises,
         string? error = null,
-        (string Title, string ConfirmText)? dialog = null,
-        string? pickerQuery = null) =>
+        (string Title, string ConfirmText)? dialog = null) =>
         context.Render<WorkoutView>(p =>
         {
             p.Add(x => x.Mode, mode)
@@ -190,16 +194,6 @@ public static class ScreenStates
                     .Add(x => x.Danger, true)
                     .Add(x => x.OnConfirm, () => { })
                     .Add(x => x.OnCancel, () => { }));
-            }
-
-            if (pickerQuery is not null)
-            {
-                p.Add<ExercisePicker>(x => x.Overlay, o => o
-                    .Add(x => x.Query, pickerQuery)
-                    .Add(x => x.Items, SampleData.PickerItems(Catalog(context), pickerQuery))
-                    .Add(x => x.QueryChanged, (string _) => { })
-                    .Add(x => x.OnPick, (PickerItem _) => { })
-                    .Add(x => x.OnClose, () => { }));
             }
         }).FindAll("*");
 
@@ -268,9 +262,21 @@ public static class ScreenStates
             .Add(x => x.Failed, failed)
             .Add(x => x.QueryChanged, (string _) => { })
             .Add(x => x.FilterChanged, (ExerciseFilter _) => { })
-            .Add(x => x.OnOpen, (ExerciseListItem _) => { })
             .Add(x => x.OnRetry, () => { })
             .Add(x => x.OnBack, () => { }))
+            .FindAll("*");
+
+    private static IReadOnlyList<IElement> AddExercise(
+        BunitContext context, string? query, ExerciseFilter filter = ExerciseFilter.All, bool loading = false, bool withLast = true) =>
+        context.Render<AddExerciseView>(p => p
+            .Add(x => x.Items, loading ? [] : SampleData.AddExerciseItems(Catalog(context), query, filter, withLast))
+            .Add(x => x.Query, query)
+            .Add(x => x.Filter, filter)
+            .Add(x => x.Loading, loading)
+            .Add(x => x.QueryChanged, (string _) => { })
+            .Add(x => x.FilterChanged, (ExerciseFilter _) => { })
+            .Add(x => x.OnPick, (ExerciseListItem _) => { })
+            .Add(x => x.OnClose, () => { }))
             .FindAll("*");
 
     private static IReadOnlyList<IElement> ExercisePage(BunitContext context, SampleExercise sample) =>

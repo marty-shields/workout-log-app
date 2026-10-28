@@ -290,7 +290,7 @@ public class EditWorkoutPageTests : ComponentTestBase
         });
     }
 
-    [TestCase("picker opened and closed")]
+    [TestCase("add-exercise list opened and closed")]
     [TestCase("save failed")]
     public async Task Back_NotChanged_RaisesOnBack(string action)
     {
@@ -298,9 +298,9 @@ public class EditWorkoutPageTests : ComponentTestBase
         var cut = await RenderLoadedAsync(onBack: () => backs++);
         switch (action)
         {
-            case "picker opened and closed":
+            case "add-exercise list opened and closed":
                 cut.Find("[data-testid=add-exercise]").Click();
-                cut.Find("[data-testid=picker-search]").Input("curl");
+                cut.Find("[data-testid=exercises-search]").Input("curl");
                 await cut.InvokeAsync(BackButton.HandleAsync);
                 break;
             case "save failed":
@@ -1079,7 +1079,7 @@ public class EditWorkoutPageTests : ComponentTestBase
         {
             Assert.That(Names(cut), Is.EqualTo(new[] { "Dumbbell Curl", "Treadmill", "Farmer's Walk", "Barbell Back Squat" }));
             Assert.That(Value(cut, "exercise-1-set-1-reps"), Is.Null.Or.Empty);
-            Assert.That(cut.FindAll("[data-testid=exercise-picker]"), Is.Empty);
+            Assert.That(cut.FindAll("[data-testid=exercises-overlay]"), Is.Empty);
         });
     }
 
@@ -1121,7 +1121,7 @@ public class EditWorkoutPageTests : ComponentTestBase
     }
 
     [Test]
-    public async Task AndroidBack_ClosesThePickerAndStays()
+    public async Task AndroidBack_ClosesTheListAndStays()
     {
         var backs = 0;
         var cut = await RenderLoadedAsync(onBack: () => backs++);
@@ -1131,7 +1131,7 @@ public class EditWorkoutPageTests : ComponentTestBase
 
         Assert.Multiple(() =>
         {
-            Assert.That(cut.FindAll("[data-testid=exercise-picker]"), Is.Empty);
+            Assert.That(cut.FindAll("[data-testid=exercises-overlay]"), Is.Empty);
             Assert.That(Names(cut), Has.Count.EqualTo(3));
             Assert.That(backs, Is.Zero);
         });
@@ -1151,7 +1151,7 @@ public class EditWorkoutPageTests : ComponentTestBase
         _ => false,
     };
 
-    /// <summary>The latest focus call; the picker search and added exercises each take focus.</summary>
+    /// <summary>The latest focus call; the list search and added exercises each take focus.</summary>
     private JSRuntimeInvocation LastFocus() => Focuses()[^1];
 
     private IReadOnlyList<JSRuntimeInvocation> Focuses() => Context.JSInterop.Invocations["Blazor._internal.domWrapper.focus"];
@@ -1175,12 +1175,12 @@ public class EditWorkoutPageTests : ComponentTestBase
         return cut;
     }
 
-    /// <summary>Opens the picker, searches for the exercise by name and picks it.</summary>
+    /// <summary>Opens the add-exercise list, searches for the exercise by name and picks it.</summary>
     private static void Add(IRenderedComponent<EditWorkoutPage> cut, int exerciseId)
     {
         cut.Find("[data-testid=add-exercise]").Click();
-        cut.Find("[data-testid=picker-search]").Input(Catalog.All.Single(e => e.Id == exerciseId).Name);
-        cut.Find($"[data-testid=picker-item-{exerciseId}]").Click();
+        cut.Find("[data-testid=exercises-search]").Input(Catalog.All.Single(e => e.Id == exerciseId).Name);
+        cut.Find($"[data-testid=exercises-row-{exerciseId}]").Click();
     }
 
     /// <summary>Checks with the inner service. Each load waits until the test completes it; saves and deletes are recorded.</summary>

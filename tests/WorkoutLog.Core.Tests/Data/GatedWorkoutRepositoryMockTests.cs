@@ -17,6 +17,7 @@ public class GatedWorkoutRepositoryMockTests
         IReadOnlyList<Workout> all = [stored];
         IReadOnlyList<WorkoutSummary> summaries = [new WorkoutSummary(3, Start)];
         IReadOnlyList<WorkoutWeights> weights = [new WorkoutWeights(3, [20m])];
+        IReadOnlyList<LastSession> sessions = [new LastSession(1, Start, Exercises)];
         var inner = new Mock<IWorkoutRepository>(MockBehavior.Strict);
         inner.Setup(r => r.AddAsync(workout)).ReturnsAsync(3);
         inner.Setup(r => r.ReplaceExercisesAsync(3, Exercises)).Returns(Task.CompletedTask);
@@ -24,6 +25,7 @@ public class GatedWorkoutRepositoryMockTests
         inner.Setup(r => r.GetAllAsync()).ReturnsAsync(all);
         inner.Setup(r => r.ListAsync(Start, Start, 5)).ReturnsAsync(summaries);
         inner.Setup(r => r.GetWeightsAsync(1)).ReturnsAsync(weights);
+        inner.Setup(r => r.GetLastSessionsAsync()).ReturnsAsync(sessions);
         inner.Setup(r => r.DeleteAsync(3)).Returns(Task.CompletedTask);
         var gated = new GatedWorkoutRepository(inner.Object, new DatabaseGate());
 
@@ -33,6 +35,7 @@ public class GatedWorkoutRepositoryMockTests
         Assert.That(await gated.GetAllAsync(), Is.SameAs(all));
         Assert.That(await gated.ListAsync(Start, Start, 5), Is.SameAs(summaries));
         Assert.That(await gated.GetWeightsAsync(1), Is.SameAs(weights));
+        Assert.That(await gated.GetLastSessionsAsync(), Is.SameAs(sessions));
         await gated.DeleteAsync(3);
 
         inner.VerifyAll();
@@ -44,6 +47,7 @@ public class GatedWorkoutRepositoryMockTests
     [TestCase("GetAll", nameof(IWorkoutRepository.GetAllAsync))]
     [TestCase("List", nameof(IWorkoutRepository.ListAsync))]
     [TestCase("Weights", nameof(IWorkoutRepository.GetWeightsAsync))]
+    [TestCase("LastSessions", nameof(IWorkoutRepository.GetLastSessionsAsync))]
     [TestCase("Delete", nameof(IWorkoutRepository.DeleteAsync))]
     public async Task Call_WhileTheGateIsHeld_DoesNotReachTheInner(string call, string method)
     {
@@ -61,6 +65,7 @@ public class GatedWorkoutRepositoryMockTests
             "GetAll" => gated.GetAllAsync(),
             "List" => gated.ListAsync(),
             "Weights" => gated.GetWeightsAsync(1),
+            "LastSessions" => gated.GetLastSessionsAsync(),
             _ => gated.DeleteAsync(1),
         };
 

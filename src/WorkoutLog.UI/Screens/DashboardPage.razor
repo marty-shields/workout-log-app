@@ -6,7 +6,7 @@
 @inject TimeProvider Clock
 @inject IAppStart AppStart
 
-<DashboardView Summary="summary" Loading="loading" Failed="failed" OnRetry="LoadAsync" OnNewWorkout="OnNewWorkout" OnWorkouts="OnWorkouts" OnSettings="OnSettings" />
+<DashboardView Summary="summary" Loading="loading" Failed="failed" OnRetry="LoadAsync" OnNewWorkout="OnNewWorkout" OnWorkouts="OnWorkouts" OnExercises="OnExercises" OnSettings="OnSettings" />
 
 @code {
     private DashboardSummary summary = new(null, 0, 0);
@@ -22,6 +22,10 @@
     /// <summary>Raised by the Workouts link.</summary>
     [Parameter]
     public EventCallback OnWorkouts { get; set; }
+
+    /// <summary>Raised by the Exercises link.</summary>
+    [Parameter]
+    public EventCallback OnExercises { get; set; }
 
     /// <summary>Raised by the Settings gear.</summary>
     [Parameter]

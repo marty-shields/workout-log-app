@@ -1,30 +1,43 @@
 using WorkoutLog.Core.Domain.Exercises;
 using WorkoutLog.Core.Domain.Workouts;
+using WorkoutLog.Core.Services;
+using WorkoutLog.UI.Models.Exercises;
 
 namespace WorkoutLog.UI.Models.Workout;
 
 /// <summary>
-/// The exercises of a new or saved workout while it is edited: the exercise picker, adding and removing exercises, changes
+/// The exercises of a new or saved workout while it is edited: the add-exercise list, adding and removing exercises, changes
 /// (D73), and the check and save. One instance per workout page.
 /// </summary>
 /// <param name="catalog">Exercise list.</param>
 /// <param name="setChecker">Reads each exercise as a record to save.</param>
 /// <param name="workoutChecker">Checks the workout on Save and words a failed save or delete.</param>
-public sealed class WorkoutEditor(IExerciseCatalog catalog, ISetChecker setChecker, IWorkoutChecker workoutChecker)
+/// <param name="loggedExercises">Reads the last sessions for the add-exercise list.</param>
+/// <param name="clock">Time zone and current time for the last sessions' dates.</param>
+public sealed class WorkoutEditor(
+    IExerciseCatalog catalog, ISetChecker setChecker, IWorkoutChecker workoutChecker, ILoggedExercisesService loggedExercises, TimeProvider clock)
 {
     private List<ExerciseState> exercises = [];
+    private IReadOnlyList<ExerciseListItem> listItems = [];
+    private int listOpens;
 
     /// <summary>Exercises in screen order, newest first (D42).</summary>
     public IReadOnlyList<ExerciseState> Exercises => exercises;
 
-    /// <summary>The exercise picker is open.</summary>
-    public bool PickerOpen { get; private set; }
+    /// <summary>The add-exercise list is open.</summary>
+    public bool ListOpen { get; private set; }
 
-    /// <summary>The picker's search text.</summary>
+    /// <summary>The add-exercise list is loading the last sessions.</summary>
+    public bool ListLoading { get; private set; }
+
+    /// <summary>The add-exercise list's search text.</summary>
     public string Query { get; private set; } = "";
 
-    /// <summary>The picker's results for <see cref="Query"/>.</summary>
-    public IReadOnlyList<PickerItem> PickerItems { get; private set; } = [];
+    /// <summary>The add-exercise list's chip.</summary>
+    public ExerciseFilter Filter { get; private set; }
+
+    /// <summary>The add-exercise list's rows for <see cref="Query"/> and <see cref="Filter"/>.</summary>
+    public IReadOnlyList<ExerciseListItem> ListItems { get; private set; } = [];
 
     /// <summary>The latest request to focus an exercise.</summary>
     public ExerciseFocus? Focus { get; private set; }
@@ -48,9 +61,12 @@ public sealed class WorkoutEditor(IExerciseCatalog catalog, ISetChecker setCheck
     public void Start(IEnumerable<ExerciseState> loaded)
     {
         exercises = [.. loaded.Reverse()];
-        PickerOpen = false;
+        ListOpen = false;
+        ListLoading = false;
         Query = "";
-        PickerItems = [];
+        Filter = ExerciseFilter.All;
+        listItems = [];
+        ListItems = [];
         Focus = null;
         ErrorFocus = null;
         Error = null;
@@ -58,32 +74,61 @@ public sealed class WorkoutEditor(IExerciseCatalog catalog, ISetChecker setCheck
         Changed = false;
     }
 
-    /// <summary>Opens the picker on the whole list.</summary>
-    public void OpenPicker()
+    /// <summary>
+    /// Opens the add-exercise list with no search text and the All chip (D64), loading while it reads the last sessions through
+    /// <see cref="ILoggedExercisesService.GetAsync"/>. Then lists the whole catalog, Strength then Cardio A–Z, each logged exercise
+    /// with its last session. A failed read lists the catalog with no last sessions. A read finished after the list closed or
+    /// reopened is ignored.
+    /// </summary>
+    public async Task OpenListAsync()
     {
-        Search("");
-        PickerOpen = true;
+        var open = ++listOpens;
+        ListOpen = true;
+        ListLoading = true;
+        ListItems = [];
+        Query = "";
+        Filter = ExerciseFilter.All;
+        var result = await loggedExercises.GetAsync();
+        if (open != listOpens || !ListOpen)
+        {
+            return;
+        }
+
+        var logged = result.Exercises.ToDictionary(e => e.ExerciseId);
+        var now = clock.GetUtcNow();
+        listItems = catalog.Search(null)
+            .Select(e => ExerciseListItems.Item(e, logged.GetValueOrDefault(e.Id), clock.LocalTimeZone, now))
+            .ToList();
+        ListLoading = false;
+        Find();
     }
 
-    /// <summary>Sets the search text and its results.</summary>
+    /// <summary>Sets the search text and the rows.</summary>
     public void Search(string text)
     {
         Query = text;
-        PickerItems = catalog.Search(text).Select(ExerciseFields.PickerItem).ToList();
+        Find();
     }
 
-    /// <summary>Closes the picker.</summary>
-    public void ClosePicker() => PickerOpen = false;
+    /// <summary>Sets the chip and the rows.</summary>
+    public void FilterBy(ExerciseFilter filter)
+    {
+        Filter = filter;
+        Find();
+    }
+
+    /// <summary>Closes the add-exercise list.</summary>
+    public void CloseList() => ListOpen = false;
 
     /// <summary>
     /// Moves the exercise already in the workout to the top and focuses it, adding a set to a strength one; otherwise adds it at
-    /// the top. Either is a change. Clears the workout's error and closes the picker.
+    /// the top. Either is a change. Clears the workout's error and closes the add-exercise list.
     /// </summary>
-    public void Pick(PickerItem item)
+    public void Pick(ExerciseListItem item)
     {
         Focus = Show(item.Id);
         Error = null;
-        PickerOpen = false;
+        ListOpen = false;
     }
 
     /// <summary>Removes the exercise.</summary>
@@ -134,6 +179,8 @@ public sealed class WorkoutEditor(IExerciseCatalog catalog, ISetChecker setCheck
         Error = workoutChecker.DeleteFailed;
         ErrorFocus = new ErrorFocus(ErrorFocusTarget.Delete);
     }
+
+    private void Find() => ListItems = ExerciseListItems.Find(listItems, catalog, Query, Filter);
 
     private ExerciseFocus Show(int exerciseId)
     {

@@ -42,7 +42,7 @@ Every new or changed screen or component goes through these steps (D98):
 | `dashboard` | `screens-dashboard--with-workouts` |
 | `new-workout` | `screens-new-workout--strength` |
 | `cardio` | `screens-new-workout--cardio` |
-| `exercise-picker` | `screens-exercise-picker--results` |
+| `add-exercise` | `screens-add-exercise--results` |
 | `workouts` | `screens-workouts--with-workouts` |
 | `settings` | `screens-settings--with-workouts` |
 

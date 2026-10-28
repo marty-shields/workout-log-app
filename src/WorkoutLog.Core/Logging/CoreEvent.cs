@@ -95,4 +95,13 @@ internal enum CoreEvent
 
     /// <summary><see cref="Services.ImportService"/>: the file isn't an export, is newer, has no workouts or is too large.</summary>
     ImportFileRejected = 1706,
+
+    /// <summary><see cref="Services.LoggedExercisesService"/>: logged exercises read.</summary>
+    LoggedExercisesLoaded = 1801,
+
+    /// <summary><see cref="Services.LoggedExercisesService"/>: reading the logged exercises failed.</summary>
+    LoggedExercisesLoadFailed = 1802,
+
+    /// <summary><see cref="Services.LoggedExercisesService"/>: a saved exercise id is not in the exercise list.</summary>
+    LoggedExercisesUnknownExercise = 1803,
 }

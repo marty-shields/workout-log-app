@@ -1,0 +1,5 @@
+@page "/exercises"
+@using WorkoutLog.UI.Screens
+@inject NavigationManager Navigation
+
+<ExercisesPage OnBack="@(() => Navigation.GoTo(string.Empty))" />

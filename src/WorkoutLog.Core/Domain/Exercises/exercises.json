@@ -3,6 +3,7 @@
     "id": 1,
     "name": "Ab Wheel Rollout",
     "type": "Strength",
+    "category": "Bodyweight",
     "aliases": [
       "Ab Roller"
     ],
@@ -27,11 +28,12 @@
     "id": 2,
     "name": "Back Extension",
     "type": "Strength",
+    "category": "Bodyweight",
     "aliases": [
       "Hyperextension"
     ],
     "primaryMuscle": "LowerBack",
-    "equipment": "Bodyweight",
+    "equipment": "None",
     "mechanic": "Isolation",
     "metrics": [
       {
@@ -51,6 +53,7 @@
     "id": 3,
     "name": "Band Monster Walk",
     "type": "Strength",
+    "category": "Bodyweight",
     "aliases": [],
     "primaryMuscle": "Abductors",
     "equipment": "Band",
@@ -73,6 +76,7 @@
     "id": 4,
     "name": "Band Pull-Apart",
     "type": "Strength",
+    "category": "Bodyweight",
     "aliases": [],
     "primaryMuscle": "Shoulders",
     "equipment": "Band",
@@ -95,6 +99,7 @@
     "id": 5,
     "name": "Barbell Ab Rollout",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [],
     "primaryMuscle": "Abdominals",
     "equipment": "Barbell",
@@ -117,6 +122,7 @@
     "id": 6,
     "name": "Barbell Back Squat",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [],
     "primaryMuscle": "Quadriceps",
     "equipment": "Barbell",
@@ -139,6 +145,7 @@
     "id": 7,
     "name": "Barbell Behind-the-Neck Press",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [
       "BTN Press"
     ],
@@ -163,6 +170,7 @@
     "id": 8,
     "name": "Barbell Bench Press",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [
       "Flat Bench Press"
     ],
@@ -187,6 +195,7 @@
     "id": 9,
     "name": "Barbell Bent-Over Row",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [],
     "primaryMuscle": "MiddleBack",
     "equipment": "Barbell",
@@ -209,6 +218,7 @@
     "id": 10,
     "name": "Barbell Box Squat",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [],
     "primaryMuscle": "Quadriceps",
     "equipment": "Barbell",
@@ -231,6 +241,7 @@
     "id": 11,
     "name": "Barbell Bulgarian Split Squat",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [],
     "primaryMuscle": "Quadriceps",
     "equipment": "Barbell",
@@ -253,6 +264,7 @@
     "id": 12,
     "name": "Barbell Calf Raise",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [],
     "primaryMuscle": "Calves",
     "equipment": "Barbell",
@@ -275,6 +287,7 @@
     "id": 13,
     "name": "Barbell Close-Grip Bench Press",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [
       "CGBP"
     ],
@@ -299,6 +312,7 @@
     "id": 14,
     "name": "Barbell Close-Grip Curl",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [],
     "primaryMuscle": "Biceps",
     "equipment": "Barbell",
@@ -321,6 +335,7 @@
     "id": 15,
     "name": "Barbell Curl",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [
       "Barbell Biceps Curl"
     ],
@@ -345,6 +360,7 @@
     "id": 16,
     "name": "Barbell Decline Bench Press",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [],
     "primaryMuscle": "Chest",
     "equipment": "Barbell",
@@ -367,6 +383,7 @@
     "id": 17,
     "name": "Barbell Drag Curl",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [],
     "primaryMuscle": "Biceps",
     "equipment": "Barbell",
@@ -389,6 +406,7 @@
     "id": 18,
     "name": "Barbell Floor Press",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [],
     "primaryMuscle": "Chest",
     "equipment": "Barbell",
@@ -411,6 +429,7 @@
     "id": 19,
     "name": "Barbell Front Raise",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [],
     "primaryMuscle": "Shoulders",
     "equipment": "Barbell",
@@ -433,6 +452,7 @@
     "id": 20,
     "name": "Barbell Front Squat",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [],
     "primaryMuscle": "Quadriceps",
     "equipment": "Barbell",
@@ -455,6 +475,7 @@
     "id": 21,
     "name": "Barbell Glute Bridge",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [],
     "primaryMuscle": "Glutes",
     "equipment": "Barbell",
@@ -477,6 +498,7 @@
     "id": 22,
     "name": "Barbell Good Morning",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [],
     "primaryMuscle": "LowerBack",
     "equipment": "Barbell",
@@ -499,6 +521,7 @@
     "id": 23,
     "name": "Barbell Hack Squat",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [],
     "primaryMuscle": "Quadriceps",
     "equipment": "Barbell",
@@ -521,6 +544,7 @@
     "id": 24,
     "name": "Barbell Hip Thrust",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [],
     "primaryMuscle": "Glutes",
     "equipment": "Barbell",
@@ -543,6 +567,7 @@
     "id": 25,
     "name": "Barbell Incline Bench Press",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [],
     "primaryMuscle": "Chest",
     "equipment": "Barbell",
@@ -565,6 +590,7 @@
     "id": 26,
     "name": "Barbell JM Press",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [],
     "primaryMuscle": "Triceps",
     "equipment": "Barbell",
@@ -587,6 +613,7 @@
     "id": 27,
     "name": "Barbell Lateral Lunge",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [
       "Barbell Side Lunge"
     ],
@@ -611,6 +638,7 @@
     "id": 28,
     "name": "Barbell Lunge",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [],
     "primaryMuscle": "Quadriceps",
     "equipment": "Barbell",
@@ -633,6 +661,7 @@
     "id": 29,
     "name": "Barbell Overhead Squat",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [
       "OHS"
     ],
@@ -657,6 +686,7 @@
     "id": 30,
     "name": "Barbell Overhead Tricep Extension",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [],
     "primaryMuscle": "Triceps",
     "equipment": "Barbell",
@@ -679,6 +709,7 @@
     "id": 31,
     "name": "Barbell Preacher Curl",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [],
     "primaryMuscle": "Biceps",
     "equipment": "Barbell",
@@ -701,6 +732,7 @@
     "id": 32,
     "name": "Barbell Pullover",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [],
     "primaryMuscle": "Chest",
     "equipment": "Barbell",
@@ -723,6 +755,7 @@
     "id": 33,
     "name": "Barbell Rack Pull",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [],
     "primaryMuscle": "LowerBack",
     "equipment": "Barbell",
@@ -745,6 +778,7 @@
     "id": 34,
     "name": "Barbell Rear Delt Row",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [],
     "primaryMuscle": "Shoulders",
     "equipment": "Barbell",
@@ -767,6 +801,7 @@
     "id": 35,
     "name": "Barbell Reverse Curl",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [],
     "primaryMuscle": "Forearms",
     "equipment": "Barbell",
@@ -789,6 +824,7 @@
     "id": 36,
     "name": "Barbell Reverse Lunge",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [],
     "primaryMuscle": "Quadriceps",
     "equipment": "Barbell",
@@ -811,6 +847,7 @@
     "id": 37,
     "name": "Barbell Reverse Wrist Curl",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [],
     "primaryMuscle": "Forearms",
     "equipment": "Barbell",
@@ -833,6 +870,7 @@
     "id": 38,
     "name": "Barbell Reverse-Grip Bench Press",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [],
     "primaryMuscle": "Chest",
     "equipment": "Barbell",
@@ -855,6 +893,7 @@
     "id": 39,
     "name": "Barbell Reverse-Grip Bent-Over Row",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [],
     "primaryMuscle": "MiddleBack",
     "equipment": "Barbell",
@@ -877,6 +916,7 @@
     "id": 40,
     "name": "Barbell Romanian Deadlift",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [
       "RDL"
     ],
@@ -901,6 +941,7 @@
     "id": 41,
     "name": "Barbell Shoulder Press",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [
       "Military Press",
       "OHP",
@@ -927,6 +968,7 @@
     "id": 42,
     "name": "Barbell Shrug",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [],
     "primaryMuscle": "Traps",
     "equipment": "Barbell",
@@ -949,6 +991,7 @@
     "id": 43,
     "name": "Barbell Side Bend",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [],
     "primaryMuscle": "Abdominals",
     "equipment": "Barbell",
@@ -971,6 +1014,7 @@
     "id": 44,
     "name": "Barbell Skull Crusher",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [
       "Skullcrusher",
       "French Press"
@@ -996,6 +1040,7 @@
     "id": 45,
     "name": "Barbell Step-up",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [],
     "primaryMuscle": "Quadriceps",
     "equipment": "Barbell",
@@ -1018,6 +1063,7 @@
     "id": 46,
     "name": "Barbell Stiff-Leg Deadlift",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [
       "SLDL",
       "Straight Leg Deadlift"
@@ -1043,6 +1089,7 @@
     "id": 47,
     "name": "Barbell Sumo Deadlift",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [],
     "primaryMuscle": "Hamstrings",
     "equipment": "Barbell",
@@ -1065,6 +1112,7 @@
     "id": 48,
     "name": "Barbell Sumo Squat",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [],
     "primaryMuscle": "Quadriceps",
     "equipment": "Barbell",
@@ -1087,6 +1135,7 @@
     "id": 49,
     "name": "Barbell Twist",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [],
     "primaryMuscle": "Abdominals",
     "equipment": "Barbell",
@@ -1109,6 +1158,7 @@
     "id": 50,
     "name": "Barbell Upright Row",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [],
     "primaryMuscle": "Shoulders",
     "equipment": "Barbell",
@@ -1131,6 +1181,7 @@
     "id": 51,
     "name": "Barbell Walking Lunge",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [],
     "primaryMuscle": "Quadriceps",
     "equipment": "Barbell",
@@ -1153,6 +1204,7 @@
     "id": 52,
     "name": "Barbell Wide-Grip Bench Press",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [],
     "primaryMuscle": "Chest",
     "equipment": "Barbell",
@@ -1175,6 +1227,7 @@
     "id": 53,
     "name": "Barbell Wide-Grip Curl",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [],
     "primaryMuscle": "Biceps",
     "equipment": "Barbell",
@@ -1197,6 +1250,7 @@
     "id": 54,
     "name": "Barbell Wrist Curl",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [],
     "primaryMuscle": "Forearms",
     "equipment": "Barbell",
@@ -1219,6 +1273,7 @@
     "id": 55,
     "name": "Barbell Zercher Squat",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [],
     "primaryMuscle": "Quadriceps",
     "equipment": "Barbell",
@@ -1241,9 +1296,10 @@
     "id": 56,
     "name": "Bench Dip",
     "type": "Strength",
+    "category": "Bodyweight",
     "aliases": [],
     "primaryMuscle": "Triceps",
-    "equipment": "Bodyweight",
+    "equipment": "None",
     "mechanic": "Compound",
     "metrics": [
       {
@@ -1263,9 +1319,10 @@
     "id": 57,
     "name": "Bicycle Crunch",
     "type": "Strength",
+    "category": "Bodyweight",
     "aliases": [],
     "primaryMuscle": "Abdominals",
-    "equipment": "Bodyweight",
+    "equipment": "None",
     "mechanic": "Compound",
     "metrics": [
       {
@@ -1285,13 +1342,14 @@
     "id": 58,
     "name": "Bulgarian Split Squat",
     "type": "Strength",
+    "category": "Bodyweight",
     "aliases": [
       "RFESS",
       "Rear Foot Elevated Split Squat",
       "Bodyweight Bulgarian Split Squat"
     ],
     "primaryMuscle": "Quadriceps",
-    "equipment": "Bodyweight",
+    "equipment": "None",
     "mechanic": "Compound",
     "metrics": [
       {
@@ -1311,6 +1369,7 @@
     "id": 59,
     "name": "Cable Bench Fly",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [],
     "primaryMuscle": "Chest",
     "equipment": "Cable",
@@ -1333,6 +1392,7 @@
     "id": 60,
     "name": "Cable Calf Raise",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [],
     "primaryMuscle": "Calves",
     "equipment": "Cable",
@@ -1355,6 +1415,7 @@
     "id": 61,
     "name": "Cable Chest Press",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [],
     "primaryMuscle": "Chest",
     "equipment": "Cable",
@@ -1377,6 +1438,7 @@
     "id": 62,
     "name": "Cable Close-Grip Lat Pulldown",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [],
     "primaryMuscle": "Lats",
     "equipment": "Cable",
@@ -1399,6 +1461,7 @@
     "id": 63,
     "name": "Cable Crossover",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [
       "Cross Over"
     ],
@@ -1423,6 +1486,7 @@
     "id": 64,
     "name": "Cable Crunch",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [
       "Rope Crunch"
     ],
@@ -1447,6 +1511,7 @@
     "id": 65,
     "name": "Cable Curl",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [
       "Cable Biceps Curl"
     ],
@@ -1471,6 +1536,7 @@
     "id": 66,
     "name": "Cable Decline Fly",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [],
     "primaryMuscle": "Chest",
     "equipment": "Cable",
@@ -1493,6 +1559,7 @@
     "id": 67,
     "name": "Cable Face Pull",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [],
     "primaryMuscle": "Shoulders",
     "equipment": "Cable",
@@ -1515,6 +1582,7 @@
     "id": 68,
     "name": "Cable Fly",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [],
     "primaryMuscle": "Chest",
     "equipment": "Cable",
@@ -1537,6 +1605,7 @@
     "id": 69,
     "name": "Cable Front Raise",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [],
     "primaryMuscle": "Shoulders",
     "equipment": "Cable",
@@ -1559,6 +1628,7 @@
     "id": 70,
     "name": "Cable Glute Kickback",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [],
     "primaryMuscle": "Glutes",
     "equipment": "Cable",
@@ -1581,6 +1651,7 @@
     "id": 71,
     "name": "Cable Hip Abduction",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [],
     "primaryMuscle": "Abductors",
     "equipment": "Cable",
@@ -1603,6 +1674,7 @@
     "id": 72,
     "name": "Cable Hip Adduction",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [],
     "primaryMuscle": "Adductors",
     "equipment": "Cable",
@@ -1625,6 +1697,7 @@
     "id": 73,
     "name": "Cable Incline Chest Press",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [],
     "primaryMuscle": "Chest",
     "equipment": "Cable",
@@ -1647,6 +1720,7 @@
     "id": 74,
     "name": "Cable Incline Fly",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [],
     "primaryMuscle": "Chest",
     "equipment": "Cable",
@@ -1669,6 +1743,7 @@
     "id": 75,
     "name": "Cable Lat Pulldown",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [
       "Lat Pull Down"
     ],
@@ -1693,6 +1768,7 @@
     "id": 76,
     "name": "Cable Lateral Raise",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [
       "Cable Side Raise"
     ],
@@ -1717,6 +1793,7 @@
     "id": 77,
     "name": "Cable Leg Curl",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [
       "Cable Hamstring Curl"
     ],
@@ -1741,6 +1818,7 @@
     "id": 78,
     "name": "Cable Low-to-High Fly",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [
       "Low Cable Crossover"
     ],
@@ -1765,6 +1843,7 @@
     "id": 79,
     "name": "Cable Low-to-High Wood Chop",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [],
     "primaryMuscle": "Abdominals",
     "equipment": "Cable",
@@ -1787,6 +1866,7 @@
     "id": 80,
     "name": "Cable Lying Pullover",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [],
     "primaryMuscle": "Chest",
     "equipment": "Cable",
@@ -1809,6 +1889,7 @@
     "id": 81,
     "name": "Cable Lying Tricep Extension",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [],
     "primaryMuscle": "Triceps",
     "equipment": "Cable",
@@ -1831,6 +1912,7 @@
     "id": 82,
     "name": "Cable Oblique Crunch",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [],
     "primaryMuscle": "Abdominals",
     "equipment": "Cable",
@@ -1853,6 +1935,7 @@
     "id": 83,
     "name": "Cable One-Arm Tricep Extension",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [],
     "primaryMuscle": "Triceps",
     "equipment": "Cable",
@@ -1875,6 +1958,7 @@
     "id": 84,
     "name": "Cable Pallof Press",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [],
     "primaryMuscle": "Abdominals",
     "equipment": "Cable",
@@ -1897,6 +1981,7 @@
     "id": 85,
     "name": "Cable Preacher Curl",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [],
     "primaryMuscle": "Biceps",
     "equipment": "Cable",
@@ -1919,6 +2004,7 @@
     "id": 86,
     "name": "Cable Pull Through",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [],
     "primaryMuscle": "Glutes",
     "equipment": "Cable",
@@ -1941,6 +2027,7 @@
     "id": 87,
     "name": "Cable Rear Delt Fly",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [
       "Cable Reverse Fly"
     ],
@@ -1965,6 +2052,7 @@
     "id": 88,
     "name": "Cable Reverse Curl",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [],
     "primaryMuscle": "Forearms",
     "equipment": "Cable",
@@ -1987,6 +2075,7 @@
     "id": 89,
     "name": "Cable Reverse-Grip Tricep Pushdown",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [],
     "primaryMuscle": "Triceps",
     "equipment": "Cable",
@@ -2009,6 +2098,7 @@
     "id": 90,
     "name": "Cable Rope Hammer Curl",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [],
     "primaryMuscle": "Biceps",
     "equipment": "Cable",
@@ -2031,6 +2121,7 @@
     "id": 91,
     "name": "Cable Rope Overhead Tricep Extension",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [],
     "primaryMuscle": "Triceps",
     "equipment": "Cable",
@@ -2053,6 +2144,7 @@
     "id": 92,
     "name": "Cable Rope Tricep Pushdown",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [],
     "primaryMuscle": "Triceps",
     "equipment": "Cable",
@@ -2075,6 +2167,7 @@
     "id": 93,
     "name": "Cable Russian Twist",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [],
     "primaryMuscle": "Abdominals",
     "equipment": "Cable",
@@ -2097,6 +2190,7 @@
     "id": 94,
     "name": "Cable Seated Row",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [],
     "primaryMuscle": "MiddleBack",
     "equipment": "Cable",
@@ -2119,6 +2213,7 @@
     "id": 95,
     "name": "Cable Shoulder Press",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [],
     "primaryMuscle": "Shoulders",
     "equipment": "Cable",
@@ -2141,6 +2236,7 @@
     "id": 96,
     "name": "Cable Shrug",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [],
     "primaryMuscle": "Traps",
     "equipment": "Cable",
@@ -2163,6 +2259,7 @@
     "id": 97,
     "name": "Cable Side Bend",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [],
     "primaryMuscle": "Abdominals",
     "equipment": "Cable",
@@ -2185,6 +2282,7 @@
     "id": 98,
     "name": "Cable Straight-Arm Pulldown",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [
       "Straight Arm Lat Pulldown",
       "Lat Pushdown"
@@ -2210,6 +2308,7 @@
     "id": 99,
     "name": "Cable Tricep Kickback",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [],
     "primaryMuscle": "Triceps",
     "equipment": "Cable",
@@ -2232,6 +2331,7 @@
     "id": 100,
     "name": "Cable Tricep Pushdown",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [
       "Pressdown"
     ],
@@ -2256,6 +2356,7 @@
     "id": 101,
     "name": "Cable Underhand Lat Pulldown",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [
       "Reverse Grip Lat Pulldown"
     ],
@@ -2280,6 +2381,7 @@
     "id": 102,
     "name": "Cable Upright Row",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [],
     "primaryMuscle": "Shoulders",
     "equipment": "Cable",
@@ -2302,6 +2404,7 @@
     "id": 103,
     "name": "Cable V-Bar Lat Pulldown",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [],
     "primaryMuscle": "Lats",
     "equipment": "Cable",
@@ -2324,6 +2427,7 @@
     "id": 104,
     "name": "Cable V-Bar Tricep Pushdown",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [],
     "primaryMuscle": "Triceps",
     "equipment": "Cable",
@@ -2346,6 +2450,7 @@
     "id": 105,
     "name": "Cable Wood Chop",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [
       "Woodchopper"
     ],
@@ -2370,6 +2475,7 @@
     "id": 106,
     "name": "Cable Wrist Curl",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [],
     "primaryMuscle": "Forearms",
     "equipment": "Cable",
@@ -2392,11 +2498,12 @@
     "id": 107,
     "name": "Calf Raise",
     "type": "Strength",
+    "category": "Bodyweight",
     "aliases": [
       "Bodyweight Calf Raise"
     ],
     "primaryMuscle": "Calves",
-    "equipment": "Bodyweight",
+    "equipment": "None",
     "mechanic": "Isolation",
     "metrics": [
       {
@@ -2416,9 +2523,10 @@
     "id": 108,
     "name": "Chin-up",
     "type": "Strength",
+    "category": "Bodyweight",
     "aliases": [],
     "primaryMuscle": "Lats",
-    "equipment": "Bodyweight",
+    "equipment": "None",
     "mechanic": "Compound",
     "metrics": [
       {
@@ -2438,9 +2546,10 @@
     "id": 109,
     "name": "Close-Grip Pull-up",
     "type": "Strength",
+    "category": "Bodyweight",
     "aliases": [],
     "primaryMuscle": "Lats",
-    "equipment": "Bodyweight",
+    "equipment": "None",
     "mechanic": "Compound",
     "metrics": [
       {
@@ -2460,11 +2569,12 @@
     "id": 110,
     "name": "Close-Grip Push-up",
     "type": "Strength",
+    "category": "Bodyweight",
     "aliases": [
       "Diamond Push-up"
     ],
     "primaryMuscle": "Triceps",
-    "equipment": "Bodyweight",
+    "equipment": "None",
     "mechanic": "Compound",
     "metrics": [
       {
@@ -2484,9 +2594,10 @@
     "id": 111,
     "name": "Cross-Body Crunch",
     "type": "Strength",
+    "category": "Bodyweight",
     "aliases": [],
     "primaryMuscle": "Abdominals",
-    "equipment": "Bodyweight",
+    "equipment": "None",
     "mechanic": "Isolation",
     "metrics": [
       {
@@ -2506,9 +2617,10 @@
     "id": 112,
     "name": "Crunch",
     "type": "Strength",
+    "category": "Bodyweight",
     "aliases": [],
     "primaryMuscle": "Abdominals",
-    "equipment": "Bodyweight",
+    "equipment": "None",
     "mechanic": "Isolation",
     "metrics": [
       {
@@ -2528,9 +2640,10 @@
     "id": 113,
     "name": "Dead Bug",
     "type": "Strength",
+    "category": "Bodyweight",
     "aliases": [],
     "primaryMuscle": "Abdominals",
-    "equipment": "Bodyweight",
+    "equipment": "None",
     "mechanic": "Compound",
     "metrics": [
       {
@@ -2550,11 +2663,12 @@
     "id": 114,
     "name": "Dead Hang",
     "type": "Strength",
+    "category": "Hold",
     "aliases": [
       "Bar Hang"
     ],
     "primaryMuscle": "Forearms",
-    "equipment": "Bodyweight",
+    "equipment": "None",
     "mechanic": "Isolation",
     "metrics": [
       {
@@ -2574,6 +2688,7 @@
     "id": 115,
     "name": "Deadlift",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [
       "Barbell Deadlift",
       "Conventional Deadlift"
@@ -2599,9 +2714,10 @@
     "id": 116,
     "name": "Decline Crunch",
     "type": "Strength",
+    "category": "Bodyweight",
     "aliases": [],
     "primaryMuscle": "Abdominals",
-    "equipment": "Bodyweight",
+    "equipment": "None",
     "mechanic": "Isolation",
     "metrics": [
       {
@@ -2621,9 +2737,10 @@
     "id": 117,
     "name": "Decline Leg Raise",
     "type": "Strength",
+    "category": "Bodyweight",
     "aliases": [],
     "primaryMuscle": "Abdominals",
-    "equipment": "Bodyweight",
+    "equipment": "None",
     "mechanic": "Isolation",
     "metrics": [
       {
@@ -2643,9 +2760,10 @@
     "id": 118,
     "name": "Decline Oblique Crunch",
     "type": "Strength",
+    "category": "Bodyweight",
     "aliases": [],
     "primaryMuscle": "Abdominals",
-    "equipment": "Bodyweight",
+    "equipment": "None",
     "mechanic": "Isolation",
     "metrics": [
       {
@@ -2665,9 +2783,10 @@
     "id": 119,
     "name": "Decline Push-up",
     "type": "Strength",
+    "category": "Bodyweight",
     "aliases": [],
     "primaryMuscle": "Chest",
-    "equipment": "Bodyweight",
+    "equipment": "None",
     "mechanic": "Compound",
     "metrics": [
       {
@@ -2687,9 +2806,10 @@
     "id": 120,
     "name": "Decline Reverse Crunch",
     "type": "Strength",
+    "category": "Bodyweight",
     "aliases": [],
     "primaryMuscle": "Abdominals",
-    "equipment": "Bodyweight",
+    "equipment": "None",
     "mechanic": "Isolation",
     "metrics": [
       {
@@ -2709,9 +2829,10 @@
     "id": 121,
     "name": "Decline Sit-up",
     "type": "Strength",
+    "category": "Bodyweight",
     "aliases": [],
     "primaryMuscle": "Abdominals",
-    "equipment": "Bodyweight",
+    "equipment": "None",
     "mechanic": "Isolation",
     "metrics": [
       {
@@ -2731,12 +2852,13 @@
     "id": 122,
     "name": "Dip",
     "type": "Strength",
+    "category": "Bodyweight",
     "aliases": [
       "Parallel Bar Dip",
       "Chest Dip"
     ],
     "primaryMuscle": "Chest",
-    "equipment": "Bodyweight",
+    "equipment": "None",
     "mechanic": "Compound",
     "metrics": [
       {
@@ -2756,9 +2878,10 @@
     "id": 123,
     "name": "Donkey Calf Raise",
     "type": "Strength",
+    "category": "Bodyweight",
     "aliases": [],
     "primaryMuscle": "Calves",
-    "equipment": "Bodyweight",
+    "equipment": "None",
     "mechanic": "Isolation",
     "metrics": [
       {
@@ -2778,6 +2901,7 @@
     "id": 124,
     "name": "Dumbbell Arnold Press",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [],
     "primaryMuscle": "Shoulders",
     "equipment": "Dumbbell",
@@ -2800,6 +2924,7 @@
     "id": 125,
     "name": "Dumbbell Bench Press",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [
       "Flat Dumbbell Press"
     ],
@@ -2824,6 +2949,7 @@
     "id": 126,
     "name": "Dumbbell Bent-Over Row",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [],
     "primaryMuscle": "MiddleBack",
     "equipment": "Dumbbell",
@@ -2846,6 +2972,7 @@
     "id": 127,
     "name": "Dumbbell Bulgarian Split Squat",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [],
     "primaryMuscle": "Quadriceps",
     "equipment": "Dumbbell",
@@ -2868,6 +2995,7 @@
     "id": 128,
     "name": "Dumbbell Calf Raise",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [],
     "primaryMuscle": "Calves",
     "equipment": "Dumbbell",
@@ -2890,6 +3018,7 @@
     "id": 129,
     "name": "Dumbbell Close-Grip Press",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [
       "Crush Press"
     ],
@@ -2914,6 +3043,7 @@
     "id": 130,
     "name": "Dumbbell Concentration Curl",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [],
     "primaryMuscle": "Biceps",
     "equipment": "Dumbbell",
@@ -2936,6 +3066,7 @@
     "id": 131,
     "name": "Dumbbell Cross-Body Hammer Curl",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [
       "Pinwheel Curl"
     ],
@@ -2960,6 +3091,7 @@
     "id": 132,
     "name": "Dumbbell Curl",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [
       "Dumbbell Biceps Curl"
     ],
@@ -2984,6 +3116,7 @@
     "id": 133,
     "name": "Dumbbell Decline Fly",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [],
     "primaryMuscle": "Chest",
     "equipment": "Dumbbell",
@@ -3006,6 +3139,7 @@
     "id": 134,
     "name": "Dumbbell Decline Press",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [
       "Decline Dumbbell Bench Press"
     ],
@@ -3030,6 +3164,7 @@
     "id": 135,
     "name": "Dumbbell Floor Press",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [],
     "primaryMuscle": "Chest",
     "equipment": "Dumbbell",
@@ -3052,6 +3187,7 @@
     "id": 136,
     "name": "Dumbbell Fly",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [],
     "primaryMuscle": "Chest",
     "equipment": "Dumbbell",
@@ -3074,6 +3210,7 @@
     "id": 137,
     "name": "Dumbbell Front Raise",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [],
     "primaryMuscle": "Shoulders",
     "equipment": "Dumbbell",
@@ -3096,6 +3233,7 @@
     "id": 138,
     "name": "Dumbbell Goblet Squat",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [],
     "primaryMuscle": "Quadriceps",
     "equipment": "Dumbbell",
@@ -3118,6 +3256,7 @@
     "id": 139,
     "name": "Dumbbell Hammer Curl",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [],
     "primaryMuscle": "Biceps",
     "equipment": "Dumbbell",
@@ -3140,6 +3279,7 @@
     "id": 140,
     "name": "Dumbbell Hammer Preacher Curl",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [],
     "primaryMuscle": "Biceps",
     "equipment": "Dumbbell",
@@ -3162,6 +3302,7 @@
     "id": 141,
     "name": "Dumbbell Incline Curl",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [],
     "primaryMuscle": "Biceps",
     "equipment": "Dumbbell",
@@ -3184,6 +3325,7 @@
     "id": 142,
     "name": "Dumbbell Incline Fly",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [],
     "primaryMuscle": "Chest",
     "equipment": "Dumbbell",
@@ -3206,6 +3348,7 @@
     "id": 143,
     "name": "Dumbbell Incline Hammer Curl",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [],
     "primaryMuscle": "Biceps",
     "equipment": "Dumbbell",
@@ -3228,6 +3371,7 @@
     "id": 144,
     "name": "Dumbbell Incline Press",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [
       "Incline Dumbbell Bench Press"
     ],
@@ -3252,6 +3396,7 @@
     "id": 145,
     "name": "Dumbbell Incline Rear Delt Fly",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [],
     "primaryMuscle": "Shoulders",
     "equipment": "Dumbbell",
@@ -3274,6 +3419,7 @@
     "id": 146,
     "name": "Dumbbell Incline Row",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [
       "Chest Supported Row"
     ],
@@ -3298,6 +3444,7 @@
     "id": 147,
     "name": "Dumbbell Lateral Lunge",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [
       "Dumbbell Side Lunge"
     ],
@@ -3322,6 +3469,7 @@
     "id": 148,
     "name": "Dumbbell Lateral Raise",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [
       "Side Raise"
     ],
@@ -3346,6 +3494,7 @@
     "id": 149,
     "name": "Dumbbell Leg Curl",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [
       "Dumbbell Hamstring Curl"
     ],
@@ -3370,6 +3519,7 @@
     "id": 150,
     "name": "Dumbbell Lunge",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [],
     "primaryMuscle": "Quadriceps",
     "equipment": "Dumbbell",
@@ -3392,6 +3542,7 @@
     "id": 151,
     "name": "Dumbbell Lying Tricep Extension",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [
       "Dumbbell Skullcrusher",
       "Dumbbell Skull Crusher"
@@ -3417,6 +3568,7 @@
     "id": 152,
     "name": "Dumbbell Neutral-Grip Bench Press",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [],
     "primaryMuscle": "Chest",
     "equipment": "Dumbbell",
@@ -3439,6 +3591,7 @@
     "id": 153,
     "name": "Dumbbell Neutral-Grip Incline Press",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [],
     "primaryMuscle": "Chest",
     "equipment": "Dumbbell",
@@ -3461,6 +3614,7 @@
     "id": 154,
     "name": "Dumbbell Neutral-Grip Shoulder Press",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [],
     "primaryMuscle": "Shoulders",
     "equipment": "Dumbbell",
@@ -3483,6 +3637,7 @@
     "id": 155,
     "name": "Dumbbell One-Arm Row",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [
       "Single Arm Dumbbell Row"
     ],
@@ -3507,6 +3662,7 @@
     "id": 156,
     "name": "Dumbbell Overhead Tricep Extension",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [],
     "primaryMuscle": "Triceps",
     "equipment": "Dumbbell",
@@ -3529,6 +3685,7 @@
     "id": 157,
     "name": "Dumbbell Preacher Curl",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [],
     "primaryMuscle": "Biceps",
     "equipment": "Dumbbell",
@@ -3551,6 +3708,7 @@
     "id": 158,
     "name": "Dumbbell Prone Incline Curl",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [
       "Dumbbell Spider Curl"
     ],
@@ -3575,6 +3733,7 @@
     "id": 159,
     "name": "Dumbbell Pullover",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [],
     "primaryMuscle": "Chest",
     "equipment": "Dumbbell",
@@ -3597,6 +3756,7 @@
     "id": 160,
     "name": "Dumbbell Rear Delt Fly",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [
       "Reverse Fly"
     ],
@@ -3621,6 +3781,7 @@
     "id": 161,
     "name": "Dumbbell Reverse Curl",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [],
     "primaryMuscle": "Forearms",
     "equipment": "Dumbbell",
@@ -3643,6 +3804,7 @@
     "id": 162,
     "name": "Dumbbell Reverse Lunge",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [
       "Dumbbell Rear Lunge"
     ],
@@ -3667,6 +3829,7 @@
     "id": 163,
     "name": "Dumbbell Reverse Wrist Curl",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [],
     "primaryMuscle": "Forearms",
     "equipment": "Dumbbell",
@@ -3689,6 +3852,7 @@
     "id": 164,
     "name": "Dumbbell Romanian Deadlift",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [
       "Dumbbell RDL"
     ],
@@ -3713,6 +3877,7 @@
     "id": 165,
     "name": "Dumbbell Shoulder Press",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [
       "Dumbbell Overhead Press"
     ],
@@ -3737,6 +3902,7 @@
     "id": 166,
     "name": "Dumbbell Shrug",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [],
     "primaryMuscle": "Traps",
     "equipment": "Dumbbell",
@@ -3759,6 +3925,7 @@
     "id": 167,
     "name": "Dumbbell Side Bend",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [],
     "primaryMuscle": "Abdominals",
     "equipment": "Dumbbell",
@@ -3781,6 +3948,7 @@
     "id": 168,
     "name": "Dumbbell Split Squat",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [],
     "primaryMuscle": "Quadriceps",
     "equipment": "Dumbbell",
@@ -3803,6 +3971,7 @@
     "id": 169,
     "name": "Dumbbell Squat",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [],
     "primaryMuscle": "Quadriceps",
     "equipment": "Dumbbell",
@@ -3825,6 +3994,7 @@
     "id": 170,
     "name": "Dumbbell Step-up",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [],
     "primaryMuscle": "Quadriceps",
     "equipment": "Dumbbell",
@@ -3847,6 +4017,7 @@
     "id": 171,
     "name": "Dumbbell Stiff-Leg Deadlift",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [
       "Dumbbell Straight Leg Deadlift"
     ],
@@ -3871,6 +4042,7 @@
     "id": 172,
     "name": "Dumbbell Sumo Squat",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [
       "Plie Squat"
     ],
@@ -3895,6 +4067,7 @@
     "id": 173,
     "name": "Dumbbell Tricep Kickback",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [],
     "primaryMuscle": "Triceps",
     "equipment": "Dumbbell",
@@ -3917,6 +4090,7 @@
     "id": 174,
     "name": "Dumbbell Upright Row",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [],
     "primaryMuscle": "Shoulders",
     "equipment": "Dumbbell",
@@ -3939,6 +4113,7 @@
     "id": 175,
     "name": "Dumbbell Walking Lunge",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [],
     "primaryMuscle": "Quadriceps",
     "equipment": "Dumbbell",
@@ -3961,6 +4136,7 @@
     "id": 176,
     "name": "Dumbbell Wrist Curl",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [],
     "primaryMuscle": "Forearms",
     "equipment": "Dumbbell",
@@ -3983,6 +4159,7 @@
     "id": 177,
     "name": "Dumbbell Zottman Curl",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [],
     "primaryMuscle": "Biceps",
     "equipment": "Dumbbell",
@@ -4005,6 +4182,7 @@
     "id": 178,
     "name": "Exercise Ball Knee Tuck",
     "type": "Strength",
+    "category": "Bodyweight",
     "aliases": [
       "Swiss Ball Knee Tuck",
       "Stability Ball Knee Tuck"
@@ -4030,6 +4208,7 @@
     "id": 179,
     "name": "Exercise Ball Leg Curl",
     "type": "Strength",
+    "category": "Bodyweight",
     "aliases": [
       "Swiss Ball Leg Curl",
       "Stability Ball Leg Curl",
@@ -4056,6 +4235,7 @@
     "id": 180,
     "name": "EZ-Bar Close-Grip Curl",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [],
     "primaryMuscle": "Biceps",
     "equipment": "EzBar",
@@ -4078,6 +4258,7 @@
     "id": 181,
     "name": "EZ-Bar Curl",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [
       "EZ Bar Biceps Curl"
     ],
@@ -4102,6 +4283,7 @@
     "id": 182,
     "name": "EZ-Bar Preacher Curl",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [],
     "primaryMuscle": "Biceps",
     "equipment": "EzBar",
@@ -4124,6 +4306,7 @@
     "id": 183,
     "name": "EZ-Bar Reverse Curl",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [],
     "primaryMuscle": "Forearms",
     "equipment": "EzBar",
@@ -4146,6 +4329,7 @@
     "id": 184,
     "name": "EZ-Bar Skull Crusher",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [
       "EZ Bar Skullcrusher",
       "EZ Bar French Press"
@@ -4171,6 +4355,7 @@
     "id": 185,
     "name": "EZ-Bar Spider Curl",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [],
     "primaryMuscle": "Biceps",
     "equipment": "EzBar",
@@ -4193,6 +4378,7 @@
     "id": 186,
     "name": "EZ-Bar Wide-Grip Curl",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [],
     "primaryMuscle": "Biceps",
     "equipment": "EzBar",
@@ -4215,6 +4401,7 @@
     "id": 187,
     "name": "Farmer's Walk",
     "type": "Strength",
+    "category": "Carry",
     "aliases": [
       "Farmer's Carry"
     ],
@@ -4243,9 +4430,10 @@
     "id": 188,
     "name": "Glute Bridge",
     "type": "Strength",
+    "category": "Bodyweight",
     "aliases": [],
     "primaryMuscle": "Glutes",
-    "equipment": "Bodyweight",
+    "equipment": "None",
     "mechanic": "Isolation",
     "metrics": [
       {
@@ -4265,12 +4453,13 @@
     "id": 189,
     "name": "Glute Kickback",
     "type": "Strength",
+    "category": "Bodyweight",
     "aliases": [
       "Donkey Kick",
       "Glute Kick Back"
     ],
     "primaryMuscle": "Glutes",
-    "equipment": "Bodyweight",
+    "equipment": "None",
     "mechanic": "Isolation",
     "metrics": [
       {
@@ -4290,9 +4479,10 @@
     "id": 190,
     "name": "Hamstring Slide",
     "type": "Strength",
+    "category": "Bodyweight",
     "aliases": [],
     "primaryMuscle": "Hamstrings",
-    "equipment": "Bodyweight",
+    "equipment": "None",
     "mechanic": "Isolation",
     "metrics": [
       {
@@ -4312,11 +4502,12 @@
     "id": 191,
     "name": "Handstand Push-up",
     "type": "Strength",
+    "category": "Bodyweight",
     "aliases": [
       "HSPU"
     ],
     "primaryMuscle": "Shoulders",
-    "equipment": "Bodyweight",
+    "equipment": "None",
     "mechanic": "Compound",
     "metrics": [
       {
@@ -4336,9 +4527,10 @@
     "id": 192,
     "name": "Hanging Knee Raise",
     "type": "Strength",
+    "category": "Bodyweight",
     "aliases": [],
     "primaryMuscle": "Abdominals",
-    "equipment": "Bodyweight",
+    "equipment": "None",
     "mechanic": "Isolation",
     "metrics": [
       {
@@ -4358,9 +4550,10 @@
     "id": 193,
     "name": "Hanging Leg Raise",
     "type": "Strength",
+    "category": "Bodyweight",
     "aliases": [],
     "primaryMuscle": "Abdominals",
-    "equipment": "Bodyweight",
+    "equipment": "None",
     "mechanic": "Isolation",
     "metrics": [
       {
@@ -4380,6 +4573,7 @@
     "id": 194,
     "name": "Head Harness Neck Extension",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [],
     "primaryMuscle": "Neck",
     "equipment": "Other",
@@ -4402,11 +4596,12 @@
     "id": 195,
     "name": "Heel Touch",
     "type": "Strength",
+    "category": "Bodyweight",
     "aliases": [
       "Heel Taps"
     ],
     "primaryMuscle": "Abdominals",
-    "equipment": "Bodyweight",
+    "equipment": "None",
     "mechanic": "Isolation",
     "metrics": [
       {
@@ -4426,9 +4621,10 @@
     "id": 196,
     "name": "Incline Push-up",
     "type": "Strength",
+    "category": "Bodyweight",
     "aliases": [],
     "primaryMuscle": "Chest",
-    "equipment": "Bodyweight",
+    "equipment": "None",
     "mechanic": "Compound",
     "metrics": [
       {
@@ -4448,13 +4644,14 @@
     "id": 197,
     "name": "Inverted Row",
     "type": "Strength",
+    "category": "Bodyweight",
     "aliases": [
       "Bodyweight Row",
       "Australian Pull-up",
       "TRX Row"
     ],
     "primaryMuscle": "MiddleBack",
-    "equipment": "Bodyweight",
+    "equipment": "None",
     "mechanic": "Compound",
     "metrics": [
       {
@@ -4474,9 +4671,10 @@
     "id": 198,
     "name": "Isometric Neck Hold",
     "type": "Strength",
+    "category": "Hold",
     "aliases": [],
     "primaryMuscle": "Neck",
-    "equipment": "Bodyweight",
+    "equipment": "None",
     "mechanic": "Isolation",
     "metrics": [
       {
@@ -4496,9 +4694,10 @@
     "id": 199,
     "name": "Jackknife Sit-up",
     "type": "Strength",
+    "category": "Bodyweight",
     "aliases": [],
     "primaryMuscle": "Abdominals",
-    "equipment": "Bodyweight",
+    "equipment": "None",
     "mechanic": "Compound",
     "metrics": [
       {
@@ -4518,6 +4717,7 @@
     "id": 200,
     "name": "Kettlebell Floor Press",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [],
     "primaryMuscle": "Chest",
     "equipment": "Kettlebell",
@@ -4540,6 +4740,7 @@
     "id": 201,
     "name": "Kettlebell Goblet Squat",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [],
     "primaryMuscle": "Quadriceps",
     "equipment": "Kettlebell",
@@ -4562,6 +4763,7 @@
     "id": 202,
     "name": "Kettlebell Row",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [],
     "primaryMuscle": "MiddleBack",
     "equipment": "Kettlebell",
@@ -4584,6 +4786,7 @@
     "id": 203,
     "name": "Kettlebell Shoulder Press",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [],
     "primaryMuscle": "Shoulders",
     "equipment": "Kettlebell",
@@ -4606,6 +4809,7 @@
     "id": 204,
     "name": "Kettlebell Single-Leg Deadlift",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [],
     "primaryMuscle": "Hamstrings",
     "equipment": "Kettlebell",
@@ -4628,6 +4832,7 @@
     "id": 205,
     "name": "Kettlebell Swing",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [],
     "primaryMuscle": "Hamstrings",
     "equipment": "Kettlebell",
@@ -4650,6 +4855,7 @@
     "id": 206,
     "name": "Kettlebell Windmill",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [],
     "primaryMuscle": "Abdominals",
     "equipment": "Kettlebell",
@@ -4672,9 +4878,10 @@
     "id": 207,
     "name": "Knee Push-up",
     "type": "Strength",
+    "category": "Bodyweight",
     "aliases": [],
     "primaryMuscle": "Chest",
-    "equipment": "Bodyweight",
+    "equipment": "None",
     "mechanic": "Compound",
     "metrics": [
       {
@@ -4694,6 +4901,7 @@
     "id": 208,
     "name": "Landmine Press",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [],
     "primaryMuscle": "Shoulders",
     "equipment": "Landmine",
@@ -4716,6 +4924,7 @@
     "id": 209,
     "name": "Landmine T-Bar Row",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [],
     "primaryMuscle": "MiddleBack",
     "equipment": "Landmine",
@@ -4738,6 +4947,7 @@
     "id": 210,
     "name": "Landmine Twist",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [],
     "primaryMuscle": "Abdominals",
     "equipment": "Landmine",
@@ -4760,12 +4970,13 @@
     "id": 211,
     "name": "Lateral Lunge",
     "type": "Strength",
+    "category": "Bodyweight",
     "aliases": [
       "Side Lunge",
       "Bodyweight Lateral Lunge"
     ],
     "primaryMuscle": "Quadriceps",
-    "equipment": "Bodyweight",
+    "equipment": "None",
     "mechanic": "Compound",
     "metrics": [
       {
@@ -4785,11 +4996,12 @@
     "id": 212,
     "name": "Lunge",
     "type": "Strength",
+    "category": "Bodyweight",
     "aliases": [
       "Bodyweight Lunge"
     ],
     "primaryMuscle": "Quadriceps",
-    "equipment": "Bodyweight",
+    "equipment": "None",
     "mechanic": "Compound",
     "metrics": [
       {
@@ -4809,9 +5021,10 @@
     "id": 213,
     "name": "Lying Knee Raise",
     "type": "Strength",
+    "category": "Bodyweight",
     "aliases": [],
     "primaryMuscle": "Abdominals",
-    "equipment": "Bodyweight",
+    "equipment": "None",
     "mechanic": "Isolation",
     "metrics": [
       {
@@ -4831,9 +5044,10 @@
     "id": 214,
     "name": "Lying Leg Raise",
     "type": "Strength",
+    "category": "Bodyweight",
     "aliases": [],
     "primaryMuscle": "Abdominals",
-    "equipment": "Bodyweight",
+    "equipment": "None",
     "mechanic": "Isolation",
     "metrics": [
       {
@@ -4853,6 +5067,7 @@
     "id": 215,
     "name": "Machine Ab Crunch",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [],
     "primaryMuscle": "Abdominals",
     "equipment": "Machine",
@@ -4875,6 +5090,7 @@
     "id": 216,
     "name": "Machine Assisted Chin-up",
     "type": "Strength",
+    "category": "Assisted",
     "aliases": [],
     "primaryMuscle": "Lats",
     "equipment": "Machine",
@@ -4898,6 +5114,7 @@
     "id": 217,
     "name": "Machine Assisted Dip",
     "type": "Strength",
+    "category": "Assisted",
     "aliases": [],
     "primaryMuscle": "Chest",
     "equipment": "Machine",
@@ -4921,6 +5138,7 @@
     "id": 218,
     "name": "Machine Assisted Pull-up",
     "type": "Strength",
+    "category": "Assisted",
     "aliases": [
       "Gravitron"
     ],
@@ -4946,6 +5164,7 @@
     "id": 219,
     "name": "Machine Belt Squat",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [],
     "primaryMuscle": "Quadriceps",
     "equipment": "Machine",
@@ -4968,6 +5187,7 @@
     "id": 220,
     "name": "Machine Bicep Curl",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [],
     "primaryMuscle": "Biceps",
     "equipment": "Machine",
@@ -4990,6 +5210,7 @@
     "id": 221,
     "name": "Machine Chest Fly",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [
       "Pec Deck",
       "Butterfly",
@@ -5016,6 +5237,7 @@
     "id": 222,
     "name": "Machine Chest Press",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [
       "Machine Bench Press",
       "Hammer Strength"
@@ -5041,6 +5263,7 @@
     "id": 223,
     "name": "Machine Deadlift",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [],
     "primaryMuscle": "Quadriceps",
     "equipment": "Machine",
@@ -5063,6 +5286,7 @@
     "id": 224,
     "name": "Machine Decline Chest Press",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [],
     "primaryMuscle": "Chest",
     "equipment": "Machine",
@@ -5085,6 +5309,7 @@
     "id": 225,
     "name": "Machine Dip",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [],
     "primaryMuscle": "Triceps",
     "equipment": "Machine",
@@ -5107,6 +5332,7 @@
     "id": 226,
     "name": "Machine Glute Kickback",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [],
     "primaryMuscle": "Glutes",
     "equipment": "Machine",
@@ -5129,6 +5355,7 @@
     "id": 227,
     "name": "Machine Glute-Ham Raise",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [
       "GHR"
     ],
@@ -5153,6 +5380,7 @@
     "id": 228,
     "name": "Machine Hack Squat",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [],
     "primaryMuscle": "Quadriceps",
     "equipment": "Machine",
@@ -5175,6 +5403,7 @@
     "id": 229,
     "name": "Machine High Row",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [],
     "primaryMuscle": "MiddleBack",
     "equipment": "Machine",
@@ -5197,6 +5426,7 @@
     "id": 230,
     "name": "Machine Hip Abduction",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [
       "Abductor Machine",
       "Thigh Abductor"
@@ -5222,6 +5452,7 @@
     "id": 231,
     "name": "Machine Hip Adduction",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [
       "Adductor Machine",
       "Thigh Adductor"
@@ -5247,6 +5478,7 @@
     "id": 232,
     "name": "Machine Hip Flexion",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [],
     "primaryMuscle": "Quadriceps",
     "equipment": "Machine",
@@ -5269,6 +5501,7 @@
     "id": 233,
     "name": "Machine Incline Chest Press",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [],
     "primaryMuscle": "Chest",
     "equipment": "Machine",
@@ -5291,6 +5524,7 @@
     "id": 234,
     "name": "Machine Iso-Lateral Row",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [],
     "primaryMuscle": "Lats",
     "equipment": "Machine",
@@ -5313,6 +5547,7 @@
     "id": 235,
     "name": "Machine Lateral Raise",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [
       "Machine Side Raise"
     ],
@@ -5337,6 +5572,7 @@
     "id": 236,
     "name": "Machine Leg Extension",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [],
     "primaryMuscle": "Quadriceps",
     "equipment": "Machine",
@@ -5359,6 +5595,7 @@
     "id": 237,
     "name": "Machine Leg Press",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [],
     "primaryMuscle": "Quadriceps",
     "equipment": "Machine",
@@ -5381,6 +5618,7 @@
     "id": 238,
     "name": "Machine Leg Press Calf Raise",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [],
     "primaryMuscle": "Calves",
     "equipment": "Machine",
@@ -5403,6 +5641,7 @@
     "id": 239,
     "name": "Machine Lying Leg Curl",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [
       "Lying Hamstring Curl"
     ],
@@ -5427,6 +5666,7 @@
     "id": 240,
     "name": "Machine Pendulum Squat",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [],
     "primaryMuscle": "Quadriceps",
     "equipment": "Machine",
@@ -5449,6 +5689,7 @@
     "id": 241,
     "name": "Machine Preacher Curl",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [],
     "primaryMuscle": "Biceps",
     "equipment": "Machine",
@@ -5471,6 +5712,7 @@
     "id": 242,
     "name": "Machine Rear Delt Fly",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [
       "Reverse Pec Deck"
     ],
@@ -5495,6 +5737,7 @@
     "id": 243,
     "name": "Machine Reverse Hyperextension",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [],
     "primaryMuscle": "Hamstrings",
     "equipment": "Machine",
@@ -5517,6 +5760,7 @@
     "id": 244,
     "name": "Machine Row",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [],
     "primaryMuscle": "MiddleBack",
     "equipment": "Machine",
@@ -5539,6 +5783,7 @@
     "id": 245,
     "name": "Machine Seated Calf Raise",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [],
     "primaryMuscle": "Calves",
     "equipment": "Machine",
@@ -5561,6 +5806,7 @@
     "id": 246,
     "name": "Machine Seated Leg Curl",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [
       "Seated Hamstring Curl"
     ],
@@ -5585,6 +5831,7 @@
     "id": 247,
     "name": "Machine Seated Leg Press",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [],
     "primaryMuscle": "Quadriceps",
     "equipment": "Machine",
@@ -5607,6 +5854,7 @@
     "id": 248,
     "name": "Machine Shoulder Press",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [],
     "primaryMuscle": "Shoulders",
     "equipment": "Machine",
@@ -5629,6 +5877,7 @@
     "id": 249,
     "name": "Machine Shrug",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [],
     "primaryMuscle": "Traps",
     "equipment": "Machine",
@@ -5651,6 +5900,7 @@
     "id": 250,
     "name": "Machine Standing Calf Raise",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [],
     "primaryMuscle": "Calves",
     "equipment": "Machine",
@@ -5673,6 +5923,7 @@
     "id": 251,
     "name": "Machine Standing Leg Curl",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [
       "Standing Hamstring Curl"
     ],
@@ -5697,6 +5948,7 @@
     "id": 252,
     "name": "Machine T-Bar Row",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [],
     "primaryMuscle": "MiddleBack",
     "equipment": "Machine",
@@ -5719,6 +5971,7 @@
     "id": 253,
     "name": "Machine Tricep Extension",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [],
     "primaryMuscle": "Triceps",
     "equipment": "Machine",
@@ -5741,9 +5994,10 @@
     "id": 254,
     "name": "Neutral-Grip Pull-up",
     "type": "Strength",
+    "category": "Bodyweight",
     "aliases": [],
     "primaryMuscle": "Lats",
-    "equipment": "Bodyweight",
+    "equipment": "None",
     "mechanic": "Compound",
     "metrics": [
       {
@@ -5763,11 +6017,12 @@
     "id": 255,
     "name": "Nordic Hamstring Curl",
     "type": "Strength",
+    "category": "Bodyweight",
     "aliases": [
       "Nordics"
     ],
     "primaryMuscle": "Hamstrings",
-    "equipment": "Bodyweight",
+    "equipment": "None",
     "mechanic": "Isolation",
     "metrics": [
       {
@@ -5787,9 +6042,10 @@
     "id": 256,
     "name": "Oblique Crunch",
     "type": "Strength",
+    "category": "Bodyweight",
     "aliases": [],
     "primaryMuscle": "Abdominals",
-    "equipment": "Bodyweight",
+    "equipment": "None",
     "mechanic": "Isolation",
     "metrics": [
       {
@@ -5809,6 +6065,7 @@
     "id": 257,
     "name": "Overhead Carry",
     "type": "Strength",
+    "category": "Carry",
     "aliases": [
       "Waiter's Walk"
     ],
@@ -5837,9 +6094,10 @@
     "id": 258,
     "name": "Plank",
     "type": "Strength",
+    "category": "Hold",
     "aliases": [],
     "primaryMuscle": "Abdominals",
-    "equipment": "Bodyweight",
+    "equipment": "None",
     "mechanic": "Isolation",
     "metrics": [
       {
@@ -5859,6 +6117,7 @@
     "id": 259,
     "name": "Plate Front Raise",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [
       "Weight Plate Front Raise"
     ],
@@ -5883,6 +6142,7 @@
     "id": 260,
     "name": "Plate Neck Extension",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [],
     "primaryMuscle": "Neck",
     "equipment": "Other",
@@ -5905,6 +6165,7 @@
     "id": 261,
     "name": "Plate Neck Flexion",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [],
     "primaryMuscle": "Neck",
     "equipment": "Other",
@@ -5927,6 +6188,7 @@
     "id": 262,
     "name": "Plate Pinch",
     "type": "Strength",
+    "category": "Hold",
     "aliases": [
       "Weight Plate Pinch"
     ],
@@ -5951,9 +6213,10 @@
     "id": 263,
     "name": "Pull-up",
     "type": "Strength",
+    "category": "Bodyweight",
     "aliases": [],
     "primaryMuscle": "Lats",
-    "equipment": "Bodyweight",
+    "equipment": "None",
     "mechanic": "Compound",
     "metrics": [
       {
@@ -5973,11 +6236,12 @@
     "id": 264,
     "name": "Push-up",
     "type": "Strength",
+    "category": "Bodyweight",
     "aliases": [
       "Press-up"
     ],
     "primaryMuscle": "Chest",
-    "equipment": "Bodyweight",
+    "equipment": "None",
     "mechanic": "Compound",
     "metrics": [
       {
@@ -5997,9 +6261,10 @@
     "id": 265,
     "name": "Reverse Crunch",
     "type": "Strength",
+    "category": "Bodyweight",
     "aliases": [],
     "primaryMuscle": "Abdominals",
-    "equipment": "Bodyweight",
+    "equipment": "None",
     "mechanic": "Isolation",
     "metrics": [
       {
@@ -6019,12 +6284,13 @@
     "id": 266,
     "name": "Reverse Lunge",
     "type": "Strength",
+    "category": "Bodyweight",
     "aliases": [
       "Bodyweight Reverse Lunge",
       "Rear Lunge"
     ],
     "primaryMuscle": "Quadriceps",
-    "equipment": "Bodyweight",
+    "equipment": "None",
     "mechanic": "Compound",
     "metrics": [
       {
@@ -6044,11 +6310,12 @@
     "id": 267,
     "name": "Roman Chair Knee Raise",
     "type": "Strength",
+    "category": "Bodyweight",
     "aliases": [
       "Captains Chair Knee Raise"
     ],
     "primaryMuscle": "Abdominals",
-    "equipment": "Bodyweight",
+    "equipment": "None",
     "mechanic": "Isolation",
     "metrics": [
       {
@@ -6068,11 +6335,12 @@
     "id": 268,
     "name": "Roman Chair Leg Raise",
     "type": "Strength",
+    "category": "Bodyweight",
     "aliases": [
       "Captains Chair Leg Raise"
     ],
     "primaryMuscle": "Abdominals",
-    "equipment": "Bodyweight",
+    "equipment": "None",
     "mechanic": "Isolation",
     "metrics": [
       {
@@ -6092,9 +6360,10 @@
     "id": 269,
     "name": "Russian Twist",
     "type": "Strength",
+    "category": "Bodyweight",
     "aliases": [],
     "primaryMuscle": "Abdominals",
-    "equipment": "Bodyweight",
+    "equipment": "None",
     "mechanic": "Isolation",
     "metrics": [
       {
@@ -6114,9 +6383,10 @@
     "id": 270,
     "name": "Seated Knee Tuck",
     "type": "Strength",
+    "category": "Bodyweight",
     "aliases": [],
     "primaryMuscle": "Abdominals",
-    "equipment": "Bodyweight",
+    "equipment": "None",
     "mechanic": "Isolation",
     "metrics": [
       {
@@ -6136,11 +6406,12 @@
     "id": 271,
     "name": "Side Plank",
     "type": "Strength",
+    "category": "Hold",
     "aliases": [
       "Side Bridge"
     ],
     "primaryMuscle": "Abdominals",
-    "equipment": "Bodyweight",
+    "equipment": "None",
     "mechanic": "Isolation",
     "metrics": [
       {
@@ -6160,9 +6431,10 @@
     "id": 272,
     "name": "Sissy Squat",
     "type": "Strength",
+    "category": "Bodyweight",
     "aliases": [],
     "primaryMuscle": "Quadriceps",
-    "equipment": "Bodyweight",
+    "equipment": "None",
     "mechanic": "Compound",
     "metrics": [
       {
@@ -6182,9 +6454,10 @@
     "id": 273,
     "name": "Sit-up",
     "type": "Strength",
+    "category": "Bodyweight",
     "aliases": [],
     "primaryMuscle": "Abdominals",
-    "equipment": "Bodyweight",
+    "equipment": "None",
     "mechanic": "Isolation",
     "metrics": [
       {
@@ -6204,6 +6477,7 @@
     "id": 274,
     "name": "Sled Pull",
     "type": "Strength",
+    "category": "Carry",
     "aliases": [
       "Sled Drag"
     ],
@@ -6232,6 +6506,7 @@
     "id": 275,
     "name": "Sled Push",
     "type": "Strength",
+    "category": "Carry",
     "aliases": [
       "Prowler Push"
     ],
@@ -6260,6 +6535,7 @@
     "id": 276,
     "name": "Smith Machine Bench Press",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [],
     "primaryMuscle": "Chest",
     "equipment": "SmithMachine",
@@ -6282,6 +6558,7 @@
     "id": 277,
     "name": "Smith Machine Bent-Over Row",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [],
     "primaryMuscle": "MiddleBack",
     "equipment": "SmithMachine",
@@ -6304,6 +6581,7 @@
     "id": 278,
     "name": "Smith Machine Bulgarian Split Squat",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [],
     "primaryMuscle": "Quadriceps",
     "equipment": "SmithMachine",
@@ -6326,6 +6604,7 @@
     "id": 279,
     "name": "Smith Machine Calf Raise",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [],
     "primaryMuscle": "Calves",
     "equipment": "SmithMachine",
@@ -6348,6 +6627,7 @@
     "id": 280,
     "name": "Smith Machine Close-Grip Bench Press",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [],
     "primaryMuscle": "Triceps",
     "equipment": "SmithMachine",
@@ -6370,6 +6650,7 @@
     "id": 281,
     "name": "Smith Machine Deadlift",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [],
     "primaryMuscle": "LowerBack",
     "equipment": "SmithMachine",
@@ -6392,6 +6673,7 @@
     "id": 282,
     "name": "Smith Machine Decline Bench Press",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [],
     "primaryMuscle": "Chest",
     "equipment": "SmithMachine",
@@ -6414,6 +6696,7 @@
     "id": 283,
     "name": "Smith Machine Front Squat",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [],
     "primaryMuscle": "Quadriceps",
     "equipment": "SmithMachine",
@@ -6436,6 +6719,7 @@
     "id": 284,
     "name": "Smith Machine Incline Bench Press",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [],
     "primaryMuscle": "Chest",
     "equipment": "SmithMachine",
@@ -6458,6 +6742,7 @@
     "id": 285,
     "name": "Smith Machine Lunge",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [],
     "primaryMuscle": "Quadriceps",
     "equipment": "SmithMachine",
@@ -6480,6 +6765,7 @@
     "id": 286,
     "name": "Smith Machine Shoulder Press",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [],
     "primaryMuscle": "Shoulders",
     "equipment": "SmithMachine",
@@ -6502,6 +6788,7 @@
     "id": 287,
     "name": "Smith Machine Shrug",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [],
     "primaryMuscle": "Traps",
     "equipment": "SmithMachine",
@@ -6524,6 +6811,7 @@
     "id": 288,
     "name": "Smith Machine Squat",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [],
     "primaryMuscle": "Quadriceps",
     "equipment": "SmithMachine",
@@ -6546,6 +6834,7 @@
     "id": 289,
     "name": "Smith Machine Stiff-Leg Deadlift",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [],
     "primaryMuscle": "Hamstrings",
     "equipment": "SmithMachine",
@@ -6568,6 +6857,7 @@
     "id": 290,
     "name": "Smith Machine Upright Row",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [],
     "primaryMuscle": "Shoulders",
     "equipment": "SmithMachine",
@@ -6590,13 +6880,14 @@
     "id": 291,
     "name": "Squat",
     "type": "Strength",
+    "category": "Bodyweight",
     "aliases": [
       "Bodyweight Squat",
       "Air Squat",
       "Prisoner Squat"
     ],
     "primaryMuscle": "Quadriceps",
-    "equipment": "Bodyweight",
+    "equipment": "None",
     "mechanic": "Compound",
     "metrics": [
       {
@@ -6616,11 +6907,12 @@
     "id": 292,
     "name": "Step-up",
     "type": "Strength",
+    "category": "Bodyweight",
     "aliases": [
       "Bodyweight Step Up"
     ],
     "primaryMuscle": "Quadriceps",
-    "equipment": "Bodyweight",
+    "equipment": "None",
     "mechanic": "Compound",
     "metrics": [
       {
@@ -6640,6 +6932,7 @@
     "id": 293,
     "name": "Suitcase Carry",
     "type": "Strength",
+    "category": "Carry",
     "aliases": [],
     "primaryMuscle": "Abdominals",
     "equipment": "Other",
@@ -6666,6 +6959,7 @@
     "id": 294,
     "name": "Trap Bar Deadlift",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [
       "Hex Bar Deadlift"
     ],
@@ -6690,11 +6984,12 @@
     "id": 295,
     "name": "Walking Lunge",
     "type": "Strength",
+    "category": "Bodyweight",
     "aliases": [
       "Bodyweight Walking Lunge"
     ],
     "primaryMuscle": "Quadriceps",
-    "equipment": "Bodyweight",
+    "equipment": "None",
     "mechanic": "Compound",
     "metrics": [
       {
@@ -6714,11 +7009,12 @@
     "id": 296,
     "name": "Wall Sit",
     "type": "Strength",
+    "category": "Hold",
     "aliases": [
       "Wall Squat"
     ],
     "primaryMuscle": "Quadriceps",
-    "equipment": "Bodyweight",
+    "equipment": "None",
     "mechanic": "Compound",
     "metrics": [
       {
@@ -6738,9 +7034,10 @@
     "id": 297,
     "name": "Wide-Grip Pull-up",
     "type": "Strength",
+    "category": "Bodyweight",
     "aliases": [],
     "primaryMuscle": "Lats",
-    "equipment": "Bodyweight",
+    "equipment": "None",
     "mechanic": "Compound",
     "metrics": [
       {
@@ -6760,6 +7057,7 @@
     "id": 298,
     "name": "Wrist Roller",
     "type": "Strength",
+    "category": "Lift",
     "aliases": [],
     "primaryMuscle": "Forearms",
     "equipment": "Other",
@@ -6782,6 +7080,7 @@
     "id": 299,
     "name": "Yoke Walk",
     "type": "Strength",
+    "category": "Carry",
     "aliases": [
       "Yoke Carry"
     ],
@@ -6810,6 +7109,7 @@
     "id": 300,
     "name": "Treadmill",
     "type": "Cardio",
+    "category": "Cardio",
     "aliases": [
       "Running Machine"
     ],
@@ -6846,6 +7146,7 @@
     "id": 301,
     "name": "Exercise Bike",
     "type": "Cardio",
+    "category": "Cardio",
     "aliases": [
       "Upright Bike",
       "Stationary Bike"
@@ -6884,6 +7185,7 @@
     "id": 302,
     "name": "Recumbent Bike",
     "type": "Cardio",
+    "category": "Cardio",
     "aliases": [],
     "primaryMuscle": null,
     "equipment": null,
@@ -6919,6 +7221,7 @@
     "id": 303,
     "name": "Spin Bike",
     "type": "Cardio",
+    "category": "Cardio",
     "aliases": [
       "Indoor Cycle",
       "Spinning"
@@ -6957,6 +7260,7 @@
     "id": 304,
     "name": "Air Bike",
     "type": "Cardio",
+    "category": "Cardio",
     "aliases": [
       "Assault Bike",
       "Echo Bike",
@@ -6992,6 +7296,7 @@
     "id": 305,
     "name": "Rowing Machine",
     "type": "Cardio",
+    "category": "Cardio",
     "aliases": [
       "Rower",
       "Erg",
@@ -7031,6 +7336,7 @@
     "id": 306,
     "name": "Ski Erg",
     "type": "Cardio",
+    "category": "Cardio",
     "aliases": [
       "SkiErg"
     ],
@@ -7068,6 +7374,7 @@
     "id": 307,
     "name": "Cross Trainer",
     "type": "Cardio",
+    "category": "Cardio",
     "aliases": [
       "Elliptical"
     ],
@@ -7109,6 +7416,7 @@
     "id": 308,
     "name": "Arc Trainer",
     "type": "Cardio",
+    "category": "Cardio",
     "aliases": [],
     "primaryMuscle": null,
     "equipment": null,
@@ -7148,6 +7456,7 @@
     "id": 309,
     "name": "Stair Climber",
     "type": "Cardio",
+    "category": "Cardio",
     "aliases": [
       "StairMaster",
       "StepMill",
@@ -7187,6 +7496,7 @@
     "id": 310,
     "name": "VersaClimber",
     "type": "Cardio",
+    "category": "Cardio",
     "aliases": [
       "Vertical Climber"
     ],
@@ -7219,6 +7529,7 @@
     "id": 311,
     "name": "Outdoor Run",
     "type": "Cardio",
+    "category": "Cardio",
     "aliases": [
       "Running",
       "Jog",
@@ -7253,6 +7564,7 @@
     "id": 312,
     "name": "Outdoor Walk",
     "type": "Cardio",
+    "category": "Cardio",
     "aliases": [
       "Walking",
       "Hike"
@@ -7286,6 +7598,7 @@
     "id": 313,
     "name": "Outdoor Cycle",
     "type": "Cardio",
+    "category": "Cardio",
     "aliases": [
       "Cycling",
       "Bike Ride",
@@ -7320,6 +7633,7 @@
     "id": 314,
     "name": "Swimming",
     "type": "Cardio",
+    "category": "Cardio",
     "aliases": [
       "Swim"
     ],
@@ -7348,6 +7662,7 @@
     "id": 315,
     "name": "Jump Rope",
     "type": "Cardio",
+    "category": "Cardio",
     "aliases": [
       "Skipping",
       "Skipping Rope"

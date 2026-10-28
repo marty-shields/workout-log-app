@@ -39,6 +39,7 @@ public class DashboardPageTests : ComponentTestBase
             Assert.That(cut.FindAll("[data-testid=last-workout-empty]"), Is.Empty);
             Assert.That(cut.FindAll("[data-testid=count-week]"), Is.Empty);
             Assert.That(cut.FindAll("[data-testid=workouts-link]"), Has.Count.EqualTo(1));
+            Assert.That(cut.FindAll("[data-testid=exercises-link]"), Has.Count.EqualTo(1));
             Assert.That(cut.FindAll("[data-testid=new-workout]"), Has.Count.EqualTo(1));
             Assert.That(dashboard.Calls, Is.EqualTo(1));
         });
@@ -87,6 +88,7 @@ public class DashboardPageTests : ComponentTestBase
         {
             Assert.That(cut.Find("[data-testid=dashboard-error]").TextContent, Is.EqualTo("Couldn't load the Dashboard"));
             Assert.That(cut.FindAll("[data-testid=workouts-link]"), Has.Count.EqualTo(1));
+            Assert.That(cut.FindAll("[data-testid=exercises-link]"), Has.Count.EqualTo(1));
             Assert.That(cut.FindAll("[data-testid=new-workout]"), Has.Count.EqualTo(1));
         });
     }
@@ -237,20 +239,24 @@ public class DashboardPageTests : ComponentTestBase
     {
         var newWorkout = 0;
         var workouts = 0;
+        var exercises = 0;
         var settings = 0;
         var cut = Context.Render<DashboardPage>(p => p
             .Add(x => x.OnNewWorkout, () => newWorkout++)
             .Add(x => x.OnWorkouts, () => workouts++)
+            .Add(x => x.OnExercises, () => exercises++)
             .Add(x => x.OnSettings, () => settings++));
 
         cut.Find("[data-testid=new-workout]").Click();
         cut.Find("[data-testid=workouts-link]").Click();
+        cut.Find("[data-testid=exercises-link]").Click();
         cut.Find("[data-testid=settings]").Click();
 
         Assert.Multiple(() =>
         {
             Assert.That(newWorkout, Is.EqualTo(1));
             Assert.That(workouts, Is.EqualTo(1));
+            Assert.That(exercises, Is.EqualTo(1));
             Assert.That(settings, Is.EqualTo(1));
         });
     }

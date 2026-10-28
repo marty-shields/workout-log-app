@@ -44,6 +44,7 @@ public class GatedWorkoutRepositoryTests
         Assert.That(await repository.ListAsync(null, Start.AddTicks(-1), null), Is.Empty);
         Assert.That(await repository.ListAsync(null, null, 0), Is.Empty);
         Assert.That(await repository.GetWeightsAsync(1), Is.Empty);
+        Assert.That(await repository.GetLastSessionsAsync(), Is.Empty);
 
         await repository.DeleteAsync(id);
 
@@ -55,6 +56,7 @@ public class GatedWorkoutRepositoryTests
     [TestCase("Get")]
     [TestCase("List")]
     [TestCase("Weights")]
+    [TestCase("LastSessions")]
     [TestCase("Delete")]
     public async Task Call_WhileTheGateIsHeld_WaitsForIt(string call)
     {
@@ -69,6 +71,7 @@ public class GatedWorkoutRepositoryTests
             "Get" => repository.GetAsync(id),
             "List" => repository.ListAsync(),
             "Weights" => repository.GetWeightsAsync(1),
+            "LastSessions" => repository.GetLastSessionsAsync(),
             _ => repository.DeleteAsync(id),
         };
 

@@ -1,0 +1,56 @@
+@using WorkoutLog.UI.Components.Feedback
+@using WorkoutLog.UI.Models.Exercises
+@using WorkoutLog.UI.Navigation
+<div class="overlay" role="dialog" aria-modal="true" aria-label="Add exercise" data-testid="exercises-overlay">
+    <BackHandler OnBack="OnClose" />
+    <header class="top-bar">
+        <IconButton Icon="IconName.Back" AriaLabel="Back" TestId="exercises-back" OnClick="OnClose" />
+        <h1 class="title">Exercises</h1>
+    </header>
+    <div class="content">
+        @if (Loading)
+        {
+            <div class="centre">
+                <Spinner Label="Loading…" TestId="exercises-loading" />
+            </div>
+        }
+        else
+        {
+            <ExerciseList Items="Items" Query="@Query" QueryChanged="QueryChanged" Filter="Filter" FilterChanged="FilterChanged" FocusSearch OnPick="OnPick" TestId="exercises" />
+        }
+    </div>
+</div>
+
+@code {
+    /// <summary>Catalog exercises to list, already searched and filtered, in order: Strength then Cardio, A–Z, with no search text. Logged ones carry their last session.</summary>
+    [Parameter, EditorRequired]
+    public IReadOnlyList<ExerciseListItem> Items { get; set; } = [];
+
+    /// <summary>Search text.</summary>
+    [Parameter]
+    public string? Query { get; set; }
+
+    /// <summary>Raised on each keystroke with the new search text.</summary>
+    [Parameter]
+    public EventCallback<string> QueryChanged { get; set; }
+
+    /// <summary>Chosen chip.</summary>
+    [Parameter]
+    public ExerciseFilter Filter { get; set; }
+
+    /// <summary>Raised with the chip tapped.</summary>
+    [Parameter]
+    public EventCallback<ExerciseFilter> FilterChanged { get; set; }
+
+    /// <summary>Shows a spinner instead of the list while the last sessions load.</summary>
+    [Parameter]
+    public bool Loading { get; set; }
+
+    /// <summary>Raised when an exercise is tapped.</summary>
+    [Parameter]
+    public EventCallback<ExerciseListItem> OnPick { get; set; }
+
+    /// <summary>Raised by the back arrow and the Android back button.</summary>
+    [Parameter]
+    public EventCallback OnClose { get; set; }
+}

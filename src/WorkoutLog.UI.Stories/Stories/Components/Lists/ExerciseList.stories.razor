@@ -1,0 +1,24 @@
+@attribute [Stories("Components/Lists/ExerciseList")]
+@inject IExerciseCatalog Catalog
+
+<Stories TComponent="ExerciseList" Layout="typeof(ThemeLayout)">
+
+    <Story Name="Logged">
+        <Template>
+            <ExerciseList Items="SampleExercises.All.Take(4).ToList()" TestId="exercises" />
+        </Template>
+    </Story>
+
+    <Story Name="Tappable">
+        <Template>
+            <ExerciseList Items="SampleData.AddExerciseItems(Catalog, null).Where(i => i.Id is 6 or 132 or 311 or 315).ToList()" OnPick="(ExerciseListItem _) => { }" TestId="exercises" />
+        </Template>
+    </Story>
+
+    <Story Name="No match">
+        <Template>
+            <ExerciseList Items="[]" Query="zumba" TestId="exercises" />
+        </Template>
+    </Story>
+
+</Stories>

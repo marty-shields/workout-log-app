@@ -366,7 +366,7 @@ public class NewWorkoutPageTests : ComponentTestBase
     }
 
     [Test]
-    public void AddExercise_OpensThePickerWithTheFullList()
+    public void AddExercise_OpensTheListWithTheFullCatalog()
     {
         var cut = RenderPage();
 
@@ -374,10 +374,74 @@ public class NewWorkoutPageTests : ComponentTestBase
 
         Assert.Multiple(() =>
         {
-            Assert.That(cut.Find("[data-testid=picker-search]").GetAttribute("value"), Is.Empty);
-            Assert.That(cut.FindAll("[data-testid^=picker-group-]"), Has.Count.EqualTo(2));
-            Assert.That(cut.FindAll("[data-testid^=picker-item-]"), Has.Count.EqualTo(Catalog.All.Count));
+            Assert.That(cut.Find("[data-testid=exercises-search]").GetAttribute("value"), Is.Empty);
+            Assert.That(cut.Find("[data-testid=exercises-filter-all]").HasAttribute("checked"), Is.True);
+            Assert.That(cut.FindAll("[data-testid^=exercises-row-]").Select(r => r.GetAttribute("data-testid")),
+                Is.EqualTo(Catalog.Search(null).Select(e => $"exercises-row-{e.Id}")));
         });
+    }
+
+    [Test]
+    public void AddExercise_ShowsTheSpinnerUntilTheLastSessionsLoad()
+    {
+        LoggedExercises.Hold = true;
+        LoggedExercises.Result = new LoggedExercisesResult([new LoggedExercise(6, Start.AddDays(-1), null)], Failed: false);
+        var cut = RenderPage();
+
+        cut.Find("[data-testid=add-exercise]").Click();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.FindAll("[data-testid=exercises-loading]"), Has.Count.EqualTo(1));
+            Assert.That(cut.FindAll("[data-testid=exercises-search]"), Is.Empty);
+        });
+        LoggedExercises.Complete();
+        cut.WaitForAssertion(() =>
+        {
+            Assert.That(cut.FindAll("[data-testid=exercises-loading]"), Is.Empty);
+            Assert.That(cut.Find("[data-testid=exercises-row-6] .detail").TextContent, Does.StartWith("Last "));
+            Assert.That(cut.FindAll("[data-testid^=exercises-row-] .detail"), Has.Count.EqualTo(1));
+        });
+    }
+
+    [Test]
+    public void AddExercise_LoadFailed_ListsTheCatalogWithNoLastLinesOrMessage()
+    {
+        LoggedExercises.Result = new LoggedExercisesResult([], Failed: true);
+        var cut = RenderPage();
+
+        cut.Find("[data-testid=add-exercise]").Click();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.FindAll("[data-testid^=exercises-row-]"), Has.Count.EqualTo(Catalog.All.Count));
+            Assert.That(cut.FindAll("[data-testid^=exercises-row-] .detail"), Is.Empty);
+            Assert.That(cut.FindAll("[data-testid=exercises-error]"), Is.Empty);
+        });
+    }
+
+    [Test]
+    public void AddExercise_EachOpenLoadsTheLastSessions()
+    {
+        var cut = RenderPage();
+        cut.Find("[data-testid=add-exercise]").Click();
+        cut.Find("[data-testid=exercises-back]").Click();
+
+        cut.Find("[data-testid=add-exercise]").Click();
+
+        Assert.That(LoggedExercises.Loads, Is.EqualTo(2));
+    }
+
+    [Test]
+    public void Chip_FiltersTheList()
+    {
+        var cut = RenderPage();
+        cut.Find("[data-testid=add-exercise]").Click();
+
+        cut.Find("[data-testid=exercises-filter-cardio]").Change(true);
+
+        Assert.That(cut.FindAll("[data-testid^=exercises-row-]").Select(r => r.GetAttribute("data-testid")),
+            Is.EqualTo(Catalog.Search(null).Where(e => e.Type == ExerciseType.Cardio).Select(e => $"exercises-row-{e.Id}")));
     }
 
     [Test]
@@ -386,13 +450,13 @@ public class NewWorkoutPageTests : ComponentTestBase
         var cut = RenderPage();
         cut.Find("[data-testid=add-exercise]").Click();
 
-        cut.Find("[data-testid=picker-search]").Input("gravitron");
+        cut.Find("[data-testid=exercises-search]").Input("gravitron");
 
-        Assert.That(cut.FindAll("[data-testid^=picker-item-]").Select(i => i.GetAttribute("data-testid")), Is.EqualTo(new[] { "picker-item-218" }));
+        Assert.That(cut.FindAll("[data-testid^=exercises-row-]").Select(i => i.GetAttribute("data-testid")), Is.EqualTo(new[] { "exercises-row-218" }));
     }
 
     [Test]
-    public void Pick_StrengthAddsAtTheTopWithOneEmptySetAndClosesThePicker()
+    public void Pick_StrengthAddsAtTheTopWithOneEmptySetAndClosesTheList()
     {
         var cut = RenderPage();
         Add(cut, 132);
@@ -404,7 +468,7 @@ public class NewWorkoutPageTests : ComponentTestBase
             Assert.That(Names(cut), Is.EqualTo(new[] { "Barbell Back Squat", "Dumbbell Curl" }));
             Assert.That(cut.FindAll("[data-testid^=exercise-1-set-][data-testid$=-reps]"), Has.Count.EqualTo(1));
             Assert.That(cut.Find("[data-testid=exercise-1-set-1-reps]").GetAttribute("value"), Is.Null.Or.Empty);
-            Assert.That(cut.FindAll("[data-testid=exercise-picker]"), Is.Empty);
+            Assert.That(cut.FindAll("[data-testid=exercises-overlay]"), Is.Empty);
         });
     }
 
@@ -948,7 +1012,7 @@ public class NewWorkoutPageTests : ComponentTestBase
     }
 
     [Test]
-    public async Task AndroidBack_ClosesThePickerAndStays()
+    public async Task AndroidBack_ClosesTheListAndStays()
     {
         var backs = 0;
         var cut = RenderPage(() => backs++);
@@ -958,41 +1022,43 @@ public class NewWorkoutPageTests : ComponentTestBase
 
         Assert.Multiple(() =>
         {
-            Assert.That(cut.FindAll("[data-testid=exercise-picker]"), Is.Empty);
+            Assert.That(cut.FindAll("[data-testid=exercises-overlay]"), Is.Empty);
             Assert.That(backs, Is.Zero);
         });
     }
 
     [Test]
-    public void PickerBackArrow_ClosesThePickerAndStays()
+    public void ListBackArrow_ClosesTheListAndStays()
     {
         var backs = 0;
         var cut = RenderPage(() => backs++);
         cut.Find("[data-testid=add-exercise]").Click();
 
-        cut.Find("[data-testid=picker-back]").Click();
+        cut.Find("[data-testid=exercises-back]").Click();
 
         Assert.Multiple(() =>
         {
-            Assert.That(cut.FindAll("[data-testid=exercise-picker]"), Is.Empty);
+            Assert.That(cut.FindAll("[data-testid=exercises-overlay]"), Is.Empty);
             Assert.That(backs, Is.Zero);
         });
     }
 
     [Test]
-    public void Reopen_ClearsTheSearch()
+    public void Reopen_ClearsTheSearchAndTheChip()
     {
         var cut = RenderPage();
         cut.Find("[data-testid=add-exercise]").Click();
-        cut.Find("[data-testid=picker-search]").Input("zumba");
-        cut.Find("[data-testid=picker-back]").Click();
+        cut.Find("[data-testid=exercises-search]").Input("zumba");
+        cut.Find("[data-testid=exercises-filter-cardio]").Change(true);
+        cut.Find("[data-testid=exercises-back]").Click();
 
         cut.Find("[data-testid=add-exercise]").Click();
 
         Assert.Multiple(() =>
         {
-            Assert.That(cut.Find("[data-testid=picker-search]").GetAttribute("value"), Is.Empty);
-            Assert.That(cut.FindAll("[data-testid^=picker-item-]"), Has.Count.EqualTo(Catalog.All.Count));
+            Assert.That(cut.Find("[data-testid=exercises-filter-all]").HasAttribute("checked"), Is.True);
+            Assert.That(cut.Find("[data-testid=exercises-search]").GetAttribute("value"), Is.Empty);
+            Assert.That(cut.FindAll("[data-testid^=exercises-row-]"), Has.Count.EqualTo(Catalog.All.Count));
         });
     }
 
@@ -1003,7 +1069,7 @@ public class NewWorkoutPageTests : ComponentTestBase
         Context.Services.AddSingleton<IExerciseCatalog>(catalog);
         var cut = RenderPage();
         cut.Find("[data-testid=add-exercise]").Click();
-        cut.Find("[data-testid=picker-search]").Input("curl");
+        cut.Find("[data-testid=exercises-search]").Input("curl");
         var searches = catalog.Searches;
 
         clock.Advance(TimeSpan.FromSeconds(3));
@@ -1019,12 +1085,12 @@ public class NewWorkoutPageTests : ComponentTestBase
         var cut = RenderPage();
         cut.Find("[data-testid=add-exercise]").Click();
 
-        cut.Find("[data-testid=picker-search]").Input("pec" + new string('x', 100_000));
+        cut.Find("[data-testid=exercises-search]").Input("pec" + new string('x', 100_000));
 
         Assert.Multiple(() =>
         {
-            Assert.That(cut.Find("[data-testid=picker-search]").GetAttribute("value"), Has.Length.EqualTo(ExerciseCatalog.MaxQueryLength));
-            Assert.That(cut.FindAll("[data-testid=picker-none]"), Has.Count.EqualTo(1));
+            Assert.That(cut.Find("[data-testid=exercises-search]").GetAttribute("value"), Has.Length.EqualTo(ExerciseCatalog.MaxQueryLength));
+            Assert.That(cut.FindAll("[data-testid=exercises-none]"), Has.Count.EqualTo(1));
         });
     }
 
@@ -1036,7 +1102,7 @@ public class NewWorkoutPageTests : ComponentTestBase
 
     private static IEnumerable<string> Names(IRenderedComponent<NewWorkoutPage> cut) => cut.FindAll(".card .name").Select(n => n.TextContent);
 
-    /// <summary>The latest focus call; the picker search and added exercises each take focus.</summary>
+    /// <summary>The latest focus call; the list search and added exercises each take focus.</summary>
     private JSRuntimeInvocation LastFocus() => Context.JSInterop.Invocations["Blazor._internal.domWrapper.focus"][^1];
 
     private IRenderedComponent<NewWorkoutPage> RenderPage(Action? onDiscarded = null, Action? onSaved = null)
@@ -1047,12 +1113,12 @@ public class NewWorkoutPageTests : ComponentTestBase
             .Add(x => x.OnSaved, onSaved ?? (() => { })));
     }
 
-    /// <summary>Opens the picker, searches for the exercise by name and picks it.</summary>
+    /// <summary>Opens the add-exercise list, searches for the exercise by name and picks it.</summary>
     private static void Add(IRenderedComponent<NewWorkoutPage> cut, int exerciseId)
     {
         cut.Find("[data-testid=add-exercise]").Click();
-        cut.Find("[data-testid=picker-search]").Input(Catalog.All.Single(e => e.Id == exerciseId).Name);
-        cut.Find($"[data-testid=picker-item-{exerciseId}]").Click();
+        cut.Find("[data-testid=exercises-search]").Input(Catalog.All.Single(e => e.Id == exerciseId).Name);
+        cut.Find($"[data-testid=exercises-row-{exerciseId}]").Click();
     }
 
     /// <summary>Registers a workout service whose drafts start at <paramref name="draftClock"/>'s current time.</summary>
@@ -1136,6 +1202,8 @@ public class NewWorkoutPageTests : ComponentTestBase
         public IReadOnlyList<ExerciseDefinition> All => inner.All;
 
         public bool IsAssisted(int exerciseId) => inner.IsAssisted(exerciseId);
+
+        public bool HasSearchWords(string? query) => inner.HasSearchWords(query);
 
         public IReadOnlyList<ExerciseDefinition> Search(string? query)
         {

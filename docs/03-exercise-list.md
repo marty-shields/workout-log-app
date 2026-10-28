@@ -23,22 +23,24 @@ Strength exercises are based on [free-exercise-db](https://github.com/yuhonas/fr
 | Field | Values |
 |---|---|
 | Type | Strength, Cardio |
+| Category | Lift, Bodyweight, Assisted, Hold, Carry (strength); Cardio |
 | Primary muscle (strength) | Abdominals, Abductors, Adductors, Biceps, Calves, Chest, Forearms, Glutes, Hamstrings, Lats, LowerBack, MiddleBack, Neck, Quadriceps, Shoulders, Traps, Triceps |
-| Equipment (strength) | Barbell, Dumbbell, EzBar, Cable, Machine, SmithMachine, Kettlebell, Bodyweight, Band, TrapBar, Landmine, Other |
+| Equipment (strength) | Barbell, Dumbbell, EzBar, Cable, Machine, SmithMachine, Kettlebell, None, Band, TrapBar, Landmine, Other |
 | Mechanic (strength) | Compound, Isolation |
 
 ## Activity types
 **R** = required, **o** = optional, blank = not shown.
 
 ### Strength
-| Type | Count | Reps | Weight kg | Duration | Distance |
+| Category | Count | Reps | Weight kg | Duration | Distance |
 |---|---|---|---|---|---|
-| Lift | 284 | R | o | | |
+| Lift | 228 | R | o | | |
+| Bodyweight (moves where weight is extra load, e.g. Push-up, Pull-up, Ab Wheel Rollout, Band Pull-Apart) | 56 | R | o | | |
 | Hold (e.g. Plank, Wall Sit, Dead Hang) | 6 | | o | R | |
 | Assisted (Machine Assisted Pull-up, Chin-up, Dip) | 3 | R | o, labelled **Assist (kg)**; blank is saved as 0 (D23) | | |
 | Carry (Farmer's Walk, Suitcase Carry, Overhead Carry, Sled Push, Sled Pull, Yoke Walk) | 6 | | o | o | R (metres) |
 
-- On bodyweight moves, weight is extra load.
+- Equipment None means no equipment. A Bodyweight exercise may use a band, wheel or ball; a plate or harness exercise is a Lift.
 
 ### Cardio
 Duration (h:mm:ss) is required for every cardio exercise. Everything else is optional.

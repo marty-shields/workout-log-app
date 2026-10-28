@@ -3,15 +3,17 @@ using WorkoutLog.E2E.Tests.Screens;
 
 namespace WorkoutLog.E2E.Tests.Support;
 
-/// <summary>What a user does across screens: start, log and save a workout, open Workouts or a saved workout, go back.</summary>
+/// <summary>What a user does across screens: start, log and save a workout, open Workouts, Exercises or a saved workout, go back.</summary>
 public sealed class Journeys(
     WebView web, Native native, DeviceClock clock, ScenarioState state,
-    DashboardScreen dashboard, WorkoutScreen workout, PickerScreen picker, WorkoutsScreen workouts, ConfirmDialog dialog)
+    DashboardScreen dashboard, WorkoutScreen workout, AddExerciseScreen addExercise, WorkoutsScreen workouts, ExercisesScreen exercises,
+    ConfirmDialog dialog)
 {
     public enum Screen
     {
         Dashboard,
         Workouts,
+        Exercises,
         Settings,
         ImportReview,
         Workout,
@@ -26,6 +28,7 @@ public sealed class Journeys(
         {
             DashboardScreen.Title => Screen.Dashboard,
             WorkoutsScreen.Title => Screen.Workouts,
+            ExercisesScreen.Title => Screen.Exercises,
             SettingsScreen.Title => Screen.Settings,
             ImportReviewScreen.Title => Screen.ImportReview,
             _ when workout.IsShown() => Screen.Workout,
@@ -45,13 +48,13 @@ public sealed class Journeys(
         state.Started = (from, clock.LocalNow());
     }
 
-    /// <summary>Opens the picker and taps the exercise; a strength exercise already in the workout gets a set (D42).</summary>
+    /// <summary>Opens the add-exercise list and taps the exercise; a strength exercise already in the workout gets a set (D42).</summary>
     public void AddExercise(string name)
     {
-        workout.OpenPicker();
-        web.WaitUntil(picker.IsOpen, "the picker didn't open");
-        picker.Pick(Exercises.Named(name).Id);
-        web.WaitUntil(() => !picker.IsOpen(), "the picker didn't close");
+        workout.OpenAddExercise();
+        web.WaitUntil(addExercise.IsLoaded, "the add-exercise list didn't open");
+        addExercise.Pick(Exercises.Named(name).Id);
+        web.WaitUntil(() => !addExercise.IsOpen(), "the add-exercise list didn't close");
         state.LastAdded = name;
     }
 
@@ -130,7 +133,16 @@ public sealed class Journeys(
         workouts.Rows();
     }
 
-    /// <summary>Goes to the Dashboard from Workouts, or from an unchanged workout through Workouts.</summary>
+    /// <summary>Goes to Exercises from the Dashboard and waits for it to load.</summary>
+    public void GoToExercises()
+    {
+        WaitFor(Screen.Dashboard);
+        dashboard.OpenExercises();
+        WaitFor(Screen.Exercises);
+        exercises.WaitUntilLoaded();
+    }
+
+    /// <summary>Goes to the Dashboard from Workouts or Exercises, or from an unchanged workout through Workouts.</summary>
     public void GoToDashboard()
     {
         if (Current() == Screen.Workout)
@@ -141,6 +153,11 @@ public sealed class Journeys(
         if (Current() == Screen.Workouts)
         {
             workouts.Back();
+        }
+
+        if (Current() == Screen.Exercises)
+        {
+            exercises.Back();
         }
 
         WaitFor(Screen.Dashboard);

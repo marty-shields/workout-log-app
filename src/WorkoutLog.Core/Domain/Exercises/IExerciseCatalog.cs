@@ -13,6 +13,9 @@ public interface IExerciseCatalog
     /// </summary>
     IReadOnlyList<ExerciseDefinition> Search(string? query);
 
+    /// <summary>True when <paramref name="query"/> has a word to search for, as <see cref="Search"/> reads it; false for none, spaces or punctuation only.</summary>
+    bool HasSearchWords(string? query);
+
     /// <summary>True when the exercise with <paramref name="exerciseId"/> is an assisted machine (<see cref="ExerciseDefinition.IsAssisted"/>); false for an unknown id.</summary>
     bool IsAssisted(int exerciseId);
 }

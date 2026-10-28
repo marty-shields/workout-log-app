@@ -1,0 +1,77 @@
+@attribute [Stories("Screens/Add Exercise")]
+@inject IExerciseCatalog Catalog
+
+<Stories TComponent="AddExerciseView" Layout="typeof(PhoneLayout)">
+
+    <Story Name="No search text">
+        <Template>
+            <WorkoutView Mode="WorkoutMode.New" StartedAt="SampleData.Started" Time="new TimeSpan(0, 34, 12)" Exercises="SampleData.StrengthWorkout(Catalog)" OnBack="() => { }">
+                <Overlay>
+                    <AddExerciseView Items="SampleData.AddExerciseItems(Catalog, null)" OnPick="(ExerciseListItem _) => { }" OnClose="() => { }" />
+                </Overlay>
+            </WorkoutView>
+        </Template>
+    </Story>
+
+    <Story Name="Strength">
+        <Template>
+            <WorkoutView Mode="WorkoutMode.New" StartedAt="SampleData.Started" Time="new TimeSpan(0, 34, 12)" Exercises="SampleData.StrengthWorkout(Catalog)" OnBack="() => { }">
+                <Overlay>
+                    <AddExerciseView Items="SampleData.AddExerciseItems(Catalog, null, ExerciseFilter.Strength)" Filter="ExerciseFilter.Strength" OnPick="(ExerciseListItem _) => { }" OnClose="() => { }" />
+                </Overlay>
+            </WorkoutView>
+        </Template>
+    </Story>
+
+    <Story Name="Cardio">
+        <Template>
+            <WorkoutView Mode="WorkoutMode.New" StartedAt="SampleData.Started" Time="new TimeSpan(0, 34, 12)" Exercises="SampleData.StrengthWorkout(Catalog)" OnBack="() => { }">
+                <Overlay>
+                    <AddExerciseView Items="SampleData.AddExerciseItems(Catalog, null, ExerciseFilter.Cardio)" Filter="ExerciseFilter.Cardio" OnPick="(ExerciseListItem _) => { }" OnClose="() => { }" />
+                </Overlay>
+            </WorkoutView>
+        </Template>
+    </Story>
+
+    <Story Name="Results">
+        <Template>
+            <WorkoutView Mode="WorkoutMode.New" StartedAt="SampleData.Started" Time="new TimeSpan(0, 34, 12)" Exercises="SampleData.StrengthWorkout(Catalog)" OnBack="() => { }">
+                <Overlay>
+                    <AddExerciseView Query="run" Items="@SampleData.AddExerciseItems(Catalog, "run")" OnPick="(ExerciseListItem _) => { }" OnClose="() => { }" />
+                </Overlay>
+            </WorkoutView>
+        </Template>
+    </Story>
+
+    <Story Name="No match">
+        <Template>
+            <WorkoutView Mode="WorkoutMode.New" StartedAt="SampleData.Started" Time="new TimeSpan(0, 34, 12)" Exercises="SampleData.StrengthWorkout(Catalog)" OnBack="() => { }">
+                <Overlay>
+                    <AddExerciseView Query="zumba" Items="@SampleData.AddExerciseItems(Catalog, "zumba")" OnPick="(ExerciseListItem _) => { }" OnClose="() => { }" />
+                </Overlay>
+            </WorkoutView>
+        </Template>
+    </Story>
+
+    <Story Name="Loading">
+        <Template>
+            <WorkoutView Mode="WorkoutMode.New" StartedAt="SampleData.Started" Time="new TimeSpan(0, 34, 12)" Exercises="SampleData.StrengthWorkout(Catalog)" OnBack="() => { }">
+                <Overlay>
+                    <AddExerciseView Items="[]" Loading OnPick="(ExerciseListItem _) => { }" OnClose="() => { }" />
+                </Overlay>
+            </WorkoutView>
+        </Template>
+    </Story>
+
+    <Story Name="Load failed">
+        <Description>The last sessions couldn't load: the whole catalog shows with no "Last" lines and no message, so adding an exercise still works. Core logs a Warning.</Description>
+        <Template>
+            <WorkoutView Mode="WorkoutMode.New" StartedAt="SampleData.Started" Time="new TimeSpan(0, 34, 12)" Exercises="SampleData.StrengthWorkout(Catalog)" OnBack="() => { }">
+                <Overlay>
+                    <AddExerciseView Items="SampleData.AddExerciseItems(Catalog, null, withLast: false)" OnPick="(ExerciseListItem _) => { }" OnClose="() => { }" />
+                </Overlay>
+            </WorkoutView>
+        </Template>
+    </Story>
+
+</Stories>

@@ -31,13 +31,13 @@ Feature: Discard edits
       | add "Rowing Machine"                            |
 
   @D73
-  Scenario Outline: Opening the picker isn't a change
+  Scenario Outline: Opening the add-exercise list isn't a change
     When I <action>
     And I go back with the back arrow
     Then I am on Workouts with no prompt
     Examples:
       | action                                |
-      | open the exercise picker and close it |
+      | open the add-exercise list and close it |
 
   Scenario: Cancel keeps my edit
     Given I have entered "62.5" in Barbell Back Squat set 1 weight

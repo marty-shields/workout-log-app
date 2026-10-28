@@ -146,7 +146,7 @@ public sealed partial class WorkoutScreen(WebView web, Native native)
 
     public bool HasRemove(string name) => web.Exists($"{Card(name)}-remove");
 
-    public void OpenPicker() => TapButton("add-exercise");
+    public void OpenAddExercise() => TapButton("add-exercise");
 
     public void Save() => TapButton("save-workout");
 

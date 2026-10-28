@@ -24,8 +24,8 @@ public enum Equipment
     /// <summary>Kettlebell.</summary>
     Kettlebell,
 
-    /// <summary>Bodyweight.</summary>
-    Bodyweight,
+    /// <summary>No equipment.</summary>
+    None,
 
     /// <summary>Band.</summary>
     Band,

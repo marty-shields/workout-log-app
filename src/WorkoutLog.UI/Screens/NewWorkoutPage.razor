@@ -2,6 +2,7 @@
 @using WorkoutLog.Core.Services
 @using WorkoutLog.UI.Components.Overlays
 @using WorkoutLog.UI.Components.Workout
+@using WorkoutLog.UI.Models.Exercises
 @implements IDisposable
 @inject IWorkoutService Workouts
 @inject IWeightHistoryService WeightHistory
@@ -19,13 +20,14 @@
              ErrorFocus="Editor.ErrorFocus"
              ValidateSet="Checker.Check"
              OnSave="SaveAsync"
-             OnAddExercise="Editor.OpenPicker"
+             OnAddExercise="Editor.OpenListAsync"
              OnRemoveExercise="Editor.Remove"
              OnBack="Back">
     <Overlay>
-        @if (Editor.PickerOpen)
+        @if (Editor.ListOpen)
         {
-            <ExercisePicker Query="@Editor.Query" QueryChanged="Editor.Search" Items="Editor.PickerItems" OnPick="PickAsync" OnClose="Editor.ClosePicker" />
+            <AddExerciseView Items="Editor.ListItems" Query="@Editor.Query" QueryChanged="Editor.Search" Filter="Editor.Filter" FilterChanged="Editor.FilterBy"
+                             Loading="Editor.ListLoading" OnPick="PickAsync" OnClose="Editor.CloseList" />
         }
         @if (discardOpen)
         {
@@ -77,7 +79,7 @@
     /// Picks the exercise (<see cref="WorkoutEditor.Pick"/>). A strength exercise not yet in the workout then loads its last and
     /// best weights through <see cref="IWeightHistoryService.GetAsync"/> (FR-15); a failed load shows none.
     /// </summary>
-    private async Task PickAsync(PickerItem item)
+    private async Task PickAsync(ExerciseListItem item)
     {
         var added = Editor.Exercises.All(e => e.ExerciseId != item.Id);
         Editor.Pick(item);
