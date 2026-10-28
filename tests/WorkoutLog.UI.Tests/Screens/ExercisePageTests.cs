@@ -14,12 +14,18 @@ public class ExercisePageTests : ComponentTestBase
     private const int PushUp = 264;
     private const int Plank = 258;
     private const int BulgarianSplitSquat = 58;
+    private const int AssistedPullUp = 218;
+    private const int FarmersWalk = 187;
+    private const int Run = 311;
 
     /// <summary>Wed 28 Oct 2026 12:00 UTC.</summary>
     private static readonly DateTimeOffset Now = new(2026, 10, 28, 12, 0, 0, TimeSpan.Zero);
 
     private static readonly StrengthSession Heavy = new(3, Now.AddDays(-8), [Set(8, 62.5m), Set(3, 70m)]);
     private static readonly StrengthSession Light = new(2, Now.AddDays(-15), [Set(5, 60m), Set(8, null)]);
+    private static readonly StrengthSession Pulled = new(5, Now.AddDays(-8), [Set(8, 5m), Set(5, null)]);
+    private static readonly StrengthSession Planked = new(6, Now.AddDays(-8), [new(null, null, TimeSpan.FromSeconds(105), null), new(null, 10m, TimeSpan.FromSeconds(60), null)]);
+    private static readonly StrengthSession Walked = new(7, Now.AddDays(-8), [new(null, 32m, TimeSpan.FromSeconds(45), 40m)]);
 
     private FakeExerciseProgressService progress = null!;
 
@@ -204,15 +210,106 @@ public class ExercisePageTests : ComponentTestBase
     }
 
     [Test]
+    public void Assisted_ShowsOneFlippedLeastAssistChartWithNoSwitcher()
+    {
+        progress.AssistedSummary = (_, _) => new AssistedProgress(
+            [new AssistedSessionProgress(Pulled, new ExerciseBest(0m, 5, null, null))],
+            new AssistedRecords(new ProgressRecord<ExerciseBest>(new ExerciseBest(0m, 5, null, null), Pulled.StartedAt)));
+
+        var cut = Render(AssistedPullUp);
+
+        var view = cut.FindComponent<ExerciseView>().Instance;
+        Assert.Multiple(() =>
+        {
+            Assert.That(progress.AssistedSummaries.Select(s => s.Range), Is.EqualTo(new[] { ChartRange.ThreeMonths }));
+            Assert.That(cut.FindAll("[data-testid=exercise-tabs]"), Is.Empty);
+            Assert.That(cut.Find("[data-testid=exercise-chart-card] .card-title").TextContent, Is.EqualTo("Least assist per session"));
+            Assert.That(view.Flipped, Is.True);
+            Assert.That(cut.FindAll("[data-testid=exercise-chart-values] li").Select(v => v.TextContent), Is.EqualTo(new[] { "20 Oct: 0kg ×5" }));
+            Assert.That(cut.Find("[data-testid=exercise-chart-caption]").TextContent, Is.EqualTo("Up = less assist"));
+            Assert.That(cut.FindAll("[data-testid=exercise-records] .value").Select(v => v.TextContent), Is.EqualTo(new[] { "0kg × 5" }));
+            Assert.That(cut.FindAll("[data-testid=exercise-session-5] span").Select(s => s.TextContent), Is.EqualTo(new[] { "Tue 20 Oct", "0kg × 5", "5kg×8 · 0kg×5" }));
+        });
+    }
+
+    [Test]
+    public void Hold_OpensOnDurationAndWeightShowsTheHeaviestWithItsDuration()
+    {
+        var heaviest = new ExerciseBest(10m, null, TimeSpan.FromSeconds(60), null);
+        progress.HoldSummary = (_, _) => new HoldProgress(
+            [new HoldSessionProgress(Planked, TimeSpan.FromSeconds(105), heaviest)],
+            new HoldRecords(new ProgressRecord<TimeSpan>(TimeSpan.FromSeconds(105), Planked.StartedAt), new ProgressRecord<ExerciseBest>(heaviest, Planked.StartedAt)));
+        var cut = Render(Plank);
+        Assert.That(cut.FindAll("[data-testid=exercise-tabs] input[checked]").Select(i => i.GetAttribute("data-testid")), Is.EqualTo(new[] { "exercise-tab-duration" }));
+        Assert.That(cut.FindAll("[data-testid=exercise-chart-values] li").Select(v => v.TextContent), Is.EqualTo(new[] { "20 Oct: 1:45" }));
+        Assert.That(cut.FindComponent<ExerciseView>().Instance.TimeScale, Is.True);
+
+        cut.Find("[data-testid=exercise-tab-weight]").Change(true);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(progress.Loads, Has.Count.EqualTo(1));
+            Assert.That(cut.FindComponent<ExerciseView>().Instance.TimeScale, Is.False);
+            Assert.That(cut.FindAll("[data-testid=exercise-chart-values] li").Select(v => v.TextContent), Is.EqualTo(new[] { "20 Oct: 10kg 1:00" }));
+            Assert.That(cut.FindAll("[data-testid=exercise-records] .value").Select(v => v.TextContent), Is.EqualTo(new[] { "1:45", "10kg · 1:00" }));
+            Assert.That(cut.FindAll("[data-testid=exercise-session-6] span").Select(s => s.TextContent), Is.EqualTo(new[] { "Tue 20 Oct", "1:45", "1:45 · 10kg 1:00" }));
+        });
+    }
+
+    [Test]
+    public void Hold_WeightWithNoWeightedSets_ShowsNoSets()
+    {
+        progress.HoldSummary = (_, _) => new HoldProgress([new HoldSessionProgress(Planked, TimeSpan.FromSeconds(105), null)], new HoldRecords(null, null));
+        var cut = Render(Plank);
+
+        cut.Find("[data-testid=exercise-tab-weight]").Change(true);
+
+        Assert.That(cut.Find("[data-testid=exercise-chart-empty]").TextContent, Is.EqualTo("No sets in the last 3 months"));
+    }
+
+    [Test]
+    public void Carry_OpensOnWeightAndDistanceShowsTheLongestInMetres()
+    {
+        var best = new ExerciseBest(32m, null, null, 40m);
+        progress.CarrySummary = (_, _) => new CarryProgress(
+            [new CarrySessionProgress(Walked, best, best)],
+            new CarryRecords(new ProgressRecord<ExerciseBest>(best, Walked.StartedAt), new ProgressRecord<ExerciseBest>(best, Walked.StartedAt)));
+        var cut = Render(FarmersWalk);
+        Assert.That(cut.FindAll("[data-testid=exercise-tabs] input[checked]").Select(i => i.GetAttribute("data-testid")), Is.EqualTo(new[] { "exercise-tab-weight" }));
+        Assert.That(cut.FindAll("[data-testid=exercise-chart-values] li").Select(v => v.TextContent), Is.EqualTo(new[] { "20 Oct: 32kg 40m" }));
+
+        cut.Find("[data-testid=exercise-tab-distance]").Change(true);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(progress.Loads, Has.Count.EqualTo(1));
+            Assert.That(cut.FindAll("[data-testid=exercise-chart-values] li").Select(v => v.TextContent), Is.EqualTo(new[] { "20 Oct: 40m 32kg" }));
+            Assert.That(cut.FindAll("[data-testid=exercise-records] .value").Select(v => v.TextContent), Is.EqualTo(new[] { "32kg · 40m", "40m · 32kg" }));
+            Assert.That(cut.FindAll("[data-testid=exercise-session-7] span").Select(s => s.TextContent), Is.EqualTo(new[] { "Tue 20 Oct", "32kg · 40m", "32kg 40m 0:45" }));
+        });
+    }
+
+    [Test]
+    public void Carry_WeightWithNoWeightedSets_ShowsNoSets()
+    {
+        progress.CarrySummary = (_, _) => new CarryProgress(
+            [new CarrySessionProgress(Walked, null, new ExerciseBest(null, null, null, 60m))], new CarryRecords(null, null));
+
+        var cut = Render(FarmersWalk);
+
+        Assert.That(cut.Find("[data-testid=exercise-chart-empty]").TextContent, Is.EqualTo("No sets in the last 3 months"));
+    }
+
+    [Test]
     public void NoExercisePage_ShowsLoadFailedUnderItsName()
     {
         progress.Result = new ExerciseProgressResult([], Failed: true);
 
-        var cut = Render(Plank);
+        var cut = Render(Run);
 
         Assert.Multiple(() =>
         {
-            Assert.That(cut.Find("[data-testid=screen-title]").TextContent, Is.EqualTo("Plank"));
+            Assert.That(cut.Find("[data-testid=screen-title]").TextContent, Is.EqualTo("Outdoor Run"));
             Assert.That(cut.Find("[data-testid=exercise-error]").TextContent, Is.EqualTo("Couldn't load this exercise"));
         });
     }

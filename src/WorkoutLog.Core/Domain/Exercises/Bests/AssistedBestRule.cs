@@ -10,9 +10,5 @@ internal sealed class AssistedBestRule : IBestRule
 
     /// <inheritdoc />
     public ExerciseBest? Best(ExerciseDefinition exercise, IReadOnlyList<WorkoutExercise> logged) =>
-        logged.OfType<StrengthExercise>().SelectMany(e => e.Sets)
-            .OrderBy(s => s.WeightKg ?? 0m)
-            .ThenByDescending(s => s.Reps)
-            .Select(s => new ExerciseBest(s.WeightKg ?? 0m, s.Reps, null, null))
-            .FirstOrDefault();
+        ExerciseBest.LeastAssist(logged.OfType<StrengthExercise>().SelectMany(e => e.Sets));
 }

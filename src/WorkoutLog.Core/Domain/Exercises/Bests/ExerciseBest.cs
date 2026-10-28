@@ -16,4 +16,11 @@ public sealed record ExerciseBest(decimal? WeightKg, int? Reps, TimeSpan? Durati
             .ThenByDescending(s => s.Reps)
             .Select(s => new ExerciseBest(s.WeightKg, s.Reps, null, null))
             .FirstOrDefault();
+
+    /// <summary>The set with the least assist, blank as 0 kg, with its reps; tie → most reps. Null when there are no sets.</summary>
+    internal static ExerciseBest? LeastAssist(IEnumerable<StrengthSet> sets) =>
+        sets.OrderBy(s => s.WeightKg ?? 0m)
+            .ThenByDescending(s => s.Reps)
+            .Select(s => new ExerciseBest(s.WeightKg ?? 0m, s.Reps, null, null))
+            .FirstOrDefault();
 }

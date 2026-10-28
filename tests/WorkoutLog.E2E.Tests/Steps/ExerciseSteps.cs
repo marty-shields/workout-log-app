@@ -7,7 +7,7 @@ using WorkoutLog.E2E.Tests.Support;
 
 namespace WorkoutLog.E2E.Tests.Steps;
 
-/// <summary>A lift's or bodyweight move's Exercise page, opened from the Exercises list.</summary>
+/// <summary>An exercise's Exercise page, opened from the Exercises list.</summary>
 [Binding]
 public sealed class ExerciseSteps(WebView web, Journeys journeys, ExercisesScreen exercises, ExerciseScreen exercise, DeviceClock clock)
 {
@@ -35,14 +35,14 @@ public sealed class ExerciseSteps(WebView web, Journeys journeys, ExercisesScree
         Assert.That(exercise.Subtitle(), Is.EqualTo(subtitle));
     }
 
-    [When(@"^I choose the (Best set|Total|Top set|e1RM) tab$")]
-    public void WhenIChooseTheTab(string tab) => exercise.Tab(tab switch
-    {
-        "Best set" => "best-set",
-        "Total" => "total",
-        "e1RM" => "e1rm",
-        _ => "top-set",
-    });
+    [When(@"^I choose the (Best set|Total|Top set|e1RM|Duration|Weight|Distance) tab$")]
+    public void WhenIChooseTheTab(string tab) => exercise.Tab(tab.ToLowerInvariant().Replace(' ', '-'));
+
+    [Then(@"^the Exercise page has no tab switcher$")]
+    public void ThenNoTabSwitcher() => web.Eventually(exercise.HasTabs, Is.False);
+
+    [Then(@"^the Exercise chart is titled ""(.*)""$")]
+    public void ThenTheChartIsTitled(string title) => web.Eventually(exercise.ChartTitle, Is.EqualTo(title));
 
     [Then(@"^the Exercise tabs are: (.+)$")]
     public void ThenTheTabsAre(string labels) => web.Eventually(exercise.Tabs, Is.EqualTo(labels.Split(", ")));

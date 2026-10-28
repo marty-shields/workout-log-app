@@ -7,7 +7,7 @@ Feature: Exercise page for bodyweight moves
       | started          | exercises                                                          |
       | 3 days ago 18:05 | Barbell Back Squat: 5 reps 60 kg / Push-up: 20 reps / Plank: 0:01:00 |
     And I have opened Exercises
-    Then the tappable rows on Exercises are: Barbell Back Squat, Push-up
+    Then the tappable rows on Exercises are: Barbell Back Squat, Plank, Push-up
     When I open "Push-up" on Exercises
     Then the Exercise page is titled "Push-up" with "Chest"
     And the Exercise tabs are: Best set, Total, Top set

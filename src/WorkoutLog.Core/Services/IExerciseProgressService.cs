@@ -3,7 +3,7 @@ using WorkoutLog.Core.Domain.Exercises.Progress;
 
 namespace WorkoutLog.Core.Services;
 
-/// <summary>Reads an exercise's sessions and works out its chart values and records (FR-61, FR-62).</summary>
+/// <summary>Reads an exercise's sessions and works out its chart values and records (FR-61, FR-62, FR-63).</summary>
 public interface IExerciseProgressService
 {
     /// <summary>
@@ -21,4 +21,13 @@ public interface IExerciseProgressService
     /// and their records.
     /// </summary>
     BodyweightProgress SummariseBodyweight(IReadOnlyList<StrengthSession> sessions, ChartRange range);
+
+    /// <summary>The assisted machine sessions of <paramref name="sessions"/> in <paramref name="range"/>, each with its least assist, and their records.</summary>
+    AssistedProgress SummariseAssisted(IReadOnlyList<StrengthSession> sessions, ChartRange range);
+
+    /// <summary>The hold sessions of <paramref name="sessions"/> in <paramref name="range"/>, each with its longest and heaviest set, and their records.</summary>
+    HoldProgress SummariseHold(IReadOnlyList<StrengthSession> sessions, ChartRange range);
+
+    /// <summary>The carry sessions of <paramref name="sessions"/> in <paramref name="range"/>, each with its heaviest and longest set, and their records.</summary>
+    CarryProgress SummariseCarry(IReadOnlyList<StrengthSession> sessions, ChartRange range);
 }

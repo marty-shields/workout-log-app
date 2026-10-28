@@ -11,11 +11,14 @@
 <ExerciseView Name="@(definition?.Name ?? "")"
               Subtitle="@(definition is null ? null : ExerciseProgressItems.Subtitle(definition))"
               Tabs="tabs"
-              Tab="@tab"
+              Tab="@(tabs.Count > 0 ? tab : null)"
               TabChanged="ChooseTab"
+              ChartTitle="@chartTitle"
               Points="points"
+              Flipped="flipped"
               Format="@format"
-              Caption="@ExerciseProgressItems.Caption(tab)"
+              TimeScale="timeScale"
+              Caption="@caption"
               NoDataMessage="@noDataMessage"
               Range="range"
               RangeChanged="ChooseRange"
@@ -32,7 +35,11 @@
     private IReadOnlyList<RadioOption<string>> tabs = ExerciseProgressItems.Tabs;
     private string tab = ExerciseProgressItems.TopSetTab;
     private ChartRange range = ChartRange.ThreeMonths;
+    private string? chartTitle;
+    private bool flipped;
     private Func<decimal, string> format = ExerciseProgressItems.Weight;
+    private bool timeScale;
+    private string? caption;
     private IReadOnlyList<ChartPoint> points = [];
     private string? noDataMessage;
     private IReadOnlyList<RecordRow> records = [];
@@ -40,7 +47,7 @@
     private bool loading;
     private bool failed;
 
-    /// <summary>Id of the lift or bodyweight move to show.</summary>
+    /// <summary>Id of the strength exercise to show.</summary>
     [Parameter, EditorRequired]
     public int ExerciseId { get; set; }
 
@@ -51,12 +58,14 @@
     protected override Task OnInitializedAsync()
     {
         definition = Catalog.All.FirstOrDefault(e => e.Id == ExerciseId);
-        if (IsBodyweight)
+        (tabs, tab) = definition?.Category switch
         {
-            tabs = BodyweightProgressItems.Tabs(definition!.Loaded);
-            tab = BodyweightProgressItems.BestSetTab;
-        }
-
+            ExerciseCategory.Bodyweight => (BodyweightProgressItems.Tabs(definition.Loaded), BodyweightProgressItems.BestSetTab),
+            ExerciseCategory.Assisted => ([], tab),
+            ExerciseCategory.Hold => (HoldProgressItems.Tabs, HoldProgressItems.DurationTab),
+            ExerciseCategory.Carry => (CarryProgressItems.Tabs, CarryProgressItems.WeightTab),
+            _ => (tabs, tab),
+        };
         return LoadAsync();
     }
 
@@ -92,30 +101,85 @@
         Summarise();
     }
 
-    /// <summary>Works out the chart, records and sessions for the tab and range from the loaded sessions, in the phone's time zone.</summary>
+    /// <summary>
+    /// Works out the chart, records and sessions for the exercise's category, tab and range from the loaded sessions, in the phone's time zone.
+    /// </summary>
     private void Summarise()
     {
         var zone = Clock.LocalTimeZone;
         var now = Clock.GetUtcNow();
-        if (IsBodyweight)
+        switch (definition?.Category)
         {
-            var progress = Progress.SummariseBodyweight(loaded, range);
-            format = BodyweightProgressItems.Format(tab);
-            points = BodyweightProgressItems.Points(progress, tab, zone, now);
-            noDataMessage = BodyweightProgressItems.NoDataMessage(progress, tab, range);
-            records = BodyweightProgressItems.Records(progress, definition!.Loaded, zone, now);
-            sessions = BodyweightProgressItems.Sessions(progress, zone, now);
-        }
-        else
-        {
-            var progress = Progress.SummariseLift(loaded, range);
-            format = tab == ExerciseProgressItems.E1rmTab ? ExerciseProgressItems.E1rm : ExerciseProgressItems.Weight;
-            points = ExerciseProgressItems.Points(progress, tab, zone, now);
-            noDataMessage = ExerciseProgressItems.NoDataMessage(progress, tab, range);
-            records = ExerciseProgressItems.Records(progress, zone, now);
-            sessions = ExerciseProgressItems.Sessions(progress, zone, now);
+            case ExerciseCategory.Bodyweight:
+                SummariseBodyweight(definition, zone, now);
+                break;
+            case ExerciseCategory.Assisted:
+                SummariseAssisted(zone, now);
+                break;
+            case ExerciseCategory.Hold:
+                SummariseHold(zone, now);
+                break;
+            case ExerciseCategory.Carry:
+                SummariseCarry(definition, zone, now);
+                break;
+            default:
+                SummariseLift(zone, now);
+                break;
         }
     }
 
-    private bool IsBodyweight => definition?.Category == ExerciseCategory.Bodyweight;
+    private void SummariseLift(TimeZoneInfo zone, DateTimeOffset now)
+    {
+        var progress = Progress.SummariseLift(loaded, range);
+        format = tab == ExerciseProgressItems.E1rmTab ? ExerciseProgressItems.E1rm : ExerciseProgressItems.Weight;
+        caption = ExerciseProgressItems.Caption(tab);
+        points = ExerciseProgressItems.Points(progress, tab, zone, now);
+        noDataMessage = ExerciseProgressItems.NoDataMessage(progress, tab, range);
+        records = ExerciseProgressItems.Records(progress, zone, now);
+        sessions = ExerciseProgressItems.Sessions(progress, zone, now);
+    }
+
+    private void SummariseBodyweight(ExerciseDefinition move, TimeZoneInfo zone, DateTimeOffset now)
+    {
+        var progress = Progress.SummariseBodyweight(loaded, range);
+        format = BodyweightProgressItems.Format(tab);
+        caption = ExerciseProgressItems.Caption(tab);
+        points = BodyweightProgressItems.Points(progress, tab, zone, now);
+        noDataMessage = BodyweightProgressItems.NoDataMessage(progress, tab, range);
+        records = BodyweightProgressItems.Records(progress, move.Loaded, zone, now);
+        sessions = BodyweightProgressItems.Sessions(progress, zone, now);
+    }
+
+    private void SummariseAssisted(TimeZoneInfo zone, DateTimeOffset now)
+    {
+        var progress = Progress.SummariseAssisted(loaded, range);
+        chartTitle = AssistedProgressItems.ChartTitle;
+        flipped = true;
+        caption = AssistedProgressItems.Caption;
+        points = AssistedProgressItems.Points(progress, zone, now);
+        noDataMessage = AssistedProgressItems.NoDataMessage(progress, range);
+        records = AssistedProgressItems.Records(progress, zone, now);
+        sessions = AssistedProgressItems.Sessions(progress, zone, now);
+    }
+
+    private void SummariseHold(TimeZoneInfo zone, DateTimeOffset now)
+    {
+        var progress = Progress.SummariseHold(loaded, range);
+        timeScale = tab == HoldProgressItems.DurationTab;
+        format = timeScale ? HoldProgressItems.Duration : ExerciseProgressItems.Weight;
+        points = HoldProgressItems.Points(progress, tab, zone, now);
+        noDataMessage = HoldProgressItems.NoDataMessage(progress, tab, range);
+        records = HoldProgressItems.Records(progress, zone, now);
+        sessions = HoldProgressItems.Sessions(progress, zone, now);
+    }
+
+    private void SummariseCarry(ExerciseDefinition carry, TimeZoneInfo zone, DateTimeOffset now)
+    {
+        var progress = Progress.SummariseCarry(loaded, range);
+        format = tab == CarryProgressItems.DistanceTab ? CarryProgressItems.Distance(carry) : ExerciseProgressItems.Weight;
+        points = CarryProgressItems.Points(progress, tab, carry, zone, now);
+        noDataMessage = CarryProgressItems.NoDataMessage(progress, tab, range);
+        records = CarryProgressItems.Records(progress, carry, zone, now);
+        sessions = CarryProgressItems.Sessions(progress, carry, zone, now);
+    }
 }

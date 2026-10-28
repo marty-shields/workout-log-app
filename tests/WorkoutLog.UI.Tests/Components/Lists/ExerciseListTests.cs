@@ -61,9 +61,10 @@ public class ExerciseListTests : ComponentTestBase
 
         Assert.Multiple(() =>
         {
-            Assert.That(cut.FindAll("button[data-testid^=list-row-]").Select(r => r.GetAttribute("data-testid")), Is.EqualTo(new[] { "list-row-6", "list-row-264", "list-row-132" }));
-            Assert.That(cut.FindAll("button[data-testid^=list-row-] .chevron"), Has.Count.EqualTo(3));
-            Assert.That(cut.FindAll("div[data-testid^=list-row-]"), Has.Count.EqualTo(SampleExercises.All.Count - 3));
+            Assert.That(cut.FindAll("button[data-testid^=list-row-]").Select(r => r.GetAttribute("data-testid")),
+                Is.EqualTo(new[] { "list-row-6", "list-row-264", "list-row-218", "list-row-258", "list-row-187", "list-row-132" }));
+            Assert.That(cut.FindAll("button[data-testid^=list-row-] .chevron"), Has.Count.EqualTo(6));
+            Assert.That(cut.FindAll("div[data-testid^=list-row-]"), Has.Count.EqualTo(SampleExercises.All.Count - 6));
         });
     }
 

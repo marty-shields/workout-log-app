@@ -9,7 +9,7 @@ namespace WorkoutLog.UI.Models.Exercises;
 /// <summary>Builds, searches and filters the rows of the Exercises list and the add-exercise list.</summary>
 public static class ExerciseListItems
 {
-    /// <summary>A row for the exercise, with its last session's date and best when it has one. Lifts and bodyweight moves open their Exercise page.</summary>
+    /// <summary>A row for the exercise, with its last session's date and best when it has one. Strength exercises open their Exercise page.</summary>
     /// <param name="exercise">The exercise.</param>
     /// <param name="logged">Its last session; null when not logged or not loaded.</param>
     /// <param name="zone">The phone's time zone.</param>

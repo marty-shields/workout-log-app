@@ -75,9 +75,9 @@ public class ExerciseCatalogTests
     }
 
     [Test]
-    public void HasProgressPage_LiftsAndBodyweightMovesOnly() =>
+    public void HasProgressPage_EveryStrengthCategory() =>
         Assert.That(catalog.All.Where(e => e.HasProgressPage).Select(e => e.Category).Distinct(),
-            Is.EquivalentTo(new[] { ExerciseCategory.Lift, ExerciseCategory.Bodyweight }));
+            Is.EquivalentTo(new[] { ExerciseCategory.Lift, ExerciseCategory.Bodyweight, ExerciseCategory.Assisted, ExerciseCategory.Hold, ExerciseCategory.Carry }));
 
     [Test]
     public void All_ReadsCardioUnits()

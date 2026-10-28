@@ -35,7 +35,7 @@ public sealed class ExercisesSteps(WebView web, Native native, Journeys journeys
         {
             Assert.That(exercises.Lasts(), Is.EqualTo(rows.Select(r => r.Last)), "last sessions");
             Assert.That(exercises.Kinds(), Is.EqualTo(rows.Select(r => r.Kind)), "kinds");
-            Assert.That(exercises.TappableNames(), Is.EqualTo(rows.Where(r => Exercises.Named(r.Name).HasProgressPage).Select(r => r.Name)), "tappable rows: lifts and bodyweight moves");
+            Assert.That(exercises.TappableNames(), Is.EqualTo(rows.Where(r => Exercises.Named(r.Name).HasProgressPage).Select(r => r.Name)), "tappable rows: exercises with an Exercise page");
         });
     }
 

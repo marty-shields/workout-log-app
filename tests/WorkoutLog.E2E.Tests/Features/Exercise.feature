@@ -7,7 +7,7 @@ Feature: Exercise page
       | started          | exercises                                       |
       | 3 days ago 18:05 | Barbell Back Squat: 5 reps 60 kg / Plank: 0:01:00 |
     And I have opened Exercises
-    Then the tappable rows on Exercises are: Barbell Back Squat
+    Then the tappable rows on Exercises are: Barbell Back Squat, Plank
     When I open "Barbell Back Squat" on Exercises
     Then the Exercise page is titled "Barbell Back Squat" with "Quadriceps · Barbell"
     When I go back with <how>

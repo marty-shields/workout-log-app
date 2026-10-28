@@ -107,6 +107,13 @@ public class ExerciseProgressItemsTests
     public void NoDataMessage_SessionsWithoutValuesForTheTab_IsNoSets(string tab, ChartRange range, string expected) =>
         Assert.That(ExerciseProgressItems.NoDataMessage(Progress(NoWeight, tab == "e1rm" ? LastYear : NoWeight), tab, range), Is.EqualTo(expected));
 
+    [TestCase(ChartRange.ThreeMonths, "No sets in the last 3 months")]
+    [TestCase(ChartRange.SixMonths, "No sets in the last 6 months")]
+    [TestCase(ChartRange.Year, "No sets in the last year")]
+    [TestCase(ChartRange.All, "No sets yet")]
+    public void NoSets_NamesTheRange(ChartRange range, string expected) =>
+        Assert.That(ExerciseProgressItems.NoSets(range), Is.EqualTo(expected));
+
     [Test]
     public void Records_AreTheHeaviestWeightAndBestE1rmWithTheirDates() =>
         Assert.That(ExerciseProgressItems.Records(
