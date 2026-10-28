@@ -126,6 +126,7 @@ public static class ScreenStates
         new("Screens/Exercise", "Cardio duration", c => ExercisePage(c, SampleExercises.CardioDuration)),
         new("Screens/Exercise", "Cardio pace", c => ExercisePage(c, SampleExercises.CardioPace)),
         new("Screens/Exercise", "Cardio no data", c => ExercisePage(c, SampleExercises.CardioNoData)),
+        new("Screens/Exercise", "Cardio floors", c => ExercisePage(c, SampleExercises.CardioFloors)),
         new("Screens/Exercise", "No sessions in range", c => ExercisePage(c, SampleExercises.NoSessionsInRange)),
         new("Screens/Exercise", "One session", c => ExercisePage(c, SampleExercises.OneSession)),
         new("Screens/Exercise", "Loading", c => ExerciseLoad(c, loading: true)),

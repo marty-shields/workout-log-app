@@ -33,7 +33,7 @@ References: App → UI → Core. UI.Stories → UI. UI.Tests → UI, UI.Stories 
 
 ## Dependency injection
 - Everything is registered in `MauiProgram.CreateMauiApp()`. Core registers its types through `AddCore(databasePath)` (D105) and UI through `AddUi()` (D123); services and repositories are registered by interface.
-- Core's public services are `IWorkoutService`, `IWorkoutsService`, `IDashboardService`, `IWeightHistoryService`, `ILoggedExercisesService`, `IExerciseProgressService`, `IExportService` and `IImportService`; the repository, unit of work, validator, best rules and progress rules are internal (D107, D116, D48, D191, D192, D188, D190).
+- Core's public services are `IWorkoutService`, `IWorkoutsService`, `IDashboardService`, `IWeightHistoryService`, `ILoggedExercisesService`, `IExerciseProgressService`, `ICardioProgressService`, `IExportService` and `IImportService`; the repository, unit of work, validator, best rules and progress rules are internal (D107, D116, D48, D191, D192, D196, D188, D190).
 - The host registers two interfaces for Export (D188): `IExportEnvironment` (Core: the app's display version and cache folder) as `MauiExportEnvironment`, and `IFileShare` (UI: opens the share sheet) as `MauiFileShare`, which uses MAUI `Share`. For Import it registers `IImportFilePicker` (UI) as `MauiImportFilePicker`, which uses MAUI `FilePicker` (D190).
 - `AddCore` creates one database connection and gives it only to the initializer, the exercise seeder, the repository and the unit of work. The repository writes each workout in its own transaction; `IUnitOfWork` runs several writes in one, both through an `IWorkoutWriter` from `IWorkoutWriterFactory`. The initializer, repository and unit of work are decorators that run each call through one `DatabaseGate`, so database calls run one at a time; nothing can resolve a database type that skips the gate (D106, D105).
 - At startup `StartupGate` awaits `IDatabaseInitializer.InitializeAsync()`, which upgrades and creates the schema and seeds the exercise list, and shows the Startup screen until it completes, or its error if it throws (D108, D75).
@@ -49,7 +49,7 @@ Blazor routing (`@page`):
 | `/workout/{id}` | Edit workout (D117) |
 | `/workouts` | Workouts |
 | `/exercises` | Exercises (D191) |
-| `/exercises/{id}` | Exercise (D192) |
+| `/exercises/{id}` | Exercise (D192, D196) |
 | `/settings` | Settings (D187) |
 | `/settings/import` | Import Review (D190) |
 
@@ -77,14 +77,14 @@ How back works (D119):
 ## Error handling
 What each error shows is on the [screen pages](../src/WorkoutLog.UI.Stories/Stories/Screens/).
 - Validation failures are shown inline. Nothing is written. The service returns error codes; the page words them (D113).
-- Services turn any repository exception into a failed result and log it: `WorkoutsResult.Failed` (D116), `DashboardResult.Failed`, the week and month maths included (D67, D116), `WorkoutLoad.Failed` (D72, D112), `WorkoutError.SaveFailed` (D115), `WorkoutDelete.Failed`, a missing workout included (D46, D112), `WeightHistoryResult.Failed` (D48), `LoggedExercisesResult.Failed` (D191), `ExerciseProgressResult.Failed` (D192), and `ExportCount.Failed` and `ExportStatus.Failed` (D188).
+- Services turn any repository exception into a failed result and log it: `WorkoutsResult.Failed` (D116), `DashboardResult.Failed`, the week and month maths included (D67, D116), `WorkoutLoad.Failed` (D72, D112), `WorkoutError.SaveFailed` (D115), `WorkoutDelete.Failed`, a missing workout included (D46, D112), `WeightHistoryResult.Failed` (D48), `LoggedExercisesResult.Failed` (D191), `ExerciseProgressResult.Failed` (D192), `CardioProgressResult.Failed` (D196), and `ExportCount.Failed` and `ExportStatus.Failed` (D188).
 - An unhandled error in a screen shows the Error screen. `AppErrorBoundary` in the App's `Routes` shows it and logs the error (D76).
 - Unhandled .NET exceptions are logged, then the app crashes. Unobserved task exceptions are logged only (D133).
 
 ## Logging
 **How**
 - Core and UI inject `ILogger<T>` and never know where logs go. Each host registers its own `ILoggerProvider`s and levels in its startup (D130).
-- Each logging type has a nested `static partial class Log` of `[LoggerMessage]` methods, each with a fixed EventId and level (D132). Each project names its EventIds in an internal enum, used as `(int)UiEvent.X` (D132): `CoreEvent` 1000–1999 and `UiEvent` 2000–4999, a block of 100 per type; `AppEvent` 5000+, a block of 10 per group. In a Razor component the `Log` class goes in `<Component>.razor.cs`.
+- Each logging type has a nested `static partial class Log` of `[LoggerMessage]` methods, each with a fixed EventId and level (D132). Each project names its EventIds in an internal enum, used as `(int)UiEvent.X` (D132): `CoreEvent` 1000–1999 and `UiEvent` 2000–4999, a block of 100 per type, the two Exercise page services sharing 1900; `AppEvent` 5000+, a block of 10 per group. In a Razor component the `Log` class goes in `<Component>.razor.cs`.
 - Tests check each event's EventId, level, message and exception ([05](05-testing.md)).
 
 **What to log**

@@ -129,6 +129,13 @@
         </Template>
     </Story>
 
+    <Story Name="Cardio floors">
+        <Template>
+            @{ var s = SampleExercises.CardioFloors; }
+            <ExerciseView Name="@s.Name" Subtitle="@s.Subtitle" Tabs="s.Tabs" Tab="@s.Tab" TabChanged="(string _) => { }" ChartTitle="@s.ChartTitle" Points="s.Points" Flipped="s.Flipped" Format="s.Format" TimeScale="s.TimeScale" Caption="@s.Caption" NoDataMessage="@s.NoDataMessage" RangeChanged="(ChartRange _) => { }" Records="s.Records" Sessions="s.Sessions" OnBack="() => { }" />
+        </Template>
+    </Story>
+
     <Story Name="No sessions in range">
         <Template>
             @{ var s = SampleExercises.NoSessionsInRange; }

@@ -16,7 +16,6 @@ public class ExercisePageTests : ComponentTestBase
     private const int BulgarianSplitSquat = 58;
     private const int AssistedPullUp = 218;
     private const int FarmersWalk = 187;
-    private const int Run = 311;
 
     /// <summary>Wed 28 Oct 2026 12:00 UTC.</summary>
     private static readonly DateTimeOffset Now = new(2026, 10, 28, 12, 0, 0, TimeSpan.Zero);
@@ -28,6 +27,7 @@ public class ExercisePageTests : ComponentTestBase
     private static readonly StrengthSession Walked = new(7, Now.AddDays(-8), [new(null, 32m, TimeSpan.FromSeconds(45), 40m)]);
 
     private FakeExerciseProgressService progress = null!;
+    private FakeCardioProgressService cardio = null!;
 
     [SetUp]
     public void SetUp()
@@ -48,6 +48,8 @@ public class ExercisePageTests : ComponentTestBase
                     new LiftRecords(new ProgressRecord<ExerciseBest>(Top(70m, 3), Heavy.StartedAt), new ProgressRecord<decimal>(62.5m * (1 + 8 / 30m), Heavy.StartedAt))),
         };
         Context.Services.AddSingleton<IExerciseProgressService>(progress);
+        cardio = new FakeCardioProgressService();
+        Context.Services.AddSingleton<ICardioProgressService>(cardio);
     }
 
     [Test]
@@ -108,6 +110,7 @@ public class ExercisePageTests : ComponentTestBase
         Assert.Multiple(() =>
         {
             Assert.That(progress.Loads, Is.EqualTo(new[] { Squat }));
+            Assert.That(cardio.Loads, Is.Empty);
             Assert.That(progress.LiftSummaries.Select(s => s.Range), Is.EqualTo(new[] { ChartRange.ThreeMonths }));
             Assert.That(progress.LiftSummaries.Single().Sessions, Is.SameAs(progress.Result.Sessions));
             Assert.That(progress.BodyweightSummaries, Is.Empty);
@@ -298,20 +301,6 @@ public class ExercisePageTests : ComponentTestBase
         var cut = Render(FarmersWalk);
 
         Assert.That(cut.Find("[data-testid=exercise-chart-empty]").TextContent, Is.EqualTo("No sets in the last 3 months"));
-    }
-
-    [Test]
-    public void NoExercisePage_ShowsLoadFailedUnderItsName()
-    {
-        progress.Result = new ExerciseProgressResult([], Failed: true);
-
-        var cut = Render(Run);
-
-        Assert.Multiple(() =>
-        {
-            Assert.That(cut.Find("[data-testid=screen-title]").TextContent, Is.EqualTo("Outdoor Run"));
-            Assert.That(cut.Find("[data-testid=exercise-error]").TextContent, Is.EqualTo("Couldn't load this exercise"));
-        });
     }
 
     [Test]

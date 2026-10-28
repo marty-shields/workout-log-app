@@ -54,5 +54,9 @@ public class CoreEventTests
             [CoreEvent.ExerciseProgressLoadFailed] = 1902,
             [CoreEvent.ExerciseProgressUnknownExercise] = 1903,
             [CoreEvent.ExerciseProgressNotSupported] = 1904,
+            [CoreEvent.CardioProgressLoaded] = 1905,
+            [CoreEvent.CardioProgressLoadFailed] = 1906,
+            [CoreEvent.CardioProgressUnknownExercise] = 1907,
+            [CoreEvent.CardioProgressNotCardio] = 1908,
         }));
 }

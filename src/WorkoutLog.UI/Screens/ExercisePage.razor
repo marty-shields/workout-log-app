@@ -5,11 +5,12 @@
 @using WorkoutLog.UI.Components.Inputs
 @using WorkoutLog.UI.Models.Exercises
 @inject IExerciseProgressService Progress
+@inject ICardioProgressService CardioProgress
 @inject IExerciseCatalog Catalog
 @inject TimeProvider Clock
 
 <ExerciseView Name="@(definition?.Name ?? "")"
-              Subtitle="@(definition is null ? null : ExerciseProgressItems.Subtitle(definition))"
+              Subtitle="@(definition is null ? null : IsCardio ? CardioProgressItems.Subtitle : ExerciseProgressItems.Subtitle(definition))"
               Tabs="tabs"
               Tab="@(tabs.Count > 0 ? tab : null)"
               TabChanged="ChooseTab"
@@ -32,6 +33,7 @@
 @code {
     private ExerciseDefinition? definition;
     private IReadOnlyList<StrengthSession> loaded = [];
+    private IReadOnlyList<CardioSession> loadedCardio = [];
     private IReadOnlyList<RadioOption<string>> tabs = ExerciseProgressItems.Tabs;
     private string tab = ExerciseProgressItems.TopSetTab;
     private ChartRange range = ChartRange.ThreeMonths;
@@ -47,13 +49,15 @@
     private bool loading;
     private bool failed;
 
-    /// <summary>Id of the strength exercise to show.</summary>
+    /// <summary>Id of the strength or cardio exercise to show.</summary>
     [Parameter, EditorRequired]
     public int ExerciseId { get; set; }
 
     /// <summary>Raised by the back arrow and the Android back button.</summary>
     [Parameter]
     public EventCallback OnBack { get; set; }
+
+    private bool IsCardio => definition?.Category == ExerciseCategory.Cardio;
 
     protected override Task OnInitializedAsync()
     {
@@ -64,14 +68,19 @@
             ExerciseCategory.Assisted => ([], tab),
             ExerciseCategory.Hold => (HoldProgressItems.Tabs, HoldProgressItems.DurationTab),
             ExerciseCategory.Carry => (CarryProgressItems.Tabs, CarryProgressItems.WeightTab),
+            ExerciseCategory.Cardio => OnFirstTab(CardioProgressItems.Tabs(definition)),
             _ => (tabs, tab),
         };
         return LoadAsync();
     }
 
+    /// <summary>The tabs, with the first chosen.</summary>
+    private static (IReadOnlyList<RadioOption<string>> Tabs, string Tab) OnFirstTab(IReadOnlyList<RadioOption<string>> cardioTabs) =>
+        (cardioTabs, cardioTabs[0].Value);
+
     /// <summary>
-    /// Loads the exercise's sessions through <see cref="IExerciseProgressService.LoadAsync"/> and summarises them.
-    /// Shows the spinner until it finishes (D69).
+    /// Loads the exercise's sessions through <see cref="ICardioProgressService.LoadAsync"/> for cardio, otherwise
+    /// <see cref="IExerciseProgressService.LoadAsync"/>, and summarises them. Shows the spinner until it finishes (D69).
     /// </summary>
     private async Task LoadAsync()
     {
@@ -82,9 +91,19 @@
 
         loading = true;
         StateHasChanged();
-        var result = await Progress.LoadAsync(ExerciseId);
-        loaded = result.Sessions;
-        failed = result.Failed;
+        if (IsCardio)
+        {
+            var result = await CardioProgress.LoadAsync(ExerciseId);
+            loadedCardio = result.Sessions;
+            failed = result.Failed;
+        }
+        else
+        {
+            var result = await Progress.LoadAsync(ExerciseId);
+            loaded = result.Sessions;
+            failed = result.Failed;
+        }
+
         loading = false;
         Summarise();
     }
@@ -121,6 +140,9 @@
                 break;
             case ExerciseCategory.Carry:
                 SummariseCarry(definition, zone, now);
+                break;
+            case ExerciseCategory.Cardio:
+                SummariseCardio(definition, zone, now);
                 break;
             default:
                 SummariseLift(zone, now);
@@ -181,5 +203,18 @@
         noDataMessage = CarryProgressItems.NoDataMessage(progress, tab, range);
         records = CarryProgressItems.Records(progress, carry, zone, now);
         sessions = CarryProgressItems.Sessions(progress, carry, zone, now);
+    }
+
+    private void SummariseCardio(ExerciseDefinition cardio, TimeZoneInfo zone, DateTimeOffset now)
+    {
+        var progress = CardioProgress.Summarise(loadedCardio, range);
+        flipped = CardioProgressItems.Flipped(tab);
+        timeScale = CardioProgressItems.TimeScale(tab);
+        format = CardioProgressItems.Format(cardio, tab);
+        caption = CardioProgressItems.Caption(tab);
+        points = CardioProgressItems.Points(progress, tab, zone, now);
+        noDataMessage = CardioProgressItems.NoDataMessage(progress, tab, range);
+        records = CardioProgressItems.Records(cardio, progress, zone, now);
+        sessions = CardioProgressItems.Sessions(cardio, progress, zone, now);
     }
 }

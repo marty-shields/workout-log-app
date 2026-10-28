@@ -36,6 +36,7 @@ It's built for one person and one phone: no accounts, no sign-up.
 - 🗂️ **Workouts.** Browse every session, open one to edit it, or delete it.
 - 🏆 **Exercises.** Every exercise you've logged, latest first, with when you last did it and that session's best.
 - 📈 **Exercise progress.** Open a strength exercise to chart its top set, estimated one-rep max, best set or total reps, least assist, hold duration and weight, or carry weight and distance over 3 months, 6 months, a year or all time, with its records and every session.
+- 🏃 **Cardio progress.** Open a cardio exercise to chart its distance, duration, pace, floors or calories over 3 months, 6 months, a year or all time, with its records and every session.
 - 📊 **Dashboard.** Your last workout and how many sessions you've done this week and this month.
 - 📤 **Export.** Save every workout to one JSON file and share it to Drive, email or another app.
 - 📥 **Import.** Bring an exported file back: review what's new, already there or different, then add or replace.
@@ -85,6 +86,12 @@ It's built for one person and one phone: no accounts, no sign-up.
     </td>
     <td align="center">
       <picture>
+        <source media="(prefers-color-scheme: dark)" srcset="docs/images/readme/exercise-cardio-dark.png" />
+        <img src="docs/images/readme/exercise-cardio-light.png" alt="A cardio exercise's distance chart, records and sessions" width="150" />
+      </picture>
+    </td>
+    <td align="center">
+      <picture>
         <source media="(prefers-color-scheme: dark)" srcset="docs/images/readme/settings-dark.png" />
         <img src="docs/images/readme/settings-light.png" alt="Settings with Export and Import" width="150" />
       </picture>
@@ -97,6 +104,7 @@ It's built for one person and one phone: no accounts, no sign-up.
     <td align="center"><sub><b>Add exercise</b></sub></td>
     <td align="center"><sub><b>Workouts</b></sub></td>
     <td align="center"><sub><b>Lift progress</b></sub></td>
+    <td align="center"><sub><b>Cardio progress</b></sub></td>
     <td align="center"><sub><b>Export and import</b></sub></td>
   </tr>
 </table>

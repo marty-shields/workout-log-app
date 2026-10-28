@@ -67,6 +67,10 @@ public sealed class ExerciseScreen(WebView web)
         return web.FindAll("[data-testid^=\"exercise-tab-\"]").Select(e => e.FindElement(By.XPath("..")).GetDomProperty("textContent")!.Trim()).ToList();
     }
 
+    /// <summary>Key of the chosen tab, e.g. duration.</summary>
+    public string? ChosenTab() =>
+        web.FindAll("[data-testid^=\"exercise-tab-\"]").FirstOrDefault(e => e.Selected)?.GetDomAttribute("data-testid")?["exercise-tab-".Length..];
+
     /// <summary>Taps a tab's label: the radio inside it is hidden.</summary>
     public void Tab(string key) => web.Find($"exercise-tab-{key}").FindElement(By.XPath("..")).Click();
 

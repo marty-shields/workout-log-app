@@ -41,17 +41,17 @@ public static class SampleExercises
     /// <summary>Seconds as m:ss, e.g. 1:45.</summary>
     public static readonly Func<decimal, string> Clock = value => $"{(int)value / 60}:{(int)value % 60:00}";
 
-    /// <summary>Logged exercises, most recent first; the strength exercises open their Exercise page.</summary>
+    /// <summary>Logged exercises, most recent first.</summary>
     public static IReadOnlyList<ExerciseListItem> All { get; } =
     [
-        new(6, "Barbell Back Squat", ExerciseKind.Strength, "Tue 20 Oct · 70kg × 3", Opens: true),
-        new(264, "Push-up", ExerciseKind.Strength, "Tue 20 Oct · 25 reps", Opens: true),
-        new(218, "Machine Assisted Pull-up", ExerciseKind.Strength, "Thu 15 Oct · 20kg × 10", Opens: true),
-        new(258, "Plank", ExerciseKind.Strength, "Thu 15 Oct · 1:45", Opens: true),
+        new(6, "Barbell Back Squat", ExerciseKind.Strength, "Tue 20 Oct · 70kg × 3"),
+        new(264, "Push-up", ExerciseKind.Strength, "Tue 20 Oct · 25 reps"),
+        new(218, "Machine Assisted Pull-up", ExerciseKind.Strength, "Thu 15 Oct · 20kg × 10"),
+        new(258, "Plank", ExerciseKind.Strength, "Thu 15 Oct · 1:45"),
         new(311, "Outdoor Run", ExerciseKind.Cardio, "Sun 11 Oct · 5.2km"),
-        new(187, "Farmer's Walk", ExerciseKind.Strength, "Thu 8 Oct · 32kg · 40m", Opens: true),
+        new(187, "Farmer's Walk", ExerciseKind.Strength, "Thu 8 Oct · 32kg · 40m"),
         new(315, "Jump Rope", ExerciseKind.Cardio, "Mon 5 Oct · 10:00"),
-        new(132, "Dumbbell Curl", ExerciseKind.Strength, "Wed 15 Oct 2025", Opens: true),
+        new(132, "Dumbbell Curl", ExerciseKind.Strength, "Wed 15 Oct 2025"),
     ];
 
     /// <summary>The strength exercises in <see cref="All"/>.</summary>
@@ -257,6 +257,17 @@ public static class SampleExercises
         Records = [.. CardioRecords.Take(3), new("Most calories", null, null)],
         NoDataMessage = "No calories logged in the last 3 months",
     };
+
+    /// <summary>A cardio exercise with no distance, on its Floors tab; one workout holds it twice.</summary>
+    public static SampleExercise CardioFloors { get; } = new(
+        "Stair Climber", "Cardio", [Tab("duration", "Duration"), Tab("floors", "Floors"), Tab("calories", "Calories")], "floors",
+        [P("10 Sep", 80), P("17 Sep", 90), P("24 Sep", 95), P("1 Oct", 110), P("8 Oct", 100), P("15 Oct", 120)],
+        Count,
+        [new("Longest duration", "25:00", "15 Oct"), new("Most floors", "120 floors", "15 Oct"), new("Most calories", "300 calories", "15 Oct")],
+        [
+            new(91, "Thu 15 Oct", "25:00", "120 floors · 300 calories · Speed level 8 · 70 steps/min"),
+            new(90, "Thu 8 Oct", "20:00", "15:00 · 70 floors · 180 calories · Speed level 7 / 20:00 · 100 floors · 240 calories · Speed level 8"),
+        ]);
 
     /// <summary>A barbell lift with no sessions in the range.</summary>
     public static SampleExercise NoSessionsInRange { get; } = new(
