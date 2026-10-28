@@ -2,6 +2,7 @@
 @using WorkoutLog.Core.Domain.Exercises.Progress
 @using WorkoutLog.Core.Services
 @using WorkoutLog.UI.Components.Charts
+@using WorkoutLog.UI.Components.Inputs
 @using WorkoutLog.UI.Models.Exercises
 @inject IExerciseProgressService Progress
 @inject IExerciseCatalog Catalog
@@ -9,11 +10,11 @@
 
 <ExerciseView Name="@(definition?.Name ?? "")"
               Subtitle="@(definition is null ? null : ExerciseProgressItems.Subtitle(definition))"
-              Tabs="ExerciseProgressItems.Tabs"
+              Tabs="tabs"
               Tab="@tab"
               TabChanged="ChooseTab"
               Points="points"
-              Format="@(tab == ExerciseProgressItems.E1rmTab ? ExerciseProgressItems.E1rm : ExerciseProgressItems.Weight)"
+              Format="@format"
               Caption="@ExerciseProgressItems.Caption(tab)"
               NoDataMessage="@noDataMessage"
               Range="range"
@@ -27,9 +28,11 @@
 
 @code {
     private ExerciseDefinition? definition;
-    private IReadOnlyList<LiftSession> loaded = [];
+    private IReadOnlyList<StrengthSession> loaded = [];
+    private IReadOnlyList<RadioOption<string>> tabs = ExerciseProgressItems.Tabs;
     private string tab = ExerciseProgressItems.TopSetTab;
     private ChartRange range = ChartRange.ThreeMonths;
+    private Func<decimal, string> format = ExerciseProgressItems.Weight;
     private IReadOnlyList<ChartPoint> points = [];
     private string? noDataMessage;
     private IReadOnlyList<RecordRow> records = [];
@@ -37,7 +40,7 @@
     private bool loading;
     private bool failed;
 
-    /// <summary>Id of the lift to show.</summary>
+    /// <summary>Id of the lift or bodyweight move to show.</summary>
     [Parameter, EditorRequired]
     public int ExerciseId { get; set; }
 
@@ -48,11 +51,17 @@
     protected override Task OnInitializedAsync()
     {
         definition = Catalog.All.FirstOrDefault(e => e.Id == ExerciseId);
+        if (IsBodyweight)
+        {
+            tabs = BodyweightProgressItems.Tabs(definition!.Loaded);
+            tab = BodyweightProgressItems.BestSetTab;
+        }
+
         return LoadAsync();
     }
 
     /// <summary>
-    /// Loads the lift's sessions through <see cref="IExerciseProgressService.LoadAsync"/> and summarises them.
+    /// Loads the exercise's sessions through <see cref="IExerciseProgressService.LoadAsync"/> and summarises them.
     /// Shows the spinner until it finishes (D69).
     /// </summary>
     private async Task LoadAsync()
@@ -86,12 +95,27 @@
     /// <summary>Works out the chart, records and sessions for the tab and range from the loaded sessions, in the phone's time zone.</summary>
     private void Summarise()
     {
-        var progress = Progress.Summarise(loaded, range);
         var zone = Clock.LocalTimeZone;
         var now = Clock.GetUtcNow();
-        points = ExerciseProgressItems.Points(progress, tab, zone, now);
-        noDataMessage = ExerciseProgressItems.NoDataMessage(progress, tab, range);
-        records = ExerciseProgressItems.Records(progress, zone, now);
-        sessions = ExerciseProgressItems.Sessions(progress, zone, now);
+        if (IsBodyweight)
+        {
+            var progress = Progress.SummariseBodyweight(loaded, range);
+            format = BodyweightProgressItems.Format(tab);
+            points = BodyweightProgressItems.Points(progress, tab, zone, now);
+            noDataMessage = BodyweightProgressItems.NoDataMessage(progress, tab, range);
+            records = BodyweightProgressItems.Records(progress, definition!.Loaded, zone, now);
+            sessions = BodyweightProgressItems.Sessions(progress, zone, now);
+        }
+        else
+        {
+            var progress = Progress.SummariseLift(loaded, range);
+            format = tab == ExerciseProgressItems.E1rmTab ? ExerciseProgressItems.E1rm : ExerciseProgressItems.Weight;
+            points = ExerciseProgressItems.Points(progress, tab, zone, now);
+            noDataMessage = ExerciseProgressItems.NoDataMessage(progress, tab, range);
+            records = ExerciseProgressItems.Records(progress, zone, now);
+            sessions = ExerciseProgressItems.Sessions(progress, zone, now);
+        }
     }
+
+    private bool IsBodyweight => definition?.Category == ExerciseCategory.Bodyweight;
 }

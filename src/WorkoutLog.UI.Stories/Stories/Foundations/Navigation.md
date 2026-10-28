@@ -15,7 +15,7 @@ The app opens on [Startup](./?path=/custom/screens-startup-overview), then the D
 | Dashboard | Back | Leaves the app |
 | Workouts | Tap a row | Edit Workout |
 | Workouts | Back | Dashboard |
-| Exercises | Tap a lift row | Exercise |
+| Exercises | Tap a lift or bodyweight row | Exercise |
 | Exercises | Back | Dashboard |
 | Exercise | Back | Exercises |
 | Settings | Back | Dashboard |

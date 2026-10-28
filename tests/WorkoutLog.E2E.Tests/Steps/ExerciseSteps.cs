@@ -7,7 +7,7 @@ using WorkoutLog.E2E.Tests.Support;
 
 namespace WorkoutLog.E2E.Tests.Steps;
 
-/// <summary>A lift's Exercise page, opened from the Exercises list.</summary>
+/// <summary>A lift's or bodyweight move's Exercise page, opened from the Exercises list.</summary>
 [Binding]
 public sealed class ExerciseSteps(WebView web, Journeys journeys, ExercisesScreen exercises, ExerciseScreen exercise, DeviceClock clock)
 {
@@ -35,8 +35,17 @@ public sealed class ExerciseSteps(WebView web, Journeys journeys, ExercisesScree
         Assert.That(exercise.Subtitle(), Is.EqualTo(subtitle));
     }
 
-    [When(@"^I choose the (Top set|e1RM) tab$")]
-    public void WhenIChooseTheTab(string tab) => exercise.Tab(tab == "e1RM" ? "e1rm" : "top-set");
+    [When(@"^I choose the (Best set|Total|Top set|e1RM) tab$")]
+    public void WhenIChooseTheTab(string tab) => exercise.Tab(tab switch
+    {
+        "Best set" => "best-set",
+        "Total" => "total",
+        "e1RM" => "e1rm",
+        _ => "top-set",
+    });
+
+    [Then(@"^the Exercise tabs are: (.+)$")]
+    public void ThenTheTabsAre(string labels) => web.Eventually(exercise.Tabs, Is.EqualTo(labels.Split(", ")));
 
     [When(@"^I choose the (3M|6M|1Y|All) range$")]
     public void WhenIChooseTheRange(string range) => exercise.Range(range.ToLowerInvariant());

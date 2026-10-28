@@ -59,6 +59,27 @@ public class ExerciseCatalogTests
         Assert.That(catalog.IsAssisted(exerciseId), Is.EqualTo(assisted));
 
     [Test]
+    public void Loaded_OnlyTheTenBodyweightMoves()
+    {
+        var loaded = catalog.All.Where(e => e.Loaded).ToList();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(loaded.Select(e => e.Name), Is.EquivalentTo(new[]
+            {
+                "Bulgarian Split Squat", "Calf Raise", "Donkey Calf Raise", "Glute Bridge", "Lateral Lunge",
+                "Lunge", "Reverse Lunge", "Squat", "Step-up", "Walking Lunge",
+            }));
+            Assert.That(loaded.Select(e => e.Category), Is.All.EqualTo(ExerciseCategory.Bodyweight));
+        });
+    }
+
+    [Test]
+    public void HasProgressPage_LiftsAndBodyweightMovesOnly() =>
+        Assert.That(catalog.All.Where(e => e.HasProgressPage).Select(e => e.Category).Distinct(),
+            Is.EquivalentTo(new[] { ExerciseCategory.Lift, ExerciseCategory.Bodyweight }));
+
+    [Test]
     public void All_ReadsCardioUnits()
     {
         var exercise = Find("Outdoor Run");

@@ -27,6 +27,7 @@ Strength exercises are based on [free-exercise-db](https://github.com/yuhonas/fr
 | Primary muscle (strength) | Abdominals, Abductors, Adductors, Biceps, Calves, Chest, Forearms, Glutes, Hamstrings, Lats, LowerBack, MiddleBack, Neck, Quadriceps, Shoulders, Traps, Triceps |
 | Equipment (strength) | Barbell, Dumbbell, EzBar, Cable, Machine, SmithMachine, Kettlebell, None, Band, TrapBar, Landmine, Other |
 | Mechanic (strength) | Compound, Isolation |
+| Loaded | true on Bulgarian Split Squat, Calf Raise, Donkey Calf Raise, Glute Bridge, Lateral Lunge, Lunge, Reverse Lunge, Squat, Step-up and Walking Lunge (all Bodyweight); false on every other exercise (D193) |
 
 ## Activity types
 **R** = required, **o** = optional, blank = not shown.

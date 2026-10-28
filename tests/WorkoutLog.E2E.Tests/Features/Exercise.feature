@@ -69,3 +69,13 @@ Feature: Exercise page
       | Heaviest weight | —     |     |
       | Best e1RM       | —     |     |
     And the Exercise page lists no sessions
+
+  Scenario: A tab with no values says there are no sets
+    Given these saved workouts:
+      | started          | exercises                         |
+      | 3 days ago 18:05 | Barbell Back Squat: 15 reps 40 kg |
+    And I have opened the Exercise page for "Barbell Back Squat"
+    When I choose the e1RM tab
+    Then the Exercise chart says "No sets in the last 3 months"
+    When I choose the All range
+    Then the Exercise chart says "No sets yet"

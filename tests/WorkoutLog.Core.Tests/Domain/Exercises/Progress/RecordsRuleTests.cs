@@ -56,5 +56,5 @@ public class RecordsRuleTests
     private static ExerciseBest Top(decimal kg, int reps) => new(kg, reps, null, null);
 
     private static LiftSessionProgress Session(DateTimeOffset startedAt, ExerciseBest? topSet, decimal? e1rm) =>
-        new(new LiftSession(1, startedAt, []), topSet, e1rm);
+        new(new StrengthSession(1, startedAt, []), topSet, e1rm);
 }

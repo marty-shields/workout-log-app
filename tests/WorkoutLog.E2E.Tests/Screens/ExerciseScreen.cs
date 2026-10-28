@@ -2,7 +2,7 @@ using OpenQA.Selenium;
 
 namespace WorkoutLog.E2E.Tests.Screens;
 
-/// <summary>An Exercise page: a lift's chart, records and sessions.</summary>
+/// <summary>An Exercise page: a lift's or bodyweight move's chart, records and sessions.</summary>
 public sealed class ExerciseScreen(WebView web)
 {
     /// <summary>True once the page shows its content, spinner or load error.</summary>
@@ -44,6 +44,13 @@ public sealed class ExerciseScreen(WebView web)
         return web.FindAll("[data-testid^=\"exercise-session-\"]")
             .Select(r => (Part(r, ".date"), Part(r, ".headline"), Part(r, ".detail")))
             .ToList();
+    }
+
+    /// <summary>Each tab's label, in order.</summary>
+    public IReadOnlyList<string> Tabs()
+    {
+        WaitUntilLoaded();
+        return web.FindAll("[data-testid^=\"exercise-tab-\"]").Select(e => e.FindElement(By.XPath("..")).GetDomProperty("textContent")!.Trim()).ToList();
     }
 
     /// <summary>Taps a tab's label: the radio inside it is hidden.</summary>

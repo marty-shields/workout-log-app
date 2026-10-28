@@ -12,12 +12,14 @@ public class ExercisePageTests : ComponentTestBase
 {
     private const int Squat = 6;
     private const int PushUp = 264;
+    private const int Plank = 258;
+    private const int BulgarianSplitSquat = 58;
 
     /// <summary>Wed 28 Oct 2026 12:00 UTC.</summary>
     private static readonly DateTimeOffset Now = new(2026, 10, 28, 12, 0, 0, TimeSpan.Zero);
 
-    private static readonly LiftSession Heavy = new(3, Now.AddDays(-8), [Set(8, 62.5m), Set(3, 70m)]);
-    private static readonly LiftSession Light = new(2, Now.AddDays(-15), [Set(5, 60m), Set(8, null)]);
+    private static readonly StrengthSession Heavy = new(3, Now.AddDays(-8), [Set(8, 62.5m), Set(3, 70m)]);
+    private static readonly StrengthSession Light = new(2, Now.AddDays(-15), [Set(5, 60m), Set(8, null)]);
 
     private FakeExerciseProgressService progress = null!;
 
@@ -100,8 +102,9 @@ public class ExercisePageTests : ComponentTestBase
         Assert.Multiple(() =>
         {
             Assert.That(progress.Loads, Is.EqualTo(new[] { Squat }));
-            Assert.That(progress.Summaries.Select(s => s.Range), Is.EqualTo(new[] { ChartRange.ThreeMonths }));
-            Assert.That(progress.Summaries.Single().Sessions, Is.SameAs(progress.Result.Sessions));
+            Assert.That(progress.LiftSummaries.Select(s => s.Range), Is.EqualTo(new[] { ChartRange.ThreeMonths }));
+            Assert.That(progress.LiftSummaries.Single().Sessions, Is.SameAs(progress.Result.Sessions));
+            Assert.That(progress.BodyweightSummaries, Is.Empty);
             Assert.That(cut.FindAll("[data-testid=exercise-tabs] input[checked]").Select(i => i.GetAttribute("data-testid")), Is.EqualTo(new[] { "exercise-tab-top-set" }));
             Assert.That(cut.FindAll("[data-testid=exercise-range] input[checked]").Select(i => i.GetAttribute("data-testid")), Is.EqualTo(new[] { "exercise-range-3m" }));
             Assert.That(cut.FindAll("[data-testid=exercise-chart-values] li").Select(v => v.TextContent), Is.EqualTo(new[] { "13 Oct: 60kg ×5", "20 Oct: 70kg ×3" }));
@@ -149,8 +152,8 @@ public class ExercisePageTests : ComponentTestBase
         Assert.Multiple(() =>
         {
             Assert.That(progress.Loads, Has.Count.EqualTo(1));
-            Assert.That(progress.Summaries.Select(s => s.Range), Is.EqualTo(new[] { ChartRange.ThreeMonths, ChartRange.All }));
-            Assert.That(progress.Summaries[^1].Sessions, Is.SameAs(progress.Result.Sessions));
+            Assert.That(progress.LiftSummaries.Select(s => s.Range), Is.EqualTo(new[] { ChartRange.ThreeMonths, ChartRange.All }));
+            Assert.That(progress.LiftSummaries[^1].Sessions, Is.SameAs(progress.Result.Sessions));
             Assert.That(cut.Find("[data-testid=exercise-chart-empty]").TextContent, Is.EqualTo("No sessions yet"));
             Assert.That(cut.FindAll("[data-testid=exercise-records] .value").Select(v => v.TextContent), Is.EqualTo(new[] { "—", "—" }));
             Assert.That(cut.FindAll("[data-testid^=exercise-session-]"), Is.Empty);
@@ -170,13 +173,13 @@ public class ExercisePageTests : ComponentTestBase
     [Test]
     public void SessionsWithNoValuesForTheTab_ShowTheTabsMessage()
     {
-        progress.Summary = (_, _) => new LiftProgress([new LiftSessionProgress(new LiftSession(1, Now, [Set(8, null)]), null, null)], new LiftRecords(null, null));
+        progress.Summary = (_, _) => new LiftProgress([new LiftSessionProgress(new StrengthSession(1, Now, [Set(8, null)]), null, null)], new LiftRecords(null, null));
 
         var cut = Render(Squat);
 
         Assert.Multiple(() =>
         {
-            Assert.That(cut.Find("[data-testid=exercise-chart-empty]").TextContent, Is.EqualTo("No weighted sets in the last 3 months"));
+            Assert.That(cut.Find("[data-testid=exercise-chart-empty]").TextContent, Is.EqualTo("No sets in the last 3 months"));
             Assert.That(cut.FindAll("[data-testid=exercise-session-1] span").Select(s => s.TextContent), Is.EqualTo(new[] { "Wed 28 Oct", "8 reps", "8 reps" }));
         });
     }
@@ -194,22 +197,22 @@ public class ExercisePageTests : ComponentTestBase
         Assert.Multiple(() =>
         {
             Assert.That(progress.Loads, Is.EqualTo(new[] { Squat, Squat }));
-            Assert.That(progress.Summaries[^1].Sessions, Is.SameAs(progress.Result.Sessions));
+            Assert.That(progress.LiftSummaries[^1].Sessions, Is.SameAs(progress.Result.Sessions));
             Assert.That(cut.FindAll("[data-testid=exercise-error]"), Is.Empty);
             Assert.That(cut.FindAll("[data-testid^=exercise-session-]"), Has.Count.EqualTo(2));
         });
     }
 
     [Test]
-    public void NotALift_ShowsLoadFailedUnderItsName()
+    public void NoExercisePage_ShowsLoadFailedUnderItsName()
     {
         progress.Result = new ExerciseProgressResult([], Failed: true);
 
-        var cut = Render(PushUp);
+        var cut = Render(Plank);
 
         Assert.Multiple(() =>
         {
-            Assert.That(cut.Find("[data-testid=screen-title]").TextContent, Is.EqualTo("Push-up"));
+            Assert.That(cut.Find("[data-testid=screen-title]").TextContent, Is.EqualTo("Plank"));
             Assert.That(cut.Find("[data-testid=exercise-error]").TextContent, Is.EqualTo("Couldn't load this exercise"));
         });
     }
@@ -238,6 +241,101 @@ public class ExercisePageTests : ComponentTestBase
         cut.Find("[data-testid=back]").Click();
 
         Assert.That(backs, Is.EqualTo(1));
+    }
+
+    [Test]
+    public void Bodyweight_OpensOnBestSetWithItsTabsRecordsAndSessions()
+    {
+        UseBodyweight();
+
+        var cut = Render(PushUp);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.FindAll("[data-testid=exercise-tabs] input").Select(i => i.GetAttribute("data-testid")),
+                Is.EqualTo(new[] { "exercise-tab-best-set", "exercise-tab-total", "exercise-tab-top-set" }));
+            Assert.That(cut.FindAll("[data-testid=exercise-tabs] input[checked]").Select(i => i.GetAttribute("data-testid")), Is.EqualTo(new[] { "exercise-tab-best-set" }));
+            Assert.That(cut.FindAll("[data-testid=exercise-range] input[checked]").Select(i => i.GetAttribute("data-testid")), Is.EqualTo(new[] { "exercise-range-3m" }));
+            Assert.That(progress.BodyweightSummaries.Single().Sessions, Is.SameAs(progress.Result.Sessions));
+            Assert.That(progress.LiftSummaries, Is.Empty);
+            Assert.That(cut.FindAll("[data-testid=exercise-chart-values] li").Select(v => v.TextContent), Is.EqualTo(new[] { "13 Oct: 25", "20 Oct: 20" }));
+            Assert.That(cut.FindAll("[data-testid=exercise-records] .value").Select(v => v.TextContent), Is.EqualTo(new[] { "25 reps", "63 reps", "16kg × 8" }));
+            Assert.That(cut.FindAll("[data-testid=exercise-session-6] span").Select(s => s.TextContent), Is.EqualTo(new[] { "Tue 20 Oct", "16kg × 8", "20 · 16×8" }));
+            Assert.That(cut.FindAll("[data-testid=exercise-session-5] span").Select(s => s.TextContent), Is.EqualTo(new[] { "Tue 13 Oct", "25 reps", "25 · 20 · 18" }));
+        });
+    }
+
+    [TestCase("total", new[] { "13 Oct: 63", "20 Oct: 20" })]
+    [TestCase("top-set", new[] { "20 Oct: 16kg ×8" })]
+    public void Bodyweight_ChoosingATab_ShowsItsValuesWithoutLoadingAgain(string tab, string[] values)
+    {
+        UseBodyweight();
+        var cut = Render(PushUp);
+
+        cut.Find($"[data-testid=exercise-tab-{tab}]").Change(true);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(progress.Loads, Has.Count.EqualTo(1));
+            Assert.That(cut.FindAll("[data-testid=exercise-chart-values] li").Select(v => v.TextContent), Is.EqualTo(values));
+            Assert.That(cut.FindAll("[data-testid=exercise-chart-caption]"), Is.Empty);
+        });
+    }
+
+    [Test]
+    public void LoadedBodyweight_HasTheE1rmTabAndRecord()
+    {
+        UseBodyweight();
+        var cut = Render(BulgarianSplitSquat);
+
+        cut.Find("[data-testid=exercise-tab-e1rm]").Change(true);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.FindAll("[data-testid=exercise-tabs] input").Select(i => i.GetAttribute("data-testid")),
+                Is.EqualTo(new[] { "exercise-tab-best-set", "exercise-tab-total", "exercise-tab-top-set", "exercise-tab-e1rm" }));
+            Assert.That(cut.FindAll("[data-testid=exercise-chart-values] li").Select(v => v.TextContent), Is.EqualTo(new[] { "20 Oct: 20.3kg" }));
+            Assert.That(cut.Find("[data-testid=exercise-chart-caption]").TextContent, Is.EqualTo("Estimated one-rep max"));
+            Assert.That(cut.FindAll("[data-testid=exercise-records] .value").Select(v => v.TextContent), Is.EqualTo(new[] { "25 reps", "63 reps", "16kg × 8", "20.3kg" }));
+        });
+    }
+
+    [Test]
+    public void Bodyweight_TabWithNoValues_ShowsNoSets()
+    {
+        var session = new StrengthSession(1, Now, [Set(20, null)]);
+        progress.Result = new ExerciseProgressResult([session], Failed: false);
+        progress.BodyweightSummary = (_, _) => new BodyweightProgress(
+            [new BodyweightSessionProgress(session, 20, 20, null, null)],
+            new BodyweightRecords(new ProgressRecord<int>(20, Now), new ProgressRecord<int>(20, Now), null, null));
+        var cut = Render(PushUp);
+
+        cut.Find("[data-testid=exercise-tab-top-set]").Change(true);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.Find("[data-testid=exercise-chart-empty]").TextContent, Is.EqualTo("No sets in the last 3 months"));
+            Assert.That(cut.FindAll("[data-testid=exercise-records] .value").Select(v => v.TextContent), Is.EqualTo(new[] { "20 reps", "20 reps", "—" }));
+        });
+    }
+
+    /// <summary>Two bodyweight sessions: 13 Oct unweighted (25 · 20 · 18), 20 Oct mixed (20 · 16×8).</summary>
+    private void UseBodyweight()
+    {
+        var unweighted = new StrengthSession(5, Now.AddDays(-15), [Set(25, null), Set(20, null), Set(18, null)]);
+        var mixed = new StrengthSession(6, Now.AddDays(-8), [Set(20, null), Set(8, 16m)]);
+        var e1rm = 16m * (1 + 8 / 30m);
+        progress.Result = new ExerciseProgressResult([unweighted, mixed], Failed: false);
+        progress.BodyweightSummary = (_, _) => new BodyweightProgress(
+            [
+                new BodyweightSessionProgress(unweighted, 25, 63, null, null),
+                new BodyweightSessionProgress(mixed, 20, 20, Top(16m, 8), e1rm),
+            ],
+            new BodyweightRecords(
+                new ProgressRecord<int>(25, unweighted.StartedAt),
+                new ProgressRecord<int>(63, unweighted.StartedAt),
+                new ProgressRecord<ExerciseBest>(Top(16m, 8), mixed.StartedAt),
+                new ProgressRecord<decimal>(e1rm, mixed.StartedAt)));
     }
 
     private IRenderedComponent<ExercisePage> Render(int exerciseId) =>
