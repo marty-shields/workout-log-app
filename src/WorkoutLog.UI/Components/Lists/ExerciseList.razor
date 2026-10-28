@@ -63,10 +63,6 @@ else
     [Parameter]
     public EventCallback<ExerciseListItem> OnPick { get; set; }
 
-    /// <summary>Which rows are tappable when <see cref="OnPick"/> is set; every row when unset.</summary>
-    [Parameter]
-    public Func<ExerciseListItem, bool>? CanPick { get; set; }
-
     /// <summary>Prefix of the data-testid attributes, e.g. exercises gives exercises-search and exercises-row-{id}.</summary>
     [Parameter, EditorRequired]
     public string TestId { get; set; } = "";
@@ -98,7 +94,7 @@ else
             <ListRow Text="@item.Name"
                      Detail="@(item.Last is null ? null : $"Last {item.Last}")"
                      Aside="@item.Kind.ToString()"
-                     OnClick="@(OnPick.HasDelegate && (CanPick?.Invoke(item) ?? true) ? EventCallback.Factory.Create(this, () => OnPick.InvokeAsync(item)) : default)"
+                     OnClick="@(OnPick.HasDelegate ? EventCallback.Factory.Create(this, () => OnPick.InvokeAsync(item)) : default)"
                      TestId="@($"{TestId}-row-{item.Id}")" />
         </li>;
 }

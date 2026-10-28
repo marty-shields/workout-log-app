@@ -35,7 +35,7 @@ public sealed class ExerciseSteps(WebView web, Journeys journeys, ExercisesScree
         Assert.That(exercise.Subtitle(), Is.EqualTo(subtitle));
     }
 
-    [When(@"^I choose the (Best set|Total|Top set|e1RM|Duration|Weight|Distance) tab$")]
+    [When(@"^I choose the (Best set|Total|Top set|e1RM|Duration|Weight|Distance|Pace|Floors|Calories) tab$")]
     public void WhenIChooseTheTab(string tab) => exercise.Tab(tab.ToLowerInvariant().Replace(' ', '-'));
 
     [Then(@"^the Exercise page has no tab switcher$")]
@@ -46,6 +46,9 @@ public sealed class ExerciseSteps(WebView web, Journeys journeys, ExercisesScree
 
     [Then(@"^the Exercise tabs are: (.+)$")]
     public void ThenTheTabsAre(string labels) => web.Eventually(exercise.Tabs, Is.EqualTo(labels.Split(", ")));
+
+    [Then(@"^the Exercise page is on the (.+) tab$")]
+    public void ThenOnTheTab(string tab) => web.Eventually(exercise.ChosenTab, Is.EqualTo(tab.ToLowerInvariant().Replace(' ', '-')));
 
     [When(@"^I choose the (3M|6M|1Y|All) range$")]
     public void WhenIChooseTheRange(string range) => exercise.Range(range.ToLowerInvariant());

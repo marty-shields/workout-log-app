@@ -121,7 +121,8 @@ public static class ExerciseFields
         _ => throw new ArgumentOutOfRangeException(nameof(exercise), exercise.DistanceUnit, "Distance needs a distance unit"),
     };
 
-    private static string RateText(ExerciseDefinition exercise) => exercise.RateUnit switch
+    /// <summary>Unit of the exercise's rate, e.g. rpm.</summary>
+    internal static string RateText(ExerciseDefinition exercise) => exercise.RateUnit switch
     {
         RateUnit.KmPerHour => "km/h",
         RateUnit.Rpm => "rpm",

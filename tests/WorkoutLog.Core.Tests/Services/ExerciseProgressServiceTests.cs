@@ -143,12 +143,12 @@ public class ExerciseProgressServiceTests
     }
 
     [TestCase(Run)]
-    public async Task LoadAsync_NoExercisePage_FailsAndLogsAWarningWithoutReading(int exerciseId)
+    public async Task LoadAsync_Cardio_FailsAndLogsAWarningWithoutReading(int exerciseId)
     {
         var result = await service.LoadAsync(exerciseId);
 
         Assert.That(result, Is.EqualTo(new ExerciseProgressResult([], Failed: true)).UsingPropertiesComparer());
-        Assert.That(LoggedEvents.Of(logger), Is.EqualTo(new[] { (CoreEvent.ExerciseProgressNotSupported, LogLevel.Warning, $"Exercise {exerciseId} has no progress page") }));
+        Assert.That(LoggedEvents.Of(logger), Is.EqualTo(new[] { (CoreEvent.ExerciseProgressNotSupported, LogLevel.Warning, $"Exercise {exerciseId} has no strength progress page") }));
         repository.VerifyNoOtherCalls();
     }
 

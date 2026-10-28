@@ -76,12 +76,12 @@ public class ExercisesViewTests : ComponentTestBase
     }
 
     [Test]
-    public void WithOnOpen_OnlyRowsThatOpenAreTappable()
+    public void WithOnOpen_EveryRowIsTappable()
     {
         var cut = Context.Render<ExercisesView>(p => p.Add(x => x.Items, SampleExercises.All).Add(x => x.OnOpen, (ExerciseListItem _) => { }));
 
         Assert.That(cut.FindAll("button[data-testid^=exercises-row-]").Select(r => r.GetAttribute("data-testid")),
-            Is.EqualTo(SampleExercises.All.Where(e => e.Opens).Select(e => $"exercises-row-{e.Id}")));
+            Is.EqualTo(SampleExercises.All.Select(e => $"exercises-row-{e.Id}")));
     }
 
     [Test]

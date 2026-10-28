@@ -56,7 +56,10 @@ public class CoreServiceCollectionExtensionsTests
             (typeof(IHoldRecordsRule), typeof(HoldRecordsRule), ServiceLifetime.Singleton),
             (typeof(ICarryRule), typeof(CarryRule), ServiceLifetime.Singleton),
             (typeof(ICarryRecordsRule), typeof(CarryRecordsRule), ServiceLifetime.Singleton),
+            (typeof(ICardioSessionRule), typeof(CardioSessionRule), ServiceLifetime.Singleton),
+            (typeof(ICardioRecordsRule), typeof(CardioRecordsRule), ServiceLifetime.Singleton),
             (typeof(IExerciseProgressService), typeof(ExerciseProgressService), ServiceLifetime.Singleton),
+            (typeof(ICardioProgressService), typeof(CardioProgressService), ServiceLifetime.Singleton),
             (typeof(IExportService), typeof(ExportService), ServiceLifetime.Singleton),
             (typeof(IWorkoutWriterFactory), typeof(WorkoutWriterFactory), ServiceLifetime.Singleton),
             (typeof(IUnitOfWork), (Type?)null, ServiceLifetime.Singleton),
@@ -100,6 +103,7 @@ public class CoreServiceCollectionExtensionsTests
             Assert.That(provider.GetRequiredService<IWeightHistoryService>(), Is.InstanceOf<WeightHistoryService>());
             Assert.That(provider.GetRequiredService<ILoggedExercisesService>(), Is.InstanceOf<LoggedExercisesService>());
             Assert.That(provider.GetRequiredService<IExerciseProgressService>(), Is.InstanceOf<ExerciseProgressService>());
+            Assert.That(provider.GetRequiredService<ICardioProgressService>(), Is.InstanceOf<CardioProgressService>());
             Assert.That(provider.GetRequiredService<IExportService>(), Is.InstanceOf<ExportService>());
             Assert.That(provider.GetRequiredService<IImportService>(), Is.InstanceOf<ImportService>());
             Assert.That(provider.GetRequiredService<IUnitOfWork>(), Is.InstanceOf<GatedUnitOfWork>());

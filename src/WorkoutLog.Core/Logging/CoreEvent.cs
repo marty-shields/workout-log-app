@@ -1,6 +1,6 @@
 namespace WorkoutLog.Core.Logging;
 
-/// <summary>Event ids of Core's log messages: 1000–1999, a block of 100 per type. Values never change once logged.</summary>
+/// <summary>Event ids of Core's log messages: 1000–1999, a block of 100 per type; the Exercise page services share 1900. Values never change once logged.</summary>
 internal enum CoreEvent
 {
     /// <summary><see cref="Data.DatabaseInitializer"/>: stored and current schema versions.</summary>
@@ -114,6 +114,18 @@ internal enum CoreEvent
     /// <summary><see cref="Services.ExerciseProgressService"/>: the exercise id is not in the exercise list.</summary>
     ExerciseProgressUnknownExercise = 1903,
 
-    /// <summary><see cref="Services.ExerciseProgressService"/>: the exercise has no progress page.</summary>
+    /// <summary><see cref="Services.ExerciseProgressService"/>: the exercise has no strength progress page.</summary>
     ExerciseProgressNotSupported = 1904,
+
+    /// <summary><see cref="Services.CardioProgressService"/>: a cardio exercise's sessions read.</summary>
+    CardioProgressLoaded = 1905,
+
+    /// <summary><see cref="Services.CardioProgressService"/>: reading a cardio exercise's sessions failed.</summary>
+    CardioProgressLoadFailed = 1906,
+
+    /// <summary><see cref="Services.CardioProgressService"/>: the exercise id is not in the exercise list.</summary>
+    CardioProgressUnknownExercise = 1907,
+
+    /// <summary><see cref="Services.CardioProgressService"/>: the exercise is not cardio.</summary>
+    CardioProgressNotCardio = 1908,
 }

@@ -31,8 +31,4 @@ public sealed record ExerciseDefinition(
 {
     /// <summary>True for an assisted machine (<see cref="ExerciseCategory.Assisted"/>): its weight is the assistance.</summary>
     public bool IsAssisted => Category == ExerciseCategory.Assisted;
-
-    /// <summary>True for a lift, bodyweight move, assisted machine, hold or carry: it has an Exercise page.</summary>
-    public bool HasProgressPage =>
-        Category is ExerciseCategory.Lift or ExerciseCategory.Bodyweight or ExerciseCategory.Assisted or ExerciseCategory.Hold or ExerciseCategory.Carry;
 }

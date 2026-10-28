@@ -9,14 +9,13 @@ namespace WorkoutLog.UI.Models.Exercises;
 /// <summary>Builds, searches and filters the rows of the Exercises list and the add-exercise list.</summary>
 public static class ExerciseListItems
 {
-    /// <summary>A row for the exercise, with its last session's date and best when it has one. Strength exercises open their Exercise page.</summary>
+    /// <summary>A row for the exercise, with its last session's date and best when it has one.</summary>
     /// <param name="exercise">The exercise.</param>
     /// <param name="logged">Its last session; null when not logged or not loaded.</param>
     /// <param name="zone">The phone's time zone.</param>
     /// <param name="now">The current time.</param>
     public static ExerciseListItem Item(ExerciseDefinition exercise, LoggedExercise? logged, TimeZoneInfo zone, DateTimeOffset now) =>
-        new(exercise.Id, exercise.Name, ExerciseFields.Kind(exercise.Type), logged is null ? null : Last(exercise, logged, zone, now),
-            exercise.HasProgressPage);
+        new(exercise.Id, exercise.Name, ExerciseFields.Kind(exercise.Type), logged is null ? null : Last(exercise, logged, zone, now));
 
     /// <summary>
     /// The last session's date in <paramref name="zone"/>, with the year only when it isn't this year, then its best (D49):

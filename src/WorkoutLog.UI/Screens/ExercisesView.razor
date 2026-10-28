@@ -17,7 +17,7 @@
     }
     else
     {
-        <ExerciseList Items="Items" Query="@Query" QueryChanged="QueryChanged" Filter="Filter" FilterChanged="FilterChanged" OnPick="OnOpen" CanPick="item => item.Opens" TestId="exercises" />
+        <ExerciseList Items="Items" Query="@Query" QueryChanged="QueryChanged" Filter="Filter" FilterChanged="FilterChanged" OnPick="OnOpen" TestId="exercises" />
     }
 </AppScreen>
 
@@ -58,7 +58,7 @@
     [Parameter]
     public EventCallback OnRetry { get; set; }
 
-    /// <summary>Raised when a row that opens its Exercise page (<see cref="ExerciseListItem.Opens"/>) is tapped. Rows are not tappable when unset.</summary>
+    /// <summary>Raised when a row is tapped, to open its Exercise page. Rows are not tappable when unset.</summary>
     [Parameter]
     public EventCallback<ExerciseListItem> OnOpen { get; set; }
 

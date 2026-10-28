@@ -25,7 +25,7 @@ One session of an exercise: date and headline in bold, with every set or the car
 - `data-testid`: `TestId`.
 
 ## `ExerciseList`
-Search box with the search `Icon`, `FilterChips` All / Strength / Cardio, then one `ListRow` per exercise: its name, "Last" with the last session when it has one, and Strength or Cardio as its `Aside`. "No exercises match" when the list is empty. With `OnPick` the rows are tappable, with a chevron; with `CanPick` too, only the rows it returns true for (Exercises: lifts). Used by Exercises and Add Exercise.
+Search box with the search `Icon`, `FilterChips` All / Strength / Cardio, then one `ListRow` per exercise: its name, "Last" with the last session when it has one, and Strength or Cardio as its `Aside`. "No exercises match" when the list is empty. With `OnPick` the rows are tappable, with a chevron. Used by Exercises and Add Exercise.
 - `data-testid`: `TestId` as the prefix: `{TestId}-search`, `{TestId}-filter`, `{TestId}-filter-all`, `{TestId}-filter-strength`, `{TestId}-filter-cardio`, `{TestId}-row-{id}`, `{TestId}-none`.
 
 Stories: [ListRow](./?path=/docs/components-lists-listrow--docs) · [StatTile](./?path=/docs/components-lists-stattile--docs) · [EmptyState](./?path=/docs/components-lists-emptystate--docs) · [RecordsCard](./?path=/docs/components-lists-recordscard--docs) · [SessionRow](./?path=/docs/components-lists-sessionrow--docs) · [ExerciseList](./?path=/docs/components-lists-exerciselist--docs)

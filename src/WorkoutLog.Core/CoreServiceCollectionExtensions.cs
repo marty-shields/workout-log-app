@@ -17,7 +17,7 @@ public static class CoreServiceCollectionExtensions
 {
     /// <summary>
     /// Registers the exercise catalog, database initializer, workout repository, unit of work, workout writer factory, system time, workout validator,
-    /// workout service, workouts service, dashboard service, weight history service, the best rules and logged exercises service, the progress rules and exercise progress service, export service, import service, the import reader, checks,
+    /// workout service, workouts service, dashboard service, weight history service, the best rules and logged exercises service, the progress rules, exercise progress service and cardio progress service, export service, import service, the import reader, checks,
     /// checker and workout comparer, and schema upgrade steps as singletons.
     /// The initializer, repository and unit of work are registered only as their gated decorators, which run each call through one <see cref="DatabaseGate"/>.
     /// The database connection and exercise seeder are not registered; only the initializer, repository and unit of work use them.
@@ -98,7 +98,9 @@ public static class CoreServiceCollectionExtensions
             .AddSingleton<IHoldRule, HoldRule>()
             .AddSingleton<IHoldRecordsRule, HoldRecordsRule>()
             .AddSingleton<ICarryRule, CarryRule>()
-            .AddSingleton<ICarryRecordsRule, CarryRecordsRule>();
+            .AddSingleton<ICarryRecordsRule, CarryRecordsRule>()
+            .AddSingleton<ICardioSessionRule, CardioSessionRule>()
+            .AddSingleton<ICardioRecordsRule, CardioRecordsRule>();
 
     /// <summary>Registers the exercise catalog, system time, workout validator, best rules, progress rules and the services.</summary>
     private static IServiceCollection AddServices(this IServiceCollection services) =>
@@ -114,6 +116,7 @@ public static class CoreServiceCollectionExtensions
             .AddSingleton<IWeightHistoryService, WeightHistoryService>()
             .AddSingleton<ILoggedExercisesService, LoggedExercisesService>()
             .AddSingleton<IExerciseProgressService, ExerciseProgressService>()
+            .AddSingleton<ICardioProgressService, CardioProgressService>()
             .AddSingleton<IExportService, ExportService>()
             .AddSingleton<IImportService, ImportService>();
 }

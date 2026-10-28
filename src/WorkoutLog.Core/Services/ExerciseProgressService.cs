@@ -38,7 +38,7 @@ internal sealed partial class ExerciseProgressService(
             return new ExerciseProgressResult([], Failed: true);
         }
 
-        if (!definition.HasProgressPage)
+        if (definition.Category == ExerciseCategory.Cardio)
         {
             Log.NotSupported(logger, exerciseId);
             return new ExerciseProgressResult([], Failed: true);
@@ -120,7 +120,7 @@ internal sealed partial class ExerciseProgressService(
         [LoggerMessage((int)CoreEvent.ExerciseProgressUnknownExercise, LogLevel.Warning, "Exercise {ExerciseId} is not in the exercise list")]
         public static partial void UnknownExercise(ILogger logger, int exerciseId);
 
-        [LoggerMessage((int)CoreEvent.ExerciseProgressNotSupported, LogLevel.Warning, "Exercise {ExerciseId} has no progress page")]
+        [LoggerMessage((int)CoreEvent.ExerciseProgressNotSupported, LogLevel.Warning, "Exercise {ExerciseId} has no strength progress page")]
         public static partial void NotSupported(ILogger logger, int exerciseId);
     }
 }
