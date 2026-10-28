@@ -1,0 +1,38 @@
+@* SVG <text> is wrapped in <g>: Razor reads a bare <text> in code as its own tag. *@
+<div class="chart" data-testid="@TestId">
+    <svg class="plot" viewBox="0 0 @Number(Width) @Number(Height)" role="img" aria-label="@Name">
+        @foreach (var tick in ticks)
+        {
+            <g>
+                <line class="grid" x1="@Number(Left)" x2="@Number(Right)" y1="@tick.Y" y2="@tick.Y" />
+                <text class="tick" x="@Number(TickX)" y="@tick.Y" text-anchor="end" dominant-baseline="middle">@tick.Text</text>
+            </g>
+        }
+        @if (line is not null)
+        {
+            <path class="line" d="@line" />
+        }
+        @foreach (var point in plotted)
+        {
+            <circle class="@(point.Best ? "point best" : "point")" cx="@Number(point.X)" cy="@Number(point.Y)" r="@Number(point.Best ? BestRadius : Radius)" />
+        }
+        @foreach (var point in plotted.Where(p => p.Text is not null))
+        {
+            <g>
+                <text class="label" x="@Number(point.X)" y="@Number(point.Y - LabelGap)" text-anchor="middle">@point.Text</text>
+            </g>
+        }
+        @foreach (var date in dates)
+        {
+            <g>
+                <text class="date" x="@date.X" y="@Number(DateY)" text-anchor="@date.Anchor">@date.Text</text>
+            </g>
+        }
+    </svg>
+    <ul class="visually-hidden" data-testid="@(TestId is null ? null : $"{TestId}-values")">
+        @foreach (var value in Values)
+        {
+            <li>@value</li>
+        }
+    </ul>
+</div>

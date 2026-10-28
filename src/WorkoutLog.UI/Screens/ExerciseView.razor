@@ -1,0 +1,162 @@
+@using System.Globalization
+@using WorkoutLog.UI.Components.Charts
+@using WorkoutLog.UI.Components.Feedback
+@using WorkoutLog.UI.Components.Inputs
+@using WorkoutLog.UI.Models.Exercises
+<AppScreen Title="@Name" Subtitle="@Subtitle" OnBack="OnBack">
+    @if (Loading)
+    {
+        <div class="centre">
+            <Spinner Label="Loading…" TestId="exercise-loading" />
+        </div>
+    }
+    else if (Failed)
+    {
+        <LoadFailed Message="Couldn't load this exercise" OnRetry="OnRetry" TestId="exercise" />
+    }
+    else
+    {
+        <div class="page">
+            @if (Tabs.Count > 1)
+            {
+                <SegmentedControl TValue="string" Label="Chart" Options="Tabs" Value="Tab" ValueChanged="TabChanged" TestId="exercise-tabs" />
+            }
+            <section class="card" data-testid="exercise-chart-card">
+                @if (ChartTitle is not null)
+                {
+                    <h2 class="card-title">@ChartTitle</h2>
+                }
+                @if (Points.Any(p => p.Value is not null))
+                {
+                    <Chart Points="Points" Flipped="Flipped" Format="Format" TimeScale="TimeScale" Name="@ChartName" TestId="exercise-chart" />
+                }
+                else
+                {
+                    <p class="no-data" data-testid="exercise-chart-empty">@(NoDataMessage ?? NoSessionsMessage)</p>
+                }
+                <SegmentedControl TValue="ChartRange" Label="Range" Options="Ranges" Value="Range" ValueChanged="RangeChanged" TestId="exercise-range" />
+                @if (Caption is not null)
+                {
+                    <p class="caption" data-testid="exercise-chart-caption">@Caption</p>
+                }
+            </section>
+            <RecordsCard Range="@RangeText" Rows="Records" TestId="exercise-records" />
+            @if (Sessions.Count > 0)
+            {
+                <section>
+                    <h2 class="heading">Sessions</h2>
+                    <ul class="sessions">
+                        @foreach (var session in Sessions)
+                        {
+                            <li>
+                                <SessionRow Date="@session.Date" Headline="@session.Headline" Detail="@session.Detail" TestId="@($"exercise-session-{session.WorkoutId}")" />
+                            </li>
+                        }
+                    </ul>
+                </section>
+            }
+        </div>
+    }
+</AppScreen>
+
+@code {
+    private static readonly IReadOnlyList<RadioOption<ChartRange>> Ranges =
+    [
+        new(ChartRange.ThreeMonths, "3M", "exercise-range-3m"),
+        new(ChartRange.SixMonths, "6M", "exercise-range-6m"),
+        new(ChartRange.Year, "1Y", "exercise-range-1y"),
+        new(ChartRange.All, "All", "exercise-range-all"),
+    ];
+
+    /// <summary>Exercise name, in the top bar.</summary>
+    [Parameter, EditorRequired]
+    public string Name { get; set; } = "";
+
+    /// <summary>Line under the name: primary muscle · equipment, or Cardio.</summary>
+    [Parameter]
+    public string? Subtitle { get; set; }
+
+    /// <summary>Charts to switch between, e.g. Top set and e1RM. The switcher shows for two or more.</summary>
+    [Parameter]
+    public IReadOnlyList<RadioOption<string>> Tabs { get; set; } = [];
+
+    /// <summary>Chosen tab.</summary>
+    [Parameter]
+    public string? Tab { get; set; }
+
+    /// <summary>Raised with the tab tapped.</summary>
+    [Parameter]
+    public EventCallback<string> TabChanged { get; set; }
+
+    /// <summary>Title over the chart, e.g. Least assist per session.</summary>
+    [Parameter]
+    public string? ChartTitle { get; set; }
+
+    /// <summary>Chart points in the range, oldest first.</summary>
+    [Parameter]
+    public IReadOnlyList<ChartPoint> Points { get; set; } = [];
+
+    /// <summary>Lower is better on this chart.</summary>
+    [Parameter]
+    public bool Flipped { get; set; }
+
+    /// <summary>Value text for the chart's point labels, e.g. 82.3kg. Plain numbers when unset.</summary>
+    [Parameter]
+    public Func<decimal, string> Format { get; set; } = value => value.ToString("0.##", CultureInfo.InvariantCulture);
+
+    /// <summary>Chart values are seconds.</summary>
+    [Parameter]
+    public bool TimeScale { get; set; }
+
+    /// <summary>Line under the range, e.g. Up = faster.</summary>
+    [Parameter]
+    public string? Caption { get; set; }
+
+    /// <summary>Text in place of the chart when this tab has no values, e.g. No weighted sets in the last 3 months. When unset: "No sessions in the …", or "No sessions yet" for All.</summary>
+    [Parameter]
+    public string? NoDataMessage { get; set; }
+
+    /// <summary>Chosen range.</summary>
+    [Parameter]
+    public ChartRange Range { get; set; }
+
+    /// <summary>Raised with the range tapped.</summary>
+    [Parameter]
+    public EventCallback<ChartRange> RangeChanged { get; set; }
+
+    /// <summary>Records in the range.</summary>
+    [Parameter]
+    public IReadOnlyList<RecordRow> Records { get; set; } = [];
+
+    /// <summary>Sessions in the range, newest first. The section is hidden when there are none.</summary>
+    [Parameter]
+    public IReadOnlyList<ExerciseSession> Sessions { get; set; } = [];
+
+    /// <summary>Shows a spinner instead of the content while the exercise loads.</summary>
+    [Parameter]
+    public bool Loading { get; set; }
+
+    /// <summary>Shows the load error and Try again instead of the content, and moves focus to Try again.</summary>
+    [Parameter]
+    public bool Failed { get; set; }
+
+    /// <summary>Raised by Try again.</summary>
+    [Parameter]
+    public EventCallback OnRetry { get; set; }
+
+    /// <summary>Raised by the back arrow and the Android back button.</summary>
+    [Parameter]
+    public EventCallback OnBack { get; set; }
+
+    private string RangeText => Range switch
+    {
+        ChartRange.ThreeMonths => "last 3 months",
+        ChartRange.SixMonths => "last 6 months",
+        ChartRange.Year => "last year",
+        _ => "all time",
+    };
+
+    private string NoSessionsMessage => Range == ChartRange.All ? "No sessions yet" : $"No sessions in the {RangeText}";
+
+    private string ChartName => $"{ChartTitle ?? Tabs.FirstOrDefault(t => t.Value == Tab)?.Label ?? Name}, {RangeText}";
+}

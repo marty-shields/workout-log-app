@@ -1,0 +1,51 @@
+.segments {
+    display: flex;
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+    border: var(--border-width) solid var(--color-border-strong);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+}
+
+.segment {
+    position: relative;
+    flex: 1 1 0;
+    display: grid;
+    place-items: center;
+    min-width: 0;
+    min-height: var(--touch-target);
+    padding: 0 var(--space-1);
+    cursor: pointer;
+}
+
+.segment + .segment {
+    border-left: var(--border-width) solid var(--color-border-strong);
+}
+
+.segment:has(.radio:checked) {
+    background: var(--color-selected);
+    font-weight: var(--font-weight-bold);
+}
+
+.segment:has(.radio:focus-visible) {
+    outline: var(--focus-width) solid var(--color-focus);
+    outline-offset: calc(-1 * var(--focus-width));
+}
+
+/* The whole segment is the hit area. */
+.radio {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    min-height: var(--touch-target);
+    margin: 0;
+    opacity: 0;
+    cursor: pointer;
+}
+
+.text {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}

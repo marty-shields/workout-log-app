@@ -1,0 +1,136 @@
+@attribute [Stories("Screens/Exercise")]
+
+<Stories TComponent="ExerciseView" Layout="typeof(PhoneLayout)">
+
+    <Story Name="Lift top set">
+        <Template>
+            @{ var s = SampleExercises.LiftTopSet; }
+            <ExerciseView Name="@s.Name" Subtitle="@s.Subtitle" Tabs="s.Tabs" Tab="@s.Tab" TabChanged="(string _) => { }" ChartTitle="@s.ChartTitle" Points="s.Points" Flipped="s.Flipped" Format="s.Format" TimeScale="s.TimeScale" Caption="@s.Caption" NoDataMessage="@s.NoDataMessage" RangeChanged="(ChartRange _) => { }" Records="s.Records" Sessions="s.Sessions" OnBack="() => { }" />
+        </Template>
+    </Story>
+
+    <Story Name="Lift e1RM">
+        <Template>
+            @{ var s = SampleExercises.LiftE1rm; }
+            <ExerciseView Name="@s.Name" Subtitle="@s.Subtitle" Tabs="s.Tabs" Tab="@s.Tab" TabChanged="(string _) => { }" ChartTitle="@s.ChartTitle" Points="s.Points" Flipped="s.Flipped" Format="s.Format" TimeScale="s.TimeScale" Caption="@s.Caption" NoDataMessage="@s.NoDataMessage" RangeChanged="(ChartRange _) => { }" Records="s.Records" Sessions="s.Sessions" OnBack="() => { }" />
+        </Template>
+    </Story>
+
+    <Story Name="Bodyweight best set">
+        <Template>
+            @{ var s = SampleExercises.BodyweightBestSet; }
+            <ExerciseView Name="@s.Name" Subtitle="@s.Subtitle" Tabs="s.Tabs" Tab="@s.Tab" TabChanged="(string _) => { }" ChartTitle="@s.ChartTitle" Points="s.Points" Flipped="s.Flipped" Format="s.Format" TimeScale="s.TimeScale" Caption="@s.Caption" NoDataMessage="@s.NoDataMessage" RangeChanged="(ChartRange _) => { }" Records="s.Records" Sessions="s.Sessions" OnBack="() => { }" />
+        </Template>
+    </Story>
+
+    <Story Name="Bodyweight total">
+        <Template>
+            @{ var s = SampleExercises.BodyweightTotal; }
+            <ExerciseView Name="@s.Name" Subtitle="@s.Subtitle" Tabs="s.Tabs" Tab="@s.Tab" TabChanged="(string _) => { }" ChartTitle="@s.ChartTitle" Points="s.Points" Flipped="s.Flipped" Format="s.Format" TimeScale="s.TimeScale" Caption="@s.Caption" NoDataMessage="@s.NoDataMessage" RangeChanged="(ChartRange _) => { }" Records="s.Records" Sessions="s.Sessions" OnBack="() => { }" />
+        </Template>
+    </Story>
+
+    <Story Name="Bodyweight top set never weighted">
+        <Template>
+            @{ var s = SampleExercises.BodyweightTopSetNeverWeighted; }
+            <ExerciseView Name="@s.Name" Subtitle="@s.Subtitle" Tabs="s.Tabs" Tab="@s.Tab" TabChanged="(string _) => { }" ChartTitle="@s.ChartTitle" Points="s.Points" Flipped="s.Flipped" Format="s.Format" TimeScale="s.TimeScale" Caption="@s.Caption" NoDataMessage="@s.NoDataMessage" RangeChanged="(ChartRange _) => { }" Records="s.Records" Sessions="s.Sessions" OnBack="() => { }" />
+        </Template>
+    </Story>
+
+    <Story Name="Loaded bodyweight">
+        <Template>
+            @{ var s = SampleExercises.LoadedBodyweight; }
+            <ExerciseView Name="@s.Name" Subtitle="@s.Subtitle" Tabs="s.Tabs" Tab="@s.Tab" TabChanged="(string _) => { }" ChartTitle="@s.ChartTitle" Points="s.Points" Flipped="s.Flipped" Format="s.Format" TimeScale="s.TimeScale" Caption="@s.Caption" NoDataMessage="@s.NoDataMessage" RangeChanged="(ChartRange _) => { }" Records="s.Records" Sessions="s.Sessions" OnBack="() => { }" />
+        </Template>
+    </Story>
+
+    <Story Name="Assisted">
+        <Template>
+            @{ var s = SampleExercises.Assisted; }
+            <ExerciseView Name="@s.Name" Subtitle="@s.Subtitle" Tabs="s.Tabs" Tab="@s.Tab" TabChanged="(string _) => { }" ChartTitle="@s.ChartTitle" Points="s.Points" Flipped="s.Flipped" Format="s.Format" TimeScale="s.TimeScale" Caption="@s.Caption" NoDataMessage="@s.NoDataMessage" RangeChanged="(ChartRange _) => { }" Records="s.Records" Sessions="s.Sessions" OnBack="() => { }" />
+        </Template>
+    </Story>
+
+    <Story Name="Hold duration">
+        <Template>
+            @{ var s = SampleExercises.HoldDuration; }
+            <ExerciseView Name="@s.Name" Subtitle="@s.Subtitle" Tabs="s.Tabs" Tab="@s.Tab" TabChanged="(string _) => { }" ChartTitle="@s.ChartTitle" Points="s.Points" Flipped="s.Flipped" Format="s.Format" TimeScale="s.TimeScale" Caption="@s.Caption" NoDataMessage="@s.NoDataMessage" RangeChanged="(ChartRange _) => { }" Records="s.Records" Sessions="s.Sessions" OnBack="() => { }" />
+        </Template>
+    </Story>
+
+    <Story Name="Hold weight">
+        <Template>
+            @{ var s = SampleExercises.HoldWeight; }
+            <ExerciseView Name="@s.Name" Subtitle="@s.Subtitle" Tabs="s.Tabs" Tab="@s.Tab" TabChanged="(string _) => { }" ChartTitle="@s.ChartTitle" Points="s.Points" Flipped="s.Flipped" Format="s.Format" TimeScale="s.TimeScale" Caption="@s.Caption" NoDataMessage="@s.NoDataMessage" RangeChanged="(ChartRange _) => { }" Records="s.Records" Sessions="s.Sessions" OnBack="() => { }" />
+        </Template>
+    </Story>
+
+    <Story Name="Carry weight">
+        <Template>
+            @{ var s = SampleExercises.CarryWeight; }
+            <ExerciseView Name="@s.Name" Subtitle="@s.Subtitle" Tabs="s.Tabs" Tab="@s.Tab" TabChanged="(string _) => { }" ChartTitle="@s.ChartTitle" Points="s.Points" Flipped="s.Flipped" Format="s.Format" TimeScale="s.TimeScale" Caption="@s.Caption" NoDataMessage="@s.NoDataMessage" RangeChanged="(ChartRange _) => { }" Records="s.Records" Sessions="s.Sessions" OnBack="() => { }" />
+        </Template>
+    </Story>
+
+    <Story Name="Carry distance">
+        <Template>
+            @{ var s = SampleExercises.CarryDistance; }
+            <ExerciseView Name="@s.Name" Subtitle="@s.Subtitle" Tabs="s.Tabs" Tab="@s.Tab" TabChanged="(string _) => { }" ChartTitle="@s.ChartTitle" Points="s.Points" Flipped="s.Flipped" Format="s.Format" TimeScale="s.TimeScale" Caption="@s.Caption" NoDataMessage="@s.NoDataMessage" RangeChanged="(ChartRange _) => { }" Records="s.Records" Sessions="s.Sessions" OnBack="() => { }" />
+        </Template>
+    </Story>
+
+    <Story Name="Cardio distance">
+        <Template>
+            @{ var s = SampleExercises.CardioDistance; }
+            <ExerciseView Name="@s.Name" Subtitle="@s.Subtitle" Tabs="s.Tabs" Tab="@s.Tab" TabChanged="(string _) => { }" ChartTitle="@s.ChartTitle" Points="s.Points" Flipped="s.Flipped" Format="s.Format" TimeScale="s.TimeScale" Caption="@s.Caption" NoDataMessage="@s.NoDataMessage" RangeChanged="(ChartRange _) => { }" Records="s.Records" Sessions="s.Sessions" OnBack="() => { }" />
+        </Template>
+    </Story>
+
+    <Story Name="Cardio duration">
+        <Template>
+            @{ var s = SampleExercises.CardioDuration; }
+            <ExerciseView Name="@s.Name" Subtitle="@s.Subtitle" Tabs="s.Tabs" Tab="@s.Tab" TabChanged="(string _) => { }" ChartTitle="@s.ChartTitle" Points="s.Points" Flipped="s.Flipped" Format="s.Format" TimeScale="s.TimeScale" Caption="@s.Caption" NoDataMessage="@s.NoDataMessage" RangeChanged="(ChartRange _) => { }" Records="s.Records" Sessions="s.Sessions" OnBack="() => { }" />
+        </Template>
+    </Story>
+
+    <Story Name="Cardio pace">
+        <Template>
+            @{ var s = SampleExercises.CardioPace; }
+            <ExerciseView Name="@s.Name" Subtitle="@s.Subtitle" Tabs="s.Tabs" Tab="@s.Tab" TabChanged="(string _) => { }" ChartTitle="@s.ChartTitle" Points="s.Points" Flipped="s.Flipped" Format="s.Format" TimeScale="s.TimeScale" Caption="@s.Caption" NoDataMessage="@s.NoDataMessage" RangeChanged="(ChartRange _) => { }" Records="s.Records" Sessions="s.Sessions" OnBack="() => { }" />
+        </Template>
+    </Story>
+
+    <Story Name="Cardio no data">
+        <Template>
+            @{ var s = SampleExercises.CardioNoData; }
+            <ExerciseView Name="@s.Name" Subtitle="@s.Subtitle" Tabs="s.Tabs" Tab="@s.Tab" TabChanged="(string _) => { }" ChartTitle="@s.ChartTitle" Points="s.Points" Flipped="s.Flipped" Format="s.Format" TimeScale="s.TimeScale" Caption="@s.Caption" NoDataMessage="@s.NoDataMessage" RangeChanged="(ChartRange _) => { }" Records="s.Records" Sessions="s.Sessions" OnBack="() => { }" />
+        </Template>
+    </Story>
+
+    <Story Name="No sessions in range">
+        <Template>
+            @{ var s = SampleExercises.NoSessionsInRange; }
+            <ExerciseView Name="@s.Name" Subtitle="@s.Subtitle" Tabs="s.Tabs" Tab="@s.Tab" TabChanged="(string _) => { }" ChartTitle="@s.ChartTitle" Points="s.Points" Flipped="s.Flipped" Format="s.Format" TimeScale="s.TimeScale" Caption="@s.Caption" NoDataMessage="@s.NoDataMessage" RangeChanged="(ChartRange _) => { }" Records="s.Records" Sessions="s.Sessions" OnBack="() => { }" />
+        </Template>
+    </Story>
+
+    <Story Name="One session">
+        <Template>
+            @{ var s = SampleExercises.OneSession; }
+            <ExerciseView Name="@s.Name" Subtitle="@s.Subtitle" Tabs="s.Tabs" Tab="@s.Tab" TabChanged="(string _) => { }" ChartTitle="@s.ChartTitle" Points="s.Points" Flipped="s.Flipped" Format="s.Format" TimeScale="s.TimeScale" Caption="@s.Caption" NoDataMessage="@s.NoDataMessage" RangeChanged="(ChartRange _) => { }" Records="s.Records" Sessions="s.Sessions" OnBack="() => { }" />
+        </Template>
+    </Story>
+
+    <Story Name="Loading">
+        <Template>
+            <ExerciseView Name="Barbell Back Squat" Subtitle="Quadriceps · Barbell" Loading OnBack="() => { }" />
+        </Template>
+    </Story>
+
+    <Story Name="Load failed">
+        <Template>
+            <ExerciseView Name="Barbell Back Squat" Subtitle="Quadriceps · Barbell" Failed OnRetry="() => { }" OnBack="() => { }" />
+        </Template>
+    </Story>
+
+</Stories>

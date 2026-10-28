@@ -1,0 +1,47 @@
+@attribute [Stories("Screens/Exercises")]
+
+<Stories TComponent="ExercisesView" Layout="typeof(PhoneLayout)">
+
+    <Story Name="List">
+        <Template>
+            <ExercisesView Items="SampleExercises.All" QueryChanged="(string _) => { }" FilterChanged="(ExerciseFilter _) => { }" OnOpen="(ExerciseListItem _) => { }" OnBack="() => { }" />
+        </Template>
+    </Story>
+
+    <Story Name="Strength">
+        <Template>
+            <ExercisesView Items="SampleExercises.Strength" Filter="ExerciseFilter.Strength" QueryChanged="(string _) => { }" FilterChanged="(ExerciseFilter _) => { }" OnOpen="(ExerciseListItem _) => { }" OnBack="() => { }" />
+        </Template>
+    </Story>
+
+    <Story Name="Cardio">
+        <Template>
+            <ExercisesView Items="SampleExercises.Cardio" Filter="ExerciseFilter.Cardio" QueryChanged="(string _) => { }" FilterChanged="(ExerciseFilter _) => { }" OnOpen="(ExerciseListItem _) => { }" OnBack="() => { }" />
+        </Template>
+    </Story>
+
+    <Story Name="No match">
+        <Template>
+            <ExercisesView Items="[]" Query="deadlift" QueryChanged="(string _) => { }" FilterChanged="(ExerciseFilter _) => { }" OnOpen="(ExerciseListItem _) => { }" OnBack="() => { }" />
+        </Template>
+    </Story>
+
+    <Story Name="Nothing logged yet">
+        <Template>
+            <ExercisesView Items="[]" NothingLogged OnOpen="(ExerciseListItem _) => { }" OnBack="() => { }" />
+        </Template>
+    </Story>
+
+    <Story Name="Loading">
+        <Template>
+            <ExercisesView Items="[]" Loading OnOpen="(ExerciseListItem _) => { }" OnBack="() => { }" />
+        </Template>
+    </Story>
+
+    <Story Name="Load failed">
+        <Template>
+            <ExercisesView Items="[]" Failed OnRetry="() => { }" OnOpen="(ExerciseListItem _) => { }" OnBack="() => { }" />
+        </Template>
+    </Story>
+
+</Stories>
