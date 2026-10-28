@@ -31,7 +31,7 @@ It's built for one person and one phone: no accounts, no sign-up.
 
 ### 🏋️ Log as you train
 
-- **Fields that fit the exercise.** Reps and weight for Bench Press, duration for Plank, distance and weight for carries.
+- **Log sets as you go.** Add exercises and record each set; the fields fit the exercise: reps and weight for Bench Press, duration for Plank, distance and weight for carries.
 - **315 exercises built in.** Strength and cardio, searchable as you type.
 - **Cardio entries.** Duration plus each machine's own metrics: distance, incline, floors, level, calories, rate.
 - **Automatic timing.** Start and finish times are captured for you, with a live timer while you log.
@@ -101,7 +101,7 @@ It's built for one person and one phone: no accounts, no sign-up.
   </tr>
 </table>
 
-### 📊 Your week and your data
+### 📊 Dashboard and your data
 
 - **Dashboard.** Your last workout and how many sessions you've done this week and this month.
 - **Export.** Save every workout to one JSON file and share it to Drive, email or another app.
@@ -129,8 +129,6 @@ It's built for one person and one phone: no accounts, no sign-up.
     <td align="center"><sub><b>Export and import</b></sub></td>
   </tr>
 </table>
-
-<p align="center"><sub>The screenshots match your GitHub theme. They're taken from the stories site, which renders the app's own components.</sub></p>
 
 ## Install
 
