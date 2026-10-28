@@ -1,0 +1,30 @@
+@using WorkoutLog.UI.Models.Workouts
+@attribute [Stories("Screens/Workouts")]
+
+<Stories TComponent="WorkoutsView" Layout="typeof(PhoneLayout)">
+
+    <Story Name="Empty">
+        <Template>
+            <WorkoutsView Rows="[]" OnBack="() => { }" OnOpen="(WorkoutsRow _) => { }" />
+        </Template>
+    </Story>
+
+    <Story Name="With workouts">
+        <Template>
+            <WorkoutsView Rows="SampleData.WorkoutsRows" OnBack="() => { }" OnOpen="(WorkoutsRow _) => { }" />
+        </Template>
+    </Story>
+
+    <Story Name="Loading">
+        <Template>
+            <WorkoutsView Rows="[]" Loading OnBack="() => { }" OnOpen="(WorkoutsRow _) => { }" />
+        </Template>
+    </Story>
+
+    <Story Name="Load failed">
+        <Template>
+            <WorkoutsView Rows="[]" Failed OnRetry="() => { }" OnBack="() => { }" OnOpen="(WorkoutsRow _) => { }" />
+        </Template>
+    </Story>
+
+</Stories>

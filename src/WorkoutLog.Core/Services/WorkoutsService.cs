@@ -5,11 +5,11 @@ using WorkoutLog.Core.Logging;
 
 namespace WorkoutLog.Core.Services;
 
-/// <summary>Reads the history through <see cref="IWorkoutRepository"/> and logs the outcome.</summary>
-internal sealed partial class HistoryService(IWorkoutRepository repository, ILogger<HistoryService> logger) : IHistoryService
+/// <summary>Reads the saved workouts through <see cref="IWorkoutRepository"/> and logs the outcome.</summary>
+internal sealed partial class WorkoutsService(IWorkoutRepository repository, ILogger<WorkoutsService> logger) : IWorkoutsService
 {
     /// <inheritdoc />
-    public async Task<HistoryResult> GetAllAsync()
+    public async Task<WorkoutsResult> GetAllAsync()
     {
         IReadOnlyList<WorkoutSummary> workouts;
         try
@@ -19,19 +19,19 @@ internal sealed partial class HistoryService(IWorkoutRepository repository, ILog
         catch (Exception exception)
         {
             Log.LoadFailed(logger, exception);
-            return new HistoryResult([], Failed: true);
+            return new WorkoutsResult([], Failed: true);
         }
 
         Log.Loaded(logger, workouts.Count);
-        return new HistoryResult(workouts, Failed: false);
+        return new WorkoutsResult(workouts, Failed: false);
     }
 
     private static partial class Log
     {
-        [LoggerMessage((int)CoreEvent.HistoryLoaded, LogLevel.Debug, "History loaded with {Count} workouts")]
+        [LoggerMessage((int)CoreEvent.WorkoutsLoaded, LogLevel.Debug, "Loaded {Count} workouts")]
         public static partial void Loaded(ILogger logger, int count);
 
-        [LoggerMessage((int)CoreEvent.HistoryLoadFailed, LogLevel.Error, "Loading the history failed")]
+        [LoggerMessage((int)CoreEvent.WorkoutsLoadFailed, LogLevel.Error, "Loading the workouts failed")]
         public static partial void LoadFailed(ILogger logger, Exception exception);
     }
 }

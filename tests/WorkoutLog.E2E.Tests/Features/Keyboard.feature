@@ -45,7 +45,7 @@ Feature: Keyboard
     Given these saved workouts:
       | started         | exercises                  |
       | yesterday 18:05 | Barbell Back Squat: 5 reps |
-    And I have opened workout 1 from History
+    And I have opened workout 1 from Workouts
     When I enter "6" in Barbell Back Squat set 1 reps
     And I go back with Android back
     Then the soft keyboard is hidden
@@ -58,7 +58,7 @@ Feature: Keyboard
     Given these saved workouts:
       | started         | exercises                  |
       | yesterday 18:05 | Barbell Back Squat: 5 reps |
-    And I have opened workout 1 from History
+    And I have opened workout 1 from Workouts
     When I enter "6" in Barbell Back Squat set 1 reps
     And I go back with the back arrow
     Then the prompt "Discard changes?" shows Discard and Cancel

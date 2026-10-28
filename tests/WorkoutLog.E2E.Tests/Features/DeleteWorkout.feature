@@ -7,7 +7,7 @@ Feature: Delete a workout
       | started          | exercises        |
       | 3 days ago 10:00 | Push-up: 10 reps |
       | yesterday 18:05  | Push-up: 12 reps |
-    And I have opened workout 2 from History
+    And I have opened workout 2 from Workouts
 
   @D81
   Scenario: Delete asks "Delete this workout?"
@@ -19,32 +19,32 @@ Feature: Delete a workout
     Given I have tapped Delete
     When I tap Cancel
     Then I am still on Edit Workout
-    And History still lists 2 workouts
+    And Workouts still lists 2 workouts
 
   @smoke @US-08
   Scenario: Confirming removes the workout
     Given I have tapped Delete
     When I tap Delete on the prompt
-    Then I am on History
-    And History lists only workout 1
+    Then I am on Workouts
+    And Workouts lists only workout 1
 
   @D46
   Scenario: Delete with unsaved edits removes the workout too
     Given I have entered "15" in Push-up set 1 reps
     When I tap Delete
     And I tap Delete on the prompt
-    Then I am on History
-    And History lists only workout 1
+    Then I am on Workouts
+    And Workouts lists only workout 1
 
   Scenario: Deleting the latest workout updates the Dashboard
     Given I have deleted workout 2
     When I go back to the Dashboard
     Then the last workout shows the date and day of "3 days ago"
 
-  Scenario: Deleting the only workout empties History and the Dashboard
+  Scenario: Deleting the only workout empties Workouts and the Dashboard
     Given I have deleted workout 2
     And I have deleted workout 1
-    Then History shows "No workouts yet"
+    Then Workouts shows "No workouts yet"
     And on the Dashboard the last workout shows "No workouts yet", This week 0 and This month 0
 
   @D78 @US-28

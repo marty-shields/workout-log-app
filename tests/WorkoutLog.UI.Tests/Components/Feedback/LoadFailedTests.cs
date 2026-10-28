@@ -14,12 +14,12 @@ public class LoadFailedTests : ComponentTestBase
     {
         var cut = Render();
 
-        var error = cut.Find("[data-testid=history-error]");
+        var error = cut.Find("[data-testid=workouts-error]");
         Assert.Multiple(() =>
         {
-            Assert.That(error.TextContent, Is.EqualTo("Couldn't load your history"));
+            Assert.That(error.TextContent, Is.EqualTo("Couldn't load your workouts"));
             Assert.That(error.GetAttribute("role"), Is.EqualTo("alert"));
-            Assert.That(cut.Find("[data-testid=history-retry]").TextContent.Trim(), Is.EqualTo("Try again"));
+            Assert.That(cut.Find("[data-testid=workouts-retry]").TextContent.Trim(), Is.EqualTo("Try again"));
         });
     }
 
@@ -29,7 +29,7 @@ public class LoadFailedTests : ComponentTestBase
         var retries = 0;
         var cut = Render(() => retries++);
 
-        cut.Find("[data-testid=history-retry]").Click();
+        cut.Find("[data-testid=workouts-retry]").Click();
 
         Assert.That(retries, Is.EqualTo(1));
     }
@@ -40,7 +40,7 @@ public class LoadFailedTests : ComponentTestBase
         var cut = Render();
 
         cut.WaitForAssertion(() => Focuses().Single().Arguments[0]
-            .ShouldBeElementReferenceTo(cut.Find("[data-testid=history-retry]")));
+            .ShouldBeElementReferenceTo(cut.Find("[data-testid=workouts-retry]")));
     }
 
     [Test]
@@ -49,7 +49,7 @@ public class LoadFailedTests : ComponentTestBase
         var cut = Render();
         cut.WaitForAssertion(() => Assert.That(Focuses(), Has.Count.EqualTo(1)));
 
-        cut.Render(p => p.Add(x => x.Message, "Couldn't load your history"));
+        cut.Render(p => p.Add(x => x.Message, "Couldn't load your workouts"));
 
         Assert.That(Focuses(), Has.Count.EqualTo(1));
     }
@@ -67,14 +67,14 @@ public class LoadFailedTests : ComponentTestBase
         Assert.Multiple(() =>
         {
             Assert.That(logger.LatestRecord.Exception, Is.TypeOf<JSException>());
-            Assert.That(cut.FindAll("[data-testid=history-retry]"), Has.Count.EqualTo(1));
+            Assert.That(cut.FindAll("[data-testid=workouts-retry]"), Has.Count.EqualTo(1));
         });
     }
 
     private IRenderedComponent<LoadFailed> Render(Action? onRetry = null) =>
         Context.Render<LoadFailed>(p => p
-            .Add(x => x.Message, "Couldn't load your history")
-            .Add(x => x.TestId, "history")
+            .Add(x => x.Message, "Couldn't load your workouts")
+            .Add(x => x.TestId, "workouts")
             .Add(x => x.OnRetry, onRetry ?? (() => { })));
 
     private IReadOnlyList<JSRuntimeInvocation> Focuses() =>

@@ -66,7 +66,7 @@ public class BackHandlerTests : ComponentTestBase
         RenderFragment screen = b =>
         {
             b.OpenComponent<AppScreen>(0);
-            b.AddComponentParameter(1, nameof(AppScreen.Title), "History");
+            b.AddComponentParameter(1, nameof(AppScreen.Title), "Workouts");
             b.AddComponentParameter(2, nameof(AppScreen.OnBack), EventCallback.Factory.Create(this, () => throw new InvalidOperationException()));
             b.CloseComponent();
         };

@@ -47,19 +47,19 @@ public class DashboardViewTests : ComponentTestBase
     public void Buttons_RaiseTheirCallbacks()
     {
         var newWorkout = false;
-        var history = false;
+        var workouts = false;
         var cut = Context.Render<DashboardView>(p => p
             .Add(x => x.Summary, new DashboardSummary(null, 0, 0))
             .Add(x => x.OnNewWorkout, () => newWorkout = true)
-            .Add(x => x.OnHistory, () => history = true));
+            .Add(x => x.OnWorkouts, () => workouts = true));
 
         cut.Find("[data-testid=new-workout]").Click();
-        cut.Find("[data-testid=history-link]").Click();
+        cut.Find("[data-testid=workouts-link]").Click();
 
         Assert.Multiple(() =>
         {
             Assert.That(newWorkout, Is.True);
-            Assert.That(history, Is.True);
+            Assert.That(workouts, Is.True);
         });
     }
 
@@ -128,7 +128,7 @@ public class DashboardViewTests : ComponentTestBase
             Assert.That(cut.FindAll("[data-testid=count-week]"), Is.Empty);
             Assert.That(cut.FindAll("[data-testid=count-month]"), Is.Empty);
             Assert.That(cut.FindAll("[data-testid=dashboard-error]"), Is.Empty);
-            Assert.That(cut.FindAll("[data-testid=history-link]"), Has.Count.EqualTo(1));
+            Assert.That(cut.FindAll("[data-testid=workouts-link]"), Has.Count.EqualTo(1));
             Assert.That(cut.FindAll("[data-testid=new-workout]"), Has.Count.EqualTo(1));
         });
     }
@@ -147,7 +147,7 @@ public class DashboardViewTests : ComponentTestBase
             Assert.That(cut.Find("[data-testid=dashboard-retry]").TextContent.Trim(), Is.EqualTo("Try again"));
             Assert.That(cut.FindAll("[data-testid=last-workout]"), Is.Empty);
             Assert.That(cut.FindAll("[data-testid=count-week]"), Is.Empty);
-            Assert.That(cut.FindAll("[data-testid=history-link]"), Has.Count.EqualTo(1));
+            Assert.That(cut.FindAll("[data-testid=workouts-link]"), Has.Count.EqualTo(1));
             Assert.That(cut.FindAll("[data-testid=new-workout]"), Has.Count.EqualTo(1));
         });
     }

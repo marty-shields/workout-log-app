@@ -1,12 +1,12 @@
 @using WorkoutLog.Core.Services
-@using WorkoutLog.UI.Models.History
-@inject IHistoryService History
+@using WorkoutLog.UI.Models.Workouts
+@inject IWorkoutsService Workouts
 @inject TimeProvider Clock
 
-<HistoryView Rows="rows" Loading="loading" Failed="failed" OnRetry="LoadAsync" OnOpen="row => OnOpen.InvokeAsync(row.Id)" OnBack="OnBack" />
+<WorkoutsView Rows="rows" Loading="loading" Failed="failed" OnRetry="LoadAsync" OnOpen="row => OnOpen.InvokeAsync(row.Id)" OnBack="OnBack" />
 
 @code {
-    private IReadOnlyList<HistoryRow> rows = [];
+    private IReadOnlyList<WorkoutsRow> rows = [];
     private bool loading;
     private bool failed;
 
@@ -30,9 +30,9 @@
 
         loading = true;
         StateHasChanged();
-        var result = await History.GetAllAsync();
+        var result = await Workouts.GetAllAsync();
         rows = result.Workouts
-            .Select(w => new HistoryRow(w.Id, TimeZoneInfo.ConvertTime(w.StartedAt, Clock.LocalTimeZone).DateTime))
+            .Select(w => new WorkoutsRow(w.Id, TimeZoneInfo.ConvertTime(w.StartedAt, Clock.LocalTimeZone).DateTime))
             .ToList();
         failed = result.Failed;
         loading = false;

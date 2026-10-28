@@ -29,7 +29,7 @@ public class DashboardPageTests : ComponentTestBase
     }
 
     [Test]
-    public void WhileLoading_ShowsTheSpinnerWithHistoryAndNewWorkout()
+    public void WhileLoading_ShowsTheSpinnerWithWorkoutsAndNewWorkout()
     {
         var cut = Context.Render<DashboardPage>();
 
@@ -38,7 +38,7 @@ public class DashboardPageTests : ComponentTestBase
             Assert.That(cut.FindAll("[data-testid=dashboard-loading]"), Has.Count.EqualTo(1));
             Assert.That(cut.FindAll("[data-testid=last-workout-empty]"), Is.Empty);
             Assert.That(cut.FindAll("[data-testid=count-week]"), Is.Empty);
-            Assert.That(cut.FindAll("[data-testid=history-link]"), Has.Count.EqualTo(1));
+            Assert.That(cut.FindAll("[data-testid=workouts-link]"), Has.Count.EqualTo(1));
             Assert.That(cut.FindAll("[data-testid=new-workout]"), Has.Count.EqualTo(1));
             Assert.That(dashboard.Calls, Is.EqualTo(1));
         });
@@ -86,7 +86,7 @@ public class DashboardPageTests : ComponentTestBase
         Assert.Multiple(() =>
         {
             Assert.That(cut.Find("[data-testid=dashboard-error]").TextContent, Is.EqualTo("Couldn't load the Dashboard"));
-            Assert.That(cut.FindAll("[data-testid=history-link]"), Has.Count.EqualTo(1));
+            Assert.That(cut.FindAll("[data-testid=workouts-link]"), Has.Count.EqualTo(1));
             Assert.That(cut.FindAll("[data-testid=new-workout]"), Has.Count.EqualTo(1));
         });
     }
@@ -236,21 +236,21 @@ public class DashboardPageTests : ComponentTestBase
     public void Buttons_RaiseTheirCallbacks()
     {
         var newWorkout = 0;
-        var history = 0;
+        var workouts = 0;
         var settings = 0;
         var cut = Context.Render<DashboardPage>(p => p
             .Add(x => x.OnNewWorkout, () => newWorkout++)
-            .Add(x => x.OnHistory, () => history++)
+            .Add(x => x.OnWorkouts, () => workouts++)
             .Add(x => x.OnSettings, () => settings++));
 
         cut.Find("[data-testid=new-workout]").Click();
-        cut.Find("[data-testid=history-link]").Click();
+        cut.Find("[data-testid=workouts-link]").Click();
         cut.Find("[data-testid=settings]").Click();
 
         Assert.Multiple(() =>
         {
             Assert.That(newWorkout, Is.EqualTo(1));
-            Assert.That(history, Is.EqualTo(1));
+            Assert.That(workouts, Is.EqualTo(1));
             Assert.That(settings, Is.EqualTo(1));
         });
     }

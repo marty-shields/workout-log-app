@@ -31,7 +31,7 @@ public class CoreServiceCollectionExtensionsTests
             (typeof(TimeProvider), (Type?)null, ServiceLifetime.Singleton),
             (typeof(IWorkoutValidator), typeof(WorkoutValidator), ServiceLifetime.Singleton),
             (typeof(IWorkoutService), typeof(WorkoutService), ServiceLifetime.Singleton),
-            (typeof(IHistoryService), typeof(HistoryService), ServiceLifetime.Singleton),
+            (typeof(IWorkoutsService), typeof(WorkoutsService), ServiceLifetime.Singleton),
             (typeof(IDashboardService), typeof(DashboardService), ServiceLifetime.Singleton),
             (typeof(IWeightHistoryService), typeof(WeightHistoryService), ServiceLifetime.Singleton),
             (typeof(IExportService), typeof(ExportService), ServiceLifetime.Singleton),
@@ -72,7 +72,7 @@ public class CoreServiceCollectionExtensionsTests
             Assert.That(provider.GetRequiredService<IDatabaseInitializer>(), Is.InstanceOf<GatedDatabaseInitializer>());
             Assert.That(provider.GetRequiredService<IWorkoutRepository>(), Is.InstanceOf<GatedWorkoutRepository>());
             Assert.That(provider.GetRequiredService<IWorkoutService>(), Is.InstanceOf<WorkoutService>());
-            Assert.That(provider.GetRequiredService<IHistoryService>(), Is.InstanceOf<HistoryService>());
+            Assert.That(provider.GetRequiredService<IWorkoutsService>(), Is.InstanceOf<WorkoutsService>());
             Assert.That(provider.GetRequiredService<IDashboardService>(), Is.InstanceOf<DashboardService>());
             Assert.That(provider.GetRequiredService<IWeightHistoryService>(), Is.InstanceOf<WeightHistoryService>());
             Assert.That(provider.GetRequiredService<IExportService>(), Is.InstanceOf<ExportService>());

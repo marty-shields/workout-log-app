@@ -20,7 +20,7 @@ The current branch against `main`: `git diff main` (branch commits and uncommitt
 ## Steps
 1. **Fetch the issue** and note the repo path and branch.
 2. **Run the three reviews in this order, one at a time:** requirements, code and tests, security. They share the working tree, so never run them in parallel.
-   - Run each in a fresh-context sub-agent: a new agent with no conversation history, not a fork.
+   - Run each in a fresh-context sub-agent: a new agent with no prior context, not a fork.
    - If the agent can't start one, run its own CLI headless in a new process with only the reviewer prompt (e.g. `claude -p`, `codex exec`, `copilot -p`).
    - If neither is possible, stop and tell the user. Never review inline with this session's context.
    - Give each reviewer only its filled-in prompt from [Reviewer prompt](#reviewer-prompt). Nothing about the implementation, earlier discussion or the other reviews.

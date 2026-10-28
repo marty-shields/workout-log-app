@@ -10,7 +10,7 @@ namespace WorkoutLog.E2E.Tests.Steps;
 [Binding]
 public sealed class AppSteps(
     WebView web, Native native, AppLog log, Journeys journeys, SeedSteps seed, ScenarioState state, DashboardScreen dashboard,
-    WorkoutScreen workout, PickerScreen picker, HistoryScreen history)
+    WorkoutScreen workout, PickerScreen picker, WorkoutsScreen workouts)
 {
     [Given(@"^I am on (the Dashboard|the picker on Edit Workout)$")]
     public async Task GivenIAmOn(string screen)
@@ -60,11 +60,11 @@ public sealed class AppSteps(
         dashboard.LastWorkout();
     }
 
-    [When(@"^I open History and go back$")]
-    public void WhenIOpenHistoryAndGoBack()
+    [When(@"^I open Workouts and go back$")]
+    public void WhenIOpenWorkoutsAndGoBack()
     {
-        journeys.GoToHistory();
-        history.Back();
+        journeys.GoToWorkouts();
+        workouts.Back();
         journeys.WaitFor(Journeys.Screen.Dashboard);
     }
 

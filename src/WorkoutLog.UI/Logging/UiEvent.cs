@@ -2,7 +2,7 @@ namespace WorkoutLog.UI.Logging;
 
 /// <summary>
 /// Event ids of the UI's log messages: 2000–4999, a block of 100 per type. Values never change once logged.
-/// Retired, never reused: 2801 and 3001, focusing Try again failed on History and Edit Workout (now 3301).
+/// Retired, never reused: 2801 and 3001, focusing Try again failed on Workouts and Edit Workout (now 3301).
 /// </summary>
 internal enum UiEvent
 {

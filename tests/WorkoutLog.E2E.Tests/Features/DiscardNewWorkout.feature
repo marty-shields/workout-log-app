@@ -29,7 +29,7 @@ Feature: Discard a new workout
     When I tap Discard
     Then I am on the Dashboard
     And the last workout shows "No workouts yet"
-    And History is empty
+    And Workouts is empty
 
   @D78 @US-28
   Scenario: Android back on the prompt cancels it
