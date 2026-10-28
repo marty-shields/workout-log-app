@@ -61,5 +61,5 @@ public class MetricLimitsTests
     }
 
     private static ExerciseDefinition Exercise(DistanceUnit? distanceUnit, RateUnit? rateUnit, PaceUnit? paceUnit = null) =>
-        new(1, "Exercise", ExerciseType.Cardio, ExerciseCategory.Cardio, [], null, null, null, [], distanceUnit, rateUnit, paceUnit);
+        new(1, "Exercise", ExerciseType.Cardio, ExerciseCategory.Cardio, [], null, null, null, [], distanceUnit, rateUnit, paceUnit, Loaded: false);
 }

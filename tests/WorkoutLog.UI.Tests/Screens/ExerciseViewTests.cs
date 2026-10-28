@@ -149,7 +149,7 @@ public class ExerciseViewTests : ComponentTestBase
 
         Assert.Multiple(() =>
         {
-            Assert.That(cut.Find("[data-testid=exercise-chart-empty]").TextContent, Is.EqualTo("No weighted sets in the last 3 months"));
+            Assert.That(cut.Find("[data-testid=exercise-chart-empty]").TextContent, Is.EqualTo("No sets in the last 3 months"));
             Assert.That(cut.FindComponents<Chart>(), Is.Empty);
             Assert.That(cut.FindAll("[data-testid=exercise-range]"), Has.Count.EqualTo(1));
             Assert.That(cut.FindAll("[data-testid^=exercise-session-]"), Has.Count.EqualTo(2));

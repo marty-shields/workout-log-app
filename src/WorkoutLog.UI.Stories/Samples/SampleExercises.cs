@@ -41,11 +41,11 @@ public static class SampleExercises
     /// <summary>Seconds as m:ss, e.g. 1:45.</summary>
     public static readonly Func<decimal, string> Clock = value => $"{(int)value / 60}:{(int)value % 60:00}";
 
-    /// <summary>Logged exercises, most recent first; the lifts open their Exercise page.</summary>
+    /// <summary>Logged exercises, most recent first; the lifts and bodyweight moves open their Exercise page.</summary>
     public static IReadOnlyList<ExerciseListItem> All { get; } =
     [
         new(6, "Barbell Back Squat", ExerciseKind.Strength, "Tue 20 Oct · 70kg × 3", Opens: true),
-        new(264, "Push-up", ExerciseKind.Strength, "Tue 20 Oct · 25 reps"),
+        new(264, "Push-up", ExerciseKind.Strength, "Tue 20 Oct · 25 reps", Opens: true),
         new(218, "Machine Assisted Pull-up", ExerciseKind.Strength, "Thu 15 Oct · 20kg × 10"),
         new(258, "Plank", ExerciseKind.Strength, "Thu 15 Oct · 1:45"),
         new(311, "Outdoor Run", ExerciseKind.Cardio, "Sun 11 Oct · 5.2km"),
@@ -131,7 +131,7 @@ public static class SampleExercises
         Points = [],
         Records = [new("Heaviest weight", "40kg × 15", "20 Oct"), new("Best e1RM", null, null)],
         Sessions = [new(81, "Tue 20 Oct", "40kg × 15", "40×15 · 40×15 · 40×14")],
-        NoDataMessage = "No sets of 12 reps or fewer in the last 3 months",
+        NoDataMessage = "No sets in the last 3 months",
     };
 
     /// <summary>A bodyweight move on its Best set tab.</summary>
@@ -153,7 +153,7 @@ public static class SampleExercises
         Tab = "top-set",
         Points = [],
         Format = Kg,
-        NoDataMessage = "No weighted sets in the last 3 months",
+        NoDataMessage = "No sets in the last 3 months",
     };
 
     /// <summary>A bodyweight move done with dumbbells, on its Top set tab.</summary>
@@ -162,8 +162,7 @@ public static class SampleExercises
         [P("1 Sep", 10, "×10"), P("15 Sep", 12, "×10"), P("22 Sep", 12, "×12"), P("6 Oct", 14, "×10"), P("13 Oct", 16, "×8")],
         Kg,
         [new("Most reps in a set", null, null), new("Most reps in a session", null, null), new("Heaviest weight", "16kg × 8", "13 Oct"), new("Best e1RM", "20.3kg", "13 Oct")],
-        [new(21, "Tue 13 Oct", "16kg × 8", "16×8 · 16×8 · 14×10")],
-        Caption: "Weight per dumbbell");
+        [new(21, "Tue 13 Oct", "16kg × 8", "16×8 · 16×8 · 14×10")]);
 
     /// <summary>An assisted machine: one chart of the least assist, lower is better.</summary>
     public static SampleExercise Assisted { get; } = new(

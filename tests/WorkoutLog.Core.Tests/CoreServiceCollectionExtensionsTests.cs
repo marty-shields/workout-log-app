@@ -48,6 +48,8 @@ public class CoreServiceCollectionExtensionsTests
             (typeof(ITopSetRule), typeof(TopSetRule), ServiceLifetime.Singleton),
             (typeof(IE1rmRule), typeof(E1rmRule), ServiceLifetime.Singleton),
             (typeof(IRecordsRule), typeof(RecordsRule), ServiceLifetime.Singleton),
+            (typeof(IBodyweightRule), typeof(BodyweightRule), ServiceLifetime.Singleton),
+            (typeof(IBodyweightRecordsRule), typeof(BodyweightRecordsRule), ServiceLifetime.Singleton),
             (typeof(IExerciseProgressService), typeof(ExerciseProgressService), ServiceLifetime.Singleton),
             (typeof(IExportService), typeof(ExportService), ServiceLifetime.Singleton),
             (typeof(IWorkoutWriterFactory), typeof(WorkoutWriterFactory), ServiceLifetime.Singleton),

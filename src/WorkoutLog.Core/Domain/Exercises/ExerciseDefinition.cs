@@ -13,6 +13,7 @@ namespace WorkoutLog.Core.Domain.Exercises;
 /// <param name="DistanceUnit">Unit of the distance metric. Null when there is no distance.</param>
 /// <param name="RateUnit">Unit of the rate metric. Null when there is no rate.</param>
 /// <param name="PaceUnit">Unit of the pace metric. Null when there is no pace.</param>
+/// <param name="Loaded">True for a bodyweight move whose Exercise page has an e1RM tab (D193).</param>
 public sealed record ExerciseDefinition(
     int Id,
     string Name,
@@ -25,8 +26,12 @@ public sealed record ExerciseDefinition(
     IReadOnlyList<MetricDefinition> Metrics,
     DistanceUnit? DistanceUnit,
     RateUnit? RateUnit,
-    PaceUnit? PaceUnit)
+    PaceUnit? PaceUnit,
+    bool Loaded)
 {
     /// <summary>True for an assisted machine (<see cref="ExerciseCategory.Assisted"/>): its weight is the assistance.</summary>
     public bool IsAssisted => Category == ExerciseCategory.Assisted;
+
+    /// <summary>True for a lift or bodyweight move: it has an Exercise page.</summary>
+    public bool HasProgressPage => Category is ExerciseCategory.Lift or ExerciseCategory.Bodyweight;
 }

@@ -32,20 +32,20 @@ public class WorkoutValidatorTests
                 new MetricDefinition(Metric.Level, Required: false, Label: "Resistance"),
                 new MetricDefinition(Metric.Calories, Required: false),
                 new MetricDefinition(Metric.Rate, Required: false),
-            ], DistanceUnit.Km, RateUnit.Rpm, null),
+            ], DistanceUnit.Km, RateUnit.Rpm, null, Loaded: false),
             Strength(Plank, new MetricDefinition(Metric.Duration, Required: true), new MetricDefinition(Metric.WeightKg, Required: false)),
             new ExerciseDefinition(Climber, "Climber", ExerciseType.Cardio, ExerciseCategory.Cardio, [], null, null, null,
             [
                 new MetricDefinition(Metric.Duration, Required: true),
                 new MetricDefinition(Metric.Floors, Required: false),
                 new MetricDefinition(Metric.Incline, Required: false),
-            ], null, null, null),
+            ], null, null, null, Loaded: false),
             new ExerciseDefinition(Run, "Run", ExerciseType.Cardio, ExerciseCategory.Cardio, [], null, null, null,
             [
                 new MetricDefinition(Metric.Duration, Required: true),
                 new MetricDefinition(Metric.Distance, Required: false),
                 new MetricDefinition(Metric.Pace, Required: false),
-            ], DistanceUnit.Km, null, PaceUnit.PerKm),
+            ], DistanceUnit.Km, null, PaceUnit.PerKm, Loaded: false),
         ]);
         validator = new WorkoutValidator(catalog.Object);
     }
@@ -337,7 +337,7 @@ public class WorkoutValidatorTests
 
     private static ExerciseDefinition Strength(int id, params MetricDefinition[] metrics) =>
         new(id, $"Exercise {id}", ExerciseType.Strength, Category(metrics), [], Muscle.Chest, Equipment.Barbell, Mechanic.Compound, metrics,
-            metrics.Any(m => m.Metric == Metric.Distance) ? DistanceUnit.Metres : null, null, null);
+            metrics.Any(m => m.Metric == Metric.Distance) ? DistanceUnit.Metres : null, null, null, Loaded: false);
 
     private static ExerciseCategory Category(MetricDefinition[] metrics) =>
         metrics.FirstOrDefault(m => m.Required)?.Metric switch

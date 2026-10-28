@@ -23,6 +23,9 @@ public class ExerciseProgressServiceTests
     /// <summary>Push-up: bodyweight.</summary>
     private const int PushUp = 264;
 
+    /// <summary>Plank: hold.</summary>
+    private const int Plank = 258;
+
     /// <summary>Outdoor Run: cardio.</summary>
     private const int Run = 311;
 
@@ -40,13 +43,14 @@ public class ExerciseProgressServiceTests
         logger = new FakeLogger<ExerciseProgressService>();
         var clock = new FakeTimeProvider(Now);
         clock.SetLocalTimeZone(TimeZoneInfo.Utc);
-        service = new ExerciseProgressService(repository.Object, Catalog, new RangeFilter(clock), new TopSetRule(), new E1rmRule(), new RecordsRule(), logger);
+        service = new ExerciseProgressService(repository.Object, Catalog, new RangeFilter(clock), new TopSetRule(), new E1rmRule(), new RecordsRule(),
+            new BodyweightRule(new TopSetRule(), new E1rmRule()), new BodyweightRecordsRule(new RecordsRule()), logger);
     }
 
     [Test]
     public void Exercises_AreTheOnesNamed() =>
-        Assert.That(new[] { Squat, PlateFrontRaise, PushUp, Run }.Select(id => Catalog.All.Single(e => e.Id == id).Name),
-            Is.EqualTo(new[] { "Barbell Back Squat", "Plate Front Raise", "Push-up", "Outdoor Run" }));
+        Assert.That(new[] { Squat, PlateFrontRaise, PushUp, Plank, Run }.Select(id => Catalog.All.Single(e => e.Id == id).Name),
+            Is.EqualTo(new[] { "Barbell Back Squat", "Plate Front Raise", "Push-up", "Plank", "Outdoor Run" }));
 
     [Test]
     public async Task LoadAsync_ReturnsEachSessionWithItsSets()
@@ -62,8 +66,8 @@ public class ExerciseProgressServiceTests
 
         Assert.That(result, Is.EqualTo(new ExerciseProgressResult(
         [
-            new LiftSession(1, older, [Set(8, 60m)]),
-            new LiftSession(2, Now, [Set(5, 65m), Set(3, 70m)]),
+            new StrengthSession(1, older, [Set(8, 60m)]),
+            new StrengthSession(2, Now, [Set(5, 65m), Set(3, 70m)]),
         ], Failed: false)).UsingPropertiesComparer());
     }
 
@@ -75,7 +79,7 @@ public class ExerciseProgressServiceTests
 
         var result = await service.LoadAsync(Squat);
 
-        Assert.That(result.Sessions, Is.EqualTo(new[] { new LiftSession(1, Now, [Set(5, 60m), Set(3, 80m), Set(2, 85m)]) }).UsingPropertiesComparer());
+        Assert.That(result.Sessions, Is.EqualTo(new[] { new StrengthSession(1, Now, [Set(5, 60m), Set(3, 80m), Set(2, 85m)]) }).UsingPropertiesComparer());
     }
 
     [Test]
@@ -84,6 +88,17 @@ public class ExerciseProgressServiceTests
         repository.Setup(r => r.GetSessionsAsync(PlateFrontRaise)).ReturnsAsync([]);
 
         Assert.That((await service.LoadAsync(PlateFrontRaise)).Failed, Is.False);
+    }
+
+    [Test]
+    public async Task LoadAsync_Bodyweight_ReturnsEachSessionWithItsSets()
+    {
+        repository.Setup(r => r.GetSessionsAsync(PushUp)).ReturnsAsync([new WorkoutSession(1, Now, [new StrengthExercise(PushUp, [Set(20, null), Set(8, 10m)])])]);
+
+        var result = await service.LoadAsync(PushUp);
+
+        Assert.That(result, Is.EqualTo(new ExerciseProgressResult([new StrengthSession(1, Now, [Set(20, null), Set(8, 10m)])], Failed: false))
+            .UsingPropertiesComparer());
     }
 
     [Test]
@@ -107,14 +122,14 @@ public class ExerciseProgressServiceTests
         repository.VerifyNoOtherCalls();
     }
 
-    [TestCase(PushUp)]
+    [TestCase(Plank)]
     [TestCase(Run)]
-    public async Task LoadAsync_NotALift_FailsAndLogsAWarningWithoutReading(int exerciseId)
+    public async Task LoadAsync_NoExercisePage_FailsAndLogsAWarningWithoutReading(int exerciseId)
     {
         var result = await service.LoadAsync(exerciseId);
 
         Assert.That(result, Is.EqualTo(new ExerciseProgressResult([], Failed: true)).UsingPropertiesComparer());
-        Assert.That(LoggedEvents.Of(logger), Is.EqualTo(new[] { (CoreEvent.ExerciseProgressNotALift, LogLevel.Warning, $"Exercise {exerciseId} is not a lift") }));
+        Assert.That(LoggedEvents.Of(logger), Is.EqualTo(new[] { (CoreEvent.ExerciseProgressNotSupported, LogLevel.Warning, $"Exercise {exerciseId} has no progress page") }));
         repository.VerifyNoOtherCalls();
     }
 
@@ -135,14 +150,14 @@ public class ExerciseProgressServiceTests
     }
 
     [Test]
-    public void Summarise_KeepsTheSessionsInTheRangeOldestFirstWithTheirValuesAndRecords()
+    public void SummariseLift_KeepsTheSessionsInTheRangeOldestFirstWithTheirValuesAndRecords()
     {
-        var outOfRange = new LiftSession(1, Now.AddMonths(-4), [Set(1, 200m)]);
-        var noWeight = new LiftSession(2, Now.AddDays(-14), [Set(8, null)]);
-        var heavy = new LiftSession(3, Now, [Set(8, 62.5m), Set(3, 70m)]);
-        var light = new LiftSession(4, Now.AddDays(-7), [Set(15, 50m), Set(5, 60m)]);
+        var outOfRange = new StrengthSession(1, Now.AddMonths(-4), [Set(1, 200m)]);
+        var noWeight = new StrengthSession(2, Now.AddDays(-14), [Set(8, null)]);
+        var heavy = new StrengthSession(3, Now, [Set(8, 62.5m), Set(3, 70m)]);
+        var light = new StrengthSession(4, Now.AddDays(-7), [Set(15, 50m), Set(5, 60m)]);
 
-        var progress = service.Summarise([outOfRange, noWeight, heavy, light], ChartRange.ThreeMonths);
+        var progress = service.SummariseLift([outOfRange, noWeight, heavy, light], ChartRange.ThreeMonths);
 
         Assert.That(progress, Is.EqualTo(new LiftProgress(
         [
@@ -155,19 +170,44 @@ public class ExerciseProgressServiceTests
     }
 
     [Test]
-    public void Summarise_All_KeepsEverySession()
+    public void SummariseLift_All_KeepsEverySession()
     {
-        var old = new LiftSession(1, Now.AddYears(-3), [Set(1, 200m)]);
+        var old = new StrengthSession(1, Now.AddYears(-3), [Set(1, 200m)]);
 
-        var progress = service.Summarise([old], ChartRange.All);
+        var progress = service.SummariseLift([old], ChartRange.All);
 
         Assert.That(progress.Records.HeaviestWeight, Is.EqualTo(new ProgressRecord<ExerciseBest>(new ExerciseBest(200m, 1, null, null), old.StartedAt)));
     }
 
     [Test]
-    public void Summarise_NoSessionsInTheRange_HasNoSessionsOrRecords() =>
-        Assert.That(service.Summarise([new LiftSession(1, Now.AddYears(-2), [Set(5, 60m)])], ChartRange.Year),
+    public void SummariseLift_NoSessionsInTheRange_HasNoSessionsOrRecords() =>
+        Assert.That(service.SummariseLift([new StrengthSession(1, Now.AddYears(-2), [Set(5, 60m)])], ChartRange.Year),
             Is.EqualTo(new LiftProgress([], new LiftRecords(null, null))).UsingPropertiesComparer());
+
+    [Test]
+    public void SummariseBodyweight_KeepsTheSessionsInTheRangeOldestFirstWithTheirValuesAndRecords()
+    {
+        var outOfRange = new StrengthSession(1, Now.AddMonths(-4), [Set(50, null)]);
+        var mixed = new StrengthSession(2, Now, [Set(20, null), Set(18, 0m), Set(8, 10m)]);
+        var unweighted = new StrengthSession(3, Now.AddDays(-7), [Set(25, null), Set(15, null)]);
+
+        var progress = service.SummariseBodyweight([outOfRange, mixed, unweighted], ChartRange.ThreeMonths);
+
+        Assert.That(progress, Is.EqualTo(new BodyweightProgress(
+        [
+            new BodyweightSessionProgress(unweighted, 25, 40, null, null),
+            new BodyweightSessionProgress(mixed, 20, 38, new ExerciseBest(10m, 8, null, null), 10m * (1 + 8 / 30m)),
+        ], new BodyweightRecords(
+            new ProgressRecord<int>(25, unweighted.StartedAt),
+            new ProgressRecord<int>(40, unweighted.StartedAt),
+            new ProgressRecord<ExerciseBest>(new ExerciseBest(10m, 8, null, null), Now),
+            new ProgressRecord<decimal>(10m * (1 + 8 / 30m), Now)))).UsingPropertiesComparer());
+    }
+
+    [Test]
+    public void SummariseBodyweight_NoSessionsInTheRange_HasNoSessionsOrRecords() =>
+        Assert.That(service.SummariseBodyweight([new StrengthSession(1, Now.AddYears(-2), [Set(20, null)])], ChartRange.Year),
+            Is.EqualTo(new BodyweightProgress([], new BodyweightRecords(null, null, null, null))).UsingPropertiesComparer());
 
     private static StrengthSet Set(int? reps, decimal? weightKg) => new(reps, weightKg, null, null);
 }

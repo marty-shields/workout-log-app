@@ -8,8 +8,8 @@ using WorkoutLog.Core.Logging;
 namespace WorkoutLog.Core.Services;
 
 /// <summary>
-/// Reads a lift's sessions through <see cref="IWorkoutRepository"/> and logs the outcome. Summarises them with the range filter,
-/// top set, e1RM and records rules.
+/// Reads an exercise's sessions through <see cref="IWorkoutRepository"/> and logs the outcome. Summarises them with the range filter
+/// and each type's rules.
 /// </summary>
 internal sealed partial class ExerciseProgressService(
     IWorkoutRepository repository,
@@ -18,6 +18,8 @@ internal sealed partial class ExerciseProgressService(
     ITopSetRule topSetRule,
     IE1rmRule e1rmRule,
     IRecordsRule recordsRule,
+    IBodyweightRule bodyweightRule,
+    IBodyweightRecordsRule bodyweightRecordsRule,
     ILogger<ExerciseProgressService> logger) : IExerciseProgressService
 {
     /// <inheritdoc />
@@ -30,9 +32,9 @@ internal sealed partial class ExerciseProgressService(
             return new ExerciseProgressResult([], Failed: true);
         }
 
-        if (definition.Category != ExerciseCategory.Lift)
+        if (!definition.HasProgressPage)
         {
-            Log.NotALift(logger, exerciseId);
+            Log.NotSupported(logger, exerciseId);
             return new ExerciseProgressResult([], Failed: true);
         }
 
@@ -47,23 +49,32 @@ internal sealed partial class ExerciseProgressService(
             return new ExerciseProgressResult([], Failed: true);
         }
 
-        var lifts = sessions
-            .Select(s => new LiftSession(s.WorkoutId, s.StartedAt, s.Exercises.OfType<StrengthExercise>().SelectMany(e => e.Sets).ToList()))
+        var strength = sessions
+            .Select(s => new StrengthSession(s.WorkoutId, s.StartedAt, s.Exercises.OfType<StrengthExercise>().SelectMany(e => e.Sets).ToList()))
             .ToList();
-        Log.Loaded(logger, lifts.Count, exerciseId);
-        return new ExerciseProgressResult(lifts, Failed: false);
+        Log.Loaded(logger, strength.Count, exerciseId);
+        return new ExerciseProgressResult(strength, Failed: false);
     }
 
     /// <inheritdoc />
-    public LiftProgress Summarise(IReadOnlyList<LiftSession> sessions, ChartRange range)
+    public LiftProgress SummariseLift(IReadOnlyList<StrengthSession> sessions, ChartRange range)
     {
-        var inRange = sessions
-            .Where(s => rangeFilter.Includes(s.StartedAt, range))
-            .OrderBy(s => s.StartedAt)
+        var inRange = InRange(sessions, range)
             .Select(s => new LiftSessionProgress(s, topSetRule.TopSet(s.Sets), e1rmRule.Best(s.Sets)))
             .ToList();
         return new LiftProgress(inRange, recordsRule.Records(inRange));
     }
+
+    /// <inheritdoc />
+    public BodyweightProgress SummariseBodyweight(IReadOnlyList<StrengthSession> sessions, ChartRange range)
+    {
+        var inRange = InRange(sessions, range).Select(bodyweightRule.Progress).ToList();
+        return new BodyweightProgress(inRange, bodyweightRecordsRule.Records(inRange));
+    }
+
+    /// <summary>The sessions in <paramref name="range"/>, by start time oldest first.</summary>
+    private IEnumerable<StrengthSession> InRange(IReadOnlyList<StrengthSession> sessions, ChartRange range) =>
+        sessions.Where(s => rangeFilter.Includes(s.StartedAt, range)).OrderBy(s => s.StartedAt);
 
     private static partial class Log
     {
@@ -76,7 +87,7 @@ internal sealed partial class ExerciseProgressService(
         [LoggerMessage((int)CoreEvent.ExerciseProgressUnknownExercise, LogLevel.Warning, "Exercise {ExerciseId} is not in the exercise list")]
         public static partial void UnknownExercise(ILogger logger, int exerciseId);
 
-        [LoggerMessage((int)CoreEvent.ExerciseProgressNotALift, LogLevel.Warning, "Exercise {ExerciseId} is not a lift")]
-        public static partial void NotALift(ILogger logger, int exerciseId);
+        [LoggerMessage((int)CoreEvent.ExerciseProgressNotSupported, LogLevel.Warning, "Exercise {ExerciseId} has no progress page")]
+        public static partial void NotSupported(ILogger logger, int exerciseId);
     }
 }

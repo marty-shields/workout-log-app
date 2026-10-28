@@ -35,7 +35,7 @@ It's built for one person and one phone: no accounts, no sign-up.
 - ⏱️ **Automatic timing.** Start and finish times are captured for you, with a live timer while you log.
 - 🗂️ **Workouts.** Browse every session, open one to edit it, or delete it.
 - 🏆 **Exercises.** Every exercise you've logged, latest first, with when you last did it and that session's best.
-- 📈 **Lift progress.** Open a lift to chart its top set or estimated one-rep max over 3 months, 6 months, a year or all time, with its records and every session.
+- 📈 **Exercise progress.** Open a lift or bodyweight move to chart its top set, estimated one-rep max, best set or total reps over 3 months, 6 months, a year or all time, with its records and every session.
 - 📊 **Dashboard.** Your last workout and how many sessions you've done this week and this month.
 - 📤 **Export.** Save every workout to one JSON file and share it to Drive, email or another app.
 - 📥 **Import.** Bring an exported file back: review what's new, already there or different, then add or replace.

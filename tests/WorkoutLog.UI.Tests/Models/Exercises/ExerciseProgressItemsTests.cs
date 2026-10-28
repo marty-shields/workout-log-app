@@ -99,12 +99,12 @@ public class ExerciseProgressItemsTests
     public void NoDataMessage_TabHasValues_IsNone() =>
         Assert.That(ExerciseProgressItems.NoDataMessage(Progress(NoWeight, Heavy), "e1rm", ChartRange.ThreeMonths), Is.Null);
 
-    [TestCase("top-set", ChartRange.ThreeMonths, "No weighted sets in the last 3 months")]
-    [TestCase("top-set", ChartRange.Year, "No weighted sets in the last year")]
-    [TestCase("top-set", ChartRange.All, "No weighted sets yet")]
-    [TestCase("e1rm", ChartRange.SixMonths, "No sets of 12 reps or fewer in the last 6 months")]
-    [TestCase("e1rm", ChartRange.All, "No sets of 12 reps or fewer yet")]
-    public void NoDataMessage_SessionsWithoutValuesForTheTab_SaysWhy(string tab, ChartRange range, string expected) =>
+    [TestCase("top-set", ChartRange.ThreeMonths, "No sets in the last 3 months")]
+    [TestCase("top-set", ChartRange.Year, "No sets in the last year")]
+    [TestCase("top-set", ChartRange.All, "No sets yet")]
+    [TestCase("e1rm", ChartRange.SixMonths, "No sets in the last 6 months")]
+    [TestCase("e1rm", ChartRange.All, "No sets yet")]
+    public void NoDataMessage_SessionsWithoutValuesForTheTab_IsNoSets(string tab, ChartRange range, string expected) =>
         Assert.That(ExerciseProgressItems.NoDataMessage(Progress(NoWeight, tab == "e1rm" ? LastYear : NoWeight), tab, range), Is.EqualTo(expected));
 
     [Test]
@@ -157,7 +157,7 @@ public class ExerciseProgressItemsTests
     private static ExerciseBest Top(decimal kg, int reps) => new(kg, reps, null, null);
 
     private static LiftSessionProgress Session(int id, DateTimeOffset startedAt, StrengthSet[] sets, ExerciseBest? top, decimal? e1rm) =>
-        new(new LiftSession(id, startedAt, sets), top, e1rm);
+        new(new StrengthSession(id, startedAt, sets), top, e1rm);
 
     private static LiftProgress Progress(params LiftSessionProgress[] sessions) => new(sessions, new LiftRecords(null, null));
 

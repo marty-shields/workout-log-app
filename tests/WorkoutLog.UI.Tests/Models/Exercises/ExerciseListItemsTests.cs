@@ -42,11 +42,11 @@ public class ExerciseListItemsTests
     [TestCase(Squat, true)]
     [TestCase(DumbbellCurl, true)]
     [TestCase(PlateFrontRaise, true)]
-    [TestCase(PushUp, false)]
+    [TestCase(PushUp, true)]
     [TestCase(FarmersWalk, false)]
     [TestCase(Plank, false)]
     [TestCase(Run, false)]
-    public void Item_OpensForLiftsOnly(int id, bool expected) =>
+    public void Item_OpensForLiftsAndBodyweightMovesOnly(int id, bool expected) =>
         Assert.That(ExerciseListItems.Item(Find(id), null, TimeZoneInfo.Utc, Now).Opens, Is.EqualTo(expected));
 
     [Test]
