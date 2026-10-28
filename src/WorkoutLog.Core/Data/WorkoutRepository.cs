@@ -96,6 +96,35 @@ internal sealed class WorkoutRepository(SQLiteAsyncConnection connection, IWorko
     }
 
     /// <inheritdoc />
+    public async Task<IReadOnlyList<LastSession>> GetLastSessionsAsync()
+    {
+        const string sql = """
+            SELECT e.Id, e.WorkoutId, e.ExerciseId, e.Position, w.StartedAt
+            FROM WorkoutExercise e
+            JOIN Workout w ON w.Id = e.WorkoutId
+            WHERE w.StartedAt = (
+                SELECT MAX(w2.StartedAt)
+                FROM Workout w2
+                JOIN WorkoutExercise e2 ON e2.WorkoutId = w2.Id
+                WHERE e2.ExerciseId = e.ExerciseId)
+            ORDER BY e.ExerciseId, e.Position
+            """;
+        var rows = await connection.QueryAsync<LastExerciseRow>(sql);
+        var exerciseIds = rows.Select(r => r.Id).ToList();
+        var sets = (await connection.Table<StrengthSetRow>()
+                .Where(s => exerciseIds.Contains(s.WorkoutExerciseId)).OrderBy(s => s.Position).ToListAsync())
+            .ToLookup(s => s.WorkoutExerciseId);
+        var entries = (await connection.Table<CardioEntryRow>()
+                .Where(c => exerciseIds.Contains(c.WorkoutExerciseId)).ToListAsync())
+            .ToDictionary(c => c.WorkoutExerciseId);
+
+        return rows.GroupBy(r => r.ExerciseId)
+            .Select(g => new LastSession(g.Key, new DateTimeOffset(g.First().StartedAt, TimeSpan.Zero),
+                ToExercises(g.Select(r => new WorkoutExerciseRow { Id = r.Id, WorkoutId = r.WorkoutId, ExerciseId = r.ExerciseId, Position = r.Position }), sets, entries)))
+            .ToList();
+    }
+
+    /// <inheritdoc />
     public Task DeleteAsync(int id) =>
         connection.RunInTransactionAsync(db => writers.Create(db).Delete(id));
 
@@ -118,5 +147,19 @@ internal sealed class WorkoutRepository(SQLiteAsyncConnection connection, IWorko
         public int WorkoutId { get; set; }
 
         public decimal? WeightKg { get; set; }
+    }
+
+    /// <summary>A workout exercise row with its workout's start, in UTC ticks.</summary>
+    private sealed class LastExerciseRow
+    {
+        public int Id { get; set; }
+
+        public int WorkoutId { get; set; }
+
+        public int ExerciseId { get; set; }
+
+        public int Position { get; set; }
+
+        public long StartedAt { get; set; }
     }
 }

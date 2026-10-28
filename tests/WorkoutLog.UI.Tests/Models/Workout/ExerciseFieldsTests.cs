@@ -223,10 +223,6 @@ public class ExerciseFieldsTests
     public void Saved_CardioDefinitionWithStrengthRecord_IsNull() =>
         Assert.That(ExerciseFields.Saved(Find(300), new StrengthExercise(300, [])), Is.Null);
 
-    [Test]
-    public void PickerItem_HasIdNameAndKind() =>
-        Assert.That(ExerciseFields.PickerItem(Find(305)), Is.EqualTo(new PickerItem(305, "Rowing Machine", ExerciseKind.Cardio)));
-
     private static List<Dictionary<string, string?>> Values(ExerciseState? exercise) => exercise!.Entries.Select(e => e.Values).ToList();
 
     /// <summary>A saved exercise with every metric its definition shows filled, and a second set for strength.</summary>

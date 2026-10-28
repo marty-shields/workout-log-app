@@ -54,9 +54,6 @@ public static class ExerciseFields
         return state;
     }
 
-    /// <summary>The exercise as the picker lists it.</summary>
-    public static PickerItem PickerItem(ExerciseDefinition exercise) => new(exercise.Id, exercise.Name, Kind(exercise.Type));
-
     /// <summary>Strength or cardio.</summary>
     public static ExerciseKind Kind(ExerciseType type) => type switch
     {
@@ -115,7 +112,8 @@ public static class ExerciseFields
         _ => throw new ArgumentOutOfRangeException(nameof(value), kind, "Value doesn't fit the field"),
     };
 
-    private static string DistanceText(ExerciseDefinition exercise) => exercise.DistanceUnit switch
+    /// <summary>Unit of the exercise's distance, e.g. km.</summary>
+    internal static string DistanceText(ExerciseDefinition exercise) => exercise.DistanceUnit switch
     {
         DistanceUnit.Km => "km",
         DistanceUnit.Metres => "m",

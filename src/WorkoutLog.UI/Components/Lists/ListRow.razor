@@ -2,6 +2,10 @@
 {
     <button type="button" class="row clickable @(Detail is not null ? "two-line" : null)" data-testid="@TestId" @onclick="OnClick">
         @Texts
+        @if (Aside is not null)
+        {
+            <span class="aside">@Aside</span>
+        }
         <span class="chevron"><Icon Name="IconName.Chevron" Muted /></span>
     </button>
 }
@@ -9,6 +13,10 @@ else
 {
     <div class="row @(Detail is not null ? "two-line" : null)" data-testid="@TestId">
         @Texts
+        @if (Aside is not null)
+        {
+            <span class="aside">@Aside</span>
+        }
     </div>
 }
 
@@ -20,6 +28,10 @@ else
     /// <summary>Muted second line under the text.</summary>
     [Parameter]
     public string? Detail { get; set; }
+
+    /// <summary>Muted text at the right, before the chevron.</summary>
+    [Parameter]
+    public string? Aside { get; set; }
 
     /// <summary>Raised when the row is tapped. The row is not tappable when unset.</summary>
     [Parameter]

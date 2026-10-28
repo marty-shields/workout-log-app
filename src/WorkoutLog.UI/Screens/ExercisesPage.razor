@@ -1,0 +1,70 @@
+@using WorkoutLog.Core.Domain.Exercises
+@using WorkoutLog.Core.Services
+@using WorkoutLog.UI.Models.Exercises
+@inject ILoggedExercisesService LoggedExercises
+@inject IExerciseCatalog Catalog
+@inject TimeProvider Clock
+
+<ExercisesView Items="items"
+               Query="@query"
+               QueryChanged="Search"
+               Filter="filter"
+               FilterChanged="FilterBy"
+               NothingLogged="logged.Count == 0"
+               Loading="loading"
+               Failed="failed"
+               OnRetry="LoadAsync"
+               OnBack="OnBack" />
+
+@code {
+    private IReadOnlyList<ExerciseListItem> logged = [];
+    private IReadOnlyList<ExerciseListItem> items = [];
+    private string query = "";
+    private ExerciseFilter filter;
+    private bool loading;
+    private bool failed;
+
+    /// <summary>Raised by the back arrow and the Android back button.</summary>
+    [Parameter]
+    public EventCallback OnBack { get; set; }
+
+    protected override Task OnInitializedAsync() => LoadAsync();
+
+    /// <summary>
+    /// Loads the logged exercises through <see cref="ILoggedExercisesService.GetAsync"/>, each with its last session in the phone's
+    /// time zone. Shows the spinner until it finishes (D69). Ids not in the catalog are already left out by Core.
+    /// </summary>
+    private async Task LoadAsync()
+    {
+        if (loading)
+        {
+            return;
+        }
+
+        loading = true;
+        StateHasChanged();
+        var result = await LoggedExercises.GetAsync();
+        var definitions = Catalog.All.ToDictionary(e => e.Id);
+        var now = Clock.GetUtcNow();
+        logged = result.Exercises
+            .Select(e => ExerciseListItems.Item(definitions[e.ExerciseId], e, Clock.LocalTimeZone, now))
+            .ToList();
+        failed = result.Failed;
+        loading = false;
+        Find();
+    }
+
+    private void Search(string text)
+    {
+        query = text;
+        Find();
+    }
+
+    private void FilterBy(ExerciseFilter value)
+    {
+        filter = value;
+        Find();
+    }
+
+    private void Find() => items = ExerciseListItems.Find(logged, Catalog, query, filter);
+}

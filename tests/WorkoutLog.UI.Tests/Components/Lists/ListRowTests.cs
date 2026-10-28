@@ -31,6 +31,33 @@ public class ListRowTests : ComponentTestBase
     }
 
     [Test]
+    public void Aside_IsBeforeTheChevron()
+    {
+        var cut = Context.Render<ListRow>(p => p
+            .Add(x => x.Text, "Dumbbell Curl")
+            .Add(x => x.Aside, "Strength")
+            .Add(x => x.OnClick, () => { }));
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.Find("button").Children.TakeLast(2).Select(c => c.ClassName), Is.EqualTo(new[] { "aside", "chevron" }));
+            Assert.That(cut.Find(".aside").TextContent, Is.EqualTo("Strength"));
+        });
+    }
+
+    [Test]
+    public void Aside_WithoutOnClick_IsAtTheEnd()
+    {
+        var cut = Context.Render<ListRow>(p => p.Add(x => x.Text, "Plank").Add(x => x.Aside, "Strength"));
+
+        Assert.That(cut.Find("div.row").LastElementChild!.ClassName, Is.EqualTo("aside"));
+    }
+
+    [Test]
+    public void NoAside_RendersNone() =>
+        Assert.That(Context.Render<ListRow>(p => p.Add(x => x.Text, "Workouts")).FindAll(".aside"), Is.Empty);
+
+    [Test]
     public void WithoutOnClick_RendersStaticRow()
     {
         var cut = Context.Render<ListRow>(p => p.Add(x => x.Text, "Tue 20 Oct 2026 · 18:05"));

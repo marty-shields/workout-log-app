@@ -59,7 +59,7 @@ Text and controls meet WCAG AA in both themes.
 - Most colour tokens are `light-dark()` pairs. `data-theme="light"` or `"dark"` forces a theme on an element; component and screen stories have a System / Light / Dark switch (D84).
 - Danger buttons are filled red, the same red as errors (D85).
 - System font; body 16px, number and duration inputs 20px; radius 8 / 12 / 20px, plus round; spacing 4–32px (D86).
-- Some components override tokens inside them: the top bar sets text, muted text and focus; the picker bar sets focus; the open set sets muted text, input border and focus to the text colour.
+- Some components override tokens inside them: the top bar sets text, muted text and focus; the Add Exercise bar sets text, muted text and focus; the open set sets muted text, input border and focus to the text colour.
 
 ## Checks
 Tests in `WorkoutLog.UI.Tests` fail when:

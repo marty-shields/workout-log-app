@@ -2,6 +2,9 @@ using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Time.Testing;
 using WorkoutLog.Core.Domain.Exercises;
 using WorkoutLog.Core.Domain.Workouts;
+using WorkoutLog.Core.Domain.Exercises.Bests;
+using WorkoutLog.Core.Services;
+using WorkoutLog.UI.Models.Exercises;
 using WorkoutLog.UI.Models.Workout;
 using WorkoutLog.UI.Stories.Samples;
 
@@ -14,7 +17,11 @@ public class WorkoutEditorTests
     private const int Squat = 6;
     private const int Treadmill = 300;
 
+    /// <summary>Wed 28 Oct 2026 12:00 UTC.</summary>
+    private static readonly DateTimeOffset Now = new(2026, 10, 28, 12, 0, 0, TimeSpan.Zero);
+
     private WorkoutChecker workoutChecker = null!;
+    private FakeLoggedExercisesService loggedExercises = null!;
     private WorkoutEditor editor = null!;
 
     [SetUp]
@@ -23,7 +30,8 @@ public class WorkoutEditorTests
         var workouts = new SampleWorkoutService(new FakeTimeProvider(), Catalog);
         var setChecker = new SetChecker(workouts, Catalog, NullLogger<SetChecker>.Instance);
         workoutChecker = new WorkoutChecker(setChecker, workouts, NullLogger<WorkoutChecker>.Instance);
-        editor = new WorkoutEditor(Catalog, setChecker, workoutChecker);
+        loggedExercises = new FakeLoggedExercisesService();
+        editor = new WorkoutEditor(Catalog, setChecker, workoutChecker, loggedExercises, new FakeTimeProvider(Now));
     }
 
     [Test]
@@ -32,56 +40,172 @@ public class WorkoutEditorTests
         Assert.Multiple(() =>
         {
             Assert.That(editor.Exercises, Is.Empty);
-            Assert.That(editor.PickerOpen, Is.False);
+            Assert.That(editor.ListOpen, Is.False);
             Assert.That(editor.Changed, Is.False);
             Assert.That(editor.Saving, Is.False);
         });
     }
 
     [Test]
-    public void OpenPicker_ListsTheWholeCatalogWithNoSearch()
+    public async Task OpenListAsync_ListsTheWholeCatalogStrengthThenCardioWithNoSearchAndAll()
     {
+        await editor.OpenListAsync();
         editor.Search("squat");
+        editor.FilterBy(ExerciseFilter.Cardio);
 
-        editor.OpenPicker();
+        await editor.OpenListAsync();
 
         Assert.Multiple(() =>
         {
-            Assert.That(editor.PickerOpen, Is.True);
+            Assert.That(editor.ListOpen, Is.True);
+            Assert.That(editor.ListLoading, Is.False);
             Assert.That(editor.Query, Is.Empty);
-            Assert.That(editor.PickerItems, Has.Count.EqualTo(Catalog.All.Count));
+            Assert.That(editor.Filter, Is.EqualTo(ExerciseFilter.All));
+            Assert.That(editor.ListItems.Select(i => i.Id), Is.EqualTo(Catalog.Search(null).Select(e => e.Id)));
+            Assert.That(editor.ListItems.Select(i => i.Last), Is.All.Null);
         });
     }
 
     [Test]
-    public void Search_SetsTheQueryAndTheCatalogsResults()
+    public async Task OpenListAsync_LoggedExercisesShowTheirLastSession()
     {
+        loggedExercises.Result = new LoggedExercisesResult([new LoggedExercise(Squat, Now.AddDays(-8), new ExerciseBest(70m, 3, null, null))], Failed: false);
+
+        await editor.OpenListAsync();
+
+        Assert.That(editor.ListItems.Single(i => i.Id == Squat).Last, Is.EqualTo("Tue 20 Oct · 70kg × 3"));
+    }
+
+    [Test]
+    public async Task OpenListAsync_LoadFailed_ListsTheCatalogWithNoLastSessions()
+    {
+        loggedExercises.Result = new LoggedExercisesResult([], Failed: true);
+
+        await editor.OpenListAsync();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(editor.ListLoading, Is.False);
+            Assert.That(editor.ListItems, Has.Count.EqualTo(Catalog.All.Count));
+            Assert.That(editor.ListItems.Select(i => i.Last), Is.All.Null);
+        });
+    }
+
+    [Test]
+    public async Task OpenListAsync_WhileLoading_IsLoadingWithNoRows()
+    {
+        loggedExercises.Hold = true;
+
+        var open = editor.OpenListAsync();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(editor.ListOpen, Is.True);
+            Assert.That(editor.ListLoading, Is.True);
+            Assert.That(editor.ListItems, Is.Empty);
+        });
+        loggedExercises.Complete();
+        await open;
+        Assert.That(editor.ListLoading, Is.False);
+    }
+
+    [Test]
+    public async Task OpenListAsync_ReopenWhileLoading_HasNoRows()
+    {
+        await editor.OpenListAsync();
+        Assume.That(editor.ListItems, Is.Not.Empty);
+        editor.CloseList();
+        loggedExercises.Hold = true;
+
+        var open = editor.OpenListAsync();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(editor.ListLoading, Is.True);
+            Assert.That(editor.ListItems, Is.Empty);
+        });
+        loggedExercises.Complete();
+        await open;
+    }
+
+    [Test]
+    public async Task OpenListAsync_ClosedBeforeTheLoadFinishes_StaysClosed()
+    {
+        loggedExercises.Hold = true;
+        var open = editor.OpenListAsync();
+        editor.CloseList();
+
+        loggedExercises.Complete();
+        await open;
+
+        Assert.That(editor.ListOpen, Is.False);
+    }
+
+    [Test]
+    public async Task OpenListAsync_AnEarlierLoadFinishingWhileANewerIsPending_IsIgnored()
+    {
+        loggedExercises.Hold = true;
+        var first = editor.OpenListAsync();
+        editor.CloseList();
+        var second = editor.OpenListAsync();
+
+        loggedExercises.Complete(0);
+        await first;
+
+        Assert.That(editor.ListLoading, Is.True);
+        loggedExercises.Complete(1);
+        await second;
+        Assert.That(editor.ListLoading, Is.False);
+    }
+
+    [Test]
+    public async Task Search_SetsTheQueryAndTheRankedResults()
+    {
+        await editor.OpenListAsync();
+
         editor.Search("squat");
 
         Assert.Multiple(() =>
         {
             Assert.That(editor.Query, Is.EqualTo("squat"));
-            Assert.That(editor.PickerItems, Is.EqualTo(Catalog.Search("squat").Select(ExerciseFields.PickerItem)));
+            Assert.That(editor.ListItems.Select(i => i.Id), Is.EqualTo(Catalog.Search("squat").Select(e => e.Id)));
         });
     }
 
     [Test]
-    public void ClosePicker_ClosesIt()
+    public async Task FilterBy_KeepsOnlyThatKindWithAndWithoutSearch()
     {
-        editor.OpenPicker();
+        await editor.OpenListAsync();
 
-        editor.ClosePicker();
+        editor.FilterBy(ExerciseFilter.Cardio);
+        var cardio = editor.ListItems;
+        editor.Search("row");
 
-        Assert.That(editor.PickerOpen, Is.False);
+        Assert.Multiple(() =>
+        {
+            Assert.That(cardio.Select(i => i.Id), Is.EqualTo(Catalog.Search(null).Where(e => e.Type == ExerciseType.Cardio).Select(e => e.Id)));
+            Assert.That(editor.ListItems.Select(i => i.Id),
+                Is.EqualTo(Catalog.Search("row").Where(e => e.Type == ExerciseType.Cardio).Select(e => e.Id)).And.Not.Empty);
+        });
     }
 
     [Test]
-    public async Task Pick_New_AddsItAtTheTopFocusesItClosesThePickerAndClearsTheError()
+    public async Task CloseList_ClosesIt()
+    {
+        await editor.OpenListAsync();
+
+        editor.CloseList();
+
+        Assert.That(editor.ListOpen, Is.False);
+    }
+
+    [Test]
+    public async Task Pick_New_AddsItAtTheTopFocusesItClosesTheListAndClearsTheError()
     {
         await editor.SaveAsync(_ => Task.FromResult(true));
         Assume.That(editor.Error, Is.Not.Null);
         editor.Pick(Item(Treadmill));
-        editor.OpenPicker();
+        await editor.OpenListAsync();
 
         editor.Pick(Item(Squat));
 
@@ -92,7 +216,7 @@ public class WorkoutEditorTests
             Assert.That(squat.Entries, Has.Count.EqualTo(1));
             Assert.That(editor.Focus!.Exercise, Is.SameAs(squat));
             Assert.That(editor.Focus.AddSet, Is.False);
-            Assert.That(editor.PickerOpen, Is.False);
+            Assert.That(editor.ListOpen, Is.False);
             Assert.That(editor.Error, Is.Null);
             Assert.That(editor.Changed, Is.True);
         });
@@ -178,7 +302,7 @@ public class WorkoutEditorTests
         await editor.SaveAsync(_ => Task.FromResult(true));
         editor.Pick(Item(Treadmill));
         editor.ShowDeleteFailed();
-        editor.OpenPicker();
+        await editor.OpenListAsync();
         editor.Search("run");
 
         editor.Start([squat]);
@@ -186,9 +310,11 @@ public class WorkoutEditorTests
         Assert.Multiple(() =>
         {
             Assert.That(editor.Exercises, Is.EqualTo(new[] { squat }));
-            Assert.That(editor.PickerOpen, Is.False);
+            Assert.That(editor.ListOpen, Is.False);
             Assert.That(editor.Query, Is.Empty);
-            Assert.That(editor.PickerItems, Is.Empty);
+            Assert.That(editor.Filter, Is.EqualTo(ExerciseFilter.All));
+            Assert.That(editor.ListLoading, Is.False);
+            Assert.That(editor.ListItems, Is.Empty);
             Assert.That(editor.Focus, Is.Null);
             Assert.That(editor.ErrorFocus, Is.Null);
             Assert.That(editor.Error, Is.Null);
@@ -341,5 +467,6 @@ public class WorkoutEditorTests
         });
     }
 
-    private static PickerItem Item(int exerciseId) => ExerciseFields.PickerItem(Catalog.All.Single(e => e.Id == exerciseId));
+    private static ExerciseListItem Item(int exerciseId) =>
+        ExerciseListItems.Item(Catalog.All.Single(e => e.Id == exerciseId), null, TimeZoneInfo.Utc, Now);
 }

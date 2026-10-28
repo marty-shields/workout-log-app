@@ -1,23 +1,36 @@
 @US-11 @FR-03 @FR-04
-Feature: Exercise picker
-  I find exercises by name or nickname and add them to the workout.
+Feature: Add exercise
+  I find exercises in the Exercises list over the workout and add them.
 
   Background:
     Given I have started a new workout
 
   @D81 @D64
-  Scenario: The picker opens with the search box focused and empty
-    When I open the exercise picker
+  Scenario: The list opens with the search box focused and empty
+    When I open the add-exercise list
     Then the search box is empty and focused
 
   @US-07
-  Scenario: With no search text every exercise shows, Strength then Cardio, A–Z
-    When I open the exercise picker
-    Then the Strength group lists 299 exercises A–Z
-    And the Cardio group lists 16 exercises A–Z, after Strength
+  Scenario: With no search text every exercise shows, Strength then Cardio, A–Z, each with its kind
+    When I open the add-exercise list
+    Then every exercise shows, Strength then Cardio, A–Z in each
+    And each row shows its kind
+
+  Scenario Outline: A chip shows only that kind
+    When I choose the <kind> chip
+    Then only <kind> exercises show, A–Z
+    Examples:
+      | kind     |
+      | Strength |
+      | Cardio   |
+
+  Scenario: A chip and the search combine
+    Given I have chosen the Cardio chip
+    When I search the add-exercise list for "row"
+    Then the results are only Cardio exercises and include "Rowing Machine"
 
   Scenario Outline: Search matches names and nicknames, words in any order
-    When I search the picker for "<query>"
+    When I search the add-exercise list for "<query>"
     Then the results include "<exercise>"
     Examples:
       | query                  | exercise                 |
@@ -26,30 +39,31 @@ Feature: Exercise picker
 
   @D63
   Scenario: Names that start with the query come first
-    When I search the picker for "dumb curl"
+    When I search the add-exercise list for "dumb curl"
     Then the first result is "Dumbbell Curl"
 
   Scenario: A search with no match says so
-    When I search the picker for "zumba"
-    Then the picker shows "No exercises match"
+    When I search the add-exercise list for "zumba"
+    Then the add-exercise list shows "No exercises match"
 
   Scenario: The search box takes at most 50 characters
-    When I type 60 characters into the picker search
+    When I type 60 characters into the add-exercise search
     Then the search box holds the first 50
 
   @D64
-  Scenario: The search is cleared each time the picker opens
-    Given I have searched the picker for "squat"
-    When I close the picker with Android back
-    And I open the exercise picker
-    Then the search box is empty and every exercise shows
+  Scenario: The search and chip are cleared each time the list opens
+    Given I have searched the add-exercise list for "squat"
+    And I have chosen the Strength chip
+    When I close the add-exercise list with Android back
+    And I open the add-exercise list
+    Then the search box is empty, the All chip is on and every exercise shows
 
   @smoke @D42
   Scenario: Picking an exercise adds it at the top and focuses its first field
     Given I have added "Barbell Back Squat"
     When I add "Dumbbell Curl"
     Then the exercises are, in order: Dumbbell Curl, Barbell Back Squat
-    And the picker is closed
+    And the add-exercise list is closed
     And focus is on Dumbbell Curl set 1 reps
 
   @D42
@@ -71,15 +85,15 @@ Feature: Exercise picker
     Then Treadmill has its entry and it is empty
     And focus is on Treadmill duration hours
 
-  Scenario Outline: Closing the picker adds nothing
-    Given I have opened the exercise picker
-    When I close the picker with <how>
-    Then the picker is closed
+  Scenario Outline: Closing the list adds nothing
+    Given I have opened the add-exercise list
+    When I close the add-exercise list with <how>
+    Then the add-exercise list is closed
     And the workout shows "No exercises yet"
     Examples:
-      | how                   |
-      | the picker back arrow |
-      | Android back          |
+      | how             |
+      | its back arrow  |
+      | Android back    |
 
   @D42
   Scenario: Picking a strength exercise already added adds a set to its card

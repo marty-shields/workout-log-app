@@ -1,6 +1,4 @@
-@using WorkoutLog.Core.Domain.Exercises
 @using WorkoutLog.UI.Components.Feedback
-@using WorkoutLog.UI.Components.Inputs
 @using WorkoutLog.UI.Models.Exercises
 <AppScreen Title="Exercises" OnBack="OnBack">
     @if (Loading)
@@ -19,47 +17,11 @@
     }
     else
     {
-        <div class="tools">
-            <div class="search">
-                <span class="search-icon"><Icon Name="IconName.Search" Muted /></span>
-                <input type="search"
-                       class="search-input"
-                       placeholder="Search exercises"
-                       aria-label="Search exercises"
-                       autocomplete="off"
-                       maxlength="@ExerciseCatalog.MaxQueryLength"
-                       value="@Query"
-                       data-testid="exercises-search"
-                       @oninput="OnInput" />
-            </div>
-            <FilterChips TValue="ExerciseFilter" Label="Type" Options="Filters" Value="Filter" ValueChanged="FilterChanged" TestId="exercises-filter" />
-        </div>
-        @if (Items.Count == 0)
-        {
-            <p class="none" data-testid="exercises-none">No exercises match</p>
-        }
-        else
-        {
-            <ul class="rows">
-                @foreach (var item in Items)
-                {
-                    <li>
-                        <ListRow Text="@item.Name" Detail="@($"Last {item.Last}")" OnClick="() => OnOpen.InvokeAsync(item)" TestId="@($"exercises-row-{item.Id}")" />
-                    </li>
-                }
-            </ul>
-        }
+        <ExerciseList Items="Items" Query="@Query" QueryChanged="QueryChanged" Filter="Filter" FilterChanged="FilterChanged" OnPick="OnOpen" TestId="exercises" />
     }
 </AppScreen>
 
 @code {
-    private static readonly IReadOnlyList<RadioOption<ExerciseFilter>> Filters =
-    [
-        new(ExerciseFilter.All, "All", "exercises-filter-all"),
-        new(ExerciseFilter.Strength, "Strength", "exercises-filter-strength"),
-        new(ExerciseFilter.Cardio, "Cardio", "exercises-filter-cardio"),
-    ];
-
     /// <summary>Logged exercises to list, already searched and filtered, in order.</summary>
     [Parameter, EditorRequired]
     public IReadOnlyList<ExerciseListItem> Items { get; set; } = [];
@@ -68,7 +30,7 @@
     [Parameter]
     public string? Query { get; set; }
 
-    /// <summary>Raised on each keystroke with the new search text, at most <see cref="ExerciseCatalog.MaxQueryLength"/> characters.</summary>
+    /// <summary>Raised on each keystroke with the new search text.</summary>
     [Parameter]
     public EventCallback<string> QueryChanged { get; set; }
 
@@ -96,17 +58,11 @@
     [Parameter]
     public EventCallback OnRetry { get; set; }
 
-    /// <summary>Raised when a row is tapped.</summary>
-    [Parameter, EditorRequired]
+    /// <summary>Raised when a row is tapped. Rows are not tappable when unset.</summary>
+    [Parameter]
     public EventCallback<ExerciseListItem> OnOpen { get; set; }
 
     /// <summary>Raised by the back arrow and the Android back button.</summary>
     [Parameter]
     public EventCallback OnBack { get; set; }
-
-    private Task OnInput(ChangeEventArgs e)
-    {
-        var text = e.Value as string ?? "";
-        return QueryChanged.InvokeAsync(text.Length > ExerciseCatalog.MaxQueryLength ? text[..ExerciseCatalog.MaxQueryLength] : text);
-    }
 }

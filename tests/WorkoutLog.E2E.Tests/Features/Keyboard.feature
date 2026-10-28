@@ -18,8 +18,8 @@ Feature: Keyboard
       | Outdoor Run        | pace minutes         | numeric |
 
   @US-11
-  Scenario: The picker search shows the soft keyboard
-    When I open the exercise picker
+  Scenario: The add-exercise search shows the soft keyboard
+    When I open the add-exercise list
     Then the soft keyboard is shown
 
   @D78 @US-15 @US-28
@@ -64,16 +64,16 @@ Feature: Keyboard
     Then the prompt "Discard changes?" shows Discard and Cancel
 
   @D78 @US-11
-  Scenario: In the picker, Android back with the keyboard open hides the keyboard first
-    When I open the exercise picker
+  Scenario: In the add-exercise list, Android back with the keyboard open hides the keyboard first
+    When I open the add-exercise list
     And I go back with Android back
     Then the soft keyboard is hidden
-    And the picker is still open
+    And the add-exercise list is still open
     When I go back with Android back
-    Then the picker is closed
+    Then the add-exercise list is closed
 
   @D78 @US-11
-  Scenario: In the picker, its back arrow with the keyboard open closes it at once
-    When I open the exercise picker
-    And I close the picker with the picker back arrow
-    Then the picker is closed
+  Scenario: In the add-exercise list, its back arrow with the keyboard open closes it at once
+    When I open the add-exercise list
+    And I close the add-exercise list with its back arrow
+    Then the add-exercise list is closed

@@ -10,9 +10,9 @@ namespace WorkoutLog.E2E.Tests.Steps;
 [Binding]
 public sealed class AppSteps(
     WebView web, Native native, AppLog log, Journeys journeys, SeedSteps seed, ScenarioState state, DashboardScreen dashboard,
-    WorkoutScreen workout, PickerScreen picker, WorkoutsScreen workouts)
+    WorkoutScreen workout, AddExerciseScreen addExercise, WorkoutsScreen workouts)
 {
-    [Given(@"^I am on (the Dashboard|the picker on Edit Workout)$")]
+    [Given(@"^I am on (the Dashboard|the add-exercise list on Edit Workout)$")]
     public async Task GivenIAmOn(string screen)
     {
         if (screen == "the Dashboard")
@@ -28,7 +28,7 @@ public sealed class AppSteps(
         else
         {
             await SeedAndOpenAsync();
-            OpenPicker();
+            OpenAddExercise();
         }
 
         state.LogAtStart = log.Read();
@@ -109,10 +109,10 @@ public sealed class AppSteps(
         });
     }
 
-    private void OpenPicker()
+    private void OpenAddExercise()
     {
-        workout.OpenPicker();
-        web.WaitUntil(picker.IsOpen, "the picker didn't open");
+        workout.OpenAddExercise();
+        web.WaitUntil(addExercise.IsLoaded, "the add-exercise list didn't open");
         native.HideKeyboard();
     }
 

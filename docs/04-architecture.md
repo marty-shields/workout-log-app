@@ -29,16 +29,16 @@ References: App → UI → Core. UI.Stories → UI. UI.Tests → UI, UI.Stories 
 - **Services** hold the rules: save validation, start/finish capture, dashboard counts.
 - **Repositories** handle database access, behind interfaces so services can be unit-tested with mocks.
 - **TimeProvider** (.NET) supplies the current time to services and the UI's live timer, so tests can fake the clock (D114, D117).
-- **Exercise definitions** are an embedded JSON file in Core, read into the `IExerciseCatalog` singleton by the seeder at startup (D109). The catalog also runs the picker search in memory ([02](02-data-model.md#exercise-search)).
+- **Exercise definitions** are an embedded JSON file in Core, read into the `IExerciseCatalog` singleton by the seeder at startup (D109). The catalog also runs the exercise search in memory ([02](02-data-model.md#exercise-search)).
 
 ## Dependency injection
 - Everything is registered in `MauiProgram.CreateMauiApp()`. Core registers its types through `AddCore(databasePath)` (D105) and UI through `AddUi()` (D123); services and repositories are registered by interface.
-- Core's public services are `IWorkoutService`, `IWorkoutsService`, `IDashboardService`, `IWeightHistoryService`, `IExportService` and `IImportService`; the repository, unit of work and validator are internal (D107, D116, D48, D188, D190).
+- Core's public services are `IWorkoutService`, `IWorkoutsService`, `IDashboardService`, `IWeightHistoryService`, `ILoggedExercisesService`, `IExportService` and `IImportService`; the repository, unit of work, validator and best rules are internal (D107, D116, D48, D191, D188, D190).
 - The host registers two interfaces for Export (D188): `IExportEnvironment` (Core: the app's display version and cache folder) as `MauiExportEnvironment`, and `IFileShare` (UI: opens the share sheet) as `MauiFileShare`, which uses MAUI `Share`. For Import it registers `IImportFilePicker` (UI) as `MauiImportFilePicker`, which uses MAUI `FilePicker` (D190).
 - `AddCore` creates one database connection and gives it only to the initializer, the exercise seeder, the repository and the unit of work. The repository writes each workout in its own transaction; `IUnitOfWork` runs several writes in one, both through an `IWorkoutWriter` from `IWorkoutWriterFactory`. The initializer, repository and unit of work are decorators that run each call through one `DatabaseGate`, so database calls run one at a time; nothing can resolve a database type that skips the gate (D106, D105).
 - At startup `StartupGate` awaits `IDatabaseInitializer.InitializeAsync()`, which upgrades and creates the schema and seeds the exercise list, and shows the Startup screen until it completes, or its error if it throws (D108, D75).
-- `AddUi` registers `IBackButton`, `ISetChecker`, `IWorkoutChecker`, `ImportSession` (the file under review and the result Settings shows next), `IImportFileOpener` (picks and reads a file) and one `AppLifecycle` as `IAppStart` and `IAppLifecycle` (D125, D119), and `WorkoutEditor` as transient. `NewWorkoutPage` and `EditWorkoutPage` each inject their own `WorkoutEditor`, which holds the exercises, the picker, changes, and the check and save (D117). The App adds `AndroidBackButton` ([Navigation](#navigation)) and the logging providers ([Logging](#logging)).
-- The stories app registers `SampleWorkoutService` in place of Core's workout service (D120), and `SampleImportService` and `SampleImportFilePicker`, which the stories never call, so `AddUi`'s services can be built.
+- `AddUi` registers `IBackButton`, `ISetChecker`, `IWorkoutChecker`, `ImportSession` (the file under review and the result Settings shows next), `IImportFileOpener` (picks and reads a file) and one `AppLifecycle` as `IAppStart` and `IAppLifecycle` (D125, D119), and `WorkoutEditor` as transient. `NewWorkoutPage` and `EditWorkoutPage` each inject their own `WorkoutEditor`, which holds the exercises, the add-exercise list, changes, and the check and save (D117). The App adds `AndroidBackButton` ([Navigation](#navigation)) and the logging providers ([Logging](#logging)).
+- The stories app registers `SampleWorkoutService` in place of Core's workout service (D120), and `SampleImportService`, `SampleImportFilePicker` and `SampleLoggedExercisesService`, which the stories never call, so `AddUi`'s services can be built.
 
 ## Navigation
 Blazor routing (`@page`):
@@ -48,13 +48,14 @@ Blazor routing (`@page`):
 | `/workout/new` | New workout (D117) |
 | `/workout/{id}` | Edit workout (D117) |
 | `/workouts` | Workouts |
+| `/exercises` | Exercises (D191) |
 | `/settings` | Settings (D187) |
 | `/settings/import` | Import Review (D190) |
 
-The Exercise picker is an overlay on the workout page, not a route. What Android back does on each screen is on the [Navigation](../src/WorkoutLog.UI.Stories/Stories/Foundations/Navigation.md) page and the [screen pages](../src/WorkoutLog.UI.Stories/Stories/Screens/).
+The add-exercise list is an overlay on the workout page, not a route (D77). What Android back does on each screen is on the [Navigation](../src/WorkoutLog.UI.Stories/Stories/Foundations/Navigation.md) page and the [screen pages](../src/WorkoutLog.UI.Stories/Stories/Screens/).
 
 How back works (D119):
-- `BackHandler` (UI) registers a handler with `IBackButton` while its `OnBack` is set. `AppScreen` uses it for `OnBack`, `ExercisePicker` for `OnClose` and `ConfirmDialog` for `OnCancel`, so Android back does what the on-screen back or Cancel does (D78). The newest registration runs, so the picker or a dialog takes back over its page.
+- `BackHandler` (UI) registers a handler with `IBackButton` while its `OnBack` is set. `AppScreen` uses it for `OnBack`, `AddExerciseView` for `OnClose` and `ConfirmDialog` for `OnCancel`, so Android back does what the on-screen back or Cancel does (D78). The newest registration runs, so the add-exercise list or a dialog takes back over its page.
 - A handler that throws shows the Error screen, as a click would (D76).
 - `AndroidBackButton` (App) adds an AndroidX `OnBackPressedCallback` when `MainActivity` is created (MAUI's own activities, such as the file picker's, are ignored, as they are for app start); Android 16 calls no other back callback. It is on only while a handler is registered, so Android knows before the gesture starts whether the app takes back. Handlers belong to the current activity: a new activity drops earlier ones, and destroying the current activity clears them all; the destroy of an earlier activity is ignored (D119).
 - With no handler (the Dashboard), the callback is off and the app closes (D78).
@@ -75,7 +76,7 @@ How back works (D119):
 ## Error handling
 What each error shows is on the [screen pages](../src/WorkoutLog.UI.Stories/Stories/Screens/).
 - Validation failures are shown inline. Nothing is written. The service returns error codes; the page words them (D113).
-- Services turn any repository exception into a failed result and log it: `WorkoutsResult.Failed` (D116), `DashboardResult.Failed`, the week and month maths included (D67, D116), `WorkoutLoad.Failed` (D72, D112), `WorkoutError.SaveFailed` (D115), `WorkoutDelete.Failed`, a missing workout included (D46, D112), `WeightHistoryResult.Failed` (D48), and `ExportCount.Failed` and `ExportStatus.Failed` (D188).
+- Services turn any repository exception into a failed result and log it: `WorkoutsResult.Failed` (D116), `DashboardResult.Failed`, the week and month maths included (D67, D116), `WorkoutLoad.Failed` (D72, D112), `WorkoutError.SaveFailed` (D115), `WorkoutDelete.Failed`, a missing workout included (D46, D112), `WeightHistoryResult.Failed` (D48), `LoggedExercisesResult.Failed` (D191), and `ExportCount.Failed` and `ExportStatus.Failed` (D188).
 - An unhandled error in a screen shows the Error screen. `AppErrorBoundary` in the App's `Routes` shows it and logs the error (D76).
 - Unhandled .NET exceptions are logged, then the app crashes. Unobserved task exceptions are logged only (D133).
 

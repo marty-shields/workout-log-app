@@ -1,6 +1,5 @@
 using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.Components;
-using WorkoutLog.UI.Components.Workout;
 using WorkoutLog.UI.Screens;
 
 namespace WorkoutLog.UI.Tests.Stories;
@@ -9,12 +8,9 @@ public partial class StoryCoverageTests
 {
     private static readonly Type[] UiTypes = typeof(DashboardView).Assembly.GetExportedTypes();
 
-    /// <summary>Components shown by a screen's stories instead of their own.</summary>
-    private static readonly string[] ShownOnScreens = [nameof(ExercisePicker)];
-
     private static IEnumerable<TestCaseData> Components() =>
         UiTypes
-            .Where(t => typeof(IComponent).IsAssignableFrom(t) && t.Namespace!.StartsWith("WorkoutLog.UI.Components.") && !ShownOnScreens.Contains(t.Name))
+            .Where(t => typeof(IComponent).IsAssignableFrom(t) && t.Namespace!.StartsWith("WorkoutLog.UI.Components."))
             .Select(t => (Group: t.Namespace!.Split('.')[^1], Name: t.Name.Split('`')[0]))
             .Select(c => new TestCaseData(c.Group, c.Name).SetArgDisplayNames(c.Name));
 
@@ -69,14 +65,17 @@ public partial class StoryCoverageTests
         Assert.That(titles, Is.SubsetOf(new[] { "Foundations", "Components", "Screens" }));
     }
 
-    /// <summary>The stories files in a folder under Stories: title, TComponent and the component each story's template starts with.</summary>
+    /// <summary>
+    /// The stories files in a folder under Stories: title, TComponent, and the component each story's template starts with and
+    /// any view in its overlay.
+    /// </summary>
     private static IEnumerable<(string Title, string Component, IReadOnlyList<string> Shown)> StoriesFiles(string folder) =>
         RepoFiles.Find("*.stories.razor", "src", "WorkoutLog.UI.Stories", "Stories", folder)
             .Select(File.ReadAllText)
             .Select(source => (
                 StoriesTitle().Match(source).Groups[1].Value,
                 TComponent().Match(source).Groups[1].Value,
-                (IReadOnlyList<string>)Shown().Matches(source).Select(m => m.Groups[1].Value).ToList()));
+                (IReadOnlyList<string>)Shown().Matches(source).Concat(ShownOver().Matches(source)).Select(m => m.Groups[1].Value).ToList()));
 
     [GeneratedRegex("""\[Stories\("([^"]+)"\)\]""")]
     private static partial Regex StoriesTitle();
@@ -86,4 +85,8 @@ public partial class StoryCoverageTests
 
     [GeneratedRegex(@"<Template>\s*(?:@\{[^\n]*\}\s*)?<([A-Za-z]+)")]
     private static partial Regex Shown();
+
+    /// <summary>A view shown in a screen's overlay, e.g. Add Exercise over New Workout.</summary>
+    [GeneratedRegex(@"<Overlay>\s*<([A-Za-z]+View)\b")]
+    private static partial Regex ShownOver();
 }

@@ -2,6 +2,7 @@ using Microsoft.Extensions.DependencyInjection;
 using SQLite;
 using WorkoutLog.Core.Data;
 using WorkoutLog.Core.Domain.Exercises;
+using WorkoutLog.Core.Domain.Exercises.Bests;
 using WorkoutLog.Core.Domain.Workouts;
 using WorkoutLog.Core.Domain.Workouts.Validation;
 using WorkoutLog.Core.Import;
@@ -15,7 +16,7 @@ public static class CoreServiceCollectionExtensions
 {
     /// <summary>
     /// Registers the exercise catalog, database initializer, workout repository, unit of work, workout writer factory, system time, workout validator,
-    /// workout service, workouts service, dashboard service, weight history service, export service, import service, the import reader, checks,
+    /// workout service, workouts service, dashboard service, weight history service, the best rules and logged exercises service, export service, import service, the import reader, checks,
     /// checker and workout comparer, and schema upgrade steps as singletons.
     /// The initializer, repository and unit of work are registered only as their gated decorators, which run each call through one <see cref="DatabaseGate"/>.
     /// The database connection and exercise seeder are not registered; only the initializer, repository and unit of work use them.
@@ -72,16 +73,28 @@ public static class CoreServiceCollectionExtensions
             .AddSingleton<IImportCheck, ExerciseDefinitionCheck>()
             .AddSingleton<IImportCheck, SaveRulesCheck>();
 
-    /// <summary>Registers the exercise catalog, system time, workout validator and the services.</summary>
+    /// <summary>Registers each best rule.</summary>
+    private static IServiceCollection AddBestRules(this IServiceCollection services) =>
+        services
+            .AddSingleton<IBestRule, LiftBestRule>()
+            .AddSingleton<IBestRule, BodyweightBestRule>()
+            .AddSingleton<IBestRule, AssistedBestRule>()
+            .AddSingleton<IBestRule, HoldBestRule>()
+            .AddSingleton<IBestRule, CarryBestRule>()
+            .AddSingleton<IBestRule, CardioBestRule>();
+
+    /// <summary>Registers the exercise catalog, system time, workout validator, best rules and the services.</summary>
     private static IServiceCollection AddServices(this IServiceCollection services) =>
         services
             .AddSingleton<IExerciseCatalog, ExerciseCatalog>()
             .AddSingleton(TimeProvider.System)
             .AddSingleton<IWorkoutValidator, WorkoutValidator>()
+            .AddBestRules()
             .AddSingleton<IWorkoutService, WorkoutService>()
             .AddSingleton<IWorkoutsService, WorkoutsService>()
             .AddSingleton<IDashboardService, DashboardService>()
             .AddSingleton<IWeightHistoryService, WeightHistoryService>()
+            .AddSingleton<ILoggedExercisesService, LoggedExercisesService>()
             .AddSingleton<IExportService, ExportService>()
             .AddSingleton<IImportService, ImportService>();
 }

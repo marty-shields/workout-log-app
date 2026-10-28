@@ -1,5 +1,6 @@
 using WorkoutLog.Core.Domain.Exercises;
 using WorkoutLog.Core.Domain.Workouts;
+using WorkoutLog.UI.Models.Exercises;
 using WorkoutLog.UI.Models.Workout;
 using WorkoutLog.UI.Models.Workouts;
 
@@ -23,9 +24,13 @@ public static class SampleData
             new StrengthExercise(187, [new StrengthSet(null, 32m, TimeSpan.FromSeconds(45), 40m), new StrengthSet(null, 32m, TimeSpan.FromSeconds(50), 40m)]),
         ]);
 
-    /// <summary>Picker results from the catalog's search.</summary>
-    public static IReadOnlyList<PickerItem> PickerItems(IExerciseCatalog catalog, string? query) =>
-        catalog.Search(query).Select(ExerciseFields.PickerItem).ToList();
+    /// <summary>Add-exercise list items from the catalog's search, filtered by the chip; logged ones carry their <see cref="SampleExercises.All"/> last session unless <paramref name="withLast"/> is false.</summary>
+    public static IReadOnlyList<ExerciseListItem> AddExerciseItems(IExerciseCatalog catalog, string? query, ExerciseFilter filter = ExerciseFilter.All, bool withLast = true) =>
+        ExerciseListItems.Find(
+            catalog.Search(null)
+                .Select(e => new ExerciseListItem(e.Id, e.Name, ExerciseFields.Kind(e.Type), withLast ? SampleExercises.All.FirstOrDefault(l => l.Id == e.Id)?.Last : null))
+                .ToList(),
+            catalog, query, filter);
 
     /// <summary>A newly added exercise: one empty set (strength) or its empty entry (cardio).</summary>
     public static ExerciseState NewExercise(IExerciseCatalog catalog, int id) => ExerciseFields.New(Find(catalog, id));

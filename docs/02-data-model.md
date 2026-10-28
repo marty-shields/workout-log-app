@@ -49,7 +49,7 @@ Each definition has an Id (one sequence for all exercises, never reused or chang
 - A partly typed two-word variant is split as the full one would be: pullu → pull u, skullc → skull c (D62).
 - A query is split the same way, after cutting it to 50 characters; the search box also takes at most 50. An exercise matches when every query word starts a word of its name or aliases, in any order (D62).
 - Order: name starts with the query, then other name matches, then matches that need an alias; A–Z within each. "Starts with": each query word, in order, starts the name's word in the same place, so "dumb curl" ranks Dumbbell Curl first (D63).
-- With no search text: every exercise, Strength then Cardio, A–Z.
+- With no search text: every exercise, Strength then Cardio, A–Z. The Exercises list instead keeps its own order (D191) and ranks its search results the same way, among the logged exercises.
 - Search runs in memory on each keystroke. There is no search table in SQLite.
 
 ## Tables
@@ -146,7 +146,7 @@ A number too large for the set's types is capped (weight, distance, incline and 
 - An older `formatVersion` is upgraded on the whole file before it is read, by numbered steps (`IFormatUpgrade`) from 2, exactly one for each version up to the app's. Version 1 is the only one so far, so there are none.
 
 ## Seeding the exercise list
-- On startup, `IExerciseSeeder` inserts any exercise Id from the definition file that is missing from the database. It never removes rows, and exercises are never hidden from the picker.
+- On startup, `IExerciseSeeder` inserts any exercise Id from the definition file that is missing from the database. It never removes rows, and exercises are never hidden from the add-exercise list.
 - A changed name or type in a later app version updates the row by Id (D61).
 
 ## Schema upgrades

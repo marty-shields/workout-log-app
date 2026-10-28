@@ -38,3 +38,10 @@
 .chevron {
     display: flex;
 }
+
+.aside {
+    margin-left: auto;
+    padding: 0 var(--space-2);
+    color: var(--color-text-muted);
+    font-size: var(--font-size-sm);
+}

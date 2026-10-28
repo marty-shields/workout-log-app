@@ -1,0 +1,100 @@
+@using WorkoutLog.Core.Domain.Exercises
+@using WorkoutLog.UI.Components.Inputs
+@using WorkoutLog.UI.Models.Exercises
+<div class="tools">
+    <div class="search">
+        <span class="search-icon"><Icon Name="IconName.Search" Muted /></span>
+        <input @ref="search"
+               type="search"
+               class="search-input"
+               placeholder="Search exercises"
+               aria-label="Search exercises"
+               autocomplete="off"
+               maxlength="@ExerciseCatalog.MaxQueryLength"
+               value="@Query"
+               data-testid="@($"{TestId}-search")"
+               @oninput="OnInput" />
+    </div>
+    <FilterChips TValue="ExerciseFilter" Label="Type" Options="filters" Value="Filter" ValueChanged="FilterChanged" TestId="@($"{TestId}-filter")" />
+</div>
+@if (Items.Count == 0)
+{
+    <p class="none" data-testid="@($"{TestId}-none")">No exercises match</p>
+}
+else
+{
+    <ul class="rows">
+        @foreach (var item in Items)
+        {
+            @RenderItem(item)
+        }
+    </ul>
+}
+
+@code {
+    private IReadOnlyList<RadioOption<ExerciseFilter>> filters = [];
+    private ElementReference search;
+
+    /// <summary>Exercises to list, already searched and filtered, in order.</summary>
+    [Parameter, EditorRequired]
+    public IReadOnlyList<ExerciseListItem> Items { get; set; } = [];
+
+    /// <summary>Search text.</summary>
+    [Parameter]
+    public string? Query { get; set; }
+
+    /// <summary>Raised on each keystroke with the new search text, at most <see cref="ExerciseCatalog.MaxQueryLength"/> characters.</summary>
+    [Parameter]
+    public EventCallback<string> QueryChanged { get; set; }
+
+    /// <summary>Chosen chip.</summary>
+    [Parameter]
+    public ExerciseFilter Filter { get; set; }
+
+    /// <summary>Raised with the chip tapped.</summary>
+    [Parameter]
+    public EventCallback<ExerciseFilter> FilterChanged { get; set; }
+
+    /// <summary>Moves focus to the search box when first shown.</summary>
+    [Parameter]
+    public bool FocusSearch { get; set; }
+
+    /// <summary>Raised when a row is tapped. Rows are not tappable when unset.</summary>
+    [Parameter]
+    public EventCallback<ExerciseListItem> OnPick { get; set; }
+
+    /// <summary>Prefix of the data-testid attributes, e.g. exercises gives exercises-search and exercises-row-{id}.</summary>
+    [Parameter, EditorRequired]
+    public string TestId { get; set; } = "";
+
+    protected override void OnParametersSet() =>
+        filters =
+        [
+            new(ExerciseFilter.All, "All", $"{TestId}-filter-all"),
+            new(ExerciseFilter.Strength, "Strength", $"{TestId}-filter-strength"),
+            new(ExerciseFilter.Cardio, "Cardio", $"{TestId}-filter-cardio"),
+        ];
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender && FocusSearch)
+        {
+            await search.FocusAsync();
+        }
+    }
+
+    private Task OnInput(ChangeEventArgs e)
+    {
+        var text = e.Value as string ?? "";
+        return QueryChanged.InvokeAsync(text.Length > ExerciseCatalog.MaxQueryLength ? text[..ExerciseCatalog.MaxQueryLength] : text);
+    }
+
+    private RenderFragment RenderItem(ExerciseListItem item) =>
+        @<li>
+            <ListRow Text="@item.Name"
+                     Detail="@(item.Last is null ? null : $"Last {item.Last}")"
+                     Aside="@item.Kind.ToString()"
+                     OnClick="@(OnPick.HasDelegate ? EventCallback.Factory.Create(this, () => OnPick.InvokeAsync(item)) : default)"
+                     TestId="@($"{TestId}-row-{item.Id}")" />
+        </li>;
+}

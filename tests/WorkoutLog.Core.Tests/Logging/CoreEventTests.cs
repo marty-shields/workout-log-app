@@ -47,5 +47,8 @@ public class CoreEventTests
             [CoreEvent.ImportPhoneReadFailed] = 1704,
             [CoreEvent.ImportWriteFailed] = 1705,
             [CoreEvent.ImportFileRejected] = 1706,
+            [CoreEvent.LoggedExercisesLoaded] = 1801,
+            [CoreEvent.LoggedExercisesLoadFailed] = 1802,
+            [CoreEvent.LoggedExercisesUnknownExercise] = 1803,
         }));
 }

@@ -31,8 +31,4 @@ A closed set as one line, e.g. *40m · 32kg · 0:00:45*, ending in a small muted
 One message per faulty field under a set or entry, in field order (D36).
 - `data-testid`: `TestId`.
 
-## `ExercisePicker`
-Full-screen overlay: back (`IconButton`), search box, results grouped Strength / Cardio. The back arrow and Android back raise `OnClose`. Focus moves to the search box when it opens (D81).
-- `data-testid`: `exercise-picker`, `picker-back`, `picker-search`, `picker-group-{kind}`, `picker-item-{id}`, `picker-none`.
-
-Stories: [ExerciseCard](./?path=/docs/components-workout-exercisecard--docs) · [SetRow](./?path=/docs/components-workout-setrow--docs) · [SetPanel](./?path=/docs/components-workout-setpanel--docs) · [SetSummary](./?path=/docs/components-workout-setsummary--docs) · [EntryErrors](./?path=/docs/components-workout-entryerrors--docs). `ExercisePicker` is shown on its screen: [Exercise Picker](./?path=/custom/screens-exercise-picker-overview).
+Stories: [ExerciseCard](./?path=/docs/components-workout-exercisecard--docs) · [SetRow](./?path=/docs/components-workout-setrow--docs) · [SetPanel](./?path=/docs/components-workout-setpanel--docs) · [SetSummary](./?path=/docs/components-workout-setsummary--docs) · [EntryErrors](./?path=/docs/components-workout-entryerrors--docs).

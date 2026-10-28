@@ -76,6 +76,18 @@ public class ExercisesViewTests : ComponentTestBase
     }
 
     [Test]
+    public void NoOnOpen_RowsAreNotTappableAndShowTheirKind()
+    {
+        var cut = Context.Render<ExercisesView>(p => p.Add(x => x.Items, SampleExercises.All));
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.FindAll("button[data-testid^=exercises-row-]"), Is.Empty);
+            Assert.That(cut.FindAll("[data-testid^=exercises-row-] .aside").Select(a => a.TextContent), Is.EqualTo(SampleExercises.All.Select(e => e.Kind.ToString())));
+        });
+    }
+
+    [Test]
     public void NoItems_ShowsNoExercisesMatchUnderTheSearchAndChips()
     {
         var cut = Context.Render<ExercisesView>(p => p.Add(x => x.Items, []).Add(x => x.Query, "deadlift"));

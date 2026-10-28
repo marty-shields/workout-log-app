@@ -26,14 +26,15 @@ else
                  ValidateSet="Checker.Check"
                  OnChanged="Editor.MarkChanged"
                  OnSave="SaveAsync"
-                 OnAddExercise="Editor.OpenPicker"
+                 OnAddExercise="Editor.OpenListAsync"
                  OnRemoveExercise="Editor.Remove"
                  OnBack="BackAsync"
                  OnDelete="OpenDelete">
         <Overlay>
-            @if (Editor.PickerOpen)
+            @if (Editor.ListOpen)
             {
-                <ExercisePicker Query="@Editor.Query" QueryChanged="Editor.Search" Items="Editor.PickerItems" OnPick="Editor.Pick" OnClose="Editor.ClosePicker" />
+                <AddExerciseView Items="Editor.ListItems" Query="@Editor.Query" QueryChanged="Editor.Search" Filter="Editor.Filter" FilterChanged="Editor.FilterBy"
+                                 Loading="Editor.ListLoading" OnPick="Editor.Pick" OnClose="Editor.CloseList" />
             }
             @if (discardOpen)
             {
@@ -129,7 +130,7 @@ else
 
     /// <summary>
     /// With changes, asks Discard / Cancel (FR-23); without, raises <see cref="OnBack"/>. Ignored while a save runs, after one
-    /// succeeds and after a discard (D73), and while a delete runs and after one succeeds (D46). The picker takes back first
+    /// succeeds and after a discard (D73), and while a delete runs and after one succeeds (D46). The add-exercise list takes back first
     /// while it is open.
     /// </summary>
     private async Task BackAsync()

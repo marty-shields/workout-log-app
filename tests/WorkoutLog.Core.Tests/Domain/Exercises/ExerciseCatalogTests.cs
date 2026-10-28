@@ -82,6 +82,16 @@ public class ExerciseCatalogTests
     public void All_ReadsMetricLabels() =>
         Assert.That(Find("Stair Climber").Metrics.Single(m => m.Metric == Metric.Level).Label, Is.EqualTo("Speed level"));
 
+    [TestCase(null, false)]
+    [TestCase("", false)]
+    [TestCase("   ", false)]
+    [TestCase("-", false)]
+    [TestCase(" .' ", false)]
+    [TestCase("squat", true)]
+    [TestCase("- curl", true)]
+    public void HasSearchWords_OnlyWhenTheQueryHasAWord(string? query, bool expected) =>
+        Assert.That(catalog.HasSearchWords(query), Is.EqualTo(expected));
+
     [TestCase(null)]
     [TestCase("")]
     [TestCase("   ")]
