@@ -15,7 +15,7 @@
 ![Android 16](https://img.shields.io/badge/Android-16_(API_36)-34A853?logo=android&logoColor=white)
 ![SQLite](https://img.shields.io/badge/SQLite-on_device-003B57?logo=sqlite&logoColor=white)
 
-[Features](#features) · [Screenshots](#screenshots) · [Install](#install) · [Built with](#built-with) · [Getting started](#getting-started) · [License](#license)
+[Features](#features) · [Install](#install) · [Built with](#built-with) · [Getting started](#getting-started) · [License](#license)
 
 </div>
 
@@ -29,82 +29,103 @@ It's built for one person and one phone: no accounts, no sign-up.
 
 ## Features
 
-- 🏋️ **Log as you train.** Add exercises and record sets. The fields fit the exercise: reps and weight for Bench Press, duration for Plank, distance and weight for carries.
-- 📚 **315 exercises built in.** Strength and cardio, searchable as you type.
-- 🏃 **Cardio entries.** Duration plus each machine's own metrics: distance, incline, floors, level, calories, rate.
-- ⏱️ **Automatic timing.** Start and finish times are captured for you, with a live timer while you log.
-- 🗂️ **Workouts.** Browse every session, open one to edit it, or delete it.
-- 🏆 **Exercises.** Every exercise you've logged, latest first, with when you last did it and that session's best.
-- 📈 **Exercise progress.** Open a strength exercise to chart its top set, estimated one-rep max, best set or total reps, least assist, hold duration and weight, or carry weight and distance over 3 months, 6 months, a year or all time, with its records and every session.
-- 🏃 **Cardio progress.** Open a cardio exercise to chart its distance, duration, pace, floors or calories over 3 months, 6 months, a year or all time, with its records and every session.
-- 📊 **Dashboard.** Your last workout and how many sessions you've done this week and this month.
-- 📤 **Export.** Save every workout to one JSON file and share it to Drive, email or another app.
-- 📥 **Import.** Bring an exported file back: review what's new, already there or different, then add or replace.
-- ✅ **Clear checks.** Save checks every set and entry, and points to the exact field at fault.
-- 🌗 **Light and dark.** Follows the phone's theme.
-- ☁️ **Backup.** Supports Android Auto Backup, so your workouts come back on a new phone.
+### 🏋️ Log as you train
 
-## Screenshots
+- **Fields that fit the exercise.** Reps and weight for Bench Press, duration for Plank, distance and weight for carries.
+- **315 exercises built in.** Strength and cardio, searchable as you type.
+- **Cardio entries.** Duration plus each machine's own metrics: distance, incline, floors, level, calories, rate.
+- **Automatic timing.** Start and finish times are captured for you, with a live timer while you log.
+- **Clear checks.** Save checks every set and entry, and points to the exact field at fault.
+
+<table align="center">
+  <tr>
+    <td align="center">
+      <picture>
+        <source media="(prefers-color-scheme: dark)" srcset="docs/images/readme/new-workout-dark.png" />
+        <img src="docs/images/readme/new-workout-light.png" alt="Logging strength sets" width="230" />
+      </picture>
+    </td>
+    <td align="center">
+      <picture>
+        <source media="(prefers-color-scheme: dark)" srcset="docs/images/readme/cardio-dark.png" />
+        <img src="docs/images/readme/cardio-light.png" alt="Logging cardio entries" width="230" />
+      </picture>
+    </td>
+    <td align="center">
+      <picture>
+        <source media="(prefers-color-scheme: dark)" srcset="docs/images/readme/add-exercise-dark.png" />
+        <img src="docs/images/readme/add-exercise-light.png" alt="Adding an exercise" width="230" />
+      </picture>
+    </td>
+  </tr>
+  <tr>
+    <td align="center"><sub><b>Strength sets</b></sub></td>
+    <td align="center"><sub><b>Cardio</b></sub></td>
+    <td align="center"><sub><b>Add exercise</b></sub></td>
+  </tr>
+</table>
+
+### 📈 See your progress
+
+- **Workouts.** Browse every session, open one to edit it, or delete it.
+- **Exercises.** Every exercise you've logged, latest first, with when you last did it and that session's best.
+- **Strength progress.** Chart a lift's top set and estimated one-rep max, a bodyweight move's best set and total reps, an assisted machine's least assist, a hold's duration and weight, or a carry's weight and distance, with records and every session.
+- **Cardio progress.** Chart distance, duration, pace, floors or calories, with records and every session.
+- **Any range.** Every chart covers 3 months, 6 months, a year or all time.
+
+<table align="center">
+  <tr>
+    <td align="center">
+      <picture>
+        <source media="(prefers-color-scheme: dark)" srcset="docs/images/readme/workouts-dark.png" />
+        <img src="docs/images/readme/workouts-light.png" alt="Workouts" width="230" />
+      </picture>
+    </td>
+    <td align="center">
+      <picture>
+        <source media="(prefers-color-scheme: dark)" srcset="docs/images/readme/exercise-lift-dark.png" />
+        <img src="docs/images/readme/exercise-lift-light.png" alt="A lift's top set chart, records and sessions" width="230" />
+      </picture>
+    </td>
+    <td align="center">
+      <picture>
+        <source media="(prefers-color-scheme: dark)" srcset="docs/images/readme/exercise-cardio-dark.png" />
+        <img src="docs/images/readme/exercise-cardio-light.png" alt="A cardio exercise's distance chart, records and sessions" width="230" />
+      </picture>
+    </td>
+  </tr>
+  <tr>
+    <td align="center"><sub><b>Workouts</b></sub></td>
+    <td align="center"><sub><b>Lift progress</b></sub></td>
+    <td align="center"><sub><b>Cardio progress</b></sub></td>
+  </tr>
+</table>
+
+### 📊 Your week and your data
+
+- **Dashboard.** Your last workout and how many sessions you've done this week and this month.
+- **Export.** Save every workout to one JSON file and share it to Drive, email or another app.
+- **Import.** Bring an exported file back: review what's new, already there or different, then add or replace.
+- **Backup.** Supports Android Auto Backup, so your workouts come back on a new phone.
+- **Light and dark.** Follows the phone's theme.
 
 <table align="center">
   <tr>
     <td align="center">
       <picture>
         <source media="(prefers-color-scheme: dark)" srcset="docs/images/readme/dashboard-dark.png" />
-        <img src="docs/images/readme/dashboard-light.png" alt="Dashboard" width="150" />
-      </picture>
-    </td>
-    <td align="center">
-      <picture>
-        <source media="(prefers-color-scheme: dark)" srcset="docs/images/readme/new-workout-dark.png" />
-        <img src="docs/images/readme/new-workout-light.png" alt="Logging strength sets" width="150" />
-      </picture>
-    </td>
-    <td align="center">
-      <picture>
-        <source media="(prefers-color-scheme: dark)" srcset="docs/images/readme/cardio-dark.png" />
-        <img src="docs/images/readme/cardio-light.png" alt="Logging cardio entries" width="150" />
-      </picture>
-    </td>
-    <td align="center">
-      <picture>
-        <source media="(prefers-color-scheme: dark)" srcset="docs/images/readme/add-exercise-dark.png" />
-        <img src="docs/images/readme/add-exercise-light.png" alt="Add exercise" width="150" />
-      </picture>
-    </td>
-    <td align="center">
-      <picture>
-        <source media="(prefers-color-scheme: dark)" srcset="docs/images/readme/workouts-dark.png" />
-        <img src="docs/images/readme/workouts-light.png" alt="Workouts" width="150" />
-      </picture>
-    </td>
-    <td align="center">
-      <picture>
-        <source media="(prefers-color-scheme: dark)" srcset="docs/images/readme/exercise-lift-dark.png" />
-        <img src="docs/images/readme/exercise-lift-light.png" alt="A lift's top set chart, records and sessions" width="150" />
-      </picture>
-    </td>
-    <td align="center">
-      <picture>
-        <source media="(prefers-color-scheme: dark)" srcset="docs/images/readme/exercise-cardio-dark.png" />
-        <img src="docs/images/readme/exercise-cardio-light.png" alt="A cardio exercise's distance chart, records and sessions" width="150" />
+        <img src="docs/images/readme/dashboard-light.png" alt="Dashboard" width="230" />
       </picture>
     </td>
     <td align="center">
       <picture>
         <source media="(prefers-color-scheme: dark)" srcset="docs/images/readme/settings-dark.png" />
-        <img src="docs/images/readme/settings-light.png" alt="Settings with Export and Import" width="150" />
+        <img src="docs/images/readme/settings-light.png" alt="Settings with Export and Import" width="230" />
       </picture>
     </td>
   </tr>
   <tr>
     <td align="center"><sub><b>Dashboard</b></sub></td>
-    <td align="center"><sub><b>Strength sets</b></sub></td>
-    <td align="center"><sub><b>Cardio</b></sub></td>
-    <td align="center"><sub><b>Add exercise</b></sub></td>
-    <td align="center"><sub><b>Workouts</b></sub></td>
-    <td align="center"><sub><b>Lift progress</b></sub></td>
-    <td align="center"><sub><b>Cardio progress</b></sub></td>
     <td align="center"><sub><b>Export and import</b></sub></td>
   </tr>
 </table>
