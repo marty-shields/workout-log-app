@@ -1,0 +1,41 @@
+@typeparam TValue
+<fieldset class="chips" data-testid="@TestId">
+    <legend class="visually-hidden">@Label</legend>
+    @foreach (var option in Options)
+    {
+        var selected = EqualityComparer<TValue>.Default.Equals(option.Value, Value);
+        <label class="chip">
+            <input type="radio"
+                   class="radio"
+                   name="@name"
+                   checked="@selected"
+                   data-testid="@option.TestId"
+                   @onchange="() => ValueChanged.InvokeAsync(option.Value)" />
+            <span class="text">@option.Label</span>
+        </label>
+    }
+</fieldset>
+
+@code {
+    private readonly string name = $"chip-{Guid.NewGuid():N}";
+
+    /// <summary>What the chips filter by, e.g. Type. Read by screen readers only.</summary>
+    [Parameter, EditorRequired]
+    public string Label { get; set; } = "";
+
+    /// <summary>Choices, in order. Hints are not shown.</summary>
+    [Parameter, EditorRequired]
+    public IReadOnlyList<RadioOption<TValue>> Options { get; set; } = [];
+
+    /// <summary>Chosen value.</summary>
+    [Parameter]
+    public TValue? Value { get; set; }
+
+    /// <summary>Raised with the value of the chip tapped.</summary>
+    [Parameter]
+    public EventCallback<TValue> ValueChanged { get; set; }
+
+    /// <summary>Value of the group's data-testid attribute.</summary>
+    [Parameter]
+    public string? TestId { get; set; }
+}

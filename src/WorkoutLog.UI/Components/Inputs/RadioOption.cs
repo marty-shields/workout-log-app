@@ -1,6 +1,6 @@
 namespace WorkoutLog.UI.Components.Inputs;
 
-/// <summary>One choice in a <see cref="RadioGroup{TValue}"/>.</summary>
+/// <summary>One choice in a <see cref="RadioGroup{TValue}"/>, <see cref="SegmentedControl{TValue}"/> or <see cref="FilterChips{TValue}"/>.</summary>
 /// <param name="Value">Value chosen.</param>
 /// <param name="Label">Text of the choice.</param>
 /// <param name="TestId">Value of the radio's data-testid attribute.</param>

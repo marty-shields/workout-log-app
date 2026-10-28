@@ -1,0 +1,27 @@
+<section class="card" data-testid="@TestId">
+    <h2 class="title">Records <span class="range">· @Range</span></h2>
+    <dl class="rows">
+        @foreach (var row in Rows)
+        {
+            <div class="row">
+                <dt class="label">@row.Label</dt>
+                <dd class="value">@(row.Value ?? "—")</dd>
+                <dd class="date">@(row.Value is null ? null : row.Date)</dd>
+            </div>
+        }
+    </dl>
+</section>
+
+@code {
+    /// <summary>Range the records cover, e.g. last 3 months.</summary>
+    [Parameter, EditorRequired]
+    public string Range { get; set; } = "";
+
+    /// <summary>Records, in order.</summary>
+    [Parameter, EditorRequired]
+    public IReadOnlyList<RecordRow> Rows { get; set; } = [];
+
+    /// <summary>Value of the data-testid attribute.</summary>
+    [Parameter]
+    public string? TestId { get; set; }
+}

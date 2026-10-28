@@ -1,0 +1,44 @@
+.chart {
+    position: relative;
+}
+
+.plot {
+    display: block;
+    width: 100%;
+    height: auto;
+    overflow: visible;
+    font-size: var(--font-size-sm);
+    font-variant-numeric: tabular-nums;
+}
+
+.grid {
+    stroke: var(--color-border);
+    stroke-width: var(--border-width);
+}
+
+.line {
+    fill: none;
+    stroke: var(--color-accent);
+    stroke-width: var(--border-width-error);
+    stroke-linejoin: round;
+}
+
+.point {
+    fill: var(--color-surface);
+    stroke: var(--color-accent);
+    stroke-width: var(--border-width-error);
+}
+
+.best {
+    fill: var(--color-accent);
+}
+
+.tick,
+.date,
+.label {
+    fill: var(--color-text-muted);
+}
+
+.label {
+    font-weight: var(--font-weight-bold);
+}

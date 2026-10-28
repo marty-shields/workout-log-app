@@ -1,0 +1,46 @@
+@attribute [Stories("Components/Inputs/SegmentedControl")]
+
+<Stories TComponent="SegmentedControl<string>" Layout="typeof(ThemeLayout)">
+
+    <Story Name="Two options">
+        <Template>
+            <SegmentedControl TValue="string" Label="Chart" Options="Two" Value="@("top-set")" ValueChanged="(string _) => { }" TestId="exercise-tabs" />
+        </Template>
+    </Story>
+
+    <Story Name="Three options">
+        <Template>
+            <SegmentedControl TValue="string" Label="Chart" Options="Three" Value="@("total")" ValueChanged="(string _) => { }" TestId="exercise-tabs" />
+        </Template>
+    </Story>
+
+    <Story Name="Four options">
+        <Template>
+            <SegmentedControl TValue="string" Label="Range" Options="Four" Value="@("3m")" ValueChanged="(string _) => { }" TestId="exercise-range" />
+        </Template>
+    </Story>
+
+</Stories>
+
+@code {
+    private static readonly IReadOnlyList<RadioOption<string>> Two =
+    [
+        new("top-set", "Top set", "exercise-tab-top-set"),
+        new("e1rm", "e1RM", "exercise-tab-e1rm"),
+    ];
+
+    private static readonly IReadOnlyList<RadioOption<string>> Three =
+    [
+        new("best-set", "Best set", "exercise-tab-best-set"),
+        new("total", "Total", "exercise-tab-total"),
+        new("top-set", "Top set", "exercise-tab-top-set"),
+    ];
+
+    private static readonly IReadOnlyList<RadioOption<string>> Four =
+    [
+        new("3m", "3M", "exercise-range-3m"),
+        new("6m", "6M", "exercise-range-6m"),
+        new("1y", "1Y", "exercise-range-1y"),
+        new("all", "All", "exercise-range-all"),
+    ];
+}

@@ -41,4 +41,36 @@ public class ListRowTests : ComponentTestBase
             Assert.That(cut.Find(".text").TextContent, Is.EqualTo("Tue 20 Oct 2026 · 18:05"));
         });
     }
+
+    [Test]
+    public void WithoutDetail_HasOneLine()
+    {
+        var cut = Context.Render<ListRow>(p => p.Add(x => x.Text, "History").Add(x => x.OnClick, () => { }));
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.FindAll(".detail"), Is.Empty);
+            Assert.That(cut.Find(".row").ClassList, Does.Not.Contain("two-line"));
+        });
+    }
+
+    [TestCase(true)]
+    [TestCase(false)]
+    public void Detail_ShowsUnderTheText(bool tappable)
+    {
+        var cut = Context.Render<ListRow>(p =>
+        {
+            p.Add(x => x.Text, "Barbell Back Squat").Add(x => x.Detail, "Last Tue 20 Oct · 70kg × 3");
+            if (tappable)
+            {
+                p.Add(x => x.OnClick, () => { });
+            }
+        });
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.FindAll(".texts > span").Select(s => s.TextContent), Is.EqualTo(new[] { "Barbell Back Squat", "Last Tue 20 Oct · 70kg × 3" }));
+            Assert.That(cut.Find(".row").ClassList, Does.Contain("two-line"));
+        });
+    }
 }

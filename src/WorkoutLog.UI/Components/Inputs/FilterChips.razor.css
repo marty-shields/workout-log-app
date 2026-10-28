@@ -1,0 +1,42 @@
+.chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+    border: 0;
+}
+
+.chip {
+    position: relative;
+    display: grid;
+    place-items: center;
+    min-height: var(--touch-target);
+    padding: 0 var(--space-4);
+    border: var(--border-width) solid var(--color-border-strong);
+    border-radius: var(--radius-lg);
+    cursor: pointer;
+}
+
+.chip:has(.radio:checked) {
+    border-color: var(--color-selected);
+    background: var(--color-selected);
+    font-weight: var(--font-weight-bold);
+}
+
+.chip:has(.radio:focus-visible) {
+    outline: var(--focus-width) solid var(--color-focus);
+    outline-offset: var(--focus-offset);
+}
+
+/* The whole chip is the hit area. */
+.radio {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    min-height: var(--touch-target);
+    margin: 0;
+    opacity: 0;
+    cursor: pointer;
+}

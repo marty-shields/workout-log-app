@@ -1,0 +1,41 @@
+@typeparam TValue
+<fieldset class="segments" data-testid="@TestId">
+    <legend class="visually-hidden">@Label</legend>
+    @foreach (var option in Options)
+    {
+        var selected = EqualityComparer<TValue>.Default.Equals(option.Value, Value);
+        <label class="segment">
+            <input type="radio"
+                   class="radio"
+                   name="@name"
+                   checked="@selected"
+                   data-testid="@option.TestId"
+                   @onchange="() => ValueChanged.InvokeAsync(option.Value)" />
+            <span class="text">@option.Label</span>
+        </label>
+    }
+</fieldset>
+
+@code {
+    private readonly string name = $"segment-{Guid.NewGuid():N}";
+
+    /// <summary>What the choices pick, e.g. Range. Read by screen readers only.</summary>
+    [Parameter, EditorRequired]
+    public string Label { get; set; } = "";
+
+    /// <summary>Choices, in order: 2 to 4. Hints are not shown.</summary>
+    [Parameter, EditorRequired]
+    public IReadOnlyList<RadioOption<TValue>> Options { get; set; } = [];
+
+    /// <summary>Chosen value.</summary>
+    [Parameter]
+    public TValue? Value { get; set; }
+
+    /// <summary>Raised with the value of the segment tapped.</summary>
+    [Parameter]
+    public EventCallback<TValue> ValueChanged { get; set; }
+
+    /// <summary>Value of the control's data-testid attribute.</summary>
+    [Parameter]
+    public string? TestId { get; set; }
+}

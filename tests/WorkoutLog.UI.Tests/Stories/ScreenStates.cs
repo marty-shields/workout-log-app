@@ -5,6 +5,7 @@ using WorkoutLog.Core.Services;
 using WorkoutLog.UI.Components.Overlays;
 using WorkoutLog.UI.Components.Workout;
 using WorkoutLog.UI.Models.Dashboard;
+using WorkoutLog.UI.Models.Exercises;
 using WorkoutLog.UI.Models.Settings;
 using WorkoutLog.UI.Models.Workout;
 using WorkoutLog.UI.Models.Workouts;
@@ -93,7 +94,52 @@ public static class ScreenStates
         new("Screens/Import Review", "Reading another file", c => ReviewScreen(c, ImportReview.Rejected("photo.json", ImportError.NotAnExport), reading: true)),
 
         new("Screens/Error", "Error", c => c.Render<ErrorView>(p => p.Add(x => x.OnRestart, () => { })).FindAll("*")),
+
+        new("Screens/Exercises", "List", c => Exercises(c, SampleExercises.All)),
+        new("Screens/Exercises", "Strength", c => Exercises(c, SampleExercises.Strength, filter: ExerciseFilter.Strength)),
+        new("Screens/Exercises", "Cardio", c => Exercises(c, SampleExercises.Cardio, filter: ExerciseFilter.Cardio)),
+        new("Screens/Exercises", "No match", c => Exercises(c, [], query: "deadlift")),
+        new("Screens/Exercises", "Nothing logged yet", c => Exercises(c, [], nothingLogged: true)),
+        new("Screens/Exercises", "Loading", c => Exercises(c, [], loading: true)),
+        new("Screens/Exercises", "Load failed", c => Exercises(c, [], failed: true)),
+
+        new("Screens/Exercise", "Lift top set", c => ExercisePage(c, SampleExercises.LiftTopSet)),
+        new("Screens/Exercise", "Lift e1RM", c => ExercisePage(c, SampleExercises.LiftE1rm)),
+        new("Screens/Exercise", "Bodyweight best set", c => ExercisePage(c, SampleExercises.BodyweightBestSet)),
+        new("Screens/Exercise", "Bodyweight total", c => ExercisePage(c, SampleExercises.BodyweightTotal)),
+        new("Screens/Exercise", "Bodyweight top set never weighted", c => ExercisePage(c, SampleExercises.BodyweightTopSetNeverWeighted)),
+        new("Screens/Exercise", "Loaded bodyweight", c => ExercisePage(c, SampleExercises.LoadedBodyweight)),
+        new("Screens/Exercise", "Assisted", c => ExercisePage(c, SampleExercises.Assisted)),
+        new("Screens/Exercise", "Hold duration", c => ExercisePage(c, SampleExercises.HoldDuration)),
+        new("Screens/Exercise", "Hold weight", c => ExercisePage(c, SampleExercises.HoldWeight)),
+        new("Screens/Exercise", "Carry weight", c => ExercisePage(c, SampleExercises.CarryWeight)),
+        new("Screens/Exercise", "Carry distance", c => ExercisePage(c, SampleExercises.CarryDistance)),
+        new("Screens/Exercise", "Cardio distance", c => ExercisePage(c, SampleExercises.CardioDistance)),
+        new("Screens/Exercise", "Cardio duration", c => ExercisePage(c, SampleExercises.CardioDuration)),
+        new("Screens/Exercise", "Cardio pace", c => ExercisePage(c, SampleExercises.CardioPace)),
+        new("Screens/Exercise", "Cardio no data", c => ExercisePage(c, SampleExercises.CardioNoData)),
+        new("Screens/Exercise", "No sessions in range", c => ExercisePage(c, SampleExercises.NoSessionsInRange)),
+        new("Screens/Exercise", "One session", c => ExercisePage(c, SampleExercises.OneSession)),
+        new("Screens/Exercise", "Loading", c => ExerciseLoad(c, loading: true)),
+        new("Screens/Exercise", "Load failed", c => ExerciseLoad(c, failed: true)),
     ];
+
+    /// <summary>Adds what an Exercise sample shows: every <c>ExerciseView</c> parameter except range, state and callbacks.</summary>
+    public static void AddExercise(ComponentParameterCollectionBuilder<ExerciseView> parameters, SampleExercise sample) =>
+        parameters
+            .Add(x => x.Name, sample.Name)
+            .Add(x => x.Subtitle, sample.Subtitle)
+            .Add(x => x.Tabs, sample.Tabs)
+            .Add(x => x.Tab, sample.Tab)
+            .Add(x => x.ChartTitle, sample.ChartTitle)
+            .Add(x => x.Points, sample.Points)
+            .Add(x => x.Flipped, sample.Flipped)
+            .Add(x => x.Format, sample.Format)
+            .Add(x => x.TimeScale, sample.TimeScale)
+            .Add(x => x.Caption, sample.Caption)
+            .Add(x => x.NoDataMessage, sample.NoDataMessage)
+            .Add(x => x.Records, sample.Records)
+            .Add(x => x.Sessions, sample.Sessions);
 
     private static IExerciseCatalog Catalog(BunitContext context) => context.Services.GetRequiredService<IExerciseCatalog>();
 
@@ -204,6 +250,52 @@ public static class ScreenStates
             .Add(x => x.OnImport, () => { })
             .Add(x => x.OnBack, () => { }))
             .FindAll("*");
+
+    private static IReadOnlyList<IElement> Exercises(
+        BunitContext context,
+        IReadOnlyList<ExerciseListItem> items,
+        string? query = null,
+        ExerciseFilter filter = ExerciseFilter.All,
+        bool nothingLogged = false,
+        bool loading = false,
+        bool failed = false) =>
+        context.Render<ExercisesView>(p => p
+            .Add(x => x.Items, items)
+            .Add(x => x.Query, query)
+            .Add(x => x.Filter, filter)
+            .Add(x => x.NothingLogged, nothingLogged)
+            .Add(x => x.Loading, loading)
+            .Add(x => x.Failed, failed)
+            .Add(x => x.QueryChanged, (string _) => { })
+            .Add(x => x.FilterChanged, (ExerciseFilter _) => { })
+            .Add(x => x.OnOpen, (ExerciseListItem _) => { })
+            .Add(x => x.OnRetry, () => { })
+            .Add(x => x.OnBack, () => { }))
+            .FindAll("*");
+
+    private static IReadOnlyList<IElement> ExercisePage(BunitContext context, SampleExercise sample) =>
+        context.Render<ExerciseView>(p =>
+        {
+            AddExercise(p, sample);
+            AddExerciseCallbacks(p);
+        }).FindAll("*");
+
+    private static IReadOnlyList<IElement> ExerciseLoad(BunitContext context, bool loading = false, bool failed = false) =>
+        context.Render<ExerciseView>(p =>
+        {
+            p.Add(x => x.Name, "Barbell Back Squat")
+                .Add(x => x.Subtitle, "Quadriceps · Barbell")
+                .Add(x => x.Loading, loading)
+                .Add(x => x.Failed, failed);
+            AddExerciseCallbacks(p);
+        }).FindAll("*");
+
+    private static void AddExerciseCallbacks(ComponentParameterCollectionBuilder<ExerciseView> parameters) =>
+        parameters
+            .Add(x => x.TabChanged, (string _) => { })
+            .Add(x => x.RangeChanged, (ChartRange _) => { })
+            .Add(x => x.OnRetry, () => { })
+            .Add(x => x.OnBack, () => { });
 
     /// <summary>A review of a file against 41 workouts on the phone.</summary>
     private static ImportReview Review(int fresh = 0, int already = 0, int different = 0, int skipped = 0) =>

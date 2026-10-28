@@ -1,0 +1,32 @@
+@attribute [Stories("Components/Inputs/FilterChips")]
+
+<Stories TComponent="FilterChips<ExerciseFilter>" Layout="typeof(ThemeLayout)">
+
+    <Story Name="All chosen">
+        <Template>
+            <FilterChips TValue="ExerciseFilter" Label="Type" Options="Options" Value="ExerciseFilter.All" ValueChanged="(ExerciseFilter _) => { }" TestId="exercises-filter" />
+        </Template>
+    </Story>
+
+    <Story Name="Strength chosen">
+        <Template>
+            <FilterChips TValue="ExerciseFilter" Label="Type" Options="Options" Value="ExerciseFilter.Strength" ValueChanged="(ExerciseFilter _) => { }" TestId="exercises-filter" />
+        </Template>
+    </Story>
+
+    <Story Name="Cardio chosen">
+        <Template>
+            <FilterChips TValue="ExerciseFilter" Label="Type" Options="Options" Value="ExerciseFilter.Cardio" ValueChanged="(ExerciseFilter _) => { }" TestId="exercises-filter" />
+        </Template>
+    </Story>
+
+</Stories>
+
+@code {
+    private static readonly IReadOnlyList<RadioOption<ExerciseFilter>> Options =
+    [
+        new(ExerciseFilter.All, "All", "exercises-filter-all"),
+        new(ExerciseFilter.Strength, "Strength", "exercises-filter-strength"),
+        new(ExerciseFilter.Cardio, "Cardio", "exercises-filter-cardio"),
+    ];
+}

@@ -25,6 +25,7 @@ A Material Symbols Outlined icon (weight 400), drawn as an SVG and hidden from s
 - The icon takes the text colour; `Muted` uses `--color-text-muted`.
 - `Size`: `Default` is `--font-size-xl`, `Small` is `--font-size-lg`.
 - Chevron: the end of a tappable `ListRow` and carry `SetSummary` row.
+- Search: the Exercises search box, `Muted`.
 
 ## `IconButton`
 A button that shows an `Icon`, with a 48px touch target.

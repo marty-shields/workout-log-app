@@ -1,0 +1,53 @@
+@attribute [Stories("Components/Charts/Chart")]
+
+<Stories TComponent="Chart" Layout="typeof(ThemeLayout)">
+
+    <Story Name="Rising">
+        <Template>
+            <Chart Points="SampleExercises.LiftE1rm.Points" Format="SampleExercises.Kg" Name="e1RM, last 3 months" TestId="exercise-chart" />
+        </Template>
+    </Story>
+
+    <Story Name="Point labels">
+        <Template>
+            <Chart Points="SampleExercises.LiftTopSet.Points" Format="SampleExercises.Kg" Name="Top set, last 3 months" TestId="exercise-chart" />
+        </Template>
+    </Story>
+
+    <Story Name="Flipped">
+        <Template>
+            <Chart Points="SampleExercises.CardioPace.Points" Format="SampleExercises.Clock" Flipped TimeScale Name="Pace, last 3 months" TestId="exercise-chart" />
+        </Template>
+    </Story>
+
+    <Story Name="Gaps">
+        <Template>
+            <Chart Points="Gaps" Format="SampleExercises.Kg" Name="Top set, last 3 months" TestId="exercise-chart" />
+        </Template>
+    </Story>
+
+    <Story Name="One point">
+        <Template>
+            <Chart Points="SampleExercises.OneSession.Points" Format="SampleExercises.Kg" Name="Top set, last 3 months" TestId="exercise-chart" />
+        </Template>
+    </Story>
+
+    <Story Name="Many points">
+        <Template>
+            <Chart Points="SampleExercises.ManyPoints" Format="SampleExercises.Kg" Name="Top set, last 6 months" TestId="exercise-chart" />
+        </Template>
+    </Story>
+
+</Stories>
+
+@code {
+    private static readonly IReadOnlyList<ChartPoint> Gaps =
+    [
+        new("1 Sep", 10, "×10"),
+        new("15 Sep", null),
+        new("22 Sep", 12, "×12"),
+        new("29 Sep", null),
+        new("6 Oct", 14, "×10"),
+        new("13 Oct", 16, "×8"),
+    ];
+}

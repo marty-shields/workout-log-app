@@ -1,0 +1,23 @@
+.row {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    column-gap: var(--space-3);
+    padding: var(--space-3) 0;
+    border-bottom: var(--border-width) solid var(--color-border);
+    font-variant-numeric: tabular-nums;
+}
+
+.date,
+.headline {
+    font-weight: var(--font-weight-bold);
+}
+
+.headline {
+    text-align: right;
+}
+
+.detail {
+    grid-column: 1 / -1;
+    color: var(--color-text-muted);
+    font-size: var(--font-size-sm);
+}

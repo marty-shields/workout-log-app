@@ -1,0 +1,23 @@
+<div class="row" data-testid="@TestId">
+    <span class="date">@Date</span>
+    <span class="headline">@Headline</span>
+    <span class="detail">@Detail</span>
+</div>
+
+@code {
+    /// <summary>Session date, e.g. Tue 20 Oct.</summary>
+    [Parameter, EditorRequired]
+    public string Date { get; set; } = "";
+
+    /// <summary>The session's best, e.g. 70kg × 3.</summary>
+    [Parameter, EditorRequired]
+    public string Headline { get; set; } = "";
+
+    /// <summary>Every set, or the cardio entry, e.g. 60×8 · 62.5×8 · 70×3.</summary>
+    [Parameter, EditorRequired]
+    public string Detail { get; set; } = "";
+
+    /// <summary>Value of the data-testid attribute.</summary>
+    [Parameter]
+    public string? TestId { get; set; }
+}

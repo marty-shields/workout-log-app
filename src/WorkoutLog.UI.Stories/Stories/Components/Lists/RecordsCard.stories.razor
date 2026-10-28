@@ -1,0 +1,23 @@
+@attribute [Stories("Components/Lists/RecordsCard")]
+
+<Stories TComponent="RecordsCard" Layout="typeof(ThemeLayout)">
+
+    <Story Name="With values">
+        <Template>
+            <RecordsCard Range="last 3 months" Rows="SampleExercises.CardioDistance.Records" TestId="exercise-records" />
+        </Template>
+    </Story>
+
+    <Story Name="With no value">
+        <Template>
+            <RecordsCard Range="last 3 months" Rows="SampleExercises.BodyweightBestSet.Records" TestId="exercise-records" />
+        </Template>
+    </Story>
+
+    <Story Name="Nothing in range">
+        <Template>
+            <RecordsCard Range="last year" Rows="SampleExercises.NoSessionsInRange.Records" TestId="exercise-records" />
+        </Template>
+    </Story>
+
+</Stories>

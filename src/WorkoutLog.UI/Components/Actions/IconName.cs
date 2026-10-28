@@ -17,4 +17,7 @@ public enum IconName
 
     /// <summary>Right-pointing chevron (<c>chevron_right</c>).</summary>
     Chevron,
+
+    /// <summary>Magnifying glass (<c>search</c>).</summary>
+    Search,
 }

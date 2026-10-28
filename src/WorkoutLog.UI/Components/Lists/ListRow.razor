@@ -1,14 +1,14 @@
 @if (OnClick.HasDelegate)
 {
-    <button type="button" class="row clickable" data-testid="@TestId" @onclick="OnClick">
-        <span class="text">@Text</span>
+    <button type="button" class="row clickable @(Detail is not null ? "two-line" : null)" data-testid="@TestId" @onclick="OnClick">
+        @Texts
         <span class="chevron"><Icon Name="IconName.Chevron" Muted /></span>
     </button>
 }
 else
 {
-    <div class="row" data-testid="@TestId">
-        <span class="text">@Text</span>
+    <div class="row @(Detail is not null ? "two-line" : null)" data-testid="@TestId">
+        @Texts
     </div>
 }
 
@@ -17,6 +17,10 @@ else
     [Parameter, EditorRequired]
     public string Text { get; set; } = "";
 
+    /// <summary>Muted second line under the text.</summary>
+    [Parameter]
+    public string? Detail { get; set; }
+
     /// <summary>Raised when the row is tapped. The row is not tappable when unset.</summary>
     [Parameter]
     public EventCallback OnClick { get; set; }
@@ -24,4 +28,13 @@ else
     /// <summary>Value of the data-testid attribute.</summary>
     [Parameter]
     public string? TestId { get; set; }
+
+    private RenderFragment Texts =>
+        @<span class="texts">
+            <span class="text">@Text</span>
+            @if (Detail is not null)
+            {
+                <span class="detail">@Detail</span>
+            }
+        </span>;
 }
