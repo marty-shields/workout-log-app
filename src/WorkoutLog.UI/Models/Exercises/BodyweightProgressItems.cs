@@ -48,36 +48,19 @@ public static class BodyweightProgressItems
     };
 
     /// <summary>
-    /// One point per session with a value for <paramref name="tab"/>, oldest first: the best set's reps, the total reps, the top set's weight
-    /// labelled ×reps, or the unrounded e1RM.
+    /// One point per session, oldest first: the best set's reps, the total reps, the top set's weight labelled ×reps, or the unrounded e1RM.
+    /// A session with no value for <paramref name="tab"/> has a point with no value.
     /// </summary>
     public static IReadOnlyList<ChartPoint> Points(BodyweightProgress progress, string tab, TimeZoneInfo zone, DateTimeOffset now) =>
         progress.Sessions
-            .Select(s => (Day: ExerciseProgressItems.Day(s.Session.StartedAt, zone, now), Session: s))
-            .Select(p => tab switch
+            .Select(s => tab switch
             {
-                BestSetTab => p.Session.BestSetReps is { } reps ? new ChartPoint(p.Day, reps) : null,
-                TotalTab => p.Session.TotalReps is { } total ? new ChartPoint(p.Day, total) : null,
-                ExerciseProgressItems.E1rmTab => p.Session.E1rmKg is { } e1rm ? new ChartPoint(p.Day, e1rm) : null,
-                _ => p.Session.TopSet is { WeightKg: { } kg } top ? new ChartPoint(p.Day, kg, top.Reps is { } reps ? $"×{reps}" : null) : null,
+                BestSetTab => new ChartPoint(ExerciseProgressItems.Day(s.Session.StartedAt, zone, now), s.BestSetReps),
+                TotalTab => new ChartPoint(ExerciseProgressItems.Day(s.Session.StartedAt, zone, now), s.TotalReps),
+                ExerciseProgressItems.E1rmTab => new ChartPoint(ExerciseProgressItems.Day(s.Session.StartedAt, zone, now), s.E1rmKg),
+                _ => ExerciseProgressItems.Point(s.Session.StartedAt, s.TopSet, zone, now),
             })
-            .OfType<ChartPoint>()
             .ToList();
-
-    /// <summary>
-    /// <see cref="ExerciseProgressItems.NoSets"/> when sessions are in the range but none has a value for <paramref name="tab"/>.
-    /// Null when the chart has points or there are no sessions, which shows the view's own message.
-    /// </summary>
-    public static string? NoDataMessage(BodyweightProgress progress, string tab, ChartRange range) =>
-        progress.Sessions.Count == 0 || progress.Sessions.Any(s => tab switch
-        {
-            BestSetTab => s.BestSetReps is not null,
-            TotalTab => s.TotalReps is not null,
-            ExerciseProgressItems.E1rmTab => s.E1rmKg is not null,
-            _ => s.TopSet is not null,
-        })
-            ? null
-            : ExerciseProgressItems.NoSets(range);
 
     /// <summary>
     /// Most reps in a set (e.g. 25 reps), Most reps in a session (e.g. 63 reps), Heaviest weight (e.g. 16kg × 8) and, when the move is loaded,
@@ -107,11 +90,12 @@ public static class BodyweightProgressItems
     public static IReadOnlyList<ExerciseSession> Sessions(BodyweightProgress progress, TimeZoneInfo zone, DateTimeOffset now) =>
         progress.Sessions
             .OrderByDescending(s => s.Session.StartedAt)
-            .Select(s => new ExerciseSession(
-                s.Session.WorkoutId,
-                DisplayFormat.ShortDate(ExerciseProgressItems.Local(s.Session.StartedAt, zone), ExerciseProgressItems.Local(now, zone)),
+            .Select(s => ExerciseProgressItems.Session(
+                s.Session,
                 s.TopSet is { } top ? ExerciseProgressItems.TopSet(top) : s.BestSetReps is { } reps ? $"{reps} reps" : "—",
-                string.Join(" · ", s.Session.Sets.Select(SetText))))
+                string.Join(" · ", s.Session.Sets.Select(SetText)),
+                zone,
+                now))
             .ToList();
 
     private static string SetText(StrengthSet set) => set switch

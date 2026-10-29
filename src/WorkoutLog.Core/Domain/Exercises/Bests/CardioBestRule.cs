@@ -1,9 +1,13 @@
+using WorkoutLog.Core.Domain.Exercises.Progress;
 using WorkoutLog.Core.Domain.Workouts;
 
 namespace WorkoutLog.Core.Domain.Exercises.Bests;
 
-/// <summary>Cardio (<see cref="ExerciseCategory.Cardio"/>). Best is the distance when the exercise has one, null when not logged; otherwise the duration.</summary>
-internal sealed class CardioBestRule : IBestRule
+/// <summary>
+/// Cardio (<see cref="ExerciseCategory.Cardio"/>). Best is the longest distance when the exercise has one, null when not logged;
+/// otherwise the longest duration (<see cref="ICardioSessionRule"/>).
+/// </summary>
+internal sealed class CardioBestRule(ICardioSessionRule sessionRule) : IBestRule
 {
     /// <inheritdoc />
     public bool AppliesTo(ExerciseDefinition exercise) => exercise.Category == ExerciseCategory.Cardio;
@@ -11,12 +15,12 @@ internal sealed class CardioBestRule : IBestRule
     /// <inheritdoc />
     public ExerciseBest? Best(ExerciseDefinition exercise, IReadOnlyList<WorkoutExercise> logged)
     {
-        var entries = logged.OfType<CardioExercise>().Select(e => e.Entry).ToList();
+        var best = sessionRule.Best([.. logged.OfType<CardioExercise>().Select(e => e.Entry)]);
         if (exercise.Metrics.Any(m => m.Metric == Metric.Distance))
         {
-            return entries.Max(e => e.Distance) is { } distance ? new ExerciseBest(null, null, null, distance) : null;
+            return best.Distance is { } distance ? new ExerciseBest(null, null, null, distance) : null;
         }
 
-        return entries.Max(e => e.Duration) is { } duration ? new ExerciseBest(null, null, duration, null) : null;
+        return best.Duration is { } duration ? new ExerciseBest(null, null, duration, null) : null;
     }
 }

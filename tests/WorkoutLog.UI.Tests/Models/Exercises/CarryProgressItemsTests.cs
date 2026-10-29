@@ -36,31 +36,18 @@ public class CarryProgressItemsTests
         Assert.That(CarryProgressItems.Distance(Carry)(40.5m), Is.EqualTo("40.5m"));
 
     [Test]
-    public void Points_Weight_AreTheHeaviestLabelledWithTheirDistanceAndSkipUnweightedSessions() =>
+    public void Points_Weight_AreTheHeaviestLabelledWithTheirDistance_UnweightedHasNoValue() =>
         Assert.That(CarryProgressItems.Points(Progress(Unweighted, Weighted), CarryProgressItems.WeightTab, Carry, TimeZoneInfo.Utc, Now),
-            Is.EqualTo(new[] { new ChartPoint("8 Oct", 32m, "40m") }));
+            Is.EqualTo(new[] { new ChartPoint("15 Sep", null), new ChartPoint("8 Oct", 32m, "40m") }));
 
     [Test]
     public void Points_Distance_AreTheLongestLabelledWithTheirWeightWhenWeighted() =>
         Assert.That(CarryProgressItems.Points(Progress(Unweighted, Weighted), CarryProgressItems.DistanceTab, Carry, TimeZoneInfo.Utc, Now),
             Is.EqualTo(new[] { new ChartPoint("15 Sep", 60m), new ChartPoint("8 Oct", 40m, "32kg") }));
 
-    [Test]
-    public void NoDataMessage_NoSessions_IsNull() =>
-        Assert.That(CarryProgressItems.NoDataMessage(Progress(), CarryProgressItems.WeightTab, ChartRange.ThreeMonths), Is.Null);
 
-    [Test]
-    public void NoDataMessage_WeightTabWithAWeightedSession_IsNull() =>
-        Assert.That(CarryProgressItems.NoDataMessage(Progress(Unweighted, Weighted), CarryProgressItems.WeightTab, ChartRange.ThreeMonths), Is.Null);
 
-    [TestCase(ChartRange.ThreeMonths, "No sets in the last 3 months")]
-    [TestCase(ChartRange.All, "No sets yet")]
-    public void NoDataMessage_WeightTabWithNoWeightedSession_IsNoSets(ChartRange range, string expected) =>
-        Assert.That(CarryProgressItems.NoDataMessage(Progress(Unweighted), CarryProgressItems.WeightTab, range), Is.EqualTo(expected));
 
-    [Test]
-    public void NoDataMessage_DistanceTab_IsNull() =>
-        Assert.That(CarryProgressItems.NoDataMessage(Progress(Unweighted), CarryProgressItems.DistanceTab, ChartRange.ThreeMonths), Is.Null);
 
     [Test]
     public void Records_ShowTheHeaviestWeightAndLongestDistanceWithTheirDates() =>

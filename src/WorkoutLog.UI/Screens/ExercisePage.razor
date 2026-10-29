@@ -156,7 +156,7 @@
         format = tab == ExerciseProgressItems.E1rmTab ? ExerciseProgressItems.E1rm : ExerciseProgressItems.Weight;
         caption = ExerciseProgressItems.Caption(tab);
         points = ExerciseProgressItems.Points(progress, tab, zone, now);
-        noDataMessage = ExerciseProgressItems.NoDataMessage(progress, tab, range);
+        noDataMessage = ExerciseProgressItems.NoSets(range);
         records = ExerciseProgressItems.Records(progress, zone, now);
         sessions = ExerciseProgressItems.Sessions(progress, zone, now);
     }
@@ -167,7 +167,7 @@
         format = BodyweightProgressItems.Format(tab);
         caption = ExerciseProgressItems.Caption(tab);
         points = BodyweightProgressItems.Points(progress, tab, zone, now);
-        noDataMessage = BodyweightProgressItems.NoDataMessage(progress, tab, range);
+        noDataMessage = ExerciseProgressItems.NoSets(range);
         records = BodyweightProgressItems.Records(progress, move.Loaded, zone, now);
         sessions = BodyweightProgressItems.Sessions(progress, zone, now);
     }
@@ -179,7 +179,7 @@
         flipped = true;
         caption = AssistedProgressItems.Caption;
         points = AssistedProgressItems.Points(progress, zone, now);
-        noDataMessage = AssistedProgressItems.NoDataMessage(progress, range);
+        noDataMessage = ExerciseProgressItems.NoSets(range);
         records = AssistedProgressItems.Records(progress, zone, now);
         sessions = AssistedProgressItems.Sessions(progress, zone, now);
     }
@@ -190,7 +190,7 @@
         timeScale = tab == HoldProgressItems.DurationTab;
         format = timeScale ? HoldProgressItems.Duration : ExerciseProgressItems.Weight;
         points = HoldProgressItems.Points(progress, tab, zone, now);
-        noDataMessage = HoldProgressItems.NoDataMessage(progress, tab, range);
+        noDataMessage = ExerciseProgressItems.NoSets(range);
         records = HoldProgressItems.Records(progress, zone, now);
         sessions = HoldProgressItems.Sessions(progress, zone, now);
     }
@@ -200,7 +200,7 @@
         var progress = Progress.SummariseCarry(loaded, range);
         format = tab == CarryProgressItems.DistanceTab ? CarryProgressItems.Distance(carry) : ExerciseProgressItems.Weight;
         points = CarryProgressItems.Points(progress, tab, carry, zone, now);
-        noDataMessage = CarryProgressItems.NoDataMessage(progress, tab, range);
+        noDataMessage = ExerciseProgressItems.NoSets(range);
         records = CarryProgressItems.Records(progress, carry, zone, now);
         sessions = CarryProgressItems.Sessions(progress, carry, zone, now);
     }
@@ -213,7 +213,7 @@
         format = CardioProgressItems.Format(cardio, tab);
         caption = CardioProgressItems.Caption(tab);
         points = CardioProgressItems.Points(progress, tab, zone, now);
-        noDataMessage = CardioProgressItems.NoDataMessage(progress, tab, range);
+        noDataMessage = CardioProgressItems.NoValues(tab, range);
         records = CardioProgressItems.Records(cardio, progress, zone, now);
         sessions = CardioProgressItems.Sessions(cardio, progress, zone, now);
     }

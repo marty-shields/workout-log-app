@@ -3,11 +3,11 @@ using WorkoutLog.Core.Domain.Exercises.Progress;
 
 namespace WorkoutLog.Core.Tests.Domain.Exercises.Progress;
 
-public class RecordsRuleTests
+public class LiftRecordsRuleTests
 {
     private static readonly DateTimeOffset Start = new(2026, 10, 20, 17, 0, 0, TimeSpan.Zero);
 
-    private readonly RecordsRule rule = new();
+    private readonly LiftRecordsRule rule = new();
 
     [Test]
     public void Records_NoSessions_AreNone() =>

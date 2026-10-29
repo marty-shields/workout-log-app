@@ -78,18 +78,18 @@ public class CardioProgressItemsTests
             Assert.That(CardioProgressItems.Caption(tab), Is.EqualTo(caption));
         });
 
-    [TestCase("distance", new[] { 5.2 })]
-    [TestCase("duration", new[] { 1500.0, 1800 })]
-    [TestCase("pace", new[] { 346.0 })]
-    [TestCase("floors", new[] { 42.0 })]
-    [TestCase("calories", new[] { 300.0, 410 })]
-    public void Points_AreTheSessionsWithAValueOldestFirst_TimesInSeconds(string tab, double[] values)
+    [TestCase("distance", new object?[] { null, 5.2 })]
+    [TestCase("duration", new object?[] { 1500.0, 1800.0 })]
+    [TestCase("pace", new object?[] { null, 346.0 })]
+    [TestCase("floors", new object?[] { 42.0, null })]
+    [TestCase("calories", new object?[] { 300.0, 410.0 })]
+    public void Points_AreOnePerSessionOldestFirst_TimesInSeconds_NoValueWhenNotLogged(string tab, object?[] values)
     {
         var progress = Progress(
             Session(1, Now.AddDays(-20), new CardioBest(null, TimeSpan.FromMinutes(25), null, 42, 300)),
             Session(2, Now.AddDays(-10), new CardioBest(5.2m, TimeSpan.FromMinutes(30), TimeSpan.FromSeconds(346), null, 410)));
 
-        Assert.That(CardioProgressItems.Points(progress, tab, TimeZoneInfo.Utc, Now).Select(p => p.Value), Is.EqualTo(values.Select(v => (decimal?)v)));
+        Assert.That(CardioProgressItems.Points(progress, tab, TimeZoneInfo.Utc, Now).Select(p => p.Value), Is.EqualTo(values.Select(v => v is double d ? (decimal?)d : null)));
     }
 
     [Test]
@@ -102,16 +102,8 @@ public class CardioProgressItemsTests
     [TestCase("pace", ChartRange.Year, "No pace logged in the last year")]
     [TestCase("floors", ChartRange.All, "No floors logged yet")]
     [TestCase("calories", ChartRange.All, "No calories logged yet")]
-    public void NoDataMessage_SessionsWithNoValueForTheTab_NamesTheMetric(string tab, ChartRange range, string message) =>
-        Assert.That(CardioProgressItems.NoDataMessage(Progress(Session(1, Now, new CardioBest(null, null, null, null, null))), tab, range), Is.EqualTo(message));
-
-    [Test]
-    public void NoDataMessage_AValueOrNoSessions_IsNull() =>
-        Assert.Multiple(() =>
-        {
-            Assert.That(CardioProgressItems.NoDataMessage(Progress(Session(1, Now, Best(5m))), "distance", ChartRange.ThreeMonths), Is.Null);
-            Assert.That(CardioProgressItems.NoDataMessage(Progress(), "distance", ChartRange.ThreeMonths), Is.Null);
-        });
+    public void NoValues_NamesTheMetricAndRange(string tab, ChartRange range, string message) =>
+        Assert.That(CardioProgressItems.NoValues(tab, range), Is.EqualTo(message));
 
     [Test]
     public void Records_AreTheExercisesMetricsWithTheirDates()

@@ -25,6 +25,14 @@ Feature: Save a workout
     Then Treadmill shows 0:20:00, 3.2 km, incline 1.5
     And Outdoor Run shows 0:25:30, 5 km, pace 5:06
 
+  @D23
+  Scenario: A blank assist is saved as 0 kg
+    Given I have started a new workout
+    And I have added "Machine Assisted Pull-up"
+    And I have logged Machine Assisted Pull-up sets: 8 reps
+    When I save the workout
+    Then reopening workout 1 shows Machine Assisted Pull-up sets: 8 reps 0 kg
+
   @FR-05 @D42
   Scenario: Save a mixed workout and see it newest first
     Given I have started a new workout

@@ -17,7 +17,7 @@ public class E1rmRuleTests
 
     [Test]
     public void Best_TwelveReps_IsUsed() =>
-        Assert.That(rule.Best([Set(12, 50m)]), Is.EqualTo(50m * (1 + 12 / 30m)));
+        Assert.That(rule.Best([Set(12, 50m)]), Is.EqualTo(70m));
 
     [Test]
     public void Best_OverTwelveReps_IsNotUsed() =>
@@ -29,7 +29,7 @@ public class E1rmRuleTests
 
     [Test]
     public void Best_SetsWithoutWeight_AreNotUsed() =>
-        Assert.That(rule.Best([Set(5, null), Set(3, 40m)]), Is.EqualTo(40m * (1 + 3 / 30m)));
+        Assert.That(rule.Best([Set(5, null), Set(3, 40m)]), Is.EqualTo(44m));
 
     [Test]
     public void Best_NoSetHasAWeight_IsNull() =>

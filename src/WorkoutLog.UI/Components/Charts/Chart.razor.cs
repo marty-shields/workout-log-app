@@ -6,7 +6,7 @@ namespace WorkoutLog.UI.Components.Charts;
 /// <summary>Works out where the ticks, line, points and dates go.</summary>
 public partial class Chart
 {
-    /// <summary>Most points that all show their label; above it only the best and the latest do.</summary>
+    /// <summary>Most points that all show their <see cref="ChartPoint.Label"/>; above it, and for points without one, only the best and the latest are labelled.</summary>
     internal const int MaxLabelledPoints = 8;
 
     // Drawing area in viewBox units. At phone width --font-size-sm text draws at about 10px.
@@ -22,6 +22,9 @@ public partial class Chart
     private const double LabelGap = 12;
     private const double Radius = 4.5;
     private const double BestRadius = 7;
+
+    // Smallest tick step: the 0.1 a weight shows (D49); time steps start at 1 second.
+    private const decimal MinStep = 0.1m;
 
     // Tick steps for time, in seconds.
     private static readonly decimal[] TimeSteps = [1, 2, 5, 10, 15, 30, 60, 120, 300, 600, 900, 1800, 3600];
@@ -80,7 +83,9 @@ public partial class Chart
             .Select((p, i) => new Plotted(
                 X(p.Index, Points.Count),
                 Y(p.Point.Value!.Value, low, high),
-                valued.Count <= MaxLabelledPoints || i == best || i == valued.Count - 1 ? p.Point.Label ?? Format(p.Point.Value!.Value) : null,
+                i == best || i == valued.Count - 1 ? p.Point.Label ?? Format(p.Point.Value!.Value)
+                : valued.Count <= MaxLabelledPoints ? p.Point.Label
+                : null,
                 i == best))
             .ToList();
 
@@ -91,24 +96,31 @@ public partial class Chart
             : [(Number(FirstX), Points[0].Date, "middle"), (Number(Right), Points[^1].Date, "end")];
     }
 
-    /// <summary>Lowest tick, highest tick and the step between them: a whole step of 1, 2 or 5 × 10ⁿ (or a whole time) spanning the values.</summary>
+    /// <summary>
+    /// Lowest tick, highest tick and the step between them: a whole step of 1, 2 or 5 × 10ⁿ (or a whole time) spanning the values.
+    /// The step is at least <see cref="MinStep"/> (1 when every value is the same), and ticks don't go below 0 when no value does.
+    /// </summary>
     internal static (decimal Low, decimal High, decimal Step) Scale(decimal min, decimal max, bool time)
     {
         var range = max > min ? max - min : Math.Max(Math.Abs(max), 1m) / 5;
-        var step = time ? TimeStep(range / 4) : NiceStep(range / 4);
+        var step = Math.Max(time ? TimeStep(range / 4) : NiceStep(range / 4), max > min ? MinStep : 1m);
         var low = Math.Floor(min / step) * step;
         var high = Math.Ceiling(max / step) * step;
+        if (low == high)
+        {
+            (low, high) = (low - step, high + step);
+        }
 
-        return low == high ? (low - step, high + step, step) : (low, high, step);
+        return (min >= 0 ? Math.Max(low, 0) : low, high, step);
     }
 
-    /// <summary>Index of the best value: the highest, or the lowest when flipped; the latest of a tie.</summary>
+    /// <summary>Index of the best value: the highest, or the lowest when flipped; the earliest of a tie.</summary>
     internal static int Best(IReadOnlyList<decimal> values, bool flipped)
     {
         var best = 0;
         for (var i = 1; i < values.Count; i++)
         {
-            if (flipped ? values[i] <= values[best] : values[i] >= values[best])
+            if (flipped ? values[i] < values[best] : values[i] > values[best])
             {
                 best = i;
             }
@@ -126,16 +138,8 @@ public partial class Chart
     private static decimal TimeStep(decimal rough) =>
         rough <= TimeSteps[^1] ? TimeSteps.First(s => s >= rough) : Math.Ceiling(rough / 3600) * 3600;
 
-    private string TickText(decimal value)
-    {
-        if (!TimeScale)
-        {
-            return value.ToString("0.##", CultureInfo.InvariantCulture);
-        }
-
-        var time = TimeSpan.FromSeconds((double)value);
-        return time.TotalHours >= 1 ? $"{(int)time.TotalHours}:{time.Minutes:00}:{time.Seconds:00}" : $"{time.Minutes}:{time.Seconds:00}";
-    }
+    private string TickText(decimal value) =>
+        TimeScale ? DisplayFormat.Clock(TimeSpan.FromSeconds((double)value)) : value.ToString("0.##", CultureInfo.InvariantCulture);
 
     private static double X(int index, int count) => count == 1 ? (FirstX + Right) / 2 : FirstX + (index * (Right - FirstX) / (count - 1));
 

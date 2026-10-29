@@ -9,34 +9,13 @@ using WorkoutLog.Core.Domain.Exercises.Progress;
 using WorkoutLog.Core.Domain.Workouts;
 using WorkoutLog.Core.Logging;
 using WorkoutLog.Core.Services;
+using static WorkoutLog.Core.Tests.Domain.Exercises.Bests.BestRuleCases;
 
 namespace WorkoutLog.Core.Tests.Services;
 
 public class ExerciseProgressServiceTests
 {
-    /// <summary>Barbell Back Squat: lift.</summary>
-    private const int Squat = 6;
-
-    /// <summary>Plate Front Raise: lift, equipment Other.</summary>
-    private const int PlateFrontRaise = 259;
-
-    /// <summary>Push-up: bodyweight.</summary>
-    private const int PushUp = 264;
-
-    /// <summary>Plank: hold.</summary>
-    private const int Plank = 258;
-
-    /// <summary>Outdoor Run: cardio.</summary>
-    private const int Run = 311;
-
-    /// <summary>Machine Assisted Pull-up: assisted.</summary>
-    private const int AssistedPullUp = 218;
-
-    /// <summary>Farmer's Walk: carry.</summary>
-    private const int FarmersWalk = 187;
-
     private static readonly DateTimeOffset Now = new(2026, 10, 28, 9, 0, 0, TimeSpan.Zero);
-    private static readonly IExerciseCatalog Catalog = new ExerciseCatalog();
 
     private Mock<IWorkoutRepository> repository = null!;
     private FakeLogger<ExerciseProgressService> logger = null!;
@@ -49,8 +28,8 @@ public class ExerciseProgressServiceTests
         logger = new FakeLogger<ExerciseProgressService>();
         var clock = new FakeTimeProvider(Now);
         clock.SetLocalTimeZone(TimeZoneInfo.Utc);
-        service = new ExerciseProgressService(repository.Object, Catalog, new RangeFilter(clock), new TopSetRule(), new E1rmRule(), new RecordsRule(),
-            new BodyweightRule(new TopSetRule(), new E1rmRule()), new BodyweightRecordsRule(new RecordsRule()),
+        service = new ExerciseProgressService(repository.Object, Catalog, new RangeFilter(clock), new TopSetRule(), new E1rmRule(), new LiftRecordsRule(),
+            new BodyweightRule(new TopSetRule(), new E1rmRule()), new BodyweightRecordsRule(new LiftRecordsRule()),
             new LeastAssistRule(), new AssistedRecordsRule(), new HoldRule(), new HoldRecordsRule(), new CarryRule(), new CarryRecordsRule(), logger);
     }
 
@@ -278,8 +257,6 @@ public class ExerciseProgressServiceTests
             new ProgressRecord<ExerciseBest>(new ExerciseBest(32m, null, null, 40m), Now),
             new ProgressRecord<ExerciseBest>(new ExerciseBest(null, null, null, 60m), Now.AddDays(-7))))).UsingPropertiesComparer());
     }
-
-    private static StrengthSet Set(int? reps, decimal? weightKg) => new(reps, weightKg, null, null);
 
     private static StrengthSet Timed(int seconds, decimal? weightKg) => new(null, weightKg, TimeSpan.FromSeconds(seconds), null);
 

@@ -44,6 +44,15 @@ public class DashboardViewTests : ComponentTestBase
     }
 
     [Test]
+    public void Rows_AreWorkoutsThenExercises()
+    {
+        var cut = Context.Render<DashboardView>(p => p.Add(x => x.Summary, new DashboardSummary(null, 0, 0)));
+
+        Assert.That(cut.FindAll("[data-testid=workouts-link], [data-testid=exercises-link]").Select(r => (r.GetAttribute("data-testid"), r.QuerySelector(".text")!.TextContent)),
+            Is.EqualTo(new[] { ("workouts-link", "Workouts"), ("exercises-link", "Exercises") }));
+    }
+
+    [Test]
     public void Buttons_RaiseTheirCallbacks()
     {
         var newWorkout = false;

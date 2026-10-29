@@ -64,14 +64,14 @@ public class ExerciseProgressItemsTests
         Assert.That(ExerciseProgressItems.Caption(tab), Is.EqualTo(expected));
 
     [Test]
-    public void Points_TopSet_AreTheWeightsLabelledWithTheRepsSkippingSessionsWithout() =>
+    public void Points_TopSet_AreTheWeightsLabelledWithTheReps_NoWeightHasNoValue() =>
         Assert.That(ExerciseProgressItems.Points(Progress(LastYear, NoWeight, Heavy), "top-set", TimeZoneInfo.Utc, Now),
-            Is.EqualTo(new[] { new ChartPoint("15 Oct 2025", 40m, "×15"), new ChartPoint("20 Oct", 70m, "×3") }));
+            Is.EqualTo(new[] { new ChartPoint("15 Oct 2025", 40m, "×15"), new ChartPoint("13 Oct", null), new ChartPoint("20 Oct", 70m, "×3") }));
 
     [Test]
-    public void Points_E1rm_AreTheUnroundedEstimatesSkippingSessionsWithout() =>
+    public void Points_E1rm_AreTheUnroundedEstimates_NoneHasNoValue() =>
         Assert.That(ExerciseProgressItems.Points(Progress(LastYear, NoWeight, Heavy), "e1rm", TimeZoneInfo.Utc, Now),
-            Is.EqualTo(new[] { new ChartPoint("20 Oct", 62.5m * (1 + 8 / 30m)) }));
+            Is.EqualTo(new[] { new ChartPoint("15 Oct 2025", null), new ChartPoint("13 Oct", null), new ChartPoint("20 Oct", 62.5m * (1 + 8 / 30m)) }));
 
     [Test]
     public void Points_DatesAreInThePhonesTimeZone() =>
@@ -91,21 +91,8 @@ public class ExerciseProgressItemsTests
     public void Format_IsTheTabsWeightText(string tab, decimal value, string expected) =>
         Assert.That((tab == "e1rm" ? ExerciseProgressItems.E1rm : ExerciseProgressItems.Weight)(value), Is.EqualTo(expected));
 
-    [Test]
-    public void NoDataMessage_NoSessions_IsNoneSoTheViewShowsItsOwn() =>
-        Assert.That(ExerciseProgressItems.NoDataMessage(Progress(), "top-set", ChartRange.ThreeMonths), Is.Null);
 
-    [Test]
-    public void NoDataMessage_TabHasValues_IsNone() =>
-        Assert.That(ExerciseProgressItems.NoDataMessage(Progress(NoWeight, Heavy), "e1rm", ChartRange.ThreeMonths), Is.Null);
 
-    [TestCase("top-set", ChartRange.ThreeMonths, "No sets in the last 3 months")]
-    [TestCase("top-set", ChartRange.Year, "No sets in the last year")]
-    [TestCase("top-set", ChartRange.All, "No sets yet")]
-    [TestCase("e1rm", ChartRange.SixMonths, "No sets in the last 6 months")]
-    [TestCase("e1rm", ChartRange.All, "No sets yet")]
-    public void NoDataMessage_SessionsWithoutValuesForTheTab_IsNoSets(string tab, ChartRange range, string expected) =>
-        Assert.That(ExerciseProgressItems.NoDataMessage(Progress(NoWeight, tab == "e1rm" ? LastYear : NoWeight), tab, range), Is.EqualTo(expected));
 
     [TestCase(ChartRange.ThreeMonths, "No sets in the last 3 months")]
     [TestCase(ChartRange.SixMonths, "No sets in the last 6 months")]

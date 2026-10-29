@@ -45,13 +45,13 @@ public static class SampleExercises
     public static IReadOnlyList<ExerciseListItem> All { get; } =
     [
         new(6, "Barbell Back Squat", ExerciseKind.Strength, "Tue 20 Oct · 70kg × 3"),
-        new(264, "Push-up", ExerciseKind.Strength, "Tue 20 Oct · 25 reps"),
-        new(218, "Machine Assisted Pull-up", ExerciseKind.Strength, "Thu 15 Oct · 20kg × 10"),
+        new(218, "Machine Assisted Pull-up", ExerciseKind.Strength, "Tue 20 Oct · 0kg × 5"),
         new(258, "Plank", ExerciseKind.Strength, "Thu 15 Oct · 1:45"),
+        new(264, "Push-up", ExerciseKind.Strength, "Tue 13 Oct · 25 reps"),
         new(311, "Outdoor Run", ExerciseKind.Cardio, "Sun 11 Oct · 5.2km"),
         new(187, "Farmer's Walk", ExerciseKind.Strength, "Thu 8 Oct · 32kg · 40m"),
-        new(315, "Jump Rope", ExerciseKind.Cardio, "Mon 5 Oct · 10:00"),
-        new(132, "Dumbbell Curl", ExerciseKind.Strength, "Wed 15 Oct 2025"),
+        new(132, "Dumbbell Curl", ExerciseKind.Strength, "Mon 5 Oct · 14kg × 10"),
+        new(315, "Jump Rope", ExerciseKind.Cardio, "Sun 12 Oct 2025 · 10:00"),
     ];
 
     /// <summary>The strength exercises in <see cref="All"/>.</summary>
@@ -68,9 +68,14 @@ public static class SampleExercises
 
     private static readonly IReadOnlyList<ExerciseSession> LiftSessions =
     [
-        new(3, "Tue 20 Oct", "70kg × 3", "60×8 · 62.5×8 · 70×3"),
-        new(2, "Tue 13 Oct", "65kg × 8", "65×8 · 65×8 · 65×7"),
-        new(1, "Tue 6 Oct", "65kg × 6", "62.5×8 · 65×6 · 65×6"),
+        new(8, "Tue 20 Oct", "70kg × 3", "60×8 · 62.5×8 · 70×3"),
+        new(7, "Tue 13 Oct", "65kg × 8", "65×8 · 65×8 · 65×7"),
+        new(6, "Tue 6 Oct", "65kg × 6", "62.5×8 · 65×6 · 65×6"),
+        new(5, "Tue 29 Sep", "65kg × 5", "62.5×8 · 65×5 · 65×5"),
+        new(4, "Tue 8 Sep", "62.5kg × 8", "60×8 · 62.5×8 · 62.5×8"),
+        new(3, "Tue 1 Sep", "62.5kg × 6", "60×8 · 62.5×6 · 62.5×6"),
+        new(2, "Tue 25 Aug", "60kg × 8", "57.5×8 · 60×8 · 60×8"),
+        new(1, "Tue 18 Aug", "60kg × 6", "57.5×8 · 60×6 · 60×6"),
     ];
 
     private static readonly IReadOnlyList<RecordRow> BodyweightRecords =
@@ -78,21 +83,40 @@ public static class SampleExercises
 
     private static readonly IReadOnlyList<ExerciseSession> BodyweightSessions =
     [
-        new(12, "Tue 13 Oct", "25 reps", "25 · 20 · 18"),
-        new(11, "Tue 6 Oct", "22 reps", "22 · 19 · 17"),
+        new(16, "Tue 13 Oct", "25 reps", "25 · 20 · 18"),
+        new(15, "Tue 6 Oct", "22 reps", "22 · 19 · 17"),
+        new(14, "Tue 22 Sep", "20 reps", "20 · 18 · 17"),
+        new(13, "Tue 15 Sep", "18 reps", "18 · 18 · 16"),
+        new(12, "Tue 8 Sep", "18 reps", "18 · 17 · 15"),
+        new(11, "Tue 1 Sep", "15 reps", "15 · 15 · 15"),
     ];
 
     private static readonly IReadOnlyList<RadioOption<string>> HoldTabs = [Tab("duration", "Duration"), Tab("weight", "Weight")];
 
     private static readonly IReadOnlyList<RecordRow> HoldRecords = [new("Longest hold", "1:45", "15 Oct"), new("Heaviest weight", "10kg · 1:00", "15 Oct")];
 
-    private static readonly IReadOnlyList<ExerciseSession> HoldSessions = [new(41, "Thu 15 Oct", "1:45", "1:45 · 10kg 1:00 · 1:20")];
+    private static readonly IReadOnlyList<ExerciseSession> HoldSessions =
+    [
+        new(46, "Thu 15 Oct", "1:45", "1:45 · 10kg 1:00 · 1:20"),
+        new(45, "Tue 13 Oct", "1:30", "1:30 · 1:15"),
+        new(44, "Tue 6 Oct", "1:30", "1:30 · 7.5kg 0:50"),
+        new(43, "Tue 29 Sep", "1:15", "1:15 · 5kg 1:00"),
+        new(42, "Tue 22 Sep", "1:10", "1:10 · 5kg 0:45"),
+        new(41, "Tue 15 Sep", "1:00", "1:00 · 0:50"),
+    ];
 
     private static readonly IReadOnlyList<RadioOption<string>> CarryTabs = [Tab("weight", "Weight"), Tab("distance", "Distance")];
 
     private static readonly IReadOnlyList<RecordRow> CarryRecords = [new("Heaviest weight", "32kg · 40m", "8 Oct"), new("Longest distance", "60m · 24kg", "15 Sep")];
 
-    private static readonly IReadOnlyList<ExerciseSession> CarrySessions = [new(51, "Thu 8 Oct", "32kg · 40m", "28kg 40m · 32kg 40m · 32kg 30m")];
+    private static readonly IReadOnlyList<ExerciseSession> CarrySessions =
+    [
+        new(55, "Thu 8 Oct", "32kg · 40m", "28kg 40m · 32kg 40m · 32kg 30m"),
+        new(54, "Tue 6 Oct", "30kg · 40m", "28kg 40m · 30kg 40m"),
+        new(53, "Tue 22 Sep", "28kg · 40m", "26kg 40m · 28kg 40m"),
+        new(52, "Tue 15 Sep", "26kg · 40m", "24kg 60m · 26kg 40m"),
+        new(51, "Tue 8 Sep", "24kg · 40m", "24kg 40m · 24kg 40m"),
+    ];
 
     private static readonly IReadOnlyList<RadioOption<string>> CardioTabs =
         [Tab("distance", "Distance"), Tab("duration", "Duration"), Tab("pace", "Pace"), Tab("calories", "Calories")];
@@ -101,14 +125,18 @@ public static class SampleExercises
     [
         new("Longest distance", "5.2km", "11 Oct"),
         new("Longest duration", "30:00", "11 Oct"),
-        new("Fastest pace", "5:30/km", "27 Sep"),
+        new("Fastest pace", "5:44/km", "27 Sep"),
         new("Most calories", "410 calories", "11 Oct"),
     ];
 
     private static readonly IReadOnlyList<ExerciseSession> CardioSessions =
     [
-        new(61, "Sun 11 Oct", "5.2km", "30:00 · 5:46/km · 410 calories"),
-        new(60, "Sun 4 Oct", "5km", "29:20 · 5:52/km · 395 calories"),
+        new(65, "Sun 11 Oct", "5.2km", "30:00 · 5:46/km · 410 calories"),
+        new(64, "Sun 4 Oct", "5km", "29:20 · 5:52/km · 395 calories"),
+        new(63, "Sun 27 Sep", "4.8km", "27:30 · 5:44/km · 360 calories"),
+        new(62, "Sun 20 Sep", "5km", "29:00 · 5:48/km · 380 calories"),
+        new(61, "Sun 13 Sep", "4.5km", "27:00 · 6:00/km · 330 calories"),
+        new(60, "Sun 6 Sep", "4.1km", "25:00 · 6:06/km · 300 calories"),
     ];
 
     /// <summary>A barbell lift on its Top set tab.</summary>
@@ -162,7 +190,13 @@ public static class SampleExercises
         [P("1 Sep", 10, "×10"), P("15 Sep", 12, "×10"), P("22 Sep", 12, "×12"), P("6 Oct", 14, "×10"), P("13 Oct", 16, "×8")],
         Kg,
         [new("Most reps in a set", null, null), new("Most reps in a session", null, null), new("Heaviest weight", "16kg × 8", "13 Oct"), new("Best e1RM", "20.3kg", "13 Oct")],
-        [new(21, "Tue 13 Oct", "16kg × 8", "16×8 · 16×8 · 14×10")]);
+        [
+            new(25, "Tue 13 Oct", "16kg × 8", "16×8 · 16×8 · 14×10"),
+            new(24, "Tue 6 Oct", "14kg × 10", "12×10 · 14×10"),
+            new(23, "Tue 22 Sep", "12kg × 12", "12×10 · 12×12"),
+            new(22, "Tue 15 Sep", "12kg × 10", "10×10 · 12×10"),
+            new(21, "Tue 1 Sep", "10kg × 10", "10×10 · 10×10"),
+        ]);
 
     /// <summary>An assisted machine: one chart of the least assist, lower is better.</summary>
     public static SampleExercise Assisted { get; } = new(
@@ -170,7 +204,14 @@ public static class SampleExercises
         [P("8 Sep", 30, "×8"), P("15 Sep", 25, "×8"), P("22 Sep", 25, "×10"), P("29 Sep", 15, "×8"), P("13 Oct", 5, "×6"), P("20 Oct", 0, "×5")],
         Kg,
         [new("Least assist", "0kg × 5", "20 Oct")],
-        [new(31, "Tue 20 Oct", "0kg × 5", "5kg×8 · 0kg×5 · 0kg×4"), new(30, "Tue 13 Oct", "5kg × 6", "10kg×8 · 5kg×6 · 5kg×5")],
+        [
+            new(36, "Tue 20 Oct", "0kg × 5", "5kg×8 · 0kg×5 · 0kg×4"),
+            new(35, "Tue 13 Oct", "5kg × 6", "10kg×8 · 5kg×6 · 5kg×5"),
+            new(34, "Tue 29 Sep", "15kg × 8", "20kg×8 · 15kg×8"),
+            new(33, "Tue 22 Sep", "25kg × 10", "30kg×8 · 25kg×10"),
+            new(32, "Tue 15 Sep", "25kg × 8", "30kg×8 · 25kg×8"),
+            new(31, "Tue 8 Sep", "30kg × 8", "35kg×8 · 30kg×8"),
+        ],
         ChartTitle: "Least assist per session",
         Flipped: true,
         Caption: "Up = less assist");
@@ -185,7 +226,7 @@ public static class SampleExercises
     public static SampleExercise HoldWeight { get; } = HoldDuration with
     {
         Tab = "weight",
-        Points = [P("22 Sep", 5, "0:45"), P("29 Sep", 5, "1:00"), P("6 Oct", 7.5m, "0:50"), P("15 Oct", 10, "1:00")],
+        Points = [new("15 Sep", null), P("22 Sep", 5, "0:45"), P("29 Sep", 5, "1:00"), P("6 Oct", 7.5m, "0:50"), new("13 Oct", null), P("15 Oct", 10, "1:00")],
         Format = Kg,
         TimeScale = false,
     };
@@ -241,7 +282,7 @@ public static class SampleExercises
     public static SampleExercise CardioPace { get; } = CardioDistance with
     {
         Tab = "pace",
-        Points = [P("6 Sep", 340), P("13 Sep", 335), P("20 Sep", 338), P("27 Sep", 330), P("4 Oct", 352), P("11 Oct", 346)],
+        Points = [P("6 Sep", 366), P("13 Sep", 360), P("20 Sep", 348), P("27 Sep", 344), P("4 Oct", 352), P("11 Oct", 346)],
         Format = Clock,
         TimeScale = true,
         Flipped = true,
@@ -255,6 +296,15 @@ public static class SampleExercises
         Points = [],
         Format = Count,
         Records = [.. CardioRecords.Take(3), new("Most calories", null, null)],
+        Sessions =
+        [
+            new(65, "Sun 11 Oct", "5.2km", "30:00 · 5:46/km"),
+            new(64, "Sun 4 Oct", "5km", "29:20 · 5:52/km"),
+            new(63, "Sun 27 Sep", "4.8km", "27:30 · 5:44/km"),
+            new(62, "Sun 20 Sep", "5km", "29:00 · 5:48/km"),
+            new(61, "Sun 13 Sep", "4.5km", "27:00 · 6:00/km"),
+            new(60, "Sun 6 Sep", "4.1km", "25:00 · 6:06/km"),
+        ],
         NoDataMessage = "No calories logged in the last 3 months",
     };
 
@@ -267,6 +317,10 @@ public static class SampleExercises
         [
             new(91, "Thu 15 Oct", "25:00", "120 floors · 300 calories · Speed level 8 · 70 steps/min"),
             new(90, "Thu 8 Oct", "20:00", "15:00 · 70 floors · 180 calories · Speed level 7 / 20:00 · 100 floors · 240 calories · Speed level 8"),
+            new(89, "Thu 1 Oct", "22:00", "110 floors · 270 calories · Speed level 8"),
+            new(88, "Thu 24 Sep", "20:00", "95 floors · 240 calories · Speed level 7"),
+            new(87, "Thu 17 Sep", "20:00", "90 floors · 230 calories · Speed level 7"),
+            new(86, "Thu 10 Sep", "18:00", "80 floors · 200 calories · Speed level 6"),
         ]);
 
     /// <summary>A barbell lift with no sessions in the range.</summary>

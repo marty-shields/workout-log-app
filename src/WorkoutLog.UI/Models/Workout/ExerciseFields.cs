@@ -121,6 +121,10 @@ public static class ExerciseFields
         _ => throw new ArgumentOutOfRangeException(nameof(exercise), exercise.DistanceUnit, "Distance needs a distance unit"),
     };
 
+    /// <summary>A distance in the exercise's unit, to up to 2 decimal places, e.g. 5.2km or 40m (D49).</summary>
+    internal static string Distance(ExerciseDefinition exercise, decimal distance) =>
+        $"{Decimals.Round2(distance).ToString("0.##", CultureInfo.InvariantCulture)}{DistanceText(exercise)}";
+
     /// <summary>Unit of the exercise's rate, e.g. rpm.</summary>
     internal static string RateText(ExerciseDefinition exercise) => exercise.RateUnit switch
     {

@@ -4,31 +4,23 @@ using Moq;
 using WorkoutLog.Core.Data;
 using WorkoutLog.Core.Domain.Exercises;
 using WorkoutLog.Core.Domain.Exercises.Bests;
+using WorkoutLog.Core.Domain.Exercises.Progress;
 using WorkoutLog.Core.Domain.Workouts;
 using WorkoutLog.Core.Logging;
 using WorkoutLog.Core.Services;
+using static WorkoutLog.Core.Tests.Domain.Exercises.Bests.BestRuleCases;
 
 namespace WorkoutLog.Core.Tests.Services;
 
 public class LoggedExercisesServiceTests
 {
-    /// <summary>Barbell Back Squat.</summary>
-    private const int Squat = 6;
-
-    /// <summary>Dumbbell Curl.</summary>
-    private const int Curl = 132;
-
-    /// <summary>Push-up.</summary>
-    private const int PushUp = 264;
-
-    /// <summary>Outdoor Run.</summary>
-    private const int Run = 311;
-
     private static readonly DateTimeOffset Start = new(2026, 10, 21, 17, 5, 0, TimeSpan.Zero);
-    private static readonly IExerciseCatalog Catalog = new ExerciseCatalog();
 
     private static readonly IBestRule[] Rules =
-        [new LiftBestRule(), new BodyweightBestRule(), new AssistedBestRule(), new HoldBestRule(), new CarryBestRule(), new CardioBestRule()];
+        [
+            new LiftBestRule(new TopSetRule()), new BodyweightBestRule(new BodyweightRule(new TopSetRule(), new E1rmRule())), new AssistedBestRule(new LeastAssistRule()),
+            new HoldBestRule(new HoldRule()), new CarryBestRule(new CarryRule()), new CardioBestRule(new CardioSessionRule()),
+        ];
 
     private Mock<IWorkoutRepository> repository = null!;
     private FakeLogger<LoggedExercisesService> logger = null!;
@@ -121,7 +113,7 @@ public class LoggedExercisesServiceTests
     }
 
     [Test]
-    public async Task GetAsync_ReadFails_ReturnsFailedAndLogsAWarningWithTheException()
+    public async Task GetAsync_ReadFails_ReturnsFailedAndLogsAnErrorWithTheException()
     {
         var error = new InvalidOperationException("disk");
         repository.Setup(r => r.GetLastSessionsAsync()).ThrowsAsync(error);
@@ -132,7 +124,7 @@ public class LoggedExercisesServiceTests
         var record = logger.Collector.LatestRecord;
         Assert.Multiple(() =>
         {
-            Assert.That(LoggedEvents.Of(logger), Is.EqualTo(new[] { (CoreEvent.LoggedExercisesLoadFailed, LogLevel.Warning, "Loading the logged exercises failed") }));
+            Assert.That(LoggedEvents.Of(logger), Is.EqualTo(new[] { (CoreEvent.LoggedExercisesLoadFailed, LogLevel.Error, "Loading the logged exercises failed") }));
             Assert.That(record.Exception, Is.SameAs(error));
         });
     }

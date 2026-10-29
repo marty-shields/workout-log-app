@@ -10,6 +10,7 @@ Feature: Exercise page
     Then the tappable rows on Exercises are: Barbell Back Squat, Plank
     When I open "Barbell Back Squat" on Exercises
     Then the Exercise page is titled "Barbell Back Squat" with "Quadriceps · Barbell"
+    And the Exercise tabs are: Top set, e1RM
     When I go back with <how>
     Then I am on Exercises
     Examples:

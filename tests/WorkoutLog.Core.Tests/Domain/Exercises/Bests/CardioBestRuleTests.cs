@@ -1,11 +1,12 @@
 using WorkoutLog.Core.Domain.Exercises.Bests;
+using WorkoutLog.Core.Domain.Exercises.Progress;
 using static WorkoutLog.Core.Tests.Domain.Exercises.Bests.BestRuleCases;
 
 namespace WorkoutLog.Core.Tests.Domain.Exercises.Bests;
 
 public class CardioBestRuleTests
 {
-    private readonly CardioBestRule rule = new();
+    private readonly CardioBestRule rule = new(new CardioSessionRule());
 
     [Test]
     public void Exercises_AreTheOnesNamed() =>

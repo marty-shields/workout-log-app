@@ -61,7 +61,7 @@ internal sealed partial class LoggedExercisesService(
         [LoggerMessage((int)CoreEvent.LoggedExercisesLoaded, LogLevel.Information, "Loaded {Count} logged exercises")]
         public static partial void Loaded(ILogger logger, int count);
 
-        [LoggerMessage((int)CoreEvent.LoggedExercisesLoadFailed, LogLevel.Warning, "Loading the logged exercises failed")]
+        [LoggerMessage((int)CoreEvent.LoggedExercisesLoadFailed, LogLevel.Error, "Loading the logged exercises failed")]
         public static partial void LoadFailed(ILogger logger, Exception exception);
 
         [LoggerMessage((int)CoreEvent.LoggedExercisesUnknownExercise, LogLevel.Warning, "Exercise {ExerciseId} is not in the exercise list; left out")]

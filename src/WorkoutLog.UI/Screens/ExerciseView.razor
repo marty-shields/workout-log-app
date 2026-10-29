@@ -33,7 +33,7 @@
                 }
                 else
                 {
-                    <p class="no-data" data-testid="exercise-chart-empty">@(NoDataMessage ?? NoSessionsMessage)</p>
+                    <p class="no-data" data-testid="exercise-chart-empty">@(Sessions.Count > 0 && NoDataMessage is not null ? NoDataMessage : NoSessionsMessage)</p>
                 }
                 <SegmentedControl TValue="ChartRange" Label="Range" Options="Ranges" Value="Range" ValueChanged="RangeChanged" TestId="exercise-range" />
                 @if (Caption is not null)
@@ -113,7 +113,10 @@
     [Parameter]
     public string? Caption { get; set; }
 
-    /// <summary>Text in place of the chart when this tab has no values, e.g. No sets in the last 3 months. When unset: "No sessions in the …", or "No sessions yet" for All.</summary>
+    /// <summary>
+    /// Text in place of the chart when sessions are in the range but none has a value for this tab, e.g. No sets in the last 3 months.
+    /// With no sessions, or when unset: "No sessions in the …", or "No sessions yet" for All.
+    /// </summary>
     [Parameter]
     public string? NoDataMessage { get; set; }
 

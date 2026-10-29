@@ -19,14 +19,14 @@
 .line {
     fill: none;
     stroke: var(--color-accent);
-    stroke-width: var(--border-width-error);
+    stroke-width: var(--chart-stroke-width);
     stroke-linejoin: round;
 }
 
 .point {
     fill: var(--color-surface);
     stroke: var(--color-accent);
-    stroke-width: var(--border-width-error);
+    stroke-width: var(--chart-stroke-width);
 }
 
 .best {

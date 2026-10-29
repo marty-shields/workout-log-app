@@ -1,11 +1,12 @@
 using WorkoutLog.Core.Domain.Exercises.Bests;
+using WorkoutLog.Core.Domain.Exercises.Progress;
 using static WorkoutLog.Core.Tests.Domain.Exercises.Bests.BestRuleCases;
 
 namespace WorkoutLog.Core.Tests.Domain.Exercises.Bests;
 
 public class LiftBestRuleTests
 {
-    private readonly LiftBestRule rule = new();
+    private readonly LiftBestRule rule = new(new TopSetRule());
 
     [Test]
     public void Exercises_AreTheOnesNamed() =>

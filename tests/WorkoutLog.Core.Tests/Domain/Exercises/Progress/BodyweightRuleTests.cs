@@ -1,6 +1,7 @@
 using WorkoutLog.Core.Domain.Exercises.Bests;
 using WorkoutLog.Core.Domain.Exercises.Progress;
 using WorkoutLog.Core.Domain.Workouts;
+using static WorkoutLog.Core.Tests.Domain.Exercises.Bests.BestRuleCases;
 
 namespace WorkoutLog.Core.Tests.Domain.Exercises.Progress;
 
@@ -60,5 +61,4 @@ public class BodyweightRuleTests
 
     private static StrengthSession Session(params StrengthSet[] sets) => new(1, Start, sets);
 
-    private static StrengthSet Set(int? reps, decimal? weightKg) => new(reps, weightKg, null, null);
 }

@@ -32,9 +32,9 @@ public static class ExerciseListItems
     {
         { WeightKg: { } kg, Reps: { } reps } => $"{DisplayFormat.Weight(kg)} × {reps}",
         { Reps: { } reps } => $"{reps} reps",
-        { WeightKg: { } kg, Distance: { } distance } when exercise.DistanceUnit is not null => $"{DisplayFormat.Weight(kg)} · {Distance(exercise, distance)}",
+        { WeightKg: { } kg, Distance: { } distance } when exercise.DistanceUnit is not null => $"{DisplayFormat.Weight(kg)} · {ExerciseFields.Distance(exercise, distance)}",
         { Duration: { } duration } => DisplayFormat.Clock(duration),
-        { Distance: { } distance } when exercise.DistanceUnit is not null => Distance(exercise, distance),
+        { Distance: { } distance } when exercise.DistanceUnit is not null => ExerciseFields.Distance(exercise, distance),
         _ => null,
     };
 
@@ -59,7 +59,4 @@ public static class ExerciseListItems
             })
             .ToList();
     }
-
-    private static string Distance(ExerciseDefinition exercise, decimal distance) =>
-        $"{Decimals.Round2(distance).ToString("0.##", CultureInfo.InvariantCulture)}{ExerciseFields.DistanceText(exercise)}";
 }

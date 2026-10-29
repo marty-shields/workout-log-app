@@ -50,6 +50,7 @@
     --touch-target: 48px;
     --border-width: 1px;
     --border-width-error: 2px;
+    --chart-stroke-width: 2px;
     --focus-width: 2px;
     --focus-offset: 2px;
     --opacity-disabled: 0.5;

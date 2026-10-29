@@ -30,13 +30,13 @@ public static class CardioProgressItems
     /// <summary>Key of the Calories tab.</summary>
     public const string CaloriesTab = "calories";
 
-    private static readonly IReadOnlyList<(Metric Metric, string Key, string Label, string Record)> Charts =
+    private static readonly IReadOnlyList<(Metric Metric, string Key, string Label, string Noun, string Record)> Charts =
     [
-        (Metric.Distance, DistanceTab, "Distance", "Longest distance"),
-        (Metric.Duration, DurationTab, "Duration", "Longest duration"),
-        (Metric.Pace, PaceTab, "Pace", "Fastest pace"),
-        (Metric.Floors, FloorsTab, "Floors", "Most floors"),
-        (Metric.Calories, CaloriesTab, "Calories", "Most calories"),
+        (Metric.Distance, DistanceTab, "Distance", "distance", "Longest distance"),
+        (Metric.Duration, DurationTab, "Duration", "duration", "Longest duration"),
+        (Metric.Pace, PaceTab, "Pace", "pace", "Fastest pace"),
+        (Metric.Floors, FloorsTab, "Floors", "floors", "Most floors"),
+        (Metric.Calories, CaloriesTab, "Calories", "calories", "Most calories"),
     ];
 
     /// <summary>Line under the name: Cardio.</summary>
@@ -49,7 +49,7 @@ public static class CardioProgressItems
     /// <summary>Value text for <paramref name="tab"/>'s chart: distance in the exercise's unit (e.g. 5.2km), times as m:ss (h:mm:ss from an hour), counts as numbers.</summary>
     public static Func<decimal, string> Format(ExerciseDefinition exercise, string tab) => tab switch
     {
-        DistanceTab => value => Distance(exercise, value),
+        DistanceTab => value => ExerciseFields.Distance(exercise, value),
         DurationTab or PaceTab => value => DisplayFormat.Clock(TimeSpan.FromSeconds((double)value)),
         _ => value => value.ToString("0.##", CultureInfo.InvariantCulture),
     };
@@ -63,25 +63,14 @@ public static class CardioProgressItems
     /// <summary>Caption under the range: "Up = faster" on Pace; none on the others.</summary>
     public static string? Caption(string tab) => tab == PaceTab ? "Up = faster" : null;
 
-    /// <summary>One point per session with a value for <paramref name="tab"/>, oldest first; times in seconds.</summary>
+    /// <summary>One point per session, oldest first; times in seconds. A session with no value for <paramref name="tab"/> has a point with no value.</summary>
     public static IReadOnlyList<ChartPoint> Points(CardioProgress progress, string tab, TimeZoneInfo zone, DateTimeOffset now) =>
-        progress.Sessions
-            .Select(s => Value(s.Best, tab) is { } value ? new ChartPoint(Day(s.Session.StartedAt, zone, now), value) : null)
-            .OfType<ChartPoint>()
-            .ToList();
+        progress.Sessions.Select(s => new ChartPoint(ExerciseProgressItems.Day(s.Session.StartedAt, zone, now), Value(s.Best, tab))).ToList();
 
-    /// <summary>
-    /// Text in place of the chart when sessions are in the range but none has a value for <paramref name="tab"/>, e.g. No calories logged in the last 3 months.
-    /// Null when the chart has points or there are no sessions, which shows the view's own message.
-    /// </summary>
-    public static string? NoDataMessage(CardioProgress progress, string tab, ChartRange range)
+    /// <summary>Text in place of a chart with no values for <paramref name="tab"/>: e.g. No calories logged in the last 3 months, or No calories logged yet on All.</summary>
+    public static string NoValues(string tab, ChartRange range)
     {
-        if (progress.Sessions.Count == 0 || progress.Sessions.Any(s => Value(s.Best, tab) is not null))
-        {
-            return null;
-        }
-
-        var what = $"No {tab} logged";
+        var what = $"No {Charts.Single(c => c.Key == tab).Noun} logged";
         return range == ChartRange.All ? $"{what} yet" : $"{what} in the {ChartRanges.Text(range)}";
     }
 
@@ -95,11 +84,11 @@ public static class CardioProgressItems
         return Charted(exercise)
             .Select(c => c.Metric switch
             {
-                Metric.Distance => Row(c.Record, records.LongestDistance, v => Distance(exercise, v), zone, now),
-                Metric.Duration => Row(c.Record, records.LongestDuration, DisplayFormat.Clock, zone, now),
-                Metric.Pace => Row(c.Record, records.FastestPace, v => Pace(exercise, v), zone, now),
-                Metric.Floors => Row(c.Record, records.MostFloors, Floors, zone, now),
-                _ => Row(c.Record, records.MostCalories, Calories, zone, now),
+                Metric.Distance => ExerciseProgressItems.Row(c.Record, records.LongestDistance, v => ExerciseFields.Distance(exercise, v), zone, now),
+                Metric.Duration => ExerciseProgressItems.Row(c.Record, records.LongestDuration, DisplayFormat.Clock, zone, now),
+                Metric.Pace => ExerciseProgressItems.Row(c.Record, records.FastestPace, v => Pace(exercise, v), zone, now),
+                Metric.Floors => ExerciseProgressItems.Row(c.Record, records.MostFloors, Floors, zone, now),
+                _ => ExerciseProgressItems.Row(c.Record, records.MostCalories, Calories, zone, now),
             })
             .ToList();
     }
@@ -115,7 +104,7 @@ public static class CardioProgressItems
             .OrderByDescending(s => s.Session.StartedAt)
             .Select(s => new ExerciseSession(
                 s.Session.WorkoutId,
-                DisplayFormat.ShortDate(Local(s.Session.StartedAt, zone), Local(now, zone)),
+                DisplayFormat.ShortDate(ExerciseProgressItems.Local(s.Session.StartedAt, zone), ExerciseProgressItems.Local(now, zone)),
                 Headline(exercise, s.Best, headline),
                 s.Session.Entries.Count == 1
                     ? EntryText(exercise, s.Session.Entries[0], headline)
@@ -123,7 +112,7 @@ public static class CardioProgressItems
             .ToList();
     }
 
-    private static IEnumerable<(Metric Metric, string Key, string Label, string Record)> Charted(ExerciseDefinition exercise) =>
+    private static IEnumerable<(Metric Metric, string Key, string Label, string Noun, string Record)> Charted(ExerciseDefinition exercise) =>
         Charts.Where(c => HasMetric(exercise, c.Metric));
 
     private static bool HasMetric(ExerciseDefinition exercise, Metric metric) => exercise.Metrics.Any(m => m.Metric == metric);
@@ -142,7 +131,7 @@ public static class CardioProgressItems
 
     private static string Headline(ExerciseDefinition exercise, CardioBest best, Metric headline) => headline switch
     {
-        Metric.Distance => best.Distance is { } distance ? Distance(exercise, distance) : "—",
+        Metric.Distance => best.Distance is { } distance ? ExerciseFields.Distance(exercise, distance) : "—",
         _ => best.Duration is { } duration ? DisplayFormat.Clock(duration) : "—",
     };
 
@@ -152,22 +141,17 @@ public static class CardioProgressItems
         var level = exercise.Metrics.FirstOrDefault(m => m.Metric == Metric.Level)?.Label ?? "Level";
         (Metric Metric, string? Text)[] values =
         [
-            (Metric.Distance, entry.Distance is { } distance ? Distance(exercise, distance) : null),
+            (Metric.Distance, entry.Distance is { } distance ? ExerciseFields.Distance(exercise, distance) : null),
             (Metric.Duration, entry.Duration is { } duration ? DisplayFormat.Clock(duration) : null),
             (Metric.Pace, entry.Pace is { } pace ? Pace(exercise, pace) : null),
             (Metric.Floors, entry.Floors is { } floors ? Floors(floors) : null),
             (Metric.Calories, entry.Calories is { } calories ? Calories(calories) : null),
             (Metric.Level, entry.Level is { } value ? $"{level} {value}" : null),
-            (Metric.Incline, entry.Incline is { } incline ? $"{Number(incline)}%" : null),
+            (Metric.Incline, entry.Incline is { } incline ? $"{ExerciseProgressItems.Number(incline)}%" : null),
             (Metric.Rate, entry.Rate is { } rate ? Rate(exercise, rate) : null),
         ];
         return string.Join(" · ", values.Where(v => v.Metric != skip && v.Text is not null).Select(v => v.Text));
     }
-
-    private static RecordRow Row<T>(string label, ProgressRecord<T>? record, Func<T, string> text, TimeZoneInfo zone, DateTimeOffset now) =>
-        record is null ? new RecordRow(label, null, null) : new RecordRow(label, text(record.Value), Day(record.StartedAt, zone, now));
-
-    private static string Distance(ExerciseDefinition exercise, decimal distance) => $"{Number(distance)}{ExerciseFields.DistanceText(exercise)}";
 
     private static string Pace(ExerciseDefinition exercise, TimeSpan pace) => exercise.PaceUnit switch
     {
@@ -179,17 +163,10 @@ public static class CardioProgressItems
     private static string Rate(ExerciseDefinition exercise, decimal rate)
     {
         var unit = ExerciseFields.RateText(exercise);
-        return unit.EndsWith("/min", StringComparison.Ordinal) ? $"{Number(rate)} {unit}" : $"{Number(rate)}{unit}";
+        return unit.EndsWith("/min", StringComparison.Ordinal) ? $"{ExerciseProgressItems.Number(rate)} {unit}" : $"{ExerciseProgressItems.Number(rate)}{unit}";
     }
 
     private static string Floors(int floors) => $"{floors} floors";
 
     private static string Calories(int calories) => $"{calories} calories";
-
-    private static string Number(decimal value) => Decimals.Round2(value).ToString("0.##", CultureInfo.InvariantCulture);
-
-    private static string Day(DateTimeOffset value, TimeZoneInfo zone, DateTimeOffset now) =>
-        DisplayFormat.DayMonth(Local(value, zone), Local(now, zone));
-
-    private static DateTime Local(DateTimeOffset value, TimeZoneInfo zone) => TimeZoneInfo.ConvertTime(value, zone).DateTime;
 }

@@ -83,9 +83,9 @@ public class ChartTests : ComponentTestBase
         Assert.That(ys[1], Is.LessThan(ys[0]));
     }
 
-    [TestCase(new[] { 5, 7, 7, 3 }, false, 2)]
-    [TestCase(new[] { 5, 3, 3, 7 }, true, 2)]
-    public void Best_TiedValues_IsTheLatest(int[] values, bool flipped, int expected)
+    [TestCase(new[] { 5, 7, 7, 3 }, false, 1)]
+    [TestCase(new[] { 5, 3, 3, 7 }, true, 1)]
+    public void Best_TiedValues_IsTheEarliest(int[] values, bool flipped, int expected)
     {
         Assert.That(Chart.Best(values.Select(v => (decimal)v).ToList(), flipped), Is.EqualTo(expected));
     }
@@ -95,6 +95,9 @@ public class ChartTests : ComponentTestBase
     [TestCase(15, 25, false, 15, 25, 5)]
     [TestCase(4.1, 5.2, false, 4, 5.5, 0.5)]
     [TestCase(14, 14, false, 13, 15, 1)]
+    [TestCase(0, 0, false, 0, 1, 1)]
+    [TestCase(0, 0, true, 0, 1, 1)]
+    [TestCase(79.17, 79.2, false, 79.1, 79.2, 0.1)]
     [TestCase(330, 352, true, 330, 360, 10)]
     [TestCase(60, 105, true, 60, 105, 15)]
     [TestCase(1500, 1800, true, 1440, 1800, 120)]
@@ -136,11 +139,19 @@ public class ChartTests : ComponentTestBase
     }
 
     [Test]
-    public void UpToEightPoints_AllAreLabelled()
+    public void UpToEightPoints_WithLabels_AllAreLabelled()
     {
-        var cut = Render(Enumerable.Range(1, Chart.MaxLabelledPoints).Select(i => new ChartPoint($"{i} Sep", i)).ToList());
+        var cut = Render(Enumerable.Range(1, Chart.MaxLabelledPoints).Select(i => new ChartPoint($"{i} Sep", i, $"×{i}")).ToList());
 
         Assert.That(cut.FindAll(".label"), Has.Count.EqualTo(Chart.MaxLabelledPoints));
+    }
+
+    [Test]
+    public void PointsWithoutLabels_OnlyTheBestAndLatestShowTheirValue()
+    {
+        var cut = Render([new("1 Sep", 10), new("8 Sep", 20), new("15 Sep", 15)]);
+
+        Assert.That(cut.FindAll(".label").Select(l => l.TextContent), Is.EqualTo(new[] { "20kg", "15kg" }));
     }
 
     [Test]
@@ -161,14 +172,14 @@ public class ChartTests : ComponentTestBase
     }
 
     [Test]
-    public void MoreThanEightPoints_TiedBest_TheLaterIsBestAndLabelled()
+    public void MoreThanEightPoints_TiedBest_TheEarlierIsBestAndLabelled()
     {
         var values = new[] { 10, 20, 11, 20, 12, 13, 14, 15, 16 };
         var cut = Render(values.Select((v, i) => new ChartPoint($"{i + 1} Sep", v)).ToList());
 
         Assert.Multiple(() =>
         {
-            Assert.That(BestIndex(cut), Is.EqualTo(3));
+            Assert.That(BestIndex(cut), Is.EqualTo(1));
             Assert.That(cut.FindAll(".label").Select(l => l.TextContent), Is.EqualTo(new[] { "20kg", "16kg" }));
         });
     }

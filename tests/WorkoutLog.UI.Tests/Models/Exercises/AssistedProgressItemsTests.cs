@@ -22,20 +22,12 @@ public class AssistedProgressItemsTests
             Is.EqualTo(new[] { new ChartPoint("13 Oct", 5m, "×6"), new ChartPoint("20 Oct", 0m, "×5") }));
 
     [Test]
-    public void Points_SessionWithoutSets_HasNoPoint() =>
-        Assert.That(AssistedProgressItems.Points(Progress(Session(1, Now, [], null), Latest), TimeZoneInfo.Utc, Now), Has.Count.EqualTo(1));
+    public void Points_SessionWithoutSets_HasNoValue() =>
+        Assert.That(AssistedProgressItems.Points(Progress(Session(1, Now, [], null), Latest), TimeZoneInfo.Utc, Now),
+            Is.EqualTo(new[] { new ChartPoint("28 Oct", null), new ChartPoint("20 Oct", 0m, "×5") }));
 
-    [Test]
-    public void NoDataMessage_NoSessions_IsNull() =>
-        Assert.That(AssistedProgressItems.NoDataMessage(Progress(), ChartRange.ThreeMonths), Is.Null);
 
-    [Test]
-    public void NoDataMessage_SessionsWithPoints_IsNull() =>
-        Assert.That(AssistedProgressItems.NoDataMessage(Progress(Latest), ChartRange.ThreeMonths), Is.Null);
 
-    [Test]
-    public void NoDataMessage_SessionsWithoutSets_IsNoSets() =>
-        Assert.That(AssistedProgressItems.NoDataMessage(Progress(Session(1, Now, [], null)), ChartRange.SixMonths), Is.EqualTo("No sets in the last 6 months"));
 
     [Test]
     public void Records_ShowTheLeastAssistWithItsDate() =>

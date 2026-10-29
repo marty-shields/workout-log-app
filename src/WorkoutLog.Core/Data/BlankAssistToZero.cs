@@ -12,11 +12,11 @@ internal sealed class BlankAssistToZero(IExerciseCatalog catalog) : ISchemaUpgra
     /// <inheritdoc />
     public void Apply(SQLiteConnection db)
     {
-        var ids = string.Join(", ", catalog.All.Where(e => e.IsAssisted).Select(e => e.Id));
+        object[] ids = [.. catalog.All.Where(e => e.IsAssisted).Select(e => (object)e.Id)];
         db.Execute($"""
             UPDATE StrengthSet SET WeightKg = 0
             WHERE WeightKg IS NULL
-              AND WorkoutExerciseId IN (SELECT Id FROM WorkoutExercise WHERE ExerciseId IN ({ids}))
-            """);
+              AND WorkoutExerciseId IN (SELECT Id FROM WorkoutExercise WHERE ExerciseId IN ({string.Join(", ", ids.Select(_ => "?"))}))
+            """, ids);
     }
 }

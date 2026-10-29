@@ -10,6 +10,7 @@ Feature: Exercise page: cardio
     Then the tappable rows on Exercises are: Barbell Back Squat, Outdoor Run
     When I open "Outdoor Run" on Exercises
     Then the Exercise page is titled "Outdoor Run" with "Cardio"
+    And the Exercise tabs are: Distance, Duration, Pace, Calories
     When I go back with <how>
     Then I am on Exercises
     Examples:
@@ -38,6 +39,31 @@ Feature: Exercise page: cardio
       | day         | headline | sets                           |
       | 3 days ago  | 5.2km    | 30:00 · 5:46/km · 410 calories |
       | 10 days ago | 5km      | 29:20 · 5:52/km                |
+
+  Scenario: A longer range adds older sessions
+    Given these saved workouts:
+      | started            | exercises                             |
+      | 120 days ago 18:05 | Outdoor Run: 0:25:00 4 km pace 6:15   |
+      | 3 days ago 18:05   | Outdoor Run: 0:30:00 5.2 km pace 5:46 |
+    And I have opened the Exercise page for "Outdoor Run"
+    Then the Exercise chart reads:
+      | day        | value |
+      | 3 days ago | 5.2km |
+    When I choose the 1Y range
+    Then the Exercise chart reads:
+      | day          | value |
+      | 120 days ago | 4km   |
+      | 3 days ago   | 5.2km |
+    And the Exercise records read:
+      | record           | value   | day          |
+      | Longest distance | 5.2km   | 3 days ago   |
+      | Longest duration | 30:00   | 3 days ago   |
+      | Fastest pace     | 5:46/km | 3 days ago   |
+      | Most calories    | —       |              |
+    And the Exercise sessions read:
+      | day          | headline | sets            |
+      | 3 days ago   | 5.2km    | 30:00 · 5:46/km |
+      | 120 days ago | 4km      | 25:00 · 6:15/km |
 
   Scenario: Pace is lower is better, and a tab with no values says so
     Given these saved workouts:
