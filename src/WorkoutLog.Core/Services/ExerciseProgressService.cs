@@ -56,7 +56,7 @@ internal sealed partial class ExerciseProgressService(
         }
 
         var strength = sessions
-            .Select(s => new StrengthSession(s.WorkoutId, s.StartedAt, s.Exercises.OfType<StrengthExercise>().SelectMany(e => e.Sets).ToList()))
+            .Select(s => new StrengthSession(s.WorkoutId, s.StartedAt, (s.Exercise as StrengthExercise)?.Sets ?? []))
             .ToList();
         Log.Loaded(logger, strength.Count, exerciseId);
         return new ExerciseProgressResult(strength, Failed: false);

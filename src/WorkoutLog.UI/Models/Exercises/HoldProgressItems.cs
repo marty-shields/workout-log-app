@@ -7,7 +7,7 @@ using WorkoutLog.UI.Components.Lists;
 
 namespace WorkoutLog.UI.Models.Exercises;
 
-/// <summary>Builds the text of a hold's Exercise page from its <see cref="HoldProgress"/> (FR-63). A weight of 0kg or blank isn't shown.</summary>
+/// <summary>Builds the text of a hold's Exercise page from its <see cref="HoldProgress"/> (FR-63). A weight of 0kg isn't shown.</summary>
 public static class HoldProgressItems
 {
     /// <summary>Key of the Duration tab.</summary>

@@ -121,11 +121,18 @@ public sealed class WorkoutEditor(
     public void CloseList() => ListOpen = false;
 
     /// <summary>
-    /// Moves the exercise already in the workout to the top and focuses it, adding a set to a strength one; otherwise adds it at
-    /// the top. Either is a change. Clears the workout's error and closes the add-exercise list.
+    /// Moves the exercise already in the workout to the top and focuses it, adding a set to a strength one with fewer than
+    /// <see cref="WorkoutLimits.MaxSets"/>; otherwise adds it at the top, unless the workout has <see cref="WorkoutLimits.MaxExercises"/>.
+    /// Either is a change. Clears the workout's error and closes the add-exercise list.
     /// </summary>
     public void Pick(ExerciseListItem item)
     {
+        if (exercises.TrueForAll(e => e.ExerciseId != item.Id) && exercises.Count >= WorkoutLimits.MaxExercises)
+        {
+            ListOpen = false;
+            return;
+        }
+
         Focus = Show(item.Id);
         Error = null;
         ListOpen = false;
@@ -189,7 +196,7 @@ public sealed class WorkoutEditor(
             exercises.Remove(existing);
             exercises.Insert(0, existing);
             Changed = true;
-            return new ExerciseFocus(existing, addSet: existing.Kind == ExerciseKind.Strength);
+            return new ExerciseFocus(existing, addSet: existing.Kind == ExerciseKind.Strength && !existing.SetsFull);
         }
 
         var added = ExerciseFields.New(catalog.All.Single(e => e.Id == exerciseId));

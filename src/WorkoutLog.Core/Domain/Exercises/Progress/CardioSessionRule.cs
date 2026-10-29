@@ -2,14 +2,15 @@ using WorkoutLog.Core.Domain.Workouts;
 
 namespace WorkoutLog.Core.Domain.Exercises.Progress;
 
-/// <summary>Longest distance and duration, fastest (lowest) pace, most floors and calories.</summary>
+/// <summary>The entry's distance, duration, floors and calories, with its pace and speed worked out (<see cref="WorkedOut"/>).</summary>
 internal sealed class CardioSessionRule : ICardioSessionRule
 {
     /// <inheritdoc />
-    public CardioBest Best(IReadOnlyList<CardioEntry> entries) => new(
-        entries.Max(e => e.Distance),
-        entries.Max(e => e.Duration),
-        entries.Min(e => e.Pace),
-        entries.Max(e => e.Floors),
-        entries.Max(e => e.Calories));
+    public CardioBest Best(CardioEntry entry) => new(
+        entry.Distance,
+        entry.Duration,
+        WorkedOut.Pace(entry.Duration, entry.Distance),
+        WorkedOut.Speed(entry.Duration, entry.Distance),
+        entry.Floors,
+        entry.Calories);
 }

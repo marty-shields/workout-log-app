@@ -13,9 +13,14 @@ internal sealed class CardioBestRule(ICardioSessionRule sessionRule) : IBestRule
     public bool AppliesTo(ExerciseDefinition exercise) => exercise.Category == ExerciseCategory.Cardio;
 
     /// <inheritdoc />
-    public ExerciseBest? Best(ExerciseDefinition exercise, IReadOnlyList<WorkoutExercise> logged)
+    public ExerciseBest? Best(ExerciseDefinition exercise, WorkoutExercise logged)
     {
-        var best = sessionRule.Best([.. logged.OfType<CardioExercise>().Select(e => e.Entry)]);
+        if (logged is not CardioExercise cardio)
+        {
+            return null;
+        }
+
+        var best = sessionRule.Best(cardio.Entry);
         if (exercise.Metrics.Any(m => m.Metric == Metric.Distance))
         {
             return best.Distance is { } distance ? new ExerciseBest(null, null, null, distance) : null;

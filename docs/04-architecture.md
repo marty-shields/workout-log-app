@@ -20,6 +20,7 @@ flowchart LR
     DB -.-> BK[Android Auto Backup<br/>Release app]
     S --> C[TimeProvider<br/>.NET]
     UI --> C
+    S --> E[IElapsedClock<br/>App: SystemClock.ElapsedRealtimeNanos]
     S --> X[Exercise definitions<br/>Core]
 ```
 References: App → UI → Core. UI.Stories → UI. UI.Tests → UI, UI.Stories (sample data and the stories' own components). E2E.Tests → Core (to seed workouts, D145). The App never references UI.Stories.
@@ -28,13 +29,14 @@ References: App → UI → Core. UI.Stories → UI. UI.Tests → UI, UI.Stories 
 - **UI** renders and calls services only. It never touches the database. Form fields come from the exercise's metric definition.
 - **Services** hold the rules: save validation, start/finish capture, dashboard counts.
 - **Repositories** handle database access, behind interfaces so services can be unit-tested with mocks.
-- **TimeProvider** (.NET) supplies the current time to services and the UI's live timer, so tests can fake the clock (D114, D117).
+- **TimeProvider** (.NET) supplies the current time to services and the UI, so tests can fake the clock (D114, D117).
+- **IElapsedClock** (Core interface, App implementation) supplies a steady time for timing a new workout: Android's `SystemClock.ElapsedRealtimeNanos`, which counts through sleep and doesn't move when the phone's clock changes (D199).
 - **Exercise definitions** are an embedded JSON file in Core, read into the `IExerciseCatalog` singleton by the seeder at startup (D109). The catalog also runs the exercise search in memory ([02](02-data-model.md#exercise-search)).
 
 ## Dependency injection
 - Everything is registered in `MauiProgram.CreateMauiApp()`. Core registers its types through `AddCore(databasePath)` (D105) and UI through `AddUi()` (D123); services and repositories are registered by interface.
 - Core's public services are `IWorkoutService`, `IWorkoutsService`, `IDashboardService`, `IWeightHistoryService`, `ILoggedExercisesService`, `IExerciseProgressService`, `ICardioProgressService`, `IExportService` and `IImportService`; the repository, unit of work, validator, best rules and progress rules are internal (D107, D116, D48, D191, D192, D196, D188, D190).
-- The host registers two interfaces for Export (D188): `IExportEnvironment` (Core: the app's display version and cache folder) as `MauiExportEnvironment`, and `IFileShare` (UI: opens the share sheet) as `MauiFileShare`, which uses MAUI `Share`. For Import it registers `IImportFilePicker` (UI) as `MauiImportFilePicker`, which uses MAUI `FilePicker` (D190).
+- The host registers two interfaces for Export (D188): `IExportEnvironment` (Core: the app's display version and cache folder) as `MauiExportEnvironment`, and `IFileShare` (UI: opens the share sheet) as `MauiFileShare`, which uses MAUI `Share`. For Import it registers `IImportFilePicker` (UI) as `MauiImportFilePicker`, which uses MAUI `FilePicker` (D190). It registers `IElapsedClock` (Core) as `AndroidElapsedClock` (D199).
 - `AddCore` creates one database connection and gives it only to the initializer, the exercise seeder, the repository and the unit of work. The repository writes each workout in its own transaction; `IUnitOfWork` runs several writes in one, both through an `IWorkoutWriter` from `IWorkoutWriterFactory`. The initializer, repository and unit of work are decorators that run each call through one `DatabaseGate`, so database calls run one at a time; nothing can resolve a database type that skips the gate (D106, D105).
 - At startup `StartupGate` awaits `IDatabaseInitializer.InitializeAsync()`, which upgrades and creates the schema and seeds the exercise list, and shows the Startup screen until it completes, or its error if it throws (D108, D75).
 - `AddUi` registers `IBackButton`, `ISetChecker`, `IWorkoutChecker`, `ImportSession` (the file under review and the result Settings shows next), `IImportFileOpener` (picks and reads a file) and one `AppLifecycle` as `IAppStart` and `IAppLifecycle` (D125, D119), and `WorkoutEditor` as transient. `NewWorkoutPage` and `EditWorkoutPage` each inject their own `WorkoutEditor`, which holds the exercises, the add-exercise list, changes, and the check and save (D117). The App adds `AndroidBackButton` ([Navigation](#navigation)) and the logging providers ([Logging](#logging)).
@@ -69,9 +71,9 @@ How back works (D119):
 
 ## Start / finish capture
 - `NewWorkoutPage` (UI) asks `IWorkoutService.StartNew()` for a `WorkoutDraft`. The service stamps `StartedAt` (UTC) from `TimeProvider` (D112) and logs the start.
-- The page shows the date in `TimeProvider.LocalTimeZone` and an elapsed timer that ticks every second. While the clock is before `StartedAt` it shows 0:00:00 (D117, D26).
+- The draft also keeps the `IElapsedClock` reading at the start. The page shows the date in `TimeProvider.LocalTimeZone` and ticks every second, showing `IWorkoutService.Elapsed`: the elapsed reading now minus the one at the start, never below 0 (D117, D199).
 - The draft stays in memory only (FR-12: lost if the app is killed). Android may kill the app while the phone is locked; this is accepted (D45).
-- On the first save, the service validates (FR-09), stamps `FinishedAt` and writes everything in one transaction. If the clock is earlier than `StartedAt`, `FinishedAt` is set to `StartedAt` (D26).
+- On the first save, the service validates (FR-09), stamps `FinishedAt` as `StartedAt` plus the elapsed time, at least a tick, and writes everything in one transaction. The finish is always after the start, whatever the phone's clock did (D26, D199).
 - Later saves update the exercises, sets and entries only. They never change the times.
 
 ## Error handling
@@ -92,7 +94,7 @@ What each error shows is on the [screen pages](../src/WorkoutLog.UI.Stories/Stor
 |---|---|
 | Critical | The app is about to crash |
 | Error | An operation failed: an exception caught and turned into an error code or error screen. Pass the exception |
-| Warning | Something unexpected that the app works around (e.g. the clock before the start, D26) |
+| Warning | Something unexpected that the app works around (e.g. a Save code the editor can't cause, D35) |
 | Information | A milestone: startup steps, a workout saved or deleted, lifecycle events |
 | Debug | Detail for a debugging session |
 

@@ -8,7 +8,7 @@ using WorkoutLog.UI.Components.Lists;
 namespace WorkoutLog.UI.Models.Exercises;
 
 /// <summary>
-/// Builds the text of a bodyweight move's Exercise page from its <see cref="BodyweightProgress"/> (FR-62). A set with no weight or 0 kg is
+/// Builds the text of a bodyweight move's Exercise page from its <see cref="BodyweightProgress"/> (FR-62). A set of 0 kg is
 /// unweighted. Dates are in the phone's time zone, with the year only when it isn't this year (D49, D191).
 /// </summary>
 public static class BodyweightProgressItems

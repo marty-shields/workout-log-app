@@ -10,7 +10,7 @@ public class ExerciseFileTests
     private static readonly Metric[] StrengthMetrics = [Metric.Reps, Metric.WeightKg, Metric.Duration, Metric.Distance];
 
     private static readonly Metric[] CardioMetrics =
-        [Metric.Duration, Metric.Distance, Metric.Floors, Metric.Level, Metric.Incline, Metric.Calories, Metric.Rate, Metric.Pace];
+        [Metric.Duration, Metric.Distance, Metric.Floors, Metric.Level, Metric.Incline, Metric.Calories, Metric.Rate];
 
     private static IEnumerable<TestCaseData> Each() => Cases(Exercises);
 
@@ -90,7 +90,7 @@ public class ExerciseFileTests
             Assert.That(exercise.Category == ExerciseCategory.Cardio, Is.EqualTo(exercise.Type == ExerciseType.Cardio), "cardio");
             Assert.That(exercise.Category == ExerciseCategory.Assisted, Is.EqualTo(assistLabel), "assisted");
             Assert.That(exercise.Category == ExerciseCategory.Carry, Is.EqualTo(exercise.Type == ExerciseType.Strength && Requires(Metric.Distance)), "carry");
-            Assert.That(exercise.Category == ExerciseCategory.Hold, Is.EqualTo(exercise.Type == ExerciseType.Strength && Requires(Metric.Duration)), "hold");
+            Assert.That(exercise.Category == ExerciseCategory.Hold, Is.EqualTo(exercise.Type == ExerciseType.Strength && Requires(Metric.Duration) && !Requires(Metric.Distance)), "hold");
             if (exercise.Category is ExerciseCategory.Lift or ExerciseCategory.Bodyweight)
             {
                 Assert.That(Requires(Metric.Reps), Is.True, "reps");
@@ -129,8 +129,42 @@ public class ExerciseFileTests
         Assert.Multiple(() =>
         {
             Assert.That(exercise.DistanceUnit.HasValue, Is.EqualTo(exercise.Metrics.Any(m => m.Metric == Metric.Distance)));
-            Assert.That(exercise.RateUnit.HasValue, Is.EqualTo(exercise.Metrics.Any(m => m.Metric == Metric.Rate)));
-            Assert.That(exercise.PaceUnit.HasValue, Is.EqualTo(exercise.Metrics.Any(m => m.Metric == Metric.Pace)));
+            Assert.That(exercise.RateUnit.HasValue, Is.EqualTo(exercise.Metrics.Any(m => m.Metric == Metric.Rate) || WorkedOut.HasSpeed(exercise)));
+        });
+    }
+
+    [TestCaseSource(nameof(Cardio))]
+    public void WorkedOutPaceAndSpeed_HaveDistanceInKmAndNoRate(ExerciseDefinition exercise)
+    {
+        if (WorkedOut.HasPace(exercise) || WorkedOut.HasSpeed(exercise))
+        {
+            Assert.Multiple(() =>
+            {
+                Assert.That(exercise.DistanceUnit, Is.EqualTo(DistanceUnit.Km));
+                Assert.That(exercise.Metrics.Select(m => m.Metric), Has.No.Member(Metric.Rate));
+            });
+        }
+    }
+
+    [Test]
+    public void WorkedOutPaceAndSpeed_AreOnTheDocumentedExercises()
+    {
+        Assert.Multiple(() =>
+        {
+            Assert.That(Exercises.Where(WorkedOut.HasPace).Select(e => e.Name), Is.EqualTo(new[] { "Outdoor Run", "Outdoor Walk" }));
+            Assert.That(Exercises.Where(WorkedOut.HasSpeed).Select(e => e.Name), Is.EqualTo(new[] { "Treadmill", "Outdoor Cycle" }));
+        });
+    }
+
+    [TestCaseSource(nameof(Each))]
+    public void Required_WeightOnStrengthAndDistanceAndDurationEverywhere(ExerciseDefinition exercise)
+    {
+        Assert.Multiple(() =>
+        {
+            Assert.That(exercise.Metrics.Where(m => m.Metric is Metric.WeightKg or Metric.Duration or Metric.Distance), Has.All.Matches<MetricDefinition>(m => m is { Required: true }));
+            Assert.That(exercise.Metrics.Any(m => m.Metric == Metric.WeightKg), Is.EqualTo(exercise.Type == ExerciseType.Strength));
+            Assert.That(exercise.Metrics.Where(m => m.Metric is not (Metric.Reps or Metric.WeightKg or Metric.Duration or Metric.Distance)),
+                Has.None.Matches<MetricDefinition>(m => m is { Required: true }));
         });
     }
 }

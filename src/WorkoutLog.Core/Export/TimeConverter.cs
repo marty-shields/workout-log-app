@@ -5,7 +5,7 @@ using System.Text.RegularExpressions;
 
 namespace WorkoutLog.Core.Export;
 
-/// <summary>Writes and reads a duration or pace as <c>hh:mm:ss</c>. Hours have 2 or more digits.</summary>
+/// <summary>Writes and reads a duration as <c>hh:mm:ss</c>. Hours have 2 or more digits.</summary>
 internal sealed partial class TimeConverter : JsonConverter<TimeSpan>
 {
     /// <inheritdoc />

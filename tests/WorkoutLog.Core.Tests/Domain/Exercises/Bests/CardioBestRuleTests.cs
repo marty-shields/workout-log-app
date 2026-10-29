@@ -21,25 +21,20 @@ public class CardioBestRuleTests
         Assert.That(rule.AppliesTo(Definition(id)), Is.EqualTo(expected));
 
     [Test]
-    public void Best_NoEntry_IsNull() =>
-        Assert.That(rule.Best(Definition(Run), []), Is.Null);
+    public void Best_NotACardioEntry_IsNull() =>
+        Assert.That(rule.Best(Definition(Run), Sets(Run)), Is.Null);
 
     [Test]
     public void Best_WithDistance_IsTheDistance() =>
-        Assert.That(rule.Best(Definition(Run), [Entry(Run, TimeSpan.FromMinutes(30), 5.2m)]),
+        Assert.That(rule.Best(Definition(Run), Entry(Run, TimeSpan.FromMinutes(30), 5.2m)),
             Is.EqualTo(new ExerciseBest(null, null, null, 5.2m)));
 
     [Test]
     public void Best_DistanceNotLogged_IsNull() =>
-        Assert.That(rule.Best(Definition(Run), [Entry(Run, TimeSpan.FromMinutes(30), null)]), Is.Null);
+        Assert.That(rule.Best(Definition(Run), Entry(Run, TimeSpan.FromMinutes(30), null)), Is.Null);
 
     [Test]
     public void Best_ExerciseWithoutDistance_IsTheDuration() =>
-        Assert.That(rule.Best(Definition(JumpRope), [Entry(JumpRope, TimeSpan.FromMinutes(10), null)]),
+        Assert.That(rule.Best(Definition(JumpRope), Entry(JumpRope, TimeSpan.FromMinutes(10), null)),
             Is.EqualTo(new ExerciseBest(null, null, TimeSpan.FromMinutes(10), null)));
-
-    [Test]
-    public void Best_ExerciseTwiceInTheWorkout_TakesTheLongestDistance() =>
-        Assert.That(rule.Best(Definition(Run), [Entry(Run, TimeSpan.FromMinutes(30), 5.2m), Entry(Run, TimeSpan.FromMinutes(40), 7m)]),
-            Is.EqualTo(new ExerciseBest(null, null, null, 7m)));
 }

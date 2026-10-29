@@ -7,7 +7,8 @@ namespace WorkoutLog.UI.Models.Workout;
 
 /// <summary>
 /// Checks each set and entry with <see cref="ISetChecker"/>, then the records it reads with <see cref="IWorkoutService.Validate"/>,
-/// and words the workout and exercise codes. An unknown exercise or wrong type is logged once per exercise.
+/// and words the workout and exercise codes. An unknown exercise, wrong type or other exercise code with no message is logged once per
+/// exercise, and a workout code with no message once per check: none of them can come from the editor.
 /// </summary>
 public sealed partial class WorkoutChecker(ISetChecker sets, IWorkoutService workouts, ILogger<WorkoutChecker> logger) : IWorkoutChecker
 {
@@ -29,10 +30,15 @@ public sealed partial class WorkoutChecker(ISetChecker sets, IWorkoutService wor
             var code = result.Exercises[i].Error;
             exercises[i].ErrorCode = code;
             exercises[i].Error = Message(code);
-            if (code is ExerciseError.UnknownExercise or ExerciseError.WrongType)
+            if (code is { } error && (error is ExerciseError.UnknownExercise or ExerciseError.WrongType || exercises[i].Error is null))
             {
-                Log.ExerciseError(logger, exercises[i].ExerciseId, code.Value);
+                Log.ExerciseError(logger, exercises[i].ExerciseId, error);
             }
+        }
+
+        foreach (var error in result.Errors.Where(e => Message(e) is null))
+        {
+            Log.WorkoutError(logger, error);
         }
 
         valid &= result.IsValid;
@@ -44,7 +50,7 @@ public sealed partial class WorkoutChecker(ISetChecker sets, IWorkoutService wor
             }
         }
 
-        return new WorkoutCheck(valid, Message(result.Error));
+        return new WorkoutCheck(valid, result.Errors.Select(e => Message(e)).FirstOrDefault(m => m is not null));
     }
 
     /// <inheritdoc />
@@ -72,5 +78,8 @@ public sealed partial class WorkoutChecker(ISetChecker sets, IWorkoutService wor
     {
         [LoggerMessage((int)UiEvent.SaveCheckExerciseError, LogLevel.Warning, "Save check for exercise {ExerciseId} failed with {Error}")]
         public static partial void ExerciseError(ILogger logger, int exerciseId, ExerciseError error);
+
+        [LoggerMessage((int)UiEvent.SaveCheckWorkoutError, LogLevel.Warning, "Save check failed with {Error} and no message")]
+        public static partial void WorkoutError(ILogger logger, WorkoutError error);
     }
 }

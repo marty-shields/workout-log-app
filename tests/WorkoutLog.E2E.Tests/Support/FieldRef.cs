@@ -4,7 +4,7 @@ namespace WorkoutLog.E2E.Tests.Support;
 
 /// <summary>
 /// A field as steps name it: "Barbell Back Squat set 1 weight", "Treadmill distance" or "Plank set 1 duration minutes".
-/// <see cref="Set"/> is null for a cardio entry; <see cref="Box"/> is a duration or pace box (h, mm, ss or m, ss), or null.
+/// <see cref="Set"/> is null for a cardio entry; <see cref="Box"/> is a duration box (h, mm or ss), or null.
 /// </summary>
 internal sealed partial record FieldRef(string Name, int? Set, string Key, string? Box)
 {
@@ -21,7 +21,7 @@ internal sealed partial record FieldRef(string Name, int? Set, string Key, strin
         {
             "" => null,
             "hours" => "h",
-            "minutes" => key == "pace" ? "m" : "mm",
+            "minutes" => "mm",
             _ => "ss",
         };
 
@@ -34,6 +34,6 @@ internal sealed partial record FieldRef(string Name, int? Set, string Key, strin
         return field is not null;
     }
 
-    [GeneratedRegex(@"^(?<name>.+?)(?: set (?<set>\d+))? (?<key>reps|weight|duration|distance|incline|level|calories|pace|floors|rate)(?: (?<part>hours|minutes|seconds))?$")]
+    [GeneratedRegex(@"^(?<name>.+?)(?: set (?<set>\d+))? (?<key>reps|weight|duration|distance|incline|level|calories|floors|rate)(?: (?<part>hours|minutes|seconds))?$")]
     private static partial Regex Pattern();
 }

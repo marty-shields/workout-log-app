@@ -37,6 +37,7 @@ public partial class EventIdTests
             [UiEvent.SetCheckExerciseError] = 2501,
             [UiEvent.SetCheckFieldUnworded] = 2502,
             [UiEvent.SaveCheckExerciseError] = 2601,
+            [UiEvent.SaveCheckWorkoutError] = 2602,
             [UiEvent.NewWorkoutDiscarded] = 2701,
             [UiEvent.EditWorkoutOpenFailed] = 2901,
             [UiEvent.EditsDiscarded] = 2902,

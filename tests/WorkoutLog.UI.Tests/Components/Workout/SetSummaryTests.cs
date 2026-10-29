@@ -55,6 +55,31 @@ public class SetSummaryTests : ComponentTestBase
         });
     }
 
+    [TestCase("0")]
+    [TestCase("0.00")]
+    public void ZeroWeightThatHidesZero_IsLeftOut(string weight)
+    {
+        FieldSpec[] fields = [Carry[0], Carry[1] with { HideZero = true }, Carry[2]];
+
+        var cut = Context.Render<SetSummary>(p => p
+            .Add(x => x.Number, 1)
+            .Add(x => x.Fields, fields)
+            .Add(x => x.Entry, Entry(("distance", "40"), ("weight", weight), ("duration", "0:00:45"))));
+
+        Assert.That(cut.Find(".text").TextContent, Is.EqualTo("40m · 0:00:45"));
+    }
+
+    [Test]
+    public void ZeroWeightThatShowsZero_IsShown()
+    {
+        var cut = Context.Render<SetSummary>(p => p
+            .Add(x => x.Number, 1)
+            .Add(x => x.Fields, Carry)
+            .Add(x => x.Entry, Entry(("distance", "40"), ("weight", "0"), ("duration", "0:00:45"))));
+
+        Assert.That(cut.Find(".text").TextContent, Is.EqualTo("40m · 0kg · 0:00:45"));
+    }
+
     [Test]
     public void Errors_OutlineTheSummary()
     {

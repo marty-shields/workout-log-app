@@ -20,7 +20,7 @@ internal sealed record ImportExercise(ImportExerciseInfo Exercise, IReadOnlyList
     public WorkoutExercise ToDomain() => (Sets, Entry) switch
     {
         ({ } sets, _) => new StrengthExercise(Exercise.Id, sets.Select(s => new StrengthSet(s.Reps, s.WeightKg, s.Duration, s.Distance)).ToList()),
-        (_, { } e) => new CardioExercise(Exercise.Id, new CardioEntry(e.Duration, e.Distance, e.Floors, e.Level, e.Incline, e.Calories, e.Rate, e.Pace)),
+        (_, { } e) => new CardioExercise(Exercise.Id, new CardioEntry(e.Duration, e.Distance, e.Floors, e.Level, e.Incline, e.Calories, e.Rate)),
         _ => throw new InvalidOperationException("The exercise has no sets or entry"),
     };
 }

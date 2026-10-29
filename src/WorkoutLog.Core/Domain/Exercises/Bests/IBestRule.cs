@@ -9,5 +9,5 @@ internal interface IBestRule
     bool AppliesTo(ExerciseDefinition exercise);
 
     /// <summary>Returns the best of <paramref name="logged"/>, or null when there is nothing to show.</summary>
-    ExerciseBest? Best(ExerciseDefinition exercise, IReadOnlyList<WorkoutExercise> logged);
+    ExerciseBest? Best(ExerciseDefinition exercise, WorkoutExercise logged);
 }

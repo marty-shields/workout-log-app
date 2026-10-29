@@ -20,7 +20,7 @@ public static class SampleData
         [
             new StrengthExercise(6, [new StrengthSet(8, 60m, null, null), new StrengthSet(8, 60m, null, null), new StrengthSet(6, 62.5m, null, null)]),
             new StrengthExercise(218, [new StrengthSet(10, 25m, null, null), new StrengthSet(8, 25m, null, null)]),
-            new StrengthExercise(258, [new StrengthSet(null, null, TimeSpan.FromMinutes(1), null)]),
+            new StrengthExercise(258, [new StrengthSet(null, 0m, TimeSpan.FromMinutes(1), null)]),
             new StrengthExercise(187, [new StrengthSet(null, 32m, TimeSpan.FromSeconds(45), 40m), new StrengthSet(null, 32m, TimeSpan.FromSeconds(50), 40m)]),
         ]);
 
@@ -38,9 +38,9 @@ public static class SampleData
     /// <summary>An exercise with one set or entry per array; values follow the exercise's field order.</summary>
     public static ExerciseState Exercise(IExerciseCatalog catalog, int id, params string?[][] entries)
     {
-        var definition = Find(catalog, id);
-        var fields = ExerciseFields.For(definition);
-        var exercise = new ExerciseState(definition.Id, definition.Name, ExerciseFields.Kind(definition.Type), fields);
+        var exercise = ExerciseFields.New(Find(catalog, id));
+        var fields = exercise.Fields;
+        exercise.Entries.Clear();
         foreach (var values in entries)
         {
             var entry = new EntryState();
@@ -108,15 +108,19 @@ public static class SampleData
         return exercises;
     }
 
-    /// <summary>Cardio exercises with filled entries, including pace.</summary>
+    /// <summary>Cardio exercises with filled entries: a treadmill with its speed, a stair climber and a run with its pace.</summary>
     public static List<ExerciseState> CardioWorkout(IExerciseCatalog catalog) =>
     [
-        Exercise(catalog, 300, ["0:20:00", "3.2", "1.5", "210", "9.6"]),
+        Exercise(catalog, 300, ["0:20:00", "3.2", "1.5", "210"]),
         Exercise(catalog, 309, ["0:15:00", "60", "8", "150", null]),
-        Exercise(catalog, 311, ["0:25:30", "5", null, "5:06"]),
+        Exercise(catalog, 311, ["0:25:30", "5", null]),
     ];
 
-    /// <summary>A workout after a failed save: a set missing reps, an exercise with no sets, a rower with no duration and a part damper, and a run with a bad pace.</summary>
+    /// <summary>Ten strength exercises, so Add exercise is off.</summary>
+    public static List<ExerciseState> FullWorkout(IExerciseCatalog catalog) =>
+        [.. new[] { 6, 8, 132, 222, 218, 258, 187, 263, 264, 13 }.Select(id => Exercise(catalog, id, Sets(catalog, id)))];
+
+    /// <summary>A workout after a failed save: a set missing reps, an exercise with no sets, a rower with no duration and a part damper, and a run with no distance.</summary>
     public static List<ExerciseState> WorkoutWithErrors(IExerciseCatalog catalog, IWorkoutChecker checker)
     {
         List<ExerciseState> exercises =
@@ -124,7 +128,7 @@ public static class SampleData
             Exercise(catalog, 222, ["10", "50"], [null, "50"]),
             Exercise(catalog, 132),
             Exercise(catalog, 305, [null, "2000", "5.5", null, null]),
-            Exercise(catalog, 311, ["0:25:30", "5", null, "5:75"]),
+            Exercise(catalog, 311, ["0:25:30", null, null]),
         ];
         checker.Check(exercises);
         return exercises;
@@ -139,5 +143,18 @@ public static class SampleData
         new(1, new DateTime(2026, 10, 16, 18, 10, 0)),
     ];
 
+    /// <summary>A strength exercise with ten filled sets, so Add set is off.</summary>
+    public static ExerciseState FullSets(IExerciseCatalog catalog, int id) => Exercise(catalog, id, [.. Enumerable.Repeat(Sets(catalog, id), 10)]);
+
     private static ExerciseDefinition Find(IExerciseCatalog catalog, int id) => catalog.All.Single(e => e.Id == id);
+
+    /// <summary>One filled set of the exercise, in its field order: reps 8, 20 kg, 0:00:45, 40.</summary>
+    private static string?[] Sets(IExerciseCatalog catalog, int id) =>
+        [.. ExerciseFields.For(Find(catalog, id)).Select(f => f.Metric switch
+        {
+            Metric.Reps => "8",
+            Metric.WeightKg => "20",
+            Metric.Duration => "0:00:45",
+            _ => "40",
+        })];
 }

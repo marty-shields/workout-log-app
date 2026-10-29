@@ -5,7 +5,7 @@ Feature: Exercise page for bodyweight moves
   Scenario Outline: A bodyweight move opens its Exercise page and back returns to Exercises
     Given these saved workouts:
       | started          | exercises                                                          |
-      | 3 days ago 18:05 | Barbell Back Squat: 5 reps 60 kg / Push-up: 20 reps / Plank: 0:01:00 |
+      | 3 days ago 18:05 | Barbell Back Squat: 5 reps 60 kg / Push-up: 20 reps 0 kg / Plank: 0:01:00 0 kg |
     And I have opened Exercises
     Then the tappable rows on Exercises are: Barbell Back Squat, Plank, Push-up
     When I open "Push-up" on Exercises
@@ -22,8 +22,8 @@ Feature: Exercise page for bodyweight moves
   Scenario: Best set and Total count the unweighted sets, and a weighted set heads its session
     Given these saved workouts:
       | started           | exercises                                    |
-      | 10 days ago 18:05 | Push-up: 25 reps; 20 reps; 18 reps           |
-      | 3 days ago 18:05  | Push-up: 20 reps; 22 reps 0 kg; 8 reps 10 kg |
+      | 10 days ago 18:05 | Push-up: 25 reps 0 kg; 20 reps 0 kg; 18 reps 0 kg           |
+      | 3 days ago 18:05  | Push-up: 20 reps 0 kg; 22 reps 0 kg; 8 reps 10 kg |
     And I have opened the Exercise page for "Push-up"
     Then the Exercise chart reads:
       | day         | value |
@@ -52,8 +52,8 @@ Feature: Exercise page for bodyweight moves
   Scenario: A loaded move adds e1RM from its weighted sets
     Given these saved workouts:
       | started           | exercises                                                    |
-      | 10 days ago 18:05 | Bulgarian Split Squat: 12 reps                               |
-      | 3 days ago 18:05  | Bulgarian Split Squat: 10 reps 14 kg; 8 reps 16 kg; 15 reps |
+      | 10 days ago 18:05 | Bulgarian Split Squat: 12 reps 0 kg                               |
+      | 3 days ago 18:05  | Bulgarian Split Squat: 10 reps 14 kg; 8 reps 16 kg; 15 reps 0 kg |
     And I have opened the Exercise page for "Bulgarian Split Squat"
     Then the Exercise tabs are: Best set, Total, Top set, e1RM
     When I choose the e1RM tab
@@ -71,7 +71,7 @@ Feature: Exercise page for bodyweight moves
   Scenario: A tab with no values says there are no sets
     Given these saved workouts:
       | started          | exercises        |
-      | 3 days ago 18:05 | Push-up: 20 reps |
+      | 3 days ago 18:05 | Push-up: 20 reps 0 kg |
     And I have opened the Exercise page for "Push-up"
     When I choose the Top set tab
     Then the Exercise chart says "No sets in the last 3 months"

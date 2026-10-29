@@ -1,14 +1,10 @@
 using SQLite;
-using WorkoutLog.Core.Domain.Exercises;
 using WorkoutLog.Core.Domain.Workouts;
 
 namespace WorkoutLog.Core.Data;
 
-/// <summary>
-/// Writes workout rows on <paramref name="db"/> and deletes child rows in code.
-/// A blank weight on an assisted machine (<see cref="ExerciseDefinition.IsAssisted"/>) is written as 0 (D23).
-/// </summary>
-internal sealed class WorkoutWriter(SQLiteConnection db, IExerciseCatalog catalog) : IWorkoutWriter
+/// <summary>Writes workout rows on <paramref name="db"/> and deletes child rows in code.</summary>
+internal sealed class WorkoutWriter(SQLiteConnection db) : IWorkoutWriter
 {
     /// <inheritdoc />
     public int Add(NewWorkout workout)
@@ -82,8 +78,7 @@ internal sealed class WorkoutWriter(SQLiteConnection db, IExerciseCatalog catalo
             switch (exercises[i])
             {
                 case StrengthExercise strength:
-                    var blankKg = catalog.IsAssisted(strength.ExerciseId) ? 0m : (decimal?)null;
-                    db.InsertAll(strength.Sets.Select((s, position) => ToRow(s, exerciseRow.Id, position, blankKg)), runInTransaction: false);
+                    db.InsertAll(strength.Sets.Select((s, position) => ToRow(s, exerciseRow.Id, position)), runInTransaction: false);
                     break;
                 case CardioExercise cardio:
                     db.Insert(ToRow(cardio.Entry, exerciseRow.Id));
@@ -94,13 +89,12 @@ internal sealed class WorkoutWriter(SQLiteConnection db, IExerciseCatalog catalo
         }
     }
 
-    /// <summary>Builds the set's row; a blank weight takes <paramref name="blankKg"/>.</summary>
-    private static StrengthSetRow ToRow(StrengthSet set, int workoutExerciseId, int position, decimal? blankKg) => new()
+    private static StrengthSetRow ToRow(StrengthSet set, int workoutExerciseId, int position) => new()
     {
         WorkoutExerciseId = workoutExerciseId,
         Position = position,
         Reps = set.Reps,
-        WeightKg = set.WeightKg ?? blankKg,
+        WeightKg = set.WeightKg ?? throw new ArgumentException("Strength set has no weight", nameof(set)),
         Duration = set.Duration,
         Distance = set.Distance,
     };
@@ -115,6 +109,5 @@ internal sealed class WorkoutWriter(SQLiteConnection db, IExerciseCatalog catalo
         Incline = entry.Incline,
         Calories = entry.Calories,
         Rate = entry.Rate,
-        Pace = entry.Pace,
     };
 }

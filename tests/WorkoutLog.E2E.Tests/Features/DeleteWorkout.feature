@@ -5,8 +5,8 @@ Feature: Delete a workout
   Background:
     Given these saved workouts:
       | started          | exercises        |
-      | 3 days ago 10:00 | Push-up: 10 reps |
-      | yesterday 18:05  | Push-up: 12 reps |
+      | 3 days ago 10:00 | Push-up: 10 reps 0 kg |
+      | yesterday 18:05  | Push-up: 12 reps 0 kg |
     And I have opened workout 2 from Workouts
 
   @D81

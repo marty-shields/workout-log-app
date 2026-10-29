@@ -8,6 +8,7 @@ using WorkoutLog.Core.Domain.Workouts;
 using WorkoutLog.Core.Domain.Workouts.Validation;
 using WorkoutLog.Core.Import;
 using WorkoutLog.Core.Import.Checks;
+using WorkoutLog.Core.Import.Upgrades;
 using WorkoutLog.Core.Services;
 
 namespace WorkoutLog.Core;
@@ -18,11 +19,11 @@ public static class CoreServiceCollectionExtensions
     /// <summary>
     /// Registers the exercise catalog, database initializer, workout repository, unit of work, workout writer factory, system time, workout validator,
     /// workout service, workouts service, dashboard service, weight history service, the best rules and logged exercises service,
-    /// the progress rules, exercise progress service and cardio progress service, export service, import service, the import reader, checks,
-    /// checker and workout comparer, and schema upgrade steps as singletons.
+    /// the progress rules, exercise progress service and cardio progress service, export service, import service, the format upgrade steps,
+    /// import reader, checks, checker and workout comparer, and schema upgrade steps as singletons.
     /// The initializer, repository and unit of work are registered only as their gated decorators, which run each call through one <see cref="DatabaseGate"/>.
     /// The database connection and exercise seeder are not registered; only the initializer, repository and unit of work use them.
-    /// Services log through <c>ILogger&lt;T&gt;</c>, so the host must register logging. The host must also register <see cref="IExportEnvironment"/>.
+    /// Services log through <c>ILogger&lt;T&gt;</c>, so the host must register logging. The host must also register <see cref="IExportEnvironment"/> and <see cref="IElapsedClock"/>.
     /// </summary>
     /// <param name="services">Service collection.</param>
     /// <param name="databasePath">Full path of the SQLite database file.</param>
@@ -55,11 +56,13 @@ public static class CoreServiceCollectionExtensions
     private static IServiceCollection AddSchemaUpgrades(this IServiceCollection services) =>
         services
             .AddSingleton<ISchemaUpgrade, WorkoutStartedAtUniqueIndex>()
-            .AddSingleton<ISchemaUpgrade, BlankAssistToZero>();
+            .AddSingleton<ISchemaUpgrade, BlankAssistToZero>()
+            .AddSingleton<ISchemaUpgrade, ValidationRulesSchema>();
 
-    /// <summary>Registers the import file reader, each import check, the checker and the workout comparer. There are no format upgrade steps yet.</summary>
+    /// <summary>Registers the format upgrade steps, the import file reader, each import check, the checker and the workout comparer.</summary>
     private static IServiceCollection AddImport(this IServiceCollection services) =>
         services
+            .AddSingleton<IFormatUpgrade, ValidationRulesFormatUpgrade>()
             .AddSingleton<IImportFileReader, ImportFileReader>()
             .AddImportChecks()
             .AddSingleton<IImportChecker, ImportChecker>()
@@ -73,6 +76,7 @@ public static class CoreServiceCollectionExtensions
             .AddSingleton<IImportCheck, FinishCheck>()
             .AddSingleton<IImportCheck, UnknownExerciseCheck>()
             .AddSingleton<IImportCheck, ExerciseDefinitionCheck>()
+            .AddSingleton<IImportCheck, RepeatedExerciseCheck>()
             .AddSingleton<IImportCheck, SaveRulesCheck>();
 
     /// <summary>Registers each best rule.</summary>

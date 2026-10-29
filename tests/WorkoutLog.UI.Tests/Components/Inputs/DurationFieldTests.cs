@@ -6,7 +6,7 @@ namespace WorkoutLog.UI.Tests.Components.Inputs;
 public class DurationFieldTests : ComponentTestBase
 {
     [Test]
-    public void ShowHours_RendersHoursMinutesSeconds()
+    public void Render_ShowsHoursMinutesSeconds()
     {
         var cut = Context.Render<DurationField>(p => p
             .Add(x => x.Label, "Duration")
@@ -17,18 +17,6 @@ public class DurationFieldTests : ComponentTestBase
         Assert.That(boxes, Is.EqualTo(new[] { "duration-h", "duration-mm", "duration-ss" }));
     }
 
-    [Test]
-    public void ShowHoursFalse_RendersMinutesSeconds()
-    {
-        var cut = Context.Render<DurationField>(p => p
-            .Add(x => x.Label, "Pace (min/km)")
-            .Add(x => x.ShowHours, false)
-            .Add(x => x.TestId, "pace"));
-
-        var boxes = cut.FindAll("input").Select(i => i.GetAttribute("data-testid"));
-
-        Assert.That(boxes, Is.EqualTo(new[] { "pace-m", "pace-ss" }));
-    }
 
     [Test]
     public void Value_FillsBoxes()
@@ -99,17 +87,14 @@ public class DurationFieldTests : ComponentTestBase
         Assert.That(cut.FindAll("input").Select(i => i.GetAttribute("aria-required")), Is.All.EqualTo(expected));
     }
 
-    [TestCase(true, "1::", "1:00:00")]
-    [TestCase(true, "::22", "0:00:22")]
-    [TestCase(true, "1:5:3", "1:05:03")]
-    [TestCase(false, ":30", "0:30")]
-    [TestCase(false, "5:3", "5:03")]
-    public async Task FocusLeavesPartlyFilledField_FillsIn(bool showHours, string value, string expected)
+    [TestCase("1::", "1:00:00")]
+    [TestCase("::22", "0:00:22")]
+    [TestCase("1:5:3", "1:05:03")]
+    public async Task FocusLeavesPartlyFilledField_FillsIn(string value, string expected)
     {
         string? raised = null;
         var cut = Context.Render<DurationField>(p => p
             .Add(x => x.Label, "Duration")
-            .Add(x => x.ShowHours, showHours)
             .Add(x => x.Value, value)
             .Add(x => x.ValueChanged, (string? v) => raised = v));
 

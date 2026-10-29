@@ -19,8 +19,8 @@ public class WorkoutRepositoryTests
     {
         databasePath = TempDatabase.NewPath();
         connection = new SQLiteAsyncConnection(databasePath);
-        await connection.CreateTablesAsync<WorkoutRow, WorkoutExerciseRow, StrengthSetRow, CardioEntryRow>();
-        repository = new WorkoutRepository(connection, new WorkoutWriterFactory(new ExerciseCatalog()));
+        await connection.RunInTransactionAsync(WorkoutTables.CreateMissing);
+        repository = new WorkoutRepository(connection, new WorkoutWriterFactory());
     }
 
     [TearDown]
@@ -122,6 +122,24 @@ public class WorkoutRepositoryTests
     }
 
     [Test]
+    public async Task AddAsync_ExerciseTwice_ThrowsAndWritesNothing()
+    {
+        WorkoutExercise[] exercises = [new StrengthExercise(1, [new StrengthSet(5, 0m, null, null)]), new StrengthExercise(1, [new StrengthSet(5, 0m, null, null)])];
+
+        Assert.That(() => repository.AddAsync(new NewWorkout(Start, Finish, exercises)), Throws.InstanceOf<SQLiteException>());
+
+        Assert.That(await RowCounts(), Is.EqualTo((0, 0, 0, 0)));
+    }
+
+    [Test]
+    public async Task AddAsync_FinishAtTheStart_ThrowsAndWritesNothing()
+    {
+        Assert.That(() => repository.AddAsync(new NewWorkout(Start, Start, Exercises())), Throws.InstanceOf<SQLiteException>());
+
+        Assert.That(await RowCounts(), Is.EqualTo((0, 0, 0, 0)));
+    }
+
+    [Test]
     public async Task AddAsync_CardioEntryWithNoDuration_ThrowsAndWritesNothing()
     {
         Assert.That(() => repository.AddAsync(new NewWorkout(Start, Finish, [new CardioExercise(300, Entry() with { Duration = null })])),
@@ -163,8 +181,8 @@ public class WorkoutRepositoryTests
     {
         WorkoutExercise[] exercises =
         [
-            new StrengthExercise(1, [new StrengthSet(1, null, null, null), new StrengthSet(2, null, null, null)]),
-            new StrengthExercise(2, [new StrengthSet(3, null, null, null)]),
+            new StrengthExercise(1, [new StrengthSet(1, 0m, null, null), new StrengthSet(2, 0m, null, null)]),
+            new StrengthExercise(2, [new StrengthSet(3, 0m, null, null)]),
         ];
         var id = await repository.AddAsync(new NewWorkout(Start, Finish, exercises));
         await connection.ExecuteAsync("UPDATE WorkoutExercise SET Position = 1 - Position WHERE WorkoutId = ?", id);
@@ -172,8 +190,8 @@ public class WorkoutRepositoryTests
 
         Assert.That((await repository.GetAllAsync()).Single().Exercises, Is.EqualTo(new WorkoutExercise[]
         {
-            new StrengthExercise(2, [new StrengthSet(3, null, null, null)]),
-            new StrengthExercise(1, [new StrengthSet(2, null, null, null), new StrengthSet(1, null, null, null)]),
+            new StrengthExercise(2, [new StrengthSet(3, 0m, null, null)]),
+            new StrengthExercise(1, [new StrengthSet(2, 0m, null, null), new StrengthSet(1, 0m, null, null)]),
         }).UsingPropertiesComparer());
     }
 
@@ -287,11 +305,11 @@ public class WorkoutRepositoryTests
     }
 
     [Test]
-    public async Task GetWeightsAsync_ReturnsEachSetsWeightAndSkipsSetsWithout()
+    public async Task GetWeightsAsync_ReturnsEachSetsWeight()
     {
         var id = await repository.AddAsync(new NewWorkout(Start, Finish,
         [
-            new StrengthExercise(1, [new StrengthSet(5, 22.75m, null, null), new StrengthSet(5, null, null, null), new StrengthSet(5, 0m, null, null)]),
+            new StrengthExercise(1, [new StrengthSet(5, 22.75m, null, null), new StrengthSet(5, 0m, null, null)]),
             new StrengthExercise(2, [new StrengthSet(5, 100m, null, null)]),
         ]));
 
@@ -299,24 +317,11 @@ public class WorkoutRepositoryTests
     }
 
     [Test]
-    public async Task GetWeightsAsync_NoSetHasAWeight_ReturnsTheWorkoutWithNoWeights()
+    public async Task GetWeightsAsync_NoSets_ReturnsTheWorkoutWithNoWeights()
     {
-        var noWeight = await repository.AddAsync(new NewWorkout(Start, Finish, [new StrengthExercise(1, [new StrengthSet(5, null, null, null)])]));
-        var noSets = await repository.AddAsync(new NewWorkout(Start.AddHours(1), Finish, [new StrengthExercise(1, [])]));
+        var noSets = await repository.AddAsync(new NewWorkout(Start, Finish, [new StrengthExercise(1, [])]));
 
-        Assert.That(await repository.GetWeightsAsync(1), Is.EqualTo(new[]
-        {
-            new WorkoutWeights(noSets, []),
-            new WorkoutWeights(noWeight, []),
-        }).UsingPropertiesComparer());
-    }
-
-    [Test]
-    public async Task GetWeightsAsync_ExerciseTwiceInAWorkout_ReturnsOneEntryWithBothWeights()
-    {
-        var id = await repository.AddAsync(new NewWorkout(Start, Finish, Exercises()));
-
-        Assert.That(await repository.GetWeightsAsync(1), Is.EqualTo(new[] { new WorkoutWeights(id, [22.75m, 25m, 20m]) }).UsingPropertiesComparer());
+        Assert.That(await repository.GetWeightsAsync(1), Is.EqualTo(new[] { new WorkoutWeights(noSets, []) }).UsingPropertiesComparer());
     }
 
     [Test]
@@ -335,8 +340,8 @@ public class WorkoutRepositoryTests
 
         Assert.That(await repository.GetLastSessionsAsync(), Is.EqualTo(new[]
         {
-            new LastSession(2, Start, [exercises[0]]),
-            new LastSession(300, Start, [exercises[1]]),
+            new LastSession(2, Start, exercises[0]),
+            new LastSession(300, Start, exercises[1]),
         }).UsingPropertiesComparer());
     }
 
@@ -350,21 +355,8 @@ public class WorkoutRepositoryTests
 
         Assert.That(await repository.GetLastSessionsAsync(), Is.EqualTo(new[]
         {
-            new LastSession(2, Start, [new StrengthExercise(2, [new StrengthSet(5, 60m, null, null)])]),
-            new LastSession(3, Start.AddDays(1), [new StrengthExercise(3, [new StrengthSet(6, 25m, null, null)])]),
-        }).UsingPropertiesComparer());
-    }
-
-    [Test]
-    public async Task GetLastSessionsAsync_ExerciseTwiceInAWorkout_ReturnsBothInPositionOrder()
-    {
-        var exercises = Exercises();
-        await repository.AddAsync(new NewWorkout(Start, Finish, exercises));
-
-        Assert.That(await repository.GetLastSessionsAsync(), Is.EqualTo(new[]
-        {
-            new LastSession(1, Start, [exercises[0], exercises[2]]),
-            new LastSession(300, Start, [exercises[1]]),
+            new LastSession(2, Start, new StrengthExercise(2, [new StrengthSet(5, 60m, null, null)])),
+            new LastSession(3, Start.AddDays(1), new StrengthExercise(3, [new StrengthSet(6, 25m, null, null)])),
         }).UsingPropertiesComparer());
     }
 
@@ -385,31 +377,21 @@ public class WorkoutRepositoryTests
 
         Assert.That(await repository.GetSessionsAsync(1), Is.EqualTo(new[]
         {
-            new WorkoutSession(oldest, Start.AddDays(-2), [new StrengthExercise(1, [new StrengthSet(8, 50m, null, null)])]),
-            new WorkoutSession(middle, Start, [new StrengthExercise(1, [new StrengthSet(5, 60m, null, null)])]),
-            new WorkoutSession(newest, Start.AddDays(2), [new StrengthExercise(1, [new StrengthSet(3, 70m, null, null)])]),
+            new WorkoutSession(oldest, Start.AddDays(-2), new StrengthExercise(1, [new StrengthSet(8, 50m, null, null)])),
+            new WorkoutSession(middle, Start, new StrengthExercise(1, [new StrengthSet(5, 60m, null, null)])),
+            new WorkoutSession(newest, Start.AddDays(2), new StrengthExercise(1, [new StrengthSet(3, 70m, null, null)])),
         }).UsingPropertiesComparer());
     }
 
     [Test]
     public async Task GetSessionsAsync_ReturnsOnlyTheExerciseWithItsSetsInOrder()
     {
-        StrengthSet[] sets = [new StrengthSet(10, 22.75m, null, null), new StrengthSet(8, null, null, null), new StrengthSet(6, 25m, null, null)];
+        StrengthSet[] sets = [new StrengthSet(10, 22.75m, null, null), new StrengthSet(8, 0m, null, null), new StrengthSet(6, 25m, null, null)];
         var id = await repository.AddAsync(new NewWorkout(Start, Finish,
             [new StrengthExercise(2, [new StrengthSet(5, 100m, null, null)]), new StrengthExercise(1, sets)]));
 
         Assert.That(await repository.GetSessionsAsync(1),
-            Is.EqualTo(new[] { new WorkoutSession(id, Start, [new StrengthExercise(1, sets)]) }).UsingPropertiesComparer());
-    }
-
-    [Test]
-    public async Task GetSessionsAsync_ExerciseTwiceInAWorkout_ReturnsOneSessionWithBothInPositionOrder()
-    {
-        var exercises = Exercises();
-        var id = await repository.AddAsync(new NewWorkout(Start, Finish, exercises));
-
-        Assert.That(await repository.GetSessionsAsync(1),
-            Is.EqualTo(new[] { new WorkoutSession(id, Start, [exercises[0], exercises[2]]) }).UsingPropertiesComparer());
+            Is.EqualTo(new[] { new WorkoutSession(id, Start, new StrengthExercise(1, sets)) }).UsingPropertiesComparer());
     }
 
     [Test]
@@ -418,7 +400,7 @@ public class WorkoutRepositoryTests
         var id = await repository.AddAsync(new NewWorkout(Start, Finish, Exercises()));
 
         Assert.That(await repository.GetSessionsAsync(300),
-            Is.EqualTo(new[] { new WorkoutSession(id, Start, [new CardioExercise(300, Entry())]) }).UsingPropertiesComparer());
+            Is.EqualTo(new[] { new WorkoutSession(id, Start, new CardioExercise(300, Entry())) }).UsingPropertiesComparer());
     }
 
     [Test]
@@ -493,11 +475,11 @@ public class WorkoutRepositoryTests
             new StrengthSet(8, 25m, null, null),
         ]),
         new CardioExercise(300, Entry()),
-        new StrengthExercise(1, [new StrengthSet(null, 20m, TimeSpan.FromSeconds(45), 30.5m)]),
+        new StrengthExercise(187, [new StrengthSet(null, 20m, TimeSpan.FromSeconds(45), 30.5m)]),
     ];
 
     private static CardioEntry Entry() =>
-        new(new TimeSpan(0, 25, 30), 5.2m, 12, 8, 1.5m, 310, 5.5m, new TimeSpan(0, 5, 30));
+        new(new TimeSpan(0, 25, 30), 5.2m, 12, 8, 1.5m, 310, 5.5m);
 
     private async Task<(int Workouts, int Exercises, int Sets, int Entries)> RowCounts() => (
         await connection.Table<WorkoutRow>().CountAsync(),

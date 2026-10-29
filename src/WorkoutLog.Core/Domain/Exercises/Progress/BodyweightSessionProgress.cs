@@ -2,7 +2,7 @@ using WorkoutLog.Core.Domain.Exercises.Bests;
 
 namespace WorkoutLog.Core.Domain.Exercises.Progress;
 
-/// <summary>A bodyweight session with its chart values. A set with no weight or 0 kg is unweighted.</summary>
+/// <summary>A bodyweight session with its chart values. A set of 0 kg is unweighted.</summary>
 /// <param name="Session">The session.</param>
 /// <param name="BestSetReps">Most reps in an unweighted set. Null when no unweighted set has reps.</param>
 /// <param name="TotalReps">Reps of every unweighted set added up. Null when no unweighted set has reps.</param>

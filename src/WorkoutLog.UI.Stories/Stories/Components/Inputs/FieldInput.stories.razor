@@ -11,19 +11,13 @@
 
     <Story Name="Decimal">
         <Template>
-            <FieldInput Field="@(new FieldSpec("weight", Metric.WeightKg, "Weight", FieldKind.Decimal, Unit: "kg"))" Entry="new EntryState()" />
+            <FieldInput Field="@(new FieldSpec("weight", Metric.WeightKg, "Weight", FieldKind.Decimal, Required: true, Unit: "kg"))" Entry="new EntryState()" />
         </Template>
     </Story>
 
     <Story Name="Duration">
         <Template>
             <FieldInput Field="@(new FieldSpec("duration", Metric.Duration, "Duration", FieldKind.Duration, Required: true))" Entry="new EntryState()" />
-        </Template>
-    </Story>
-
-    <Story Name="Pace">
-        <Template>
-            <FieldInput Field="@(new FieldSpec("pace", Metric.Pace, "Pace", FieldKind.Pace, Unit: "min/km"))" Entry="new EntryState()" />
         </Template>
     </Story>
 

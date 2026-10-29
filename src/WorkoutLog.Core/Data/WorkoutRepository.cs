@@ -87,7 +87,7 @@ internal sealed class WorkoutRepository(SQLiteAsyncConnection connection, IWorko
             JOIN WorkoutExercise e ON e.WorkoutId = w.Id
             LEFT JOIN StrengthSet s ON s.WorkoutExerciseId = e.Id
             WHERE e.ExerciseId = ?
-            ORDER BY w.StartedAt DESC, e.Position, s.Position
+            ORDER BY w.StartedAt DESC, s.Position
             """;
         var rows = await connection.QueryAsync<WeightRow>(sql, exerciseId);
         return rows.GroupBy(r => r.WorkoutId)
@@ -99,7 +99,7 @@ internal sealed class WorkoutRepository(SQLiteAsyncConnection connection, IWorko
     public async Task<IReadOnlyList<LastSession>> GetLastSessionsAsync()
     {
         const string sql = """
-            SELECT e.Id, e.WorkoutId, e.ExerciseId, e.Position, w.StartedAt
+            SELECT e.Id, e.WorkoutId, e.ExerciseId, w.StartedAt
             FROM WorkoutExercise e
             JOIN Workout w ON w.Id = e.WorkoutId
             JOIN (
@@ -107,7 +107,7 @@ internal sealed class WorkoutRepository(SQLiteAsyncConnection connection, IWorko
                 FROM WorkoutExercise e2
                 JOIN Workout w2 ON w2.Id = e2.WorkoutId
                 GROUP BY e2.ExerciseId) latest ON latest.ExerciseId = e.ExerciseId AND latest.LastStartedAt = w.StartedAt
-            ORDER BY e.ExerciseId, e.Position
+            ORDER BY e.ExerciseId
             """;
         var rows = await connection.QueryAsync<ExerciseStartRow>(sql);
         var exerciseIds = rows.Select(r => r.Id).ToList();
@@ -118,9 +118,7 @@ internal sealed class WorkoutRepository(SQLiteAsyncConnection connection, IWorko
                 .Where(c => exerciseIds.Contains(c.WorkoutExerciseId)).ToListAsync())
             .ToDictionary(c => c.WorkoutExerciseId);
 
-        return rows.GroupBy(r => r.ExerciseId)
-            .Select(g => new LastSession(g.Key, new DateTimeOffset(g.First().StartedAt, TimeSpan.Zero),
-                ToExercises(g.Select(r => new WorkoutExerciseRow { Id = r.Id, WorkoutId = r.WorkoutId, ExerciseId = r.ExerciseId, Position = r.Position }), sets, entries)))
+        return rows.Select(r => new LastSession(r.ExerciseId, new DateTimeOffset(r.StartedAt, TimeSpan.Zero), ToExercise(r.Id, r.ExerciseId, sets, entries)))
             .ToList();
     }
 
@@ -128,11 +126,11 @@ internal sealed class WorkoutRepository(SQLiteAsyncConnection connection, IWorko
     public async Task<IReadOnlyList<WorkoutSession>> GetSessionsAsync(int exerciseId)
     {
         const string exercisesSql = """
-            SELECT e.Id, e.WorkoutId, e.ExerciseId, e.Position, w.StartedAt
+            SELECT e.Id, e.WorkoutId, e.ExerciseId, w.StartedAt
             FROM WorkoutExercise e
             JOIN Workout w ON w.Id = e.WorkoutId
             WHERE e.ExerciseId = ?
-            ORDER BY w.StartedAt, e.Position
+            ORDER BY w.StartedAt
             """;
         const string setsSql = """
             SELECT s.*
@@ -151,9 +149,7 @@ internal sealed class WorkoutRepository(SQLiteAsyncConnection connection, IWorko
         var sets = (await connection.QueryAsync<StrengthSetRow>(setsSql, exerciseId)).ToLookup(s => s.WorkoutExerciseId);
         var entries = (await connection.QueryAsync<CardioEntryRow>(entriesSql, exerciseId)).ToDictionary(c => c.WorkoutExerciseId);
 
-        return rows.GroupBy(r => r.WorkoutId)
-            .Select(g => new WorkoutSession(g.Key, new DateTimeOffset(g.First().StartedAt, TimeSpan.Zero),
-                ToExercises(g.Select(r => new WorkoutExerciseRow { Id = r.Id, WorkoutId = r.WorkoutId, ExerciseId = r.ExerciseId, Position = r.Position }), sets, entries)))
+        return rows.Select(r => new WorkoutSession(r.WorkoutId, new DateTimeOffset(r.StartedAt, TimeSpan.Zero), ToExercise(r.Id, r.ExerciseId, sets, entries)))
             .ToList();
     }
 
@@ -161,18 +157,21 @@ internal sealed class WorkoutRepository(SQLiteAsyncConnection connection, IWorko
     public Task DeleteAsync(int id) =>
         connection.RunInTransactionAsync(db => writers.Create(db).Delete(id));
 
-    /// <summary>Builds each exercise: cardio when it has an entry, otherwise strength with its sets.</summary>
+    /// <summary>Builds each exercise as in <see cref="ToExercise"/>.</summary>
     private static List<WorkoutExercise> ToExercises(
         IEnumerable<WorkoutExerciseRow> exerciseRows, ILookup<int, StrengthSetRow> sets, Dictionary<int, CardioEntryRow> entries) =>
-        exerciseRows.Select(e => entries.TryGetValue(e.Id, out var entry)
-                ? (WorkoutExercise)new CardioExercise(e.ExerciseId, ToEntry(entry))
-                : new StrengthExercise(e.ExerciseId, sets[e.Id].Select(ToSet).ToList()))
-            .ToList();
+        exerciseRows.Select(e => ToExercise(e.Id, e.ExerciseId, sets, entries)).ToList();
+
+    /// <summary>Builds the workout exercise with row id <paramref name="id"/>: cardio when it has an entry, otherwise strength with its sets.</summary>
+    private static WorkoutExercise ToExercise(int id, int exerciseId, ILookup<int, StrengthSetRow> sets, Dictionary<int, CardioEntryRow> entries) =>
+        entries.TryGetValue(id, out var entry)
+            ? new CardioExercise(exerciseId, ToEntry(entry))
+            : new StrengthExercise(exerciseId, sets[id].Select(ToSet).ToList());
 
     private static StrengthSet ToSet(StrengthSetRow row) => new(row.Reps, row.WeightKg, row.Duration, row.Distance);
 
     private static CardioEntry ToEntry(CardioEntryRow row) =>
-        new(row.Duration, row.Distance, row.Floors, row.Level, row.Incline, row.Calories, row.Rate, row.Pace);
+        new(row.Duration, row.Distance, row.Floors, row.Level, row.Incline, row.Calories, row.Rate);
 
     /// <summary>One set's weight with its workout id; null weight for a set without one or an exercise without sets.</summary>
     private sealed class WeightRow
@@ -190,8 +189,6 @@ internal sealed class WorkoutRepository(SQLiteAsyncConnection connection, IWorko
         public int WorkoutId { get; set; }
 
         public int ExerciseId { get; set; }
-
-        public int Position { get; set; }
 
         public long StartedAt { get; set; }
     }

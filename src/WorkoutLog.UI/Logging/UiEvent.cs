@@ -39,8 +39,11 @@ internal enum UiEvent
     /// <summary><see cref="Models.Workout.SetChecker"/>: a field code had no message.</summary>
     SetCheckFieldUnworded = 2502,
 
-    /// <summary><see cref="Models.Workout.WorkoutChecker"/>: Save found an unknown exercise or wrong type.</summary>
+    /// <summary><see cref="Models.Workout.WorkoutChecker"/>: Save found an unknown exercise, wrong type or other exercise code with no message.</summary>
     SaveCheckExerciseError = 2601,
+
+    /// <summary><see cref="Models.Workout.WorkoutChecker"/>: Save found a workout code with no message.</summary>
+    SaveCheckWorkoutError = 2602,
 
     /// <summary><see cref="Screens.NewWorkoutPage"/>: new workout discarded.</summary>
     NewWorkoutDiscarded = 2701,

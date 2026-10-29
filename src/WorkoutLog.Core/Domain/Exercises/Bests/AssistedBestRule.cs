@@ -10,6 +10,6 @@ internal sealed class AssistedBestRule(ILeastAssistRule leastAssistRule) : IBest
     public bool AppliesTo(ExerciseDefinition exercise) => exercise.Category == ExerciseCategory.Assisted;
 
     /// <inheritdoc />
-    public ExerciseBest? Best(ExerciseDefinition exercise, IReadOnlyList<WorkoutExercise> logged) =>
-        leastAssistRule.LeastAssist([.. logged.OfType<StrengthExercise>().SelectMany(e => e.Sets)]);
+    public ExerciseBest? Best(ExerciseDefinition exercise, WorkoutExercise logged) =>
+        leastAssistRule.LeastAssist((logged as StrengthExercise)?.Sets ?? []);
 }

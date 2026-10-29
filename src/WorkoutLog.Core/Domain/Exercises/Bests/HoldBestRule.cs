@@ -10,8 +10,8 @@ internal sealed class HoldBestRule(IHoldRule holdRule) : IBestRule
     public bool AppliesTo(ExerciseDefinition exercise) => exercise.Category == ExerciseCategory.Hold;
 
     /// <inheritdoc />
-    public ExerciseBest? Best(ExerciseDefinition exercise, IReadOnlyList<WorkoutExercise> logged) =>
-        holdRule.Longest([.. logged.OfType<StrengthExercise>().SelectMany(e => e.Sets)]) is { } longest
+    public ExerciseBest? Best(ExerciseDefinition exercise, WorkoutExercise logged) =>
+        holdRule.Longest((logged as StrengthExercise)?.Sets ?? []) is { } longest
             ? new ExerciseBest(null, null, longest, null)
             : null;
 }

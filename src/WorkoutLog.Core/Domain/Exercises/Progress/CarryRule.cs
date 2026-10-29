@@ -5,7 +5,7 @@ namespace WorkoutLog.Core.Domain.Exercises.Progress;
 
 /// <summary>
 /// Heaviest: the heaviest set over 0 kg; tie → longest. Longest: the longest set; tie → heaviest.
-/// A weight of 0 kg or blank is left out.
+/// A weight of 0 kg is left out.
 /// </summary>
 internal sealed class CarryRule : ICarryRule
 {

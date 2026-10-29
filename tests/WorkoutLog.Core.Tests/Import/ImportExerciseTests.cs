@@ -35,10 +35,10 @@ public class ImportExerciseTests
     [Test]
     public void ToDomain_Entry_IsCardioWithEveryMetric()
     {
-        var exercise = new ImportExercise(Info, Entry: new ImportEntry(TimeSpan.FromMinutes(1), 2m, 3, 4, 5m, 6, 7m, TimeSpan.FromMinutes(8)));
+        var exercise = new ImportExercise(Info, Entry: new ImportEntry(TimeSpan.FromMinutes(1), 2m, 3, 4, 5m, 6, 7m));
 
         Assert.That(exercise.ToDomain(), Is.EqualTo(new CardioExercise(8,
-            new CardioEntry(TimeSpan.FromMinutes(1), 2m, 3, 4, 5m, 6, 7m, TimeSpan.FromMinutes(8)))).UsingPropertiesComparer());
+            new CardioEntry(TimeSpan.FromMinutes(1), 2m, 3, 4, 5m, 6, 7m))).UsingPropertiesComparer());
     }
 
     [Test]

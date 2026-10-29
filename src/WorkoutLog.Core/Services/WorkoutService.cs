@@ -8,16 +8,24 @@ namespace WorkoutLog.Core.Services;
 
 /// <summary>Checks workouts with <see cref="IWorkoutValidator"/>, and reads, saves and deletes them through <see cref="IWorkoutRepository"/>.</summary>
 internal sealed partial class WorkoutService(
-    IWorkoutRepository repository, IWorkoutValidator validator, TimeProvider time, ILogger<WorkoutService> logger) : IWorkoutService
+    IWorkoutRepository repository, IWorkoutValidator validator, TimeProvider time, IElapsedClock elapsedClock, ILogger<WorkoutService> logger)
+    : IWorkoutService
 {
-    private static readonly WorkoutErrors SaveFailed = new(WorkoutError.SaveFailed, []);
+    private static readonly WorkoutErrors SaveFailed = new([WorkoutError.SaveFailed], []);
 
     /// <inheritdoc />
     public WorkoutDraft StartNew()
     {
-        var draft = new WorkoutDraft(time.GetUtcNow());
+        var draft = new WorkoutDraft(time.GetUtcNow(), elapsedClock.Elapsed);
         Log.Started(logger);
         return draft;
+    }
+
+    /// <inheritdoc />
+    public TimeSpan Elapsed(WorkoutDraft draft)
+    {
+        ArgumentNullException.ThrowIfNull(draft);
+        return TimeSpan.FromTicks(Math.Max(0, (elapsedClock.Elapsed - draft.StartedElapsed).Ticks));
     }
 
     /// <inheritdoc />
@@ -48,13 +56,8 @@ internal sealed partial class WorkoutService(
             return new SaveResult(null, errors);
         }
 
-        var now = time.GetUtcNow();
-        if (now < draft.StartedAt)
-        {
-            Log.ClockBeforeStart(logger, draft.StartedAt - now);
-        }
-
-        var workout = new NewWorkout(draft.StartedAt, now < draft.StartedAt ? draft.StartedAt : now, copy);
+        var length = TimeSpan.FromTicks(Math.Max(1, Elapsed(draft).Ticks));
+        var workout = new NewWorkout(draft.StartedAt, draft.StartedAt + length, copy);
         return await WriteAsync(null, copy.Length, () => repository.AddAsync(workout), errors);
     }
 
@@ -178,9 +181,6 @@ internal sealed partial class WorkoutService(
 
         [LoggerMessage((int)CoreEvent.WorkoutUpdateFailed, LogLevel.Error, "Updating workout {WorkoutId} failed")]
         public static partial void UpdateFailed(ILogger logger, int workoutId, Exception exception);
-
-        [LoggerMessage((int)CoreEvent.ClockBeforeStart, LogLevel.Warning, "The clock is {Behind} behind the workout start; the finish is set to the start")]
-        public static partial void ClockBeforeStart(ILogger logger, TimeSpan behind);
 
         [LoggerMessage((int)CoreEvent.WorkoutStarted, LogLevel.Information, "New workout started")]
         public static partial void Started(ILogger logger);

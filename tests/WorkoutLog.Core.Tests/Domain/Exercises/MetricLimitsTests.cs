@@ -24,7 +24,6 @@ public class MetricLimitsTests
         Assert.That(MetricLimits.Max(Exercise(unit, null), Metric.Distance), Is.EqualTo(max));
     }
 
-    [TestCase(RateUnit.KmPerHour, 100)]
     [TestCase(RateUnit.Rpm, 300)]
     [TestCase(RateUnit.StrokesPerMin, 200)]
     [TestCase(RateUnit.StridesPerMin, 300)]
@@ -36,21 +35,22 @@ public class MetricLimitsTests
     }
 
     [Test]
-    public void Max_PacePerKm_Is60Minutes()
-    {
-        Assert.That(MetricLimits.Max(Exercise(null, null, PaceUnit.PerKm), Metric.Pace), Is.EqualTo(3_600));
-    }
-
-    [Test]
-    public void Max_DistanceRateOrPaceWithNoUnit_Throws()
+    public void Max_DistanceOrRateWithNoUnit_Throws()
     {
         Assert.Multiple(() =>
         {
             Assert.That(() => MetricLimits.Max(Exercise(null, null), Metric.Distance), Throws.ArgumentException);
             Assert.That(() => MetricLimits.Max(Exercise(null, null), Metric.Rate), Throws.ArgumentException);
-            Assert.That(() => MetricLimits.Max(Exercise(null, null), Metric.Pace), Throws.ArgumentException);
         });
     }
+
+    [Test]
+    public void Max_RateInKmPerHour_Throws() =>
+        Assert.That(() => MetricLimits.Max(Exercise(null, RateUnit.KmPerHour), Metric.Rate), Throws.ArgumentException);
+
+    [Test]
+    public void MaxDecimalPlaces_Is2() =>
+        Assert.That(MetricLimits.MaxDecimalPlaces, Is.EqualTo(2));
 
     [Test]
     public void Max_EveryMetricOfEveryExercise_HasALimit()
@@ -60,6 +60,6 @@ public class MetricLimitsTests
         Assert.That(() => catalog.All.SelectMany(e => e.Metrics.Select(m => MetricLimits.Max(e, m.Metric))).ToList(), Throws.Nothing);
     }
 
-    private static ExerciseDefinition Exercise(DistanceUnit? distanceUnit, RateUnit? rateUnit, PaceUnit? paceUnit = null) =>
-        new(1, "Exercise", ExerciseType.Cardio, ExerciseCategory.Cardio, [], null, null, null, [], distanceUnit, rateUnit, paceUnit, Loaded: false);
+    private static ExerciseDefinition Exercise(DistanceUnit? distanceUnit, RateUnit? rateUnit) =>
+        new(1, "Exercise", ExerciseType.Cardio, ExerciseCategory.Cardio, [], null, null, null, [], distanceUnit, rateUnit, null, Loaded: false);
 }

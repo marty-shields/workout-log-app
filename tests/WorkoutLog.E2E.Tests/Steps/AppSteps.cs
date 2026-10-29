@@ -119,7 +119,7 @@ public sealed class AppSteps(
     private async Task SeedAndOpenAsync()
     {
         var table = new DataTable("started", "exercises");
-        table.AddRow("yesterday 18:05", "Push-up: 10 reps");
+        table.AddRow("yesterday 18:05", "Push-up: 10 reps 0 kg");
         await seed.GivenTheseSavedWorkouts(table);
         journeys.OpenWorkout(1);
     }

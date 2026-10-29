@@ -8,7 +8,7 @@ namespace WorkoutLog.Core.Export;
 internal static class ExportFormat
 {
     /// <summary>Format version written to the file.</summary>
-    public const int Version = 1;
+    public const int Version = 2;
 
     /// <summary>Largest file allowed, in bytes of UTF-8: 5 MB.</summary>
     public const int MaxBytes = 5 * 1024 * 1024;

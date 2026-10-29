@@ -1,8 +1,10 @@
 @using Microsoft.Extensions.Logging
+@using WorkoutLog.Core.Domain.Exercises
 @using WorkoutLog.Core.Services
 @using WorkoutLog.UI.Components.Overlays
 @using WorkoutLog.UI.Components.Workout
 @using WorkoutLog.UI.Models.Exercises
+@using WorkoutLog.UI.Models.Fields
 @implements IDisposable
 @inject IWorkoutService Workouts
 @inject IWeightHistoryService WeightHistory
@@ -51,8 +53,8 @@
     [Parameter]
     public EventCallback OnSaved { get; set; }
 
-    /// <summary>Time since the start; zero while the clock is before the start.</summary>
-    private TimeSpan Elapsed => TimeSpan.FromTicks(Math.Max(0, (Clock.GetUtcNow() - draft.StartedAt).Ticks));
+    /// <summary>Time since the start, by <see cref="IWorkoutService.Elapsed"/>.</summary>
+    private TimeSpan Elapsed => Workouts.Elapsed(draft);
 
     protected override void OnInitialized()
     {
@@ -76,22 +78,23 @@
     private void CloseDiscard() => discardOpen = false;
 
     /// <summary>
-    /// Picks the exercise (<see cref="WorkoutEditor.Pick"/>). A strength exercise not yet in the workout then loads its last and
-    /// best weights through <see cref="IWeightHistoryService.GetAsync"/> (FR-15); a failed load shows none.
+    /// Picks the exercise (<see cref="WorkoutEditor.Pick"/>). A strength exercise just added then loads its last and best weights
+    /// through <see cref="IWeightHistoryService.GetAsync"/> (FR-15); a failed load shows none. Where 0 kg shows as no weight
+    /// (<see cref="FieldSpec.HideZero"/>), a weight of 0 is none.
     /// </summary>
     private async Task PickAsync(ExerciseListItem item)
     {
         var added = Editor.Exercises.All(e => e.ExerciseId != item.Id);
         Editor.Pick(item);
-        if (!added || item.Kind != ExerciseKind.Strength)
+        if (!added || item.Kind != ExerciseKind.Strength || Editor.Exercises.FirstOrDefault(e => e.ExerciseId == item.Id) is not { } exercise)
         {
             return;
         }
 
-        var exercise = Editor.Exercises.Single(e => e.ExerciseId == item.Id);
         var weights = await WeightHistory.GetAsync(item.Id);
-        exercise.LastKg = weights.LastKg;
-        exercise.BestKg = weights.BestKg;
+        var hideZero = exercise.Fields.Any(f => f.Metric == Metric.WeightKg && f.HideZero);
+        exercise.LastKg = hideZero && weights.LastKg == 0m ? null : weights.LastKg;
+        exercise.BestKg = hideZero && weights.BestKg == 0m ? null : weights.BestKg;
     }
 
     /// <summary>

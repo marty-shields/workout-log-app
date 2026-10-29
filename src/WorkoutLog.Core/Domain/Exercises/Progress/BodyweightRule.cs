@@ -1,7 +1,7 @@
 namespace WorkoutLog.Core.Domain.Exercises.Progress;
 
 /// <summary>
-/// Best set and total use the unweighted sets: no weight or 0 kg. Top set and e1RM use the sets over 0 kg, with the lift rules.
+/// Best set and total use the unweighted sets: 0 kg. Top set and e1RM use the sets over 0 kg, with the lift rules.
 /// </summary>
 internal sealed class BodyweightRule(ITopSetRule topSetRule, IE1rmRule e1rmRule) : IBodyweightRule
 {

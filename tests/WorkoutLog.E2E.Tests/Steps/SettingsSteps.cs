@@ -51,7 +51,7 @@ public sealed partial class SettingsSteps(
         {
             Assert.That(name, Is.EqualTo($"workout-log-{local:yyyy-MM-dd-HHmm}.json"));
             Assert.That(clock.UtcNow() - exportedAt, Is.InRange(TimeSpan.Zero, TimeSpan.FromMinutes(5)));
-            Assert.That((int)file["formatVersion"]!, Is.EqualTo(1));
+            Assert.That((int)file["formatVersion"]!, Is.EqualTo(2));
             Assert.That((string)file["appVersion"]!, Is.Not.Empty);
         });
 

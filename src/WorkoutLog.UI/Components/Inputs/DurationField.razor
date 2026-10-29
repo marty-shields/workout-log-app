@@ -32,8 +32,7 @@
 </div>
 
 @code {
-    private static readonly Part[] HourParts = [new("Hours", "h"), new("Minutes", "mm"), new("Seconds", "ss")];
-    private static readonly Part[] MinuteParts = [new("Minutes", "m"), new("Seconds", "ss")];
+    private static readonly Part[] Parts = [new("Hours", "h"), new("Minutes", "mm"), new("Seconds", "ss")];
 
     /// <summary>Field label, with its unit.</summary>
     [Parameter, EditorRequired]
@@ -47,15 +46,11 @@
     [Parameter]
     public bool Required { get; set; }
 
-    /// <summary>Shows h, mm, ss boxes (duration). When false shows m, ss (pace).</summary>
-    [Parameter]
-    public bool ShowHours { get; set; } = true;
-
     /// <summary>Shows every box as failing validation.</summary>
     [Parameter]
     public bool Invalid { get; set; }
 
-    /// <summary>Entered text as h:mm:ss or m:ss, or null when every box is empty.</summary>
+    /// <summary>Entered text as h:mm:ss, or null when every box is empty.</summary>
     [Parameter]
     public string? Value { get; set; }
 
@@ -70,12 +65,10 @@
     private static readonly TimeSpan FocusMoveWait = TimeSpan.FromMilliseconds(10);
 
     private bool focused;
-    private readonly ElementReference[] boxes = new ElementReference[HourParts.Length];
+    private readonly ElementReference[] boxes = new ElementReference[Parts.Length];
 
     /// <summary>Moves focus to the first box.</summary>
     public ValueTask FocusAsync() => boxes[0].FocusAsync();
-
-    private Part[] Parts => ShowHours ? HourParts : MinuteParts;
 
     private string[] SplitValue()
     {

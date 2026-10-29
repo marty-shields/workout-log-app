@@ -35,7 +35,7 @@ public sealed class ExerciseSteps(WebView web, Journeys journeys, ExercisesScree
         Assert.That(exercise.Subtitle(), Is.EqualTo(subtitle));
     }
 
-    [When(@"^I choose the (Best set|Total|Top set|e1RM|Duration|Weight|Distance|Pace|Floors|Calories) tab$")]
+    [When(@"^I choose the (Best set|Total|Top set|e1RM|Duration|Weight|Distance|Pace|Speed|Floors|Calories) tab$")]
     public void WhenIChooseTheTab(string tab) => exercise.Tab(tab.ToLowerInvariant().Replace(' ', '-'));
 
     [Then(@"^the Exercise page has no tab switcher$")]

@@ -51,12 +51,12 @@
 
     private static string? Part(FieldSpec field, string? value)
     {
-        if (value is null || !value.Any(char.IsDigit))
+        if (value is null || !value.Any(char.IsDigit) || (field.HideZero && FieldReader.Read(field, value) is (0m, null)))
         {
             return null;
         }
 
-        if (field.Kind is FieldKind.Duration or FieldKind.Pace)
+        if (field.Kind == FieldKind.Duration)
         {
             return value;
         }

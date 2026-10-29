@@ -55,8 +55,8 @@ public class LoggedExercisesServiceTests
     public async Task GetAsync_ReturnsEachExercisesStartAndBest()
     {
         Setup(
-            new LastSession(Squat, Start, [new StrengthExercise(Squat, [new StrengthSet(5, 60m, null, null), new StrengthSet(3, 70m, null, null)])]),
-            new LastSession(Run, Start.AddDays(-1), [new CardioExercise(Run, new CardioEntry(TimeSpan.FromMinutes(30), 5.2m, null, null, null, null, null, null))]));
+            new LastSession(Squat, Start, new StrengthExercise(Squat, [new StrengthSet(5, 60m, null, null), new StrengthSet(3, 70m, null, null)])),
+            new LastSession(Run, Start.AddDays(-1), new CardioExercise(Run, new CardioEntry(TimeSpan.FromMinutes(30), 5.2m, null, null, null, null, null))));
 
         var result = await service.GetAsync();
 
@@ -70,7 +70,7 @@ public class LoggedExercisesServiceTests
     [Test]
     public async Task GetAsync_NothingToShow_HasNoBest()
     {
-        Setup(new LastSession(Squat, Start, [new StrengthExercise(Squat, [new StrengthSet(5, null, null, null)])]));
+        Setup(new LastSession(Squat, Start, new StrengthExercise(Squat, [new StrengthSet(5, null, null, null)])));
 
         Assert.That((await service.GetAsync()).Exercises.Single(), Is.EqualTo(new LoggedExercise(Squat, Start, null)));
     }
@@ -132,11 +132,9 @@ public class LoggedExercisesServiceTests
     /// <summary>A last session with one set, or a 30-minute entry for cardio.</summary>
     private static LastSession Session(int exerciseId, DateTimeOffset startedAt) =>
         new(exerciseId, startedAt,
-        [
             Catalog.All.FirstOrDefault(e => e.Id == exerciseId)?.Type == ExerciseType.Cardio
-                ? new CardioExercise(exerciseId, new CardioEntry(TimeSpan.FromMinutes(30), null, null, null, null, null, null, null))
-                : new StrengthExercise(exerciseId, [new StrengthSet(5, 20m, null, null)]),
-        ]);
+                ? new CardioExercise(exerciseId, new CardioEntry(TimeSpan.FromMinutes(30), null, null, null, null, null, null))
+                : new StrengthExercise(exerciseId, [new StrengthSet(5, 20m, null, null)]));
 
     private void Setup(params LastSession[] sessions) =>
         repository.Setup(r => r.GetLastSessionsAsync()).ReturnsAsync(sessions);

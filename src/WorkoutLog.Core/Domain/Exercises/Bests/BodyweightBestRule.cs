@@ -13,9 +13,9 @@ internal sealed class BodyweightBestRule(IBodyweightRule bodyweightRule) : IBest
     public bool AppliesTo(ExerciseDefinition exercise) => exercise.Category == ExerciseCategory.Bodyweight;
 
     /// <inheritdoc />
-    public ExerciseBest? Best(ExerciseDefinition exercise, IReadOnlyList<WorkoutExercise> logged)
+    public ExerciseBest? Best(ExerciseDefinition exercise, WorkoutExercise logged)
     {
-        var progress = bodyweightRule.Progress(new StrengthSession(0, default, [.. logged.OfType<StrengthExercise>().SelectMany(e => e.Sets)]));
+        var progress = bodyweightRule.Progress(new StrengthSession(0, default, (logged as StrengthExercise)?.Sets ?? []));
         return progress.TopSet ?? (progress.BestSetReps is { } reps ? new ExerciseBest(null, reps, null, null) : null);
     }
 }

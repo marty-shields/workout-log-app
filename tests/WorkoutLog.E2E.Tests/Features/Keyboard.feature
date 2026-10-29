@@ -15,7 +15,7 @@ Feature: Keyboard
       | Barbell Back Squat | set 1 reps           | numeric |
       | Barbell Back Squat | set 1 weight         | decimal |
       | Plank              | set 1 duration hours | numeric |
-      | Outdoor Run        | pace minutes         | numeric |
+      | Treadmill          | distance             | decimal |
 
   @US-11
   Scenario: The add-exercise search shows the soft keyboard
@@ -44,7 +44,7 @@ Feature: Keyboard
   Scenario: On an edited workout, Android back with the keyboard open hides the keyboard first
     Given these saved workouts:
       | started         | exercises                  |
-      | yesterday 18:05 | Barbell Back Squat: 5 reps |
+      | yesterday 18:05 | Barbell Back Squat: 5 reps 60 kg |
     And I have opened workout 1 from Workouts
     When I enter "6" in Barbell Back Squat set 1 reps
     And I go back with Android back
@@ -57,7 +57,7 @@ Feature: Keyboard
   Scenario: On an edited workout, the back arrow with the keyboard open goes straight to the prompt
     Given these saved workouts:
       | started         | exercises                  |
-      | yesterday 18:05 | Barbell Back Squat: 5 reps |
+      | yesterday 18:05 | Barbell Back Squat: 5 reps 60 kg |
     And I have opened workout 1 from Workouts
     When I enter "6" in Barbell Back Squat set 1 reps
     And I go back with the back arrow

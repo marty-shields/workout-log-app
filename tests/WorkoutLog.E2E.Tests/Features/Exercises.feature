@@ -12,8 +12,8 @@ Feature: Exercises
     Given these saved workouts:
       | started            | exercises                                                                   |
       | 400 days ago 10:00 | Dumbbell Curl: 10 reps 12 kg                                                |
-      | 5 days ago 18:05   | Barbell Back Squat: 8 reps 80 kg / Push-up: 20 reps                         |
-      | 3 days ago 18:05   | Barbell Back Squat: 5 reps 60 kg; 3 reps 70 kg; 3 reps 70 kg / Plank: 0:01:45 |
+      | 5 days ago 18:05   | Barbell Back Squat: 8 reps 80 kg / Push-up: 20 reps 0 kg                         |
+      | 3 days ago 18:05   | Barbell Back Squat: 5 reps 60 kg; 3 reps 70 kg; 3 reps 70 kg / Plank: 0:01:45 0 kg |
       | yesterday 07:30    | Outdoor Run: 0:30:00, 5.2 km / Farmer's Walk: 40 m 32 kg 0:00:45             |
     When I open Exercises
     Then the Exercises rows read, in order:
@@ -25,21 +25,12 @@ Feature: Exercises
       | Push-up            | 5 days ago · 20 reps    | Strength |
       | Dumbbell Curl      | 400 days ago · 12kg × 10 | Strength |
 
-  @FR-60 @FR-35
-  Scenario: A lift with no weight shows the date only
-    Given these saved workouts:
-      | started          | exercises                  |
-      | 3 days ago 18:05 | Barbell Back Squat: 5 reps |
-    When I open Exercises
-    Then the Exercises rows read, in order:
-      | exercise           | last       | kind     |
-      | Barbell Back Squat | 3 days ago | Strength |
 
   @FR-60 @FR-35 @D63
   Scenario: Search ranks the matches among the logged exercises
     Given these saved workouts:
       | started          | exercises                        |
-      | 3 days ago 18:05 | Squat: 10 reps                   |
+      | 3 days ago 18:05 | Squat: 10 reps 0 kg                   |
       | yesterday 18:05  | Barbell Back Squat: 5 reps 60 kg |
     And I have opened Exercises
     When I search Exercises for "squat"
@@ -49,7 +40,7 @@ Feature: Exercises
   Scenario Outline: A chip shows only that kind
     Given these saved workouts:
       | started          | exercises                                                                          |
-      | 3 days ago 18:05 | Barbell Back Squat: 5 reps 60 kg / Rowing Machine: 0:10:00 / Dumbbell Curl: 10 reps 12 kg |
+      | 3 days ago 18:05 | Barbell Back Squat: 5 reps 60 kg / Rowing Machine: 0:10:00 2000 m / Dumbbell Curl: 10 reps 12 kg |
     And I have opened Exercises
     When I choose the <kind> chip on Exercises
     Then Exercises lists, in order: <exercises>

@@ -19,6 +19,7 @@ public class SetCheckerTests
     private const int FarmersWalk = 187;
     private const int AssistedPullUp = 218;
     private const int Plank = 258;
+    private const int PushUp = 264;
     private const int Treadmill = 300;
     private const int Rower = 305;
     private const int StairClimber = 309;
@@ -41,8 +42,6 @@ public class SetCheckerTests
     [TestCase("08", "007.5")]
     [TestCase("8", "007")]
     [TestCase("8", "0")]
-    [TestCase("8", null)]
-    [TestCase("8", "")]
     public void Check_ValidSet_PassesWithNoErrors(string reps, string? weight)
     {
         var (valid, errors) = Check(Squat, reps, weight);
@@ -52,6 +51,61 @@ public class SetCheckerTests
             Assert.That(valid, Is.True);
             Assert.That(errors, Is.Empty);
         });
+    }
+
+    [TestCase(null)]
+    [TestCase("")]
+    public void Check_LiftWithBlankWeight_EnterWeight(string? weight)
+    {
+        var exercise = SampleData.Exercise(Catalog, Squat, ["8", weight]);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(checker.Check(exercise, exercise.Entries[0]), Is.False);
+            Assert.That(exercise.Entries[0].Errors, Is.EqualTo(new Dictionary<string, string> { ["weight"] = "Enter weight" }));
+            Assert.That(exercise.Entries[0].Values["weight"], Is.EqualTo(weight));
+        });
+    }
+
+    [TestCase(PushUp, new[] { "8", null })]
+    [TestCase(AssistedPullUp, new[] { "8", "" })]
+    [TestCase(Plank, new[] { "0:01:00", null })]
+    [TestCase(FarmersWalk, new[] { "40", null, "0:00:45" })]
+    public void Check_BlankWeightOtherThanALift_IsCheckedAs0AndLeftBlank(int exerciseId, string?[] values)
+    {
+        var exercise = SampleData.Exercise(Catalog, exerciseId, values);
+        var typed = exercise.Entries[0].Values["weight"];
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(checker.Check(exercise, exercise.Entries[0]), Is.True);
+            Assert.That(exercise.Entries[0].Values["weight"], Is.EqualTo(typed));
+            Assert.That(workouts.Sets.Single().Set.WeightKg, Is.EqualTo(0m));
+        });
+    }
+
+    [Test]
+    public void Read_BlankWeightOtherThanALift_Is0() =>
+        Assert.That(((StrengthExercise)checker.Read(SampleData.Exercise(Catalog, PushUp, ["8", null]))).Sets.Single().WeightKg, Is.EqualTo(0m));
+
+    [Test]
+    public void CheckOnSave_BlankWeight_IsFilledWith0()
+    {
+        var exercise = SampleData.Exercise(Catalog, PushUp, ["8", null]);
+
+        checker.CheckOnSave(exercise, exercise.Entries[0]);
+
+        Assert.That(exercise.Entries[0].Values["weight"], Is.EqualTo("0"));
+    }
+
+    [Test]
+    public void Check_UnreadableWeight_IsNotFilled()
+    {
+        var exercise = SampleData.Exercise(Catalog, PushUp, ["8", "abc"]);
+
+        checker.Check(exercise, exercise.Entries[0]);
+
+        Assert.That(exercise.Entries[0].Values["weight"], Is.EqualTo("abc"));
     }
 
     [Test]
@@ -96,7 +150,7 @@ public class SetCheckerTests
     [Test]
     public void Check_DistanceWithMoreThanTwoDecimalPlaces_IsAnError()
     {
-        Assert.That(Check(FarmersWalk, "40.125").Errors,
+        Assert.That(Check(FarmersWalk, "40.125", "32", "0:00:45").Errors,
             Is.EqualTo(new Dictionary<string, string> { ["distance"] = "Distance can have up to 2 decimal places" }));
     }
 
@@ -105,14 +159,14 @@ public class SetCheckerTests
     [TestCase(".5")]
     public void Check_PointInAWholeNumber_MustBeAWholeNumber(string reps)
     {
-        Assert.That(Check(Squat, reps).Errors,
+        Assert.That(Check(Squat, reps, "60").Errors,
             Is.EqualTo(new Dictionary<string, string> { ["reps"] = "Reps must be a whole number" }));
     }
 
     [Test]
     public void Check_WholeNumberEndingInAPoint_MustBeANumber()
     {
-        Assert.That(Check(Squat, "8.").Errors,
+        Assert.That(Check(Squat, "8.", "60").Errors,
             Is.EqualTo(new Dictionary<string, string> { ["reps"] = "Reps must be a number" }));
     }
 
@@ -122,7 +176,7 @@ public class SetCheckerTests
     [TestCase("99999999999", "Reps must be 1,000 or less")]
     public void Check_RepsFailingCore_IsWorded(string? reps, string message)
     {
-        Assert.That(Check(Squat, reps).Errors, Is.EqualTo(new Dictionary<string, string> { ["reps"] = message }));
+        Assert.That(Check(Squat, reps, "60").Errors, Is.EqualTo(new Dictionary<string, string> { ["reps"] = message }));
     }
 
     [TestCase("1000.01")]
@@ -158,7 +212,7 @@ public class SetCheckerTests
     [Test]
     public void Check_FormatErrorOnARequiredField_IsTheOnlyMessage()
     {
-        Assert.That(Check(Squat, "abc").Errors,
+        Assert.That(Check(Squat, "abc", "60").Errors,
             Is.EqualTo(new Dictionary<string, string> { ["reps"] = "Reps must be a number" }));
     }
 
@@ -209,13 +263,14 @@ public class SetCheckerTests
     [TestCase("100001", "Distance must be 100,000 or less")]
     public void Check_CarryDistanceFailingCore_IsWorded(string distance, string message)
     {
-        Assert.That(Check(FarmersWalk, distance).Errors, Is.EqualTo(new Dictionary<string, string> { ["distance"] = message }));
+        Assert.That(Check(FarmersWalk, distance, "32", "0:00:45").Errors, Is.EqualTo(new Dictionary<string, string> { ["distance"] = message }));
     }
 
-    [Test]
-    public void Check_CarryOptionalDurationOfZero_IsValid()
+    [TestCase(null, "Enter duration")]
+    [TestCase("0:00:00", "Duration must be more than 0")]
+    public void Check_CarryDurationMissingOrZero_IsWorded(string? duration, string message)
     {
-        Assert.That(Check(FarmersWalk, "40", null, "0:00:00").Valid, Is.True);
+        Assert.That(Check(FarmersWalk, "40", "32", duration).Errors, Is.EqualTo(new Dictionary<string, string> { ["duration"] = message }));
     }
 
     [Test]
@@ -239,7 +294,7 @@ public class SetCheckerTests
     [Test]
     public void Check_Passing_LeavesCheckOnChangeUnset()
     {
-        var exercise = SampleData.Exercise(Catalog, Squat, ["8"]);
+        var exercise = SampleData.Exercise(Catalog, Squat, ["8", "60"]);
 
         checker.Check(exercise, exercise.Entries[0]);
 
@@ -265,13 +320,13 @@ public class SetCheckerTests
     {
         Assert.Multiple(() =>
         {
-            Assert.That(Check(OutdoorRun, "0:25:30", "5.25", "310", "5:06").Valid, Is.True);
+            Assert.That(Check(OutdoorRun, "0:25:30", "5.25", "310").Valid, Is.True);
             Assert.That(Check(StairClimber, "0:15:00", "60", "8", "150", "90.5").Valid, Is.True);
         });
         Assert.That(workouts.Entries, Is.EqualTo(new[]
         {
-            (OutdoorRun, new CardioEntry(new TimeSpan(0, 25, 30), 5.25m, null, null, null, 310, null, new TimeSpan(0, 5, 6))),
-            (StairClimber, new CardioEntry(TimeSpan.FromMinutes(15), null, 60, 8, null, 150, 90.5m, null)),
+            (OutdoorRun, new CardioEntry(new TimeSpan(0, 25, 30), 5.25m, null, null, null, 310, null)),
+            (StairClimber, new CardioEntry(TimeSpan.FromMinutes(15), null, 60, 8, null, 150, 90.5m)),
         }));
         Assert.That(workouts.Sets, Is.Empty);
     }
@@ -283,11 +338,11 @@ public class SetCheckerTests
     [TestCase("0:1a:00", "Duration must be a time")]
     public void Check_BadCardioDuration_IsWorded(string? duration, string message)
     {
-        Assert.That(Check(Treadmill, duration).Errors, Is.EqualTo(new Dictionary<string, string> { ["duration"] = message }));
+        Assert.That(Check(Treadmill, duration, "5").Errors, Is.EqualTo(new Dictionary<string, string> { ["duration"] = message }));
     }
 
     [TestCase(Treadmill, "incline", "1.255", "Incline can have up to 2 decimal places")]
-    [TestCase(Treadmill, "rate", "9.555", "Rate can have up to 2 decimal places")]
+    [TestCase(Rower, "rate", "9.555", "Rate can have up to 2 decimal places")]
     [TestCase(Treadmill, "distance", "3,2", "Distance must be a number")]
     [TestCase(Rower, "level", "5.5", "Damper must be a whole number")]
     [TestCase(Rower, "calories", "abc", "Calories must be a number")]
@@ -302,7 +357,6 @@ public class SetCheckerTests
     [TestCase(Treadmill, "distance", "1000.01", "Distance must be 1,000 or less")]
     [TestCase(Treadmill, "incline", "100.01", "Incline must be 100 or less")]
     [TestCase(Treadmill, "calories", "10001", "Calories must be 10,000 or less")]
-    [TestCase(Treadmill, "rate", "100.5", "Rate must be 100 or less")]
     [TestCase(Rower, "distance", "100001", "Distance must be 100,000 or less")]
     [TestCase(Rower, "rate", "201", "Rate must be 200 or less")]
     [TestCase(StairClimber, "floors", "1001", "Floors must be 1,000 or less")]
@@ -315,70 +369,44 @@ public class SetCheckerTests
     }
 
     [Test]
-    public void Check_CardioAtTheLimitsAndZero_IsValid()
+    public void Check_CardioAtTheLimits_IsValid()
     {
         Assert.Multiple(() =>
         {
-            Assert.That(Check(Treadmill, "23:59:59", "1000", "100", "10000", "100").Valid, Is.True);
-            Assert.That(Check(StairClimber, "0:00:01", "0", "0", "0", "0").Valid, Is.True);
+            Assert.That(Check(Treadmill, "23:59:59", "1000", "100", "10000").Valid, Is.True);
+            Assert.That(Check(StairClimber, "0:00:01", "1", "1", "1", "1").Valid, Is.True);
+            Assert.That(Check(Treadmill, "0:10:00", "0.01", "0").Valid, Is.True);
         });
     }
 
-    [TestCase("5:30", 330)]
-    [TestCase(":30", 30)]
-    [TestCase("5:", 300)]
-    [TestCase("0:00", 0)]
-    [TestCase("60:00", 3_600)]
-    public void Check_Pace_IsReadAsMinutesAndSeconds(string pace, int seconds)
+    [Test]
+    public void Check_CardioZeros_MustBeMoreThan0()
     {
-        var (valid, _) = CheckField(OutdoorRun, "pace", pace);
-
         Assert.Multiple(() =>
         {
-            Assert.That(valid, Is.True);
-            Assert.That(workouts.Entries.Single().Entry.Pace, Is.EqualTo(TimeSpan.FromSeconds(seconds)));
+            Assert.That(Check(StairClimber, "0:10:00", "0", "0", "0", "0").Errors, Is.EqualTo(new Dictionary<string, string>
+            {
+                ["floors"] = "Floors must be more than 0",
+                ["level"] = "Speed level must be more than 0",
+                ["calories"] = "Calories must be more than 0",
+                ["rate"] = "Rate must be more than 0",
+            }));
+            Assert.That(Check(OutdoorRun, "0:10:00", "0").Errors, Is.EqualTo(new Dictionary<string, string> { ["distance"] = "Distance must be more than 0" }));
         });
     }
 
-    [TestCase(null)]
-    [TestCase("")]
-    [TestCase(":")]
-    public void Check_EmptyPace_IsValidAndEmpty(string? pace)
-    {
-        var (valid, _) = CheckField(OutdoorRun, "pace", pace);
-
-        Assert.Multiple(() =>
-        {
-            Assert.That(valid, Is.True);
-            Assert.That(workouts.Entries.Single().Entry.Pace, Is.Null);
-        });
-    }
-
-    [TestCase("5:75", "Pace seconds must be 00–59")]
-    [TestCase("5:60", "Pace seconds must be 00–59")]
-    [TestCase("60:01", "Pace must be 60:00 or less")]
-    [TestCase("61:00", "Pace must be 60:00 or less")]
-    [TestCase("99:59", "Pace must be 60:00 or less")]
-    [TestCase("99999999:00", "Pace must be 60:00 or less")]
-    [TestCase("9999999999:00", "Pace must be a time")]
-    [TestCase("5:3a", "Pace must be a time")]
-    [TestCase("-5:30", "Pace must be a time")]
-    [TestCase("5", "Pace must be a time")]
-    [TestCase("0:05:30", "Pace must be a time")]
-    public void Check_BadPace_IsWorded(string pace, string message)
-    {
-        Assert.That(CheckField(OutdoorRun, "pace", pace).Errors, Is.EqualTo(new Dictionary<string, string> { ["pace"] = message }));
-    }
+    [Test]
+    public void Check_CardioWithoutDistance_EnterDistance() =>
+        Assert.That(Check(OutdoorRun, "0:10:00", null).Errors, Is.EqualTo(new Dictionary<string, string> { ["distance"] = "Enter distance" }));
 
     [Test]
     public void Check_NotWholeSeconds_IsWorded()
     {
         var plank = SampleData.Exercise(Catalog, Plank, ["0:01:00"]);
-        var run = SampleData.Exercise(Catalog, OutdoorRun, ["0:25:30", null, null, "5:30"]);
+        var run = SampleData.Exercise(Catalog, OutdoorRun, ["0:25:30", "5", null]);
         var codes = new ExerciseErrors(null, [new EntryErrors(new Dictionary<Metric, FieldError>
         {
             [Metric.Duration] = FieldError.NotWholeSeconds,
-            [Metric.Pace] = FieldError.NotWholeSeconds,
         })]);
         var stub = new SetChecker(new RecordingWorkoutService(workouts, codes), Catalog, logger);
 
@@ -387,11 +415,7 @@ public class SetCheckerTests
             Assert.That(stub.Check(plank, plank.Entries[0]), Is.False);
             Assert.That(plank.Entries[0].Errors, Is.EqualTo(new Dictionary<string, string> { ["duration"] = "Duration must be whole seconds" }));
             Assert.That(stub.Check(run, run.Entries[0]), Is.False);
-            Assert.That(run.Entries[0].Errors, Is.EqualTo(new Dictionary<string, string>
-            {
-                ["duration"] = "Duration must be whole seconds",
-                ["pace"] = "Pace must be whole seconds",
-            }));
+            Assert.That(run.Entries[0].Errors, Is.EqualTo(new Dictionary<string, string> { ["duration"] = "Duration must be whole seconds" }));
         });
     }
 
@@ -414,7 +438,7 @@ public class SetCheckerTests
     }
 
     [Test]
-    public void Read_Strength_ReturnsEverySetWithUnreadableFieldsEmpty()
+    public void Read_Strength_ReturnsEverySetWithUnreadableFieldsEmptyAndABlankWeightAs0()
     {
         var exercise = SampleData.Exercise(Catalog, FarmersWalk, ["40.5", "32", "0:00:45"], ["abc", "32.555", "0:00:75"], [null, null, null]);
 
@@ -422,7 +446,7 @@ public class SetCheckerTests
         [
             new StrengthSet(null, 32m, TimeSpan.FromSeconds(45), 40.5m),
             new StrengthSet(null, null, null, null),
-            new StrengthSet(null, null, null, null),
+            new StrengthSet(null, 0m, null, null),
         ])).UsingPropertiesComparer());
     }
 
@@ -438,7 +462,7 @@ public class SetCheckerTests
         var exercise = SampleData.Exercise(Catalog, OutdoorRun, ["0:25:30", "5", "abc", "5:75"]);
 
         Assert.That(checker.Read(exercise),
-            Is.EqualTo(new CardioExercise(OutdoorRun, new CardioEntry(new TimeSpan(0, 25, 30), 5m, null, null, null, null, null, null))));
+            Is.EqualTo(new CardioExercise(OutdoorRun, new CardioEntry(new TimeSpan(0, 25, 30), 5m, null, null, null, null, null))));
     }
 
     [Test]
@@ -508,7 +532,7 @@ public class SetCheckerTests
     public void Read_CardioWithNoEntry_ReturnsAnEmptyEntry()
     {
         Assert.That(checker.Read(SampleData.Exercise(Catalog, OutdoorRun, [])),
-            Is.EqualTo(new CardioExercise(OutdoorRun, new CardioEntry(null, null, null, null, null, null, null, null))));
+            Is.EqualTo(new CardioExercise(OutdoorRun, new CardioEntry(null, null, null, null, null, null, null))));
     }
 
     [Test]
@@ -529,12 +553,18 @@ public class SetCheckerTests
         return (valid, entry.Errors);
     }
 
-    /// <summary>Checks a cardio entry with a valid duration and <paramref name="value"/> in the field <paramref name="key"/>.</summary>
+    /// <summary>Checks a cardio entry with a valid duration and distance and <paramref name="value"/> in the field <paramref name="key"/>.</summary>
     private (bool Valid, Dictionary<string, string> Errors) CheckField(int exerciseId, string key, string? value)
     {
         var exercise = SampleData.Exercise(Catalog, exerciseId, []);
-        exercise.Entries.Add(new EntryState { Values = { ["duration"] = "0:10:00", [key] = value } });
-        var entry = exercise.Entries.Single();
+        var entry = new EntryState { Values = { ["duration"] = "0:10:00" } };
+        if (exercise.Fields.Any(f => f.Key == "distance"))
+        {
+            entry.Values["distance"] = "1";
+        }
+
+        entry.Values[key] = value;
+        exercise.Entries.Add(entry);
         var valid = checker.Check(exercise, entry);
         return (valid, entry.Errors);
     }
@@ -547,6 +577,8 @@ public class SetCheckerTests
         public List<(int ExerciseId, CardioEntry Entry)> Entries { get; } = [];
 
         public WorkoutDraft StartNew() => inner.StartNew();
+
+        public TimeSpan Elapsed(WorkoutDraft draft) => inner.Elapsed(draft);
 
         public WorkoutErrors Validate(IReadOnlyList<WorkoutExercise> exercises) => inner.Validate(exercises);
 

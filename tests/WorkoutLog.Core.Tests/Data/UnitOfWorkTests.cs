@@ -20,9 +20,9 @@ public class UnitOfWorkTests
     {
         databasePath = TempDatabase.NewPath();
         connection = new SQLiteAsyncConnection(databasePath);
-        await connection.CreateTablesAsync<WorkoutRow, WorkoutExerciseRow, StrengthSetRow, CardioEntryRow>();
-        repository = new WorkoutRepository(connection, new WorkoutWriterFactory(new ExerciseCatalog()));
-        unitOfWork = new UnitOfWork(connection, new WorkoutWriterFactory(new ExerciseCatalog()));
+        await connection.RunInTransactionAsync(WorkoutTables.CreateMissing);
+        repository = new WorkoutRepository(connection, new WorkoutWriterFactory());
+        unitOfWork = new UnitOfWork(connection, new WorkoutWriterFactory());
     }
 
     [TearDown]
@@ -40,8 +40,8 @@ public class UnitOfWorkTests
         await unitOfWork.RunAsync(writer =>
         {
             writer.DeleteAll();
-            writer.Add(new NewWorkout(Start.AddDays(1), Start.AddDays(1), Exercises));
-            writer.Add(new NewWorkout(Start.AddDays(2), Start.AddDays(2), []));
+            writer.Add(new NewWorkout(Start.AddDays(1), Start.AddDays(1).AddMinutes(30), Exercises));
+            writer.Add(new NewWorkout(Start.AddDays(2), Start.AddDays(2).AddMinutes(30), []));
         });
 
         Assert.That((await repository.ListAsync()).Select(w => w.StartedAt), Is.EqualTo(new[] { Start.AddDays(2), Start.AddDays(1) }));
@@ -55,8 +55,8 @@ public class UnitOfWorkTests
         Assert.That(() => unitOfWork.RunAsync(writer =>
         {
             writer.DeleteAll();
-            writer.Add(new NewWorkout(Start.AddDays(1), Start.AddDays(1), Exercises));
-            writer.Add(new NewWorkout(Start.AddDays(1), Start.AddDays(1), Exercises));
+            writer.Add(new NewWorkout(Start.AddDays(1), Start.AddDays(1).AddMinutes(30), Exercises));
+            writer.Add(new NewWorkout(Start.AddDays(1), Start.AddDays(1).AddMinutes(30), Exercises));
         }), Throws.InstanceOf<SQLiteException>());
 
         Assert.That(await repository.GetAllAsync(), Is.EqualTo(new[] { kept }).UsingPropertiesComparer());

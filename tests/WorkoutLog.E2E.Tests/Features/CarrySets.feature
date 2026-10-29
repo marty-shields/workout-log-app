@@ -22,18 +22,26 @@ Feature: Carry sets
     And focus is on Farmer's Walk set 1 distance
 
   Scenario: Tapping a summary opens that set and closes the open one
-    Given I have logged Farmer's Walk sets: 40 m 32 kg; 50 m 32 kg
+    Given I have logged Farmer's Walk sets: 40 m 32 kg 0:00:45; 50 m 32 kg 0:00:50
     When I tap the summary of Farmer's Walk set 1
     Then Farmer's Walk set 1 is open
-    And Farmer's Walk set 2 is a summary "50m · 32kg"
+    And Farmer's Walk set 2 is a summary "50m · 32kg · 0:00:50"
+
+  @D23
+  Scenario: A carry set with no weight shows no weight in its summary
+    Given I have logged Farmer's Walk sets: 40 m 0:00:45; 50 m 32 kg 0:00:50
+    When I tap the summary of Farmer's Walk set 1
+    Then Farmer's Walk set 2 is a summary "50m · 32kg · 0:00:50"
+    When I tap the summary of Farmer's Walk set 2
+    Then Farmer's Walk set 1 is a summary "40m · 0:00:45"
 
   Scenario: A summary doesn't open while the open set has errors
-    Given I have logged Farmer's Walk set 1: 40 m, 32 kg
+    Given I have logged Farmer's Walk set 1: 40 m, 32 kg, 0:00:45
     And I have tapped Add set on Farmer's Walk
     When I tap the summary of Farmer's Walk set 1
     Then Farmer's Walk set 2 is still open and shows "Enter distance"
 
   Scenario: Removing the open set leaves every set closed
-    Given I have logged Farmer's Walk sets: 40 m 32 kg; 50 m 32 kg
+    Given I have logged Farmer's Walk sets: 40 m 32 kg 0:00:45; 50 m 32 kg 0:00:50
     When I remove Farmer's Walk set 2
     Then every Farmer's Walk set is a summary

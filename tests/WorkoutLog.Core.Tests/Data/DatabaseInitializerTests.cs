@@ -53,7 +53,6 @@ public class DatabaseInitializerTests
             ("CardioEntry", "Incline", "float"),
             ("CardioEntry", "Calories", "integer"),
             ("CardioEntry", "Rate", "float"),
-            ("CardioEntry", "Pace", "bigint"),
             ("Exercise", "Id", "integer"),
             ("Exercise", "Name", "varchar"),
             ("Exercise", "Type", "integer"),
@@ -78,7 +77,71 @@ public class DatabaseInitializerTests
             ("StrengthSet", "WorkoutExerciseId", false),
             ("Workout", "StartedAt", true),
             ("WorkoutExercise", "WorkoutId", false),
+            ("WorkoutExercise", "WorkoutId", true),
+            ("WorkoutExercise", "ExerciseId", true),
         }));
+    }
+
+    [TestCase("INSERT INTO Workout (StartedAt, FinishedAt) VALUES (100, 100)", TestName = "Finish at the start")]
+    [TestCase("INSERT INTO WorkoutExercise (WorkoutId, ExerciseId, Position) VALUES (1, 6, 10)", TestName = "Eleventh exercise")]
+    [TestCase("INSERT INTO WorkoutExercise (WorkoutId, ExerciseId, Position) VALUES (1, 6, 0), (1, 6, 1)", TestName = "Repeated exercise")]
+    [TestCase("INSERT INTO StrengthSet (WorkoutExerciseId, Position, Reps) VALUES (1, 0, 5)", TestName = "No weight")]
+    [TestCase("INSERT INTO StrengthSet (WorkoutExerciseId, Position, Reps, WeightKg) VALUES (1, 0, 5, 22.755)", TestName = "Three decimal places")]
+    [TestCase("INSERT INTO StrengthSet (WorkoutExerciseId, Position, WeightKg, Duration) VALUES (1, 0, 0, 0)", TestName = "Zero duration")]
+    [TestCase("INSERT INTO StrengthSet (WorkoutExerciseId, Position, WeightKg, Duration) VALUES (1, 0, 0, 305000000)", TestName = "Part second")]
+    [TestCase("INSERT INTO CardioEntry (WorkoutExerciseId, Duration, Distance) VALUES (1, 6000000000, 0)", TestName = "Zero distance")]
+    [TestCase("INSERT INTO CardioEntry (WorkoutExerciseId, Duration, Calories) VALUES (1, 6000000000, 0)", TestName = "Zero calories")]
+    [TestCase("INSERT INTO CardioEntry (WorkoutExerciseId, Duration, Incline) VALUES (1, 6000000000, -1)", TestName = "Negative incline")]
+    [TestCase("INSERT INTO CardioEntry (WorkoutExerciseId) VALUES (1)", TestName = "No cardio duration")]
+    [TestCase("INSERT INTO CardioEntry (WorkoutExerciseId, Duration) VALUES (1, 6005000000)", TestName = "Cardio part second")]
+    [TestCase("INSERT INTO CardioEntry (WorkoutExerciseId, Duration) VALUES (1, 864000000000)", TestName = "Duration over 23:59:59")]
+    [TestCase("INSERT INTO CardioEntry (WorkoutExerciseId, Duration, Floors) VALUES (1, 6000000000, 0)", TestName = "Zero floors")]
+    [TestCase("INSERT INTO CardioEntry (WorkoutExerciseId, Duration, Level) VALUES (1, 6000000000, 101)", TestName = "Level over 100")]
+    [TestCase("INSERT INTO CardioEntry (WorkoutExerciseId, Duration, Incline) VALUES (1, 6000000000, 100.01)", TestName = "Incline over 100")]
+    [TestCase("INSERT INTO CardioEntry (WorkoutExerciseId, Duration, Rate) VALUES (1, 6000000000, 1000.01)", TestName = "Rate over 1000")]
+    [TestCase("INSERT INTO CardioEntry (WorkoutExerciseId, Duration, Rate) VALUES (1, 6000000000, 85.555)", TestName = "Rate with three decimal places")]
+    [TestCase("INSERT INTO CardioEntry (WorkoutExerciseId, Duration, Distance) VALUES (1, 6000000000, 100000.01)", TestName = "Distance over 100000")]
+    [TestCase("INSERT INTO StrengthSet (WorkoutExerciseId, Position, Reps, WeightKg) VALUES (1, 0, 0, 0)", TestName = "Zero reps")]
+    [TestCase("INSERT INTO StrengthSet (WorkoutExerciseId, Position, Reps, WeightKg) VALUES (1, 0, 1001, 0)", TestName = "Reps over 1000")]
+    [TestCase("INSERT INTO StrengthSet (WorkoutExerciseId, Position, Reps, WeightKg) VALUES (1, 0, 5, 1000.01)", TestName = "Weight over 1000")]
+    [TestCase("INSERT INTO StrengthSet (WorkoutExerciseId, Reps, WeightKg) VALUES (1, 5, 0)", TestName = "No set position")]
+    [TestCase("INSERT INTO WorkoutExercise (WorkoutId, Position) VALUES (1, 0)", TestName = "No exercise id")]
+    [TestCase("INSERT INTO Workout (StartedAt) VALUES (100)", TestName = "No finish")]
+    public async Task InitializeAsync_NewDatabase_RejectsRowsThatBreakTheRules(string insert)
+    {
+        await Initializer(DatabaseInitializer.CurrentVersion, AppSteps()).InitializeAsync();
+
+        Assert.That(() => connection.ExecuteAsync(insert), Throws.InstanceOf<SQLiteException>());
+    }
+
+    [TestCase(0.29)]
+    [TestCase(62.5)]
+    [TestCase(999.99)]
+    [TestCase(0)]
+    public async Task InitializeAsync_NewDatabase_KeepsTwoPlaceDecimalsWrittenBySqliteNet(decimal weight)
+    {
+        await Initializer(DatabaseInitializer.CurrentVersion, AppSteps()).InitializeAsync();
+
+        await connection.InsertAsync(new StrengthSetRow { WorkoutExerciseId = 1, Position = 0, Reps = 5, WeightKg = weight, Distance = weight + 0.01m });
+        await connection.InsertAsync(new CardioEntryRow { WorkoutExerciseId = 1, Duration = TimeSpan.FromMinutes(30), Distance = weight + 0.01m, Rate = weight + 0.01m });
+
+        Assert.That((await connection.Table<StrengthSetRow>().FirstAsync()).WeightKg, Is.EqualTo(weight));
+    }
+
+    [Test]
+    public async Task InitializeAsync_NewDatabase_KeepsEveryTwoPlaceWeightFrom0To1000()
+    {
+        await Initializer(DatabaseInitializer.CurrentVersion, AppSteps()).InitializeAsync();
+
+        await connection.RunInTransactionAsync(db =>
+        {
+            for (var hundredths = 0; hundredths <= 100_000; hundredths++)
+            {
+                db.Insert(new StrengthSetRow { WorkoutExerciseId = 1, Position = 0, Reps = 1, WeightKg = hundredths / 100m });
+            }
+        });
+
+        Assert.That(await connection.Table<StrengthSetRow>().CountAsync(), Is.EqualTo(100_001));
     }
 
     [Test]
@@ -125,11 +188,11 @@ public class DatabaseInitializerTests
     }
 
     [Test]
-    public async Task InitializeAsync_CurrentDatabaseWithoutPace_AddsThePaceColumnAndKeepsTheEntries()
+    public async Task InitializeAsync_CurrentDatabaseWithoutRate_AddsTheRateColumnAndKeepsTheEntries()
     {
         await connection.ExecuteAsync(
             "CREATE TABLE CardioEntry (Id integer primary key autoincrement not null, WorkoutExerciseId integer not null, " +
-            "Duration bigint not null, Distance float, Floors integer, Level integer, Incline float, Calories integer, Rate float)");
+            "Duration bigint not null, Distance float, Floors integer, Level integer, Incline float, Calories integer)");
         await connection.ExecuteAsync("INSERT INTO CardioEntry (WorkoutExerciseId, Duration) VALUES (1, 6000000000)");
         await SetVersion(DatabaseInitializer.CurrentVersion);
 
@@ -137,7 +200,7 @@ public class DatabaseInitializerTests
 
         Assert.Multiple(async () =>
         {
-            Assert.That(await Columns(), Does.Contain(("CardioEntry", "Pace", "bigint")));
+            Assert.That(await Columns(), Does.Contain(("CardioEntry", "Rate", "float")));
             Assert.That(await connection.Table<CardioEntryRow>().CountAsync(), Is.EqualTo(1));
         });
     }
@@ -342,7 +405,8 @@ public class DatabaseInitializerTests
         });
     }
 
-    private static ISchemaUpgrade[] AppSteps() => [new WorkoutStartedAtUniqueIndex(), new BlankAssistToZero(Catalog)];
+    private static ISchemaUpgrade[] AppSteps() =>
+        [new WorkoutStartedAtUniqueIndex(), new BlankAssistToZero(Catalog), new ValidationRulesSchema(Catalog, NullLogger<ValidationRulesSchema>.Instance)];
 
     /// <summary>
     /// Creates the version 1 schema with two exercises and a workout at each of <paramref name="startedAt"/> (ticks);

@@ -84,7 +84,7 @@ internal sealed partial class ExportService(
         return exercise switch
         {
             StrengthExercise strength => new ExportExercise(info, strength.Sets.Select(s => new ExportSet(s.Reps, s.WeightKg, s.Duration, s.Distance)).ToList(), null),
-            CardioExercise { Entry: var e } => new ExportExercise(info, null, new ExportEntry(e.Duration, e.Distance, e.Floors, e.Level, e.Incline, e.Calories, e.Rate, e.Pace)),
+            CardioExercise { Entry: var e } => new ExportExercise(info, null, new ExportEntry(e.Duration, e.Distance, e.Floors, e.Level, e.Incline, e.Calories, e.Rate)),
             _ => throw new ArgumentOutOfRangeException(nameof(exercise), $"Unknown exercise type {exercise.GetType().Name}"),
         };
     }

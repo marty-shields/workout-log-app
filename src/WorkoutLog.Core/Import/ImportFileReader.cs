@@ -12,6 +12,9 @@ internal sealed class ImportFileReader : IImportFileReader
 {
     private const int ChunkBytes = 81920;
 
+    private static readonly HashSet<string> HeaderNames = ["formatVersion", "exportedAt", "appVersion", "workouts"];
+    private static readonly HashSet<string> WorkoutNames = ["startedAt", "finishedAt", "exercises"];
+
     private readonly IReadOnlyList<IFormatUpgrade> upgrades;
     private readonly int currentVersion;
     private readonly int maxBytes;
@@ -81,7 +84,8 @@ internal sealed class ImportFileReader : IImportFileReader
             upgrade.Apply(file);
         }
 
-        if (!IsExportedAt(Text(file, "exportedAt")) || string.IsNullOrWhiteSpace(Text(file, "appVersion")) || file["workouts"] is not JsonArray workouts)
+        if (!HasOnly(file, HeaderNames) || !IsExportedAt(Text(file, "exportedAt")) || string.IsNullOrWhiteSpace(Text(file, "appVersion"))
+            || file["workouts"] is not JsonArray workouts)
         {
             return new ImportFileRead(ImportError.NotAnExport, []);
         }
@@ -91,7 +95,10 @@ internal sealed class ImportFileReader : IImportFileReader
             : new ImportFileRead(ImportError.None, workouts.Select((w, i) => ReadWorkout(w, i + 1)).ToList());
     }
 
-    /// <summary>Reads one workout. Its times are kept as text for the checks; anything else that can't be read makes it malformed.</summary>
+    /// <summary>
+    /// Reads one workout. Its times are kept as text for the checks; anything else that can't be read,
+    /// including a property the format doesn't have, makes it malformed.
+    /// </summary>
     private static ImportWorkout ReadWorkout(JsonNode? node, int position)
     {
         if (node is not JsonObject workout)
@@ -105,7 +112,7 @@ internal sealed class ImportFileReader : IImportFileReader
         {
             started = Text(workout, "startedAt");
             finished = Text(workout, "finishedAt");
-            var body = workout.Deserialize<ImportWorkoutBody>(ImportFormat.Options);
+            var body = HasOnly(workout, WorkoutNames) ? workout.Deserialize<ImportWorkoutBody>(ImportFormat.Options) : null;
             return body is not null && !body.Exercises.Contains(null!) && body.Exercises.All(e => e.IsWellFormed)
                 ? new ImportWorkout(position, started, finished, body.Exercises)
                 : new ImportWorkout(position, started, finished, null);
@@ -121,6 +128,8 @@ internal sealed class ImportFileReader : IImportFileReader
         file["formatVersion"] is JsonValue value && value.GetValueKind() == JsonValueKind.Number && value.TryGetValue<int>(out var version) && version >= 1
             ? version
             : null;
+
+    private static bool HasOnly(JsonObject json, HashSet<string> names) => json.All(p => names.Contains(p.Key));
 
     private static bool IsExportedAt(string? text) =>
         DateTimeOffset.TryParseExact(text, "yyyy-MM-dd'T'HH:mm:ss'Z'", CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal, out _);

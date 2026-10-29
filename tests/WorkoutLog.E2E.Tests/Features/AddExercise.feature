@@ -98,7 +98,7 @@ Feature: Add exercise
   @D42
   Scenario: Picking a strength exercise already added adds a set to its card
     Given I have added "Barbell Back Squat"
-    And I have logged Barbell Back Squat set 1: 5 reps
+    And I have logged Barbell Back Squat set 1: 5 reps, 60 kg
     When I add "Barbell Back Squat"
     Then there is 1 exercise
     And Barbell Back Squat has 2 sets

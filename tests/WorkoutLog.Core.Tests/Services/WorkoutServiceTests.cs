@@ -19,11 +19,12 @@ public class WorkoutServiceTests
     private const int Press = 1;
     private const int Bike = 2;
     private static readonly DateTimeOffset Start = new(2026, 10, 21, 17, 5, 0, TimeSpan.Zero);
-    private static readonly WorkoutErrors NoErrors = new(null, []);
-    private static readonly WorkoutErrors Errors = new(null, [new ExerciseErrors(ExerciseError.NoSets, [])]);
-    private static readonly WorkoutErrors SaveFailed = new(WorkoutError.SaveFailed, []);
+    private static readonly WorkoutErrors NoErrors = new([], []);
+    private static readonly WorkoutErrors Errors = new([], [new ExerciseErrors(ExerciseError.NoSets, [])]);
+    private static readonly WorkoutErrors SaveFailed = new([WorkoutError.SaveFailed], []);
 
     private FakeTimeProvider time = null!;
+    private FakeElapsedClock elapsed = null!;
     private Mock<IWorkoutRepository> repository = null!;
     private Mock<IWorkoutValidator> validator = null!;
     private FakeLogger<WorkoutService> logger = null!;
@@ -33,11 +34,12 @@ public class WorkoutServiceTests
     public void SetUp()
     {
         time = new FakeTimeProvider(Start);
+        elapsed = new FakeElapsedClock();
         repository = new Mock<IWorkoutRepository>(MockBehavior.Strict);
         validator = new Mock<IWorkoutValidator>();
         validator.Setup(v => v.Validate(It.IsAny<IReadOnlyList<WorkoutExercise>>())).Returns(NoErrors);
         logger = new FakeLogger<WorkoutService>();
-        service = new WorkoutService(repository.Object, validator.Object, time, logger);
+        service = new WorkoutService(repository.Object, validator.Object, time, elapsed, logger);
     }
 
     [Test]
@@ -61,6 +63,7 @@ public class WorkoutServiceTests
         repository.SetupSequence(r => r.AddAsync(It.IsAny<NewWorkout>())).ReturnsAsync(7).ReturnsAsync(8);
         var first = service.StartNew();
         time.Advance(TimeSpan.FromHours(1));
+        elapsed.Advance(TimeSpan.FromHours(1));
         var second = service.StartNew();
 
         var results = new[] { await service.SaveNewAsync(first, Exercises()), await service.SaveNewAsync(second, Exercises()) };
@@ -94,7 +97,7 @@ public class WorkoutServiceTests
     [Test]
     public void ValidateEntry_ChecksTheEntryAsACardioExercise()
     {
-        var entry = new CardioEntry(TimeSpan.FromMinutes(5), null, null, null, null, null, null, null);
+        var entry = new CardioEntry(TimeSpan.FromMinutes(5), null, null, null, null, null, null);
         var errors = new ExerciseErrors(null, [new EntryErrors(new Dictionary<Metric, FieldError>())]);
         validator.Setup(v => v.Validate(It.IsAny<WorkoutExercise>())).Returns(errors);
 
@@ -103,10 +106,30 @@ public class WorkoutServiceTests
     }
 
     [Test]
-    public async Task SaveNewAsync_Valid_SavesWithTheCurrentTimeAsFinish()
+    public void Elapsed_IsTheElapsedClocksTimeSinceTheStart()
     {
         var draft = service.StartNew();
-        time.Advance(TimeSpan.FromMinutes(62));
+        elapsed.Advance(TimeSpan.FromMinutes(62));
+        time.Advance(TimeSpan.FromHours(3));
+
+        Assert.That(service.Elapsed(draft), Is.EqualTo(TimeSpan.FromMinutes(62)));
+    }
+
+    [Test]
+    public void Elapsed_ReadingBelowTheStart_IsZero()
+    {
+        var draft = service.StartNew();
+        elapsed.Elapsed -= TimeSpan.FromSeconds(1);
+
+        Assert.That(service.Elapsed(draft), Is.EqualTo(TimeSpan.Zero));
+    }
+
+    [Test]
+    public async Task SaveNewAsync_Valid_SavesWithTheStartPlusTheElapsedTimeAsFinish()
+    {
+        var draft = service.StartNew();
+        elapsed.Advance(TimeSpan.FromMinutes(62));
+        time.Advance(TimeSpan.FromMinutes(5));
         NewWorkout? saved = null;
         repository.Setup(r => r.AddAsync(It.IsAny<NewWorkout>())).Callback<NewWorkout>(w => saved = w).ReturnsAsync(7);
 
@@ -119,14 +142,26 @@ public class WorkoutServiceTests
     }
 
     [Test]
-    public async Task SaveNewAsync_ClockBeforeTheStart_FinishesAtTheStart()
+    public async Task SaveNewAsync_ClockMoved_FinishIsStillTheStartPlusTheElapsedTime()
     {
-        var startedAt = Start.AddMinutes(30);
+        var draft = service.StartNew();
+        time.Advance(TimeSpan.FromHours(1));
+        elapsed.Advance(TimeSpan.FromMinutes(10));
         repository.Setup(r => r.AddAsync(It.IsAny<NewWorkout>())).ReturnsAsync(7);
 
-        await service.SaveNewAsync(new WorkoutDraft(startedAt), Exercises());
+        await service.SaveNewAsync(draft, Exercises());
 
-        repository.Verify(r => r.AddAsync(It.Is<NewWorkout>(w => w.StartedAt == startedAt && w.FinishedAt == startedAt)), Times.Once);
+        repository.Verify(r => r.AddAsync(It.Is<NewWorkout>(w => w.StartedAt == Start && w.FinishedAt == Start.AddMinutes(10))), Times.Once);
+    }
+
+    [Test]
+    public async Task SaveNewAsync_NoTimeElapsed_FinishesATickAfterTheStart()
+    {
+        repository.Setup(r => r.AddAsync(It.IsAny<NewWorkout>())).ReturnsAsync(7);
+
+        await service.SaveNewAsync(service.StartNew(), Exercises());
+
+        repository.Verify(r => r.AddAsync(It.Is<NewWorkout>(w => w.FinishedAt == Start.AddTicks(1))), Times.Once);
     }
 
     [Test]
@@ -166,7 +201,7 @@ public class WorkoutServiceTests
 
         var result = await service.SaveNewAsync(service.StartNew(), Exercises());
 
-        Assert.That(result, Is.EqualTo(new SaveResult(null, SaveFailed)));
+        Assert.That(result, Is.EqualTo(new SaveResult(null, SaveFailed)).UsingPropertiesComparer());
     }
 
     [Test]
@@ -177,6 +212,7 @@ public class WorkoutServiceTests
             .AddSingleton(typeof(ILogger<>), typeof(NullLogger<>))
             .AddCore(path)
             .AddSingleton<TimeProvider>(time)
+            .AddSingleton<IElapsedClock>(elapsed)
             .BuildServiceProvider();
         try
         {
@@ -188,7 +224,7 @@ public class WorkoutServiceTests
             var second = await saving.SaveNewAsync(saving.StartNew(), exercises);
 
             Assert.That(first.WorkoutId, Is.Not.Null);
-            Assert.That(second, Is.EqualTo(new SaveResult(null, SaveFailed)));
+            Assert.That(second, Is.EqualTo(new SaveResult(null, SaveFailed)).UsingPropertiesComparer());
             Assert.That(await provider.GetRequiredService<IWorkoutRepository>().ListAsync(),
                 Is.EqualTo(new[] { new WorkoutSummary(first.WorkoutId!.Value, Start) }));
         }
@@ -232,7 +268,7 @@ public class WorkoutServiceTests
 
         var result = await service.SaveAsync(7, Exercises());
 
-        Assert.That(result, Is.EqualTo(new SaveResult(null, SaveFailed)));
+        Assert.That(result, Is.EqualTo(new SaveResult(null, SaveFailed)).UsingPropertiesComparer());
     }
 
     [Test]
@@ -240,7 +276,7 @@ public class WorkoutServiceTests
     {
         repository.Setup(r => r.AddAsync(It.IsAny<NewWorkout>())).ReturnsAsync(7);
 
-        await service.SaveNewAsync(new WorkoutDraft(Start), Exercises());
+        await service.SaveNewAsync(new WorkoutDraft(Start, TimeSpan.Zero), Exercises());
 
         Assert.That(LoggedEvents.Of(logger), Is.EqualTo(new[]
         {
@@ -248,16 +284,6 @@ public class WorkoutServiceTests
         }));
     }
 
-    [Test]
-    public async Task SaveNewAsync_ClockBeforeTheStart_LogsAWarning()
-    {
-        repository.Setup(r => r.AddAsync(It.IsAny<NewWorkout>())).ReturnsAsync(7);
-
-        await service.SaveNewAsync(new WorkoutDraft(Start.AddMinutes(30)), Exercises());
-
-        Assert.That(LoggedEvents.Of(logger)[0], Is.EqualTo(
-            (CoreEvent.ClockBeforeStart, LogLevel.Warning, "The clock is 00:30:00 behind the workout start; the finish is set to the start")));
-    }
 
     [Test]
     public async Task SaveNewAsync_RepositoryThrows_LogsTheException()
@@ -265,7 +291,7 @@ public class WorkoutServiceTests
         var exception = SQLiteException.New(SQLite3.Result.Full, "disk full");
         repository.Setup(r => r.AddAsync(It.IsAny<NewWorkout>())).ThrowsAsync(exception);
 
-        await service.SaveNewAsync(new WorkoutDraft(Start), Exercises());
+        await service.SaveNewAsync(new WorkoutDraft(Start, TimeSpan.Zero), Exercises());
 
         Assert.That(LoggedEvents.Of(logger), Is.EqualTo(new[] { (CoreEvent.WorkoutAddFailed, LogLevel.Error, "Adding a workout failed") }));
         Assert.That(logger.LatestRecord.Exception, Is.SameAs(exception));
@@ -375,7 +401,7 @@ public class WorkoutServiceTests
     {
         validator.Setup(v => v.Validate(It.IsAny<IReadOnlyList<WorkoutExercise>>())).Returns(Errors);
 
-        await service.SaveNewAsync(new WorkoutDraft(Start), Exercises());
+        await service.SaveNewAsync(new WorkoutDraft(Start, TimeSpan.Zero), Exercises());
         await service.SaveAsync(7, Exercises());
 
         Assert.That(LoggedEvents.Of(logger), Is.Empty);
@@ -395,6 +421,7 @@ public class WorkoutServiceTests
             Assert.That(() => service.Validate([new CardioExercise(Bike, null!)]), Throws.ArgumentNullException);
             Assert.That(() => service.ValidateSet(Press, null!), Throws.ArgumentNullException);
             Assert.That(() => service.ValidateEntry(Bike, null!), Throws.ArgumentNullException);
+            Assert.That(() => service.Elapsed(null!), Throws.ArgumentNullException);
             Assert.That(() => service.SaveNewAsync(null!, Exercises()), Throws.ArgumentNullException);
             Assert.That(() => service.SaveNewAsync(draft, null!), Throws.ArgumentNullException);
             Assert.That(() => service.SaveAsync(7, [null!]), Throws.ArgumentNullException);
@@ -405,7 +432,7 @@ public class WorkoutServiceTests
     private static WorkoutExercise[] Exercises() =>
     [
         new StrengthExercise(Press, [new StrengthSet(10, 20m, null, null)]),
-        new CardioExercise(Bike, new CardioEntry(TimeSpan.FromMinutes(20), null, null, null, null, null, null, null)),
+        new CardioExercise(Bike, new CardioEntry(TimeSpan.FromMinutes(20), 8m, null, null, null, null, null)),
     ];
 
     private static bool Same(IReadOnlyList<WorkoutExercise> actual, IReadOnlyList<WorkoutExercise> expected) =>

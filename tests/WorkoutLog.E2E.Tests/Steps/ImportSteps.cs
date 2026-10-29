@@ -15,16 +15,25 @@ public sealed class ImportSteps(
     private static readonly TimeSpan DefaultLength = TimeSpan.FromMinutes(45);
 
     [Given(@"^an export file ""(.+)"" in Downloads with these workouts:$")]
-    public void GivenAnExportFile(string name, DataTable table)
+    public void GivenAnExportFile(string name, DataTable table) => Push(name, ExportJson.File(Workouts(table)).ToJsonString());
+
+    [Given(@"^an export file ""(.+)"" in Downloads with these workouts, the first with the unknown property ""(.+)"":$")]
+    public void GivenAnExportFileWithAnUnknownProperty(string name, string property, DataTable table)
+    {
+        var workouts = Workouts(table).ToList();
+        workouts[0][property] = "x";
+        Push(name, ExportJson.File(workouts).ToJsonString());
+    }
+
+    /// <summary>The table's workouts as the export writes them, each lasting <see cref="DefaultLength"/>.</summary>
+    private IEnumerable<System.Text.Json.Nodes.JsonObject> Workouts(DataTable table)
     {
         var now = clock.LocalNow();
-        var workouts = table.Rows.Select(row =>
+        return table.Rows.Select(row =>
         {
             var started = SeedTime.Resolve(row["started"], now);
             return ExportJson.Workout(clock.FromLocal(started), clock.FromLocal(started + DefaultLength), ExerciseValues.ParseWorkout(row["exercises"]));
         });
-
-        Push(name, ExportJson.File(workouts).ToJsonString());
     }
 
     [Given(@"^a file ""(.+)"" in Downloads holding ""(.*)""$")]

@@ -36,7 +36,7 @@ internal interface IWorkoutRepository
     Task<IReadOnlyList<LastSession>> GetLastSessionsAsync();
 
     /// <summary>
-    /// Returns each workout that has the exercise, by start time oldest first, with the exercise's blocks in position order and their sets or entry.
+    /// Returns each workout that has the exercise, by start time oldest first, with the exercise's sets or entry.
     /// </summary>
     Task<IReadOnlyList<WorkoutSession>> GetSessionsAsync(int exerciseId);
 

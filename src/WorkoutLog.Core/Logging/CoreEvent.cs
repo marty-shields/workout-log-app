@@ -1,6 +1,9 @@
 namespace WorkoutLog.Core.Logging;
 
-/// <summary>Event ids of Core's log messages: 1000–1999, a block of 100 per type; the Exercise page services share 1900. Values never change once logged.</summary>
+/// <summary>
+/// Event ids of Core's log messages: 1000–1999, a block of 100 per type; the Exercise page services share 1900. Values never change once logged,
+/// and a removed event's id isn't reused. Retired: 1205.
+/// </summary>
 internal enum CoreEvent
 {
     /// <summary><see cref="Data.DatabaseInitializer"/>: stored and current schema versions.</summary>
@@ -11,6 +14,12 @@ internal enum CoreEvent
 
     /// <summary><see cref="Data.DatabaseInitializer"/>: a schema upgrade step ran.</summary>
     SchemaStepApplied = 1003,
+
+    /// <summary><see cref="Data.ValidationRulesSchema"/>: schema step 4's changes, as counts.</summary>
+    ValidationRulesApplied = 1004,
+
+    /// <summary><see cref="Data.ValidationRulesSchema"/>: rows break a rule; schema step 4 fails.</summary>
+    ValidationRuleBroken = 1005,
 
     /// <summary><see cref="Data.ExerciseSeeder"/>: exercises added and updated.</summary>
     ExercisesSeeded = 1101,
@@ -26,9 +35,6 @@ internal enum CoreEvent
 
     /// <summary><see cref="Services.WorkoutService"/>: saving an edited workout failed.</summary>
     WorkoutUpdateFailed = 1204,
-
-    /// <summary><see cref="Services.WorkoutService"/>: the clock is before the workout start on first save.</summary>
-    ClockBeforeStart = 1205,
 
     /// <summary><see cref="Services.WorkoutService"/>: new workout started.</summary>
     WorkoutStarted = 1206,

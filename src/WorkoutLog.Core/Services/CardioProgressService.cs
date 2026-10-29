@@ -47,7 +47,8 @@ internal sealed partial class CardioProgressService(
         }
 
         var cardio = sessions
-            .Select(s => new CardioSession(s.WorkoutId, s.StartedAt, s.Exercises.OfType<CardioExercise>().Select(e => e.Entry).ToList()))
+            .Where(s => s.Exercise is CardioExercise)
+            .Select(s => new CardioSession(s.WorkoutId, s.StartedAt, ((CardioExercise)s.Exercise).Entry))
             .ToList();
         Log.Loaded(logger, cardio.Count, exerciseId);
         return new CardioProgressResult(cardio, Failed: false);
@@ -59,7 +60,7 @@ internal sealed partial class CardioProgressService(
         var inRange = sessions
             .Where(s => rangeFilter.Includes(s.StartedAt, range))
             .OrderBy(s => s.StartedAt)
-            .Select(s => new CardioSessionProgress(s, sessionRule.Best(s.Entries)))
+            .Select(s => new CardioSessionProgress(s, sessionRule.Best(s.Entry)))
             .ToList();
         return new CardioProgress(inRange, recordsRule.Records(inRange));
     }

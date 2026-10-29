@@ -7,8 +7,8 @@ namespace WorkoutLog.Core.Export;
 /// <param name="Name">Name.</param>
 /// <param name="Type">Strength or cardio.</param>
 /// <param name="DistanceUnit">Unit of the distance metric, when it has one.</param>
-/// <param name="RateUnit">Unit of the rate metric, when it has one.</param>
-/// <param name="PaceUnit">Unit of the pace metric, when it has one.</param>
+/// <param name="RateUnit">Unit of the rate metric or worked-out speed, when it has one.</param>
+/// <param name="PaceUnit">Unit of the worked-out pace, when it has one.</param>
 internal sealed record ExportExerciseInfo(
     int Id,
     string? Name = null,

@@ -14,7 +14,7 @@ namespace WorkoutLog.E2E.Tests.Steps;
 [Binding]
 public sealed partial class SetSteps(WebView web, Native native, WorkoutScreen workout, ScenarioState state)
 {
-    private const string NotAnExercise = "(?!the |each |Workouts |Exercises |This |reopening |I |.* is still open and shows )";
+    private const string NotAnExercise = "(?!the |each |Workouts |Exercises |This |reopening |I |.* is still open and shows |.* shows the worked-out )";
 
     [When(@"^I enter ""(.*)"" in (.+?)((?: and leave the field)?)$")]
     public void WhenIEnter(string text, string field, string leave)
@@ -44,7 +44,7 @@ public sealed partial class SetSteps(WebView web, Native native, WorkoutScreen w
         web.Type(TestId(target), text);
     }
 
-    [When(@"^I tap (.+? (?:reps|weight|duration|distance|incline|level|calories|pace|floors|rate)(?: (?:hours|minutes|seconds))?)$")]
+    [When(@"^I tap (.+? (?:reps|weight|duration|distance|incline|level|calories|floors|rate)(?: (?:hours|minutes|seconds))?)$")]
     public void WhenITapAField(string field) => web.Tap(TestId(FieldRef.Parse(field)));
 
     [When(@"^I tap Add set on (.+)$")]
@@ -238,16 +238,11 @@ public sealed partial class SetSteps(WebView web, Native native, WorkoutScreen w
     private string ReadField(FieldRef field) =>
         field.Box is null ? workout.Read(field.Name, field.Set, field.Key) : web.Value(TestId(field));
 
-    /// <summary>The field's input, or its first box for a duration or pace.</summary>
+    /// <summary>The field's input, or its first box for a duration.</summary>
     private string TestId(FieldRef field)
     {
         var testId = workout.Field(field.Name, field.Set, field.Key);
-        var box = field.Box ?? field.Key switch
-        {
-            "duration" => "h",
-            "pace" => "m",
-            _ => null,
-        };
+        var box = field.Box ?? (field.Key == "duration" ? "h" : null);
 
         return box is null ? testId : $"{testId}-{box}";
     }

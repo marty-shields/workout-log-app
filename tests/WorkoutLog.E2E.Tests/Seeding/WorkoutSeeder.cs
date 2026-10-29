@@ -49,6 +49,7 @@ public sealed class WorkoutSeeder(Native native)
         await using var services = new ServiceCollection()
             .AddCore(path)
             .AddSingleton<TimeProvider>(clock)
+            .AddSingleton<IElapsedClock>(new SeedElapsedClock(clock))
             .AddSingleton(typeof(ILogger<>), typeof(NullLogger<>))
             .BuildServiceProvider();
         try
@@ -64,7 +65,7 @@ public sealed class WorkoutSeeder(Native native)
                 var result = await workoutService.SaveNewAsync(draft, workout.Exercises);
                 if (result.WorkoutId != i + 1)
                 {
-                    throw new InvalidOperationException($"Seeding workout {i + 1} failed: {result.Errors.Error}, {result.Errors.Exercises.Count} exercise errors.");
+                    throw new InvalidOperationException($"Seeding workout {i + 1} failed: {string.Join(", ", result.Errors.Errors)}, {result.Errors.Exercises.Count(e => !e.IsValid)} exercises with errors.");
                 }
             }
         }
@@ -102,6 +103,12 @@ public sealed class WorkoutSeeder(Native native)
         public DateTimeOffset Now { get; set; }
 
         public override DateTimeOffset GetUtcNow() => Now.ToUniversalTime();
+    }
+
+    /// <summary>An elapsed clock that follows <paramref name="clock"/>, so each workout's finish is the time set before saving.</summary>
+    private sealed class SeedElapsedClock(SeedClock clock) : IElapsedClock
+    {
+        public TimeSpan Elapsed => clock.Now - DateTimeOffset.UnixEpoch;
     }
 }
 

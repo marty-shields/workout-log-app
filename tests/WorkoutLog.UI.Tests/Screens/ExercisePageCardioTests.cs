@@ -16,8 +16,8 @@ public class ExercisePageCardioTests : ComponentTestBase
     /// <summary>Wed 28 Oct 2026 12:00 UTC.</summary>
     private static readonly DateTimeOffset Now = new(2026, 10, 28, 12, 0, 0, TimeSpan.Zero);
 
-    private static readonly CardioSession Long = new(61, Now.AddDays(-17), [Entry(TimeSpan.FromMinutes(30), 5.2m, TimeSpan.FromSeconds(346), 410)]);
-    private static readonly CardioSession Short = new(60, Now.AddDays(-24), [Entry(TimeSpan.FromSeconds(1760), 5m, TimeSpan.FromSeconds(352), null)]);
+    private static readonly CardioSession Long = new(61, Now.AddDays(-17), Entry(TimeSpan.FromMinutes(30), 5.2m, 410));
+    private static readonly CardioSession Short = new(60, Now.AddDays(-24), Entry(TimeSpan.FromSeconds(1760), 5m, null));
 
     private FakeExerciseProgressService lifts = null!;
     private FakeCardioProgressService progress = null!;
@@ -34,16 +34,17 @@ public class ExercisePageCardioTests : ComponentTestBase
         {
             Result = new CardioProgressResult([Short, Long], Failed: false),
             Summary = (_, range) => range == ChartRange.All
-                ? new CardioProgress([], new CardioRecords(null, null, null, null, null))
+                ? new CardioProgress([], new CardioRecords(null, null, null, null, null, null))
                 : new CardioProgress(
                     [
-                        new CardioSessionProgress(Short, new CardioBest(5m, TimeSpan.FromSeconds(1760), TimeSpan.FromSeconds(352), null, null)),
-                        new CardioSessionProgress(Long, new CardioBest(5.2m, TimeSpan.FromMinutes(30), TimeSpan.FromSeconds(346), null, 410)),
+                        new CardioSessionProgress(Short, new CardioBest(5m, TimeSpan.FromSeconds(1760), TimeSpan.FromSeconds(352), null, null, null)),
+                        new CardioSessionProgress(Long, new CardioBest(5.2m, TimeSpan.FromMinutes(30), TimeSpan.FromSeconds(346), null, null, 410)),
                     ],
                     new CardioRecords(
                         new ProgressRecord<decimal>(5.2m, Long.StartedAt),
                         new ProgressRecord<TimeSpan>(TimeSpan.FromMinutes(30), Long.StartedAt),
                         new ProgressRecord<TimeSpan>(TimeSpan.FromSeconds(346), Long.StartedAt),
+                        null,
                         null,
                         new ProgressRecord<int>(410, Long.StartedAt))),
         };
@@ -145,8 +146,8 @@ public class ExercisePageCardioTests : ComponentTestBase
     public void ChoosingATabWithNoValues_ShowsItsMessage()
     {
         progress.Summary = (_, _) => new CardioProgress(
-            [new CardioSessionProgress(Short, new CardioBest(5m, TimeSpan.FromSeconds(1760), TimeSpan.FromSeconds(352), null, null))],
-            new CardioRecords(null, null, null, null, null));
+            [new CardioSessionProgress(Short, new CardioBest(5m, TimeSpan.FromSeconds(1760), TimeSpan.FromSeconds(352), null, null, null))],
+            new CardioRecords(null, null, null, null, null, null));
         var cut = Render(Run);
 
         cut.Find("[data-testid=exercise-tab-calories]").Change(true);
@@ -174,7 +175,7 @@ public class ExercisePageCardioTests : ComponentTestBase
     public void NoDistance_OpensOnDurationWithFloors()
     {
         progress.Result = new CardioProgressResult([], Failed: false);
-        progress.Summary = (_, _) => new CardioProgress([], new CardioRecords(null, null, null, null, null));
+        progress.Summary = (_, _) => new CardioProgress([], new CardioRecords(null, null, null, null, null, null));
 
         var cut = Render(StairClimber);
 
@@ -207,6 +208,6 @@ public class ExercisePageCardioTests : ComponentTestBase
     private IRenderedComponent<ExercisePage> Render(int exerciseId) =>
         Context.Render<ExercisePage>(p => p.Add(x => x.ExerciseId, exerciseId));
 
-    private static CardioEntry Entry(TimeSpan duration, decimal distance, TimeSpan pace, int? calories) =>
-        new(duration, distance, null, null, null, calories, null, pace);
+    private static CardioEntry Entry(TimeSpan duration, decimal distance, int? calories) =>
+        new(duration, distance, null, null, null, calories, null);
 }

@@ -22,12 +22,12 @@ Feature: Import
     Given these saved workouts:
       | started          | exercises                         |
       | yesterday 18:05  | Barbell Bench Press: 8 reps 60 kg |
-      | 3 days ago 18:05 | Push-up: 10 reps                  |
+      | 3 days ago 18:05 | Push-up: 10 reps 0 kg                  |
     And an export file "e2e-import.json" in Downloads with these workouts:
       | started          | exercises                         |
       | yesterday 18:05  | Barbell Bench Press: 8 reps 60 kg |
-      | 3 days ago 18:05 | Push-up: 12 reps                  |
-      | 5 days ago 18:05 | Push-up: 20 reps                  |
+      | 3 days ago 18:05 | Push-up: 12 reps 0 kg                  |
+      | 5 days ago 18:05 | Push-up: 20 reps 0 kg                  |
     And I have opened Settings
     When I import "e2e-import.json"
     Then the review counts 1 new, 1 already on this phone, 1 different and 0 that can't be imported
@@ -36,7 +36,7 @@ Feature: Import
     Then Settings shows "<message>" under Import
     And Settings says "Export all 3 workouts to a JSON file"
     When I go back with the back arrow
-    Then reopening workout 2 shows Push-up sets: <reps> reps
+    Then reopening workout 2 shows Push-up sets: <reps> reps 0 kg
     Examples:
       | choice            | message                     | reps |
       | Keep this phone's | Added 1 workout             | 10   |
@@ -45,12 +45,12 @@ Feature: Import
   Scenario: Replace all asks first, then deletes the phone's workouts and imports the file's
     Given these saved workouts:
       | started          | exercises        |
-      | yesterday 18:05  | Push-up: 10 reps |
-      | 3 days ago 18:05 | Push-up: 11 reps |
-      | 4 days ago 18:05 | Push-up: 12 reps |
+      | yesterday 18:05  | Push-up: 10 reps 0 kg |
+      | 3 days ago 18:05 | Push-up: 11 reps 0 kg |
+      | 4 days ago 18:05 | Push-up: 12 reps 0 kg |
     And an export file "e2e-import.json" in Downloads with these workouts:
       | started          | exercises                         |
-      | yesterday 18:05  | Push-up: 10 reps                  |
+      | yesterday 18:05  | Push-up: 10 reps 0 kg                  |
       | 6 days ago 18:05 | Barbell Bench Press: 8 reps 60 kg |
     And I have opened Settings
     When I import "e2e-import.json"
@@ -66,33 +66,42 @@ Feature: Import
   Scenario: A file with nothing new can't be imported with Add
     Given these saved workouts:
       | started         | exercises        |
-      | yesterday 18:05 | Push-up: 10 reps |
+      | yesterday 18:05 | Push-up: 10 reps 0 kg |
     And an export file "e2e-import.json" in Downloads with these workouts:
       | started         | exercises        |
-      | yesterday 18:05 | Push-up: 10 reps |
+      | yesterday 18:05 | Push-up: 10 reps 0 kg |
     And I have opened Settings
     When I import "e2e-import.json"
     Then the review counts 0 new, 1 already on this phone, 0 different and 0 that can't be imported
     And the review shows "Nothing new to import"
     And Import on the review is disabled
 
-  @D23
-  Scenario: A blank assist in the file matches the phone's 0 kg
-    Given these saved workouts:
-      | started         | exercises                        |
-      | yesterday 18:05 | Machine Assisted Pull-up: 8 reps |
-    And an export file "e2e-import.json" in Downloads with these workouts:
-      | started         | exercises                        |
-      | yesterday 18:05 | Machine Assisted Pull-up: 8 reps |
+  @FR-04
+  Scenario: A workout with an exercise twice can't be imported
+    Given an export file "e2e-import.json" in Downloads with these workouts:
+      | started          | exercises                                    |
+      | yesterday 18:05  | Push-up: 10 reps 0 kg / Push-up: 8 reps 0 kg |
+      | 3 days ago 18:05 | Push-up: 12 reps 0 kg                        |
     And I have opened Settings
     When I import "e2e-import.json"
-    Then the review counts 0 new, 1 already on this phone, 0 different and 0 that can't be imported
+    Then the review counts 1 new, 0 already on this phone, 0 different and 1 that can't be imported
+    And the log shows "Workout 1 in the file can't be imported: RepeatedExercise"
+
+  Scenario: A workout with a property the format doesn't have can't be imported
+    Given an export file "e2e-import.json" in Downloads with these workouts, the first with the unknown property "note":
+      | started          | exercises             |
+      | yesterday 18:05  | Push-up: 10 reps 0 kg |
+      | 3 days ago 18:05 | Push-up: 12 reps 0 kg |
+    And I have opened Settings
+    When I import "e2e-import.json"
+    Then the review counts 1 new, 0 already on this phone, 0 different and 1 that can't be imported
+    And the log shows "Workout 1 in the file can't be imported: Malformed"
 
   Scenario: A file that isn't an export shows an error, and another file can be chosen
     Given a file "e2e-notes.json" in Downloads holding "{}"
     And an export file "e2e-import.json" in Downloads with these workouts:
       | started         | exercises        |
-      | yesterday 18:05 | Push-up: 10 reps |
+      | yesterday 18:05 | Push-up: 10 reps 0 kg |
     And I have opened Settings
     When I import "e2e-notes.json"
     Then the review shows the error "This file isn't a Workout Log export"
@@ -109,7 +118,7 @@ Feature: Import
   Scenario Outline: Back from the review returns to Settings without importing
     Given an export file "e2e-import.json" in Downloads with these workouts:
       | started         | exercises        |
-      | yesterday 18:05 | Push-up: 10 reps |
+      | yesterday 18:05 | Push-up: 10 reps 0 kg |
     And I have opened Settings
     When I import "e2e-import.json"
     And I go back with <how>

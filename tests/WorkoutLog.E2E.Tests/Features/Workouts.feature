@@ -9,9 +9,9 @@ Feature: Workouts
   Scenario: Rows are newest first with date, day and start time
     Given these saved workouts:
       | started           | exercises        |
-      | 10 days ago 07:30 | Push-up: 10 reps |
-      | 3 days ago 18:05  | Push-up: 10 reps |
-      | yesterday 12:45   | Push-up: 10 reps |
+      | 10 days ago 07:30 | Push-up: 10 reps 0 kg |
+      | 3 days ago 18:05  | Push-up: 10 reps 0 kg |
+      | yesterday 12:45   | Push-up: 10 reps 0 kg |
     When I open Workouts
     Then the rows read, in order:
       | yesterday 12:45   |
@@ -28,7 +28,7 @@ Feature: Workouts
   Scenario: Tapping a row opens that workout
     Given these saved workouts:
       | started         | exercises                  |
-      | yesterday 18:05 | Barbell Back Squat: 5 reps |
+      | yesterday 18:05 | Barbell Back Squat: 5 reps 60 kg |
     When I open Workouts
     And I tap the row for yesterday 18:05
     Then I am on Edit Workout titled with yesterday's date and day
