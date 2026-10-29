@@ -7,6 +7,7 @@ using WorkoutLog.App.Import;
 using WorkoutLog.App.Logging;
 using WorkoutLog.App.Navigation;
 using WorkoutLog.App.Sharing;
+using WorkoutLog.App.Timing;
 using WorkoutLog.Core;
 using WorkoutLog.Core.Logging;
 using WorkoutLog.Core.Services;
@@ -28,6 +29,7 @@ public static class MauiProgram
         builder.Services.AddCore(Path.Combine(FileSystem.AppDataDirectory, "workoutlog.db3"));
         builder.Services.AddUi();
         builder.Services.AddSingleton<IExportEnvironment, MauiExportEnvironment>();
+        builder.Services.AddSingleton<IElapsedClock, AndroidElapsedClock>();
         builder.Services.AddSingleton<IFileShare, MauiFileShare>();
         builder.Services.AddSingleton<IImportFilePicker, MauiImportFilePicker>();
 

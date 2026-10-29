@@ -64,3 +64,9 @@
     font-size: var(--font-size-sm);
     font-weight: var(--font-weight-bold);
 }
+
+.note {
+    margin: 0;
+    color: var(--color-text-muted);
+    font-size: var(--font-size-sm);
+}

@@ -8,4 +8,10 @@ public enum WorkoutError
 
     /// <summary>The database write failed.</summary>
     SaveFailed,
+
+    /// <summary>An exercise appears more than once (FR-04).</summary>
+    RepeatedExercise,
+
+    /// <summary>More than <see cref="WorkoutLimits.MaxExercises"/> exercises.</summary>
+    TooManyExercises,
 }

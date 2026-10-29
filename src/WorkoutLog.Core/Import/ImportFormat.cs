@@ -8,12 +8,13 @@ namespace WorkoutLog.Core.Import;
 internal static class ImportFormat
 {
     /// <summary>
-    /// Options for reading a workout: camelCase names, case-sensitive; enum names only; numbers only as JSON numbers;
+    /// Options for reading a workout: camelCase names, case-sensitive; unknown properties fail; enum names only; numbers only as JSON numbers;
     /// required values present and not null.
     /// </summary>
     public static readonly JsonSerializerOptions Options = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+        UnmappedMemberHandling = JsonUnmappedMemberHandling.Disallow,
         RespectNullableAnnotations = true,
         RespectRequiredConstructorParameters = true,
         Converters =

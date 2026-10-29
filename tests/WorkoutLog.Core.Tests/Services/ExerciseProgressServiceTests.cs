@@ -44,8 +44,8 @@ public class ExerciseProgressServiceTests
         var older = Now.AddDays(-7);
         repository.Setup(r => r.GetSessionsAsync(Squat)).ReturnsAsync(
         [
-            new WorkoutSession(1, older, [new StrengthExercise(Squat, [Set(8, 60m)])]),
-            new WorkoutSession(2, Now, [new StrengthExercise(Squat, [Set(5, 65m), Set(3, 70m)])]),
+            new WorkoutSession(1, older, new StrengthExercise(Squat, [Set(8, 60m)])),
+            new WorkoutSession(2, Now, new StrengthExercise(Squat, [Set(5, 65m), Set(3, 70m)])),
         ]);
 
         var result = await service.LoadAsync(Squat);
@@ -55,17 +55,6 @@ public class ExerciseProgressServiceTests
             new StrengthSession(1, older, [Set(8, 60m)]),
             new StrengthSession(2, Now, [Set(5, 65m), Set(3, 70m)]),
         ], Failed: false)).UsingPropertiesComparer());
-    }
-
-    [Test]
-    public async Task LoadAsync_LiftTwiceInAWorkout_IsOneSessionWithTheSetsInWorkoutOrder()
-    {
-        repository.Setup(r => r.GetSessionsAsync(Squat)).ReturnsAsync(
-            [new WorkoutSession(1, Now, [new StrengthExercise(Squat, [Set(5, 60m)]), new StrengthExercise(Squat, [Set(3, 80m), Set(2, 85m)])])]);
-
-        var result = await service.LoadAsync(Squat);
-
-        Assert.That(result.Sessions, Is.EqualTo(new[] { new StrengthSession(1, Now, [Set(5, 60m), Set(3, 80m), Set(2, 85m)]) }).UsingPropertiesComparer());
     }
 
     [Test]
@@ -79,7 +68,7 @@ public class ExerciseProgressServiceTests
     [Test]
     public async Task LoadAsync_Bodyweight_ReturnsEachSessionWithItsSets()
     {
-        repository.Setup(r => r.GetSessionsAsync(PushUp)).ReturnsAsync([new WorkoutSession(1, Now, [new StrengthExercise(PushUp, [Set(20, null), Set(8, 10m)])])]);
+        repository.Setup(r => r.GetSessionsAsync(PushUp)).ReturnsAsync([new WorkoutSession(1, Now, new StrengthExercise(PushUp, [Set(20, null), Set(8, 10m)]))]);
 
         var result = await service.LoadAsync(PushUp);
 
@@ -91,7 +80,7 @@ public class ExerciseProgressServiceTests
     public async Task LoadAsync_LogsTheCountAtInformation()
     {
         repository.Setup(r => r.GetSessionsAsync(Squat)).ReturnsAsync(
-            [new WorkoutSession(1, Now, [new StrengthExercise(Squat, [Set(5, 60m)])]), new WorkoutSession(2, Now.AddDays(1), [])]);
+            [new WorkoutSession(1, Now, new StrengthExercise(Squat, [Set(5, 60m)])), new WorkoutSession(2, Now.AddDays(1), new StrengthExercise(Squat, [Set(3, 70m)]))]);
 
         await service.LoadAsync(Squat);
 
@@ -114,7 +103,7 @@ public class ExerciseProgressServiceTests
     public async Task LoadAsync_AssistedHoldOrCarry_ReturnsItsSessions(int exerciseId)
     {
         repository.Setup(r => r.GetSessionsAsync(exerciseId)).ReturnsAsync(
-            [new WorkoutSession(1, Now, [new StrengthExercise(exerciseId, [Set(8, 10m)])])]);
+            [new WorkoutSession(1, Now, new StrengthExercise(exerciseId, [Set(8, 10m)]))]);
 
         var result = await service.LoadAsync(exerciseId);
 

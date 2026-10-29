@@ -1,6 +1,6 @@
 namespace WorkoutLog.Core.Import.Checks;
 
-/// <summary>The workout has a valid <c>finishedAt</c>, not before its start.</summary>
+/// <summary>The workout has a valid <c>finishedAt</c>, after its start.</summary>
 internal sealed class FinishCheck : IImportCheck
 {
     /// <inheritdoc />
@@ -8,7 +8,7 @@ internal sealed class FinishCheck : IImportCheck
         (workout.Start, workout.Finish) switch
         {
             (_, null) => [ImportSkipReason.InvalidFinish],
-            ({ } start, { } finish) when finish < start => [ImportSkipReason.FinishBeforeStart],
+            ({ } start, { } finish) when finish <= start => [ImportSkipReason.FinishNotAfterStart],
             _ => [],
         };
 }

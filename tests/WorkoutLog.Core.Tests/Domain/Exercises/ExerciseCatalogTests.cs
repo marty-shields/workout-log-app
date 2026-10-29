@@ -42,7 +42,7 @@ public class ExerciseCatalogTests
             Assert.That(exercise.Metrics, Is.EqualTo(new[]
             {
                 new MetricDefinition(Metric.Reps, Required: true),
-                new MetricDefinition(Metric.WeightKg, Required: false, Label: "Assist"),
+                new MetricDefinition(Metric.WeightKg, Required: true, Label: "Assist"),
             }));
         });
     }
@@ -91,8 +91,13 @@ public class ExerciseCatalogTests
 
     [TestCase("Outdoor Run")]
     [TestCase("Outdoor Walk")]
-    public void All_PaceExercises_ShowPaceWhereRateWas(string name) =>
-        Assert.That(Find(name).Metrics.Select(m => m.Metric), Is.EqualTo(new[] { Metric.Duration, Metric.Distance, Metric.Calories, Metric.Pace }));
+    [TestCase("Outdoor Cycle")]
+    public void All_ExercisesWithWorkedOutPaceOrSpeed_ShowDistanceAndDurationOnly(string name) =>
+        Assert.That(Find(name).Metrics.Select(m => m.Metric), Is.EqualTo(new[] { Metric.Duration, Metric.Distance, Metric.Calories }));
+
+    [Test]
+    public void All_Treadmill_HasNoRateMetric() =>
+        Assert.That(Find("Treadmill").Metrics.Select(m => m.Metric), Is.EqualTo(new[] { Metric.Duration, Metric.Distance, Metric.Incline, Metric.Calories }));
 
     [Test]
     public void All_ReadsMetricLabels() =>

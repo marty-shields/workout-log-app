@@ -33,7 +33,6 @@ public sealed partial class EntryValues
         ["damper"] = "level",
         ["resistance"] = "level",
         ["level"] = "level",
-        ["pace"] = "pace",
         ["rate"] = "rate",
     };
 
@@ -78,15 +77,13 @@ public sealed partial class EntryValues
     public StrengthSet ToSet() => new(Int("reps"), Decimal("weight"), Time("duration"), Decimal("distance"));
 
     public CardioEntry ToEntry() =>
-        new(Time("duration"), Decimal("distance"), Int("floors"), Int("level"), Decimal("incline"), Int("calories"), Decimal("rate"), Pace("pace"));
+        new(Time("duration"), Decimal("distance"), Int("floors"), Int("level"), Decimal("incline"), Int("calories"), Decimal("rate"));
 
     private int? Int(string key) => Values.TryGetValue(key, out var text) ? int.Parse(text, CultureInfo.InvariantCulture) : null;
 
     private decimal? Decimal(string key) => Values.TryGetValue(key, out var text) ? decimal.Parse(text, CultureInfo.InvariantCulture) : null;
 
     private TimeSpan? Time(string key) => Values.TryGetValue(key, out var text) ? TimeSpan.ParseExact(text, @"h\:mm\:ss", CultureInfo.InvariantCulture) : null;
-
-    private TimeSpan? Pace(string key) => Values.TryGetValue(key, out var text) ? TimeSpan.ParseExact(text, @"m\:ss", CultureInfo.InvariantCulture) : null;
 
     [GeneratedRegex(@"^\d+:\d{2}:\d{2}$")]
     private static partial Regex Duration();

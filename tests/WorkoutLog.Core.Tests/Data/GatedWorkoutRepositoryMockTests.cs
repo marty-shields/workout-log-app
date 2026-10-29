@@ -12,13 +12,13 @@ public class GatedWorkoutRepositoryMockTests
     [Test]
     public async Task Calls_PassArgumentsAndResultsThrough()
     {
-        var workout = new NewWorkout(Start, Start, Exercises);
-        var stored = new Workout(3, Start, Start, Exercises);
+        var workout = new NewWorkout(Start, Start.AddHours(1), Exercises);
+        var stored = new Workout(3, Start, Start.AddHours(1), Exercises);
         IReadOnlyList<Workout> all = [stored];
         IReadOnlyList<WorkoutSummary> summaries = [new WorkoutSummary(3, Start)];
         IReadOnlyList<WorkoutWeights> weights = [new WorkoutWeights(3, [20m])];
-        IReadOnlyList<LastSession> sessions = [new LastSession(1, Start, Exercises)];
-        IReadOnlyList<WorkoutSession> workoutSessions = [new WorkoutSession(3, Start, Exercises)];
+        IReadOnlyList<LastSession> sessions = [new LastSession(1, Start, Exercises[0])];
+        IReadOnlyList<WorkoutSession> workoutSessions = [new WorkoutSession(3, Start, Exercises[0])];
         var inner = new Mock<IWorkoutRepository>(MockBehavior.Strict);
         inner.Setup(r => r.AddAsync(workout)).ReturnsAsync(3);
         inner.Setup(r => r.ReplaceExercisesAsync(3, Exercises)).Returns(Task.CompletedTask);

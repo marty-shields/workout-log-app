@@ -289,6 +289,26 @@ public static class SampleExercises
         Caption = "Up = faster",
     };
 
+    /// <summary>A treadmill on its Speed tab: speed worked out from distance and duration.</summary>
+    public static SampleExercise CardioSpeed { get; } = new(
+        "Treadmill", "Cardio", [Tab("distance", "Distance"), Tab("duration", "Duration"), Tab("speed", "Speed"), Tab("calories", "Calories")], "speed",
+        [P("6 Sep", 9.6m), P("13 Sep", 9.84m), P("20 Sep", 10), P("27 Sep", 10.2m), P("4 Oct", 10.08m), P("11 Oct", 10.4m)],
+        Count,
+        [
+            new("Longest distance", "5.2km", "11 Oct"),
+            new("Longest duration", "30:00", "27 Sep"),
+            new("Fastest speed", "10.4 km/h", "11 Oct"),
+            new("Most calories", "410 calories", "11 Oct"),
+        ],
+        [
+            new(75, "Sun 11 Oct", "5.2km", "30:00 · 10.4 km/h · 410 calories · 1.5%"),
+            new(74, "Sun 4 Oct", "4.2km", "25:00 · 10.08 km/h · 330 calories · 1.5%"),
+            new(73, "Sun 27 Sep", "5.1km", "30:00 · 10.2 km/h · 400 calories · 1%"),
+            new(72, "Sun 20 Sep", "4km", "24:00 · 10 km/h · 310 calories"),
+            new(71, "Sun 13 Sep", "4.1km", "25:00 · 9.84 km/h · 320 calories"),
+            new(70, "Sun 6 Sep", "3.2km", "20:00 · 9.6 km/h · 250 calories"),
+        ]);
+
     /// <summary>A cardio exercise on its Calories tab, with no calories logged.</summary>
     public static SampleExercise CardioNoData { get; } = CardioDistance with
     {
@@ -308,7 +328,7 @@ public static class SampleExercises
         NoDataMessage = "No calories logged in the last 3 months",
     };
 
-    /// <summary>A cardio exercise with no distance, on its Floors tab; one workout holds it twice.</summary>
+    /// <summary>A cardio exercise with no distance, on its Floors tab.</summary>
     public static SampleExercise CardioFloors { get; } = new(
         "Stair Climber", "Cardio", [Tab("duration", "Duration"), Tab("floors", "Floors"), Tab("calories", "Calories")], "floors",
         [P("10 Sep", 80), P("17 Sep", 90), P("24 Sep", 95), P("1 Oct", 110), P("8 Oct", 100), P("15 Oct", 120)],
@@ -316,7 +336,7 @@ public static class SampleExercises
         [new("Longest duration", "25:00", "15 Oct"), new("Most floors", "120 floors", "15 Oct"), new("Most calories", "300 calories", "15 Oct")],
         [
             new(91, "Thu 15 Oct", "25:00", "120 floors · 300 calories · Speed level 8 · 70 steps/min"),
-            new(90, "Thu 8 Oct", "20:00", "15:00 · 70 floors · 180 calories · Speed level 7 / 20:00 · 100 floors · 240 calories · Speed level 8"),
+            new(90, "Thu 8 Oct", "20:00", "100 floors · 240 calories · Speed level 8"),
             new(89, "Thu 1 Oct", "22:00", "110 floors · 270 calories · Speed level 8"),
             new(88, "Thu 24 Sep", "20:00", "95 floors · 240 calories · Speed level 7"),
             new(87, "Thu 17 Sep", "20:00", "90 floors · 230 calories · Speed level 7"),

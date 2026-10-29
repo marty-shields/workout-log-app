@@ -5,7 +5,7 @@ Feature: Discard edits
   Background:
     Given these saved workouts:
       | started         | exercises                                                  |
-      | yesterday 18:05 | Barbell Back Squat: 5 reps 60 kg / Rowing Machine: 0:10:00 |
+      | yesterday 18:05 | Barbell Back Squat: 5 reps 60 kg / Rowing Machine: 0:10:00 2000 m |
     And I have opened workout 1 from Workouts
 
   @US-28

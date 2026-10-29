@@ -8,7 +8,7 @@ namespace WorkoutLog.Core.Data;
 internal sealed partial class DatabaseInitializer : IDatabaseInitializer
 {
     /// <summary>The app's schema version.</summary>
-    public const int CurrentVersion = 3;
+    public const int CurrentVersion = 4;
 
     private readonly SQLiteAsyncConnection connection;
     private readonly IReadOnlyList<ISchemaUpgrade> upgrades;
@@ -79,8 +79,12 @@ internal sealed partial class DatabaseInitializer : IDatabaseInitializer
         await seeder.SeedAsync();
     }
 
-    private Task CreateTablesAsync() =>
-        connection.CreateTablesAsync<Exercise, WorkoutRow, WorkoutExerciseRow, StrengthSetRow, CardioEntryRow>();
+    /// <summary>Creates the workout tables of <see cref="WorkoutTables"/> when missing, then lets sqlite-net add the Exercise table and any missing column or index.</summary>
+    private async Task CreateTablesAsync()
+    {
+        await connection.RunInTransactionAsync(WorkoutTables.CreateMissing);
+        await connection.CreateTablesAsync<Exercise, WorkoutRow, WorkoutExerciseRow, StrengthSetRow, CardioEntryRow>();
+    }
 
     private List<ISchemaUpgrade> OrderedSteps()
     {

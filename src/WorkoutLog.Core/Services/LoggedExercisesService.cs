@@ -43,7 +43,7 @@ internal sealed partial class LoggedExercisesService(
                 continue;
             }
 
-            var best = rules.FirstOrDefault(r => r.AppliesTo(definition))?.Best(definition, session.Exercises);
+            var best = rules.FirstOrDefault(r => r.AppliesTo(definition))?.Best(definition, session.Exercise);
             exercises.Add((new LoggedExercise(session.ExerciseId, session.StartedAt, best), definition.Name));
         }
 

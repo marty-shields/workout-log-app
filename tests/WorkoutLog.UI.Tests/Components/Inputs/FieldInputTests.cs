@@ -17,15 +17,6 @@ public class FieldInputTests : ComponentTestBase
         Assert.That(cut.FindAll("input"), Has.Count.EqualTo(3));
     }
 
-    [Test]
-    public void PaceField_RendersTwoBoxes()
-    {
-        var cut = Context.Render<FieldInput>(p => p
-            .Add(x => x.Field, new FieldSpec("pace", Metric.Pace, "Pace", FieldKind.Pace, Unit: "min/km"))
-            .Add(x => x.Entry, new EntryState()));
-
-        Assert.That(cut.FindAll("input"), Has.Count.EqualTo(2));
-    }
 
     [TestCase(FieldKind.Whole, "numeric")]
     [TestCase(FieldKind.Decimal, "decimal")]

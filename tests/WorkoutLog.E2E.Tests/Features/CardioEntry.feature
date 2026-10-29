@@ -10,10 +10,10 @@ Feature: Cardio entry
     Then the entry shows exactly the fields: <fields>
     Examples:
       | machine        | fields                                                                         |
-      | Treadmill      | Duration, Distance (km), Incline (%), Calories, Rate (km/h)                    |
+      | Treadmill      | Duration, Distance (km), Incline (%), Calories                                 |
       | Rowing Machine | Duration, Distance (m), Damper, Calories, Rate (strokes/min)                   |
       | Stair Climber  | Duration, Floors, Speed level, Calories, Rate (steps/min)                      |
-      | Outdoor Run    | Duration, Distance (km), Calories, Pace (min/km)                               |
+      | Outdoor Run    | Duration, Distance (km), Calories                                              |
 
   @smoke
   Scenario: Stair Climber saves with duration only
@@ -42,10 +42,19 @@ Feature: Cardio entry
     Then <machine> shows "<message>"
     And I am still on New Workout
     Examples:
-      | machine        | valid   | field    | value   | message                                    |
-      | Rowing Machine | 0:10:00 | level    | 5.5     | Damper must be a whole number              |
-      | Rowing Machine | 0:10:00 | calories | abc     | Calories must be a number                  |
-      | Outdoor Run    | 0:25:30 | pace     | 5:75    | Pace seconds must be 00–59                 |
+      | machine        | valid             | field    | value | message                       |
+      | Rowing Machine | 0:10:00, 2000 m   | level    | 5.5   | Damper must be a whole number |
+      | Rowing Machine | 0:10:00, 2000 m   | calories | abc   | Calories must be a number     |
+      | Outdoor Run    | 0:25:30           | distance | 0     | Distance must be more than 0  |
+      | Stair Climber  | 0:15:00           | floors   | 0     | Floors must be more than 0    |
+
+  @FR-07
+  Scenario: A cardio entry with no distance can't be saved
+    Given I have added "Outdoor Run"
+    And I have logged Outdoor Run: 0:25:30
+    When I save the workout
+    Then Outdoor Run shows "Enter distance"
+    And I am still on New Workout
 
   @D40
   Scenario: Save shows every problem on an entry and focuses the first field at fault
@@ -62,14 +71,21 @@ Feature: Cardio entry
   @D38
   Scenario: After a failed Save each change re-checks the entry
     Given I have added "Treadmill"
-    And I have logged Treadmill: 0:20:00
+    And I have logged Treadmill: 0:20:00, 3.2 km
     And I have entered "1.255" in Treadmill incline
     And I have saved the workout
     When I enter "1.5" in Treadmill incline
     Then Treadmill shows no errors
 
-  @D31
-  Scenario: A partly filled pace fills in when I leave it
+  @D197
+  Scenario: An outdoor run shows its pace worked out from distance and duration
     Given I have added "Outdoor Run"
-    When I enter "5:3" in Outdoor Run pace and leave the field
-    Then Outdoor Run pace shows "5:03"
+    Then Outdoor Run shows the worked-out "Pace —"
+    When I log Outdoor Run: 0:25:30, 5 km
+    Then Outdoor Run shows the worked-out "Pace 5:06/km"
+
+  @D197
+  Scenario: A treadmill shows its speed worked out from distance and duration
+    Given I have added "Treadmill"
+    When I log Treadmill: 0:30:00, 5.2 km
+    Then Treadmill shows the worked-out "Speed 10.4 km/h"

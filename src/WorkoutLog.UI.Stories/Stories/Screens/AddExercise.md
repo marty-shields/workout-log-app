@@ -16,7 +16,7 @@ Add an exercise to the workout (FR-03, FR-04). View: `AddExerciseView`, an overl
 | Loading | `Spinner` "Loading…" centred, while the last sessions load. |
 | Load failed | The rows with no "Last" lines and no message; adding still works. |
 
-Tapping an exercise adds it to the workout and closes the list. Picking one already in the workout moves its card to the top instead of adding it again (FR-04, D42); see [New Workout](./?path=/custom/screens-new-workout-overview).
+Tapping an exercise adds it to the workout and closes the list. Picking one already in the workout moves its card to the top instead of adding it again (FR-04, D42). With 10 exercises, Add exercise is off, so the list can't open (D198); see [New Workout](./?path=/custom/screens-new-workout-overview).
 
 Back closes the list; with the soft keyboard open, Android back first only hides the keyboard (D78).
 

@@ -1,17 +1,14 @@
-using WorkoutLog.Core.Domain.Exercises;
 using WorkoutLog.Core.Domain.Workouts;
 
 namespace WorkoutLog.Core.Tests.Domain.Workouts;
 
 public class WorkoutContentComparerTests
 {
-    /// <summary>Machine Assisted Pull-up: weight labelled Assist.</summary>
-    private const int AssistedPullUp = 218;
 
     private static readonly DateTimeOffset Start = new DateTimeOffset(2026, 10, 21, 17, 5, 0, TimeSpan.Zero).AddTicks(1234567);
     private static readonly DateTimeOffset Finish = Start.AddMinutes(62);
 
-    private readonly WorkoutContentComparer comparer = new(new ExerciseCatalog());
+    private readonly WorkoutContentComparer comparer = new();
 
     [Test]
     public void AreSame_SameContents_IsTrue() =>
@@ -54,24 +51,11 @@ public class WorkoutContentComparerTests
     [Test]
     public void AreSame_DurationsInDifferentSeconds_IsFalse() =>
         Assert.That(comparer.AreSame(
-            Saved([new CardioExercise(300, Entry() with { Pace = new TimeSpan(0, 5, 31) })]),
+            Saved([new CardioExercise(300, Entry() with { Duration = new TimeSpan(0, 25, 31) })]),
             Imported([new CardioExercise(300, Entry())])), Is.False);
 
-    [TestCase(0, null)]
-    [TestCase(null, 0)]
-    public void AreSame_BlankAndZeroAssist_IsTrue(double? saved, double? imported) =>
-        Assert.That(comparer.AreSame(
-            Saved([new StrengthExercise(AssistedPullUp, [new StrengthSet(8, (decimal?)saved, null, null)])]),
-            Imported([new StrengthExercise(AssistedPullUp, [new StrengthSet(8, (decimal?)imported, null, null)])])), Is.True);
-
     [Test]
-    public void AreSame_BlankAndNonZeroAssist_IsFalse() =>
-        Assert.That(comparer.AreSame(
-            Saved([new StrengthExercise(AssistedPullUp, [new StrengthSet(8, 25m, null, null)])]),
-            Imported([new StrengthExercise(AssistedPullUp, [new StrengthSet(8, null, null, null)])])), Is.False);
-
-    [Test]
-    public void AreSame_BlankAndZeroWeightNotAssisted_IsFalse() =>
+    public void AreSame_BlankAndZeroWeight_IsFalse() =>
         Assert.That(comparer.AreSame(
             Saved([new StrengthExercise(1, [new StrengthSet(5, 0m, null, null)])]),
             Imported([new StrengthExercise(1, [new StrengthSet(5, null, null, null)])])), Is.False);
@@ -126,5 +110,5 @@ public class WorkoutContentComparerTests
         new CardioExercise(300, Entry()),
     ];
 
-    private static CardioEntry Entry() => new(new TimeSpan(0, 25, 30), 5.2m, 12, 8, 1.5m, 310, 5.5m, new TimeSpan(0, 5, 30));
+    private static CardioEntry Entry() => new(new TimeSpan(0, 25, 30), 5.2m, 12, 8, 1.5m, 310, 5.5m);
 }

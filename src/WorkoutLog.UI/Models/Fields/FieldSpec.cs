@@ -9,7 +9,10 @@ namespace WorkoutLog.UI.Models.Fields;
 /// <param name="Kind">How the value is entered.</param>
 /// <param name="Required">Whether the field must be filled to save.</param>
 /// <param name="Unit">Unit shown after the label, e.g. kg.</param>
-public sealed record FieldSpec(string Key, Metric Metric, string Label, FieldKind Kind, bool Required = false, string? Unit = null)
+/// <param name="BlankFill">Text a blank field takes before each check, e.g. 0; null leaves it blank.</param>
+/// <param name="HideZero">A value of 0 shows as no value, e.g. 0 kg on a bodyweight move.</param>
+public sealed record FieldSpec(
+    string Key, Metric Metric, string Label, FieldKind Kind, bool Required = false, string? Unit = null, string? BlankFill = null, bool HideZero = false)
 {
     /// <summary>Label with the unit, e.g. Weight (kg).</summary>
     public string DisplayLabel => Unit is null ? Label : $"{Label} ({Unit})";

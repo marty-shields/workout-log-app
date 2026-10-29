@@ -9,7 +9,7 @@ internal sealed class WorkoutValidator(IExerciseCatalog catalog) : IWorkoutValid
 
     /// <inheritdoc />
     public WorkoutErrors Validate(IReadOnlyList<WorkoutExercise> exercises) =>
-        new(exercises.Count == 0 ? WorkoutError.NoExercises : null, exercises.Select(Validate).ToList());
+        new(Errors(exercises), exercises.Select(Validate).ToList());
 
     /// <inheritdoc />
     public ExerciseErrors Validate(WorkoutExercise exercise)
@@ -22,13 +22,41 @@ internal sealed class WorkoutValidator(IExerciseCatalog catalog) : IWorkoutValid
         return exercise switch
         {
             StrengthExercise strength when definition.Type == ExerciseType.Strength =>
-                new ExerciseErrors(strength.Sets.Count == 0 ? ExerciseError.NoSets : null,
+                new ExerciseErrors(SetCountError(strength.Sets.Count),
                     strength.Sets.Select(s => Check(definition, Values(s))).ToList()),
             CardioExercise cardio when definition.Type == ExerciseType.Cardio =>
                 new ExerciseErrors(null, [Check(definition, Values(cardio.Entry))]),
             _ => new ExerciseErrors(ExerciseError.WrongType, []),
         };
     }
+
+    private static List<WorkoutError> Errors(IReadOnlyList<WorkoutExercise> exercises)
+    {
+        var errors = new List<WorkoutError>();
+        if (exercises.Count == 0)
+        {
+            errors.Add(WorkoutError.NoExercises);
+        }
+
+        if (exercises.Count > WorkoutLimits.MaxExercises)
+        {
+            errors.Add(WorkoutError.TooManyExercises);
+        }
+
+        if (exercises.DistinctBy(e => e.ExerciseId).Count() < exercises.Count)
+        {
+            errors.Add(WorkoutError.RepeatedExercise);
+        }
+
+        return errors;
+    }
+
+    private static ExerciseError? SetCountError(int count) => count switch
+    {
+        0 => ExerciseError.NoSets,
+        > WorkoutLimits.MaxSets => ExerciseError.TooManySets,
+        _ => null,
+    };
 
     private static EntryErrors Check(ExerciseDefinition definition, IEnumerable<(Metric Metric, decimal? Value)> values)
     {
@@ -51,15 +79,15 @@ internal sealed class WorkoutValidator(IExerciseCatalog catalog) : IWorkoutValid
             (null, _) => FieldError.NotShown,
             ({ Required: true }, null) => FieldError.Missing,
             (_, null) => null,
-            ({ } shown, <= 0m) when MustBePositive(shown) => FieldError.NotPositive,
+            (_, <= 0m) when MustBePositive(metric) => FieldError.NotPositive,
             (_, < 0m) => FieldError.Negative,
-            ({ Metric: Metric.Duration or Metric.Pace }, { } seconds) when seconds != decimal.Truncate(seconds) => FieldError.NotWholeSeconds,
+            ({ Metric: Metric.Duration }, { } seconds) when seconds != decimal.Truncate(seconds) => FieldError.NotWholeSeconds,
+            (_, { } number) when number != Math.Round(number, MetricLimits.MaxDecimalPlaces) => FieldError.TooManyDecimals,
             (_, { } number) when number > MetricLimits.Max(definition, metric) => FieldError.TooLarge,
             _ => null,
         };
 
-    private static bool MustBePositive(MetricDefinition shown) =>
-        shown.Metric == Metric.Reps || (shown.Required && shown.Metric is Metric.Duration or Metric.Distance);
+    private static bool MustBePositive(Metric metric) => metric is not (Metric.WeightKg or Metric.Incline);
 
     private static (Metric, decimal?)[] Values(StrengthSet set) =>
     [
@@ -78,7 +106,6 @@ internal sealed class WorkoutValidator(IExerciseCatalog catalog) : IWorkoutValid
         (Metric.Incline, entry.Incline),
         (Metric.Calories, entry.Calories),
         (Metric.Rate, entry.Rate),
-        (Metric.Pace, Seconds(entry.Pace)),
     ];
 
     private static decimal? Seconds(TimeSpan? duration) => duration is { } d ? (decimal)d.TotalSeconds : null;

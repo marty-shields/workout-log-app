@@ -15,14 +15,14 @@ public static class ExerciseFields
     /// <summary>A newly added exercise: one empty set (strength) or its empty entry (cardio).</summary>
     public static ExerciseState New(ExerciseDefinition exercise)
     {
-        var state = new ExerciseState(exercise.Id, exercise.Name, Kind(exercise.Type), For(exercise));
+        var state = State(exercise);
         state.Entries.Add(new EntryState());
         return state;
     }
 
     /// <summary>
-    /// A saved exercise, with each value as the user would type it: decimals with up to 2 places and no trailing zeros,
-    /// duration as h:mm:ss, pace as m:ss. Null when the record doesn't match the definition's type.
+    /// A saved exercise, with each value as the user would type it: decimals with up to 2 places and no trailing zeros, 0 included,
+    /// and duration as h:mm:ss. Null when the record doesn't match the definition's type.
     /// </summary>
     public static ExerciseState? Saved(ExerciseDefinition exercise, WorkoutExercise saved)
     {
@@ -39,7 +39,7 @@ public static class ExerciseFields
             return null;
         }
 
-        var state = new ExerciseState(exercise.Id, exercise.Name, kind, For(exercise));
+        var state = State(exercise);
         foreach (var values in entries)
         {
             var entry = new EntryState();
@@ -54,6 +54,39 @@ public static class ExerciseFields
         return state;
     }
 
+    /// <summary>
+    /// The entry's worked-out value as shown under its fields, e.g. Pace 5:46/km or Speed 10.4 km/h; Pace — or Speed — until distance and
+    /// duration are both readable and more than 0. Null when the exercise has none.
+    /// </summary>
+    public static string? WorkedOutText(ExerciseState exercise, EntryState entry)
+    {
+        if (exercise.WorkedOut == WorkedOutKind.None)
+        {
+            return null;
+        }
+
+        var duration = Value(exercise, entry, Metric.Duration) is { } seconds ? TimeSpan.FromSeconds((double)seconds) : (TimeSpan?)null;
+        var distance = Value(exercise, entry, Metric.Distance);
+        return exercise.WorkedOut == WorkedOutKind.Pace
+            ? $"Pace {(WorkedOut.Pace(duration, distance) is { } pace ? PaceText(pace) : "—")}"
+            : $"Speed {(WorkedOut.Speed(duration, distance) is { } speed ? SpeedText(speed) : "—")}";
+    }
+
+    /// <summary>A pace rounded to the second, e.g. 5:46/km (D197).</summary>
+    public static string PaceText(TimeSpan pace) => $"{DisplayFormat.Clock(WorkedOut.RoundPace(pace))}/km";
+
+    /// <summary>A speed rounded to 2 decimal places with no trailing zeros, e.g. 10.4 km/h (D197).</summary>
+    public static string SpeedText(decimal speed) => $"{WorkedOut.RoundSpeed(speed).ToString("0.##", CultureInfo.InvariantCulture)} km/h";
+
+    /// <summary>Puts each field's <see cref="FieldSpec.BlankFill"/> in the field when it is blank, e.g. 0 in a bodyweight move's weight (D23).</summary>
+    public static void FillBlanks(ExerciseState exercise, EntryState entry)
+    {
+        foreach (var field in exercise.Fields.Where(f => f.BlankFill is not null && string.IsNullOrEmpty(entry.Values.GetValueOrDefault(f.Key))))
+        {
+            entry.Values[field.Key] = field.BlankFill;
+        }
+    }
+
     /// <summary>Strength or cardio.</summary>
     public static ExerciseKind Kind(ExerciseType type) => type switch
     {
@@ -62,13 +95,27 @@ public static class ExerciseFields
         _ => throw new ArgumentOutOfRangeException(nameof(type), type, null),
     };
 
+    private static ExerciseState State(ExerciseDefinition exercise) =>
+        new(exercise.Id, exercise.Name, Kind(exercise.Type), For(exercise), WorkedOut.HasPace(exercise) ? WorkedOutKind.Pace
+            : WorkedOut.HasSpeed(exercise) ? WorkedOutKind.Speed
+            : WorkedOutKind.None);
+
+    /// <summary>The field's value read as <see cref="SetChecker"/> reads it, when more than 0; otherwise null.</summary>
+    private static decimal? Value(ExerciseState exercise, EntryState entry, Metric metric) =>
+        exercise.Fields.FirstOrDefault(f => f.Metric == metric) is { } field
+        && FieldReader.Read(field, entry.Values.GetValueOrDefault(field.Key)) is ({ } value and > 0m, null)
+            ? value
+            : null;
+
     private static FieldSpec Field(ExerciseDefinition exercise, MetricDefinition metric)
     {
         var required = metric.Required;
+        var lift = exercise.Category == ExerciseCategory.Lift;
         return metric.Metric switch
         {
             Metric.Reps => new("reps", Metric.Reps, metric.Label ?? "Reps", FieldKind.Whole, required),
-            Metric.WeightKg => new("weight", Metric.WeightKg, metric.Label ?? "Weight", FieldKind.Decimal, required, "kg"),
+            Metric.WeightKg => new("weight", Metric.WeightKg, metric.Label ?? "Weight", FieldKind.Decimal, required, "kg",
+                BlankFill: lift ? null : "0", HideZero: !lift && !exercise.IsAssisted),
             Metric.Duration => new("duration", Metric.Duration, metric.Label ?? "Duration", FieldKind.Duration, required),
             Metric.Distance => new("distance", Metric.Distance, metric.Label ?? "Distance", FieldKind.Decimal, required, DistanceText(exercise)),
             Metric.Floors => new("floors", Metric.Floors, metric.Label ?? "Floors", FieldKind.Whole, required),
@@ -76,7 +123,6 @@ public static class ExerciseFields
             Metric.Incline => new("incline", Metric.Incline, metric.Label ?? "Incline", FieldKind.Decimal, required, "%"),
             Metric.Calories => new("calories", Metric.Calories, metric.Label ?? "Calories", FieldKind.Whole, required),
             Metric.Rate => new("rate", Metric.Rate, metric.Label ?? "Rate", FieldKind.Decimal, required, RateText(exercise)),
-            Metric.Pace => new("pace", Metric.Pace, metric.Label ?? "Pace", FieldKind.Pace, required, PaceText(exercise)),
             _ => throw new ArgumentOutOfRangeException(nameof(metric), metric.Metric, null),
         };
     }
@@ -98,7 +144,6 @@ public static class ExerciseFields
         [Metric.Incline] = entry.Incline,
         [Metric.Calories] = entry.Calories,
         [Metric.Rate] = entry.Rate,
-        [Metric.Pace] = entry.Pace,
     };
 
     /// <summary>The value as the field's text; null when there is none.</summary>
@@ -108,7 +153,6 @@ public static class ExerciseFields
         (FieldKind.Whole, int whole) => whole.ToString(CultureInfo.InvariantCulture),
         (FieldKind.Decimal, decimal number) => Decimals.Round2(number).ToString("0.##", CultureInfo.InvariantCulture),
         (FieldKind.Duration, TimeSpan time) => $"{(int)time.TotalHours}:{time.Minutes:00}:{time.Seconds:00}",
-        (FieldKind.Pace, TimeSpan time) => $"{(int)time.TotalMinutes}:{time.Seconds:00}",
         _ => throw new ArgumentOutOfRangeException(nameof(value), kind, "Value doesn't fit the field"),
     };
 
@@ -128,7 +172,6 @@ public static class ExerciseFields
     /// <summary>Unit of the exercise's rate, e.g. rpm.</summary>
     internal static string RateText(ExerciseDefinition exercise) => exercise.RateUnit switch
     {
-        RateUnit.KmPerHour => "km/h",
         RateUnit.Rpm => "rpm",
         RateUnit.StrokesPerMin => "strokes/min",
         RateUnit.StridesPerMin => "strides/min",
@@ -137,9 +180,4 @@ public static class ExerciseFields
         _ => throw new ArgumentOutOfRangeException(nameof(exercise), exercise.RateUnit, "Rate needs a rate unit"),
     };
 
-    private static string PaceText(ExerciseDefinition exercise) => exercise.PaceUnit switch
-    {
-        PaceUnit.PerKm => "min/km",
-        _ => throw new ArgumentOutOfRangeException(nameof(exercise), exercise.PaceUnit, "Pace needs a pace unit"),
-    };
 }

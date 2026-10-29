@@ -32,7 +32,7 @@ public sealed class SeedSteps(WorkoutSeeder seeder, DeviceClock clock, ScenarioS
         var today = clock.LocalNow().Date;
         var workouts = Enumerable.Range(1, count)
             .Select(i => today.AddDays(i - count - 1).AddHours(10))
-            .Select(started => (started, started + DefaultLength, "Push-up: 10 reps"))
+            .Select(started => (started, started + DefaultLength, "Push-up: 10 reps 0 kg"))
             .ToList();
 
         await SeedAsync(workouts);

@@ -10,6 +10,6 @@ internal sealed class CarryBestRule(ICarryRule carryRule) : IBestRule
     public bool AppliesTo(ExerciseDefinition exercise) => exercise.Category == ExerciseCategory.Carry;
 
     /// <inheritdoc />
-    public ExerciseBest? Best(ExerciseDefinition exercise, IReadOnlyList<WorkoutExercise> logged) =>
-        carryRule.Heaviest([.. logged.OfType<StrengthExercise>().SelectMany(e => e.Sets)]);
+    public ExerciseBest? Best(ExerciseDefinition exercise, WorkoutExercise logged) =>
+        carryRule.Heaviest((logged as StrengthExercise)?.Sets ?? []);
 }

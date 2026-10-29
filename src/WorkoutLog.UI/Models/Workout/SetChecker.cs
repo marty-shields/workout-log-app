@@ -1,5 +1,4 @@
 using System.Globalization;
-using System.Text.RegularExpressions;
 using Microsoft.Extensions.Logging;
 using WorkoutLog.Core.Domain.Exercises;
 using WorkoutLog.Core.Domain.Workouts;
@@ -11,22 +10,24 @@ using WorkoutLog.UI.Models.Fields;
 namespace WorkoutLog.UI.Models.Workout;
 
 /// <summary>
-/// Reads each field's text, then checks the set or entry with <see cref="IWorkoutService.ValidateSet"/> or
-/// <see cref="IWorkoutService.ValidateEntry"/> and words its codes.
+/// Reads each field's text, a blank one as its <see cref="FieldSpec.BlankFill"/>, then checks the set or entry with
+/// <see cref="IWorkoutService.ValidateSet"/> or <see cref="IWorkoutService.ValidateEntry"/> and words its codes.
 /// A field that can't be read gets a format message and no message from Core.
 /// A Core code with no message, which the UI can't cause, is logged and fails the set or entry.
 /// </summary>
 public sealed partial class SetChecker(IWorkoutService workouts, IExerciseCatalog catalog, ILogger<SetChecker> logger) : ISetChecker
 {
-    private const int MaxDecimalPlaces = 2;
     private static readonly decimal MaxDurationSeconds = (decimal)MetricLimits.MaxDuration.TotalSeconds;
-    private static readonly decimal MaxPaceSeconds = (decimal)MetricLimits.MaxPace.TotalSeconds;
 
     /// <inheritdoc />
     public bool Check(ExerciseState exercise, EntryState entry) => Check(exercise, entry, logExerciseError: true);
 
     /// <inheritdoc />
-    public bool CheckOnSave(ExerciseState exercise, EntryState entry) => Check(exercise, entry, logExerciseError: false);
+    public bool CheckOnSave(ExerciseState exercise, EntryState entry)
+    {
+        ExerciseFields.FillBlanks(exercise, entry);
+        return Check(exercise, entry, logExerciseError: false);
+    }
 
     private bool Check(ExerciseState exercise, EntryState entry, bool logExerciseError)
     {
@@ -61,13 +62,17 @@ public sealed partial class SetChecker(IWorkoutService workouts, IExerciseCatalo
         _ => throw new ArgumentOutOfRangeException(nameof(exercise), exercise.Kind, null),
     };
 
-    /// <summary>The values that could be read, per metric. Adds a format message per unreadable field to <paramref name="errors"/> when given.</summary>
+    /// <summary>
+    /// The values that could be read, per metric; a blank field reads as its <see cref="FieldSpec.BlankFill"/>.
+    /// Adds a format message per unreadable field to <paramref name="errors"/> when given.
+    /// </summary>
     private static Dictionary<Metric, decimal> Values(ExerciseState exercise, EntryState entry, Dictionary<string, string>? errors)
     {
         var values = new Dictionary<Metric, decimal>();
         foreach (var field in exercise.Fields)
         {
-            var (value, error) = ReadField(field, entry.Values.GetValueOrDefault(field.Key));
+            var text = entry.Values.GetValueOrDefault(field.Key);
+            var (value, error) = FieldReader.Read(field, string.IsNullOrEmpty(text) ? field.BlankFill : text);
             if (error is not null)
             {
                 errors?.Add(field.Key, error);
@@ -98,81 +103,6 @@ public sealed partial class SetChecker(IWorkoutService workouts, IExerciseCatalo
         }
     }
 
-    /// <summary>The field's value (a duration or pace in seconds), or null when empty; or a format message.</summary>
-    private static (decimal? Value, string? Error) ReadField(FieldSpec field, string? text) => field.Kind switch
-    {
-        FieldKind.Whole or FieldKind.Decimal => ReadNumber(field, text),
-        FieldKind.Duration or FieldKind.Pace => ReadTime(field, text),
-        _ => throw new ArgumentOutOfRangeException(nameof(field), field.Kind, "Unknown field kind"),
-    };
-
-    private static (decimal? Value, string? Error) ReadNumber(FieldSpec field, string? text)
-    {
-        if (string.IsNullOrEmpty(text))
-        {
-            return (null, null);
-        }
-
-        if (!NumberText().IsMatch(text))
-        {
-            return (null, $"{field.Label} must be a number");
-        }
-
-        var point = text.IndexOf('.');
-        if (field.Kind == FieldKind.Whole && point >= 0)
-        {
-            return (null, $"{field.Label} must be a whole number");
-        }
-
-        if (point >= 0 && text.Length - point - 1 > MaxDecimalPlaces)
-        {
-            return (null, $"{field.Label} can have up to {MaxDecimalPlaces} decimal places");
-        }
-
-        // Only too many digits fails here; decimal.MaxValue makes Core report it as too large.
-        return (decimal.TryParse(text, NumberStyles.AllowDecimalPoint, CultureInfo.InvariantCulture, out var value) ? value : decimal.MaxValue, null);
-    }
-
-    /// <summary>Reads h:mm:ss (duration) or m:ss (pace). Empty boxes count as 0; all empty is an empty field.</summary>
-    private static (decimal? Value, string? Error) ReadTime(FieldSpec field, string? text)
-    {
-        var pace = field.Kind == FieldKind.Pace;
-        var parts = (text ?? "").Split(':');
-        if (parts.All(string.IsNullOrEmpty))
-        {
-            return (null, null);
-        }
-
-        if (parts.Length != (pace ? 2 : 3))
-        {
-            return (null, $"{field.Label} must be a time");
-        }
-
-        var numbers = new int[parts.Length];
-        for (var i = 0; i < parts.Length; i++)
-        {
-            if (parts[i].Length > 0
-                && !(DigitsText().IsMatch(parts[i]) && int.TryParse(parts[i], NumberStyles.None, CultureInfo.InvariantCulture, out numbers[i])))
-            {
-                return (null, $"{field.Label} must be a time");
-            }
-        }
-
-        if (pace)
-        {
-            return numbers[1] > 59
-                ? (null, $"{field.Label} seconds must be 00–59")
-                : ((decimal)numbers[0] * 60 + numbers[1], null);
-        }
-
-        if (numbers[1] > 59 || numbers[2] > 59)
-        {
-            return (null, $"{field.Label} minutes and seconds must be 00–59");
-        }
-
-        return ((decimal)numbers[0] * 3_600 + numbers[1] * 60 + numbers[2], null);
-    }
-
     /// <summary>Values too large for the set's types are capped (reps at <see cref="int.MaxValue"/>, duration just over the maximum), so Core reports them as too large.</summary>
     private static StrengthSet ToSet(Dictionary<Metric, decimal> values) => new(
         Whole(values, Metric.Reps),
@@ -180,7 +110,7 @@ public sealed partial class SetChecker(IWorkoutService workouts, IExerciseCatalo
         Time(values, Metric.Duration, MaxDurationSeconds),
         Get(values, Metric.Distance));
 
-    /// <summary>Capped as <see cref="ToSet"/> is; pace just over its maximum.</summary>
+    /// <summary>Capped as <see cref="ToSet"/> is.</summary>
     private static CardioEntry ToEntry(Dictionary<Metric, decimal> values) => new(
         Time(values, Metric.Duration, MaxDurationSeconds),
         Get(values, Metric.Distance),
@@ -188,8 +118,7 @@ public sealed partial class SetChecker(IWorkoutService workouts, IExerciseCatalo
         Whole(values, Metric.Level),
         Get(values, Metric.Incline),
         Whole(values, Metric.Calories),
-        Get(values, Metric.Rate),
-        Time(values, Metric.Pace, MaxPaceSeconds));
+        Get(values, Metric.Rate));
 
     private static decimal? Get(Dictionary<Metric, decimal> values, Metric metric) => values.TryGetValue(metric, out var value) ? value : null;
 
@@ -199,7 +128,7 @@ public sealed partial class SetChecker(IWorkoutService workouts, IExerciseCatalo
     private static TimeSpan? Time(Dictionary<Metric, decimal> values, Metric metric, decimal maxSeconds) =>
         Get(values, metric) is { } seconds ? TimeSpan.FromSeconds((double)Math.Min(seconds, maxSeconds + 1)) : null;
 
-    /// <summary>Message for a Core code. <see cref="FieldError.NotShown"/> can't come from the UI and has none.</summary>
+    /// <summary>Message for a Core code. <see cref="FieldError.NotShown"/> and <see cref="FieldError.TooManyDecimals"/> can't come from the UI and have none.</summary>
     private string? Message(ExerciseState exercise, FieldSpec field, FieldError code) => code switch
     {
         FieldError.Missing => $"Enter {field.Label.ToLowerInvariant()}",
@@ -210,24 +139,14 @@ public sealed partial class SetChecker(IWorkoutService workouts, IExerciseCatalo
         _ => null,
     };
 
-    /// <summary>The maximum as the field is entered: h:mm:ss for a duration, m:ss for a pace, otherwise a number.</summary>
+    /// <summary>The maximum as the field is entered: h:mm:ss for a duration, otherwise a number.</summary>
     private string MaxText(ExerciseState exercise, FieldSpec field)
     {
         var max = MetricLimits.Max(catalog.All.First(e => e.Id == exercise.ExerciseId), field.Metric);
-        return field.Kind switch
-        {
-            FieldKind.Duration => TimeSpan.FromSeconds((double)max).ToString(@"h\:mm\:ss", CultureInfo.InvariantCulture),
-            FieldKind.Pace => $"{(int)(max / 60)}:{(int)(max % 60):00}",
-            _ => max.ToString("#,0", CultureInfo.InvariantCulture),
-        };
+        return field.Kind == FieldKind.Duration
+            ? TimeSpan.FromSeconds((double)max).ToString(@"h\:mm\:ss", CultureInfo.InvariantCulture)
+            : max.ToString("#,0", CultureInfo.InvariantCulture);
     }
-
-    /// <summary>Digits with an optional point and digits after it, or a point and digits (.5).</summary>
-    [GeneratedRegex(@"^([0-9]+(\.[0-9]+)?|\.[0-9]+)\z")]
-    private static partial Regex NumberText();
-
-    [GeneratedRegex(@"^[0-9]+\z")]
-    private static partial Regex DigitsText();
 
     private static partial class Log
     {

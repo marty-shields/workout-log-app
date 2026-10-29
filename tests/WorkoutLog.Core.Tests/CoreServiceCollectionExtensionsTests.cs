@@ -29,6 +29,8 @@ public class CoreServiceCollectionExtensionsTests
             (typeof(IExerciseCatalog), typeof(ExerciseCatalog), ServiceLifetime.Singleton),
             (typeof(ISchemaUpgrade), typeof(WorkoutStartedAtUniqueIndex), ServiceLifetime.Singleton),
             (typeof(ISchemaUpgrade), typeof(BlankAssistToZero), ServiceLifetime.Singleton),
+            (typeof(ISchemaUpgrade), typeof(ValidationRulesSchema), ServiceLifetime.Singleton),
+            (typeof(IFormatUpgrade), typeof(ValidationRulesFormatUpgrade), ServiceLifetime.Singleton),
             (typeof(IDatabaseInitializer), (Type?)null, ServiceLifetime.Singleton),
             (typeof(IWorkoutRepository), (Type?)null, ServiceLifetime.Singleton),
             (typeof(TimeProvider), (Type?)null, ServiceLifetime.Singleton),
@@ -69,6 +71,7 @@ public class CoreServiceCollectionExtensionsTests
             (typeof(IImportCheck), typeof(FinishCheck), ServiceLifetime.Singleton),
             (typeof(IImportCheck), typeof(UnknownExerciseCheck), ServiceLifetime.Singleton),
             (typeof(IImportCheck), typeof(ExerciseDefinitionCheck), ServiceLifetime.Singleton),
+            (typeof(IImportCheck), typeof(RepeatedExerciseCheck), ServiceLifetime.Singleton),
             (typeof(IImportCheck), typeof(SaveRulesCheck), ServiceLifetime.Singleton),
             (typeof(IImportChecker), typeof(ImportChecker), ServiceLifetime.Singleton),
             (typeof(IWorkoutContentComparer), typeof(WorkoutContentComparer), ServiceLifetime.Singleton),
@@ -77,11 +80,11 @@ public class CoreServiceCollectionExtensionsTests
     }
 
     [Test]
-    public void AddCore_RegistersNoFormatUpgradeSteps()
+    public void AddCore_RegistersOneFormatUpgradeStepPerVersionAfter1()
     {
         using var provider = new ServiceCollection().AddCore(TempDatabase.NewPath()).BuildServiceProvider();
 
-        Assert.That(provider.GetServices<IFormatUpgrade>(), Is.Empty);
+        Assert.That(provider.GetServices<IFormatUpgrade>().Select(u => u.Version), Is.EqualTo(new[] { 2 }));
     }
 
     [Test]
@@ -90,6 +93,7 @@ public class CoreServiceCollectionExtensionsTests
         using var provider = new ServiceCollection()
             .AddSingleton(typeof(ILogger<>), typeof(NullLogger<>))
             .AddSingleton(Mock.Of<IExportEnvironment>())
+            .AddSingleton(Mock.Of<IElapsedClock>())
             .AddCore(TempDatabase.NewPath())
             .BuildServiceProvider();
 
@@ -137,7 +141,7 @@ public class CoreServiceCollectionExtensionsTests
             .BuildServiceProvider();
 
         await provider.GetRequiredService<IDatabaseInitializer>().InitializeAsync();
-        await provider.GetRequiredService<IWorkoutRepository>().AddAsync(new NewWorkout(start, start, []));
+        await provider.GetRequiredService<IWorkoutRepository>().AddAsync(new NewWorkout(start, start.AddHours(1), []));
 
         var check = new SQLiteAsyncConnection(path);
         try

@@ -11,8 +11,8 @@ namespace WorkoutLog.Core.Domain.Exercises;
 /// <param name="Mechanic">Strength only.</param>
 /// <param name="Metrics">Metrics shown, in field order.</param>
 /// <param name="DistanceUnit">Unit of the distance metric. Null when there is no distance.</param>
-/// <param name="RateUnit">Unit of the rate metric. Null when there is no rate.</param>
-/// <param name="PaceUnit">Unit of the pace metric. Null when there is no pace.</param>
+/// <param name="RateUnit">Unit of the rate metric; <see cref="Exercises.RateUnit.KmPerHour"/> marks worked-out speed (<see cref="WorkedOut.HasSpeed"/>). Null otherwise.</param>
+/// <param name="PaceUnit">Unit of the worked-out pace (<see cref="WorkedOut.HasPace"/>). Null when there is no pace.</param>
 /// <param name="Loaded">True for a bodyweight move whose Exercise page has an e1RM tab (D193).</param>
 public sealed record ExerciseDefinition(
     int Id,

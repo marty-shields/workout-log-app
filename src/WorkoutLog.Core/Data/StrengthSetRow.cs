@@ -14,14 +14,15 @@ internal sealed class StrengthSetRow
     [Indexed]
     public int WorkoutExerciseId { get; set; }
 
-    /// <summary>Order added, from 0.</summary>
+    /// <summary>Order added, from 0 to 9.</summary>
     public int Position { get; set; }
 
     /// <summary>Repetitions.</summary>
     public int? Reps { get; set; }
 
-    /// <summary>Weight in kg.</summary>
-    public decimal? WeightKg { get; set; }
+    /// <summary>Weight in kg; 0 is unweighted or no assist.</summary>
+    [NotNull]
+    public decimal WeightKg { get; set; }
 
     /// <summary>Duration.</summary>
     public TimeSpan? Duration { get; set; }

@@ -8,6 +8,7 @@ using WorkoutLog.Core.Domain.Workouts;
 using WorkoutLog.Core.Domain.Workouts.Validation;
 using WorkoutLog.Core.Import;
 using WorkoutLog.Core.Import.Checks;
+using WorkoutLog.Core.Import.Upgrades;
 using WorkoutLog.Core.Logging;
 using WorkoutLog.Core.Services;
 using static WorkoutLog.Core.Tests.Import.ImportJson;
@@ -39,9 +40,9 @@ public class ImportServiceTests
     {
         databasePath = TempDatabase.NewPath();
         connection = new SQLiteAsyncConnection(databasePath);
-        await connection.CreateTablesAsync<WorkoutRow, WorkoutExerciseRow, StrengthSetRow, CardioEntryRow>();
-        repository = new WorkoutRepository(connection, new WorkoutWriterFactory(Catalog));
-        unitOfWork = new UnitOfWork(connection, new WorkoutWriterFactory(Catalog));
+        await connection.RunInTransactionAsync(WorkoutTables.CreateMissing);
+        repository = new WorkoutRepository(connection, new WorkoutWriterFactory());
+        unitOfWork = new UnitOfWork(connection, new WorkoutWriterFactory());
         logger = new FakeLogger<ImportService>();
         service = Service(repository, unitOfWork);
     }
@@ -69,12 +70,12 @@ public class ImportServiceTests
     {
         await ReadAsync(File(
             Workout(0, Bench),
-            Workout(Time(Start.AddHours(1)), "never", """{"exercise":{"id":999},"sets":[{"reps":1}]}"""),
+            Workout(Time(Start.AddHours(1)), "never", """{"exercise":{"id":999},"sets":[{"reps":1}]}""", """{"exercise":{"id":999},"sets":[{"reps":1}]}"""),
             "[]"));
 
         Assert.That(LoggedEvents.Of(logger), Is.EqualTo(new[]
         {
-            (CoreEvent.ImportWorkoutSkipped, LogLevel.Warning, "Workout 2 in the file can't be imported: InvalidFinish, UnknownExercise"),
+            (CoreEvent.ImportWorkoutSkipped, LogLevel.Warning, "Workout 2 in the file can't be imported: InvalidFinish, UnknownExercise, RepeatedExercise"),
             (CoreEvent.ImportWorkoutSkipped, LogLevel.Warning, "Workout 3 in the file can't be imported: Malformed"),
         }));
     }
@@ -113,7 +114,7 @@ public class ImportServiceTests
     }
 
     [TestCase("not JSON", ImportError.NotAnExport, true)]
-    [TestCase("""{"formatVersion":2}""", ImportError.NewerVersion, false)]
+    [TestCase("""{"formatVersion":3}""", ImportError.NewerVersion, false)]
     [TestCase("""{"formatVersion":1,"exportedAt":"2026-10-26T18:05:12Z","appVersion":"1.4.0","workouts":[]}""", ImportError.NoWorkouts, false)]
     [TestCase("""{"formatVersion":1,"exportedAt":"2026-10-26T18:05:12Z","workouts":[]}""", ImportError.NotAnExport, false)]
     public async Task ReadAsync_FileCantBeImported_ReturnsTheErrorAndLogsIt(string json, ImportError error, bool hasException)
@@ -273,11 +274,11 @@ public class ImportServiceTests
     }
 
     [Test]
-    public async Task ReadAsync_BlankAssistInTheFile_MatchesThePhonesZero()
+    public async Task ReadAsync_BlankWeightInAVersion1File_MatchesThePhonesZero()
     {
         await repository.AddAsync(new NewWorkout(Start, Start.AddHours(1), [new StrengthExercise(AssistedPullUp, [new StrengthSet(8, 0m, null, null)])]));
 
-        var review = await ReadAsync(File(Workout(0, $$"""{"exercise":{"id":{{AssistedPullUp}},"name":"Machine Assisted Pull-up","type":"Strength"},"sets":[{"reps":8}]}""")));
+        var review = await ReadAsync(File(1, Workout(0, $$"""{"exercise":{"id":{{AssistedPullUp}},"name":"Machine Assisted Pull-up","type":"Strength"},"sets":[{"reps":8}]}""")));
 
         Assert.That(review with { Groups = ImportGroups.Empty },
             Is.EqualTo(new ImportReview(FileName, Total: 1, New: 0, Already: 1, Different: 0, Skipped: 0, PhoneCount: 1)));
@@ -291,9 +292,9 @@ public class ImportServiceTests
         [
             new StrengthExercise(8, [new StrengthSet(8, 62.5m, null, null), new StrengthSet(6, 60m, null, null)]),
             new StrengthExercise(187, [new StrengthSet(null, 32.25m, new TimeSpan(0, 0, 45), 20m)]),
-            new StrengthExercise(258, [new StrengthSet(null, null, new TimeSpan(0, 1, 30), null)]),
-            new CardioExercise(311, new CardioEntry(new TimeSpan(0, 30, 0), 5.2m, null, null, null, null, null, new TimeSpan(0, 5, 46))),
-            new CardioExercise(309, new CardioEntry(new TimeSpan(0, 20, 0), null, 40, 6, null, 200, 70m, null)),
+            new StrengthExercise(258, [new StrengthSet(null, 0m, new TimeSpan(0, 1, 30), null)]),
+            new CardioExercise(311, new CardioEntry(new TimeSpan(0, 30, 0), 5.2m, null, null, null, null, null)),
+            new CardioExercise(309, new CardioEntry(new TimeSpan(0, 20, 0), null, 40, 6, null, 200, 70m)),
         ];
         var workouts = new WorkoutValidator(Catalog);
         Assert.That(workouts.Validate(every).IsValid, Is.True, "the saved workout passes Save's checks");
@@ -339,9 +340,9 @@ public class ImportServiceTests
         IImportCheck[] checks =
         [
             new StartCheck(), new RepeatedStartCheck(), new FinishCheck(), new UnknownExerciseCheck(Catalog), new ExerciseDefinitionCheck(Catalog),
-            new SaveRulesCheck(new WorkoutValidator(Catalog)),
+            new RepeatedExerciseCheck(), new SaveRulesCheck(new WorkoutValidator(Catalog)),
         ];
-        return new ImportService(new ImportFileReader([]), new ImportChecker(checks), workouts, new WorkoutContentComparer(Catalog), writes, logger);
+        return new ImportService(new ImportFileReader([new ValidationRulesFormatUpgrade(Catalog)]), new ImportChecker(checks), workouts, new WorkoutContentComparer(), writes, logger);
     }
 
     private Task<ImportReview> ReadAsync(string json) => service.ReadAsync(Stream(json), FileName);
@@ -363,5 +364,5 @@ public class ImportServiceTests
     private static Workout Saved(int id, int hours, WorkoutExercise[] exercises) => new(id, Start.AddHours(hours), Start.AddHours(hours + 1), exercises);
 
     private static CardioExercise RunSaved() =>
-        new(311, new CardioEntry(TimeSpan.FromMinutes(30), 5.2m, null, null, null, null, null, new TimeSpan(0, 5, 46)));
+        new(311, new CardioEntry(TimeSpan.FromMinutes(30), 5.2m, null, null, null, null, null));
 }

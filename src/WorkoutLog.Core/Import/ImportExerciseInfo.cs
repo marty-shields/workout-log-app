@@ -7,8 +7,8 @@ namespace WorkoutLog.Core.Import;
 /// <param name="Name">Name. Not checked.</param>
 /// <param name="Type">Strength or cardio.</param>
 /// <param name="DistanceUnit">Unit of the distance metric.</param>
-/// <param name="RateUnit">Unit of the rate metric.</param>
-/// <param name="PaceUnit">Unit of the pace metric.</param>
+/// <param name="RateUnit">Unit of the rate metric or worked-out speed.</param>
+/// <param name="PaceUnit">Unit of the worked-out pace.</param>
 internal sealed record ImportExerciseInfo(
     int Id,
     string? Name = null,

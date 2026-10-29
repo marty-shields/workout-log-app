@@ -11,6 +11,13 @@
         </Template>
     </Story>
 
+    <Story Name="Zero weight">
+        <Template>
+            @{ var exercise = SampleData.Exercise(Catalog, 187, ["40", "0", "0:00:45"]); }
+            <SetSummary Number="1" Fields="exercise.Fields" Entry="exercise.Entries[0]" />
+        </Template>
+    </Story>
+
     <Story Name="Empty">
         <Template>
             @{ var exercise = SampleData.NewExercise(Catalog, 187); }

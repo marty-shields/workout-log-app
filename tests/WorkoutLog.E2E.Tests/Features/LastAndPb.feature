@@ -24,14 +24,14 @@ Feature: Last and PB weight
     When I add "Barbell Back Squat"
     Then Barbell Back Squat has last and PB "Last 62.5kg · PB 70kg"
 
-  Scenario: The last workout has no weight
+  Scenario: A bodyweight move's 0 kg shows as no weight
     Given these saved workouts:
-      | started           | exercises                       |
-      | 3 days ago 18:05  | Barbell Back Squat: 5 reps 70 kg |
-      | yesterday 18:05   | Barbell Back Squat: 5 reps       |
+      | started           | exercises              |
+      | 3 days ago 18:05  | Push-up: 8 reps 10 kg  |
+      | yesterday 18:05   | Push-up: 20 reps 0 kg  |
     And I have started a new workout
-    When I add "Barbell Back Squat"
-    Then Barbell Back Squat has last and PB "Last — · PB 70kg"
+    When I add "Push-up"
+    Then Push-up has last and PB "Last — · PB 10kg"
 
   Scenario: An assisted machine's PB is the lowest assist
     Given these saved workouts:
@@ -42,15 +42,6 @@ Feature: Last and PB weight
     When I add "Machine Assisted Pull-up"
     Then Machine Assisted Pull-up has last and PB "Last 25kg · PB 20kg"
 
-  @D23
-  Scenario: A blank assist counts as 0 kg
-    Given these saved workouts:
-      | started           | exercises                              |
-      | 3 days ago 18:05  | Machine Assisted Pull-up: 8 reps 20 kg |
-      | yesterday 18:05   | Machine Assisted Pull-up: 8 reps       |
-    And I have started a new workout
-    When I add "Machine Assisted Pull-up"
-    Then Machine Assisted Pull-up has last and PB "Last 0kg · PB 0kg"
 
   Scenario: Edit Workout shows no last and PB
     Given these saved workouts:

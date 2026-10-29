@@ -10,6 +10,6 @@ internal sealed class LiftBestRule(ITopSetRule topSetRule) : IBestRule
     public bool AppliesTo(ExerciseDefinition exercise) => exercise.Category == ExerciseCategory.Lift;
 
     /// <inheritdoc />
-    public ExerciseBest? Best(ExerciseDefinition exercise, IReadOnlyList<WorkoutExercise> logged) =>
-        topSetRule.TopSet([.. logged.OfType<StrengthExercise>().SelectMany(e => e.Sets)]);
+    public ExerciseBest? Best(ExerciseDefinition exercise, WorkoutExercise logged) =>
+        topSetRule.TopSet((logged as StrengthExercise)?.Sets ?? []);
 }

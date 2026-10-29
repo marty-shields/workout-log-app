@@ -1,4 +1,5 @@
 @using Microsoft.Extensions.Logging
+@using WorkoutLog.Core.Domain.Workouts
 @using WorkoutLog.Core.Domain.Workouts.Validation
 @using WorkoutLog.UI.Components.Inputs
 @implements IDisposable
@@ -78,7 +79,11 @@
                 }
             }
         </div>
-        <AppButton @ref="addSet" Variant="ButtonVariant.Secondary" FullWidth TestId="@($"{TestId}-add-set")" OnClick="AddSet">Add set</AppButton>
+        <AppButton @ref="addSet" Variant="ButtonVariant.Secondary" FullWidth Disabled="Exercise.SetsFull" TestId="@($"{TestId}-add-set")" OnClick="AddSet">Add set</AppButton>
+        @if (Exercise.SetsFull)
+        {
+            <p class="note" data-testid="@($"{TestId}-sets-full")">At most @WorkoutLimits.MaxSets sets</p>
+        }
     }
     else if (Exercise.Entries.Count > 0)
     {
@@ -89,6 +94,10 @@
                 <FieldInput @ref="cardioFields[field.Key]" Field="field" Entry="entry" OnChanged="() => EntryChanged(entry)" TestId="@($"{TestId}-{field.Key}")" />
             }
         </div>
+        @if (ExerciseFields.WorkedOutText(Exercise, entry) is { } workedOut)
+        {
+            <p class="note" data-testid="@($"{TestId}-worked-out")">@workedOut</p>
+        }
         <EntryErrors Fields="Exercise.Fields" Entry="entry" TestId="@($"{TestId}-entry-error")" />
     }
 </section>
@@ -114,7 +123,7 @@
     [Parameter]
     public bool OpenLastSet { get; set; } = true;
 
-    /// <summary>Checks a set before Add set or opening another set: the open set, or the last row. Sets the set's errors and returns false to block. Also re-checks a set or entry each time its values change while it shows errors or <see cref="EntryState.CheckOnChange"/> is set. Unset: nothing is blocked or re-checked.</summary>
+    /// <summary>Checks a set before Add set or opening another set, the open set or the last row, after filling its blanks (<see cref="ExerciseFields.FillBlanks"/>). Sets the set's errors and returns false to block. Also re-checks a set or entry each time its values change while it shows errors or <see cref="EntryState.CheckOnChange"/> is set. Unset: nothing is blocked or re-checked.</summary>
     [Parameter]
     public Func<ExerciseState, EntryState, bool>? ValidateSet { get; set; }
 
@@ -275,6 +284,7 @@
             return true;
         }
 
+        ExerciseFields.FillBlanks(Exercise, entry);
         var valid = ValidateSet(Exercise, entry);
         entry.CheckOnChange = !valid;
         return valid;
@@ -298,13 +308,18 @@
             return OnChanged.InvokeAsync();
         }
 
-        focusBlockedSet = true;
+        focusBlockedSet = !Exercise.SetsFull;
         return Task.CompletedTask;
     }
 
-    /// <summary>Adds an empty set and opens it, unless the open set or the last row fails the check.</summary>
+    /// <summary>Adds an empty set and opens it, unless the sets are full or the open set or the last row fails the check.</summary>
     private bool TryAddSet()
     {
+        if (Exercise.SetsFull)
+        {
+            return false;
+        }
+
         var current = SetGrid.Collapses(Exercise.Fields) ? open : Exercise.Entries.LastOrDefault();
         if (!CanLeave(current))
         {

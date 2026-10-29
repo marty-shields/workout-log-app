@@ -15,7 +15,6 @@ internal static class SetGrid
         var fieldColumns = fields.Select(field => field.Kind switch
         {
             FieldKind.Duration => "minmax(0, 2fr)",
-            FieldKind.Pace => "minmax(0, 1.4fr)",
             _ => "minmax(0, 1fr)",
         });
         return $"var(--set-number-width) {string.Join(' ', fieldColumns)} var(--touch-target)";

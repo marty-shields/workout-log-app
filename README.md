@@ -74,7 +74,7 @@ It's built for one person and one phone: no accounts, no sign-up.
   - assisted machines: least assist
   - holds: duration and weight
   - carries: weight and distance
-  - cardio: distance, duration, pace, floors and calories
+  - cardio: distance, duration, pace or speed, floors and calories
 
 <table align="center">
   <tr>

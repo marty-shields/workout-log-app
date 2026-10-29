@@ -1,11 +1,10 @@
 @using WorkoutLog.UI.Models.Fields
-@if (Field.Kind is FieldKind.Duration or FieldKind.Pace)
+@if (Field.Kind == FieldKind.Duration)
 {
     <DurationField @ref="duration"
                    Label="@Field.DisplayLabel"
                    ShowLabel="ShowLabel"
                    Required="Field.Required"
-                   ShowHours="@(Field.Kind == FieldKind.Duration)"
                    Invalid="Invalid"
                    Value="@CurrentValue"
                    ValueChanged="OnValueChanged"
@@ -48,7 +47,7 @@ else
     private DurationField? duration;
     private NumberField? number;
 
-    /// <summary>Moves focus to the input, or the first box of a duration or pace.</summary>
+    /// <summary>Moves focus to the input, or the first box of a duration.</summary>
     public ValueTask FocusAsync() => duration?.FocusAsync() ?? number?.FocusAsync() ?? ValueTask.CompletedTask;
 
     private string? CurrentValue => Entry.Values.GetValueOrDefault(Field.Key);

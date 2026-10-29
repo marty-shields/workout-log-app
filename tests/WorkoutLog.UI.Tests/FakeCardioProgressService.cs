@@ -16,7 +16,7 @@ public sealed class FakeCardioProgressService : ICardioProgressService
 
     /// <summary>What each summary returns for the sessions and range; no sessions or records by default.</summary>
     public Func<IReadOnlyList<CardioSession>, ChartRange, CardioProgress> Summary { get; set; } =
-        (_, _) => new CardioProgress([], new CardioRecords(null, null, null, null, null));
+        (_, _) => new CardioProgress([], new CardioRecords(null, null, null, null, null, null));
 
     /// <summary>When true, loads wait for <see cref="Complete"/>.</summary>
     public bool Hold { get; set; }

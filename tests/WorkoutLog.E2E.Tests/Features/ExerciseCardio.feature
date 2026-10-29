@@ -22,8 +22,8 @@ Feature: Exercise page: cardio
   Scenario: Distance shows each session's distance, the records and every session
     Given these saved workouts:
       | started           | exercises                                       |
-      | 10 days ago 18:05 | Outdoor Run: 0:29:20 5 km pace 5:52             |
-      | 3 days ago 18:05  | Outdoor Run: 0:30:00 5.2 km pace 5:46 410 calories |
+      | 10 days ago 18:05 | Outdoor Run: 0:29:20 5 km             |
+      | 3 days ago 18:05  | Outdoor Run: 0:30:00 5.2 km 410 calories |
     And I have opened the Exercise page for "Outdoor Run"
     Then the Exercise chart reads:
       | day         | value |
@@ -43,8 +43,8 @@ Feature: Exercise page: cardio
   Scenario: A longer range adds older sessions
     Given these saved workouts:
       | started            | exercises                             |
-      | 120 days ago 18:05 | Outdoor Run: 0:25:00 4 km pace 6:15   |
-      | 3 days ago 18:05   | Outdoor Run: 0:30:00 5.2 km pace 5:46 |
+      | 120 days ago 18:05 | Outdoor Run: 0:25:00 4 km   |
+      | 3 days ago 18:05   | Outdoor Run: 0:30:00 5.2 km |
     And I have opened the Exercise page for "Outdoor Run"
     Then the Exercise chart reads:
       | day        | value |
@@ -68,8 +68,8 @@ Feature: Exercise page: cardio
   Scenario: Pace is lower is better, and a tab with no values says so
     Given these saved workouts:
       | started           | exercises                            |
-      | 10 days ago 18:05 | Outdoor Run: 0:29:20 5 km pace 5:52  |
-      | 3 days ago 18:05  | Outdoor Run: 0:30:00 5.2 km pace 5:46 |
+      | 10 days ago 18:05 | Outdoor Run: 0:29:20 5 km  |
+      | 3 days ago 18:05  | Outdoor Run: 0:30:00 5.2 km |
     And I have opened the Exercise page for "Outdoor Run"
     When I choose the Pace tab
     Then the Exercise chart reads:
@@ -79,18 +79,6 @@ Feature: Exercise page: cardio
     And the Exercise caption is "Up = faster"
     When I choose the Calories tab
     Then the Exercise chart says "No calories logged in the last 3 months"
-
-  Scenario: A workout holding the exercise twice is one session showing both entries
-    Given these saved workouts:
-      | started          | exercises                                                                  |
-      | 3 days ago 18:05 | Outdoor Run: 0:18:00 3 km pace 6:00 / Outdoor Run: 0:30:00 5.2 km pace 5:46 |
-    And I have opened the Exercise page for "Outdoor Run"
-    Then the Exercise chart reads:
-      | day        | value |
-      | 3 days ago | 5.2km |
-    And the Exercise sessions read:
-      | day        | headline | sets                                           |
-      | 3 days ago | 5.2km    | 3km · 18:00 · 6:00/km / 5.2km · 30:00 · 5:46/km |
 
   Scenario: An exercise with no distance opens on Duration and shows Floors, level and rate
     Given these saved workouts:
@@ -114,3 +102,27 @@ Feature: Exercise page: cardio
       | day         | headline | sets                                                     |
       | 3 days ago  | 25:00    | 120 floors · 300 calories · Speed level 8 · 70 steps/min |
       | 10 days ago | 20:00    | 100 floors                                               |
+
+  @D197
+  Scenario: A treadmill's speed is worked out, faster is better
+    Given these saved workouts:
+      | started           | exercises                    |
+      | 10 days ago 18:05 | Treadmill: 0:30:00, 4.8 km   |
+      | 3 days ago 18:05  | Treadmill: 0:30:00, 5.2 km   |
+    And I have opened the Exercise page for "Treadmill"
+    Then the Exercise tabs are: Distance, Duration, Speed, Calories
+    When I choose the Speed tab
+    Then the Exercise chart reads:
+      | day         | value |
+      | 10 days ago | 9.6   |
+      | 3 days ago  | 10.4  |
+    And the Exercise records read:
+      | record           | value        | day        |
+      | Longest distance | 5.2km        | 3 days ago |
+      | Longest duration | 30:00        | 10 days ago |
+      | Fastest speed    | 10.4 km/h    | 3 days ago |
+      | Most calories    | —            |             |
+    And the Exercise sessions read:
+      | day         | headline | sets              |
+      | 3 days ago  | 5.2km    | 30:00 · 10.4 km/h |
+      | 10 days ago | 4.8km    | 30:00 · 9.6 km/h  |

@@ -9,16 +9,19 @@ internal static class ImportJson
     /// <summary>A Barbell Bench Press (8) with one set of 8 × 60 kg.</summary>
     public const string Bench = """{"exercise":{"id":8,"name":"Barbell Bench Press","type":"Strength"},"sets":[{"reps":8,"weightKg":60}]}""";
 
-    /// <summary>An Outdoor Run (311): 30 minutes, 5.2 km, 5:46 per km.</summary>
+    /// <summary>An Outdoor Run (311): 30 minutes, 5.2 km.</summary>
     public const string Run =
-        """{"exercise":{"id":311,"name":"Outdoor Run","type":"Cardio","distanceUnit":"Km","paceUnit":"PerKm"},"entry":{"duration":"00:30:00","distance":5.2,"pace":"00:05:46"}}""";
+        """{"exercise":{"id":311,"name":"Outdoor Run","type":"Cardio","distanceUnit":"Km","paceUnit":"PerKm"},"entry":{"duration":"00:30:00","distance":5.2}}""";
 
     /// <summary>Tuesday 21 Oct 2026, 17:05:00.1234567 UTC.</summary>
     public static readonly DateTimeOffset Start = new DateTimeOffset(2026, 10, 21, 17, 5, 0, TimeSpan.Zero).AddTicks(1234567);
 
-    /// <summary>A file with the version 1 header and <paramref name="workouts"/>.</summary>
-    public static string File(params string[] workouts) =>
-        $$"""{"formatVersion":1,"exportedAt":"2026-10-26T18:05:12Z","appVersion":"1.4.0","workouts":[{{string.Join(",", workouts)}}]}""";
+    /// <summary>A file with the current version's header and <paramref name="workouts"/>.</summary>
+    public static string File(params string[] workouts) => File(2, workouts);
+
+    /// <summary>A file with the header of format <paramref name="version"/> and <paramref name="workouts"/>.</summary>
+    public static string File(int version, params string[] workouts) =>
+        $$"""{"formatVersion":{{version}},"exportedAt":"2026-10-26T18:05:12Z","appVersion":"1.4.0","workouts":[{{string.Join(",", workouts)}}]}""";
 
     /// <summary>A workout starting <paramref name="hours"/> after <see cref="Start"/> and finishing an hour later, with <paramref name="exercises"/>.</summary>
     public static string Workout(int hours, params string[] exercises) =>

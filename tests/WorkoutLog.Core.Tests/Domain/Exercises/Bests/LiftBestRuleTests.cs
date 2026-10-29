@@ -49,9 +49,4 @@ public class LiftBestRuleTests
     [Test]
     public void Best_NoSetHasAWeight_IsNull() =>
         Assert.That(rule.Best(Definition(Squat), Sets(Squat, Set(12, null), Set(10, null))), Is.Null);
-
-    [Test]
-    public void Best_ExerciseTwiceInTheWorkout_UsesEverySet() =>
-        Assert.That(rule.Best(Definition(Squat), [.. Sets(Squat, Set(5, 60m)), .. Sets(Squat, Set(2, 80m))]),
-            Is.EqualTo(new ExerciseBest(80m, 2, null, null)));
 }

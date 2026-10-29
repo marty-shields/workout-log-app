@@ -11,7 +11,4 @@ public enum FieldKind
 
     /// <summary>Duration in three boxes: h, mm, ss.</summary>
     Duration,
-
-    /// <summary>Pace in two boxes: m, ss.</summary>
-    Pace,
 }

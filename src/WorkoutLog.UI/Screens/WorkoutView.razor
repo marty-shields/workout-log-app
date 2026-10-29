@@ -1,4 +1,5 @@
 @using Microsoft.Extensions.Logging
+@using WorkoutLog.Core.Domain.Workouts
 @using WorkoutLog.UI.Components.Workout
 @inject ILogger<WorkoutView> Logger
 <AppScreen Title="@DisplayFormat.Date(StartedAt)" Subtitle="@TimeText" OnBack="OnBack">
@@ -31,10 +32,14 @@
                               OnRemove="() => OnRemoveExercise.InvokeAsync(exercise)"
                               TestId="@($"exercise-{number}")" />
             }
+            @if (ExercisesFull)
+            {
+                <p class="note" data-testid="exercises-full">At most @WorkoutLimits.MaxExercises exercises</p>
+            }
         </div>
     </ChildContent>
     <BottomBar>
-        <AppButton @ref="addExercise" Variant="ButtonVariant.Secondary" FullWidth TestId="add-exercise" OnClick="OnAddExercise">Add exercise</AppButton>
+        <AppButton @ref="addExercise" Variant="ButtonVariant.Secondary" FullWidth Disabled="ExercisesFull" TestId="add-exercise" OnClick="OnAddExercise">Add exercise</AppButton>
         <AppButton @ref="save" FullWidth TestId="save-workout" OnClick="OnSave">Save</AppButton>
     </BottomBar>
 </AppScreen>
@@ -105,6 +110,9 @@
     public RenderFragment? Overlay { get; set; }
 
     private readonly Dictionary<ExerciseState, ExerciseCard> cards = new();
+
+    /// <summary>The workout has <see cref="WorkoutLimits.MaxExercises"/> exercises, so Add exercise is off.</summary>
+    private bool ExercisesFull => Exercises.Count >= WorkoutLimits.MaxExercises;
     private ExerciseFocus? handled;
     private ErrorFocus? handledError;
     private AppButton? addExercise;

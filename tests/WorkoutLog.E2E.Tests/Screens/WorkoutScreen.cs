@@ -9,6 +9,8 @@ namespace WorkoutLog.E2E.Tests.Screens;
 /// <summary>New and Edit Workout: the exercise cards, their sets or entry, and the top and bottom bars.</summary>
 public sealed partial class WorkoutScreen(WebView web, Native native)
 {
+    private static readonly string[] DurationBoxes = ["h", "mm", "ss"];
+
     public string Title() => web.Text("screen-title");
 
     public string Subtitle() => web.Text("screen-subtitle");
@@ -58,6 +60,19 @@ public sealed partial class WorkoutScreen(WebView web, Native native)
     public string? Weights(string name) =>
         web.Exists($"{Card(name)}-weights") ? web.Find($"{Card(name)}-weights").GetDomProperty("textContent")?.Trim() : null;
 
+    /// <summary>The cardio entry's worked-out pace or speed line, e.g. Pace 5:46/km; null when the card has none.</summary>
+    public string? WorkedOut(string name) => web.Exists($"{Card(name)}-worked-out") ? web.Text($"{Card(name)}-worked-out") : null;
+
+    /// <summary>The note under Add set when the exercise has 10 sets; null when there is none.</summary>
+    public string? SetsFull(string name) => web.Exists($"{Card(name)}-sets-full") ? web.Text($"{Card(name)}-sets-full") : null;
+
+    public bool AddSetEnabled(string name) => web.Find($"{Card(name)}-add-set").Enabled;
+
+    public bool AddExerciseEnabled() => web.Find("add-exercise").Enabled;
+
+    /// <summary>The note under the exercises when the workout has 10; null when there is none.</summary>
+    public string? ExercisesFull() => web.Exists("exercises-full") ? web.Text("exercises-full") : null;
+
     public string? ExerciseError(string name) => web.Exists($"{Card(name)}-error") ? web.Text($"{Card(name)}-error") : null;
 
     /// <summary>Field labels of a set (<paramref name="set"/> given) or a cardio entry, in order.</summary>
@@ -72,13 +87,13 @@ public sealed partial class WorkoutScreen(WebView web, Native native)
         return web.Strings(script);
     }
 
-    /// <summary>The field's text as the user sees it: h:mm:ss or m:ss for a duration or pace, empty when empty.</summary>
+    /// <summary>The field's text as the user sees it: h:mm:ss for a duration, empty when empty.</summary>
     public string Read(string name, int? set, string key)
     {
         var field = Field(name, set, key);
-        if (key is "duration" or "pace")
+        if (key == "duration")
         {
-            var parts = (key == "duration" ? ["h", "mm", "ss"] : new[] { "m", "ss" }).Select(p => web.Value($"{field}-{p}")).ToArray();
+            var parts = DurationBoxes.Select(p => web.Value($"{field}-{p}")).ToArray();
             return parts.All(string.IsNullOrEmpty) ? "" : string.Join(':', parts);
         }
 
@@ -89,15 +104,15 @@ public sealed partial class WorkoutScreen(WebView web, Native native)
     public Dictionary<string, string> ReadAll(string name, int? set, IEnumerable<string> keys) => keys.ToDictionary(k => k, k => Read(name, set, k));
 
     /// <summary>
-    /// Types into a field. A duration or pace is written h:mm:ss or m:ss, each part typed into its box and an empty part left
+    /// Types into a field. A duration is written h:mm:ss, each part typed into its box and an empty part left
     /// empty, e.g. "1::" or ":5:"; "(empty)" or "" empties every box.
     /// </summary>
     public void Enter(string name, int? set, string key, string text)
     {
         var field = Field(name, set, key);
-        if (key is "duration" or "pace")
+        if (key == "duration")
         {
-            var boxes = key == "duration" ? new[] { "h", "mm", "ss" } : ["m", "ss"];
+            var boxes = DurationBoxes;
             var parts = text is "(empty)" or "" ? new string[boxes.Length] : text.Split(':');
             for (var i = 0; i < boxes.Length; i++)
             {

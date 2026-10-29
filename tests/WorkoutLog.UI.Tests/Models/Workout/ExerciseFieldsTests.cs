@@ -18,12 +18,24 @@ public class ExerciseFieldsTests
         Assert.That(Fields(6), Is.EqualTo(new[]
         {
             new FieldSpec("reps", Metric.Reps, "Reps", FieldKind.Whole, Required: true),
-            new FieldSpec("weight", Metric.WeightKg, "Weight", FieldKind.Decimal, Unit: "kg"),
+            new FieldSpec("weight", Metric.WeightKg, "Weight", FieldKind.Decimal, Required: true, Unit: "kg"),
         }));
 
     [Test]
-    public void For_AssistedMachine_UsesTheLabelWithKg() =>
-        Assert.That(Fields(218)[1], Is.EqualTo(new FieldSpec("weight", Metric.WeightKg, "Assist", FieldKind.Decimal, Unit: "kg")));
+    public void For_AssistedMachine_UsesTheLabelWithKgAndFillsABlankWith0() =>
+        Assert.That(Fields(218)[1], Is.EqualTo(new FieldSpec("weight", Metric.WeightKg, "Assist", FieldKind.Decimal, Required: true, Unit: "kg", BlankFill: "0")));
+
+    [TestCase(264)]
+    [TestCase(258)]
+    [TestCase(187)]
+    public void For_BodyweightHoldAndCarry_FillABlankWeightWith0AndHide0(int id) =>
+        Assert.That(Fields(id).Single(f => f.Key == "weight"),
+            Is.EqualTo(new FieldSpec("weight", Metric.WeightKg, "Weight", FieldKind.Decimal, Required: true, Unit: "kg", BlankFill: "0", HideZero: true)));
+
+    [Test]
+    public void For_EveryStrengthWeight_IsRequired() =>
+        Assert.That(Catalog.All.Where(e => e.Type == ExerciseType.Strength).Select(e => ExerciseFields.For(e).Single(f => f.Key == "weight").Required),
+            Is.All.True);
 
     [Test]
     public void For_Hold_RequiresDuration() =>
@@ -34,8 +46,8 @@ public class ExerciseFieldsTests
         Assert.That(Fields(187), Is.EqualTo(new[]
         {
             new FieldSpec("distance", Metric.Distance, "Distance", FieldKind.Decimal, Required: true, Unit: "m"),
-            new FieldSpec("weight", Metric.WeightKg, "Weight", FieldKind.Decimal, Unit: "kg"),
-            new FieldSpec("duration", Metric.Duration, "Duration", FieldKind.Duration),
+            new FieldSpec("weight", Metric.WeightKg, "Weight", FieldKind.Decimal, Required: true, Unit: "kg", BlankFill: "0", HideZero: true),
+            new FieldSpec("duration", Metric.Duration, "Duration", FieldKind.Duration, Required: true),
         }));
 
     [Test]
@@ -43,10 +55,9 @@ public class ExerciseFieldsTests
         Assert.That(Fields(300), Is.EqualTo(new[]
         {
             new FieldSpec("duration", Metric.Duration, "Duration", FieldKind.Duration, Required: true),
-            new FieldSpec("distance", Metric.Distance, "Distance", FieldKind.Decimal, Unit: "km"),
+            new FieldSpec("distance", Metric.Distance, "Distance", FieldKind.Decimal, Required: true, Unit: "km"),
             new FieldSpec("incline", Metric.Incline, "Incline", FieldKind.Decimal, Unit: "%"),
             new FieldSpec("calories", Metric.Calories, "Calories", FieldKind.Whole),
-            new FieldSpec("rate", Metric.Rate, "Rate", FieldKind.Decimal, Unit: "km/h"),
         }));
 
     [Test]
@@ -60,9 +71,11 @@ public class ExerciseFieldsTests
             new FieldSpec("rate", Metric.Rate, "Rate", FieldKind.Decimal, Unit: "steps/min"),
         }));
 
-    [Test]
-    public void For_OutdoorRun_PaceInMinPerKm() =>
-        Assert.That(Fields(311)[^1], Is.EqualTo(new FieldSpec("pace", Metric.Pace, "Pace", FieldKind.Pace, Unit: "min/km")));
+    [TestCase(311)]
+    [TestCase(312)]
+    [TestCase(313)]
+    public void For_WorkedOutPaceOrSpeed_DurationDistanceAndCaloriesOnly(int id) =>
+        Assert.That(Fields(id).Select(f => f.Key), Is.EqualTo(new[] { "duration", "distance", "calories" }));
 
     [TestCase(301, "rpm")]
     [TestCase(305, "strokes/min")]
@@ -71,7 +84,7 @@ public class ExerciseFieldsTests
     public void For_RateUnits(int id, string unit) =>
         Assert.That(Fields(id).Single(f => f.Key == "rate").Unit, Is.EqualTo(unit));
 
-    [TestCase("Treadmill", "Duration, Distance (km), Incline (%), Calories, Rate (km/h)")]
+    [TestCase("Treadmill", "Duration, Distance (km), Incline (%), Calories")]
     [TestCase("Exercise Bike", "Duration, Distance (km), Resistance, Calories, Rate (rpm)")]
     [TestCase("Recumbent Bike", "Duration, Distance (km), Resistance, Calories, Rate (rpm)")]
     [TestCase("Spin Bike", "Duration, Distance (km), Resistance, Calories, Rate (rpm)")]
@@ -82,9 +95,9 @@ public class ExerciseFieldsTests
     [TestCase("Arc Trainer", "Duration, Distance (km), Resistance, Incline (%), Calories, Rate (strides/min)")]
     [TestCase("Stair Climber", "Duration, Floors, Speed level, Calories, Rate (steps/min)")]
     [TestCase("VersaClimber", "Duration, Distance (ft), Calories, Rate (feet/min)")]
-    [TestCase("Outdoor Run", "Duration, Distance (km), Calories, Pace (min/km)")]
-    [TestCase("Outdoor Walk", "Duration, Distance (km), Calories, Pace (min/km)")]
-    [TestCase("Outdoor Cycle", "Duration, Distance (km), Calories, Rate (km/h)")]
+    [TestCase("Outdoor Run", "Duration, Distance (km), Calories")]
+    [TestCase("Outdoor Walk", "Duration, Distance (km), Calories")]
+    [TestCase("Outdoor Cycle", "Duration, Distance (km), Calories")]
     [TestCase("Swimming", "Duration, Distance (m), Calories")]
     [TestCase("Jump Rope", "Duration, Calories")]
     public void For_EachCardioMachine_LabelsAndUnits(string name, string labels) =>
@@ -142,6 +155,11 @@ public class ExerciseFieldsTests
     }
 
     [Test]
+    public void Saved_ZeroWeight_Shows0() =>
+        Assert.That(Values(ExerciseFields.Saved(Find(264), new StrengthExercise(264, [new StrengthSet(8, 0m, null, null)]))),
+            Is.EqualTo(new[] { new Dictionary<string, string?> { ["reps"] = "8", ["weight"] = "0" } }));
+
+    [Test]
     public void Saved_EmptyValuesAreNull() =>
         Assert.That(Values(ExerciseFields.Saved(Find(6), new StrengthExercise(6, [new StrengthSet(8, null, null, null)]))),
             Is.EqualTo(new[] { new Dictionary<string, string?> { ["reps"] = "8", ["weight"] = null } }));
@@ -168,35 +186,85 @@ public class ExerciseFieldsTests
             }));
 
     [Test]
-    public void Saved_Cardio_TheEntryWithPaceAsMinutesSeconds()
+    public void Saved_Cardio_TheEntryWithItsWorkedOutPace()
     {
         var exercise = ExerciseFields.Saved(Find(311),
-            new CardioExercise(311, new CardioEntry(new TimeSpan(0, 25, 30), 5m, null, null, null, null, null, new TimeSpan(0, 5, 6))))!;
+            new CardioExercise(311, new CardioEntry(new TimeSpan(0, 25, 30), 5m, null, null, null, null, null)))!;
 
         Assert.Multiple(() =>
         {
             Assert.That(exercise.Kind, Is.EqualTo(ExerciseKind.Cardio));
+            Assert.That(exercise.WorkedOut, Is.EqualTo(WorkedOutKind.Pace));
             Assert.That(Values(exercise), Is.EqualTo(new[]
             {
-                new Dictionary<string, string?> { ["duration"] = "0:25:30", ["distance"] = "5", ["calories"] = null, ["pace"] = "5:06" },
+                new Dictionary<string, string?> { ["duration"] = "0:25:30", ["distance"] = "5", ["calories"] = null },
             }));
         });
+    }
+
+    [TestCase(311, WorkedOutKind.Pace)]
+    [TestCase(312, WorkedOutKind.Pace)]
+    [TestCase(300, WorkedOutKind.Speed)]
+    [TestCase(313, WorkedOutKind.Speed)]
+    [TestCase(301, WorkedOutKind.None)]
+    [TestCase(6, WorkedOutKind.None)]
+    public void New_WorkedOut_FollowsTheExercise(int id, WorkedOutKind kind) =>
+        Assert.That(ExerciseFields.New(Find(id)).WorkedOut, Is.EqualTo(kind));
+
+    [TestCase(311, "0:25:30", "5", "Pace 5:06/km")]
+    [TestCase(311, "0:30:00", "5.2", "Pace 5:46/km")]
+    [TestCase(311, "0:25:30", null, "Pace —")]
+    [TestCase(311, null, "5", "Pace —")]
+    [TestCase(311, "0:25:30", "0", "Pace —")]
+    [TestCase(311, "0:25:30", "abc", "Pace —")]
+    [TestCase(311, "0:25:30", "5.123", "Pace —")]
+    [TestCase(300, "0:30:00", "5.2", "Speed 10.4 km/h")]
+    [TestCase(300, "0:21:00", "3", "Speed 8.57 km/h")]
+    [TestCase(300, "0:00:00", "3", "Speed —")]
+    public void WorkedOutText_ShowsTheValueOrADash(int id, string? duration, string? distance, string text)
+    {
+        var exercise = ExerciseFields.New(Find(id));
+        exercise.Entries[0].Values["duration"] = duration;
+        exercise.Entries[0].Values["distance"] = distance;
+
+        Assert.That(ExerciseFields.WorkedOutText(exercise, exercise.Entries[0]), Is.EqualTo(text));
+    }
+
+    [Test]
+    public void FillBlanks_PutsEachBlankFillInABlankFieldOnly()
+    {
+        var exercise = ExerciseFields.New(Find(187));
+        exercise.Entries[0].Values["distance"] = null;
+        exercise.Entries[0].Values["weight"] = "";
+        exercise.Entries.Add(new EntryState { Values = { ["weight"] = "32" } });
+
+        ExerciseFields.FillBlanks(exercise, exercise.Entries[0]);
+        ExerciseFields.FillBlanks(exercise, exercise.Entries[1]);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(exercise.Entries[0].Values, Is.EqualTo(new Dictionary<string, string?> { ["distance"] = null, ["weight"] = "0" }));
+            Assert.That(exercise.Entries[1].Values["weight"], Is.EqualTo("32"));
+        });
+    }
+
+    [Test]
+    public void WorkedOutText_NoneForOtherExercises()
+    {
+        var exercise = ExerciseFields.New(Find(301));
+
+        Assert.That(ExerciseFields.WorkedOutText(exercise, exercise.Entries[0]), Is.Null);
     }
 
     [Test]
     public void Saved_Cardio_WholeNumbersAndDecimals() =>
         Assert.That(Values(ExerciseFields.Saved(Find(309),
-            new CardioExercise(309, new CardioEntry(new TimeSpan(1, 0, 0), null, 60, 8, null, 150, 72.25m, null))))[0],
+            new CardioExercise(309, new CardioEntry(new TimeSpan(1, 0, 0), null, 60, 8, null, 150, 72.25m))))[0],
             Is.EqualTo(new Dictionary<string, string?>
             {
                 ["duration"] = "1:00:00", ["floors"] = "60", ["level"] = "8", ["calories"] = "150", ["rate"] = "72.25",
             }));
 
-    [Test]
-    public void Saved_Pace_SixtyMinutes() =>
-        Assert.That(Values(ExerciseFields.Saved(Find(311),
-            new CardioExercise(311, new CardioEntry(TimeSpan.FromMinutes(30), null, null, null, null, null, null, TimeSpan.FromMinutes(60)))))[0]["pace"],
-            Is.EqualTo("60:00"));
 
     [TestCase(6)]
     [TestCase(187)]
@@ -216,7 +284,7 @@ public class ExerciseFieldsTests
 
     [Test]
     public void Saved_StrengthDefinitionWithCardioRecord_IsNull() =>
-        Assert.That(ExerciseFields.Saved(Find(6), new CardioExercise(6, new CardioEntry(TimeSpan.FromMinutes(1), null, null, null, null, null, null, null))),
+        Assert.That(ExerciseFields.Saved(Find(6), new CardioExercise(6, new CardioEntry(TimeSpan.FromMinutes(1), null, null, null, null, null, null))),
             Is.Null);
 
     [Test]
@@ -229,11 +297,11 @@ public class ExerciseFieldsTests
     private static WorkoutExercise SampleWorkout(int id) => id switch
     {
         6 => new StrengthExercise(6, [new StrengthSet(8, 60m, null, null), new StrengthSet(6, 62.5m, null, null)]),
-        187 => new StrengthExercise(187, [new StrengthSet(null, 32.25m, TimeSpan.FromSeconds(45), 40m), new StrengthSet(null, null, null, 0.5m)]),
+        187 => new StrengthExercise(187, [new StrengthSet(null, 32.25m, TimeSpan.FromSeconds(45), 40m), new StrengthSet(null, 0m, TimeSpan.FromSeconds(10), 0.5m)]),
         218 => new StrengthExercise(218, [new StrengthSet(10, 25m, null, null), new StrengthSet(8, 22.5m, null, null)]),
-        258 => new StrengthExercise(258, [new StrengthSet(null, null, new TimeSpan(1, 2, 3), null), new StrengthSet(null, 10m, TimeSpan.FromSeconds(30), null)]),
-        309 => new CardioExercise(309, new CardioEntry(new TimeSpan(0, 15, 0), null, 60, 8, null, 150, 72.25m, null)),
-        311 => new CardioExercise(311, new CardioEntry(new TimeSpan(0, 25, 30), 5.05m, null, null, null, 300, null, new TimeSpan(0, 5, 6))),
+        258 => new StrengthExercise(258, [new StrengthSet(null, 0m, new TimeSpan(1, 2, 3), null), new StrengthSet(null, 10m, TimeSpan.FromSeconds(30), null)]),
+        309 => new CardioExercise(309, new CardioEntry(new TimeSpan(0, 15, 0), null, 60, 8, null, 150, 72.25m)),
+        311 => new CardioExercise(311, new CardioEntry(new TimeSpan(0, 25, 30), 5.05m, null, null, null, 300, null)),
         _ => throw new ArgumentOutOfRangeException(nameof(id), id, null),
     };
 

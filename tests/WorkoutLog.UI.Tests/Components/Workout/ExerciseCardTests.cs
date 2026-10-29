@@ -85,6 +85,137 @@ public class ExerciseCardTests : ComponentTestBase
         return exercise;
     }
 
+    /// <summary>A bodyweight move whose blank weight fills with 0, with one set of 8 reps and a blank weight.</summary>
+    private static ExerciseState Bodyweight()
+    {
+        var exercise = new ExerciseState(264, "Push-up", ExerciseKind.Strength,
+        [
+            new FieldSpec("reps", Metric.Reps, "Reps", FieldKind.Whole, Required: true),
+            new FieldSpec("weight", Metric.WeightKg, "Weight", FieldKind.Decimal, Required: true, Unit: "kg", BlankFill: "0", HideZero: true),
+        ]);
+        exercise.Entries.Add(new EntryState { Values = { ["reps"] = "8" } });
+        return exercise;
+    }
+
+    [Test]
+    public void AddSet_FillsTheBlanksOfTheSetItLeaves()
+    {
+        var exercise = Bodyweight();
+        var cut = Context.Render<ExerciseCard>(p => p
+            .Add(x => x.Exercise, exercise)
+            .Add(x => x.ValidateSet, (_, _) => true)
+            .Add(x => x.TestId, "exercise-1"));
+
+        cut.Find("[data-testid=exercise-1-add-set]").Click();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(exercise.Entries[0].Values["weight"], Is.EqualTo("0"));
+            Assert.That(exercise.Entries, Has.Count.EqualTo(2));
+        });
+    }
+
+    [Test]
+    public void Typing_ReChecksWithoutFillingTheBlanks()
+    {
+        var exercise = Bodyweight();
+        exercise.Entries[0].Values["weight"] = "5";
+        exercise.Entries[0].CheckOnChange = true;
+        var checks = 0;
+        var cut = Context.Render<ExerciseCard>(p => p
+            .Add(x => x.Exercise, exercise)
+            .Add(x => x.ValidateSet, (_, _) => { checks++; return false; })
+            .Add(x => x.TestId, "exercise-1"));
+
+        cut.Find("[data-testid=exercise-1-set-1-weight]").Input("");
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(checks, Is.EqualTo(1));
+            Assert.That(exercise.Entries[0].Values["weight"], Is.Null.Or.Empty);
+        });
+    }
+
+    [Test]
+    public void Strength_NineSets_AddSetIsOnWithNoNote()
+    {
+        var cut = Context.Render<ExerciseCard>(p => p
+            .Add(x => x.Exercise, Strength(9))
+            .Add(x => x.TestId, "exercise-1"));
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.Find("[data-testid=exercise-1-add-set]").HasAttribute("disabled"), Is.False);
+            Assert.That(cut.FindAll("[data-testid=exercise-1-sets-full]"), Is.Empty);
+        });
+    }
+
+    [Test]
+    public void Strength_TenSets_AddSetIsOffWithANote()
+    {
+        var cut = Context.Render<ExerciseCard>(p => p
+            .Add(x => x.Exercise, Strength(10))
+            .Add(x => x.TestId, "exercise-1"));
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.Find("[data-testid=exercise-1-add-set]").HasAttribute("disabled"), Is.True);
+            Assert.That(cut.Find("[data-testid=exercise-1-sets-full]").TextContent, Is.EqualTo("At most 10 sets"));
+        });
+    }
+
+    [Test]
+    public async Task Strength_TenSets_AddSetAndFocusAddsNoSet()
+    {
+        var exercise = Strength(10);
+        var cut = Context.Render<ExerciseCard>(p => p.Add(x => x.Exercise, exercise));
+
+        _ = cut.InvokeAsync(() => cut.Instance.AddSetAndFocusAsync());
+
+        await Task.Yield();
+        Assert.That(exercise.Entries, Has.Count.EqualTo(10));
+    }
+
+    [TestCase(311, "0:25:30", "5", "Pace 5:06/km")]
+    [TestCase(311, "0:25:30", null, "Pace —")]
+    [TestCase(300, "0:30:00", "5.2", "Speed 10.4 km/h")]
+    public void Cardio_WorkedOutValue_ShowsUnderTheFields(int id, string duration, string? distance, string text)
+    {
+        var exercise = ExerciseFields.New(new ExerciseCatalog().All.Single(e => e.Id == id));
+        exercise.Entries[0].Values["duration"] = duration;
+        exercise.Entries[0].Values["distance"] = distance;
+
+        var cut = Context.Render<ExerciseCard>(p => p
+            .Add(x => x.Exercise, exercise)
+            .Add(x => x.TestId, "exercise-1"));
+
+        Assert.That(cut.Find("[data-testid=exercise-1-worked-out]").TextContent, Is.EqualTo(text));
+    }
+
+    [Test]
+    public void Cardio_WithoutWorkedOutValue_ShowsNoLine()
+    {
+        var cut = Context.Render<ExerciseCard>(p => p
+            .Add(x => x.Exercise, Cardio())
+            .Add(x => x.TestId, "exercise-1"));
+
+        Assert.That(cut.FindAll("[data-testid=exercise-1-worked-out]"), Is.Empty);
+    }
+
+    [Test]
+    public void Cardio_WorkedOutValue_UpdatesAsYouType()
+    {
+        var exercise = ExerciseFields.New(new ExerciseCatalog().All.Single(e => e.Id == 311));
+        var cut = Context.Render<ExerciseCard>(p => p
+            .Add(x => x.Exercise, exercise)
+            .Add(x => x.TestId, "exercise-1"));
+
+        cut.Find("[data-testid=exercise-1-duration-mm]").Input("30");
+        cut.Find("[data-testid=exercise-1-distance]").Input("6");
+
+        Assert.That(cut.Find("[data-testid=exercise-1-worked-out]").TextContent, Is.EqualTo("Pace 5:00/km"));
+    }
+
     [Test]
     public void Strength_ShowsOneRowPerSet()
     {

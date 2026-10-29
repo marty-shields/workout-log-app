@@ -5,7 +5,7 @@ Feature: Exercise page
   Scenario Outline: A lift opens its Exercise page and back returns to Exercises
     Given these saved workouts:
       | started          | exercises                                       |
-      | 3 days ago 18:05 | Barbell Back Squat: 5 reps 60 kg / Plank: 0:01:00 |
+      | 3 days ago 18:05 | Barbell Back Squat: 5 reps 60 kg / Plank: 0:01:00 0 kg |
     And I have opened Exercises
     Then the tappable rows on Exercises are: Barbell Back Squat, Plank
     When I open "Barbell Back Squat" on Exercises
@@ -23,7 +23,7 @@ Feature: Exercise page
     Given these saved workouts:
       | started           | exercises                                              |
       | 10 days ago 18:05 | Barbell Back Squat: 8 reps 60 kg; 8 reps 62.5 kg       |
-      | 3 days ago 18:05  | Barbell Back Squat: 8 reps 60 kg; 3 reps 70 kg; 8 reps |
+      | 3 days ago 18:05  | Barbell Back Squat: 8 reps 60 kg; 3 reps 70 kg; 8 reps 0 kg |
     And I have opened the Exercise page for "Barbell Back Squat"
     Then the Exercise chart reads:
       | day         | value     |
@@ -35,7 +35,7 @@ Feature: Exercise page
       | Best e1RM       | 79.2kg   | 10 days ago |
     And the Exercise sessions read:
       | day         | headline   | sets                 |
-      | 3 days ago  | 70kg × 3   | 60×8 · 70×3 · 8 reps |
+      | 3 days ago  | 70kg × 3   | 60×8 · 70×3 · 0×8    |
       | 10 days ago | 62.5kg × 8 | 60×8 · 62.5×8        |
 
   Scenario: e1RM uses sets of 12 reps or fewer, and a longer range adds older sessions

@@ -7,6 +7,7 @@ namespace WorkoutLog.UI.Stories.Samples;
 
 /// <summary>
 /// <see cref="IWorkoutService"/> for the stories and the UI tests. Starts workouts and checks workouts, sets and entries with Core's validator.
+/// <see cref="Elapsed"/> is the time since the start by <see cref="TimeProvider"/>.
 /// <see cref="GetAsync"/> returns <see cref="SampleData.SavedStrengthWorkout"/> with the asked id.
 /// <see cref="SaveNewAsync"/> and <see cref="SaveAsync"/> store nothing and return an id when valid.
 /// <see cref="DeleteAsync"/> deletes nothing and returns <see cref="WorkoutDelete.Deleted"/>.
@@ -16,7 +17,10 @@ public sealed class SampleWorkoutService(TimeProvider time, IExerciseCatalog cat
     private readonly WorkoutValidator validator = new(catalog);
 
     /// <inheritdoc />
-    public WorkoutDraft StartNew() => new(time.GetUtcNow());
+    public WorkoutDraft StartNew() => new(time.GetUtcNow(), TimeSpan.Zero);
+
+    /// <inheritdoc />
+    public TimeSpan Elapsed(WorkoutDraft draft) => TimeSpan.FromTicks(Math.Max(0, (time.GetUtcNow() - draft.StartedAt).Ticks));
 
     /// <inheritdoc />
     public WorkoutErrors Validate(IReadOnlyList<WorkoutExercise> exercises) => validator.Validate(exercises);

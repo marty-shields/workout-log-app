@@ -3,11 +3,17 @@ using WorkoutLog.Core.Domain.Workouts.Validation;
 
 namespace WorkoutLog.Core.Services;
 
-/// <summary>Starts, checks, opens, saves and deletes workouts. Times come from <see cref="TimeProvider"/>. Null input throws <see cref="ArgumentNullException"/>.</summary>
+/// <summary>
+/// Starts, checks, opens, saves and deletes workouts. The start comes from <see cref="TimeProvider"/>, and the time a new workout is open from <see cref="IElapsedClock"/>.
+/// Null input throws <see cref="ArgumentNullException"/>.
+/// </summary>
 public interface IWorkoutService
 {
     /// <summary>Starts a new workout with the current time as its start (FR-01).</summary>
     WorkoutDraft StartNew();
+
+    /// <summary>Time since <paramref name="draft"/> started, by <see cref="IElapsedClock"/>; never below 0 (FR-02).</summary>
+    TimeSpan Elapsed(WorkoutDraft draft);
 
     /// <summary>Checks the workout against the save rules (FR-09).</summary>
     WorkoutErrors Validate(IReadOnlyList<WorkoutExercise> exercises);
@@ -19,8 +25,8 @@ public interface IWorkoutService
     ExerciseErrors ValidateEntry(int exerciseId, CardioEntry entry);
 
     /// <summary>
-    /// Saves a new workout if it is valid, with the current time as its finish (FR-10).
-    /// The finish is never before the start. Nothing is saved when invalid or when the write fails.
+    /// Saves a new workout if it is valid (FR-10). Its finish is the start plus <see cref="Elapsed"/>, and always after the start.
+    /// Nothing is saved when invalid or when the write fails.
     /// </summary>
     Task<SaveResult> SaveNewAsync(WorkoutDraft draft, IReadOnlyList<WorkoutExercise> exercises);
 

@@ -24,7 +24,7 @@ public class CardioProgressItemsTests
     /// <summary>UTC+10, no daylight saving.</summary>
     private static readonly TimeZoneInfo Brisbane = TimeZoneInfo.CreateCustomTimeZone("UTC+10", TimeSpan.FromHours(10), "UTC+10", "UTC+10");
 
-    private static readonly CardioRecords NoRecords = new(null, null, null, null, null);
+    private static readonly CardioRecords NoRecords = new(null, null, null, null, null, null);
 
     [Test]
     public void Exercises_AreTheOnesNamed() =>
@@ -37,7 +37,8 @@ public class CardioProgressItemsTests
 
     [TestCase(Run, new[] { "distance", "duration", "pace", "calories" })]
     [TestCase(StairClimber, new[] { "duration", "floors", "calories" })]
-    [TestCase(Treadmill, new[] { "distance", "duration", "calories" })]
+    [TestCase(Treadmill, new[] { "distance", "duration", "speed", "calories" })]
+    [TestCase(313, new[] { "distance", "duration", "speed", "calories" })]
     [TestCase(JumpRope, new[] { "duration", "calories" })]
     public void Tabs_AreTheExercisesChartMetricsInOrder(int id, string[] keys) =>
         Assert.That(CardioProgressItems.Tabs(Find(id)).Select(t => t.Value), Is.EqualTo(keys));
@@ -60,6 +61,8 @@ public class CardioProgressItemsTests
     [TestCase("duration", 1800, "30:00")]
     [TestCase("duration", 3750, "1:02:30")]
     [TestCase("pace", 346, "5:46")]
+    [TestCase("speed", 10.4, "10.4")]
+    [TestCase("speed", 10.456, "10.46")]
     [TestCase("floors", 120, "120")]
     [TestCase("calories", 410, "410")]
     public void Format_OtherTabs_AreTimesOrNumbers(string tab, decimal value, string text) =>
@@ -68,6 +71,7 @@ public class CardioProgressItemsTests
     [TestCase("distance", false, false, null)]
     [TestCase("duration", true, false, null)]
     [TestCase("pace", true, true, "Up = faster")]
+    [TestCase("speed", false, false, null)]
     [TestCase("floors", false, false, null)]
     [TestCase("calories", false, false, null)]
     public void TimeScaleFlippedAndCaption_FollowTheTab(string tab, bool timeScale, bool flipped, string? caption) =>
@@ -80,14 +84,15 @@ public class CardioProgressItemsTests
 
     [TestCase("distance", new object?[] { null, 5.2 })]
     [TestCase("duration", new object?[] { 1500.0, 1800.0 })]
-    [TestCase("pace", new object?[] { null, 346.0 })]
+    [TestCase("pace", new object?[] { null, 346.5 })]
+    [TestCase("speed", new object?[] { null, 10.4 })]
     [TestCase("floors", new object?[] { 42.0, null })]
     [TestCase("calories", new object?[] { 300.0, 410.0 })]
     public void Points_AreOnePerSessionOldestFirst_TimesInSeconds_NoValueWhenNotLogged(string tab, object?[] values)
     {
         var progress = Progress(
-            Session(1, Now.AddDays(-20), new CardioBest(null, TimeSpan.FromMinutes(25), null, 42, 300)),
-            Session(2, Now.AddDays(-10), new CardioBest(5.2m, TimeSpan.FromMinutes(30), TimeSpan.FromSeconds(346), null, 410)));
+            Session(1, Now.AddDays(-20), new CardioBest(null, TimeSpan.FromMinutes(25), null, null, 42, 300)),
+            Session(2, Now.AddDays(-10), new CardioBest(5.2m, TimeSpan.FromMinutes(30), TimeSpan.FromSeconds(346.5), 10.4m, null, 410)));
 
         Assert.That(CardioProgressItems.Points(progress, tab, TimeZoneInfo.Utc, Now).Select(p => p.Value), Is.EqualTo(values.Select(v => v is double d ? (decimal?)d : null)));
     }
@@ -100,6 +105,7 @@ public class CardioProgressItemsTests
     [TestCase("distance", ChartRange.ThreeMonths, "No distance logged in the last 3 months")]
     [TestCase("duration", ChartRange.SixMonths, "No duration logged in the last 6 months")]
     [TestCase("pace", ChartRange.Year, "No pace logged in the last year")]
+    [TestCase("speed", ChartRange.Year, "No speed logged in the last year")]
     [TestCase("floors", ChartRange.All, "No floors logged yet")]
     [TestCase("calories", ChartRange.All, "No calories logged yet")]
     public void NoValues_NamesTheMetricAndRange(string tab, ChartRange range, string message) =>
@@ -112,7 +118,8 @@ public class CardioProgressItemsTests
         var records = new CardioRecords(
             new ProgressRecord<decimal>(5.2m, at),
             new ProgressRecord<TimeSpan>(TimeSpan.FromMinutes(30), at),
-            new ProgressRecord<TimeSpan>(TimeSpan.FromSeconds(330), at),
+            new ProgressRecord<TimeSpan>(TimeSpan.FromSeconds(329.5), at),
+            null,
             new ProgressRecord<int>(99, at),
             new ProgressRecord<int>(410, at));
 
@@ -127,10 +134,25 @@ public class CardioProgressItemsTests
     }
 
     [Test]
+    public void Records_Speed_IsRoundedTo2Places()
+    {
+        var records = NoRecords with { FastestSpeed = new(10.456m, Now) };
+
+        Assert.That(CardioProgressItems.Records(Find(Treadmill), new CardioProgress([], records), TimeZoneInfo.Utc, Now),
+            Is.EqualTo(new[]
+            {
+                new RecordRow("Longest distance", null, null),
+                new RecordRow("Longest duration", null, null),
+                new RecordRow("Fastest speed", "10.46 km/h", "28 Oct"),
+                new RecordRow("Most calories", null, null),
+            }));
+    }
+
+    [Test]
     public void Records_Floors_AreCountedAndDistanceLeftOut()
     {
         var at = Now.AddDays(-13);
-        var records = new CardioRecords(null, new ProgressRecord<TimeSpan>(TimeSpan.FromMinutes(65), at), null, new ProgressRecord<int>(120, at), null);
+        var records = new CardioRecords(null, new ProgressRecord<TimeSpan>(TimeSpan.FromMinutes(65), at), null, null, new ProgressRecord<int>(120, at), null);
 
         Assert.That(CardioProgressItems.Records(Find(StairClimber), new CardioProgress([], records), TimeZoneInfo.Utc, Now),
             Is.EqualTo(new[]
@@ -151,8 +173,8 @@ public class CardioProgressItemsTests
     public void Sessions_NewestFirst_HeadlineIsTheDistanceAndDetailTheOtherValues()
     {
         var progress = Progress(
-            Session(60, Now.AddDays(-24), [Entry(duration: TimeSpan.FromSeconds(1760), distance: 5m, pace: TimeSpan.FromSeconds(352))], Headline(5m, TimeSpan.FromSeconds(1760))),
-            Session(61, Now.AddDays(-17), [Entry(duration: TimeSpan.FromMinutes(30), distance: 5.2m, pace: TimeSpan.FromSeconds(346), calories: 410)], Headline(5.2m, TimeSpan.FromMinutes(30))));
+            Session(60, Now.AddDays(-24), Entry(duration: TimeSpan.FromSeconds(1760), distance: 5m), Worked(5m, TimeSpan.FromSeconds(1760))),
+            Session(61, Now.AddDays(-17), Entry(duration: TimeSpan.FromMinutes(30), distance: 5.2m, calories: 410), Worked(5.2m, TimeSpan.FromMinutes(30))));
 
         Assert.That(CardioProgressItems.Sessions(Find(Run), progress, TimeZoneInfo.Utc, Now),
             Is.EqualTo(new[]
@@ -164,18 +186,18 @@ public class CardioProgressItemsTests
 
     [Test]
     public void Sessions_NoDistanceLogged_HeadlineIsADash() =>
-        Assert.That(CardioProgressItems.Sessions(Find(Run), Progress(Session(1, Now, [Entry(duration: TimeSpan.FromMinutes(30))], Headline(null, TimeSpan.FromMinutes(30)))), TimeZoneInfo.Utc, Now).Single(),
+        Assert.That(CardioProgressItems.Sessions(Find(Run), Progress(Session(1, Now, Entry(duration: TimeSpan.FromMinutes(30)), Worked(null, TimeSpan.FromMinutes(30)))), TimeZoneInfo.Utc, Now).Single(),
             Is.EqualTo(new ExerciseSession(1, "Wed 28 Oct", "—", "30:00")));
 
     [Test]
     public void Sessions_LastYear_HaveTheYear() =>
-        Assert.That(CardioProgressItems.Sessions(Find(JumpRope), Progress(Session(1, new DateTimeOffset(2025, 10, 15, 9, 0, 0, TimeSpan.Zero), [Entry(duration: TimeSpan.FromMinutes(10), calories: 120)], Headline(null, TimeSpan.FromMinutes(10)))), TimeZoneInfo.Utc, Now).Single(),
+        Assert.That(CardioProgressItems.Sessions(Find(JumpRope), Progress(Session(1, new DateTimeOffset(2025, 10, 15, 9, 0, 0, TimeSpan.Zero), Entry(duration: TimeSpan.FromMinutes(10), calories: 120), Worked(null, TimeSpan.FromMinutes(10)))), TimeZoneInfo.Utc, Now).Single(),
             Is.EqualTo(new ExerciseSession(1, "Wed 15 Oct 2025", "10:00", "120 calories")));
 
     [TestCase(StairClimber, "25:00", "120 floors · 300 calories · Speed level 8 · 70 steps/min")]
     [TestCase(ExerciseBike, "12.5km", "30:00 · 300 calories · Resistance 8 · 85rpm")]
     [TestCase(RowingMachine, "6000m", "30:00 · 300 calories · Damper 8 · 28 strokes/min")]
-    [TestCase(Treadmill, "5km", "30:00 · 300 calories · 2.5% · 10km/h")]
+    [TestCase(Treadmill, "5km", "30:00 · 10 km/h · 300 calories · 2.5%")]
     public void Sessions_DetailHasLevelInclineAndRate(int id, string headline, string detail)
     {
         var definition = Find(id);
@@ -184,39 +206,32 @@ public class CardioProgressItemsTests
             StairClimber => Entry(duration: TimeSpan.FromMinutes(25), floors: 120, calories: 300, level: 8, rate: 70),
             ExerciseBike => Entry(duration: TimeSpan.FromMinutes(30), distance: 12.5m, calories: 300, level: 8, rate: 85),
             RowingMachine => Entry(duration: TimeSpan.FromMinutes(30), distance: 6000, calories: 300, level: 8, rate: 28),
-            _ => Entry(duration: TimeSpan.FromMinutes(30), distance: 5, calories: 300, incline: 2.5m, rate: 10),
+            _ => Entry(duration: TimeSpan.FromMinutes(30), distance: 5, calories: 300, incline: 2.5m),
         };
 
-        var session = CardioProgressItems.Sessions(definition, Progress(Session(1, Now, [entry], Headline(entry.Distance, entry.Duration))), TimeZoneInfo.Utc, Now).Single();
+        var session = CardioProgressItems.Sessions(definition, Progress(Session(1, Now, entry, Worked(entry.Distance, entry.Duration))), TimeZoneInfo.Utc, Now).Single();
 
         Assert.That((session.Headline, session.Detail), Is.EqualTo((headline, detail)));
     }
 
-    [Test]
-    public void Sessions_TwoEntries_HeadlineIsTheBestAndDetailEachEntryInFull() =>
-        Assert.That(CardioProgressItems.Sessions(Find(Run), Progress(Session(1, Now,
-                [
-                    Entry(duration: TimeSpan.FromMinutes(18), distance: 3m, pace: TimeSpan.FromMinutes(6), calories: 230),
-                    Entry(duration: TimeSpan.FromMinutes(30), distance: 5.2m, pace: TimeSpan.FromSeconds(346), calories: 410),
-                ], Headline(5.2m, TimeSpan.FromMinutes(30)))), TimeZoneInfo.Utc, Now).Single(),
-            Is.EqualTo(new ExerciseSession(1, "Wed 28 Oct", "5.2km", "3km · 18:00 · 6:00/km · 230 calories / 5.2km · 30:00 · 5:46/km · 410 calories")));
 
     private static ExerciseDefinition Find(int id) => Catalog.All.Single(e => e.Id == id);
 
     private static CardioProgress Progress(params CardioSessionProgress[] sessions) => new(sessions, NoRecords);
 
-    private static CardioBest Best(decimal distance) => new(distance, null, null, null, null);
+    private static CardioBest Best(decimal distance) => new(distance, null, null, null, null, null);
 
     private static CardioSessionProgress Session(int workoutId, DateTimeOffset startedAt, CardioBest best) =>
-        new(new CardioSession(workoutId, startedAt, [Entry()]), best);
+        new(new CardioSession(workoutId, startedAt, Entry()), best);
 
-    private static CardioSessionProgress Session(int workoutId, DateTimeOffset startedAt, CardioEntry[] entries, CardioBest best) =>
-        new(new CardioSession(workoutId, startedAt, entries), best);
+    private static CardioSessionProgress Session(int workoutId, DateTimeOffset startedAt, CardioEntry entry, CardioBest best) =>
+        new(new CardioSession(workoutId, startedAt, entry), best);
 
-    /// <summary>Best values with only the headline metrics: distance and duration.</summary>
-    private static CardioBest Headline(decimal? distance, TimeSpan? duration) => new(distance, duration, null, null, null);
+    /// <summary>Chart values with distance and duration, and pace and speed worked out from them.</summary>
+    private static CardioBest Worked(decimal? distance, TimeSpan? duration) =>
+        new(distance, duration, WorkedOut.Pace(duration, distance), WorkedOut.Speed(duration, distance), null, null);
 
     private static CardioEntry Entry(
-        TimeSpan? duration = null, decimal? distance = null, int? floors = null, int? level = null, decimal? incline = null, int? calories = null, decimal? rate = null, TimeSpan? pace = null) =>
-        new(duration, distance, floors, level, incline, calories, rate, pace);
+        TimeSpan? duration = null, decimal? distance = null, int? floors = null, int? level = null, decimal? incline = null, int? calories = null, decimal? rate = null) =>
+        new(duration, distance, floors, level, incline, calories, rate);
 }

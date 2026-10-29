@@ -1,3 +1,4 @@
+using WorkoutLog.Core.Domain.Workouts;
 using WorkoutLog.Core.Domain.Workouts.Validation;
 using WorkoutLog.UI.Models.Fields;
 
@@ -8,7 +9,8 @@ namespace WorkoutLog.UI.Models.Workout;
 /// <param name="name">Exercise name.</param>
 /// <param name="kind">Strength or cardio.</param>
 /// <param name="fields">Fields shown for each set or entry.</param>
-public sealed class ExerciseState(int exerciseId, string name, ExerciseKind kind, IReadOnlyList<FieldSpec> fields)
+/// <param name="workedOut">Cardio: the value shown worked out from distance and duration.</param>
+public sealed class ExerciseState(int exerciseId, string name, ExerciseKind kind, IReadOnlyList<FieldSpec> fields, WorkedOutKind workedOut = WorkedOutKind.None)
 {
     /// <summary>Exercise id.</summary>
     public int ExerciseId { get; } = exerciseId;
@@ -21,6 +23,12 @@ public sealed class ExerciseState(int exerciseId, string name, ExerciseKind kind
 
     /// <summary>Fields shown for each set or entry.</summary>
     public IReadOnlyList<FieldSpec> Fields { get; } = fields;
+
+    /// <summary>Cardio: the value shown worked out from distance and duration.</summary>
+    public WorkedOutKind WorkedOut { get; } = workedOut;
+
+    /// <summary>Strength: at most <see cref="WorkoutLimits.MaxSets"/> sets, so Add set is off.</summary>
+    public bool SetsFull => Kind == ExerciseKind.Strength && Entries.Count >= WorkoutLimits.MaxSets;
 
     /// <summary>Sets (strength) or the single entry (cardio), in the order added.</summary>
     public List<EntryState> Entries { get; } = new();

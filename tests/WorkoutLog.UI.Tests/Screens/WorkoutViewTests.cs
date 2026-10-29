@@ -51,6 +51,21 @@ public class WorkoutViewTests : ComponentTestBase
         Assert.That(cut.FindAll(".panel").Count, Is.EqualTo(open ? 1 : 0));
     }
 
+    [TestCase(9, false)]
+    [TestCase(10, true)]
+    public void AddExercise_IsOffWithANoteAtTenExercises(int count, bool full)
+    {
+        var cut = Context.Render<WorkoutView>(p => p
+            .Add(x => x.StartedAt, Started)
+            .Add(x => x.Exercises, [.. Enumerable.Range(0, count).Select(_ => Curl())]));
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.Find("[data-testid=add-exercise]").HasAttribute("disabled"), Is.EqualTo(full));
+            Assert.That(cut.FindAll("[data-testid=exercises-full]").Select(n => n.TextContent), Is.EqualTo(full ? new[] { "At most 10 exercises" } : []));
+        });
+    }
+
     [Test]
     public void ValidateSet_IsPassedToExerciseCards()
     {

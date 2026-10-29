@@ -144,6 +144,45 @@ public class WorkoutCheckerTests
     }
 
     [Test]
+    public void Check_RepeatedAndTooManyExercises_FailWithNoMessageAndLogEachCode()
+    {
+        List<ExerciseState> exercises =
+        [
+            SampleData.Exercise(Catalog, Squat, ["8", "60"]),
+            SampleData.Exercise(Catalog, Squat, ["8", "60"]),
+            .. new[] { 8, 132, 222, 218, 258, 187, 263, 264, 13 }.Select(id => SampleData.FullWorkout(Catalog).Single(e => e.ExerciseId == id)),
+        ];
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(checker.Check(exercises), Is.EqualTo(new WorkoutCheck(false, null)));
+            Assert.That(LoggedEvents.Of(logger), Is.EqualTo(new[]
+            {
+                (UiEvent.SaveCheckWorkoutError, LogLevel.Warning, "Save check failed with TooManyExercises and no message"),
+                (UiEvent.SaveCheckWorkoutError, LogLevel.Warning, "Save check failed with RepeatedExercise and no message"),
+            }));
+        });
+    }
+
+    [Test]
+    public void Check_TooManySets_FailsWithNoMessageAndLogsTheCode()
+    {
+        var squat = SampleData.FullSets(Catalog, Squat);
+        squat.Entries.Add(new EntryState { Values = { ["reps"] = "8", ["weight"] = "60" } });
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(checker.Check([squat]), Is.EqualTo(new WorkoutCheck(false, null)));
+            Assert.That(squat.ErrorCode, Is.EqualTo(ExerciseError.TooManySets));
+            Assert.That(squat.Error, Is.Null);
+            Assert.That(LoggedEvents.Of(logger), Is.EqualTo(new[]
+            {
+                (UiEvent.SaveCheckExerciseError, LogLevel.Warning, $"Save check for exercise {Squat} failed with TooManySets"),
+            }));
+        });
+    }
+
+    [Test]
     public void Check_NoSets_SetsTheCodeAndLogsNothing()
     {
         var squat = SampleData.Exercise(Catalog, Squat);

@@ -41,29 +41,17 @@ public class CardioProgressServiceTests
         var older = Now.AddDays(-7);
         repository.Setup(r => r.GetSessionsAsync(Run)).ReturnsAsync(
         [
-            new WorkoutSession(1, older, [new CardioExercise(Run, Entry(TimeSpan.FromMinutes(25), 4m))]),
-            new WorkoutSession(2, Now, [new CardioExercise(Run, Entry(TimeSpan.FromMinutes(30), 5.2m))]),
+            new WorkoutSession(1, older, new CardioExercise(Run, Entry(TimeSpan.FromMinutes(25), 4m))),
+            new WorkoutSession(2, Now, new CardioExercise(Run, Entry(TimeSpan.FromMinutes(30), 5.2m))),
         ]);
 
         var result = await service.LoadAsync(Run);
 
         Assert.That(result, Is.EqualTo(new CardioProgressResult(
         [
-            new CardioSession(1, older, [Entry(TimeSpan.FromMinutes(25), 4m)]),
-            new CardioSession(2, Now, [Entry(TimeSpan.FromMinutes(30), 5.2m)]),
+            new CardioSession(1, older, Entry(TimeSpan.FromMinutes(25), 4m)),
+            new CardioSession(2, Now, Entry(TimeSpan.FromMinutes(30), 5.2m)),
         ], Failed: false)).UsingPropertiesComparer());
-    }
-
-    [Test]
-    public async Task LoadAsync_TwiceInAWorkout_IsOneSessionWithTheEntriesInWorkoutOrder()
-    {
-        repository.Setup(r => r.GetSessionsAsync(Run)).ReturnsAsync(
-            [new WorkoutSession(1, Now, [new CardioExercise(Run, Entry(TimeSpan.FromMinutes(18), 3m)), new CardioExercise(Run, Entry(TimeSpan.FromMinutes(30), 5.2m))])]);
-
-        var result = await service.LoadAsync(Run);
-
-        Assert.That(result.Sessions, Is.EqualTo(new[] { new CardioSession(1, Now, [Entry(TimeSpan.FromMinutes(18), 3m), Entry(TimeSpan.FromMinutes(30), 5.2m)]) })
-            .UsingPropertiesComparer());
     }
 
     [Test]
@@ -78,7 +66,7 @@ public class CardioProgressServiceTests
     public async Task LoadAsync_LogsTheCountAtInformation()
     {
         repository.Setup(r => r.GetSessionsAsync(Run)).ReturnsAsync(
-            [new WorkoutSession(1, Now, [new CardioExercise(Run, Entry(TimeSpan.FromMinutes(30), 5m))]), new WorkoutSession(2, Now.AddDays(1), [])]);
+            [new WorkoutSession(1, Now, new CardioExercise(Run, Entry(TimeSpan.FromMinutes(30), 5m))), new WorkoutSession(2, Now.AddDays(1), new CardioExercise(Run, Entry(TimeSpan.FromMinutes(20), 3m)))]);
 
         await service.LoadAsync(Run);
 
@@ -125,20 +113,22 @@ public class CardioProgressServiceTests
     [Test]
     public void Summarise_KeepsTheSessionsInTheRangeOldestFirstWithTheirBestAndRecords()
     {
-        var outOfRange = new CardioSession(1, Now.AddMonths(-4), [Entry(TimeSpan.FromHours(2), 20m)]);
-        var twice = new CardioSession(2, Now, [Entry(TimeSpan.FromMinutes(18), 3m), Entry(TimeSpan.FromMinutes(30), 5.2m)]);
-        var older = new CardioSession(3, Now.AddDays(-7), [Entry(TimeSpan.FromMinutes(40), 5m)]);
+        var outOfRange = new CardioSession(1, Now.AddMonths(-4), Entry(TimeSpan.FromHours(2), 20m));
+        var latest = new CardioSession(2, Now, Entry(TimeSpan.FromMinutes(30), 5.2m));
+        var older = new CardioSession(3, Now.AddDays(-7), Entry(TimeSpan.FromMinutes(40), 5m));
 
-        var progress = service.Summarise([outOfRange, twice, older], ChartRange.ThreeMonths);
+        var progress = service.Summarise([outOfRange, latest, older], ChartRange.ThreeMonths);
 
+        var latestPace = TimeSpan.FromTicks(3_461_538_461);
         Assert.That(progress, Is.EqualTo(new CardioProgress(
         [
-            new CardioSessionProgress(older, new CardioBest(5m, TimeSpan.FromMinutes(40), null, null, null)),
-            new CardioSessionProgress(twice, new CardioBest(5.2m, TimeSpan.FromMinutes(30), null, null, null)),
+            new CardioSessionProgress(older, new CardioBest(5m, TimeSpan.FromMinutes(40), TimeSpan.FromMinutes(8), 7.5m, null, null)),
+            new CardioSessionProgress(latest, new CardioBest(5.2m, TimeSpan.FromMinutes(30), latestPace, 10.4m, null, null)),
         ], new CardioRecords(
             new ProgressRecord<decimal>(5.2m, Now),
             new ProgressRecord<TimeSpan>(TimeSpan.FromMinutes(40), older.StartedAt),
-            null,
+            new ProgressRecord<TimeSpan>(latestPace, Now),
+            new ProgressRecord<decimal>(10.4m, Now),
             null,
             null))).UsingPropertiesComparer());
     }
@@ -146,7 +136,7 @@ public class CardioProgressServiceTests
     [Test]
     public void Summarise_All_KeepsEverySession()
     {
-        var old = new CardioSession(1, Now.AddYears(-3), [Entry(TimeSpan.FromHours(2), 20m)]);
+        var old = new CardioSession(1, Now.AddYears(-3), Entry(TimeSpan.FromHours(2), 20m));
 
         var progress = service.Summarise([old], ChartRange.All);
 
@@ -155,8 +145,8 @@ public class CardioProgressServiceTests
 
     [Test]
     public void Summarise_NoSessionsInTheRange_HasNoSessionsOrRecords() =>
-        Assert.That(service.Summarise([new CardioSession(1, Now.AddYears(-2), [Entry(TimeSpan.FromMinutes(30), 5m)])], ChartRange.Year),
-            Is.EqualTo(new CardioProgress([], new CardioRecords(null, null, null, null, null))).UsingPropertiesComparer());
+        Assert.That(service.Summarise([new CardioSession(1, Now.AddYears(-2), Entry(TimeSpan.FromMinutes(30), 5m))], ChartRange.Year),
+            Is.EqualTo(new CardioProgress([], new CardioRecords(null, null, null, null, null, null))).UsingPropertiesComparer());
 
-    private static CardioEntry Entry(TimeSpan duration, decimal distance) => new(duration, distance, null, null, null, null, null, null);
+    private static CardioEntry Entry(TimeSpan duration, decimal distance) => new(duration, distance, null, null, null, null, null);
 }

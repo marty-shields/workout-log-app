@@ -11,7 +11,7 @@ Same layout and behaviour as [New Workout](./?path=/custom/screens-new-workout-o
 | Part | Content |
 |---|---|
 | Top bar | "Total h:mm:ss" instead of the live timer; Delete (trash `IconButton`) on the right. |
-| Content | The saved workout opens newest first. Every carry set starts closed. No last and PB line. |
+| Content | The saved workout opens newest first, every value as saved, 0 included. Every carry set starts closed. No last and PB line. |
 | Overlays | `AddExerciseView` ([Add Exercise](./?path=/custom/screens-add-exercise-overview)); `ConfirmDialog` "Discard changes?" on back with changes; "Delete this workout?" on Delete (FR-24). |
 | Loading | `WorkoutLoadView`: title "Workout", `Spinner` "Loading…" centred (D72). |
 | Load failed | Error "Couldn't load the workout" and a Secondary **Try again** that reloads. Focus moves to Try again. An exercise missing from the list, or saved as the wrong kind, also shows this (D72). |

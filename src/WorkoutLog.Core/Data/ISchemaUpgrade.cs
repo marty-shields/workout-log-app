@@ -2,7 +2,9 @@ using SQLite;
 
 namespace WorkoutLog.Core.Data;
 
-/// <summary>A numbered schema upgrade step: a change sqlite-net can't make itself (rename, move or transform data, or change an existing index).</summary>
+/// <summary>
+/// A numbered schema upgrade step: a change sqlite-net can't make itself (rename, move or transform data, change an existing index, or rebuild a table).
+/// </summary>
 internal interface ISchemaUpgrade
 {
     /// <summary>Schema version the step upgrades to. Steps start at 2.</summary>

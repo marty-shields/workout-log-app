@@ -159,6 +159,24 @@ public sealed class WorkoutSteps(WebView web, Native native, Journeys journeys, 
     [Then(@"^there (?:is|are) (\d+) exercises?$")]
     public void ThenThereAreExercises(int count) => web.Eventually(() => workout.ExerciseNames().Count, Is.EqualTo(count));
 
+    [Then(@"^(.+) shows the worked-out ""(.*)""$")]
+    public void ThenShowsTheWorkedOut(string name, string text) => web.Eventually(() => workout.WorkedOut(name), Is.EqualTo(text), $"{name} worked-out line");
+
+    [Then(@"^Add set on (.+) is off with ""(.*)""$")]
+    public void ThenAddSetIsOff(string name, string note)
+    {
+        web.Eventually(() => workout.SetsFull(name), Is.EqualTo(note), $"{name} sets note");
+        Assert.That(workout.AddSetEnabled(name), Is.False, $"{name} Add set");
+    }
+
+    [Then(@"^Add exercise is off with ""(.*)""$")]
+    public void ThenAddExerciseIsOff(string note)
+    {
+        Assert.That(web.ScrollToBottom(), Is.True, "the workout didn't scroll");
+        web.Eventually(workout.ExercisesFull, Is.EqualTo(note), "exercises note");
+        Assert.That(workout.AddExerciseEnabled(), Is.False, "Add exercise");
+    }
+
     [Then(@"^(.+) has last and PB ""(.*)""$")]
     public void ThenHasLastAndPb(string name, string text) => web.Eventually(() => workout.Weights(name), Is.EqualTo(text), $"{name} last and PB");
 

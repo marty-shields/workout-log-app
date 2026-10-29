@@ -16,14 +16,14 @@ Feature: Exercise page: assisted machines, holds and carries
     Examples:
       | exercise                                  | name                     | subtitle          | tabs                                    |
       | Machine Assisted Pull-up: 8 reps 10 kg    | Machine Assisted Pull-up | Lats · Machine    | the Exercise page has no tab switcher   |
-      | Plank: 0:01:00                            | Plank                    | Abdominals        | the Exercise tabs are: Duration, Weight |
+      | Plank: 0:01:00 0 kg                            | Plank                    | Abdominals        | the Exercise tabs are: Duration, Weight |
       | Farmer's Walk: 40 m 32 kg 0:00:45         | Farmer's Walk            | Forearms · Other  | the Exercise tabs are: Weight, Distance |
 
-  Scenario: An assisted machine shows its least assist per session, a blank assist as 0kg
+  Scenario: An assisted machine shows its least assist per session, no assist as 0kg
     Given these saved workouts:
       | started           | exercises                                                    |
       | 10 days ago 18:05 | Machine Assisted Pull-up: 8 reps 10 kg; 6 reps 5 kg          |
-      | 3 days ago 18:05  | Machine Assisted Pull-up: 8 reps 5 kg; 4 reps 0 kg; 5 reps   |
+      | 3 days ago 18:05  | Machine Assisted Pull-up: 8 reps 5 kg; 4 reps 0 kg; 5 reps 0 kg   |
     And I have opened the Exercise page for "Machine Assisted Pull-up"
     Then the Exercise page has no tab switcher
     And the Exercise chart is titled "Least assist per session"
@@ -61,9 +61,9 @@ Feature: Exercise page: assisted machines, holds and carries
   Scenario: A hold opens on Duration with its longest hold per session, and a longer range adds older sessions
     Given these saved workouts:
       | started            | exercises                               |
-      | 200 days ago 18:05 | Plank: 0:03:00                          |
-      | 10 days ago 18:05  | Plank: 0:01:30                          |
-      | 3 days ago 18:05   | Plank: 0:01:45; 10 kg 0:01:00; 0:01:20  |
+      | 200 days ago 18:05 | Plank: 0:03:00 0 kg                          |
+      | 10 days ago 18:05  | Plank: 0:01:30 0 kg                          |
+      | 3 days ago 18:05   | Plank: 0:01:45 0 kg; 10 kg 0:01:00; 0:01:20 0 kg  |
     And I have opened the Exercise page for "Plank"
     Then the Exercise chart reads:
       | day         | value |
@@ -92,7 +92,7 @@ Feature: Exercise page: assisted machines, holds and carries
     Given these saved workouts:
       | started           | exercises                                       |
       | 10 days ago 18:05 | Plank: 5 kg 0:00:45                             |
-      | 3 days ago 18:05  | Plank: 10 kg 0:00:45; 10 kg 0:01:00; 0:02:00    |
+      | 3 days ago 18:05  | Plank: 10 kg 0:00:45; 10 kg 0:01:00; 0:02:00 0 kg    |
     And I have opened the Exercise page for "Plank"
     When I choose the Weight tab
     Then the Exercise chart reads:
@@ -103,7 +103,7 @@ Feature: Exercise page: assisted machines, holds and carries
   Scenario: A hold's Weight tab with no weighted sets says so
     Given these saved workouts:
       | started          | exercises                    |
-      | 3 days ago 18:05 | Plank: 0:01:00; 0 kg 0:01:30 |
+      | 3 days ago 18:05 | Plank: 0:01:00 0 kg; 0 kg 0:01:30 |
     And I have opened the Exercise page for "Plank"
     When I choose the Weight tab
     Then the Exercise chart says "No sets in the last 3 months"
@@ -120,9 +120,9 @@ Feature: Exercise page: assisted machines, holds and carries
   Scenario: A carry opens on Weight with its heaviest set per session, a tie taking the longest, and a longer range adds older sessions
     Given these saved workouts:
       | started            | exercises                                                     |
-      | 200 days ago 18:05 | Farmer's Walk: 40 m 50 kg                                     |
-      | 10 days ago 18:05  | Farmer's Walk: 40 m 28 kg                                     |
-      | 3 days ago 18:05   | Farmer's Walk: 30 m 32 kg 0:00:30; 40 m 32 kg 0:00:45; 60 m   |
+      | 200 days ago 18:05 | Farmer's Walk: 40 m 50 kg 0:00:40                                     |
+      | 10 days ago 18:05  | Farmer's Walk: 40 m 28 kg 0:00:40                                     |
+      | 3 days ago 18:05   | Farmer's Walk: 30 m 32 kg 0:00:30; 40 m 32 kg 0:00:45; 60 m 0 kg 0:01:00 |
     And I have opened the Exercise page for "Farmer's Walk"
     Then the Exercise chart reads:
       | day         | value     |
@@ -134,8 +134,8 @@ Feature: Exercise page: assisted machines, holds and carries
       | Longest distance | 60m        | 3 days ago |
     And the Exercise sessions read:
       | day         | headline   | sets                                |
-      | 3 days ago  | 32kg · 40m | 32kg 30m 0:30 · 32kg 40m 0:45 · 60m |
-      | 10 days ago | 28kg · 40m | 28kg 40m                            |
+      | 3 days ago  | 32kg · 40m | 32kg 30m 0:30 · 32kg 40m 0:45 · 60m 1:00 |
+      | 10 days ago | 28kg · 40m | 28kg 40m 0:40                            |
     When I choose the 1Y range
     Then the Exercise chart reads:
       | day          | value    |
@@ -150,8 +150,8 @@ Feature: Exercise page: assisted machines, holds and carries
   Scenario: A carry's Distance tab shows the longest set per session, a tie taking the heaviest
     Given these saved workouts:
       | started           | exercises                               |
-      | 10 days ago 18:05 | Farmer's Walk: 60 m 24 kg; 60 m 28 kg   |
-      | 3 days ago 18:05  | Farmer's Walk: 80 m; 40 m 32 kg         |
+      | 10 days ago 18:05 | Farmer's Walk: 60 m 24 kg 0:01:00; 60 m 28 kg 0:01:00 |
+      | 3 days ago 18:05  | Farmer's Walk: 80 m 0 kg 0:01:20; 40 m 32 kg 0:00:45  |
     And I have opened the Exercise page for "Farmer's Walk"
     When I choose the Distance tab
     Then the Exercise chart reads:
@@ -166,7 +166,7 @@ Feature: Exercise page: assisted machines, holds and carries
   Scenario: A carry's Weight tab with no weighted sets says so
     Given these saved workouts:
       | started          | exercises                       |
-      | 3 days ago 18:05 | Farmer's Walk: 60 m; 40 m 0 kg  |
+      | 3 days ago 18:05 | Farmer's Walk: 60 m 0 kg 0:01:00; 40 m 0 kg 0:00:40 |
     And I have opened the Exercise page for "Farmer's Walk"
     Then the Exercise chart says "No sets in the last 3 months"
     And the Exercise records read:
@@ -175,6 +175,6 @@ Feature: Exercise page: assisted machines, holds and carries
       | Longest distance | 60m   | 3 days ago |
     And the Exercise sessions read:
       | day        | headline | sets      |
-      | 3 days ago | 60m      | 60m · 40m |
+      | 3 days ago | 60m      | 60m 1:00 · 40m 0:40 |
     When I choose the All range
     Then the Exercise chart says "No sets yet"

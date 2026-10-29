@@ -20,9 +20,9 @@ public class GatedWorkoutRepositoryTests
     {
         databasePath = TempDatabase.NewPath();
         connection = new SQLiteAsyncConnection(databasePath);
-        await connection.CreateTablesAsync<WorkoutRow, WorkoutExerciseRow, StrengthSetRow, CardioEntryRow>();
+        await connection.RunInTransactionAsync(WorkoutTables.CreateMissing);
         gate = new DatabaseGate();
-        repository = new GatedWorkoutRepository(new WorkoutRepository(connection, new WorkoutWriterFactory(new ExerciseCatalog())), gate);
+        repository = new GatedWorkoutRepository(new WorkoutRepository(connection, new WorkoutWriterFactory()), gate);
     }
 
     [TearDown]
@@ -35,10 +35,10 @@ public class GatedWorkoutRepositoryTests
     [Test]
     public async Task Calls_PassThroughToTheRepository()
     {
-        var id = await repository.AddAsync(new NewWorkout(Start, Start, Exercises));
+        var id = await repository.AddAsync(new NewWorkout(Start, Start.AddMinutes(30), Exercises));
         await repository.ReplaceExercisesAsync(id, []);
 
-        Assert.That(await repository.GetAsync(id), Is.EqualTo(new Workout(id, Start, Start, [])).UsingPropertiesComparer());
+        Assert.That(await repository.GetAsync(id), Is.EqualTo(new Workout(id, Start, Start.AddMinutes(30), [])).UsingPropertiesComparer());
         Assert.That(await repository.ListAsync(), Is.EqualTo(new[] { new WorkoutSummary(id, Start) }));
         Assert.That(await repository.ListAsync(Start.AddTicks(1), null, null), Is.Empty);
         Assert.That(await repository.ListAsync(null, Start.AddTicks(-1), null), Is.Empty);
@@ -62,13 +62,13 @@ public class GatedWorkoutRepositoryTests
     [TestCase("Delete")]
     public async Task Call_WhileTheGateIsHeld_WaitsForIt(string call)
     {
-        var id = await repository.AddAsync(new NewWorkout(Start, Start, Exercises));
+        var id = await repository.AddAsync(new NewWorkout(Start, Start.AddMinutes(30), Exercises));
         var release = new TaskCompletionSource();
         var holder = gate.RunAsync(() => release.Task);
 
         Task pending = call switch
         {
-            "Add" => repository.AddAsync(new NewWorkout(Start.AddHours(1), Start.AddHours(1), Exercises)),
+            "Add" => repository.AddAsync(new NewWorkout(Start.AddHours(1), Start.AddHours(1).AddMinutes(30), Exercises)),
             "Replace" => repository.ReplaceExercisesAsync(id, []),
             "Get" => repository.GetAsync(id),
             "List" => repository.ListAsync(),

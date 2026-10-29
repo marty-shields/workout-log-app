@@ -14,13 +14,18 @@ public class FinishCheckTests
         Assert.That(new FinishCheck().Check(At(0), Context), Is.Empty);
 
     [Test]
-    public void Check_FinishAtStart_Passes() =>
-        Assert.That(new FinishCheck().Check(At(0) with { FinishedAt = Time(Start) }, Context), Is.Empty);
+    public void Check_FinishATickAfterStart_Passes() =>
+        Assert.That(new FinishCheck().Check(At(0) with { FinishedAt = Time(Start.AddTicks(1)) }, Context), Is.Empty);
 
     [Test]
-    public void Check_FinishATickBeforeStart_IsFinishBeforeStart() =>
+    public void Check_FinishAtStart_IsFinishNotAfterStart() =>
+        Assert.That(new FinishCheck().Check(At(0) with { FinishedAt = Time(Start) }, Context),
+            Is.EqualTo(new[] { ImportSkipReason.FinishNotAfterStart }));
+
+    [Test]
+    public void Check_FinishATickBeforeStart_IsFinishNotAfterStart() =>
         Assert.That(new FinishCheck().Check(At(0) with { FinishedAt = Time(Start.AddTicks(-1)) }, Context),
-            Is.EqualTo(new[] { ImportSkipReason.FinishBeforeStart }));
+            Is.EqualTo(new[] { ImportSkipReason.FinishNotAfterStart }));
 
     [TestCase(null)]
     [TestCase("tomorrow")]

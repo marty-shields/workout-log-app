@@ -7,10 +7,10 @@ namespace WorkoutLog.E2E.Tests.Support;
 /// <summary>Workouts as the export file writes them (docs/02 Export file).</summary>
 public static class ExportJson
 {
-    /// <summary>A file with the version 1 header and <paramref name="workouts"/>.</summary>
+    /// <summary>A file with the version 2 header and <paramref name="workouts"/>.</summary>
     public static JsonObject File(IEnumerable<JsonNode> workouts) => new()
     {
-        ["formatVersion"] = 1,
+        ["formatVersion"] = 2,
         ["exportedAt"] = "2026-10-26T18:05:12Z",
         ["appVersion"] = "1.0.0",
         ["workouts"] = new JsonArray(workouts.ToArray()),
@@ -44,7 +44,7 @@ public static class ExportJson
                 break;
             case CardioExercise { Entry: var e }:
                 node["entry"] = Values(("duration", e.Duration), ("distance", e.Distance), ("floors", e.Floors), ("level", e.Level),
-                    ("incline", e.Incline), ("calories", e.Calories), ("rate", e.Rate), ("pace", e.Pace));
+                    ("incline", e.Incline), ("calories", e.Calories), ("rate", e.Rate));
                 break;
         }
 

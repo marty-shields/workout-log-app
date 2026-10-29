@@ -8,6 +8,5 @@ namespace WorkoutLog.Core.Export;
 /// <param name="Incline">Incline, percent.</param>
 /// <param name="Calories">Calories.</param>
 /// <param name="Rate">Rate, in the exercise's unit.</param>
-/// <param name="Pace">Pace: time per the exercise's pace unit.</param>
 internal sealed record ExportEntry(
-    TimeSpan? Duration, decimal? Distance, int? Floors, int? Level, decimal? Incline, int? Calories, decimal? Rate, TimeSpan? Pace);
+    TimeSpan? Duration, decimal? Distance, int? Floors, int? Level, decimal? Incline, int? Calories, decimal? Rate);

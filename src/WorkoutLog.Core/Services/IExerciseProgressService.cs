@@ -6,7 +6,7 @@ namespace WorkoutLog.Core.Services;
 public interface IExerciseProgressService
 {
     /// <summary>
-    /// Returns every session of the exercise, by start time oldest first; a workout holding it twice is one session, its sets in workout order.
+    /// Returns every session of the exercise, by start time oldest first, its sets in order.
     /// An id not in the exercise list, a cardio exercise or a failed read
     /// returns <see cref="ExerciseProgressResult.Failed"/> and no sessions.
     /// </summary>

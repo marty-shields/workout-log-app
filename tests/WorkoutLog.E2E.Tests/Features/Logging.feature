@@ -10,7 +10,7 @@ Feature: Logging
   @US-10 @today
   Scenario: Starting and saving a workout are logged with ids and counts
     Given I have started a new workout
-    And I have logged Barbell Back Squat set 1: 5 reps
+    And I have logged Barbell Back Squat set 1: 5 reps, 60 kg
     And I have logged Push-up set 1: 10 reps
     When I save the workout
     Then the log shows "New workout started"
@@ -28,7 +28,7 @@ Feature: Logging
   Scenario: Opening, saving and discarding edits are logged
     Given these saved workouts:
       | started         | exercises                                     |
-      | yesterday 18:05 | Barbell Back Squat: 5 reps / Push-up: 10 reps |
+      | yesterday 18:05 | Barbell Back Squat: 5 reps 60 kg / Push-up: 10 reps 0 kg |
     When I open workout 1 from Workouts
     And I save the workout
     And I open workout 1 from Workouts
@@ -42,7 +42,7 @@ Feature: Logging
   Scenario: Deleting with unsaved edits logs the delete only
     Given these saved workouts:
       | started         | exercises        |
-      | yesterday 18:05 | Push-up: 10 reps |
+      | yesterday 18:05 | Push-up: 10 reps 0 kg |
     And I have opened workout 1 from Workouts
     And I have entered "12" in Push-up set 1 reps
     When I delete the workout
@@ -53,7 +53,8 @@ Feature: Logging
   Scenario: Values I type never reach the log
     Given I have started a new workout
     And I have logged Barbell Back Squat set 1: 5 reps, 987.65 kg
-    And I have logged Treadmill: 0:20:00, 876.54 km, incline 87.65, 76.54 km/h
+    And I have logged Treadmill: 0:20:00, 876.54 km, incline 87.65
+    And I have logged Rowing Machine: 0:10:00, 2000 m, 76.54 strokes/min
     When I save the workout
     And I open the latest workout from Workouts and save it
     Then the log contains none of: 987.65, 876.54, 87.65, 76.54

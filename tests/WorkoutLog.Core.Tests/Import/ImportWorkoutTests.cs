@@ -44,7 +44,7 @@ public class ImportWorkoutTests
         Assert.That(At(0, Bench, Run).ToNewWorkout(), Is.EqualTo(new NewWorkout(ImportJson.Start, ImportJson.Start.AddHours(1),
         [
             new StrengthExercise(8, [new StrengthSet(8, 60m, null, null)]),
-            new CardioExercise(311, new CardioEntry(TimeSpan.FromMinutes(30), 5.2m, null, null, null, null, null, null)),
+            new CardioExercise(311, new CardioEntry(TimeSpan.FromMinutes(30), 5.2m, null, null, null, null, null)),
         ])).UsingPropertiesComparer());
     }
 

@@ -11,4 +11,7 @@ public enum ExerciseError
 
     /// <summary>A strength exercise with no sets.</summary>
     NoSets,
+
+    /// <summary>A strength exercise with more than <see cref="WorkoutLimits.MaxSets"/> sets.</summary>
+    TooManySets,
 }

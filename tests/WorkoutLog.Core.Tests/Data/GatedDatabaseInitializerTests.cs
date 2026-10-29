@@ -19,7 +19,12 @@ public class GatedDatabaseInitializerTests
         databasePath = TempDatabase.NewPath();
         connection = new SQLiteAsyncConnection(databasePath);
         gate = new DatabaseGate();
-        ISchemaUpgrade[] steps = [new WorkoutStartedAtUniqueIndex(), new BlankAssistToZero(new ExerciseCatalog())];
+        ISchemaUpgrade[] steps =
+        [
+            new WorkoutStartedAtUniqueIndex(),
+            new BlankAssistToZero(new ExerciseCatalog()),
+            new ValidationRulesSchema(new ExerciseCatalog(), NullLogger<ValidationRulesSchema>.Instance),
+        ];
         initializer = new GatedDatabaseInitializer(new DatabaseInitializer(connection, steps, Mock.Of<IExerciseSeeder>(), NullLogger<DatabaseInitializer>.Instance), gate);
     }
 
