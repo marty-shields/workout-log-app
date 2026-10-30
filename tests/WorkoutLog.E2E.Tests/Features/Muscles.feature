@@ -1,6 +1,7 @@
 Feature: Sets per muscle group
   Strength sets per muscle group in the last 7 days, opened from the Dashboard.
 
+  @today
   Scenario: Each group shows its sets in the last 7 days, and the rest are Not trained
     Given these saved workouts:
       | started          | exercises                                                     |
