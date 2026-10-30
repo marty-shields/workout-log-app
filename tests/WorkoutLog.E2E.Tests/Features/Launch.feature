@@ -6,6 +6,7 @@ Feature: Launch
   Scenario: A fresh install opens on the empty Dashboard
     Then I am on the Dashboard titled "Workout Log"
     And the last workout shows "No workouts yet"
-    And This week shows 0 and This month shows 0
+    And this week shows 0 workouts
+    And no streak is shown
     And I can open Workouts and Exercises and start a New Workout
     And no startup error is shown

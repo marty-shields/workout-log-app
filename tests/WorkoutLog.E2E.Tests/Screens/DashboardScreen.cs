@@ -1,9 +1,10 @@
+using System.Text.RegularExpressions;
 using OpenQA.Selenium;
 
 namespace WorkoutLog.E2E.Tests.Screens;
 
-/// <summary>The Dashboard: last workout, counts, Workouts, Exercises, New Workout and the Settings gear.</summary>
-public sealed class DashboardScreen(WebView web)
+/// <summary>The Dashboard: last workout, the Consistency card, Workouts, Exercises, New Workout and the Settings gear.</summary>
+public sealed partial class DashboardScreen(WebView web)
 {
     public const string Title = "Workout Log";
 
@@ -23,9 +24,18 @@ public sealed class DashboardScreen(WebView web)
 
     public void OpenLastWorkout() => web.Tap("last-workout");
 
-    public string ThisWeek() => Count("count-week");
+    /// <summary>A row of This week vs last week, e.g. "workouts": its two values and the change as screen readers hear it, e.g. "down 1".</summary>
+    public (string ThisWeek, string LastWeek, string Change) WeekRow(string row)
+    {
+        var cells = web.Find($"consistency-comparison-{row}").FindElements(By.CssSelector("td")).Select(Content).ToList();
+        return (cells[0], cells[1], cells[2].Replace("—", "", StringComparison.Ordinal).Trim());
+    }
 
-    public string ThisMonth() => Count("count-month");
+    /// <summary>The bars' text alternative, oldest week first, e.g. "Last week: 2 workouts"; empty when no week has a workout.</summary>
+    public IReadOnlyList<string> WeekBars() => web.FindAll("[data-testid=\"consistency-bars-values\"] li").Select(Content).ToList();
+
+    /// <summary>The streak, e.g. "6-week streak", or null when hidden.</summary>
+    public string? Streak() => Read("consistency-streak");
 
     public bool HasWorkoutsLink() => web.Exists("workouts-link");
 
@@ -62,7 +72,10 @@ public sealed class DashboardScreen(WebView web)
     /// <summary>Taps the Recent records row of the exercise.</summary>
     public void OpenRecord(int exerciseId) => web.Tap($"recent-records-row-{exerciseId}");
 
-    private string Count(string testId) => web.Find(testId).FindElement(By.CssSelector(".value")).Text.Trim();
+    private static string Content(IWebElement element) => Whitespace().Replace(element.GetDomProperty("textContent") ?? "", " ").Trim();
 
     private string? Read(string testId) => web.Exists(testId) ? web.Text(testId) : null;
+
+    [GeneratedRegex(@"\s+")]
+    private static partial Regex Whitespace();
 }

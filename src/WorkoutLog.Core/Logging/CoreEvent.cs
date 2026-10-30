@@ -75,6 +75,12 @@ internal enum CoreEvent
     /// <summary><see cref="Services.LastWorkoutService"/>: a saved exercise id is not in the exercise list.</summary>
     LastWorkoutUnknownExercise = 1412,
 
+    /// <summary><see cref="Services.ConsistencyService"/>: Consistency card read.</summary>
+    ConsistencyLoaded = 1420,
+
+    /// <summary><see cref="Services.ConsistencyService"/>: reading the Consistency card failed.</summary>
+    ConsistencyLoadFailed = 1421,
+
     /// <summary><see cref="Services.RecentRecordsService"/>: recent records read.</summary>
     RecentRecordsLoaded = 1441,
 

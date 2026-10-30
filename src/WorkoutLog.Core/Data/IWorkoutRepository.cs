@@ -30,6 +30,12 @@ internal interface IWorkoutRepository
     Task<WorkoutOutline?> GetLatestAsync();
 
     /// <summary>
+    /// Returns the start, finish and strength set count of each workout started from <paramref name="from"/> to <paramref name="to"/>,
+    /// both inclusive, by start time oldest first.
+    /// </summary>
+    Task<IReadOnlyList<WorkoutTally>> ListTalliesAsync(DateTimeOffset from, DateTimeOffset to);
+
+    /// <summary>
     /// Returns the set weights of each workout that has the exercise, by start time newest first.
     /// Weights are in set order.
     /// </summary>
