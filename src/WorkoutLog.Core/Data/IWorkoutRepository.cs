@@ -49,6 +49,12 @@ internal interface IWorkoutRepository
     /// </summary>
     Task<IReadOnlyList<WorkoutSession>> GetSessionsAsync(int exerciseId);
 
+    /// <summary>
+    /// Returns each exercise with strength sets in each workout started from <paramref name="from"/> to <paramref name="to"/>, both inclusive,
+    /// with its number of sets. Exercises without sets are left out.
+    /// </summary>
+    Task<IReadOnlyList<ExerciseSetCount>> GetSetCountsAsync(DateTimeOffset from, DateTimeOffset to);
+
     /// <summary>Deletes the workout and its exercises, sets and entries. Throws <see cref="KeyNotFoundException"/> if the workout doesn't exist.</summary>
     Task DeleteAsync(int id);
 }

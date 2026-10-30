@@ -16,8 +16,8 @@ internal sealed partial class DashboardService(IWorkoutRepository repository, Ti
             var now = time.GetUtcNow();
             var zone = time.LocalTimeZone;
             var today = TimeZoneInfo.ConvertTime(now, zone).Date;
-            var weekStart = StartOf(today.AddDays(-(((int)today.DayOfWeek + 6) % 7)), zone);
-            var monthStart = StartOf(new DateTime(today.Year, today.Month, 1), zone);
+            var weekStart = LocalDay.StartOf(today.AddDays(-(((int)today.DayOfWeek + 6) % 7)), zone);
+            var monthStart = LocalDay.StartOf(new DateTime(today.Year, today.Month, 1), zone);
 
             var last = await repository.ListAsync(limit: 1);
             var recent = await repository.ListAsync(from: weekStart < monthStart ? weekStart : monthStart, to: now);
@@ -35,19 +35,6 @@ internal sealed partial class DashboardService(IWorkoutRepository repository, Ti
 
         Log.Loaded(logger, result.ThisWeek, result.ThisMonth);
         return result;
-    }
-
-    /// <summary>First instant of the date in the zone: the end of the gap if midnight is skipped, the first midnight if it repeats.</summary>
-    private static DateTimeOffset StartOf(DateTime date, TimeZoneInfo zone)
-    {
-        var local = date;
-        while (zone.IsInvalidTime(local))
-        {
-            local = local.AddMinutes(1);
-        }
-
-        var offset = zone.IsAmbiguousTime(local) ? zone.GetAmbiguousTimeOffsets(local).Max() : zone.GetUtcOffset(local);
-        return new DateTimeOffset(local, offset);
     }
 
     private static partial class Log
