@@ -107,6 +107,7 @@ public static class CoreServiceCollectionExtensions
             .AddSingleton<IWorkoutService, WorkoutService>()
             .AddSingleton<IWorkoutsService, WorkoutsService>()
             .AddSingleton<IDashboardService, DashboardService>()
+            .AddSingleton<ILastWorkoutService, LastWorkoutService>()
             .AddSingleton<IWeightHistoryService, WeightHistoryService>()
             .AddSingleton<ILoggedExercisesService, LoggedExercisesService>()
             .AddSingleton<IExerciseProgressService, ExerciseProgressService>()

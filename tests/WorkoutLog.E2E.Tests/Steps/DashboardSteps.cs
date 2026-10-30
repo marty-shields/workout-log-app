@@ -32,6 +32,28 @@ public sealed class DashboardSteps(WebView web, DashboardScreen dashboard, Journ
         web.Eventually(dashboard.LastWorkout, Is.AnyOf(Date(from), Date(to)));
     }
 
+    [Then(@"^the last workout's time shows ""(.*)""$")]
+    public void ThenTheLastWorkoutsTimeShows(string text)
+    {
+        dashboard.LastWorkout();
+        Assert.That(dashboard.LastWorkoutWhen(), Is.EqualTo(text));
+    }
+
+    [Then(@"^the last workout's exercises show ""(.*)""$")]
+    public void ThenTheLastWorkoutsExercisesShow(string text)
+    {
+        dashboard.LastWorkout();
+        Assert.That(dashboard.LastWorkoutExercises(), Is.EqualTo(text));
+    }
+
+    [When(@"^I tap the last workout on the Dashboard$")]
+    public void WhenITapTheLastWorkout()
+    {
+        journeys.WaitFor(Journeys.Screen.Dashboard);
+        dashboard.LastWorkout();
+        dashboard.OpenLastWorkout();
+    }
+
     [Then(@"^This week shows (\d+) and This month shows (\d+)$")]
     public void ThenTheCounts(int week, int month)
     {

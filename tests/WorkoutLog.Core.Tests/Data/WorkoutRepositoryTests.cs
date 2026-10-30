@@ -452,6 +452,38 @@ public class WorkoutRepositoryTests
     }
 
     [Test]
+    public async Task GetLatestAsync_NoWorkouts_ReturnsNull() =>
+        Assert.That(await repository.GetLatestAsync(), Is.Null);
+
+    [Test]
+    public async Task GetLatestAsync_ReturnsTheTimesAndExerciseIdsInOrder()
+    {
+        var id = await repository.AddAsync(new NewWorkout(Start, Finish, Exercises()));
+
+        Assert.That(await repository.GetLatestAsync(),
+            Is.EqualTo(new WorkoutOutline(id, Start, Finish, [1, 300, 187])).UsingPropertiesComparer());
+    }
+
+    [Test]
+    public async Task GetLatestAsync_TwoOnOneDay_ReturnsTheLaterStartNotTheLatestId()
+    {
+        var later = await repository.AddAsync(new NewWorkout(Start.AddHours(3), Finish.AddHours(3), [new StrengthExercise(2, [])]));
+        await repository.AddAsync(new NewWorkout(Start, Finish, Exercises()));
+
+        Assert.That(await repository.GetLatestAsync(),
+            Is.EqualTo(new WorkoutOutline(later, Start.AddHours(3), Finish.AddHours(3), [2])).UsingPropertiesComparer());
+    }
+
+    [Test]
+    public async Task GetLatestAsync_NoExercises_ReturnsNoIds()
+    {
+        var id = await repository.AddAsync(new NewWorkout(Start, Finish, Exercises()));
+        await repository.ReplaceExercisesAsync(id, []);
+
+        Assert.That(await repository.GetLatestAsync(), Is.EqualTo(new WorkoutOutline(id, Start, Finish, [])).UsingPropertiesComparer());
+    }
+
+    [Test]
     public void DeleteAsync_MissingId_Throws()
     {
         Assert.That(() => repository.DeleteAsync(1), Throws.TypeOf<KeyNotFoundException>());

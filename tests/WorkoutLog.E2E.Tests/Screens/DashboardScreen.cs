@@ -11,9 +11,17 @@ public sealed class DashboardScreen(WebView web)
     public string LastWorkout()
     {
         string? text = null;
-        web.WaitUntil(() => (text = Read("last-workout") ?? Read("last-workout-empty")) is not null, "the Dashboard didn't load");
+        web.WaitUntil(() => (text = Read("last-workout-date") ?? Read("last-workout-empty")) is not null, "the Dashboard didn't load");
         return text!;
     }
+
+    /// <summary>The last workout's days since and duration, e.g. 3 days ago · 1:12:00.</summary>
+    public string LastWorkoutWhen() => web.Text("last-workout-when");
+
+    /// <summary>The last workout's exercises, e.g. Barbell Bench Press, Cable Fly +1.</summary>
+    public string LastWorkoutExercises() => web.Text("last-workout-exercises");
+
+    public void OpenLastWorkout() => web.Tap("last-workout");
 
     public string ThisWeek() => Count("count-week");
 

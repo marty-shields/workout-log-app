@@ -16,6 +16,7 @@ public class GatedWorkoutRepositoryMockTests
         var stored = new Workout(3, Start, Start.AddHours(1), Exercises);
         IReadOnlyList<Workout> all = [stored];
         IReadOnlyList<WorkoutSummary> summaries = [new WorkoutSummary(3, Start)];
+        var outline = new WorkoutOutline(3, Start, Start.AddHours(1), [1]);
         IReadOnlyList<WorkoutWeights> weights = [new WorkoutWeights(3, [20m])];
         IReadOnlyList<LastSession> sessions = [new LastSession(1, Start, Exercises[0])];
         IReadOnlyList<WorkoutSession> workoutSessions = [new WorkoutSession(3, Start, Exercises[0])];
@@ -25,6 +26,7 @@ public class GatedWorkoutRepositoryMockTests
         inner.Setup(r => r.GetAsync(3)).ReturnsAsync(stored);
         inner.Setup(r => r.GetAllAsync()).ReturnsAsync(all);
         inner.Setup(r => r.ListAsync(Start, Start, 5)).ReturnsAsync(summaries);
+        inner.Setup(r => r.GetLatestAsync()).ReturnsAsync(outline);
         inner.Setup(r => r.GetWeightsAsync(1)).ReturnsAsync(weights);
         inner.Setup(r => r.GetLastSessionsAsync()).ReturnsAsync(sessions);
         inner.Setup(r => r.GetSessionsAsync(1)).ReturnsAsync(workoutSessions);
@@ -36,6 +38,7 @@ public class GatedWorkoutRepositoryMockTests
         Assert.That(await gated.GetAsync(3), Is.SameAs(stored));
         Assert.That(await gated.GetAllAsync(), Is.SameAs(all));
         Assert.That(await gated.ListAsync(Start, Start, 5), Is.SameAs(summaries));
+        Assert.That(await gated.GetLatestAsync(), Is.SameAs(outline));
         Assert.That(await gated.GetWeightsAsync(1), Is.SameAs(weights));
         Assert.That(await gated.GetLastSessionsAsync(), Is.SameAs(sessions));
         Assert.That(await gated.GetSessionsAsync(1), Is.SameAs(workoutSessions));
@@ -49,6 +52,7 @@ public class GatedWorkoutRepositoryMockTests
     [TestCase("Get", nameof(IWorkoutRepository.GetAsync))]
     [TestCase("GetAll", nameof(IWorkoutRepository.GetAllAsync))]
     [TestCase("List", nameof(IWorkoutRepository.ListAsync))]
+    [TestCase("Latest", nameof(IWorkoutRepository.GetLatestAsync))]
     [TestCase("Weights", nameof(IWorkoutRepository.GetWeightsAsync))]
     [TestCase("LastSessions", nameof(IWorkoutRepository.GetLastSessionsAsync))]
     [TestCase("Sessions", nameof(IWorkoutRepository.GetSessionsAsync))]
@@ -68,6 +72,7 @@ public class GatedWorkoutRepositoryMockTests
             "Get" => gated.GetAsync(1),
             "GetAll" => gated.GetAllAsync(),
             "List" => gated.ListAsync(),
+            "Latest" => gated.GetLatestAsync(),
             "Weights" => gated.GetWeightsAsync(1),
             "LastSessions" => gated.GetLastSessionsAsync(),
             "Sessions" => gated.GetSessionsAsync(1),

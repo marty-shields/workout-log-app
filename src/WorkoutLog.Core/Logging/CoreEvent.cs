@@ -66,6 +66,15 @@ internal enum CoreEvent
     /// <summary><see cref="Services.DashboardService"/>: reading the Dashboard failed.</summary>
     DashboardLoadFailed = 1402,
 
+    /// <summary><see cref="Services.LastWorkoutService"/>: last workout read.</summary>
+    LastWorkoutLoaded = 1410,
+
+    /// <summary><see cref="Services.LastWorkoutService"/>: reading the last workout failed.</summary>
+    LastWorkoutLoadFailed = 1411,
+
+    /// <summary><see cref="Services.LastWorkoutService"/>: a saved exercise id is not in the exercise list.</summary>
+    LastWorkoutUnknownExercise = 1412,
+
     /// <summary><see cref="Services.WeightHistoryService"/>: reading an exercise's weights failed.</summary>
     WeightHistoryLoadFailed = 1501,
 

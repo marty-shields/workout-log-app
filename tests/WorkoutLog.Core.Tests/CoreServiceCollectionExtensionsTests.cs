@@ -38,6 +38,7 @@ public class CoreServiceCollectionExtensionsTests
             (typeof(IWorkoutService), typeof(WorkoutService), ServiceLifetime.Singleton),
             (typeof(IWorkoutsService), typeof(WorkoutsService), ServiceLifetime.Singleton),
             (typeof(IDashboardService), typeof(DashboardService), ServiceLifetime.Singleton),
+            (typeof(ILastWorkoutService), typeof(LastWorkoutService), ServiceLifetime.Singleton),
             (typeof(IWeightHistoryService), typeof(WeightHistoryService), ServiceLifetime.Singleton),
             (typeof(ILoggedExercisesService), typeof(LoggedExercisesService), ServiceLifetime.Singleton),
             (typeof(IBestRule), typeof(LiftBestRule), ServiceLifetime.Singleton),
@@ -104,6 +105,7 @@ public class CoreServiceCollectionExtensionsTests
             Assert.That(provider.GetRequiredService<IWorkoutService>(), Is.InstanceOf<WorkoutService>());
             Assert.That(provider.GetRequiredService<IWorkoutsService>(), Is.InstanceOf<WorkoutsService>());
             Assert.That(provider.GetRequiredService<IDashboardService>(), Is.InstanceOf<DashboardService>());
+            Assert.That(provider.GetRequiredService<ILastWorkoutService>(), Is.InstanceOf<LastWorkoutService>());
             Assert.That(provider.GetRequiredService<IWeightHistoryService>(), Is.InstanceOf<WeightHistoryService>());
             Assert.That(provider.GetRequiredService<ILoggedExercisesService>(), Is.InstanceOf<LoggedExercisesService>());
             Assert.That(provider.GetRequiredService<IExerciseProgressService>(), Is.InstanceOf<ExerciseProgressService>());
