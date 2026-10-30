@@ -44,9 +44,9 @@ internal sealed partial class MuscleSetsService(
                 continue;
             }
 
-            if (definition is { Type: ExerciseType.Strength, PrimaryMuscle: { } muscle } && groups.GroupOf(muscle) is { } group)
+            if (definition is { Type: ExerciseType.Strength, PrimaryMuscle: { } muscle })
             {
-                sets[group] += count.Sets;
+                sets[groups.GroupOf(muscle)] += count.Sets;
             }
         }
 

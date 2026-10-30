@@ -15,7 +15,7 @@
 
     protected override Task OnInitializedAsync() => LoadAsync();
 
-    /// <summary>Loads the sets per muscle group through <see cref="IMuscleSetsService.GetAsync"/>. Shows the spinner until it finishes.</summary>
+    /// <summary>Loads the sets per muscle group, showing the spinner. Does nothing while a load is running.</summary>
     private async Task LoadAsync()
     {
         if (loading)

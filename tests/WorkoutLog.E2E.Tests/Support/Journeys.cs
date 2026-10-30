@@ -3,7 +3,7 @@ using WorkoutLog.E2E.Tests.Screens;
 
 namespace WorkoutLog.E2E.Tests.Support;
 
-/// <summary>What a user does across screens: start, log and save a workout, open Workouts, Exercises or a saved workout, go back.</summary>
+/// <summary>What a user does across screens: start, log and save a workout, open Workouts, Exercises, Sets per muscle group or a saved workout, go back.</summary>
 public sealed class Journeys(
     WebView web, Native native, DeviceClock clock, ScenarioState state,
     DashboardScreen dashboard, WorkoutScreen workout, AddExerciseScreen addExercise, WorkoutsScreen workouts, ExercisesScreen exercises, MusclesScreen muscles,

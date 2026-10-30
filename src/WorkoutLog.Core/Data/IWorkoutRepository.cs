@@ -50,8 +50,8 @@ internal interface IWorkoutRepository
     Task<IReadOnlyList<WorkoutSession>> GetSessionsAsync(int exerciseId);
 
     /// <summary>
-    /// Returns each exercise with strength sets in each workout started from <paramref name="from"/> to <paramref name="to"/>, both inclusive,
-    /// with its number of sets. Exercises without sets are left out.
+    /// Returns the number of strength sets of each workout exercise that has any, in workouts started from <paramref name="from"/> to
+    /// <paramref name="to"/>, both inclusive, by start time then position.
     /// </summary>
     Task<IReadOnlyList<ExerciseSetCount>> GetSetCountsAsync(DateTimeOffset from, DateTimeOffset to);
 

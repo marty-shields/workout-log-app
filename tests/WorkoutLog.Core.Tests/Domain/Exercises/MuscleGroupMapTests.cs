@@ -32,11 +32,13 @@ public class MuscleGroupMapTests
         Assert.That(map.GroupOf(muscle), Is.EqualTo(group));
 
     [Test]
-    public void GroupOf_UnmappedMuscle_ReturnsNull() =>
-        Assert.That(map.GroupOf((Muscle)999), Is.Null);
+    public void GroupOf_UnmappedMuscle_Throws() =>
+        Assert.That(() => map.GroupOf((Muscle)999), Throws.TypeOf<ArgumentOutOfRangeException>());
 
     [TestCaseSource(nameof(Strength))]
-    public void StrengthExercise_PrimaryMuscleIsMapped(ExerciseDefinition exercise) =>
-        Assert.That(exercise.PrimaryMuscle is { } muscle ? map.GroupOf(muscle) : null, Is.Not.Null,
-            $"{exercise.Name}: primary muscle {exercise.PrimaryMuscle} has no muscle group");
+    public void StrengthExercise_PrimaryMuscleIsMapped(ExerciseDefinition exercise)
+    {
+        Assert.That(exercise.PrimaryMuscle, Is.Not.Null, $"{exercise.Name} has no primary muscle");
+        Assert.That(() => map.GroupOf(exercise.PrimaryMuscle!.Value), Throws.Nothing, $"{exercise.Name}: primary muscle {exercise.PrimaryMuscle} has no muscle group");
+    }
 }

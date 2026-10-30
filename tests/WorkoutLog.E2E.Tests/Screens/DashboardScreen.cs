@@ -3,7 +3,7 @@ using OpenQA.Selenium;
 
 namespace WorkoutLog.E2E.Tests.Screens;
 
-/// <summary>The Dashboard: last workout, the Consistency card, Workouts, Exercises, New Workout and the Settings gear.</summary>
+/// <summary>The Dashboard: last workout, the Consistency card and its Sets per muscle group row, Workouts, Exercises, New Workout and the Settings gear.</summary>
 public sealed partial class DashboardScreen(WebView web)
 {
     public const string Title = "Workout Log";

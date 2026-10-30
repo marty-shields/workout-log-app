@@ -119,7 +119,6 @@ public class MuscleSetsServiceTests
     [Test]
     public async Task GetAsync_UsesThePhonesTimeZone()
     {
-        // 20:00 UTC on Wed 28 Oct is 06:00 on Thu 29 Oct at UTC+10, so the window starts Fri 23 Oct 00:00 there.
         var zone = TimeZoneInfo.CreateCustomTimeZone("UTC+10", TimeSpan.FromHours(10), "UTC+10", "UTC+10");
         var now = new DateTimeOffset(2026, 10, 28, 20, 0, 0, TimeSpan.Zero);
         UseClock(now, zone);
@@ -133,15 +132,9 @@ public class MuscleSetsServiceTests
     [Test]
     public async Task GetAsync_MidnightSkipped_WindowStartsAtTheFirstRealInstant()
     {
-        // Wednesday 21 Oct 2026 at 23:30 (UTC-3) the clocks jump to Thursday 22 Oct 00:30 (UTC-2), which is 02:30 UTC.
-        var zone = TimeZoneInfo.CreateCustomTimeZone("Test", TimeSpan.FromHours(-3), "Test", "Test", "Test",
-        [
-            TimeZoneInfo.AdjustmentRule.CreateAdjustmentRule(DateTime.MinValue.Date, DateTime.MaxValue.Date, TimeSpan.FromHours(1),
-                TimeZoneInfo.TransitionTime.CreateFixedDateRule(new DateTime(1, 1, 1, 23, 30, 0), 10, 21),
-                TimeZoneInfo.TransitionTime.CreateFixedDateRule(new DateTime(1, 1, 1, 2, 0, 0), 2, 15)),
-        ]);
-        UseClock(Now, zone);
-        SetUpRead(new DateTimeOffset(2026, 10, 22, 2, 30, 0, TimeSpan.Zero), Now);
+        var thursday0030UtcMinus2 = new DateTimeOffset(2026, 10, 22, 0, 30, 0, TimeSpan.FromHours(-2));
+        UseClock(Now, ClocksJumpFrom2330To0030On22Oct());
+        SetUpRead(thursday0030UtcMinus2, Now);
 
         await service.GetAsync();
 
@@ -184,6 +177,15 @@ public class MuscleSetsServiceTests
         time.SetLocalTimeZone(zone ?? TimeZoneInfo.Utc);
         service = new MuscleSetsService(repository.Object, Catalog, new MuscleGroupMap(), time, logger);
     }
+
+    /// <summary>UTC-3, moving to UTC-2 at 23:30 on Wed 21 Oct, so Thu 22 Oct has no 00:00.</summary>
+    private static TimeZoneInfo ClocksJumpFrom2330To0030On22Oct() =>
+        TimeZoneInfo.CreateCustomTimeZone("Test", TimeSpan.FromHours(-3), "Test", "Test", "Test",
+        [
+            TimeZoneInfo.AdjustmentRule.CreateAdjustmentRule(DateTime.MinValue.Date, DateTime.MaxValue.Date, TimeSpan.FromHours(1),
+                TimeZoneInfo.TransitionTime.CreateFixedDateRule(new DateTime(1, 1, 1, 23, 30, 0), 10, 21),
+                TimeZoneInfo.TransitionTime.CreateFixedDateRule(new DateTime(1, 1, 1, 2, 0, 0), 2, 15)),
+        ]);
 
     /// <summary>Sets up the read, which must be from <paramref name="from"/> to <paramref name="to"/>.</summary>
     private void SetUpRead(DateTimeOffset from, DateTimeOffset to, params ExerciseSetCount[] counts) =>
