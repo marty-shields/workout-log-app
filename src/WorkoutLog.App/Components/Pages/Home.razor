@@ -6,4 +6,5 @@
 <DashboardPage OnNewWorkout="@(() => Navigation.GoTo("workout/new"))"
                OnWorkouts="@(() => Navigation.GoTo("workouts"))"
                OnExercises="@(() => Navigation.GoTo("exercises"))"
-               OnSettings="@(() => Navigation.GoTo("settings"))" />
+               OnSettings="@(() => Navigation.GoTo("settings"))"
+               OnOpenWorkout="@(id => Navigation.GoTo($"dashboard/workout/{id}"))" />

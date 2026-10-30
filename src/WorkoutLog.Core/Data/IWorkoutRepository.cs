@@ -26,6 +26,9 @@ internal interface IWorkoutRepository
     /// </summary>
     Task<IReadOnlyList<WorkoutSummary>> ListAsync(DateTimeOffset? from = null, DateTimeOffset? to = null, int? limit = null);
 
+    /// <summary>Returns the workout with the latest start, with its exercise ids in position order, or null if there are none.</summary>
+    Task<WorkoutOutline?> GetLatestAsync();
+
     /// <summary>
     /// Returns the set weights of each workout that has the exercise, by start time newest first.
     /// Weights are in set order.
