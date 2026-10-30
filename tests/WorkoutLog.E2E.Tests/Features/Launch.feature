@@ -1,4 +1,4 @@
-@US-04 @US-23 @FR-30
+@US-04 @US-23
 Feature: Launch
   The app opens on the Dashboard.
 

@@ -1,13 +1,11 @@
-@D191
 Feature: Exercises
   The exercises I've logged, latest first, with when I last did them and that session's best.
 
-  @FR-60 @FR-35
   Scenario: Exercises with nothing logged says so
     When I open Exercises
     Then Exercises shows "No exercises logged yet"
 
-  @smoke @FR-60 @FR-35
+  @smoke
   Scenario: Rows are latest first, same workout A–Z, with the last session's best and the kind
     Given these saved workouts:
       | started            | exercises                                                                   |
@@ -26,7 +24,6 @@ Feature: Exercises
       | Dumbbell Curl      | 400 days ago · 12kg × 10 | Strength |
 
 
-  @FR-60 @FR-35 @D63
   Scenario: Search ranks the matches among the logged exercises
     Given these saved workouts:
       | started          | exercises                        |
@@ -36,7 +33,6 @@ Feature: Exercises
     When I search Exercises for "squat"
     Then Exercises lists, in order: Squat, Barbell Back Squat
 
-  @FR-60 @FR-35
   Scenario Outline: A chip shows only that kind
     Given these saved workouts:
       | started          | exercises                                                                          |
@@ -49,7 +45,6 @@ Feature: Exercises
       | Strength | Barbell Back Squat, Dumbbell Curl |
       | Cardio   | Rowing Machine                    |
 
-  @FR-60 @FR-35
   Scenario: A search with no match says so
     Given these saved workouts:
       | started          | exercises                        |
@@ -58,7 +53,6 @@ Feature: Exercises
     When I search Exercises for "zumba"
     Then Exercises says "No exercises match" under the search
 
-  @FR-03
   Scenario: The add-exercise list shows each logged exercise's last session
     Given these saved workouts:
       | started          | exercises                                      |
@@ -68,7 +62,7 @@ Feature: Exercises
     Then the add-exercise row for "Barbell Back Squat" reads Last 3 days ago · 70kg × 3
     And the add-exercise row for "Dumbbell Curl" has no last session
 
-  @US-28 @FR-60 @FR-35
+  @US-28
   Scenario Outline: Back returns to the Dashboard
     Given I have opened Exercises
     When I go back with <how>

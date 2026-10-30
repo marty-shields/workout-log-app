@@ -1,4 +1,4 @@
-@US-13 @FR-07
+@US-13
 Feature: Cardio entry
   A cardio exercise has one entry: duration plus the machine's own fields.
 
@@ -22,13 +22,11 @@ Feature: Cardio entry
     And I save the workout
     Then I am on the Dashboard
 
-  @FR-08
   Scenario: A cardio exercise has exactly one entry
     When I add "Treadmill"
     Then Treadmill has no Add set and its entry can't be removed on its own
     And Treadmill can be removed as an exercise
 
-  @D39
   Scenario: A cardio entry isn't checked until Save
     Given I have added "Treadmill"
     When I enter "1001" in Treadmill distance
@@ -48,7 +46,6 @@ Feature: Cardio entry
       | Outdoor Run    | 0:25:30           | distance | 0     | Distance must be more than 0  |
       | Stair Climber  | 0:15:00           | floors   | 0     | Floors must be more than 0    |
 
-  @FR-07
   Scenario: A cardio entry with no distance can't be saved
     Given I have added "Outdoor Run"
     And I have logged Outdoor Run: 0:25:30
@@ -56,7 +53,6 @@ Feature: Cardio entry
     Then Outdoor Run shows "Enter distance"
     And I am still on New Workout
 
-  @D40
   Scenario: Save shows every problem on an entry and focuses the first field at fault
     Given I have added "Treadmill"
     And I have entered "1001" in Treadmill distance
@@ -68,7 +64,6 @@ Feature: Cardio entry
       | Incline can have up to 2 decimal places |
     And focus is on Treadmill duration hours
 
-  @D38
   Scenario: After a failed Save each change re-checks the entry
     Given I have added "Treadmill"
     And I have logged Treadmill: 0:20:00, 3.2 km
@@ -77,14 +72,12 @@ Feature: Cardio entry
     When I enter "1.5" in Treadmill incline
     Then Treadmill shows no errors
 
-  @D197
   Scenario: An outdoor run shows its pace worked out from distance and duration
     Given I have added "Outdoor Run"
     Then Outdoor Run shows the worked-out "Pace —"
     When I log Outdoor Run: 0:25:30, 5 km
     Then Outdoor Run shows the worked-out "Pace 5:06/km"
 
-  @D197
   Scenario: A treadmill shows its speed worked out from distance and duration
     Given I have added "Treadmill"
     When I log Treadmill: 0:30:00, 5.2 km

@@ -8,6 +8,5 @@ namespace WorkoutLog.Core.Services;
 /// <param name="Different">A phone workout has the start and different contents.</param>
 internal sealed record ImportGroups(IReadOnlyList<NewWorkout> New, IReadOnlyList<NewWorkout> Already, IReadOnlyList<NewWorkout> Different)
 {
-    /// <summary>No workouts.</summary>
     public static readonly ImportGroups Empty = new([], [], []);
 }

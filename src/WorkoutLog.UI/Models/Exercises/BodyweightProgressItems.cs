@@ -8,8 +8,8 @@ using WorkoutLog.UI.Components.Lists;
 namespace WorkoutLog.UI.Models.Exercises;
 
 /// <summary>
-/// Builds the text of a bodyweight move's Exercise page from its <see cref="BodyweightProgress"/> (FR-62). A set of 0 kg is
-/// unweighted. Dates are in the phone's time zone, with the year only when it isn't this year (D49, D191).
+/// Builds the text of a bodyweight move's Exercise page from its <see cref="BodyweightProgress"/>. A set of 0 kg is
+/// unweighted. Dates are in the phone's time zone, with the year only when it isn't this year.
 /// </summary>
 public static class BodyweightProgressItems
 {
@@ -22,7 +22,7 @@ public static class BodyweightProgressItems
     /// <summary>Reps on the Best set and Total charts, e.g. 25.</summary>
     public static readonly Func<decimal, string> Reps = value => value.ToString("0", CultureInfo.InvariantCulture);
 
-    /// <summary>Best set, Total, Top set; then e1RM when the move is loaded (D193).</summary>
+    /// <summary>Best set, Total, Top set; then e1RM when the move is loaded.</summary>
     public static IReadOnlyList<RadioOption<string>> Tabs(bool loaded)
     {
         List<RadioOption<string>> tabs =

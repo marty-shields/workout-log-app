@@ -120,7 +120,7 @@ public static class SampleData
     public static List<ExerciseState> FullWorkout(IExerciseCatalog catalog) =>
         [.. new[] { 6, 8, 132, 222, 218, 258, 187, 263, 264, 13 }.Select(id => Exercise(catalog, id, Sets(catalog, id)))];
 
-    /// <summary>A workout after a failed save: a set missing reps, an exercise with no sets, a rower with no duration and a part damper, and a run with no distance.</summary>
+    /// <summary>A workout after a failed save: a set missing reps, an exercise with no sets, a rower with no duration and a damper of 5.5, and a run with no distance.</summary>
     public static List<ExerciseState> WorkoutWithErrors(IExerciseCatalog catalog, IWorkoutChecker checker)
     {
         List<ExerciseState> exercises =

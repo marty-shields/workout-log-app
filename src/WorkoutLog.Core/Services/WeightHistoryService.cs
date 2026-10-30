@@ -8,7 +8,7 @@ namespace WorkoutLog.Core.Services;
 
 /// <summary>
 /// Reads an exercise's weights through <see cref="IWorkoutRepository"/> and logs a failure. An assisted machine
-/// (<see cref="ExerciseDefinition.IsAssisted"/>) takes the lowest as best (D48).
+/// (<see cref="ExerciseDefinition.IsAssisted"/>) takes the lowest as best.
 /// </summary>
 internal sealed partial class WeightHistoryService(IWorkoutRepository repository, IExerciseCatalog catalog, ILogger<WeightHistoryService> logger)
     : IWeightHistoryService

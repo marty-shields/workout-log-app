@@ -10,8 +10,8 @@ using WorkoutLog.UI.Components.Lists;
 namespace WorkoutLog.UI.Models.Exercises;
 
 /// <summary>
-/// Builds the text of a lift's Exercise page from its <see cref="LiftProgress"/> (FR-61), and the text every Exercise page shares. Dates are in the phone's time zone,
-/// with the year only when it isn't this year (D49, D191).
+/// Builds the text of a lift's Exercise page from its <see cref="LiftProgress"/>, and the text every Exercise page shares. Dates are in the phone's time zone,
+/// with the year only when it isn't this year.
 /// </summary>
 public static class ExerciseProgressItems
 {
@@ -95,7 +95,7 @@ public static class ExerciseProgressItems
     internal static string TopSet(ExerciseBest top) =>
         top.Reps is { } reps ? $"{DisplayFormat.Weight(top.WeightKg)} × {reps}" : DisplayFormat.Weight(top.WeightKg);
 
-    /// <summary>A weight without its unit, e.g. 62.5.</summary>
+    /// <summary>A number to up to 2 decimal places, without a unit, e.g. 62.5.</summary>
     internal static string Number(decimal value) => Decimals.Round2(value).ToString("0.##", CultureInfo.InvariantCulture);
 
     /// <summary>A day in the phone's time zone, e.g. 13 Oct.</summary>

@@ -1,4 +1,3 @@
-@D198 @FR-04 @FR-06
 Feature: Workout limits
   A workout has at most 10 exercises, and a strength exercise at most 10 sets.
 

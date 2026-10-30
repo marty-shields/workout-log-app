@@ -1,4 +1,3 @@
-@FR-62 @FR-60 @D194
 Feature: Exercise page for bodyweight moves
   A bodyweight move's best set, total reps, top set and, on a loaded move, estimated one-rep max over time, with its records and sessions.
 
@@ -48,7 +47,6 @@ Feature: Exercise page for bodyweight moves
       | day        | value   |
       | 3 days ago | 10kg ×8 |
 
-  @D193
   Scenario: A loaded move adds e1RM from its weighted sets
     Given these saved workouts:
       | started           | exercises                                                    |

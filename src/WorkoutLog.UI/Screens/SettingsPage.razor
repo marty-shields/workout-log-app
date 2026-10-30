@@ -76,7 +76,7 @@
         loading = false;
     }
 
-    /// <summary>Loads again when the app comes back on screen (D67). Does nothing once the page is disposed, before or during the load.</summary>
+    /// <summary>Loads again when the app comes back on screen. Does nothing once the page is disposed, before or during the load.</summary>
     private async Task ReloadAsync()
     {
         if (disposed)
@@ -134,7 +134,7 @@
 
     /// <summary>
     /// Picks and reads a file, showing Import busy until it finishes; taps meanwhile are ignored. Cancelling the picker changes nothing.
-    /// A failed picker or read of the phone's workouts shows the failed message; any other result opens Import Review.
+    /// A failed pick or read shows the failed message; any other result opens Import Review.
     /// Does nothing more once the page is disposed.
     /// </summary>
     private async Task ImportAsync()

@@ -6,7 +6,6 @@ namespace WorkoutLog.Core.Data;
 [Table("Workout")]
 internal sealed class WorkoutRow
 {
-    /// <summary>Workout id.</summary>
     [PrimaryKey, AutoIncrement]
     public int Id { get; set; }
 

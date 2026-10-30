@@ -6,8 +6,8 @@ using WorkoutLog.UI.Models.Exercises;
 namespace WorkoutLog.UI.Models.Workout;
 
 /// <summary>
-/// The exercises of a new or saved workout while it is edited: the add-exercise list, adding and removing exercises, changes
-/// (D73), and the check and save. One instance per workout page.
+/// The exercises of a new or saved workout while it is edited: the add-exercise list, adding and removing exercises, changes,
+/// and the check and save. One instance per workout page.
 /// </summary>
 /// <param name="catalog">Exercise list.</param>
 /// <param name="setChecker">Reads each exercise as a record to save.</param>
@@ -21,7 +21,7 @@ public sealed class WorkoutEditor(
     private IReadOnlyList<ExerciseListItem> listItems = [];
     private int listOpens;
 
-    /// <summary>Exercises in screen order, newest first (D42).</summary>
+    /// <summary>Exercises in screen order, newest first.</summary>
     public IReadOnlyList<ExerciseState> Exercises => exercises;
 
     /// <summary>The add-exercise list is open.</summary>
@@ -53,7 +53,7 @@ public sealed class WorkoutEditor(
 
     /// <summary>
     /// A value was typed, a set added or removed, or an exercise added, picked again or removed since <see cref="Start"/>, even if
-    /// later undone (D73).
+    /// later undone.
     /// </summary>
     public bool Changed { get; private set; }
 
@@ -75,7 +75,7 @@ public sealed class WorkoutEditor(
     }
 
     /// <summary>
-    /// Opens the add-exercise list with no search text and the All chip (D64), loading while it reads the last sessions through
+    /// Opens the add-exercise list with no search text and the All chip, loading while it reads the last sessions through
     /// <see cref="ILoggedExercisesService.GetAsync"/>. Then lists the whole catalog, Strength then Cardio A–Z, each logged exercise
     /// with its last session. A failed read lists the catalog with no last sessions. A read finished after the list closed or
     /// reopened is ignored.
@@ -149,9 +149,9 @@ public sealed class WorkoutEditor(
     public void MarkChanged() => Changed = true;
 
     /// <summary>
-    /// Checks the workout (FR-09) and asks to focus the first error. A valid workout goes to <paramref name="save"/> as records,
-    /// oldest first; returns true when it was saved. If not, shows SaveFailed and asks to focus Save (D40). Ignored while a save
-    /// runs and after one succeeds (D41).
+    /// Checks the workout and asks to focus the first error. A valid workout goes to <paramref name="save"/> as records,
+    /// oldest first; returns true when it was saved. If not, shows SaveFailed and asks to focus Save. Ignored while a save
+    /// runs and after one succeeds.
     /// </summary>
     /// <param name="save">Saves the records; true when saved.</param>
     public async Task<bool> SaveAsync(Func<IReadOnlyList<WorkoutExercise>, Task<bool>> save)
@@ -180,7 +180,7 @@ public sealed class WorkoutEditor(
         return Saving;
     }
 
-    /// <summary>Shows DeleteFailed and asks to focus Delete (D46).</summary>
+    /// <summary>Shows DeleteFailed and asks to focus Delete.</summary>
     public void ShowDeleteFailed()
     {
         Error = workoutChecker.DeleteFailed;

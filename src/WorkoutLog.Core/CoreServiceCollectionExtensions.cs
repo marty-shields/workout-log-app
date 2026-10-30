@@ -17,13 +17,9 @@ namespace WorkoutLog.Core;
 public static class CoreServiceCollectionExtensions
 {
     /// <summary>
-    /// Registers the exercise catalog, database initializer, workout repository, unit of work, workout writer factory, system time, workout validator,
-    /// workout service, workouts service, dashboard service, weight history service, the best rules and logged exercises service,
-    /// the progress rules, exercise progress service and cardio progress service, export service, import service, the format upgrade steps,
-    /// import reader, checks, checker and workout comparer, and schema upgrade steps as singletons.
-    /// The initializer, repository and unit of work are registered only as their gated decorators, which run each call through one <see cref="DatabaseGate"/>.
-    /// The database connection and exercise seeder are not registered; only the initializer, repository and unit of work use them.
-    /// Services log through <c>ILogger&lt;T&gt;</c>, so the host must register logging. The host must also register <see cref="IExportEnvironment"/> and <see cref="IElapsedClock"/>.
+    /// Registers Core's services as singletons. The initializer, repository and unit of work are registered only as gated decorators
+    /// that run each call through one <see cref="DatabaseGate"/>; the connection and exercise seeder are not registered.
+    /// The host must register logging, <see cref="IExportEnvironment"/> and <see cref="IElapsedClock"/>.
     /// </summary>
     /// <param name="services">Service collection.</param>
     /// <param name="databasePath">Full path of the SQLite database file.</param>
@@ -34,9 +30,7 @@ public static class CoreServiceCollectionExtensions
             .AddImport()
             .AddServices();
 
-    /// <summary>
-    /// Registers the gate, the writer factory, and the gated initializer, repository and unit of work, which share one connection to <paramref name="databasePath"/>.
-    /// </summary>
+    /// <summary>The gated initializer, repository and unit of work share one connection to <paramref name="databasePath"/>.</summary>
     private static IServiceCollection AddDatabase(this IServiceCollection services, string databasePath)
     {
         var connection = new SQLiteAsyncConnection(databasePath);
@@ -52,14 +46,12 @@ public static class CoreServiceCollectionExtensions
                 ActivatorUtilities.CreateInstance<UnitOfWork>(provider, connection));
     }
 
-    /// <summary>Registers the schema upgrade steps.</summary>
     private static IServiceCollection AddSchemaUpgrades(this IServiceCollection services) =>
         services
             .AddSingleton<ISchemaUpgrade, WorkoutStartedAtUniqueIndex>()
             .AddSingleton<ISchemaUpgrade, BlankAssistToZero>()
             .AddSingleton<ISchemaUpgrade, ValidationRulesSchema>();
 
-    /// <summary>Registers the format upgrade steps, the import file reader, each import check, the checker and the workout comparer.</summary>
     private static IServiceCollection AddImport(this IServiceCollection services) =>
         services
             .AddSingleton<IFormatUpgrade, ValidationRulesFormatUpgrade>()
@@ -68,7 +60,6 @@ public static class CoreServiceCollectionExtensions
             .AddSingleton<IImportChecker, ImportChecker>()
             .AddSingleton<IWorkoutContentComparer, WorkoutContentComparer>();
 
-    /// <summary>Registers each import check.</summary>
     private static IServiceCollection AddImportChecks(this IServiceCollection services) =>
         services
             .AddSingleton<IImportCheck, StartCheck>()
@@ -79,7 +70,6 @@ public static class CoreServiceCollectionExtensions
             .AddSingleton<IImportCheck, RepeatedExerciseCheck>()
             .AddSingleton<IImportCheck, SaveRulesCheck>();
 
-    /// <summary>Registers each best rule.</summary>
     private static IServiceCollection AddBestRules(this IServiceCollection services) =>
         services
             .AddSingleton<IBestRule, LiftBestRule>()
@@ -89,7 +79,7 @@ public static class CoreServiceCollectionExtensions
             .AddSingleton<IBestRule, CarryBestRule>()
             .AddSingleton<IBestRule, CardioBestRule>();
 
-    /// <summary>Registers the Exercise page's range filter and the rules of each category.</summary>
+    /// <summary>Registers the Exercise page's range filter and each category's rules.</summary>
     private static IServiceCollection AddProgressRules(this IServiceCollection services) =>
         services
             .AddSingleton<IRangeFilter, RangeFilter>()
@@ -107,7 +97,6 @@ public static class CoreServiceCollectionExtensions
             .AddSingleton<ICardioSessionRule, CardioSessionRule>()
             .AddSingleton<ICardioRecordsRule, CardioRecordsRule>();
 
-    /// <summary>Registers the exercise catalog, system time, workout validator, best rules, progress rules and the services.</summary>
     private static IServiceCollection AddServices(this IServiceCollection services) =>
         services
             .AddSingleton<IExerciseCatalog, ExerciseCatalog>()

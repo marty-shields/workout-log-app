@@ -18,7 +18,7 @@ public static class ExerciseListItems
         new(exercise.Id, exercise.Name, ExerciseFields.Kind(exercise.Type), logged is null ? null : Last(exercise, logged, zone, now));
 
     /// <summary>
-    /// The last session's date in <paramref name="zone"/>, with the year only when it isn't this year, then its best (D49):
+    /// The last session's date in <paramref name="zone"/>, with the year only when it isn't this year, then its best:
     /// e.g. Tue 20 Oct · 70kg × 3, or the date only when there is no best or it can't be shown.
     /// </summary>
     public static string Last(ExerciseDefinition exercise, LoggedExercise logged, TimeZoneInfo zone, DateTimeOffset now)

@@ -16,7 +16,6 @@ public sealed class FakeLoggedExercisesService : ILoggedExercisesService
     /// <summary>When true, loads wait for <see cref="Complete"/>.</summary>
     public bool Hold { get; set; }
 
-    /// <summary>Number of loads.</summary>
     public int Loads { get; private set; }
 
     /// <inheritdoc />

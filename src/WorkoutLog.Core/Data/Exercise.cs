@@ -3,7 +3,7 @@ using WorkoutLog.Core.Domain.Exercises;
 
 namespace WorkoutLog.Core.Data;
 
-/// <summary>Row in the Exercise table: Id, Name and Type. Other tables reference it by Id.</summary>
+/// <summary>Row in the Exercise table.</summary>
 [Table("Exercise")]
 public sealed class Exercise
 {

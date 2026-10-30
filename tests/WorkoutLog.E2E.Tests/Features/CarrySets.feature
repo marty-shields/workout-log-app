@@ -1,4 +1,4 @@
-@US-12 @D80
+@US-12
 Feature: Carry sets
   Carries have more fields, so one set is open and the others are summary lines.
 
@@ -27,7 +27,6 @@ Feature: Carry sets
     Then Farmer's Walk set 1 is open
     And Farmer's Walk set 2 is a summary "50m · 32kg · 0:00:50"
 
-  @D23
   Scenario: A carry set with no weight shows no weight in its summary
     Given I have logged Farmer's Walk sets: 40 m 0:00:45; 50 m 32 kg 0:00:50
     When I tap the summary of Farmer's Walk set 1

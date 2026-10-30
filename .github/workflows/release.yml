@@ -1,6 +1,6 @@
 # Releases main by hand (Actions > Release > Run workflow): works out the next version from the semver labels of the PRs
 # merged since the last v* tag, builds and tests, runs the E2E suite on emulators (qa-pipeline.yml), then, after the owner approves
-# the release environment, builds the signed APK and publishes the GitHub release with its v* tag (docs/06-dev-setup-build.md).
+# the release environment, builds the signed APK and publishes the GitHub release with its v* tag (docs/dev-setup-build.md).
 name: Release
 
 on:
@@ -14,7 +14,7 @@ concurrency:
   cancel-in-progress: false
 
 env:
-  # The release signing cert's SHA-256 (06).
+  # The release signing cert's SHA-256.
   CERT_SHA256: '5D:6A:C3:4B:86:B8:29:8D:04:DE:18:5C:9B:D8:3C:27:C8:31:76:CB:F9:BD:F8:35:A8:CA:C4:95:57:1B:CD:AC'
 
 jobs:
@@ -38,7 +38,7 @@ jobs:
       - name: Release cert pinned
         if: env.CERT_SHA256 == ''
         run: |
-          echo "::error title=Release::CERT_SHA256 in release.yml is empty: set it to the release cert's SHA-256 (docs/06-dev-setup-build.md)."
+          echo "::error title=Release::CERT_SHA256 in release.yml is empty: set it to the release cert's SHA-256 (docs/dev-setup-build.md)."
           exit 1
 
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1

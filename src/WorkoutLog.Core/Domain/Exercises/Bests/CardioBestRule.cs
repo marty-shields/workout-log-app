@@ -4,8 +4,8 @@ using WorkoutLog.Core.Domain.Workouts;
 namespace WorkoutLog.Core.Domain.Exercises.Bests;
 
 /// <summary>
-/// Cardio (<see cref="ExerciseCategory.Cardio"/>). Best is the longest distance when the exercise has one, null when not logged;
-/// otherwise the longest duration (<see cref="ICardioSessionRule"/>).
+/// Cardio (<see cref="ExerciseCategory.Cardio"/>). Best is the entry's distance when the exercise has a distance metric, else its duration;
+/// null when that value is empty (<see cref="ICardioSessionRule"/>).
 /// </summary>
 internal sealed class CardioBestRule(ICardioSessionRule sessionRule) : IBestRule
 {

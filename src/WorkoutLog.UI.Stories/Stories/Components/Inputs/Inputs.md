@@ -4,7 +4,7 @@ $attribute: CustomPage("Components/Inputs/Overview")
 
 # Inputs
 
-Number and duration inputs use the phone's numeric keyboard and 20px text (D79, D86). An invalid input has a red 2px border.
+Number and duration inputs use the phone's numeric keyboard and 20px text. An invalid input has a red 2px border.
 
 ## `FieldInput`
 Picks the input for a field from its kind: `NumberField` for whole and decimal numbers, `DurationField` for durations. Shows the field's label and unit.
@@ -15,7 +15,7 @@ One text box with `inputmode="numeric"` (whole) or `"decimal"`.
 - `data-testid`: `TestId`.
 
 ## `DurationField`
-Three boxes, h : mm : ss. When focus leaves, empty boxes become 0 and minutes and seconds are padded to two digits (D31).
+Three boxes, h : mm : ss. When focus leaves, empty boxes become 0 and minutes and seconds are padded to two digits.
 - `data-testid`: `{TestId}-h`, `{TestId}-mm`, `{TestId}-ss`.
 
 ## `RadioGroup`

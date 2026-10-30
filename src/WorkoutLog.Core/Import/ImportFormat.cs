@@ -4,7 +4,7 @@ using WorkoutLog.Core.Export;
 
 namespace WorkoutLog.Core.Import;
 
-/// <summary>Reading the export file format (docs/02 Import).</summary>
+/// <summary>Reading the export file format.</summary>
 internal static class ImportFormat
 {
     /// <summary>

@@ -48,7 +48,7 @@ public sealed class Journeys(
         state.Started = (from, clock.LocalNow());
     }
 
-    /// <summary>Opens the add-exercise list and taps the exercise; a strength exercise already in the workout gets a set (D42).</summary>
+    /// <summary>Opens the add-exercise list and taps the exercise; a strength exercise already in the workout gets a set.</summary>
     public void AddExercise(string name)
     {
         workout.OpenAddExercise();
@@ -85,7 +85,6 @@ public sealed class Journeys(
         state.RecordLogged(name, set, values.Values);
     }
 
-    /// <summary>Logs each set in turn.</summary>
     public void LogAll(ExerciseValues exercise)
     {
         for (var i = 0; i < exercise.Entries.Count; i++)

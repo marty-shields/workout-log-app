@@ -57,7 +57,6 @@ internal sealed partial class ExportService(
         }
     }
 
-    /// <summary><c>workout-log-YYYY-MM-DD-HHmm.json</c> in the phone's time zone.</summary>
     private string FileName(DateTimeOffset now) =>
         $"workout-log-{TimeZoneInfo.ConvertTime(now, time.LocalTimeZone).ToString("yyyy-MM-dd-HHmm", CultureInfo.InvariantCulture)}.json";
 

@@ -13,7 +13,7 @@ namespace WorkoutLog.UI.Models.Workout;
 /// Reads each field's text, a blank one as its <see cref="FieldSpec.BlankFill"/>, then checks the set or entry with
 /// <see cref="IWorkoutService.ValidateSet"/> or <see cref="IWorkoutService.ValidateEntry"/> and words its codes.
 /// A field that can't be read gets a format message and no message from Core.
-/// A Core code with no message, which the UI can't cause, is logged and fails the set or entry.
+/// A Core code with no message is logged and fails the set or entry.
 /// </summary>
 public sealed partial class SetChecker(IWorkoutService workouts, IExerciseCatalog catalog, ILogger<SetChecker> logger) : ISetChecker
 {
@@ -128,7 +128,7 @@ public sealed partial class SetChecker(IWorkoutService workouts, IExerciseCatalo
     private static TimeSpan? Time(Dictionary<Metric, decimal> values, Metric metric, decimal maxSeconds) =>
         Get(values, metric) is { } seconds ? TimeSpan.FromSeconds((double)Math.Min(seconds, maxSeconds + 1)) : null;
 
-    /// <summary>Message for a Core code. <see cref="FieldError.NotShown"/> and <see cref="FieldError.TooManyDecimals"/> can't come from the UI and have none.</summary>
+    /// <summary>Message for a Core code. <see cref="FieldError.NotShown"/> and <see cref="FieldError.TooManyDecimals"/> have none.</summary>
     private string? Message(ExerciseState exercise, FieldSpec field, FieldError code) => code switch
     {
         FieldError.Missing => $"Enter {field.Label.ToLowerInvariant()}",

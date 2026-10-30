@@ -8,7 +8,7 @@ Feature: App lifecycle
     Then the last workout shows today's date and day
     And reopening the latest workout shows Barbell Back Squat set 1 at 5 reps, 60 kg
 
-  @FR-12 @US-08 @US-15
+  @US-08 @US-15
   Scenario: A new workout is lost when the app is killed
     Given I have started a new workout
     And I have added "Barbell Back Squat"
@@ -17,14 +17,14 @@ Feature: App lifecycle
     Then I am on the Dashboard
     And the last workout shows "No workouts yet"
 
-  @D67 @US-20
+  @US-20
   Scenario: The Dashboard reloads when the app comes back
     Given I am on the Dashboard
     When I send the app to the background and bring it back
     Then the log shows "Activity started" once more
     And the log shows "Dashboard loaded" once more
 
-  @D67 @US-20
+  @US-20
   Scenario: The Dashboard reloads each time it is shown
     Given I am on the Dashboard
     When I open Workouts and go back

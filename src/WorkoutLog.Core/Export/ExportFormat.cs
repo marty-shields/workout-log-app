@@ -4,7 +4,7 @@ using System.Text.Json.Serialization;
 
 namespace WorkoutLog.Core.Export;
 
-/// <summary>The export file format (docs/02 Export file).</summary>
+/// <summary>The export file format.</summary>
 internal static class ExportFormat
 {
     /// <summary>Format version written to the file.</summary>

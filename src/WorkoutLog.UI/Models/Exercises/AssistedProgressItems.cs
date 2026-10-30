@@ -6,7 +6,7 @@ using WorkoutLog.UI.Components.Lists;
 
 namespace WorkoutLog.UI.Models.Exercises;
 
-/// <summary>Builds the text of an assisted machine's Exercise page from its <see cref="AssistedProgress"/> (FR-63). No assist shows as 0kg.</summary>
+/// <summary>Builds the text of an assisted machine's Exercise page from its <see cref="AssistedProgress"/>. No assist shows as 0kg.</summary>
 public static class AssistedProgressItems
 {
     /// <summary>Title of the one chart.</summary>

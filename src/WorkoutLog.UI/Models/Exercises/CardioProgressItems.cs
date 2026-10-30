@@ -10,8 +10,8 @@ using WorkoutLog.UI.Models.Workout;
 namespace WorkoutLog.UI.Models.Exercises;
 
 /// <summary>
-/// Builds the text of a cardio exercise's Exercise page from its <see cref="CardioProgress"/> (FR-64). Dates are in the phone's time zone,
-/// with the year only when it isn't this year (D49, D191). Pace and speed are worked out (<see cref="WorkedOut"/>).
+/// Builds the text of a cardio exercise's Exercise page from its <see cref="CardioProgress"/>. Dates are in the phone's time zone,
+/// with the year only when it isn't this year. Pace and speed are worked out (<see cref="WorkedOut"/>).
 /// </summary>
 public static class CardioProgressItems
 {
@@ -52,7 +52,7 @@ public static class CardioProgressItems
 
     /// <summary>
     /// Value text for <paramref name="tab"/>'s chart: distance in the exercise's unit (e.g. 5.2km), times as m:ss (h:mm:ss from an hour),
-    /// other values as numbers to 2 decimal places.
+    /// other values to up to 2 decimal places.
     /// </summary>
     public static Func<decimal, string> Format(ExerciseDefinition exercise, string tab) => tab switch
     {

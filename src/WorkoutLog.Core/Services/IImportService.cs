@@ -1,6 +1,6 @@
 namespace WorkoutLog.Core.Services;
 
-/// <summary>Imports workouts from a file made by Export (FR-52).</summary>
+/// <summary>Imports workouts from a file made by Export.</summary>
 public interface IImportService
 {
     /// <summary>

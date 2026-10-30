@@ -4,9 +4,9 @@ $attribute: CustomPage("Screens/Exercise/Overview")
 
 # Exercise
 
-One exercise's progress: a chart, its records and its sessions. View: `ExerciseView`; page: `ExercisePage`, for lifts (FR-61), bodyweight moves (FR-62), assisted machines, holds and carries (FR-63), and cardio (FR-64).
+One exercise's progress: a chart, its records and its sessions. View: `ExerciseView`; page: `ExercisePage`, for lifts, bodyweight moves, assisted machines, holds and carries, and cardio.
 
-`ExercisePage` opens from a row on [Exercises](./?path=/custom/screens-exercises-overview) (`/exercises/{id}`) on 3M and the type's first tab: Top set for a lift, Best set for a bodyweight move, Duration for a hold, Weight for a carry, and the first of its metrics for cardio. It loads every session through `IExerciseProgressService.LoadAsync`, or `ICardioProgressService.LoadAsync` for cardio, when it opens; changing the tab or range works the chart, records and sessions out again in memory, with no spinner (D192, D196). Back, or Android back, returns to Exercises. An id not in the exercise list shows Load failed.
+`ExercisePage` opens from a row on [Exercises](./?path=/custom/screens-exercises-overview) (`/exercises/{id}`) on 3M and the type's first tab: Top set for a lift, Best set for a bodyweight move, Duration for a hold, Weight for a carry, and the first of its metrics for cardio. It loads every session through `IExerciseProgressService.LoadAsync`, or `ICardioProgressService.LoadAsync` for cardio, when it opens; changing the tab or range works the chart, records and sessions out again in memory, with no spinner. Back, or Android back, returns to Exercises. An id not in the exercise list shows Load failed.
 
 | Part | Content |
 |---|---|
@@ -21,11 +21,11 @@ One exercise's progress: a chart, its records and its sessions. View: `ExerciseV
 | Exercise type | Tabs | Caption |
 |---|---|---|
 | Lift | Top set (weight, ×reps over each point), e1RM (to up to 1 decimal place, e.g. 82.3kg or 80kg) | e1RM: "Estimated one-rep max" |
-| Bodyweight | Best set, Total, Top set; e1RM too on a loaded move (D193) | e1RM: "Estimated one-rep max" |
+| Bodyweight | Best set, Total, Top set; e1RM too on a loaded move | e1RM: "Estimated one-rep max" |
 | Assisted | None; chart titled "Least assist per session", lower is better | "Up = less assist" |
 | Hold | Duration, Weight | |
 | Carry | Weight, Distance | |
-| Cardio | The metrics it has: Distance, Duration, then Pace (Outdoor Run, Walk; lower is better) or Speed (Treadmill, Outdoor Cycle), Floors, Calories. Pace and Speed are worked out from each session's distance and duration (D197) | Pace: "Up = faster" |
+| Cardio | The metrics it has: Distance, Duration, then Pace (Outdoor Run, Walk; lower is better) or Speed (Treadmill, Outdoor Cycle), Floors, Calories. Pace and Speed are worked out from each session's distance and duration | Pace: "Up = faster" |
 
 Range text: last 3 months, last 6 months, last year, all time. A tab with no values shows its own message in place of the chart: on strength, "No sets in the last 3 months", or "No sets yet" for All; on cardio, its metric (below); with no sessions in the range it is "No sessions in the last 3 months", or "No sessions yet" for All. Records with no value show "—".
 
@@ -41,7 +41,7 @@ Hold text: Duration is each session's longest hold, m:ss. Weight is each session
 
 Carry text: Weight is each session's heaviest set over 0kg, tie → longest, labelled with its distance, e.g. *40m*. Distance is each session's longest set, tie → heaviest, labelled with its weight when over 0kg. Records "Heaviest weight" (e.g. *32kg · 40m*) and "Longest distance" (e.g. *60m · 24kg*, or *60m*). Each session shows its heaviest set, or its longest when none has a weight, and every set's weight, distance and duration, e.g. *28kg 40m 0:45 · 60m*.
 
-Holds and carries leave out a weight of 0kg (D195).
+Holds and carries leave out a weight of 0kg.
 
 Cardio text: records "Longest distance" (e.g. *5.2km*, in the exercise's unit: km, m or ft), "Longest duration" (*30:00*, h:mm:ss from an hour), "Fastest pace" (*5:30/km*, to the second), "Fastest speed" (*10.4 km/h*, to 2 decimal places), "Most floors" (*120 floors*) and "Most calories" (*410 calories*), only for the metrics the exercise has. Each session shows its date, its longest distance as the headline, or its longest duration when the exercise has no distance (— when the session has none), and its entry's other values, e.g. *30:00 · 5:46/km · 410 calories · Resistance 8 · 2% · 85rpm* or *30:00 · 10.4 km/h · 410 calories · 1.5%*. Tab messages: "No distance logged in the last 3 months", and likewise for duration, pace, speed, floors and calories; "… yet" for All.
 

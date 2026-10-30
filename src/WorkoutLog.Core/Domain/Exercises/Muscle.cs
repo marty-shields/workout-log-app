@@ -33,10 +33,10 @@ public enum Muscle
     /// <summary>Lats.</summary>
     Lats,
 
-    /// <summary>LowerBack.</summary>
+    /// <summary>Lower back.</summary>
     LowerBack,
 
-    /// <summary>MiddleBack.</summary>
+    /// <summary>Middle back.</summary>
     MiddleBack,
 
     /// <summary>Neck.</summary>

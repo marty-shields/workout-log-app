@@ -2,7 +2,7 @@ using WorkoutLog.Core.Domain.Exercises.Progress;
 
 namespace WorkoutLog.Core.Services;
 
-/// <summary>Reads an exercise's sessions and works out its chart values and records (FR-61, FR-62, FR-63).</summary>
+/// <summary>Reads an exercise's sessions and works out its chart values and records.</summary>
 public interface IExerciseProgressService
 {
     /// <summary>

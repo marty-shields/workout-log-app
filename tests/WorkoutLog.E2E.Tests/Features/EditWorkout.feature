@@ -1,4 +1,4 @@
-@US-17 @FR-21 @FR-22 @FR-11 @FR-13
+@US-17
 Feature: Edit a workout
   I open a saved workout and fix it; its times never change.
 
@@ -14,7 +14,6 @@ Feature: Edit a workout
     And Delete is shown
     And it holds exactly what was saved, newest first
 
-  @D80
   Scenario: Carry sets start closed on Edit
     Then every Farmer's Walk set is a summary
 
@@ -45,14 +44,12 @@ Feature: Edit a workout
     And I save the workout
     Then reopening workout 1 shows: Dumbbell Incline Press, Farmer's Walk, Barbell Back Squat
 
-  @D23
   Scenario: A blank assist is saved as 0 kg
     When I add "Machine Assisted Pull-up"
     And I log Machine Assisted Pull-up set 1: 8 reps
     And I save the workout
     Then reopening workout 1 shows Machine Assisted Pull-up sets: 8 reps 0 kg
 
-  @D42
   Scenario: Picking an exercise again saves it on top
     When I add "Barbell Back Squat"
     And I log Barbell Back Squat set 4: 5 reps, 65 kg

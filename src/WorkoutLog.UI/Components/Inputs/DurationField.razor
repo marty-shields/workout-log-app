@@ -54,7 +54,7 @@
     [Parameter]
     public string? Value { get; set; }
 
-    /// <summary>Raised on each keystroke with the new text, or null when every box is empty. Also raised when focus leaves a partly filled field: empty boxes become 0 and minutes and seconds two digits, e.g. 1:00:00.</summary>
+    /// <summary>Raised on each keystroke with the new text, or null when every box is empty. When focus leaves a field with any box filled, also raised to fill it out: an empty hour becomes 0, minutes and seconds two digits, e.g. 1:00:00.</summary>
     [Parameter]
     public EventCallback<string?> ValueChanged { get; set; }
 

@@ -13,7 +13,7 @@ internal static class ImportJson
     public const string Run =
         """{"exercise":{"id":311,"name":"Outdoor Run","type":"Cardio","distanceUnit":"Km","paceUnit":"PerKm"},"entry":{"duration":"00:30:00","distance":5.2}}""";
 
-    /// <summary>Tuesday 21 Oct 2026, 17:05:00.1234567 UTC.</summary>
+    /// <summary>Wednesday 21 Oct 2026, 17:05:00.1234567 UTC.</summary>
     public static readonly DateTimeOffset Start = new DateTimeOffset(2026, 10, 21, 17, 5, 0, TimeSpan.Zero).AddTicks(1234567);
 
     /// <summary>A file with the current version's header and <paramref name="workouts"/>.</summary>

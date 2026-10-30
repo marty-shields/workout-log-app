@@ -1,5 +1,4 @@
-# Weekly update PRs, labelled semver:patch with a chore(deps) title. Minor and patch bumps are grouped per ecosystem; each
-# major bump gets its own PR.
+# Weekly update PRs, labelled semver:patch with a chore(deps) title.
 version: 2
 updates:
   - package-ecosystem: "nuget"

@@ -7,7 +7,6 @@ namespace WorkoutLog.App.Logging;
 /// <summary>Writes log entries to logcat with the tag <see cref="Tag"/>. Any write error is ignored.</summary>
 internal sealed class AndroidLogProvider : ILoggerProvider
 {
-    /// <summary>The logcat tag.</summary>
     public const string Tag = "WorkoutLog";
 
     /// <summary>Longest text written in one logcat entry; longer text is split.</summary>

@@ -9,7 +9,7 @@ public partial class Chart
     /// <summary>Most points that all show their <see cref="ChartPoint.Label"/>; above it, and for points without one, only the best and the latest are labelled.</summary>
     internal const int MaxLabelledPoints = 8;
 
-    // Drawing area in viewBox units. At phone width --font-size-sm text draws at about 10px.
+    // Drawing area in viewBox units.
     private const double Width = 400;
     private const double Height = 200;
     private const double Left = 48;
@@ -23,7 +23,7 @@ public partial class Chart
     private const double Radius = 4.5;
     private const double BestRadius = 7;
 
-    // Smallest tick step: the 0.1 a weight shows (D49); time steps start at 1 second.
+    // Smallest tick step: the 0.1 a weight shows; time steps start at 1 second.
     private const decimal MinStep = 0.1m;
 
     // Tick steps for time, in seconds.

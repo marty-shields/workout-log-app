@@ -1,6 +1,6 @@
 namespace WorkoutLog.UI.Models.Workout;
 
-/// <summary>Checks a whole workout on Save (FR-09).</summary>
+/// <summary>Checks a whole workout on Save.</summary>
 public interface IWorkoutChecker
 {
     /// <summary>

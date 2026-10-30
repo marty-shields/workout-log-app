@@ -20,10 +20,10 @@ Tokens, components, screens and their behaviour for the Workout Log app.
 - **Screens**: one folder per screen, with an Overview page (parts, behaviour, `data-testid`s) and one story per state, in the phone frame.
 
 ## Rules
-- Light and dark themes. The app follows the phone's setting (`prefers-color-scheme`) (D84).
+- Light and dark themes. The app follows the phone's setting (`prefers-color-scheme`).
 - Components use tokens only; no hard-coded colours or sizes. Story-only chrome (phone frame, theme switch) is exempt.
 - Components take their data as parameters. Pages call services.
-- Numbers use the phone's numeric keyboard: `inputmode="numeric"` for whole numbers, `inputmode="decimal"` for decimals. Duration is three boxes: h, mm, ss (D79).
+- Numbers use the phone's numeric keyboard: `inputmode="numeric"` for whole numbers, `inputmode="decimal"` for decimals. Duration is three boxes: h, mm, ss.
 - Content stays inside the Android 16 safe-area insets.
 - Layout suits one-handed use.
 - Interactive elements have a `data-testid`.
@@ -32,7 +32,7 @@ Tokens, components, screens and their behaviour for the Workout Log app.
 Defined in `tokens.css`; the [Tokens](./?path=/story/foundations-tokens--all-tokens) story shows each one in light and dark.
 
 ### Palette
-Five colours, each with a role in light and dark (D85):
+Five colours, each with a role in light and dark:
 
 | Colour | Light | Dark |
 |---|---|---|
@@ -56,9 +56,9 @@ Derived from the palette:
 Text and controls meet WCAG AA in both themes.
 
 ### Other tokens
-- Most colour tokens are `light-dark()` pairs. `data-theme="light"` or `"dark"` forces a theme on an element; component and screen stories have a System / Light / Dark switch (D84).
-- Danger buttons are filled red, the same red as errors (D85).
-- System font; body 16px, number and duration inputs 20px; radius 8 / 12 / 20px, plus round; spacing 4–32px (D86).
+- Most colour tokens are `light-dark()` pairs. `data-theme="light"` or `"dark"` forces a theme on an element; component and screen stories have a System / Light / Dark switch.
+- Danger buttons are filled red, the same red as errors.
+- System font; body 16px, number and duration inputs 20px; radius 8 / 12 / 20px, plus round; spacing 4–32px.
 - Some components override tokens inside them: the top bar sets text, muted text and focus; the Add Exercise bar sets text, muted text and focus; the open set sets muted text, input border and focus to the text colour.
 
 ## Checks

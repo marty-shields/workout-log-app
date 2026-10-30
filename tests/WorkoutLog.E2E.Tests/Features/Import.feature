@@ -1,4 +1,3 @@
-@FR-52
 Feature: Import
   Settings imports a file made by Export: the file is read and checked, reviewed, then written in one go.
 
@@ -76,7 +75,6 @@ Feature: Import
     And the review shows "Nothing new to import"
     And Import on the review is disabled
 
-  @FR-04
   Scenario: A workout with an exercise twice can't be imported
     Given an export file "e2e-import.json" in Downloads with these workouts:
       | started          | exercises                                    |

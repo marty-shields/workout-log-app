@@ -1,6 +1,6 @@
 namespace WorkoutLog.Core.Domain.Exercises;
 
-/// <summary>Rounding for decimal metrics (D29, D47).</summary>
+/// <summary>Rounding for decimal metrics.</summary>
 public static class Decimals
 {
     /// <summary>Rounds to 2 decimal places, halves away from zero.</summary>
