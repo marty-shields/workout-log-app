@@ -10,6 +10,11 @@ internal static class ConsistencyZones
         TimeZoneInfo.TransitionTime.CreateFixedDateRule(new DateTime(1, 1, 1, 2, 0, 0), 10, 25),
         TimeZoneInfo.TransitionTime.CreateFixedDateRule(new DateTime(1, 1, 1, 3, 0, 0), 3, 28));
 
+    /// <summary>UTC, and UTC+1 until Sun 25 Oct 2026 02:00 local, when the clocks go back to 01:00, as in London.</summary>
+    public static TimeZoneInfo BackOn25Oct { get; } = Zone(TimeSpan.Zero,
+        TimeZoneInfo.TransitionTime.CreateFixedDateRule(new DateTime(1, 1, 1, 1, 0, 0), 3, 29),
+        TimeZoneInfo.TransitionTime.CreateFixedDateRule(new DateTime(1, 1, 1, 2, 0, 0), 10, 25));
+
     /// <summary>UTC-3, and UTC-2 from Sun 4 Oct 2026 23:30 local, so Monday 5 Oct starts at 00:30 (02:30 UTC).</summary>
     public static TimeZoneInfo MidnightSkippedOn5Oct { get; } = Zone(TimeSpan.FromHours(-3),
         TimeZoneInfo.TransitionTime.CreateFixedDateRule(new DateTime(1, 1, 1, 23, 30, 0), 10, 4),

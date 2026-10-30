@@ -7,9 +7,9 @@ namespace WorkoutLog.Core.Services;
 /// <param name="WeekCounts">Workouts per week, oldest first; the last is this week. 12 zeros when loading failed.</param>
 /// <param name="Streak">Consecutive weeks with a workout, ending last week, plus this week once it has one. 0 when loading failed.</param>
 /// <param name="Failed">True when the workouts couldn't be read.</param>
-public sealed record ConsistencyResult(WeekComparison Comparison, IReadOnlyList<int> WeekCounts, int Streak, bool Failed)
+public sealed record ConsistencyResult(WeekTallies Comparison, IReadOnlyList<int> WeekCounts, int Streak, bool Failed)
 {
     /// <summary>The result of a failed read.</summary>
     public static ConsistencyResult FailedRead { get; } =
-        new(new WeekComparison(WeekTally.None, WeekTally.None), new int[LocalWeek.Shown], 0, Failed: true);
+        new(new WeekTallies(WeekTally.None, WeekTally.None), new int[LocalWeek.Shown], 0, Failed: true);
 }

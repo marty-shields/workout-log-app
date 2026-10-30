@@ -46,7 +46,7 @@ public class ConsistencyServiceTests
 
         Assert.Multiple(() =>
         {
-            Assert.That(result.Comparison, Is.EqualTo(new WeekComparison(
+            Assert.That(result.Comparison, Is.EqualTo(new WeekTallies(
                 new WeekTally(1, TimeSpan.FromMinutes(45), 12),
                 new WeekTally(2, TimeSpan.FromMinutes(90), 14))));
             Assert.That(result.WeekCounts, Is.EqualTo(new[] { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 1 }));
@@ -76,7 +76,7 @@ public class ConsistencyServiceTests
 
         var result = await service.GetAsync();
 
-        Assert.That(result, Is.EqualTo(new ConsistencyResult(new WeekComparison(WeekTally.None, WeekTally.None), result.WeekCounts, 0, Failed: false)));
+        Assert.That(result, Is.EqualTo(new ConsistencyResult(new WeekTallies(WeekTally.None, WeekTally.None), result.WeekCounts, 0, Failed: false)));
         Assert.That(result.WeekCounts, Is.EqualTo(new int[12]));
     }
 

@@ -93,7 +93,12 @@ public sealed class DashboardSteps(WebView web, DashboardScreen dashboard, Journ
     }
 
     [Then(@"^the streak shows ""(.*)""$")]
-    public void ThenTheStreakShows(string streak) => Assert.That(dashboard.Streak(), Is.EqualTo(streak));
+    public void ThenTheStreakShows(string streak)
+    {
+        journeys.GoToDashboard();
+        dashboard.LastWorkout();
+        Assert.That(dashboard.Streak(), Is.EqualTo(streak));
+    }
 
     [Then(@"^no streak is shown$")]
     public void ThenNoStreak()

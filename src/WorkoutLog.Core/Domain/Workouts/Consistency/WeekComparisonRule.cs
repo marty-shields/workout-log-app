@@ -4,11 +4,11 @@ namespace WorkoutLog.Core.Domain.Workouts.Consistency;
 internal sealed class WeekComparisonRule : IWeekComparisonRule
 {
     /// <inheritdoc />
-    public WeekComparison Compare(IReadOnlyList<WorkoutTally> workouts, DateTimeOffset now, TimeZoneInfo zone)
+    public WeekTallies Compare(IReadOnlyList<WorkoutTally> workouts, DateTimeOffset now, TimeZoneInfo zone)
     {
         var monday = LocalWeek.Monday(now, zone);
-        var sameTimeLastWeek = LocalWeek.Instant(TimeZoneInfo.ConvertTime(now, zone).DateTime.AddDays(-7), zone);
-        return new WeekComparison(
+        var sameTimeLastWeek = LocalWeek.Last(TimeZoneInfo.ConvertTime(now, zone).DateTime.AddDays(-7), zone);
+        return new WeekTallies(
             Tally(workouts, LocalWeek.Start(monday, zone), now),
             Tally(workouts, LocalWeek.Start(monday.AddDays(-7), zone), sameTimeLastWeek));
     }

@@ -89,6 +89,31 @@ public class WeekComparisonRuleTests
     }
 
     [Test]
+    public void Compare_SameTimeLastWeekWasSkippedWithSeconds_LastWeekEndsWhenTheClocksWentForward()
+    {
+        var now = new DateTimeOffset(2026, 11, 1, 2, 30, 30, TimeSpan.FromHours(2));
+        var forward = new DateTimeOffset(2026, 10, 25, 3, 0, 0, TimeSpan.FromHours(2));
+
+        var comparison = rule.Compare([Workout(forward), Workout(forward.AddSeconds(10))], now, ConsistencyZones.ForwardOn25Oct);
+
+        Assert.That(comparison.LastWeek.Workouts, Is.EqualTo(1));
+    }
+
+    [Test]
+    public void Compare_SameTimeLastWeekWasRepeated_LastWeekEndsAtTheSecondPass()
+    {
+        var now = new DateTimeOffset(2026, 11, 1, 1, 30, 0, TimeSpan.Zero);
+        var firstPass = new DateTimeOffset(2026, 10, 25, 1, 30, 0, TimeSpan.FromHours(1));
+        var secondPass = new DateTimeOffset(2026, 10, 25, 1, 30, 0, TimeSpan.Zero);
+
+        var comparison = rule.Compare(
+            [Workout(firstPass), Workout(new DateTimeOffset(2026, 10, 25, 1, 10, 0, TimeSpan.Zero)), Workout(secondPass), Workout(secondPass.AddTicks(1))],
+            now, ConsistencyZones.BackOn25Oct);
+
+        Assert.That(comparison.LastWeek.Workouts, Is.EqualTo(3));
+    }
+
+    [Test]
     public void Compare_TimeIsTheSumOfFinishMinusStart()
     {
         var comparison = rule.Compare(
@@ -121,7 +146,7 @@ public class WeekComparisonRuleTests
 
     [Test]
     public void Compare_NoWorkouts_TalliesAreZero() =>
-        Assert.That(rule.Compare([], Now, TimeZoneInfo.Utc), Is.EqualTo(new WeekComparison(WeekTally.None, WeekTally.None)));
+        Assert.That(rule.Compare([], Now, TimeZoneInfo.Utc), Is.EqualTo(new WeekTallies(WeekTally.None, WeekTally.None)));
 
     private static WorkoutTally Workout(DateTimeOffset startedAt, TimeSpan? length = null, int sets = 1) =>
         new(startedAt, startedAt + (length ?? TimeSpan.FromMinutes(45)), sets);

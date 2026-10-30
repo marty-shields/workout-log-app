@@ -8,7 +8,6 @@ using WorkoutLog.Core.Services;
 using WorkoutLog.UI.Components.Dashboard;
 using WorkoutLog.UI.Lifecycle;
 using WorkoutLog.UI.Screens;
-using CoreComparison = WorkoutLog.Core.Domain.Workouts.Consistency.WeekComparison;
 
 namespace WorkoutLog.UI.Tests.Screens;
 
@@ -493,7 +492,7 @@ public class DashboardPageTests : ComponentTestBase
     private static string Name(int exerciseId) => Catalog.All.Single(e => e.Id == exerciseId).Name;
 
     private static ConsistencyResult Consistency(WeekTally thisWeek, WeekTally lastWeek, int[] weekCounts, int streak) =>
-        new(new CoreComparison(thisWeek, lastWeek), weekCounts, streak, Failed: false);
+        new(new WeekTallies(thisWeek, lastWeek), weekCounts, streak, Failed: false);
 
     private IReadOnlyList<JSRuntimeInvocation> Focuses() =>
         Context.JSInterop.Invocations["Blazor._internal.domWrapper.focus"];

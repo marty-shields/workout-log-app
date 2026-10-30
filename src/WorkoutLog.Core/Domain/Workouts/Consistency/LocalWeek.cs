@@ -13,20 +13,27 @@ internal static class LocalWeek
     public static DateOnly Monday(DateTimeOffset instant, TimeZoneInfo zone) =>
         Monday(DateOnly.FromDateTime(TimeZoneInfo.ConvertTime(instant, zone).DateTime));
 
-    /// <summary>
-    /// The instant of <paramref name="local"/> in <paramref name="zone"/>: the end of the gap if it is skipped, the first if it repeats.
-    /// </summary>
-    public static DateTimeOffset Instant(DateTime local, TimeZoneInfo zone)
-    {
-        while (zone.IsInvalidTime(local))
-        {
-            local = local.AddMinutes(1);
-        }
+    /// <summary>The first instant <paramref name="local"/> reads in <paramref name="zone"/>; the end of the gap if it is skipped.</summary>
+    public static DateTimeOffset First(DateTime local, TimeZoneInfo zone) => Instant(local, zone, offsets => offsets.Max());
 
-        var offset = zone.IsAmbiguousTime(local) ? zone.GetAmbiguousTimeOffsets(local).Max() : zone.GetUtcOffset(local);
-        return new DateTimeOffset(local, offset);
-    }
+    /// <summary>The last instant <paramref name="local"/> reads in <paramref name="zone"/>; the end of the gap if it is skipped.</summary>
+    public static DateTimeOffset Last(DateTime local, TimeZoneInfo zone) => Instant(local, zone, offsets => offsets.Min());
 
     /// <summary>The first instant of <paramref name="day"/> in <paramref name="zone"/>.</summary>
-    public static DateTimeOffset Start(DateOnly day, TimeZoneInfo zone) => Instant(day.ToDateTime(TimeOnly.MinValue), zone);
+    public static DateTimeOffset Start(DateOnly day, TimeZoneInfo zone) => First(day.ToDateTime(TimeOnly.MinValue), zone);
+
+    private static DateTimeOffset Instant(DateTime local, TimeZoneInfo zone, Func<TimeSpan[], TimeSpan> pickOffset)
+    {
+        if (zone.IsInvalidTime(local))
+        {
+            local = local.AddTicks(-(local.Ticks % TimeSpan.TicksPerMinute));
+            while (zone.IsInvalidTime(local))
+            {
+                local = local.AddMinutes(1);
+            }
+        }
+
+        var offset = zone.IsAmbiguousTime(local) ? pickOffset(zone.GetAmbiguousTimeOffsets(local)) : zone.GetUtcOffset(local);
+        return new DateTimeOffset(local, offset);
+    }
 }

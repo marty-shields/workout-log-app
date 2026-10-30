@@ -67,6 +67,7 @@ Feature: Dashboard
       | Time     | 50m       | 55m       | down 5m   |
       | Sets     | 2         | 2         | no change |
 
+  @today
   Scenario: The last 12 weeks and the streak, seeded across three weeks
     Given these saved workouts:
       | started           | exercises             |
