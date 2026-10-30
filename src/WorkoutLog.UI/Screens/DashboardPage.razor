@@ -23,6 +23,7 @@
                          LastWeek="Totals(consistency.Comparison.LastWeek)"
                          WeekCounts="consistency.WeekCounts"
                          Streak="consistency.Streak"
+                         OnMuscles="OnMuscles"
                          TestId="consistency" />
     </Consistency>
     <RecentRecords>
@@ -58,6 +59,10 @@
     /// <summary>Raised with the exercise id when a recent record is tapped.</summary>
     [Parameter]
     public EventCallback<int> OnOpenExercise { get; set; }
+
+    /// <summary>Raised by the Consistency card's Sets per muscle group row.</summary>
+    [Parameter]
+    public EventCallback OnMuscles { get; set; }
 
     /// <summary>Raised by the Settings gear.</summary>
     [Parameter]

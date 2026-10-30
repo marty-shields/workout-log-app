@@ -7,5 +7,6 @@
                OnWorkouts="@(() => Navigation.GoTo("workouts"))"
                OnExercises="@(() => Navigation.GoTo("exercises"))"
                OnSettings="@(() => Navigation.GoTo("settings"))"
+               OnMuscles="@(() => Navigation.GoTo("muscles"))"
                OnOpenWorkout="@(id => Navigation.GoTo($"dashboard/workout/{id}"))"
                OnOpenExercise="@(id => Navigation.GoTo($"exercises/{id}?from=dashboard"))" />
