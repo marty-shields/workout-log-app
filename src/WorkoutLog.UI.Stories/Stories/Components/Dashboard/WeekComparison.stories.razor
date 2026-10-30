@@ -1,0 +1,41 @@
+@attribute [Stories("Components/Dashboard/WeekComparison")]
+
+<Stories TComponent="WeekComparison" Layout="typeof(ThemeLayout)">
+
+    <Story Name="Up">
+        <Template>
+            <WeekComparison ThisWeek="SampleDashboard.ThisWeek" LastWeek="SampleDashboard.FirstWeek" TestId="comparison" />
+        </Template>
+    </Story>
+
+    <Story Name="Down">
+        <Template>
+            <WeekComparison ThisWeek="SampleDashboard.FirstWeek" LastWeek="SampleDashboard.ThisWeek" TestId="comparison" />
+        </Template>
+    </Story>
+
+    <Story Name="Mixed">
+        <Template>
+            <WeekComparison ThisWeek="SampleDashboard.ThisWeek" LastWeek="SampleDashboard.LastWeek" TestId="comparison" />
+        </Template>
+    </Story>
+
+    <Story Name="No change">
+        <Template>
+            <WeekComparison ThisWeek="SampleDashboard.ThisWeek" LastWeek="SampleDashboard.ThisWeek" TestId="comparison" />
+        </Template>
+    </Story>
+
+    <Story Name="Nothing last week">
+        <Template>
+            <WeekComparison ThisWeek="SampleDashboard.ThisWeek" LastWeek="SampleDashboard.NoWeek" TestId="comparison" />
+        </Template>
+    </Story>
+
+    <Story Name="Nothing this week">
+        <Template>
+            <WeekComparison ThisWeek="SampleDashboard.NoWeek" LastWeek="SampleDashboard.LastWeek" TestId="comparison" />
+        </Template>
+    </Story>
+
+</Stories>

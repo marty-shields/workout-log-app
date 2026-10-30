@@ -22,10 +22,11 @@ A button with a 48px touch target.
 A Material Symbols Outlined icon (weight 400), drawn as an SVG and hidden from screen readers. `IconButton` uses it.
 
 - `Name`: an `IconName`.
-- The icon takes the text colour; `Muted` uses `--color-text-muted`.
+- `Tone`: `Default` takes the text colour; `Muted` uses `--color-text-muted`, `Success` `--color-success`, `Error` `--color-error`.
 - `Size`: `Default` is `--font-size-xl`, `Small` is `--font-size-lg`.
-- Chevron: the end of a tappable `ListRow` and carry `SetSummary` row.
+- Chevron: the end of a tappable `ListRow`, carry `SetSummary` row and `LastWorkoutCard`, `Muted`.
 - Search: the Exercises search box, `Muted`.
+- Up and Down: an increase (`Success`) or decrease (`Error`) in `WeekComparison`.
 
 ## `IconButton`
 A button that shows an `Icon`, with a 48px touch target.

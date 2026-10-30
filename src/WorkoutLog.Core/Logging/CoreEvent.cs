@@ -1,7 +1,7 @@
 namespace WorkoutLog.Core.Logging;
 
 /// <summary>
-/// Event ids of Core's log messages: 1000–1999, a block of 100 per type; the Exercise page services share 1900.
+/// Event ids of Core's log messages: 1000–1999, a block of 100 per type; the Dashboard services share 1400 and the Exercise page services share 1900.
 /// Ids never change and are never reused. Retired: 1205.
 /// </summary>
 internal enum CoreEvent

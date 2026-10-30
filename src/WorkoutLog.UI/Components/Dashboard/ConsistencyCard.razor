@@ -1,0 +1,44 @@
+<section class="card" data-testid="@TestId">
+    <WeekComparison ThisWeek="ThisWeek" LastWeek="LastWeek" TestId="@($"{TestId}-comparison")" />
+    <div class="weeks">
+        <div class="weeks-header">
+            <h2 class="title">Last 12 weeks</h2>
+            @if (Streak > 0)
+            {
+                <span class="streak" data-testid="@($"{TestId}-streak")">@Streak-week streak</span>
+            }
+        </div>
+        <WeekBars Counts="WeekCounts" TestId="@($"{TestId}-bars")" />
+    </div>
+    <div class="muscles">
+        <ListRow Text="Muscles, last 7 days"
+                 OnClick="OnMuscles"
+                 TestId="@($"{TestId}-muscles")" />
+    </div>
+</section>
+
+@code {
+    /// <summary>This week's totals so far.</summary>
+    [Parameter, EditorRequired]
+    public WeekTotals ThisWeek { get; set; } = null!;
+
+    /// <summary>Last week's totals up to the same day and time.</summary>
+    [Parameter, EditorRequired]
+    public WeekTotals LastWeek { get; set; } = null!;
+
+    /// <summary>Workouts per week for the last 12 weeks, oldest first; the last is this week.</summary>
+    [Parameter, EditorRequired]
+    public IReadOnlyList<int> WeekCounts { get; set; } = [];
+
+    /// <summary>Consecutive weeks with a workout; hidden at 0.</summary>
+    [Parameter]
+    public int Streak { get; set; }
+
+    /// <summary>Raised by the Muscles, last 7 days row. The row is not tappable when unset.</summary>
+    [Parameter]
+    public EventCallback OnMuscles { get; set; }
+
+    /// <summary>Value of the data-testid attribute, and the prefix of its parts': <c>{TestId}-comparison</c>, <c>{TestId}-streak</c>, <c>{TestId}-bars</c>, <c>{TestId}-muscles</c>.</summary>
+    [Parameter]
+    public string? TestId { get; set; }
+}

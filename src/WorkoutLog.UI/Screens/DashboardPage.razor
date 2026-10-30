@@ -6,7 +6,27 @@
 @inject TimeProvider Clock
 @inject IAppStart AppStart
 
-<DashboardView Summary="summary" Loading="loading" Failed="failed" OnRetry="LoadAsync" OnNewWorkout="OnNewWorkout" OnWorkouts="OnWorkouts" OnExercises="OnExercises" OnSettings="OnSettings" />
+<DashboardView Loading="loading" Failed="failed" OnRetry="LoadAsync" OnNewWorkout="OnNewWorkout" OnWorkouts="OnWorkouts" OnExercises="OnExercises" OnSettings="OnSettings">
+    <LastWorkout>
+        <section class="section">
+            <h2 class="heading">Last workout</h2>
+            @if (summary.LastWorkoutStartedAt is { } lastWorkout)
+            {
+                <p class="last" data-testid="last-workout">@DisplayFormat.Date(lastWorkout)</p>
+            }
+            else
+            {
+                <EmptyState Message="No workouts yet" TestId="last-workout-empty" />
+            }
+        </section>
+    </LastWorkout>
+    <Consistency>
+        <div class="stats">
+            <StatTile Label="This week" Value="summary.ThisWeek" TestId="count-week" />
+            <StatTile Label="This month" Value="summary.ThisMonth" TestId="count-month" />
+        </div>
+    </Consistency>
+</DashboardView>
 
 @code {
     private DashboardSummary summary = new(null, 0, 0);

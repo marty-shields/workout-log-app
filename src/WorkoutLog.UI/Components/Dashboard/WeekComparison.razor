@@ -1,0 +1,64 @@
+@using System.Globalization
+<div class="comparison" data-testid="@TestId">
+    <table class="table">
+        <caption class="title">This week vs last week</caption>
+        <thead>
+            <tr>
+                <td></td>
+                <th scope="col" class="week">This week</th>
+                <th scope="col" class="week">Last week</th>
+                <th scope="col"><span class="visually-hidden">Change</span></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var row in Rows)
+            {
+                var now = row.Value(ThisWeek);
+                var before = row.Value(LastWeek);
+                <tr data-testid="@($"{TestId}-{row.Key}")">
+                    <th scope="row" class="label">@row.Label</th>
+                    <td class="value">@row.Format(now)</td>
+                    <td class="value">@row.Format(before)</td>
+                    <td class="change">@Change(now - before, row.Format)</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+    <p class="note">Last week up to the same day and time</p>
+</div>
+
+@code {
+    private static readonly Row[] Rows =
+    [
+        new("Workouts", "workouts", w => w.Workouts, Count),
+        new("Time", "time", w => (int)w.Time.TotalMinutes, Minutes),
+        new("Sets", "sets", w => w.Sets, Count),
+    ];
+
+    /// <summary>This week's totals so far.</summary>
+    [Parameter, EditorRequired]
+    public WeekTotals ThisWeek { get; set; } = null!;
+
+    /// <summary>Last week's totals up to the same day and time.</summary>
+    [Parameter, EditorRequired]
+    public WeekTotals LastWeek { get; set; } = null!;
+
+    /// <summary>Value of the data-testid attribute, and the prefix of each row's: <c>{TestId}-workouts</c>, <c>{TestId}-time</c>, <c>{TestId}-sets</c>.</summary>
+    [Parameter]
+    public string? TestId { get; set; }
+
+    private static RenderFragment Change(int difference, Func<int, string> format) => difference switch
+    {
+        > 0 => @<span class="diff up"><Icon Name="IconName.Up" Tone="IconTone.Success" /><span class="visually-hidden">up </span>@format(difference)</span>,
+        < 0 => @<span class="diff down"><Icon Name="IconName.Down" Tone="IconTone.Error" /><span class="visually-hidden">down </span>@format(-difference)</span>,
+        _ => @<span class="diff same"><span aria-hidden="true">—</span><span class="visually-hidden">no change</span></span>,
+    };
+
+    private static string Count(int value) => value.ToString(CultureInfo.InvariantCulture);
+
+    /// <summary>Whole minutes as e.g. 3h 05m, or 25m under an hour.</summary>
+    private static string Minutes(int minutes) => minutes >= 60 ? $"{minutes / 60}h {minutes % 60:00}m" : $"{minutes}m";
+
+    /// <summary>A compared total: its label, the testid suffix, its value in whole units and how to show it.</summary>
+    private sealed record Row(string Label, string Key, Func<WeekTotals, int> Value, Func<int, string> Format);
+}

@@ -24,6 +24,14 @@ internal static class DisplayFormat
     /// <summary>Day, date and time, e.g. Tue 20 Oct 2026 · 18:05.</summary>
     public static string DateAndTime(DateTime value) => value.ToString("ddd d MMM yyyy · HH:mm", CultureInfo.InvariantCulture);
 
+    /// <summary>Calendar days since a date: Today, Yesterday, or e.g. 3 days ago.</summary>
+    public static string DaysAgo(int days) => days switch
+    {
+        0 => "Today",
+        1 => "Yesterday",
+        _ => $"{days} days ago",
+    };
+
     /// <summary>Elapsed time as h:mm:ss.</summary>
     public static string Duration(TimeSpan value) => $"{(int)value.TotalHours}:{value.Minutes:00}:{value.Seconds:00}";
 
