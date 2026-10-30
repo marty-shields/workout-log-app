@@ -18,5 +18,4 @@
 - **Epics:** issues titled `EP-xx Name`, in their milestone. An epic's stories are its sub-issues.
 - **Stories:** issues titled `US-xx Title`, in their epic's milestone. IDs never change; a new story takes the next number. "As the user, I want…, so that…", or "As the developer…" for technical stories.
 - **Acceptance criteria:** the linked FR-xx in [01](01-requirements.md), plus any extra ACs in the issue.
-- **Ticket review:** on request, before the local review ([ticket-review](../.agents/skills/ticket-review/SKILL.md), D184).
 - **Delivery:** [06 Source control](06-dev-setup-build.md#source-control) and the [Definition of Done](08-product-goal.md).

@@ -34,7 +34,6 @@ A personal Android app (.NET 10 MAUI Blazor Hybrid) that replaces a paper workou
 | `tests/WorkoutLog.Core.Tests/` | NUnit tests for Core |
 | `tests/WorkoutLog.E2E.Tests/` | Gherkin features run by Reqnroll + NUnit + Appium on a device; `[Explicit]`, so a plain `dotnet test` skips them ([05](docs/05-testing.md#e2e-tests-appium)) |
 | `.github/` | PR build, dev pipeline, QA pipeline, PR checks and stories site (GitHub Pages) workflows, Dependabot config ([06](docs/06-dev-setup-build.md#ci)); release workflow and its scripts in `scripts/` ([06](docs/06-dev-setup-build.md#release-signed-apk)) |
-| `.agents/skills/` | Agent skills in the open Agent Skills format; `ticket-review` (D184) |
 
 ## Commands
 | Task | Command |
@@ -59,7 +58,6 @@ A personal Android app (.NET 10 MAUI Blazor Hybrid) that replaces a paper workou
 - New code logs its errors and unexpected events as in [04 Logging](docs/04-architecture.md#logging), with tests. No workout contents in logs.
 - GitHub repo [marty-shields/workout-log-app](https://github.com/marty-shields/workout-log-app). `main` is protected: changes reach it only through a squash-merged PR ([06](docs/06-dev-setup-build.md#source-control)). Commits and PR titles use Conventional Commits, and each PR has exactly one `semver:major`, `semver:minor` or `semver:patch` label ([06](docs/06-dev-setup-build.md#ci)).
 - One branch per story, `type/us-xx-slug` (e.g. `feat/us-26-signed-release-apk`), from an up-to-date `main`.
-- When the user asks for a ticket review or a code review of a story, follow [.agents/skills/ticket-review/SKILL.md](.agents/skills/ticket-review/SKILL.md). Never start it otherwise.
 - Never commit without review. When a story's work is ready, stop, summarise the changes and ask the reviewer to review locally. Commit only after the reviewer approves, then push the branch and open a DRAFT PR that closes the story's issue (`Closes #n`). The reviewer marks it ready and squash-merges it; never merge.
 - GitHub work uses `gh`, which runs as the repo owner here ([06](docs/06-dev-setup-build.md#source-control)). Never use the GitHub MCP tools in this repo: they are signed in to another account.
 - Docs are short and factual, and describe only what the app has (D182).
