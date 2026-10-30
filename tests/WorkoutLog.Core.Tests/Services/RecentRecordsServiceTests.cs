@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging.Testing;
 using Microsoft.Extensions.Time.Testing;
 using Moq;
 using WorkoutLog.Core.Data;
+using WorkoutLog.Core.Domain.Exercises;
 using WorkoutLog.Core.Domain.Exercises.Bests;
 using WorkoutLog.Core.Domain.Exercises.Progress;
 using WorkoutLog.Core.Domain.Workouts;
@@ -182,6 +183,25 @@ public class RecentRecordsServiceTests
     {
         var error = new InvalidOperationException("disk");
         repository.Setup(r => r.GetAllAsync()).ThrowsAsync(error);
+
+        var result = await service.GetAsync();
+
+        Assert.That(result, Is.EqualTo(new RecentRecordsResult([], Now, Failed: true)).UsingPropertiesComparer());
+        Assert.Multiple(() =>
+        {
+            Assert.That(LoggedEvents.Of(logger), Is.EqualTo(new[] { (CoreEvent.RecentRecordsLoadFailed, LogLevel.Warning, "Loading the recent records failed") }));
+            Assert.That(logger.Collector.LatestRecord.Exception, Is.SameAs(error));
+        });
+    }
+
+    [Test]
+    public async Task GetAsync_FindingRecordsFails_ReturnsFailedAndLogsAWarningWithTheException()
+    {
+        var error = new InvalidOperationException("bad set");
+        var recordCheck = new Mock<IRecordCheck>();
+        recordCheck.Setup(c => c.Records(It.IsAny<ExerciseDefinition>(), It.IsAny<IEnumerable<WorkoutSession>>())).Throws(error);
+        service = new RecentRecordsService(repository.Object, Catalog, recordCheck.Object, new FakeTimeProvider(Now), logger);
+        Setup(Workout(Now.AddDays(-1), Sets(Squat, Set(5, 100m))));
 
         var result = await service.GetAsync();
 

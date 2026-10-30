@@ -25,46 +25,44 @@ internal sealed partial class RecentRecordsService(
     public async Task<RecentRecordsResult> GetAsync()
     {
         var now = time.GetUtcNow();
-        IReadOnlyList<Workout> workouts;
         try
         {
-            workouts = await repository.GetAllAsync();
+            var workouts = await repository.GetAllAsync();
+            var zone = time.LocalTimeZone;
+            var from = LocalDate(now, zone).AddDays(1 - Days);
+            bool InWindow(DateTimeOffset startedAt) => startedAt <= now && LocalDate(startedAt, zone) >= from;
+
+            var definitions = catalog.All.ToDictionary(e => e.Id);
+            var records = new List<(ExerciseRecord Record, string Name)>();
+            var sessions = workouts.SelectMany(w => w.Exercises.Select(e => new WorkoutSession(w.Id, w.StartedAt, e)));
+            foreach (var exercise in sessions.GroupBy(s => s.Exercise.ExerciseId))
+            {
+                if (!definitions.TryGetValue(exercise.Key, out var definition))
+                {
+                    Log.UnknownExercise(logger, exercise.Key);
+                    continue;
+                }
+
+                if (recordCheck.Records(definition, exercise).LastOrDefault(r => InWindow(r.Session.StartedAt)) is { } latest)
+                {
+                    records.Add((new ExerciseRecord(exercise.Key, latest.Session.StartedAt, latest.Best), definition.Name));
+                }
+            }
+
+            var recent = records
+                .OrderByDescending(r => r.Record.StartedAt)
+                .ThenBy(r => r.Name, StringComparer.OrdinalIgnoreCase)
+                .Take(MaxRecords)
+                .Select(r => r.Record)
+                .ToList();
+            Log.Loaded(logger, recent.Count);
+            return new RecentRecordsResult(recent, now, Failed: false);
         }
         catch (Exception exception)
         {
             Log.LoadFailed(logger, exception);
             return new RecentRecordsResult([], now, Failed: true);
         }
-
-        var zone = time.LocalTimeZone;
-        var from = LocalDate(now, zone).AddDays(1 - Days);
-        bool InWindow(DateTimeOffset startedAt) => startedAt <= now && LocalDate(startedAt, zone) >= from;
-
-        var definitions = catalog.All.ToDictionary(e => e.Id);
-        var records = new List<(ExerciseRecord Record, string Name)>();
-        var sessions = workouts.SelectMany(w => w.Exercises.Select(e => new WorkoutSession(w.Id, w.StartedAt, e)));
-        foreach (var exercise in sessions.GroupBy(s => s.Exercise.ExerciseId))
-        {
-            if (!definitions.TryGetValue(exercise.Key, out var definition))
-            {
-                Log.UnknownExercise(logger, exercise.Key);
-                continue;
-            }
-
-            if (recordCheck.Records(definition, exercise).LastOrDefault(r => InWindow(r.Session.StartedAt)) is { } latest)
-            {
-                records.Add((new ExerciseRecord(exercise.Key, latest.Session.StartedAt, latest.Best), definition.Name));
-            }
-        }
-
-        var recent = records
-            .OrderByDescending(r => r.Record.StartedAt)
-            .ThenBy(r => r.Name, StringComparer.OrdinalIgnoreCase)
-            .Take(MaxRecords)
-            .Select(r => r.Record)
-            .ToList();
-        Log.Loaded(logger, recent.Count);
-        return new RecentRecordsResult(recent, now, Failed: false);
     }
 
     private static DateOnly LocalDate(DateTimeOffset value, TimeZoneInfo zone) => DateOnly.FromDateTime(TimeZoneInfo.ConvertTime(value, zone).DateTime);
