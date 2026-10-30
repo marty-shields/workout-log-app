@@ -50,7 +50,7 @@ public class ConsistencyCardTests : ComponentTestBase
         Assert.Multiple(() =>
         {
             Assert.That(opened, Is.EqualTo(1));
-            Assert.That(cut.Find("[data-testid=consistency-muscles] .text").TextContent, Is.EqualTo("Muscles, last 7 days"));
+            Assert.That(cut.Find("[data-testid=consistency-muscles] .text").TextContent, Is.EqualTo("Sets per muscle group"));
         });
     }
 

@@ -25,6 +25,8 @@ public class ContrastTests
         ("--color-accent", "--color-surface", LargeTextOrControl),
         ("--color-border-strong", "--color-bg", LargeTextOrControl),
         ("--color-border-strong", "--color-surface", LargeTextOrControl),
+        ("--color-bar-past", "--color-bg", LargeTextOrControl),
+        ("--color-bar-past", "--color-surface", LargeTextOrControl),
         ("--color-focus", "--color-bg", LargeTextOrControl),
         ("--color-focus", "--color-surface", LargeTextOrControl),
     ];

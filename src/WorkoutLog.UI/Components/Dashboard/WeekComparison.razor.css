@@ -44,7 +44,8 @@ td {
 }
 
 .diff {
-    display: inline-flex;
+    display: flex;
+    min-height: var(--font-size-xl);
     align-items: center;
     justify-content: flex-end;
     font-size: var(--font-size-sm);

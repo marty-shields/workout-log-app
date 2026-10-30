@@ -39,11 +39,11 @@ public static class ScreenStates
         new("Screens/Dashboard", "Loading", c => DashboardLoad(c, loading: true)),
         new("Screens/Dashboard", "Load failed", c => DashboardLoad(c, failed: true)),
 
-        new("Screens/Muscles, last 7 days", "Some trained", c => Muscles(c, SampleDashboard.SomeTrained)),
-        new("Screens/Muscles, last 7 days", "All trained", c => Muscles(c, SampleDashboard.AllTrained)),
-        new("Screens/Muscles, last 7 days", "None trained", c => Muscles(c, SampleDashboard.NoneTrained)),
-        new("Screens/Muscles, last 7 days", "Loading", c => Muscles(c, [], loading: true)),
-        new("Screens/Muscles, last 7 days", "Load failed", c => Muscles(c, [], failed: true)),
+        new("Screens/Sets per muscle group", "Some trained", c => Muscles(c, SampleDashboard.SomeTrained)),
+        new("Screens/Sets per muscle group", "All trained", c => Muscles(c, SampleDashboard.AllTrained)),
+        new("Screens/Sets per muscle group", "None trained", c => Muscles(c, SampleDashboard.NoneTrained)),
+        new("Screens/Sets per muscle group", "Loading", c => Muscles(c, [], loading: true)),
+        new("Screens/Sets per muscle group", "Load failed", c => Muscles(c, [], failed: true)),
 
         new("Screens/New Workout", "Empty", c => Workout(c, WorkoutMode.New, [])),
         new("Screens/New Workout", "Strength", c => Workout(c, WorkoutMode.New, SampleData.StrengthWorkoutWithWeights(Catalog(c)))),

@@ -15,11 +15,11 @@ A table titled "This week vs last week" with This week and Last week columns and
 - `data-testid`: `TestId`, and as a prefix: `{TestId}-workouts`, `{TestId}-time`, `{TestId}-sets`.
 
 ## `WeekBars`
-One bar per week, oldest on the left, height in proportion to the busiest week, on a baseline. This week is the last bar, in `--color-accent`; the others are `--color-border-strong`. A week with no workouts has no bar. Muted labels under the baseline name the oldest week and This week. The figure is named "Workouts per week, last 12 weeks" and lists each week for screen readers, e.g. *11 weeks ago: 2 workouts* … *This week: 1 workout*.
-- `data-testid`: `TestId`; `{TestId}-values` on the list.
+One bar per week, oldest on the left, height in proportion to the busiest week, on a baseline. This week is the last bar, in `--color-accent`; the others are `--color-bar-past`. A week with no workouts has no bar. Muted labels under the baseline name the oldest week and This week. The figure is named "Workouts per week, last 12 weeks" and lists each week for screen readers, e.g. *11 weeks ago: 2 workouts* … *This week: 1 workout*. With no workouts in any week, a muted "No workouts in the last 12 weeks" replaces the chart.
+- `data-testid`: `TestId`; `{TestId}-values` on the list; `{TestId}-none` on the message.
 
 ## `ConsistencyCard`
-A card with a `WeekComparison`, then "Last 12 weeks" with the streak at the right (e.g. *6-week streak*, hidden at 0) and `WeekBars`, then a `ListRow` "Muscles, last 7 days". With `OnMuscles` the row is tappable, with a chevron.
+A card with a `WeekComparison`, then "Last 12 weeks" with the streak at the right (e.g. *6-week streak*, hidden at 0) and `WeekBars`, then a `ListRow` "Sets per muscle group". With `OnMuscles` the row is tappable, with a chevron.
 - `data-testid`: `TestId`, and as a prefix: `{TestId}-comparison`, `{TestId}-streak`, `{TestId}-bars`, `{TestId}-muscles`.
 
 ## `RecentRecordsCard`

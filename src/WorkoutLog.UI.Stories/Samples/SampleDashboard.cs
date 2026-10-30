@@ -3,7 +3,7 @@ using WorkoutLog.UI.Models.Muscles;
 
 namespace WorkoutLog.UI.Stories.Samples;
 
-/// <summary>Sample data for the Dashboard cards and Muscles, last 7 days stories, and the UI tests. Today is Fri 30 Oct 2026.</summary>
+/// <summary>Sample data for the Dashboard cards and Sets per muscle group stories, and the UI tests. Today is Fri 30 Oct 2026.</summary>
 public static class SampleDashboard
 {
     private static readonly string[] Exercises = ["Barbell Bench Press", "Cable Fly", "Dumbbell Incline Press", "Cable Tricep Pushdown", "Dumbbell Lateral Raise"];

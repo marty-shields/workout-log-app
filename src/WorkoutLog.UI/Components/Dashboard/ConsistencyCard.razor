@@ -11,7 +11,7 @@
         <WeekBars Counts="WeekCounts" TestId="@($"{TestId}-bars")" />
     </div>
     <div class="muscles">
-        <ListRow Text="Muscles, last 7 days"
+        <ListRow Text="Sets per muscle group"
                  OnClick="OnMuscles"
                  TestId="@($"{TestId}-muscles")" />
     </div>
@@ -34,7 +34,7 @@
     [Parameter]
     public int Streak { get; set; }
 
-    /// <summary>Raised by the Muscles, last 7 days row. The row is not tappable when unset.</summary>
+    /// <summary>Raised by the Sets per muscle group row. The row is not tappable when unset.</summary>
     [Parameter]
     public EventCallback OnMuscles { get; set; }
 

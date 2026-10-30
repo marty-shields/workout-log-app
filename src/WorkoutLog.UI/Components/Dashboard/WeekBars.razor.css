@@ -9,7 +9,7 @@
 }
 
 .bar {
-    fill: var(--color-border-strong);
+    fill: var(--color-bar-past);
 }
 
 .this-week {
@@ -27,6 +27,11 @@
     margin-top: var(--space-1);
     color: var(--color-text-muted);
     font-size: var(--font-size-sm);
+}
+
+.none {
+    margin: 0;
+    color: var(--color-text-muted);
 }
 
 .now {

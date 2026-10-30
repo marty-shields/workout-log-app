@@ -15,7 +15,7 @@ Home screen: what you did last, how often you train, what you've beaten recently
 | Load failed | Error "Couldn't load the Dashboard" and a Secondary full-width **Try again** that reloads, instead of the cards. Focus moves to Try again. Workouts, Exercises and New Workout work. |
 | Bottom bar | New Workout, `AppButton` primary, full width. |
 
-Last workout taps through to the workout, a record to its exercise, and the Muscles, last 7 days row to [Muscles, last 7 days](./?path=/custom/screens-muscles-last-7-days-overview). Each card's content and rules are on the [Dashboard components](./?path=/custom/components-dashboard-overview) page.
+Last workout taps through to the workout, a record to its exercise, and the Sets per muscle group row to [Sets per muscle group](./?path=/custom/screens-sets-per-muscle-group-overview). Each card's content and rules are on the [Dashboard components](./?path=/custom/components-dashboard-overview) page.
 
 Until its card is built, `DashboardPage` fills `LastWorkout` with the date of the latest start (or `EmptyState` "No workouts yet") and `Consistency` with This week and This month `StatTile`s, and leaves `RecentRecords` empty. This week counts from Monday 00:00 to now, this month from the 1st at 00:00 to now.
 

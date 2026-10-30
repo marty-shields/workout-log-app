@@ -7,11 +7,15 @@ namespace WorkoutLog.UI.Tests.Screens;
 public class MusclesViewTests : ComponentTestBase
 {
     [Test]
-    public void Title_IsMusclesLast7Days()
+    public void Title_IsSetsPerMuscleGroupForTheLast7Days()
     {
         var cut = Render(SampleDashboard.SomeTrained);
 
-        Assert.That(cut.Find("[data-testid=screen-title]").TextContent, Is.EqualTo("Muscles, last 7 days"));
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.Find("[data-testid=screen-title]").TextContent, Is.EqualTo("Sets per muscle group"));
+            Assert.That(cut.Find("[data-testid=screen-subtitle]").TextContent, Is.EqualTo("Last 7 days"));
+        });
     }
 
     [Test]

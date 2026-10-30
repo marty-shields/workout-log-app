@@ -51,14 +51,14 @@ public class WeekBarsTests : ComponentTestBase
     }
 
     [Test]
-    public void AllEmpty_ShowsOnlyTheBaseline()
+    public void AllEmpty_ShowsAMessageInsteadOfTheChart()
     {
         var cut = Render(SampleDashboard.EmptyWeeks);
 
         Assert.Multiple(() =>
         {
-            Assert.That(cut.FindAll("rect"), Is.Empty);
-            Assert.That(cut.FindAll("line.baseline"), Has.Count.EqualTo(1));
+            Assert.That(cut.Find("[data-testid=bars-none]").TextContent, Is.EqualTo("No workouts in the last 12 weeks"));
+            Assert.That(cut.FindAll("figure"), Is.Empty);
         });
     }
 

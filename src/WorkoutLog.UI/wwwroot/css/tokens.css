@@ -22,6 +22,7 @@
     --color-on-danger: light-dark(#ffffff, #1e2324);
     --color-error: light-dark(#a8231c, #f2b8b5);
     --color-success: light-dark(#2e7d32, #a5d6a7);
+    --color-bar-past: light-dark(#77878b, #7d8a8c);
     --color-scrim: light-dark(rgb(0 0 0 / 0.45), rgb(0 0 0 / 0.6));
 
     --font-family: system-ui, Roboto, sans-serif;
