@@ -1,6 +1,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging.Testing;
 using Microsoft.Extensions.Time.Testing;
+using WorkoutLog.Core.Domain.Exercises.Bests;
 using WorkoutLog.Core.Domain.Workouts;
 using WorkoutLog.Core.Services;
 using WorkoutLog.UI.Lifecycle;
@@ -12,21 +13,29 @@ public class DashboardPageTests : ComponentTestBase
 {
     private static readonly DashboardResult Failed = new(null, 0, 0, Failed: true);
 
+    /// <summary>Fri 23 Oct 2026, 22:30 UTC.</summary>
+    private static readonly DateTimeOffset Now = new(2026, 10, 23, 22, 30, 0, TimeSpan.Zero);
+
+    private static readonly DashboardResult Loaded = new(Now.AddDays(-1), 1, 1, Failed: false);
+
     private FakeDashboardService dashboard = null!;
     private FakeLastWorkoutService lastWorkout = null!;
+    private FakeRecentRecordsService recentRecords = null!;
     private FakeLogger<AppLifecycle> lifecycleLogger = null!;
     private AppLifecycle lifecycle = null!;
 
     [SetUp]
     public void SetUp()
     {
-        var clock = new FakeTimeProvider(new DateTimeOffset(2026, 10, 23, 22, 30, 0, TimeSpan.Zero));
+        var clock = new FakeTimeProvider(Now);
         clock.SetLocalTimeZone(TimeZoneInfo.CreateCustomTimeZone("UTC+1", TimeSpan.FromHours(1), "UTC+1", "UTC+1"));
         Context.Services.AddSingleton<TimeProvider>(clock);
         dashboard = new FakeDashboardService();
         Context.Services.AddSingleton<IDashboardService>(dashboard);
         lastWorkout = new FakeLastWorkoutService();
         Context.Services.AddSingleton<ILastWorkoutService>(lastWorkout);
+        recentRecords = new FakeRecentRecordsService();
+        Context.Services.AddSingleton<IRecentRecordsService>(recentRecords);
         lifecycleLogger = new FakeLogger<AppLifecycle>();
         lifecycle = new AppLifecycle(lifecycleLogger);
         Context.Services.AddSingleton<IAppStart>(lifecycle);
@@ -337,6 +346,101 @@ public class DashboardPageTests : ComponentTestBase
         Assert.That(BackButton.HasHandler, Is.False);
     }
 
+    [Test]
+    public void WhileLoading_ShowsNoRecordsCard()
+    {
+        var cut = Context.Render<DashboardPage>();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.FindAll("[data-testid=recent-records]"), Is.Empty);
+            Assert.That(recentRecords.Calls, Is.EqualTo(1));
+        });
+    }
+
+    [Test]
+    public async Task Loaded_ShowsTheRecordsInOrderWithTheirBestAndDaysAgoInThePhonesTimeZone()
+    {
+        recentRecords.Result = new RecentRecordsResult(
+        [
+            new ExerciseRecord(6, new DateTimeOffset(2026, 10, 22, 23, 30, 0, TimeSpan.Zero), new ExerciseBest(70m, 3, null, null)),
+            new ExerciseRecord(311, Now.AddDays(-2), new ExerciseBest(null, null, null, 5.2m)),
+        ], Failed: false);
+        var cut = Context.Render<DashboardPage>();
+
+        dashboard.Complete(Loaded);
+        await WaitForRendererAsync();
+
+        cut.WaitForAssertion(() => Assert.That(cut.FindAll("[data-testid^=recent-records-row-]")
+                .Select(r => (r.GetAttribute("data-testid"), r.QuerySelector(".text")!.TextContent, r.QuerySelector(".detail")!.TextContent)),
+            Is.EqualTo(new[]
+            {
+                ("recent-records-row-6", "Barbell Back Squat · 70kg × 3", "Today"),
+                ("recent-records-row-311", "Outdoor Run · 5.2km", "2 days ago"),
+            })));
+    }
+
+    [Test]
+    public async Task NoRecords_SaysSo()
+    {
+        var cut = Context.Render<DashboardPage>();
+
+        dashboard.Complete(Loaded);
+        await WaitForRendererAsync();
+
+        cut.WaitForAssertion(() =>
+            Assert.That(cut.Find("[data-testid=recent-records-none]").TextContent, Is.EqualTo("No new records in the last 30 days")));
+    }
+
+    [Test]
+    public async Task RecordsFailToLoad_ShowsNoRecordsCardAndTheRestOfTheDashboard()
+    {
+        recentRecords.Result = new RecentRecordsResult([], Failed: true);
+        var cut = Context.Render<DashboardPage>();
+
+        dashboard.Complete(Loaded);
+        await WaitForRendererAsync();
+
+        cut.WaitForAssertion(() => Assert.That(cut.FindAll("[data-testid=last-workout]"), Has.Count.EqualTo(1)));
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.FindAll("[data-testid=recent-records]"), Is.Empty);
+            Assert.That(cut.FindAll("[data-testid=dashboard-error]"), Is.Empty);
+        });
+    }
+
+    [Test]
+    public async Task Record_Tapped_RaisesOnOpenExerciseWithItsId()
+    {
+        recentRecords.Result = new RecentRecordsResult([new ExerciseRecord(6, Now.AddDays(-1), new ExerciseBest(70m, 3, null, null))], Failed: false);
+        int? opened = null;
+        var cut = Context.Render<DashboardPage>(p => p.Add(x => x.OnOpenExercise, id => opened = id));
+        dashboard.Complete(Loaded);
+        await WaitForRendererAsync();
+
+        cut.WaitForElement("button[data-testid=recent-records-row-6]").Click();
+
+        Assert.That(opened, Is.EqualTo(6));
+    }
+
+    [Test]
+    public async Task AppStarted_ReloadsTheRecords()
+    {
+        var cut = Context.Render<DashboardPage>();
+        dashboard.Complete(Loaded);
+        await WaitForRendererAsync();
+        cut.WaitForAssertion(() => Assert.That(cut.FindAll("[data-testid=recent-records-none]"), Has.Count.EqualTo(1)));
+        recentRecords.Result = new RecentRecordsResult([new ExerciseRecord(6, Now.AddDays(-1), new ExerciseBest(70m, 3, null, null))], Failed: false);
+
+        var started = lifecycle.NotifyStartedAsync();
+        dashboard.Complete(Loaded);
+        await WaitForRendererAsync();
+        await started;
+
+        cut.WaitForAssertion(() => Assert.That(cut.FindAll("[data-testid=recent-records-row-6]"), Has.Count.EqualTo(1)));
+        Assert.That(recentRecords.Calls, Is.EqualTo(2));
+    }
+
     /// <summary>Workout 42, 1:12:04 long, with the exercises in order.</summary>
     private static LastWorkoutResult Last(DateTimeOffset startedAt, int[] exerciseIds) =>
         new(new WorkoutOutline(42, startedAt, startedAt + new TimeSpan(1, 12, 4), exerciseIds), Failed: false);
@@ -345,6 +449,20 @@ public class DashboardPageTests : ComponentTestBase
 
     private IReadOnlyList<JSRuntimeInvocation> Focuses() =>
         Context.JSInterop.Invocations["Blazor._internal.domWrapper.focus"];
+
+    /// <summary>Returns <see cref="Result"/> at once; no records by default.</summary>
+    private sealed class FakeRecentRecordsService : IRecentRecordsService
+    {
+        public RecentRecordsResult Result { get; set; } = new([], Failed: false);
+
+        public int Calls { get; private set; }
+
+        public Task<RecentRecordsResult> GetAsync()
+        {
+            Calls++;
+            return Task.FromResult(Result);
+        }
+    }
 
     /// <summary>Each call waits until the test completes it.</summary>
     private sealed class FakeDashboardService : IDashboardService

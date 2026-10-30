@@ -19,10 +19,12 @@ Last workout taps through to the workout, a record to its exercise, and the Sets
 
 `DashboardPage` fills `LastWorkout` from `ILastWorkoutService`: the workout with the latest start, its days since in calendar days in the phone's time zone (a start after today shows Today), finish − start as the duration, and its exercises in the workout's order. Back from the [Edit Workout](./?path=/custom/screens-edit-workout-overview) it opens returns to the Dashboard. If the last workout or the counts fail to load, the Dashboard shows Load failed.
 
-Until its card is built, `DashboardPage` fills `Consistency` with This week and This month `StatTile`s, and leaves `RecentRecords` empty. This week counts from Monday 00:00 to now, this month from the 1st at 00:00 to now.
+Until its card is built, `DashboardPage` fills `Consistency` with This week and This month `StatTile`s. This week counts from Monday 00:00 to now, this month from the 1st at 00:00 to now.
+
+Recent records: `DashboardPage` fills `RecentRecords` from `IRecentRecordsService`, loaded with the rest of the Dashboard. A record is a session whose best beats the exercise's best in every earlier session, the best being the one the Exercises list shows: lift heaviest, tie → most reps; bodyweight heaviest, unweighted being 0 kg, tie → most reps; assisted least assist, tie → most reps; hold longest; carry heaviest, tie → farthest; cardio distance, else duration. A tie isn't a record, and an exercise's first session isn't one. The card shows records from sessions started today or in the 29 days before, in the phone's time zone and not after now: the latest per exercise, newest first, exercises from the same workout A–Z, up to 3. Tapping one opens its [Exercise](./?path=/custom/screens-exercise-overview) page, and back returns to the Dashboard. If the records fail to load, the slot is empty.
 
 Loads each time it shows, and again when the app comes back on screen.
 
 States: [With workouts](./?path=/story/screens-dashboard--with-workouts) · [First workout](./?path=/story/screens-dashboard--first-workout) · [No workouts](./?path=/story/screens-dashboard--no-workouts) · [Loading](./?path=/story/screens-dashboard--loading) · [Load failed](./?path=/story/screens-dashboard--load-failed)
 
-`data-testid`: `last-workout`, `consistency`, `recent-records` (with the cards' own as prefixes), `workouts-link`, `exercises-link`, `new-workout`, `dashboard-loading`, `dashboard-error`, `dashboard-retry`, `settings`. `DashboardPage` today: `count-week`, `count-month`.
+`data-testid`: `last-workout`, `consistency`, `recent-records` (with the cards' own as prefixes), `workouts-link`, `exercises-link`, `new-workout`, `dashboard-loading`, `dashboard-error`, `dashboard-retry`, `settings`. `DashboardPage` today: `count-week`, `count-month`, `recent-records`.

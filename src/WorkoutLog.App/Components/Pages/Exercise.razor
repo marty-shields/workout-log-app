@@ -2,8 +2,11 @@
 @using WorkoutLog.UI.Screens
 @inject NavigationManager Navigation
 
-<ExercisePage ExerciseId="Id" OnBack="@(() => Navigation.GoTo("exercises"))" />
+<ExercisePage ExerciseId="Id" OnBack="@(() => Navigation.GoTo(From == "dashboard" ? string.Empty : "exercises"))" />
 
 @code {
     [Parameter] public int Id { get; set; }
+
+    /// <summary>"dashboard" when opened from the Dashboard: back returns there instead of to Exercises.</summary>
+    [SupplyParameterFromQuery] public string? From { get; set; }
 }
