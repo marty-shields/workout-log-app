@@ -231,12 +231,12 @@ public class DashboardPageTests : ComponentTestBase
         await WaitForRendererAsync();
         cut.WaitForAssertion(() => Assert.That(cut.FindAll("[data-testid=consistency]"), Has.Count.EqualTo(1)));
 
+        consistency.Result = Consistency(new WeekTally(1, TimeSpan.FromMinutes(52), 16), WeekTally.None, [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1], 1);
         var started = lifecycle.NotifyStartedAsync();
 
         cut.WaitForAssertion(() => Assert.That(cut.FindAll("[data-testid=dashboard-loading]"), Has.Count.EqualTo(1)));
         Assert.That(dashboard.Calls, Is.EqualTo(2));
 
-        consistency.Result = Consistency(new WeekTally(1, TimeSpan.FromMinutes(52), 16), WeekTally.None, [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1], 1);
         dashboard.Complete(new DashboardResult(null, 3, 5, Failed: false));
         await WaitForRendererAsync();
         await started;
