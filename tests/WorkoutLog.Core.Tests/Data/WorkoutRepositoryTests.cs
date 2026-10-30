@@ -271,6 +271,41 @@ public class WorkoutRepositoryTests
     }
 
     [Test]
+    public async Task ListTalliesAsync_CountsStrengthSetsNotCardioEntries()
+    {
+        await repository.AddAsync(new NewWorkout(Start, Finish, Exercises()));
+        await repository.AddAsync(new NewWorkout(Start.AddHours(2), Finish.AddHours(2), [new CardioExercise(300, Entry())]));
+        await repository.AddAsync(new NewWorkout(Start.AddHours(4), Finish.AddHours(4), []));
+
+        Assert.That(await repository.ListTalliesAsync(Start, Start.AddHours(4)), Is.EqualTo(new[]
+        {
+            new WorkoutTally(Start, Finish, 3),
+            new WorkoutTally(Start.AddHours(2), Finish.AddHours(2), 0),
+            new WorkoutTally(Start.AddHours(4), Finish.AddHours(4), 0),
+        }));
+    }
+
+    [Test]
+    public async Task ListTalliesAsync_ReturnsStartsFromToInclusiveOldestFirst()
+    {
+        await AddStartsAsync(1, -2, 0, -1, 2);
+
+        var tallies = await repository.ListTalliesAsync(Start.AddHours(-1).ToOffset(TimeSpan.FromHours(1)), Start.AddHours(1));
+
+        Assert.That(tallies.Select(t => t.StartedAt), Is.EqualTo(new[] { Start.AddHours(-1), Start, Start.AddHours(1) }));
+    }
+
+    [Test]
+    public async Task ListTalliesAsync_TimesReadBackAsUtc()
+    {
+        await repository.AddAsync(new NewWorkout(Start.ToOffset(TimeSpan.FromHours(1)), Finish.ToOffset(TimeSpan.FromHours(1)), []));
+
+        var tally = (await repository.ListTalliesAsync(Start, Start)).Single();
+
+        Assert.That((tally.StartedAt.Offset, tally.FinishedAt.Offset), Is.EqualTo((TimeSpan.Zero, TimeSpan.Zero)));
+    }
+
+    [Test]
     public async Task StartedAtIndex_ServesTheListOrderWithoutASort()
     {
         var plan = (await connection.QueryAsync<QueryPlanRow>(

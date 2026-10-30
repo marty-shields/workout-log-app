@@ -102,6 +102,24 @@ internal sealed class WorkoutRepository(SQLiteAsyncConnection connection, IWorko
     }
 
     /// <inheritdoc />
+    public async Task<IReadOnlyList<WorkoutTally>> ListTalliesAsync(DateTimeOffset from, DateTimeOffset to)
+    {
+        const string sql = """
+            SELECT w.StartedAt, w.FinishedAt, COUNT(s.Id) AS Sets
+            FROM Workout w
+            LEFT JOIN WorkoutExercise e ON e.WorkoutId = w.Id
+            LEFT JOIN StrengthSet s ON s.WorkoutExerciseId = e.Id
+            WHERE w.StartedAt >= ? AND w.StartedAt <= ?
+            GROUP BY w.Id
+            ORDER BY w.StartedAt
+            """;
+        var rows = await connection.QueryAsync<TallyRow>(sql, from, to);
+        return rows.Select(r => new WorkoutTally(
+                new DateTimeOffset(r.StartedAt, TimeSpan.Zero), new DateTimeOffset(r.FinishedAt, TimeSpan.Zero), r.Sets))
+            .ToList();
+    }
+
+    /// <inheritdoc />
     public async Task<IReadOnlyList<WorkoutWeights>> GetWeightsAsync(int exerciseId)
     {
         const string sql = """
@@ -213,6 +231,16 @@ internal sealed class WorkoutRepository(SQLiteAsyncConnection connection, IWorko
         public long FinishedAt { get; set; }
 
         public int? ExerciseId { get; set; }
+    }
+
+    /// <summary>A workout's start and finish, in UTC ticks, and its strength set count.</summary>
+    private sealed class TallyRow
+    {
+        public long StartedAt { get; set; }
+
+        public long FinishedAt { get; set; }
+
+        public int Sets { get; set; }
     }
 
     /// <summary>A workout exercise row with its workout's start, in UTC ticks.</summary>

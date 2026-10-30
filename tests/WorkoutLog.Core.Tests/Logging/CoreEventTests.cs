@@ -39,6 +39,8 @@ public class CoreEventTests
             [CoreEvent.LastWorkoutLoaded] = 1410,
             [CoreEvent.LastWorkoutLoadFailed] = 1411,
             [CoreEvent.LastWorkoutUnknownExercise] = 1412,
+            [CoreEvent.ConsistencyLoaded] = 1420,
+            [CoreEvent.ConsistencyLoadFailed] = 1421,
             [CoreEvent.RecentRecordsLoaded] = 1441,
             [CoreEvent.RecentRecordsLoadFailed] = 1442,
             [CoreEvent.RecentRecordsUnknownExercise] = 1443,

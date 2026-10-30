@@ -3,9 +3,12 @@ using Microsoft.Extensions.Logging.Testing;
 using Microsoft.Extensions.Time.Testing;
 using WorkoutLog.Core.Domain.Exercises.Bests;
 using WorkoutLog.Core.Domain.Workouts;
+using WorkoutLog.Core.Domain.Workouts.Consistency;
 using WorkoutLog.Core.Services;
+using WorkoutLog.UI.Components.Dashboard;
 using WorkoutLog.UI.Lifecycle;
 using WorkoutLog.UI.Screens;
+using CoreComparison = WorkoutLog.Core.Domain.Workouts.Consistency.WeekComparison;
 
 namespace WorkoutLog.UI.Tests.Screens;
 
@@ -22,6 +25,7 @@ public class DashboardPageTests : ComponentTestBase
     private FakeDashboardService dashboard = null!;
     private FakeLastWorkoutService lastWorkout = null!;
     private FakeRecentRecordsService recentRecords = null!;
+    private FakeConsistencyService consistency = null!;
     private FakeLogger<AppLifecycle> lifecycleLogger = null!;
     private AppLifecycle lifecycle = null!;
 
@@ -37,6 +41,8 @@ public class DashboardPageTests : ComponentTestBase
         Context.Services.AddSingleton<ILastWorkoutService>(lastWorkout);
         recentRecords = new FakeRecentRecordsService();
         Context.Services.AddSingleton<IRecentRecordsService>(recentRecords);
+        consistency = new FakeConsistencyService();
+        Context.Services.AddSingleton<IConsistencyService>(consistency);
         lifecycleLogger = new FakeLogger<AppLifecycle>();
         lifecycle = new AppLifecycle(lifecycleLogger);
         Context.Services.AddSingleton<IAppStart>(lifecycle);
@@ -51,7 +57,7 @@ public class DashboardPageTests : ComponentTestBase
         {
             Assert.That(cut.FindAll("[data-testid=dashboard-loading]"), Has.Count.EqualTo(1));
             Assert.That(cut.FindAll("[data-testid=last-workout-empty]"), Is.Empty);
-            Assert.That(cut.FindAll("[data-testid=count-week]"), Is.Empty);
+            Assert.That(cut.FindAll("[data-testid=consistency]"), Is.Empty);
             Assert.That(cut.FindAll("[data-testid=workouts-link]"), Has.Count.EqualTo(1));
             Assert.That(cut.FindAll("[data-testid=exercises-link]"), Has.Count.EqualTo(1));
             Assert.That(cut.FindAll("[data-testid=new-workout]"), Has.Count.EqualTo(1));
@@ -60,23 +66,31 @@ public class DashboardPageTests : ComponentTestBase
     }
 
     [Test]
-    public async Task Loaded_ShowsTheLastWorkoutInThePhonesTimeZoneAndTheCounts()
+    public async Task Loaded_ShowsTheLastWorkoutInThePhonesTimeZoneAndTheConsistencyCard()
     {
         lastWorkout.Result = Last(new DateTimeOffset(2026, 10, 20, 23, 30, 0, TimeSpan.Zero), [187, 300, 1]);
+        consistency.Result = Consistency(new WeekTally(3, new TimeSpan(3, 5, 0), 42), new WeekTally(2, new TimeSpan(2, 40, 0), 45), [2, 3, 1, 2, 3, 0, 3, 4, 2, 3, 2, 3], 6);
         var cut = Context.Render<DashboardPage>();
 
         dashboard.Complete(new DashboardResult(null, 2, 7, Failed: false));
         await WaitForRendererAsync();
 
         cut.WaitForAssertion(() => Assert.That(cut.Find("[data-testid=last-workout-date]").TextContent, Is.EqualTo("Wed 21 Oct 2026")));
+        var card = cut.FindComponent<ConsistencyCard>().Instance;
         Assert.Multiple(() =>
         {
             Assert.That(cut.Find("[data-testid=last-workout-when]").TextContent, Is.EqualTo("2 days ago · 1:12:04"));
             Assert.That(cut.Find("[data-testid=last-workout-exercises]").TextContent, Is.EqualTo($"Farmer's Walk, {Name(300)} +1"));
-            Assert.That(cut.Find("[data-testid=count-week] .value").TextContent, Is.EqualTo("2"));
-            Assert.That(cut.Find("[data-testid=count-month] .value").TextContent, Is.EqualTo("7"));
+            Assert.That(card.ThisWeek, Is.EqualTo(new WeekTotals(3, new TimeSpan(3, 5, 0), 42)));
+            Assert.That(card.LastWeek, Is.EqualTo(new WeekTotals(2, new TimeSpan(2, 40, 0), 45)));
+            Assert.That(card.WeekCounts, Is.EqualTo(new[] { 2, 3, 1, 2, 3, 0, 3, 4, 2, 3, 2, 3 }));
+            Assert.That(card.OnMuscles.HasDelegate, Is.False);
+            Assert.That(cut.Find("[data-testid=consistency-streak]").TextContent, Is.EqualTo("6-week streak"));
+            Assert.That(cut.Find("[data-testid=consistency-comparison-time]").TextContent, Does.Contain("3h 05m"));
+            Assert.That(cut.FindAll("[data-testid=count-week]"), Is.Empty);
             Assert.That(cut.FindAll("[data-testid=dashboard-loading]"), Is.Empty);
             Assert.That(lastWorkout.Calls, Is.EqualTo(1));
+            Assert.That(consistency.Calls, Is.EqualTo(1));
         });
     }
 
@@ -124,7 +138,20 @@ public class DashboardPageTests : ComponentTestBase
     }
 
     [Test]
-    public async Task NoWorkouts_ShowsTheEmptyStateNotTappableAndZeroCounts()
+    public async Task ConsistencyLoadFails_ShowsTheError()
+    {
+        consistency.Result = ConsistencyResult.FailedRead;
+        var cut = Context.Render<DashboardPage>();
+
+        dashboard.Complete(new DashboardResult(null, 0, 0, Failed: false));
+        await WaitForRendererAsync();
+
+        cut.WaitForAssertion(() => Assert.That(cut.Find("[data-testid=dashboard-error]").TextContent, Is.EqualTo("Couldn't load the Dashboard")));
+        Assert.That(cut.FindAll("[data-testid=consistency]"), Is.Empty);
+    }
+
+    [Test]
+    public async Task NoWorkouts_ShowsTheEmptyStateNotTappableAndAnEmptyConsistencyCard()
     {
         var cut = Context.Render<DashboardPage>();
 
@@ -135,7 +162,9 @@ public class DashboardPageTests : ComponentTestBase
         Assert.Multiple(() =>
         {
             Assert.That(cut.FindAll("button[data-testid=last-workout]"), Is.Empty);
-            Assert.That(cut.Find("[data-testid=count-week] .value").TextContent, Is.EqualTo("0"));
+            Assert.That(cut.Find("[data-testid=consistency-bars-none]").TextContent, Is.EqualTo("No workouts in the last 12 weeks"));
+            Assert.That(cut.FindAll("[data-testid=consistency-streak]"), Is.Empty);
+            Assert.That(cut.FindComponent<ConsistencyCard>().Instance.ThisWeek, Is.EqualTo(new WeekTotals(0, TimeSpan.Zero, 0)));
         });
     }
 
@@ -191,7 +220,7 @@ public class DashboardPageTests : ComponentTestBase
         dashboard.Complete(new DashboardResult(null, 1, 1, Failed: false));
         await WaitForRendererAsync();
 
-        cut.WaitForAssertion(() => Assert.That(cut.Find("[data-testid=count-week] .value").TextContent, Is.EqualTo("1")));
+        cut.WaitForAssertion(() => Assert.That(cut.FindAll("[data-testid=consistency]"), Has.Count.EqualTo(1)));
         Assert.That(cut.FindAll("[data-testid=dashboard-error]"), Is.Empty);
     }
 
@@ -201,19 +230,20 @@ public class DashboardPageTests : ComponentTestBase
         var cut = Context.Render<DashboardPage>();
         dashboard.Complete(new DashboardResult(null, 1, 1, Failed: false));
         await WaitForRendererAsync();
-        cut.WaitForAssertion(() => Assert.That(cut.FindAll("[data-testid=count-week]"), Has.Count.EqualTo(1)));
+        cut.WaitForAssertion(() => Assert.That(cut.FindAll("[data-testid=consistency]"), Has.Count.EqualTo(1)));
 
         var started = lifecycle.NotifyStartedAsync();
 
         cut.WaitForAssertion(() => Assert.That(cut.FindAll("[data-testid=dashboard-loading]"), Has.Count.EqualTo(1)));
         Assert.That(dashboard.Calls, Is.EqualTo(2));
 
+        consistency.Result = Consistency(new WeekTally(1, TimeSpan.FromMinutes(52), 16), WeekTally.None, [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1], 1);
         dashboard.Complete(new DashboardResult(null, 3, 5, Failed: false));
         await WaitForRendererAsync();
         await started;
 
-        cut.WaitForAssertion(() => Assert.That(cut.Find("[data-testid=count-week] .value").TextContent, Is.EqualTo("3")));
-        Assert.That(cut.Find("[data-testid=count-month] .value").TextContent, Is.EqualTo("5"));
+        cut.WaitForAssertion(() => Assert.That(cut.Find("[data-testid=consistency-streak]").TextContent, Is.EqualTo("1-week streak")));
+        Assert.That(consistency.Calls, Is.EqualTo(2));
     }
 
     [Test]
@@ -222,7 +252,7 @@ public class DashboardPageTests : ComponentTestBase
         var cut = Context.Render<DashboardPage>();
         dashboard.Complete(new DashboardResult(null, 1, 1, Failed: false));
         await WaitForRendererAsync();
-        cut.WaitForAssertion(() => Assert.That(cut.FindAll("[data-testid=count-week]"), Has.Count.EqualTo(1)));
+        cut.WaitForAssertion(() => Assert.That(cut.FindAll("[data-testid=consistency]"), Has.Count.EqualTo(1)));
 
         var started = lifecycle.NotifyStartedAsync();
         dashboard.Complete(Failed);
@@ -248,7 +278,7 @@ public class DashboardPageTests : ComponentTestBase
         var cut = Context.Render<DashboardPage>();
         dashboard.Complete(new DashboardResult(null, 0, 0, Failed: false));
         await WaitForRendererAsync();
-        cut.WaitForAssertion(() => Assert.That(cut.FindAll("[data-testid=count-week]"), Has.Count.EqualTo(1)));
+        cut.WaitForAssertion(() => Assert.That(cut.FindAll("[data-testid=consistency]"), Has.Count.EqualTo(1)));
 
         await Context.DisposeComponentsAsync();
         await lifecycle.NotifyStartedAsync();
@@ -280,7 +310,7 @@ public class DashboardPageTests : ComponentTestBase
         var cut = Context.Render<DashboardPage>();
         dashboard.Complete(new DashboardResult(null, 0, 0, Failed: false));
         await WaitForRendererAsync();
-        cut.WaitForAssertion(() => Assert.That(cut.FindAll("[data-testid=count-week]"), Has.Count.EqualTo(1)));
+        cut.WaitForAssertion(() => Assert.That(cut.FindAll("[data-testid=consistency]"), Has.Count.EqualTo(1)));
         var started = lifecycle.NotifyStartedAsync();
         cut.WaitForAssertion(() => Assert.That(dashboard.Calls, Is.EqualTo(2)));
 
@@ -299,7 +329,7 @@ public class DashboardPageTests : ComponentTestBase
         var cut = Context.Render<DashboardPage>();
         dashboard.Complete(new DashboardResult(null, 0, 0, Failed: false));
         await WaitForRendererAsync();
-        cut.WaitForAssertion(() => Assert.That(cut.FindAll("[data-testid=count-week]"), Has.Count.EqualTo(1)));
+        cut.WaitForAssertion(() => Assert.That(cut.FindAll("[data-testid=consistency]"), Has.Count.EqualTo(1)));
 
         var started = lifecycle.NotifyStartedAsync();
 
@@ -462,6 +492,9 @@ public class DashboardPageTests : ComponentTestBase
 
     private static string Name(int exerciseId) => Catalog.All.Single(e => e.Id == exerciseId).Name;
 
+    private static ConsistencyResult Consistency(WeekTally thisWeek, WeekTally lastWeek, int[] weekCounts, int streak) =>
+        new(new CoreComparison(thisWeek, lastWeek), weekCounts, streak, Failed: false);
+
     private IReadOnlyList<JSRuntimeInvocation> Focuses() =>
         Context.JSInterop.Invocations["Blazor._internal.domWrapper.focus"];
 
@@ -505,6 +538,20 @@ public class DashboardPageTests : ComponentTestBase
         public int Calls { get; private set; }
 
         public Task<LastWorkoutResult> GetAsync()
+        {
+            Calls++;
+            return Task.FromResult(Result);
+        }
+    }
+
+    /// <summary>Returns <see cref="Result"/> at once; no workouts by default.</summary>
+    private sealed class FakeConsistencyService : IConsistencyService
+    {
+        public ConsistencyResult Result { get; set; } = Consistency(WeekTally.None, WeekTally.None, new int[12], 0);
+
+        public int Calls { get; private set; }
+
+        public Task<ConsistencyResult> GetAsync()
         {
             Calls++;
             return Task.FromResult(Result);

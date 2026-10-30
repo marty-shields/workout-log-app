@@ -1,5 +1,6 @@
 @using WorkoutLog.Core.Domain.Exercises
 @using WorkoutLog.Core.Domain.Workouts
+@using WorkoutLog.Core.Domain.Workouts.Consistency
 @using WorkoutLog.Core.Services
 @using WorkoutLog.UI.Components.Dashboard
 @using WorkoutLog.UI.Lifecycle
@@ -9,6 +10,7 @@
 @inject ILastWorkoutService LastWorkoutService
 @inject IRecentRecordsService RecentRecordsService
 @inject IExerciseCatalog Catalog
+@inject IConsistencyService ConsistencyService
 @inject TimeProvider Clock
 @inject IAppStart AppStart
 
@@ -17,10 +19,11 @@
         <LastWorkoutCard Workout="last?.Card" OnOpen="OpenLastWorkoutAsync" TestId="last-workout" />
     </LastWorkout>
     <Consistency>
-        <div class="stats">
-            <StatTile Label="This week" Value="summary.ThisWeek" TestId="count-week" />
-            <StatTile Label="This month" Value="summary.ThisMonth" TestId="count-month" />
-        </div>
+        <ConsistencyCard ThisWeek="Totals(consistency.Comparison.ThisWeek)"
+                         LastWeek="Totals(consistency.Comparison.LastWeek)"
+                         WeekCounts="consistency.WeekCounts"
+                         Streak="consistency.Streak"
+                         TestId="consistency" />
     </Consistency>
     <RecentRecords>
         @if (records is not null)
@@ -34,6 +37,7 @@
     private DashboardSummary summary = new(0, 0);
     private (int Id, LastWorkout Card)? last;
     private IReadOnlyList<RecentRecord>? records;
+    private ConsistencyResult consistency = ConsistencyResult.FailedRead;
     private bool loading;
     private bool failed;
     private IDisposable? registration;
@@ -75,7 +79,7 @@
         registration?.Dispose();
     }
 
-    /// <summary>Loads the last workout, counts and recent records. Shows the spinner until all finish, and the error if the last workout or counts fail. Records that fail to load leave their slot empty. Does nothing more once the page is disposed.</summary>
+    /// <summary>Loads the last workout, counts, the Consistency card and recent records. Shows the spinner until all finish, and the error if the last workout, counts or Consistency card fail. Records that fail to load leave their slot empty. Does nothing more once the page is disposed.</summary>
     private async Task LoadAsync()
     {
         if (loading)
@@ -87,9 +91,11 @@
         StateHasChanged();
         var summaryLoad = Dashboard.GetAsync();
         var lastLoad = LastWorkoutService.GetAsync();
+        var consistencyLoad = ConsistencyService.GetAsync();
         var recordsLoad = RecentRecordsService.GetAsync();
         var result = await summaryLoad;
         var lastResult = await lastLoad;
+        var consistencyResult = await consistencyLoad;
         var recent = await recordsLoad;
         if (disposed)
         {
@@ -98,8 +104,9 @@
 
         summary = new DashboardSummary(result.ThisWeek, result.ThisMonth);
         last = lastResult.Workout is { } workout ? (workout.Id, Card(workout)) : null;
+        consistency = consistencyResult;
         records = recent.Failed ? null : RecentRecordItems.Items(recent.Records, Catalog, Clock.LocalTimeZone, recent.Now);
-        failed = result.Failed || lastResult.Failed;
+        failed = result.Failed || lastResult.Failed || consistencyResult.Failed;
         loading = false;
     }
 
@@ -120,6 +127,8 @@
     private static int CalendarDaysSinceOrZeroIfLater(DateTime startedAt, DateTime today) => Math.Max(0, (today - startedAt.Date).Days);
 
     private Task OpenLastWorkoutAsync() => last is { } shown ? OnOpenWorkout.InvokeAsync(shown.Id) : Task.CompletedTask;
+
+    private static WeekTotals Totals(WeekTally tally) => new(tally.Workouts, tally.Time, tally.Sets);
 
     /// <summary>Loads again when the app comes back on screen. Does nothing once the page is disposed, before or during the load.</summary>
     private async Task ReloadAsync()
