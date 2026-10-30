@@ -37,4 +37,18 @@ public class CardioBestRuleTests
     public void Best_ExerciseWithoutDistance_IsTheDuration() =>
         Assert.That(rule.Best(Definition(JumpRope), Entry(JumpRope, TimeSpan.FromMinutes(10), null)),
             Is.EqualTo(new ExerciseBest(null, null, TimeSpan.FromMinutes(10), null)));
+
+    [TestCase(5.2, 5.0, 1)]
+    [TestCase(5.0, 5.2, -1)]
+    [TestCase(5.2, 5.2, 0)]
+    public void Compare_Distance_FartherWins(decimal x, decimal y, int expected) =>
+        Assert.That(Math.Sign(rule.Compare(new ExerciseBest(null, null, null, x), new ExerciseBest(null, null, null, y))), Is.EqualTo(expected));
+
+    [TestCase(30, 25, 1)]
+    [TestCase(25, 30, -1)]
+    [TestCase(30, 30, 0)]
+    public void Compare_Duration_LongerWins(int xMinutes, int yMinutes, int expected) =>
+        Assert.That(Math.Sign(rule.Compare(
+                new ExerciseBest(null, null, TimeSpan.FromMinutes(xMinutes), null), new ExerciseBest(null, null, TimeSpan.FromMinutes(yMinutes), null))),
+            Is.EqualTo(expected));
 }

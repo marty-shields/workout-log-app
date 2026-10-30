@@ -43,6 +43,25 @@ public sealed class DashboardScreen(WebView web)
 
     public void NewWorkout() => web.Tap("new-workout");
 
+    /// <summary>Each Recent records row's text and how long ago, in order, once the card shows.</summary>
+    public IReadOnlyList<(string Record, string When)> Records()
+    {
+        web.WaitUntil(() => web.Exists("recent-records"), "the Recent records card didn't show");
+        return web.FindAll("[data-testid^=\"recent-records-row-\"]")
+            .Select(r => (r.FindElement(By.CssSelector(".text")).Text.Trim(), r.FindElement(By.CssSelector(".detail")).Text.Trim()))
+            .ToList();
+    }
+
+    /// <summary>The Recent records card's message when it has none; null while it has rows.</summary>
+    public string? NoRecordsText()
+    {
+        web.WaitUntil(() => web.Exists("recent-records"), "the Recent records card didn't show");
+        return Read("recent-records-none");
+    }
+
+    /// <summary>Taps the Recent records row of the exercise.</summary>
+    public void OpenRecord(int exerciseId) => web.Tap($"recent-records-row-{exerciseId}");
+
     private string Count(string testId) => web.Find(testId).FindElement(By.CssSelector(".value")).Text.Trim();
 
     private string? Read(string testId) => web.Exists(testId) ? web.Text(testId) : null;

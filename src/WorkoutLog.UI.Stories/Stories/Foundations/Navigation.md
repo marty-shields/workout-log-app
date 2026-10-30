@@ -11,6 +11,7 @@ The app opens on [Startup](./?path=/custom/screens-startup-overview), then the D
 | Dashboard | New Workout | New Workout |
 | Dashboard | Workouts | Workouts |
 | Dashboard | Exercises | Exercises |
+| Dashboard | Tap a recent record | Exercise |
 | Dashboard | Settings gear | Settings |
 | Dashboard | Last workout | Edit Workout |
 | Dashboard | Back | Leaves the app |
@@ -18,7 +19,7 @@ The app opens on [Startup](./?path=/custom/screens-startup-overview), then the D
 | Workouts | Back | Dashboard |
 | Exercises | Tap a row | Exercise |
 | Exercises | Back | Dashboard |
-| Exercise | Back | Exercises |
+| Exercise | Back | Exercises, or the Dashboard when opened from it |
 | Settings | Back | Dashboard |
 | Settings | Import, then pick a file | Import Review |
 | Import Review | Import, or Replace all then Replace | Settings |

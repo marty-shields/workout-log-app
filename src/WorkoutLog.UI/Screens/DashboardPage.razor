@@ -7,6 +7,7 @@
 @implements IDisposable
 @inject IDashboardService Dashboard
 @inject ILastWorkoutService LastWorkoutService
+@inject IRecentRecordsService RecentRecordsService
 @inject IExerciseCatalog Catalog
 @inject TimeProvider Clock
 @inject IAppStart AppStart
@@ -21,11 +22,18 @@
             <StatTile Label="This month" Value="summary.ThisMonth" TestId="count-month" />
         </div>
     </Consistency>
+    <RecentRecords>
+        @if (records is not null)
+        {
+            <RecentRecordsCard Records="records" OnOpen="OnOpenExercise" TestId="recent-records" />
+        }
+    </RecentRecords>
 </DashboardView>
 
 @code {
     private DashboardSummary summary = new(0, 0);
     private (int Id, LastWorkout Card)? last;
+    private IReadOnlyList<RecentRecord>? records;
     private bool loading;
     private bool failed;
     private IDisposable? registration;
@@ -42,6 +50,10 @@
     /// <summary>Raised by the Exercises link.</summary>
     [Parameter]
     public EventCallback OnExercises { get; set; }
+
+    /// <summary>Raised with the exercise id when a recent record is tapped.</summary>
+    [Parameter]
+    public EventCallback<int> OnOpenExercise { get; set; }
 
     /// <summary>Raised by the Settings gear.</summary>
     [Parameter]
@@ -63,7 +75,7 @@
         registration?.Dispose();
     }
 
-    /// <summary>Loads the last workout and counts. Shows the spinner until both finish, and the error if either fails. Does nothing more once the page is disposed.</summary>
+    /// <summary>Loads the last workout, counts and recent records. Shows the spinner until all finish, and the error if the last workout or counts fail. Records that fail to load leave their slot empty. Does nothing more once the page is disposed.</summary>
     private async Task LoadAsync()
     {
         if (loading)
@@ -75,8 +87,10 @@
         StateHasChanged();
         var summaryLoad = Dashboard.GetAsync();
         var lastLoad = LastWorkoutService.GetAsync();
+        var recordsLoad = RecentRecordsService.GetAsync();
         var result = await summaryLoad;
         var lastResult = await lastLoad;
+        var recent = await recordsLoad;
         if (disposed)
         {
             return;
@@ -84,6 +98,7 @@
 
         summary = new DashboardSummary(result.ThisWeek, result.ThisMonth);
         last = lastResult.Workout is { } workout ? (workout.Id, Card(workout)) : null;
+        records = recent.Failed ? null : RecentRecordItems.Items(recent.Records, Catalog, Clock.LocalTimeZone, recent.Now);
         failed = result.Failed || lastResult.Failed;
         loading = false;
     }

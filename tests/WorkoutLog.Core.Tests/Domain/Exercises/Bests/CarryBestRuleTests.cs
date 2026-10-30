@@ -51,4 +51,11 @@ public class CarryBestRuleTests
     [Test]
     public void Best_OnlyZeroKgSets_IsNull() =>
         Assert.That(rule.Best(Definition(FarmersWalk), Sets(FarmersWalk, Set(null, 0m, null, 40m))), Is.Null);
+
+    [TestCase(32, 40, 28, 60, 1)]
+    [TestCase(28, 60, 32, 40, -1)]
+    [TestCase(32, 60, 32, 40, 1)]
+    [TestCase(32, 40, 32, 40, 0)]
+    public void Compare_HeavierWins_TieFarther(decimal xKg, decimal xMetres, decimal yKg, decimal yMetres, int expected) =>
+        Assert.That(Math.Sign(rule.Compare(new ExerciseBest(xKg, null, null, xMetres), new ExerciseBest(yKg, null, null, yMetres))), Is.EqualTo(expected));
 }
