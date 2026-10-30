@@ -48,7 +48,7 @@ public class RecentRecordsServiceTests
     {
         Setup();
 
-        Assert.That(await service.GetAsync(), Is.EqualTo(new RecentRecordsResult([], Failed: false)).UsingPropertiesComparer());
+        Assert.That(await service.GetAsync(), Is.EqualTo(new RecentRecordsResult([], Now, Failed: false)).UsingPropertiesComparer());
     }
 
     [Test]
@@ -60,7 +60,7 @@ public class RecentRecordsServiceTests
 
         var result = await service.GetAsync();
 
-        Assert.That(result, Is.EqualTo(new RecentRecordsResult([new ExerciseRecord(Squat, Now.AddDays(-2), new ExerciseBest(70m, 3, null, null))], Failed: false))
+        Assert.That(result, Is.EqualTo(new RecentRecordsResult([new ExerciseRecord(Squat, Now.AddDays(-2), new ExerciseBest(70m, 3, null, null))], Now, Failed: false))
             .UsingPropertiesComparer());
     }
 
@@ -185,7 +185,7 @@ public class RecentRecordsServiceTests
 
         var result = await service.GetAsync();
 
-        Assert.That(result, Is.EqualTo(new RecentRecordsResult([], Failed: true)).UsingPropertiesComparer());
+        Assert.That(result, Is.EqualTo(new RecentRecordsResult([], Now, Failed: true)).UsingPropertiesComparer());
         Assert.Multiple(() =>
         {
             Assert.That(LoggedEvents.Of(logger), Is.EqualTo(new[] { (CoreEvent.RecentRecordsLoadFailed, LogLevel.Warning, "Loading the recent records failed") }));

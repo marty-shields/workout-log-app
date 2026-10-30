@@ -18,6 +18,7 @@ public class DashboardPageTests : ComponentTestBase
 
     private static readonly DashboardResult Loaded = new(Now.AddDays(-1), 1, 1, Failed: false);
 
+    private FakeTimeProvider time = null!;
     private FakeDashboardService dashboard = null!;
     private FakeLastWorkoutService lastWorkout = null!;
     private FakeRecentRecordsService recentRecords = null!;
@@ -27,9 +28,9 @@ public class DashboardPageTests : ComponentTestBase
     [SetUp]
     public void SetUp()
     {
-        var clock = new FakeTimeProvider(Now);
-        clock.SetLocalTimeZone(TimeZoneInfo.CreateCustomTimeZone("UTC+1", TimeSpan.FromHours(1), "UTC+1", "UTC+1"));
-        Context.Services.AddSingleton<TimeProvider>(clock);
+        time = new FakeTimeProvider(Now);
+        time.SetLocalTimeZone(TimeZoneInfo.CreateCustomTimeZone("UTC+1", TimeSpan.FromHours(1), "UTC+1", "UTC+1"));
+        Context.Services.AddSingleton<TimeProvider>(time);
         dashboard = new FakeDashboardService();
         Context.Services.AddSingleton<IDashboardService>(dashboard);
         lastWorkout = new FakeLastWorkoutService();
@@ -365,7 +366,7 @@ public class DashboardPageTests : ComponentTestBase
         [
             new ExerciseRecord(6, new DateTimeOffset(2026, 10, 22, 23, 30, 0, TimeSpan.Zero), new ExerciseBest(70m, 3, null, null)),
             new ExerciseRecord(311, Now.AddDays(-2), new ExerciseBest(null, null, null, 5.2m)),
-        ], Failed: false);
+        ], Now, Failed: false);
         var cut = Context.Render<DashboardPage>();
 
         dashboard.Complete(Loaded);
@@ -378,6 +379,20 @@ public class DashboardPageTests : ComponentTestBase
                 ("recent-records-row-6", "Barbell Back Squat · 70kg × 3", "Today"),
                 ("recent-records-row-311", "Outdoor Run · 5.2km", "2 days ago"),
             })));
+    }
+
+    [Test]
+    public async Task Loaded_LoadEndsAfterMidnight_CountsDaysAgoFromWhenTheRecordsWereRead()
+    {
+        recentRecords.Result = new RecentRecordsResult([new ExerciseRecord(6, Now.AddDays(-29), new ExerciseBest(70m, 3, null, null))], Now, Failed: false);
+        var cut = Context.Render<DashboardPage>();
+
+        time.Advance(TimeSpan.FromHours(1));
+        dashboard.Complete(Loaded);
+        await WaitForRendererAsync();
+
+        cut.WaitForAssertion(() =>
+            Assert.That(cut.Find("[data-testid=recent-records-row-6] .detail").TextContent, Is.EqualTo("29 days ago")));
     }
 
     [Test]
@@ -395,7 +410,7 @@ public class DashboardPageTests : ComponentTestBase
     [Test]
     public async Task RecordsFailToLoad_ShowsNoRecordsCardAndTheRestOfTheDashboard()
     {
-        recentRecords.Result = new RecentRecordsResult([], Failed: true);
+        recentRecords.Result = new RecentRecordsResult([], Now, Failed: true);
         var cut = Context.Render<DashboardPage>();
 
         dashboard.Complete(Loaded);
@@ -412,7 +427,7 @@ public class DashboardPageTests : ComponentTestBase
     [Test]
     public async Task Record_Tapped_RaisesOnOpenExerciseWithItsId()
     {
-        recentRecords.Result = new RecentRecordsResult([new ExerciseRecord(6, Now.AddDays(-1), new ExerciseBest(70m, 3, null, null))], Failed: false);
+        recentRecords.Result = new RecentRecordsResult([new ExerciseRecord(6, Now.AddDays(-1), new ExerciseBest(70m, 3, null, null))], Now, Failed: false);
         int? opened = null;
         var cut = Context.Render<DashboardPage>(p => p.Add(x => x.OnOpenExercise, id => opened = id));
         dashboard.Complete(Loaded);
@@ -430,7 +445,7 @@ public class DashboardPageTests : ComponentTestBase
         dashboard.Complete(Loaded);
         await WaitForRendererAsync();
         cut.WaitForAssertion(() => Assert.That(cut.FindAll("[data-testid=recent-records-none]"), Has.Count.EqualTo(1)));
-        recentRecords.Result = new RecentRecordsResult([new ExerciseRecord(6, Now.AddDays(-1), new ExerciseBest(70m, 3, null, null))], Failed: false);
+        recentRecords.Result = new RecentRecordsResult([new ExerciseRecord(6, Now.AddDays(-1), new ExerciseBest(70m, 3, null, null))], Now, Failed: false);
 
         var started = lifecycle.NotifyStartedAsync();
         dashboard.Complete(Loaded);
@@ -453,7 +468,7 @@ public class DashboardPageTests : ComponentTestBase
     /// <summary>Returns <see cref="Result"/> at once; no records by default.</summary>
     private sealed class FakeRecentRecordsService : IRecentRecordsService
     {
-        public RecentRecordsResult Result { get; set; } = new([], Failed: false);
+        public RecentRecordsResult Result { get; set; } = new([], Now, Failed: false);
 
         public int Calls { get; private set; }
 

@@ -98,7 +98,7 @@
 
         summary = new DashboardSummary(result.ThisWeek, result.ThisMonth);
         last = lastResult.Workout is { } workout ? (workout.Id, Card(workout)) : null;
-        records = recent.Failed ? null : RecentRecordItems.Items(recent.Records, Catalog, Clock.LocalTimeZone, Clock.GetUtcNow());
+        records = recent.Failed ? null : RecentRecordItems.Items(recent.Records, Catalog, Clock.LocalTimeZone, recent.Now);
         failed = result.Failed || lastResult.Failed;
         loading = false;
     }

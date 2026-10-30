@@ -24,6 +24,7 @@ internal sealed partial class RecentRecordsService(
     /// <inheritdoc />
     public async Task<RecentRecordsResult> GetAsync()
     {
+        var now = time.GetUtcNow();
         IReadOnlyList<Workout> workouts;
         try
         {
@@ -32,10 +33,9 @@ internal sealed partial class RecentRecordsService(
         catch (Exception exception)
         {
             Log.LoadFailed(logger, exception);
-            return new RecentRecordsResult([], Failed: true);
+            return new RecentRecordsResult([], now, Failed: true);
         }
 
-        var now = time.GetUtcNow();
         var zone = time.LocalTimeZone;
         var from = LocalDate(now, zone).AddDays(1 - Days);
         bool InWindow(DateTimeOffset startedAt) => startedAt <= now && LocalDate(startedAt, zone) >= from;
@@ -64,7 +64,7 @@ internal sealed partial class RecentRecordsService(
             .Select(r => r.Record)
             .ToList();
         Log.Loaded(logger, recent.Count);
-        return new RecentRecordsResult(recent, Failed: false);
+        return new RecentRecordsResult(recent, now, Failed: false);
     }
 
     private static DateOnly LocalDate(DateTimeOffset value, TimeZoneInfo zone) => DateOnly.FromDateTime(TimeZoneInfo.ConvertTime(value, zone).DateTime);
