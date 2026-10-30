@@ -1,5 +1,6 @@
 using Microsoft.Extensions.Logging;
 using WorkoutLog.Core.Data;
+using WorkoutLog.Core.Domain.Workouts.Consistency;
 using WorkoutLog.Core.Logging;
 
 namespace WorkoutLog.Core.Services;
@@ -16,8 +17,8 @@ internal sealed partial class DashboardService(IWorkoutRepository repository, Ti
             var now = time.GetUtcNow();
             var zone = time.LocalTimeZone;
             var today = TimeZoneInfo.ConvertTime(now, zone).Date;
-            var weekStart = LocalDay.StartOf(today.AddDays(-(((int)today.DayOfWeek + 6) % 7)), zone);
-            var monthStart = LocalDay.StartOf(new DateTime(today.Year, today.Month, 1), zone);
+            var weekStart = LocalWeek.First(today.AddDays(-(((int)today.DayOfWeek + 6) % 7)), zone);
+            var monthStart = LocalWeek.First(new DateTime(today.Year, today.Month, 1), zone);
 
             var last = await repository.ListAsync(limit: 1);
             var recent = await repository.ListAsync(from: weekStart < monthStart ? weekStart : monthStart, to: now);
