@@ -249,8 +249,8 @@ public class DashboardPageTests : ComponentTestBase
     [Test]
     public async Task Disposed_WhileLoading_SkipsTheUpdate()
     {
-        var zoneReads = new ZoneReadCounter();
-        Context.Services.AddSingleton<TimeProvider>(zoneReads);
+        var clock = new ZoneReadCounter();
+        Context.Services.AddSingleton<TimeProvider>(clock);
         Context.Render<DashboardPage>();
 
         await Context.DisposeComponentsAsync();
@@ -260,7 +260,7 @@ public class DashboardPageTests : ComponentTestBase
         Assert.Multiple(() =>
         {
             Assert.That(dashboard.Calls, Is.EqualTo(1));
-            Assert.That(zoneReads.Reads, Is.Zero);
+            Assert.That(clock.Reads, Is.Zero);
         });
     }
 
