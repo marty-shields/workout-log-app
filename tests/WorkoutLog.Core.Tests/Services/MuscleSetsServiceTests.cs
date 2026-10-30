@@ -103,6 +103,41 @@ public class MuscleSetsServiceTests
         });
     }
 
+    [Test]
+    public async Task GetAsync_UnknownExerciseInManyRows_IsLoggedOncePerLoad()
+    {
+        SetUpRead(WindowStart, Now, new ExerciseSetCount(1, UnknownId, 5), new ExerciseSetCount(2, UnknownId, 3), new ExerciseSetCount(2, PushUp, 2));
+
+        await service.GetAsync();
+        await service.GetAsync();
+
+        Assert.That(LoggedEvents.Of(logger).Count(e => e.Id == CoreEvent.MuscleSetsUnknownExercise), Is.EqualTo(2));
+    }
+
+    [Test]
+    public async Task GetAsync_WorkoutsWithNoCountedSets_AreLeftOutOfTheLoggedCount()
+    {
+        SetUpRead(WindowStart, Now, new ExerciseSetCount(1, Run, 2), new ExerciseSetCount(2, UnknownId, 3), new ExerciseSetCount(3, Squat, 1));
+
+        await service.GetAsync();
+
+        Assert.That(LoggedEvents.Of(logger)[^1], Is.EqualTo((CoreEvent.MuscleSetsLoaded, LogLevel.Information, "Loaded the sets per muscle group from 1 workouts")));
+    }
+
+    [Test]
+    public async Task GetAsync_ReadsTheExerciseListOnce()
+    {
+        var catalog = new Mock<IExerciseCatalog>();
+        catalog.Setup(c => c.All).Returns(Catalog.All);
+        service = new MuscleSetsService(repository.Object, catalog.Object, new MuscleGroupMap(), new FakeTimeProvider(Now), logger);
+        SetUpRead(WindowStart, Now, new ExerciseSetCount(1, Squat, 1));
+
+        await service.GetAsync();
+        await service.GetAsync();
+
+        catalog.Verify(c => c.All, Times.Once);
+    }
+
     [TestCase(0, 0, TestName = "GetAsync_AtMidnight_WindowStartsAt0000SixDaysAgo")]
     [TestCase(23, 59, TestName = "GetAsync_LateEvening_WindowStartsAt0000SixDaysAgo")]
     public async Task GetAsync_WindowIsTodayAndTheSixDaysBefore(int hour, int minute)
