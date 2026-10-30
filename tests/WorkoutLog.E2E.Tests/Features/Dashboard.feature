@@ -1,6 +1,6 @@
 @US-20 @US-21 @US-22
 Feature: Dashboard
-  The Dashboard shows when I last trained, how long it took and what I did, opens that workout, this week against last week, and my last 12 weeks.
+  The Dashboard shows when I last trained, how long it took and what I did, opens that workout, and shows this week against last week, my last 12 weeks and my streak.
 
   Scenario: The last workout is the one with the latest start
     Given these saved workouts:
