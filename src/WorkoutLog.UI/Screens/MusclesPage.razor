@@ -1,0 +1,33 @@
+@using WorkoutLog.Core.Services
+@using WorkoutLog.UI.Models.Muscles
+@inject IMuscleSetsService MuscleSets
+
+<MusclesView Groups="groups" Loading="loading" Failed="failed" OnRetry="LoadAsync" OnBack="OnBack" />
+
+@code {
+    private IReadOnlyList<MuscleGroupSets> groups = [];
+    private bool loading;
+    private bool failed;
+
+    /// <summary>Raised by the back arrow and the Android back button.</summary>
+    [Parameter]
+    public EventCallback OnBack { get; set; }
+
+    protected override Task OnInitializedAsync() => LoadAsync();
+
+    /// <summary>Loads the sets per muscle group through <see cref="IMuscleSetsService.GetAsync"/>. Shows the spinner until it finishes.</summary>
+    private async Task LoadAsync()
+    {
+        if (loading)
+        {
+            return;
+        }
+
+        loading = true;
+        StateHasChanged();
+        var result = await MuscleSets.GetAsync();
+        groups = result.Groups.Select(g => new MuscleGroupSets(g.Group.ToString(), g.Sets)).ToList();
+        failed = result.Failed;
+        loading = false;
+    }
+}
