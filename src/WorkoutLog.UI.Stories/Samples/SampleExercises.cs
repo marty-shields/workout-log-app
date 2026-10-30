@@ -23,7 +23,7 @@ public sealed record SampleExercise(
     string? Caption = null,
     string? NoDataMessage = null);
 
-/// <summary>Sample data for the Exercises and Exercise stories and their tests. Values follow D49.</summary>
+/// <summary>Sample data for the Exercises and Exercise stories and their tests.</summary>
 public static class SampleExercises
 {
     /// <summary>Weight, e.g. 82.3kg.</summary>

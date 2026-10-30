@@ -1,4 +1,3 @@
-@FR-61 @FR-60 @D192
 Feature: Exercise page
   A lift's top set and estimated one-rep max over time, with its records and sessions.
 

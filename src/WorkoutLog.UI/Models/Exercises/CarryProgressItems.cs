@@ -10,7 +10,7 @@ using WorkoutLog.UI.Models.Workout;
 namespace WorkoutLog.UI.Models.Exercises;
 
 /// <summary>
-/// Builds the text of a carry's Exercise page from its <see cref="CarryProgress"/> (FR-63). Distances are in the exercise's unit.
+/// Builds the text of a carry's Exercise page from its <see cref="CarryProgress"/>. Distances are in the exercise's unit.
 /// A weight of 0kg isn't shown.
 /// </summary>
 public static class CarryProgressItems

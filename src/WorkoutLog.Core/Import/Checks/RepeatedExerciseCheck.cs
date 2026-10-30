@@ -1,6 +1,6 @@
 namespace WorkoutLog.Core.Import.Checks;
 
-/// <summary>Each exercise id appears once in the workout (FR-04).</summary>
+/// <summary>Each exercise id appears once in the workout.</summary>
 internal sealed class RepeatedExerciseCheck : IImportCheck
 {
     /// <inheritdoc />

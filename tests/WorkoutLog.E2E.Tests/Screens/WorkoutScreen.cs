@@ -172,7 +172,6 @@ public sealed partial class WorkoutScreen(WebView web, Native native)
     /// <summary>The field's <c>inputmode</c>: the keypad it asks Android for.</summary>
     public string InputMode(string testId) => web.Attribute(testId, "inputmode");
 
-    /// <summary>Whether this exercise is cardio.</summary>
     public static bool IsCardio(string name) => Exercises.Named(name).Type == ExerciseType.Cardio;
 
     /// <summary>Hides the soft keyboard, then taps the button.</summary>

@@ -9,7 +9,7 @@ public enum Equipment
     /// <summary>Dumbbell.</summary>
     Dumbbell,
 
-    /// <summary>EzBar.</summary>
+    /// <summary>EZ bar.</summary>
     EzBar,
 
     /// <summary>Cable.</summary>
@@ -18,7 +18,7 @@ public enum Equipment
     /// <summary>Machine.</summary>
     Machine,
 
-    /// <summary>SmithMachine.</summary>
+    /// <summary>Smith machine.</summary>
     SmithMachine,
 
     /// <summary>Kettlebell.</summary>
@@ -30,7 +30,7 @@ public enum Equipment
     /// <summary>Band.</summary>
     Band,
 
-    /// <summary>TrapBar.</summary>
+    /// <summary>Trap bar.</summary>
     TrapBar,
 
     /// <summary>Landmine.</summary>

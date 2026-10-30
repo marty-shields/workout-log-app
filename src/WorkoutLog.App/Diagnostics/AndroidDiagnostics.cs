@@ -36,16 +36,12 @@ internal sealed partial class AndroidDiagnostics(ILogger<AndroidDiagnostics> log
         LogPreviousExit(context);
     }
 
-    /// <summary>Logs that the activity was created.</summary>
     public void ActivityCreated() => Log.ActivityCreated(logger);
 
-    /// <summary>Logs that the activity stopped.</summary>
     public void ActivityStopped() => Log.ActivityStopped(logger);
 
-    /// <summary>Logs that the activity was destroyed.</summary>
     public void ActivityDestroyed() => Log.ActivityDestroyed(logger);
 
-    /// <summary>Logs that the activity started.</summary>
     public void ActivityStarted() => Log.ActivityStarted(logger);
 
     /// <summary>Logs a trim-memory request. On API 34+ it is only <c>UiHidden</c> or <c>Background</c>.</summary>

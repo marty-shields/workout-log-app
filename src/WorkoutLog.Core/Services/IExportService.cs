@@ -1,6 +1,6 @@
 namespace WorkoutLog.Core.Services;
 
-/// <summary>Writes every saved workout to one JSON file (FR-51).</summary>
+/// <summary>Writes every saved workout to one JSON file.</summary>
 public interface IExportService
 {
     /// <summary>Returns the number of saved workouts. A failed read returns <see cref="ExportCount.Failed"/> and 0.</summary>

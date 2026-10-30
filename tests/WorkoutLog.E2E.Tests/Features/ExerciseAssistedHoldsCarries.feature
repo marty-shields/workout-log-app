@@ -1,4 +1,3 @@
-@FR-63 @FR-60 @D195
 Feature: Exercise page: assisted machines, holds and carries
   An assisted machine's least assist, a hold's duration and weight, and a carry's weight and distance over time, with their records and sessions.
 

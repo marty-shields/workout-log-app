@@ -4,7 +4,7 @@ namespace WorkoutLog.Core.Services;
 public interface ILoggedExercisesService
 {
     /// <summary>
-    /// Returns each exercise with a saved workout, with the start and best of its last session (FR-60):
+    /// Returns each exercise with a saved workout, with the start and best of its last session:
     /// latest start first, exercises from the same workout A–Z. Ids not in the exercise list are left out.
     /// A failed read returns <see cref="LoggedExercisesResult.Failed"/> and no exercises.
     /// </summary>

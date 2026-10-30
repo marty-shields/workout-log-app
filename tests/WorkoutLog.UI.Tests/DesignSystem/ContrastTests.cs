@@ -5,7 +5,7 @@ public class ContrastTests
     private const double Text = 4.5;
     private const double LargeTextOrControl = 3.0;
 
-    // Foreground token, background token, WCAG AA minimum.
+    // Minimums are WCAG AA contrast ratios.
     private static readonly (string Foreground, string Background, double Minimum)[] Pairs =
     [
         ("--color-text", "--color-bg", Text),

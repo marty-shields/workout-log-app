@@ -171,7 +171,7 @@ tests/
 
 ## Getting started
 
-You need the .NET 10 SDK with the `maui-android` workload. The full setup, including the Android SDK and the phone, is in [Dev setup & build](docs/06-dev-setup-build.md).
+You need the .NET 10 SDK with the `maui-android` workload. The full setup, including the Android SDK and the phone, is in [Dev setup & build](docs/dev-setup-build.md).
 
 ```powershell
 # Build (warnings fail the build)
@@ -188,8 +188,9 @@ dotnet run --project src/WorkoutLog.UI.Stories
 dotnet build src/WorkoutLog.App -t:Run -f net10.0-android
 ```
 
-The end-to-end tests need a connected device or an emulator: see [E2E tests](docs/06-dev-setup-build.md#e2e-tests).
+The end-to-end tests need a connected device or an emulator: see [E2E tests](docs/dev-setup-build.md#e2e-tests).
 
 ## License
 
-[MIT](LICENSE). Third-party notices are in [NOTICE](NOTICE).
+[MIT](LICENSE). 
+Third-party notices are in [NOTICE](NOTICE).

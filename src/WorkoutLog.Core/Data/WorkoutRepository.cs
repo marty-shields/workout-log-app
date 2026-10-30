@@ -157,7 +157,6 @@ internal sealed class WorkoutRepository(SQLiteAsyncConnection connection, IWorko
     public Task DeleteAsync(int id) =>
         connection.RunInTransactionAsync(db => writers.Create(db).Delete(id));
 
-    /// <summary>Builds each exercise as in <see cref="ToExercise"/>.</summary>
     private static List<WorkoutExercise> ToExercises(
         IEnumerable<WorkoutExerciseRow> exerciseRows, ILookup<int, StrengthSetRow> sets, Dictionary<int, CardioEntryRow> entries) =>
         exerciseRows.Select(e => ToExercise(e.Id, e.ExerciseId, sets, entries)).ToList();

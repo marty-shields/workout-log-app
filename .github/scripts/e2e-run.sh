@@ -31,7 +31,7 @@ filter_for() {
 
 retried=""
 for try in $(seq "$tries"); do
-  # Failed scenarios become annotations and each run writes a results table to the job summary (D165).
+  # Failed scenarios become annotations and each run writes a results table to the job summary.
   if dotnet test tests/WorkoutLog.E2E.Tests --no-build --filter "$filter" --logger "console;verbosity=detailed" \
     --logger GitHubActions --logger "trx;LogFileName=e2e-$try.trx" --results-directory "$RESULTS/trx" \
     -- 'TestRunParameters.Parameter(name="DeviceUdid", value="emulator-5554")' \

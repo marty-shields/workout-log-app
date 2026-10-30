@@ -25,7 +25,6 @@ public sealed class Native(WebView web)
 
     private static AndroidDriver App => AppiumSetup.Driver;
 
-    /// <summary>The Android back key.</summary>
     public void BackKey() => App.PressKeyCode(AndroidKeyCode.Back);
 
     public bool IsKeyboardShown() => App.IsKeyboardShown();

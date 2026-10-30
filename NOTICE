@@ -5,5 +5,3 @@ This product includes icons from Material Symbols
 (https://github.com/google/material-design-icons), Copyright Google LLC,
 licensed under the Apache License, Version 2.0
 (https://www.apache.org/licenses/LICENSE-2.0).
-Used: settings, arrow_back, close, delete and chevron_right (Outlined, weight 400), in
-src/WorkoutLog.UI/Components/Actions/Icon.razor.

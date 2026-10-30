@@ -5,7 +5,7 @@ $attribute: CustomPage("Components/Overlays/Overview")
 # Overlays
 
 ## `ConfirmDialog`
-A modal question at the bottom of the screen, over a scrim, in thumb reach (D82). Cancel (secondary) and the confirm button share the row, full width. Focus moves to Cancel when it opens (D81). Android back does what Cancel does (D78). `Danger` makes the confirm button red.
+A modal question at the bottom of the screen, over a scrim, in thumb reach. Cancel (secondary) and the confirm button share the row, full width. Focus moves to Cancel when it opens. Android back does what Cancel does. `Danger` makes the confirm button red.
 
 | Use | Title | Confirm |
 |---|---|---|

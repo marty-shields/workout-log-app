@@ -123,7 +123,7 @@
     [Parameter]
     public bool OpenLastSet { get; set; } = true;
 
-    /// <summary>Checks a set before Add set or opening another set, the open set or the last row, after filling its blanks (<see cref="ExerciseFields.FillBlanks"/>). Sets the set's errors and returns false to block. Also re-checks a set or entry each time its values change while it shows errors or <see cref="EntryState.CheckOnChange"/> is set. Unset: nothing is blocked or re-checked.</summary>
+    /// <summary>Checks the open set, or the last row, before Add set or opening another set, after filling its blanks (<see cref="ExerciseFields.FillBlanks"/>). Sets the set's errors and returns false to block. Also re-checks a set or entry on each change while it has errors or <see cref="EntryState.CheckOnChange"/> is set. Unset: nothing is blocked or re-checked.</summary>
     [Parameter]
     public Func<ExerciseState, EntryState, bool>? ValidateSet { get; set; }
 
@@ -199,7 +199,7 @@
 
     /// <summary>
     /// Strength: adds a set as Add set does, then focuses the new set, or the first field at fault in the set that blocked it. Cardio: focuses the entry.
-    /// Completes once focus has moved; fails if focusing fails, and is cancelled if the card is removed first.
+    /// Completes once focus has moved; fails if focusing fails; cancelled if called again or the card is removed first.
     /// </summary>
     public async Task AddSetAndFocusAsync()
     {

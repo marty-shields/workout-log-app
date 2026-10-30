@@ -72,13 +72,13 @@ public static class ExerciseFields
             : $"Speed {(WorkedOut.Speed(duration, distance) is { } speed ? SpeedText(speed) : "—")}";
     }
 
-    /// <summary>A pace rounded to the second, e.g. 5:46/km (D197).</summary>
+    /// <summary>A pace rounded to the second, e.g. 5:46/km.</summary>
     public static string PaceText(TimeSpan pace) => $"{DisplayFormat.Clock(WorkedOut.RoundPace(pace))}/km";
 
-    /// <summary>A speed rounded to 2 decimal places with no trailing zeros, e.g. 10.4 km/h (D197).</summary>
+    /// <summary>A speed rounded to 2 decimal places with no trailing zeros, e.g. 10.4 km/h.</summary>
     public static string SpeedText(decimal speed) => $"{WorkedOut.RoundSpeed(speed).ToString("0.##", CultureInfo.InvariantCulture)} km/h";
 
-    /// <summary>Puts each field's <see cref="FieldSpec.BlankFill"/> in the field when it is blank, e.g. 0 in a bodyweight move's weight (D23).</summary>
+    /// <summary>Puts each field's <see cref="FieldSpec.BlankFill"/> in the field when it is blank, e.g. 0 in a bodyweight move's weight.</summary>
     public static void FillBlanks(ExerciseState exercise, EntryState entry)
     {
         foreach (var field in exercise.Fields.Where(f => f.BlankFill is not null && string.IsNullOrEmpty(entry.Values.GetValueOrDefault(f.Key))))
@@ -165,7 +165,7 @@ public static class ExerciseFields
         _ => throw new ArgumentOutOfRangeException(nameof(exercise), exercise.DistanceUnit, "Distance needs a distance unit"),
     };
 
-    /// <summary>A distance in the exercise's unit, to up to 2 decimal places, e.g. 5.2km or 40m (D49).</summary>
+    /// <summary>A distance in the exercise's unit, to up to 2 decimal places, e.g. 5.2km or 40m.</summary>
     internal static string Distance(ExerciseDefinition exercise, decimal distance) =>
         $"{Decimals.Round2(distance).ToString("0.##", CultureInfo.InvariantCulture)}{DistanceText(exercise)}";
 

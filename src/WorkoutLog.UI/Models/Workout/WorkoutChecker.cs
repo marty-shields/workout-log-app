@@ -8,7 +8,7 @@ namespace WorkoutLog.UI.Models.Workout;
 /// <summary>
 /// Checks each set and entry with <see cref="ISetChecker"/>, then the records it reads with <see cref="IWorkoutService.Validate"/>,
 /// and words the workout and exercise codes. An unknown exercise, wrong type or other exercise code with no message is logged once per
-/// exercise, and a workout code with no message once per check: none of them can come from the editor.
+/// exercise, and a workout code with no message once per check.
 /// </summary>
 public sealed partial class WorkoutChecker(ISetChecker sets, IWorkoutService workouts, ILogger<WorkoutChecker> logger) : IWorkoutChecker
 {

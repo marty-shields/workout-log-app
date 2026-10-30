@@ -15,7 +15,7 @@ public enum ExerciseCategory
     /// <summary>Strength: a held duration, with optional weight.</summary>
     Hold,
 
-    /// <summary>Strength: a distance carried, with optional weight and duration.</summary>
+    /// <summary>Strength: a distance carried and its duration, with optional weight.</summary>
     Carry,
 
     /// <summary>Cardio: one entry.</summary>

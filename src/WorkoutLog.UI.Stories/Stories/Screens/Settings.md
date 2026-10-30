@@ -4,12 +4,12 @@ $attribute: CustomPage("Screens/Settings/Overview")
 
 # Settings
 
-Opened from the Dashboard gear (FR-36, FR-50). View: `SettingsView`; page: `SettingsPage`.
+Opened from the Dashboard gear. View: `SettingsView`; page: `SettingsPage`.
 
 | Part | Content |
 |---|---|
 | Top bar | Back arrow; title "Settings". |
-| Content | Heading "Your data", the export text, and a Secondary full-width **Export** (FR-51); then "Import workouts from a JSON file exported by Workout Log" and a Secondary full-width **Import** (FR-52), enabled with or without workouts. |
+| Content | Heading "Your data", the export text, and a Secondary full-width **Export**; then "Import workouts from a JSON file exported by Workout Log" and a Secondary full-width **Import**, enabled with or without workouts. |
 | Export text | "Export all 42 workouts to a JSON file", grouped from 1,000 ("Export all 1,042 workouts…"); "Export 1 workout to a JSON file"; "No workouts to export", with Export disabled. |
 | Loading | `Spinner` "Loading…", centred on the screen, until the count loads. The heading, text and Export show after it. |
 | Load failed | Error "Couldn't load your workouts" and a Secondary **Try again** that reloads. Focus moves to Try again. |
@@ -20,7 +20,7 @@ Opened from the Dashboard gear (FR-36, FR-50). View: `SettingsView`; page: `Sett
 | Import failed | "Couldn't import your workouts. Try again" under Import, when the picker fails or the phone's workouts can't be read. Focus moves to Import. |
 | Imported | After an import, under Import: "Added 3 workouts, replaced 2, skipped 1". Replaced and skipped are left out at 0 ("Added 1 workout"); Replace all never says replaced. |
 
-The count loads each time Settings shows and when the app starts again while it shows. A load while one runs, or while exporting, is ignored (D67).
+The count loads each time Settings shows and when the app starts again while it shows. A load while one runs, or while exporting, is ignored.
 
 Export writes the file, then opens Android's share sheet, titled "Export workouts". Nothing shows afterwards.
 

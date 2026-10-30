@@ -25,7 +25,7 @@
     <EmbeddedResource Include="..\WorkoutLog.App\Resources\AppIcon\*.svg;..\WorkoutLog.App\Resources\Splash\*.svg" LogicalName="brand.%(Filename)%(Extension)" />
   </ItemGroup>
 
-  <!-- Removes the native SQLite file that Core brings in (D120). -->
+  <!-- Removes the native SQLite file that Core brings in. -->
   <Target Name="RemoveSqliteNativeReference" BeforeTargets="_CheckBrowserWorkloadNeededButNotAvailable">
     <ItemGroup>
       <NativeFileReference Remove="@(NativeFileReference)" Condition="'%(Filename)' == 'e_sqlite3'" />

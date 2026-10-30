@@ -66,7 +66,7 @@
 
     public void Dispose() => timer?.Dispose();
 
-    /// <summary>Asks Discard / Cancel (FR-12). Ignored while a save runs, after one succeeds and after a discard (D45).</summary>
+    /// <summary>Asks Discard / Cancel. Ignored while a save runs, after one succeeds and after a discard.</summary>
     private void Back()
     {
         if (!Editor.Saving && !discarded)
@@ -79,7 +79,7 @@
 
     /// <summary>
     /// Picks the exercise (<see cref="WorkoutEditor.Pick"/>). A strength exercise just added then loads its last and best weights
-    /// through <see cref="IWeightHistoryService.GetAsync"/> (FR-15); a failed load shows none. Where 0 kg shows as no weight
+    /// through <see cref="IWeightHistoryService.GetAsync"/>; a failed load shows none. Where 0 kg shows as no weight
     /// (<see cref="FieldSpec.HideZero"/>), a weight of 0 is none.
     /// </summary>
     private async Task PickAsync(ExerciseListItem item)
@@ -98,8 +98,8 @@
     }
 
     /// <summary>
-    /// Logs the exercise count only (D135) and raises <see cref="OnDiscarded"/>, once. While a save runs or after one
-    /// succeeds, closes the prompt and does nothing else (D45).
+    /// Logs the exercise count only and raises <see cref="OnDiscarded"/>, once. While a save runs or after one
+    /// succeeds, closes the prompt and does nothing else.
     /// </summary>
     private async Task DiscardAsync()
     {

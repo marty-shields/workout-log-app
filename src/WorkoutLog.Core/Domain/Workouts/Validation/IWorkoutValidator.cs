@@ -1,6 +1,6 @@
 namespace WorkoutLog.Core.Domain.Workouts.Validation;
 
-/// <summary>Save rules for a workout (FR-09), checked against each exercise's definition.</summary>
+/// <summary>Save rules for a workout, checked against each exercise's definition.</summary>
 internal interface IWorkoutValidator
 {
     /// <summary>

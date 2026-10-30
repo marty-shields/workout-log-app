@@ -2,7 +2,7 @@ using WorkoutLog.Core.Domain.Exercises;
 
 namespace WorkoutLog.Core.Tests.Domain.Exercises;
 
-/// <summary>Checks the embedded exercises.json against docs/02 and docs/03.</summary>
+/// <summary>Checks the embedded exercises.json: counts, ids, names, aliases, categories, metrics and units.</summary>
 public class ExerciseFileTests
 {
     private static readonly IReadOnlyList<ExerciseDefinition> Exercises = new ExerciseCatalog().All;

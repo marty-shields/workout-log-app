@@ -3,7 +3,7 @@ using WorkoutLog.Core.Domain.Workouts.Validation;
 namespace WorkoutLog.Core.Import.Checks;
 
 /// <summary>
-/// The workout passes Save's checks (FR-09) in <see cref="IWorkoutValidator"/>.
+/// The workout passes Save's checks in <see cref="IWorkoutValidator"/>.
 /// Unknown exercises are left to <see cref="UnknownExerciseCheck"/>, and repeated exercises to <see cref="RepeatedExerciseCheck"/>.
 /// </summary>
 internal sealed class SaveRulesCheck(IWorkoutValidator validator) : IImportCheck

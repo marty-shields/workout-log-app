@@ -6,7 +6,6 @@ namespace WorkoutLog.Core.Data;
 [Table("CardioEntry")]
 internal sealed class CardioEntryRow
 {
-    /// <summary>Row id.</summary>
     [PrimaryKey, AutoIncrement]
     public int Id { get; set; }
 
@@ -14,7 +13,6 @@ internal sealed class CardioEntryRow
     [Unique]
     public int WorkoutExerciseId { get; set; }
 
-    /// <summary>Duration.</summary>
     public TimeSpan Duration { get; set; }
 
     /// <summary>Distance, in the exercise's unit.</summary>
@@ -29,7 +27,6 @@ internal sealed class CardioEntryRow
     /// <summary>Incline, percent.</summary>
     public decimal? Incline { get; set; }
 
-    /// <summary>Calories.</summary>
     public int? Calories { get; set; }
 
     /// <summary>Rate, in the exercise's unit.</summary>

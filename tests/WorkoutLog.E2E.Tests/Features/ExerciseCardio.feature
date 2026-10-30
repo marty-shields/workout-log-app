@@ -1,4 +1,3 @@
-@FR-64 @FR-60 @D196
 Feature: Exercise page: cardio
   A cardio exercise's distance, duration, pace, floors and calories over time, with its records and sessions.
 
@@ -103,7 +102,6 @@ Feature: Exercise page: cardio
       | 3 days ago  | 25:00    | 120 floors · 300 calories · Speed level 8 · 70 steps/min |
       | 10 days ago | 20:00    | 100 floors                                               |
 
-  @D197
   Scenario: A treadmill's speed is worked out, faster is better
     Given these saved workouts:
       | started           | exercises                    |

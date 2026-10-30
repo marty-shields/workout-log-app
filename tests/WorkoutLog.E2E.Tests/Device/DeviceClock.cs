@@ -10,7 +10,6 @@ public sealed class DeviceClock
 
     public DateTimeOffset UtcNow() => DateTimeOffset.FromUnixTimeSeconds(long.Parse(AppiumSetup.Adb.Shell("date", "+%s")));
 
-    /// <summary>The device's local time now.</summary>
     public DateTime LocalNow() => ToLocal(UtcNow());
 
     public DateTime ToLocal(DateTimeOffset time) => TimeZoneInfo.ConvertTime(time, Zone).DateTime;

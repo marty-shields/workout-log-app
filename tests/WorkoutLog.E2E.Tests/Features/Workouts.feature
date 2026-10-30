@@ -1,4 +1,4 @@
-@US-16 @FR-20 @FR-21
+@US-16
 Feature: Workouts
   My saved workouts, newest first.
 
@@ -18,13 +18,12 @@ Feature: Workouts
       | 3 days ago 18:05  |
       | 10 days ago 07:30 |
 
-  @D70
   Scenario: Every workout loads at once
     Given 40 saved workouts on different days
     When I open Workouts
     Then Workouts lists 40 workouts
 
-  @smoke @D71
+  @smoke
   Scenario: Tapping a row opens that workout
     Given these saved workouts:
       | started         | exercises                  |

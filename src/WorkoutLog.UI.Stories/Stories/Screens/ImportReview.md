@@ -4,7 +4,7 @@ $attribute: CustomPage("Screens/Import Review/Overview")
 
 # Import review
 
-Opened from Settings after a file is picked and read (FR-52). View: `ImportReviewView`; page: `ImportReviewPage`. Nothing is written until Import or Replace all.
+Opened from Settings after a file is picked and read. View: `ImportReviewView`; page: `ImportReviewPage`. Nothing is written until Import or Replace all.
 
 | Part | Content |
 |---|---|
@@ -22,7 +22,7 @@ Opened from Settings after a file is picked and read (FR-52). View: `ImportRevie
 | File errors | Instead of the count and the choices: "This file isn't a Workout Log export"; "This file is from a newer version of Workout Log. Update the app to import it"; "This file has no workouts"; "This file is too large to import". The bottom bar has **Cancel** and Primary **Choose another file**. |
 | Reading another file | Choose another file is busy: "Reading…". Cancel and back still work. Cancelling the picker keeps the error. If the picker or the read fails, "Couldn't import your workouts. Try again" replaces the error. |
 
-Import writes in one transaction, then goes back to Settings with its message. Back and Cancel go back to Settings with no prompt. An open dialog closes on back (D78).
+Import writes in one transaction, then goes back to Settings with its message. Back and Cancel go back to Settings with no prompt. An open dialog closes on back.
 
 States: [New only](./?path=/story/screens-import-review--new-only) · [With all groups](./?path=/story/screens-import-review--with-all-groups) · [Different](./?path=/story/screens-import-review--different) · [Can't be imported](./?path=/story/screens-import-review--can-t-be-imported) · [Nothing new](./?path=/story/screens-import-review--nothing-new) · [Replace all](./?path=/story/screens-import-review--replace-all) · [Replace confirm](./?path=/story/screens-import-review--replace-confirm) · [Importing](./?path=/story/screens-import-review--importing) · [Import failed](./?path=/story/screens-import-review--import-failed) · [Not an export](./?path=/story/screens-import-review--not-an-export) · [Newer version](./?path=/story/screens-import-review--newer-version) · [No workouts](./?path=/story/screens-import-review--no-workouts) · [Too large](./?path=/story/screens-import-review--too-large) · [Reading another file](./?path=/story/screens-import-review--reading-another-file)
 

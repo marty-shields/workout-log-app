@@ -23,7 +23,7 @@
     [Parameter, EditorRequired]
     public string Label { get; set; } = "";
 
-    /// <summary>Choices, in order: 2 to 4. Hints are not shown.</summary>
+    /// <summary>Choices, in order. Hints are not shown.</summary>
     [Parameter, EditorRequired]
     public IReadOnlyList<RadioOption<TValue>> Options { get; set; } = [];
 

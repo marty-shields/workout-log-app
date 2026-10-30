@@ -22,7 +22,7 @@
 </div>
 
 @code {
-    /// <summary>Catalog exercises to list, already searched and filtered, in order: Strength then Cardio, A–Z, with no search text. Logged ones carry their last session.</summary>
+    /// <summary>Catalog exercises to list, already searched and filtered. With no search text: Strength then Cardio, each A–Z. Logged ones carry their last session.</summary>
     [Parameter, EditorRequired]
     public IReadOnlyList<ExerciseListItem> Items { get; set; } = [];
 

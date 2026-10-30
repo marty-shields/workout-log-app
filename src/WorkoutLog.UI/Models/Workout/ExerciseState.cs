@@ -27,7 +27,7 @@ public sealed class ExerciseState(int exerciseId, string name, ExerciseKind kind
     /// <summary>Cardio: the value shown worked out from distance and duration.</summary>
     public WorkedOutKind WorkedOut { get; } = workedOut;
 
-    /// <summary>Strength: at most <see cref="WorkoutLimits.MaxSets"/> sets, so Add set is off.</summary>
+    /// <summary>Strength: the exercise has <see cref="WorkoutLimits.MaxSets"/> sets, so Add set is off.</summary>
     public bool SetsFull => Kind == ExerciseKind.Strength && Entries.Count >= WorkoutLimits.MaxSets;
 
     /// <summary>Sets (strength) or the single entry (cardio), in the order added.</summary>
@@ -39,9 +39,9 @@ public sealed class ExerciseState(int exerciseId, string name, ExerciseKind kind
     /// <summary>Core's code behind <see cref="Error"/>, when Save set it.</summary>
     public ExerciseError? ErrorCode { get; set; }
 
-    /// <summary>New Workout, strength: best weight in the last saved workout with the exercise, in kg (FR-15). Null when that workout has none.</summary>
+    /// <summary>New Workout, strength: best weight in the last saved workout with the exercise, in kg. Null when that workout has none.</summary>
     public decimal? LastKg { get; set; }
 
-    /// <summary>New Workout, strength: best weight in any saved workout (PB), in kg (FR-15). Null hides the last and PB line.</summary>
+    /// <summary>New Workout, strength: best weight in any saved workout (PB), in kg. Null hides the last and PB line.</summary>
     public decimal? BestKg { get; set; }
 }

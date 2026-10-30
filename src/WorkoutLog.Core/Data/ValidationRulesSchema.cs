@@ -92,7 +92,7 @@ internal sealed partial class ValidationRulesSchema(IExerciseCatalog catalog, IL
         return repeated.Count - repeated.Select(b => (b.WorkoutId, b.ExerciseId)).Distinct().Count();
     }
 
-    /// <summary>Each rule some rows break, with how many.</summary>
+    /// <summary>Each rule that rows break, with the row count.</summary>
     private List<(string Rule, int Rows)> BrokenRules(SQLiteConnection db)
     {
         var counts = WorkoutTables.All

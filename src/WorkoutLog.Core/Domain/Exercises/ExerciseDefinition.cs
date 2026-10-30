@@ -4,7 +4,7 @@ namespace WorkoutLog.Core.Domain.Exercises;
 /// <param name="Id">Exercise id. Never reused or changed.</param>
 /// <param name="Name">Unique name.</param>
 /// <param name="Type">Strength or cardio.</param>
-/// <param name="Category">How its sets are measured: lift, bodyweight, assisted, hold, carry or cardio.</param>
+/// <param name="Category">How its sets are measured.</param>
 /// <param name="Aliases">Nicknames for search. Unique across the list.</param>
 /// <param name="PrimaryMuscle">Strength only.</param>
 /// <param name="Equipment">Strength only.</param>
@@ -13,7 +13,7 @@ namespace WorkoutLog.Core.Domain.Exercises;
 /// <param name="DistanceUnit">Unit of the distance metric. Null when there is no distance.</param>
 /// <param name="RateUnit">Unit of the rate metric; <see cref="Exercises.RateUnit.KmPerHour"/> marks worked-out speed (<see cref="WorkedOut.HasSpeed"/>). Null otherwise.</param>
 /// <param name="PaceUnit">Unit of the worked-out pace (<see cref="WorkedOut.HasPace"/>). Null when there is no pace.</param>
-/// <param name="Loaded">True for a bodyweight move whose Exercise page has an e1RM tab (D193).</param>
+/// <param name="Loaded">True for a bodyweight move whose Exercise page has an e1RM tab.</param>
 public sealed record ExerciseDefinition(
     int Id,
     string Name,

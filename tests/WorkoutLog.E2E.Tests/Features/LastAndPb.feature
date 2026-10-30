@@ -1,4 +1,3 @@
-@FR-15 @D48
 Feature: Last and PB weight
   On New Workout, a strength exercise I add shows the best weight from the last saved workout with it and from all of them.
 

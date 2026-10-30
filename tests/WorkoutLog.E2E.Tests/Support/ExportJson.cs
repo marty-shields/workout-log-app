@@ -4,7 +4,7 @@ using WorkoutLog.Core.Domain.Workouts;
 
 namespace WorkoutLog.E2E.Tests.Support;
 
-/// <summary>Workouts as the export file writes them (docs/02 Export file).</summary>
+/// <summary>Workouts as the export file writes them.</summary>
 public static class ExportJson
 {
     /// <summary>A file with the version 2 header and <paramref name="workouts"/>.</summary>

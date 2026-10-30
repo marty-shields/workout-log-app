@@ -1,4 +1,4 @@
-// Reads token values for the token sheet. Stories only.
+// Reads token values for the token sheet.
 
 // "rgb(48, 82, 82)" or "rgba(0, 0, 0, 0.45)" to "#305252" or "#00000073".
 function hex(colour) {

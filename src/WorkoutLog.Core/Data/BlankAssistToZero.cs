@@ -3,7 +3,7 @@ using WorkoutLog.Core.Domain.Exercises;
 
 namespace WorkoutLog.Core.Data;
 
-/// <summary>Schema step 3: sets each blank weight on an assisted machine (<see cref="ExerciseDefinition.IsAssisted"/>) to 0 (D23).</summary>
+/// <summary>Schema step 3: sets each blank weight on an assisted machine (<see cref="ExerciseDefinition.IsAssisted"/>) to 0.</summary>
 internal sealed class BlankAssistToZero(IExerciseCatalog catalog) : ISchemaUpgrade
 {
     /// <inheritdoc />

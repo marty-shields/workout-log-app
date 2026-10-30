@@ -12,16 +12,12 @@ internal enum AppEvent
     /// <summary>The previous process ended abnormally.</summary>
     PreviousExitAbnormal = 5003,
 
-    /// <summary>No previous exit recorded.</summary>
     NoPreviousExit = 5004,
 
-    /// <summary>Activity created.</summary>
     ActivityCreated = 5011,
 
-    /// <summary>Activity stopped.</summary>
     ActivityStopped = 5012,
 
-    /// <summary>Activity destroyed.</summary>
     ActivityDestroyed = 5013,
 
     /// <summary>Activity started: shown, or back from the background.</summary>
@@ -33,6 +29,5 @@ internal enum AppEvent
     /// <summary>Unhandled exception; the app crashes.</summary>
     UnhandledException = 5031,
 
-    /// <summary>Unobserved task exception.</summary>
     UnobservedTaskException = 5033,
 }

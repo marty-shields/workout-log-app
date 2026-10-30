@@ -1,4 +1,4 @@
-@US-18 @FR-23
+@US-18
 Feature: Discard edits
   Back asks only when I have changed something.
 
@@ -17,7 +17,6 @@ Feature: Discard edits
       | the back arrow |
       | Android back   |
 
-  @D73 @D42
   Scenario Outline: Any change makes back ask "Discard changes?"
     When I <change>
     And I close the keyboard
@@ -30,7 +29,6 @@ Feature: Discard edits
       | add "Push-up"                                   |
       | add "Rowing Machine"                            |
 
-  @D73
   Scenario Outline: Opening the add-exercise list isn't a change
     When I <action>
     And I go back with the back arrow
@@ -54,7 +52,7 @@ Feature: Discard edits
     Then I am on Workouts
     And reopening workout 1 shows Barbell Back Squat set 1 at 60 kg
 
-  @D78 @US-28
+  @US-28
   Scenario: Android back on the prompt cancels it
     Given I have entered "62.5" in Barbell Back Squat set 1 weight
     And I have gone back with the back arrow

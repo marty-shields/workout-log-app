@@ -1,4 +1,4 @@
-@US-14 @US-08 @US-09 @FR-10 @FR-13
+@US-14 @US-08 @US-09
 Feature: Save a workout
   Saving keeps the workout, records the finish time and returns to the Dashboard.
 
@@ -25,7 +25,6 @@ Feature: Save a workout
     Then Treadmill shows 0:20:00, 3.2 km, incline 1.5
     And Outdoor Run shows 0:25:30, 5 km
 
-  @D23
   Scenario Outline: A blank weight other than a lift's is saved as 0 kg
     Given I have started a new workout
     And I have added "<exercise>"
@@ -37,7 +36,6 @@ Feature: Save a workout
       | Machine Assisted Pull-up |
       | Pull-up                  |
 
-  @D23
   Scenario: A lift's blank weight can't be saved
     Given I have started a new workout
     And I have added "Barbell Back Squat"
@@ -46,7 +44,6 @@ Feature: Save a workout
     Then Barbell Back Squat set 1 shows "Enter weight"
     And I am still on New Workout
 
-  @FR-05 @D42
   Scenario: Save a mixed workout and see it newest first
     Given I have started a new workout
     And I have logged:
@@ -60,7 +57,6 @@ Feature: Save a workout
     And I open the latest workout from Workouts
     Then it holds exactly what I logged, newest first
 
-  @D33
   Scenario: Optional zero values are kept
     Given I have started a new workout
     And I have added "Treadmill"
@@ -69,14 +65,13 @@ Feature: Save a workout
     And I open the latest workout from Workouts
     Then Treadmill shows incline 0
 
-  @FR-14 @today
+  @today
   Scenario: Two workouts can be saved on the same day
     Given I have saved a workout with Push-up: 10 reps
     And I have saved a workout with Push-up: 12 reps
     Then Workouts lists 2 workouts, newest first
     And This week shows 2
 
-  @D41
   Scenario: Tapping Save twice saves once
     Given I have started a new workout
     And I have added "Push-up"
@@ -84,7 +79,6 @@ Feature: Save a workout
     When I tap Save twice quickly
     Then Workouts lists 1 workout
 
-  @FR-01 @FR-10
   Scenario: The finish time is recorded on Save
     Given I have started a new workout
     And I have added "Push-up"

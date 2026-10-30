@@ -24,9 +24,9 @@ internal enum ImportSkipReason
     /// <summary>An exercise's type or units differ from the exercise list.</summary>
     ExerciseMismatch,
 
-    /// <summary>An exercise appears more than once (FR-04).</summary>
+    /// <summary>An exercise appears more than once.</summary>
     RepeatedExercise,
 
-    /// <summary>The workout fails Save's checks (FR-09).</summary>
+    /// <summary>The workout fails Save's checks.</summary>
     FailsSaveRules,
 }
