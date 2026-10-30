@@ -51,6 +51,9 @@ public sealed partial class DashboardScreen(WebView web)
 
     public void OpenSettings() => web.Tap("settings");
 
+    /// <summary>Taps the consistency card's Sets per muscle group row.</summary>
+    public void OpenMuscles() => web.Tap("consistency-muscles");
+
     public void NewWorkout() => web.Tap("new-workout");
 
     /// <summary>Each Recent records row's text and how long ago, in order, once the card shows.</summary>

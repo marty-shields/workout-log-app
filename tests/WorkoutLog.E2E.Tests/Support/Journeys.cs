@@ -6,7 +6,7 @@ namespace WorkoutLog.E2E.Tests.Support;
 /// <summary>What a user does across screens: start, log and save a workout, open Workouts, Exercises or a saved workout, go back.</summary>
 public sealed class Journeys(
     WebView web, Native native, DeviceClock clock, ScenarioState state,
-    DashboardScreen dashboard, WorkoutScreen workout, AddExerciseScreen addExercise, WorkoutsScreen workouts, ExercisesScreen exercises,
+    DashboardScreen dashboard, WorkoutScreen workout, AddExerciseScreen addExercise, WorkoutsScreen workouts, ExercisesScreen exercises, MusclesScreen muscles,
     ConfirmDialog dialog)
 {
     public enum Screen
@@ -14,6 +14,7 @@ public sealed class Journeys(
         Dashboard,
         Workouts,
         Exercises,
+        Muscles,
         Settings,
         ImportReview,
         Workout,
@@ -29,6 +30,7 @@ public sealed class Journeys(
             DashboardScreen.Title => Screen.Dashboard,
             WorkoutsScreen.Title => Screen.Workouts,
             ExercisesScreen.Title => Screen.Exercises,
+            MusclesScreen.Title => Screen.Muscles,
             SettingsScreen.Title => Screen.Settings,
             ImportReviewScreen.Title => Screen.ImportReview,
             _ when workout.IsShown() => Screen.Workout,
@@ -141,9 +143,23 @@ public sealed class Journeys(
         exercises.WaitUntilLoaded();
     }
 
-    /// <summary>Goes to the Dashboard from Workouts or Exercises, or from an unchanged workout through Workouts.</summary>
+    /// <summary>Goes to Sets per muscle group from the Dashboard and waits for it to load.</summary>
+    public void GoToMuscles()
+    {
+        WaitFor(Screen.Dashboard);
+        dashboard.OpenMuscles();
+        WaitFor(Screen.Muscles);
+        muscles.WaitUntilLoaded();
+    }
+
+    /// <summary>Goes to the Dashboard from Workouts, Exercises or Sets per muscle group, or from an unchanged workout through Workouts.</summary>
     public void GoToDashboard()
     {
+        if (Current() == Screen.Muscles)
+        {
+            muscles.Back();
+        }
+
         if (Current() == Screen.Workout)
         {
             GoToWorkouts();
