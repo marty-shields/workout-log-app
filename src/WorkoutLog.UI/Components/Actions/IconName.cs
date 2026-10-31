@@ -32,4 +32,7 @@ public enum IconName
 
     /// <summary>Tick (<c>check</c>).</summary>
     Check,
+
+    /// <summary>Trophy (<c>emoji_events</c>).</summary>
+    Record,
 }

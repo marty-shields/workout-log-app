@@ -197,4 +197,34 @@ public class SetSummaryTests : ComponentTestBase
 
         Assert.That(opened, Is.True);
     }
+
+    [Test]
+    public void IsRecord_ShowsTheBadgeUnderTheLine()
+    {
+        var cut = Context.Render<SetSummary>(p => p
+            .Add(x => x.Number, 1)
+            .Add(x => x.Fields, Carry)
+            .Add(x => x.Entry, Entry())
+            .Add(x => x.IsRecord, true)
+            .Add(x => x.TestId, "set-1"));
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.Find("[data-testid=set-1-record]").TextContent.Trim(), Is.EqualTo("Record"));
+            Assert.That(cut.Find("[data-testid=set-1-record]").ParentElement!.ClassList, Does.Contain("indent"));
+            Assert.That(cut.Find("[data-testid=set-1-open]").QuerySelector("[data-testid=set-1-record]"), Is.Null);
+        });
+    }
+
+    [Test]
+    public void NotRecord_ShowsNoBadge()
+    {
+        var cut = Context.Render<SetSummary>(p => p
+            .Add(x => x.Number, 1)
+            .Add(x => x.Fields, Carry)
+            .Add(x => x.Entry, Entry())
+            .Add(x => x.TestId, "set-1"));
+
+        Assert.That(cut.FindAll("[data-testid=set-1-record]"), Is.Empty);
+    }
 }

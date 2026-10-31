@@ -1,0 +1,111 @@
+@using WorkoutLog.UI.Components.Feedback
+@using WorkoutLog.UI.Models.Summary
+@using WorkoutLog.UI.Navigation
+<BackHandler OnBack="OnDone" />
+<AppScreen Title="Workout saved">
+    <ChildContent>
+        @if (Loading)
+        {
+            <div class="centre">
+                <Spinner Label="Loading…" TestId="summary-loading" />
+            </div>
+        }
+        else if (Failed)
+        {
+            <LoadFailed Message="Couldn't load the summary" OnRetry="OnRetry" TestId="summary" />
+        }
+        else if (Summary is { } summary)
+        {
+            <div class="sections">
+                <dl class="card stats" data-testid="summary-stats">
+                    <div class="stat">
+                        <dt class="label">Duration</dt>
+                        <dd class="value" data-testid="summary-duration">@DisplayFormat.Duration(summary.Duration)</dd>
+                    </div>
+                    <div class="stat">
+                        <dt class="label">Exercises</dt>
+                        <dd class="value" data-testid="summary-exercises">@summary.Exercises</dd>
+                    </div>
+                    <div class="stat">
+                        <dt class="label">Sets</dt>
+                        <dd class="value" data-testid="summary-sets">@summary.Sets</dd>
+                    </div>
+                </dl>
+                @if (summary.IsFirstWorkout)
+                {
+                    <p class="card note" data-testid="summary-first-workout">Your first workout. Records and changes show from your next one.</p>
+                }
+                else
+                {
+                    <section class="card" data-testid="summary-records">
+                        <h2 class="title">Records</h2>
+                        @if (summary.Records.Count == 0)
+                        {
+                            <p class="none" data-testid="summary-records-none">No records this time</p>
+                        }
+                        else
+                        {
+                            <ul class="rows">
+                                @foreach (var record in summary.Records)
+                                {
+                                    <li class="row" data-testid="@($"summary-record-{record.ExerciseId}")">
+                                        <Icon Name="IconName.Record" Tone="IconTone.Success" />
+                                        <span class="text">@record.Exercise · @record.Best</span>
+                                    </li>
+                                }
+                            </ul>
+                        }
+                    </section>
+                    <section class="card" data-testid="summary-changes">
+                        <h2 class="title">Since last time</h2>
+                        <ul class="rows">
+                            @foreach (var change in summary.Changes)
+                            {
+                                <li class="row" data-testid="@($"summary-change-{change.ExerciseId}")">
+                                    <span class="texts">
+                                        <span class="text">@change.Exercise</span>
+                                        <span class="detail">@change.Best</span>
+                                    </span>
+                                    @Change(change.Since)
+                                </li>
+                            }
+                        </ul>
+                    </section>
+                }
+            </div>
+        }
+    </ChildContent>
+    <BottomBar>
+        <AppButton FullWidth TestId="done" OnClick="OnDone">Done</AppButton>
+    </BottomBar>
+</AppScreen>
+
+@code {
+    /// <summary>The saved workout's totals, records and changes. Not shown while <see cref="Loading"/> or <see cref="Failed"/>.</summary>
+    [Parameter]
+    public WorkoutSummary? Summary { get; set; }
+
+    /// <summary>Shows a spinner instead of the summary while it loads.</summary>
+    [Parameter]
+    public bool Loading { get; set; }
+
+    /// <summary>Shows the load error and Try again instead of the summary, and moves focus to Try again.</summary>
+    [Parameter]
+    public bool Failed { get; set; }
+
+    /// <summary>Raised by Try again.</summary>
+    [Parameter]
+    public EventCallback OnRetry { get; set; }
+
+    /// <summary>Raised by Done and the Android back button.</summary>
+    [Parameter]
+    public EventCallback OnDone { get; set; }
+
+    private static RenderFragment Change(SinceLastTime since) => since.Kind switch
+    {
+        ChangeKind.Up => @<span class="change up"><Icon Name="IconName.Up" Tone="IconTone.Success" /><span class="visually-hidden">up </span>@since.Difference</span>,
+        ChangeKind.Down => @<span class="change down"><Icon Name="IconName.Down" Tone="IconTone.Error" /><span class="visually-hidden">down </span>@since.Difference</span>,
+        ChangeKind.Equal => @<span class="change same"><span aria-hidden="true">—</span><span class="visually-hidden">no change</span></span>,
+        _ => @<span class="change same">First time</span>,
+    };
+}
