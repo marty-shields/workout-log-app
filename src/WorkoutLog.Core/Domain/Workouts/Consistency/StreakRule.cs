@@ -1,13 +1,15 @@
 namespace WorkoutLog.Core.Domain.Workouts.Consistency;
 
-/// <summary>A week in progress never breaks the streak. The streak is at most the number of weeks given.</summary>
+/// <summary>A workout is in the week of its local start date.</summary>
 internal sealed class StreakRule : IStreakRule
 {
     /// <inheritdoc />
-    public int Streak(IReadOnlyList<int> weekCounts)
+    public int Streak(IEnumerable<DateTimeOffset> starts, DateTimeOffset now, TimeZoneInfo zone)
     {
-        var streak = weekCounts[^1] > 0 ? 1 : 0;
-        for (var i = weekCounts.Count - 2; i >= 0 && weekCounts[i] > 0; i--)
+        var weeks = starts.Select(start => LocalWeek.Monday(start, zone)).ToHashSet();
+        var monday = LocalWeek.Monday(now, zone);
+        var streak = weeks.Contains(monday) ? 1 : 0;
+        for (var week = monday.AddDays(-7); weeks.Contains(week); week = week.AddDays(-7))
         {
             streak++;
         }

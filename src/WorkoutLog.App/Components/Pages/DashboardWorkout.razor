@@ -1,9 +1,0 @@
-@page "/dashboard/workout/{Id:int}"
-@using WorkoutLog.UI.Screens
-@inject NavigationManager Navigation
-
-<EditWorkoutPage WorkoutId="Id" OnSaved="@(() => Navigation.GoTo(string.Empty))" OnBack="@(() => Navigation.GoTo(string.Empty))" OnDeleted="@(() => Navigation.GoTo("workouts"))" />
-
-@code {
-    [Parameter] public int Id { get; set; }
-}
