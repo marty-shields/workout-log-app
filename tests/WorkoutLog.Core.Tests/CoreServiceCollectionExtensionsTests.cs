@@ -38,7 +38,6 @@ public class CoreServiceCollectionExtensionsTests
             (typeof(IWorkoutValidator), typeof(WorkoutValidator), ServiceLifetime.Singleton),
             (typeof(IWorkoutService), typeof(WorkoutService), ServiceLifetime.Singleton),
             (typeof(IWorkoutsService), typeof(WorkoutsService), ServiceLifetime.Singleton),
-            (typeof(IDashboardService), typeof(DashboardService), ServiceLifetime.Singleton),
             (typeof(ILastWorkoutService), typeof(LastWorkoutService), ServiceLifetime.Singleton),
             (typeof(IRecentRecordsService), typeof(RecentRecordsService), ServiceLifetime.Singleton),
             (typeof(IWeekComparisonRule), typeof(WeekComparisonRule), ServiceLifetime.Singleton),
@@ -113,7 +112,6 @@ public class CoreServiceCollectionExtensionsTests
             Assert.That(provider.GetRequiredService<IWorkoutRepository>(), Is.InstanceOf<GatedWorkoutRepository>());
             Assert.That(provider.GetRequiredService<IWorkoutService>(), Is.InstanceOf<WorkoutService>());
             Assert.That(provider.GetRequiredService<IWorkoutsService>(), Is.InstanceOf<WorkoutsService>());
-            Assert.That(provider.GetRequiredService<IDashboardService>(), Is.InstanceOf<DashboardService>());
             Assert.That(provider.GetRequiredService<ILastWorkoutService>(), Is.InstanceOf<LastWorkoutService>());
             Assert.That(provider.GetRequiredService<IConsistencyService>(), Is.InstanceOf<ConsistencyService>());
             Assert.That(provider.GetRequiredService<IMuscleSetsService>(), Is.InstanceOf<MuscleSetsService>());

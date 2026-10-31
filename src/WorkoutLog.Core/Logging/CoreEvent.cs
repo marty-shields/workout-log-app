@@ -2,7 +2,7 @@ namespace WorkoutLog.Core.Logging;
 
 /// <summary>
 /// Event ids of Core's log messages: 1000–1999, a block of 100 per type; the Dashboard services share 1400 and the Exercise page services share 1900.
-/// Ids never change and are never reused. Retired: 1205.
+/// Ids never change and are never reused. Retired: 1205, 1401, 1402.
 /// </summary>
 internal enum CoreEvent
 {
@@ -59,12 +59,6 @@ internal enum CoreEvent
 
     /// <summary><see cref="Services.WorkoutsService"/>: reading the saved workouts failed.</summary>
     WorkoutsLoadFailed = 1302,
-
-    /// <summary><see cref="Services.DashboardService"/>: Dashboard read.</summary>
-    DashboardLoaded = 1401,
-
-    /// <summary><see cref="Services.DashboardService"/>: reading the Dashboard failed.</summary>
-    DashboardLoadFailed = 1402,
 
     /// <summary><see cref="Services.LastWorkoutService"/>: last workout read.</summary>
     LastWorkoutLoaded = 1410,
