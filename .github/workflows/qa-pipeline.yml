@@ -18,7 +18,8 @@ env:
   CHROMEDRIVER_SHA256: d3826586626a8e91d8b1d2da76423e2b4fd7179148284afe4677c72dcd0f1a27
 
 jobs:
-  # One emulator per runner; each shard runs whole features (e2e-shard.sh). The matrix sets the number of shards.
+  # One emulator per runner; each shard runs scenarios balanced by recorded time (e2e-shard.sh), on the Debug APK and the
+  # tests built once by the dev pipeline. The matrix sets the number of shards.
   shard:
     name: Emulator shard (${{ matrix.shard }}/${{ strategy.job-total }})
     runs-on: ubuntu-latest
@@ -37,12 +38,14 @@ jobs:
       - name: Start the emulator
         run: .github/scripts/emulator-start.sh
 
+      # The Debug APK and the E2E test output from dev / build-and-test, in this run (e2e-build).
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: e2e-build
+
       - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
         with:
           global-json-file: global.json
-
-      - name: Install the MAUI Android workload
-        run: dotnet workload install maui-android --version 10.0.402.1
 
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
@@ -51,11 +54,6 @@ jobs:
       - name: Install Appium
         working-directory: tests/WorkoutLog.E2E.Tests
         run: npm ci --ignore-scripts
-
-      - name: Build the App (Debug) and the tests
-        run: |
-          dotnet build src/WorkoutLog.App -f net10.0-android
-          dotnet build tests/WorkoutLog.E2E.Tests
 
       - name: Wait for the emulator
         run: .github/scripts/emulator-wait.sh "$RESULTS"
@@ -73,20 +71,18 @@ jobs:
           unzip -q -d "$RUNNER_TEMP" "$RUNNER_TEMP/chromedriver.zip"
           echo "CHROMEDRIVER=$RUNNER_TEMP/chromedriver-linux64/chromedriver" >> "$GITHUB_ENV"
 
-      # A shard's tests take 3–8 minutes; a hang fails here and the logs still upload. Failed scenarios run again, up to
-      # 3 tries in all (e2e-run.sh).
+      # Times out after 30 minutes; the logs still upload. Failed scenarios run again, up to 3 tries in all (e2e-run.sh).
       - name: E2E tests
         timeout-minutes: 30
         run: |
           filter=$(.github/scripts/e2e-shard.sh "${{ matrix.shard }}" "${{ strategy.job-total }}")
           if [[ -z "$filter" ]]; then
-            echo "::error title=E2E::Shard ${{ matrix.shard }}/${{ strategy.job-total }} has no features: check the test listing in e2e-shard.sh."
+            echo "::error title=E2E::Shard ${{ matrix.shard }}/${{ strategy.job-total }} has no scenarios: check the test listing in e2e-shard.sh."
             exit 1
           fi
           .github/scripts/e2e-run.sh "$filter" 3
 
-      # Runs on a failure or a cancel too, so the logs are kept. Each adb call is time-limited: a hung emulator mustn't
-      # hold up a cancel.
+      # Runs on a failure or a cancel too. Each adb call is time-limited.
       - name: Keep the emulator log
         if: always()
         timeout-minutes: 3
