@@ -29,7 +29,7 @@ internal sealed partial class WorkoutService(
     }
 
     /// <inheritdoc />
-    public WorkoutErrors Validate(IReadOnlyList<WorkoutExercise> exercises) => validator.Validate(Snapshot(exercises));
+    public WorkoutErrors Validate(string? note, IReadOnlyList<WorkoutExercise> exercises) => validator.Validate(note, Snapshot(exercises));
 
     /// <inheritdoc />
     public ExerciseErrors ValidateSet(int exerciseId, StrengthSet set)
@@ -46,18 +46,18 @@ internal sealed partial class WorkoutService(
     }
 
     /// <inheritdoc />
-    public async Task<SaveResult> SaveNewAsync(WorkoutDraft draft, IReadOnlyList<WorkoutExercise> exercises)
+    public async Task<SaveResult> SaveNewAsync(WorkoutDraft draft, string? note, IReadOnlyList<WorkoutExercise> exercises)
     {
         ArgumentNullException.ThrowIfNull(draft);
         var copy = Snapshot(exercises);
-        var errors = validator.Validate(copy);
+        var errors = validator.Validate(note, copy);
         if (!errors.IsValid)
         {
             return new SaveResult(null, errors);
         }
 
         var length = TimeSpan.FromTicks(Math.Max(1, Elapsed(draft).Ticks));
-        var workout = new NewWorkout(draft.StartedAt, draft.StartedAt + length, copy);
+        var workout = new NewWorkout(draft.StartedAt, draft.StartedAt + length, copy, NoteText.Normalize(note));
         return await WriteAsync(null, copy.Length, () => repository.AddAsync(workout), errors);
     }
 
@@ -86,10 +86,10 @@ internal sealed partial class WorkoutService(
     }
 
     /// <inheritdoc />
-    public async Task<SaveResult> SaveAsync(int workoutId, IReadOnlyList<WorkoutExercise> exercises)
+    public async Task<SaveResult> SaveAsync(int workoutId, string? note, IReadOnlyList<WorkoutExercise> exercises)
     {
         var copy = Snapshot(exercises);
-        var errors = validator.Validate(copy);
+        var errors = validator.Validate(note, copy);
         if (!errors.IsValid)
         {
             return new SaveResult(null, errors);
@@ -97,7 +97,7 @@ internal sealed partial class WorkoutService(
 
         return await WriteAsync(workoutId, copy.Length, async () =>
         {
-            await repository.ReplaceExercisesAsync(workoutId, copy);
+            await repository.ReplaceAsync(workoutId, NoteText.Normalize(note), copy);
             return workoutId;
         }, errors);
     }
@@ -153,7 +153,10 @@ internal sealed partial class WorkoutService(
         return new SaveResult(savedId, errors);
     }
 
-    /// <summary>Copies the list and its sets, so later changes by the caller aren't saved. Throws on a null list, exercise, set list, set or entry.</summary>
+    /// <summary>
+    /// Copies the list and its sets with each note normalized by <see cref="NoteText"/>, so later changes by the caller aren't saved.
+    /// Throws on a null list, exercise, set list, set or entry.
+    /// </summary>
     private static WorkoutExercise[] Snapshot(IReadOnlyList<WorkoutExercise> exercises)
     {
         ArgumentNullException.ThrowIfNull(exercises);
@@ -162,9 +165,9 @@ internal sealed partial class WorkoutService(
             null => throw new ArgumentNullException(nameof(exercises), "An exercise is null"),
             StrengthExercise { Sets: null } => throw new ArgumentNullException(nameof(exercises), "An exercise's sets are null"),
             StrengthExercise strength when strength.Sets.Contains(null!) => throw new ArgumentNullException(nameof(exercises), "A set is null"),
-            StrengthExercise strength => strength with { Sets = strength.Sets.ToArray() },
+            StrengthExercise strength => strength with { Sets = strength.Sets.ToArray(), Note = NoteText.Normalize(strength.Note) },
             CardioExercise { Entry: null } => throw new ArgumentNullException(nameof(exercises), "A cardio entry is null"),
-            _ => exercise,
+            _ => exercise with { Note = NoteText.Normalize(exercise.Note) },
         }).ToArray();
     }
 

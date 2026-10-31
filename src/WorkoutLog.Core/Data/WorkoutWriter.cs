@@ -9,7 +9,7 @@ internal sealed class WorkoutWriter(SQLiteConnection db) : IWorkoutWriter
     /// <inheritdoc />
     public int Add(NewWorkout workout)
     {
-        var row = new WorkoutRow { StartedAt = workout.StartedAt, FinishedAt = workout.FinishedAt };
+        var row = new WorkoutRow { StartedAt = workout.StartedAt, FinishedAt = workout.FinishedAt, Note = workout.Note };
         db.Insert(row);
         InsertExercises(row.Id, workout.Exercises);
         return row.Id;
@@ -22,15 +22,18 @@ internal sealed class WorkoutWriter(SQLiteConnection db) : IWorkoutWriter
         var row = db.Table<WorkoutRow>().FirstOrDefault(w => w.StartedAt == start)
             ?? throw new KeyNotFoundException("No workout has the start");
         row.FinishedAt = workout.FinishedAt;
+        row.Note = workout.Note;
         db.Update(row);
         DeleteExercises(row.Id);
         InsertExercises(row.Id, workout.Exercises);
     }
 
     /// <inheritdoc />
-    public void ReplaceExercises(int workoutId, IReadOnlyList<WorkoutExercise> exercises)
+    public void Replace(int workoutId, string? note, IReadOnlyList<WorkoutExercise> exercises)
     {
-        EnsureExists(workoutId);
+        var row = db.Find<WorkoutRow>(workoutId) ?? throw new KeyNotFoundException($"Workout {workoutId} not found");
+        row.Note = note;
+        db.Update(row);
         DeleteExercises(workoutId);
         InsertExercises(workoutId, exercises);
     }
@@ -72,7 +75,7 @@ internal sealed class WorkoutWriter(SQLiteConnection db) : IWorkoutWriter
     {
         for (var i = 0; i < exercises.Count; i++)
         {
-            var exerciseRow = new WorkoutExerciseRow { WorkoutId = workoutId, ExerciseId = exercises[i].ExerciseId, Position = i };
+            var exerciseRow = new WorkoutExerciseRow { WorkoutId = workoutId, ExerciseId = exercises[i].ExerciseId, Position = i, Note = exercises[i].Note };
             db.Insert(exerciseRow);
 
             switch (exercises[i])

@@ -114,7 +114,7 @@ public class ImportServiceTests
     }
 
     [TestCase("not JSON", ImportError.NotAnExport, true)]
-    [TestCase("""{"formatVersion":3}""", ImportError.NewerVersion, false)]
+    [TestCase("""{"formatVersion":4}""", ImportError.NewerVersion, false)]
     [TestCase("""{"formatVersion":1,"exportedAt":"2026-10-26T18:05:12Z","appVersion":"1.4.0","workouts":[]}""", ImportError.NoWorkouts, false)]
     [TestCase("""{"formatVersion":1,"exportedAt":"2026-10-26T18:05:12Z","workouts":[]}""", ImportError.NotAnExport, false)]
     public async Task ReadAsync_FileCantBeImported_ReturnsTheErrorAndLogsIt(string json, ImportError error, bool hasException)
@@ -290,15 +290,15 @@ public class ImportServiceTests
         var start = new DateTimeOffset(2026, 10, 21, 17, 5, 0, TimeSpan.Zero).AddTicks(1234567);
         WorkoutExercise[] every =
         [
-            new StrengthExercise(8, [new StrengthSet(8, 62.5m, null, null), new StrengthSet(6, 60m, null, null)]),
+            new StrengthExercise(8, [new StrengthSet(8, 62.5m, null, null), new StrengthSet(6, 60m, null, null)], "Paused \"reps\"\nthen touch-and-go"),
             new StrengthExercise(187, [new StrengthSet(null, 32.25m, new TimeSpan(0, 0, 45), 20m)]),
             new StrengthExercise(258, [new StrengthSet(null, 0m, new TimeSpan(0, 1, 30), null)]),
-            new CardioExercise(311, new CardioEntry(new TimeSpan(0, 30, 0), 5.2m, null, null, null, null, null)),
+            new CardioExercise(311, new CardioEntry(new TimeSpan(0, 30, 0), 5.2m, null, null, null, null, null), "Hills é ✓"),
             new CardioExercise(309, new CardioEntry(new TimeSpan(0, 20, 0), null, 40, 6, null, 200, 70m)),
         ];
-        var workouts = new WorkoutValidator(Catalog);
-        Assert.That(workouts.Validate(every).IsValid, Is.True, "the saved workout passes Save's checks");
-        await repository.AddAsync(new NewWorkout(start, start.AddMinutes(62).AddTicks(7654321), every));
+        var workouts = new WorkoutValidator(Catalog, new NoteLengthRule());
+        Assert.That(workouts.Validate("Felt strong", every).IsValid, Is.True, "the saved workout passes Save's checks");
+        await repository.AddAsync(new NewWorkout(start, start.AddMinutes(62).AddTicks(7654321), every, "Felt strong"));
         await repository.AddAsync(new NewWorkout(start.AddDays(1), start.AddDays(1).AddHours(1), [new StrengthExercise(8, [new StrengthSet(5, 100m, null, null)])]));
         var folder = Directory.CreateTempSubdirectory("workoutlog-roundtrip-");
         try
@@ -317,6 +317,96 @@ public class ImportServiceTests
         {
             folder.Delete(recursive: true);
         }
+    }
+
+    [Test]
+    public async Task ReadAsync_Version2FileOfAPhoneWorkoutWithNoNotes_IsAlreadyOnThePhone()
+    {
+        await AddToPhoneAsync(0);
+
+        var review = await ReadAsync(File(2, Workout(0, Bench)));
+
+        Assert.That(review.Already, Is.EqualTo(1));
+    }
+
+    [TestCase("Felt strong", null, TestName = "ReadAsync_WorkoutNoteOnlyInTheFile_IsDifferent")]
+    [TestCase(null, "Felt strong", TestName = "ReadAsync_WorkoutNoteOnlyOnThePhone_IsDifferent")]
+    [TestCase("Felt strong", "Felt tired", TestName = "ReadAsync_WorkoutNotesDiffer_IsDifferent")]
+    [TestCase("Felt strong", "felt strong", TestName = "ReadAsync_WorkoutNotesDifferInCase_IsDifferent")]
+    public async Task ReadAsync_WorkoutDifferingOnlyInItsNote_IsDifferent(string? fileNote, string? phoneNote)
+    {
+        await repository.AddAsync(new NewWorkout(Start, Start.AddHours(1), BenchSaved, phoneNote));
+        var workout = Workout(0, Bench);
+
+        var review = await ReadAsync(File(fileNote is null ? workout : WithNote(workout, fileNote)));
+
+        Assert.That(review.Different, Is.EqualTo(1));
+    }
+
+    [Test]
+    public async Task ReadAsync_ExerciseDifferingOnlyInItsNote_IsDifferent()
+    {
+        await AddToPhoneAsync(0);
+
+        var review = await ReadAsync(File(Workout(0, Bench.Replace("\"sets\"", "\"note\":\"Grip\",\"sets\""))));
+
+        Assert.That(review.Different, Is.EqualTo(1));
+    }
+
+    [Test]
+    public async Task ReadAsync_SameNotesAfterTrimming_IsAlreadyOnThePhone()
+    {
+        await repository.AddAsync(new NewWorkout(Start, Start.AddHours(1), [BenchSaved[0] with { Note = "Grip" }], "Felt strong"));
+
+        var review = await ReadAsync(File(WithNote(Workout(0, Bench.Replace("\"sets\"", "\"note\":\" Grip\\n\",\"sets\"")), "  Felt strong ")));
+
+        Assert.That(review.Already, Is.EqualTo(1));
+    }
+
+    [TestCase(DifferentChoice.UseFiles, "File note", "File grip")]
+    [TestCase(DifferentChoice.KeepPhones, "Phone note", "Phone grip")]
+    public async Task ImportAsync_NoteOnlyDifference_AppliesTheChoice(DifferentChoice choice, string workoutNote, string exerciseNote)
+    {
+        var id = await repository.AddAsync(new NewWorkout(Start, Start.AddHours(1), [BenchSaved[0] with { Note = "Phone grip" }], "Phone note"));
+        var review = await ReadAsync(File(WithNote(Workout(0, Bench.Replace("\"sets\"", "\"note\":\" File grip \",\"sets\"")), " File note ")));
+
+        var result = await service.ImportAsync(review, ImportMode.Add, choice);
+
+        Assert.That(result.Replaced, Is.EqualTo(choice == DifferentChoice.UseFiles ? 1 : 0));
+        Assert.That(await repository.GetAllAsync(),
+            Is.EqualTo(new[] { new Workout(id, Start, Start.AddHours(1), [BenchSaved[0] with { Note = exerciseNote }], workoutNote) }).UsingPropertiesComparer());
+    }
+
+    [Test]
+    public async Task ImportAsync_NewWorkoutWithNotes_AddsThemTrimmedAndBlankAsNone()
+    {
+        var review = await ReadAsync(File(
+            WithNote(Workout(0, Bench.Replace("\"sets\"", "\"note\":\" Grip \",\"sets\"")), "\n Felt strong"),
+            WithNote(Workout(1, Bench.Replace("\"sets\"", "\"note\":\"   \",\"sets\"")), "")));
+
+        await service.ImportAsync(review, ImportMode.Add, DifferentChoice.KeepPhones);
+
+        Assert.That(await repository.GetAllAsync(), Is.EqualTo(new[]
+        {
+            new Workout(await IdAtAsync(0), Start, Start.AddHours(1), [BenchSaved[0] with { Note = "Grip" }], "Felt strong"),
+            Saved(await IdAtAsync(1), 1, BenchSaved),
+        }).UsingPropertiesComparer());
+    }
+
+    [Test]
+    public async Task ReadAsync_NoteOver500Characters_IsSkippedForTheSaveRules()
+    {
+        var review = await ReadAsync(File(
+            WithNote(Workout(0, Bench), new string('n', 501)),
+            Workout(1, Bench.Replace("\"sets\"", $"\"note\":\"{new string('n', 501)}\",\"sets\"")),
+            WithNote(Workout(2, Bench), new string('n', 500))));
+
+        Assert.That(review with { Groups = ImportGroups.Empty }, Is.EqualTo(new ImportReview(FileName, Total: 3, New: 1, Already: 0, Different: 0, Skipped: 2, PhoneCount: 0)));
+        Assert.That(LoggedEvents.Of(logger).Select(e => e.Message), Is.EqualTo(new[]
+        {
+            "Workout 1 in the file can't be imported: FailsSaveRules",
+            "Workout 2 in the file can't be imported: FailsSaveRules",
+        }));
     }
 
     [Test]
@@ -340,9 +430,9 @@ public class ImportServiceTests
         IImportCheck[] checks =
         [
             new StartCheck(), new RepeatedStartCheck(), new FinishCheck(), new UnknownExerciseCheck(Catalog), new ExerciseDefinitionCheck(Catalog),
-            new RepeatedExerciseCheck(), new SaveRulesCheck(new WorkoutValidator(Catalog)),
+            new RepeatedExerciseCheck(), new SaveRulesCheck(new WorkoutValidator(Catalog, new NoteLengthRule())),
         ];
-        return new ImportService(new ImportFileReader([new ValidationRulesFormatUpgrade(Catalog)]), new ImportChecker(checks), workouts, new WorkoutContentComparer(), writes, TimeProvider.System, logger);
+        return new ImportService(new ImportFileReader([new ValidationRulesFormatUpgrade(Catalog), new NotesFormatUpgrade()]), new ImportChecker(checks), workouts, new WorkoutContentComparer(), writes, TimeProvider.System, logger);
     }
 
     private Task<ImportReview> ReadAsync(string json) => service.ReadAsync(Stream(json), FileName);

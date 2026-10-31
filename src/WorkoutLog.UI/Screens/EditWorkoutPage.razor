@@ -242,7 +242,7 @@ else
             return;
         }
 
-        if (await Editor.SaveAsync(async records => (await Workouts.SaveAsync(loadedId, records)).WorkoutId is not null))
+        if (await Editor.SaveAsync(async records => (await Workouts.SaveAsync(loadedId, null, records)).WorkoutId is not null))
         {
             await OnSaved.InvokeAsync();
         }

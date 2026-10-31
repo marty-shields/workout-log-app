@@ -41,6 +41,15 @@ public class ImportExerciseTests
             new CardioEntry(TimeSpan.FromMinutes(1), 2m, 3, 4, 5m, 6, 7m))).UsingPropertiesComparer());
     }
 
+    [TestCase(" Grip slipped ", "Grip slipped")]
+    [TestCase("\t", null)]
+    [TestCase(null, null)]
+    public void ToDomain_Note_IsTrimmedAndBlankIsNone(string? note, string? expected)
+    {
+        Assert.That(new ImportExercise(Info, [new ImportSet(5)], Note: note).ToDomain().Note, Is.EqualTo(expected));
+        Assert.That(new ImportExercise(Info, Entry: new ImportEntry(), Note: note).ToDomain().Note, Is.EqualTo(expected));
+    }
+
     [Test]
     public void ToDomain_Neither_Throws()
     {

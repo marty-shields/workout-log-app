@@ -15,8 +15,8 @@ internal sealed class WorkoutRepository(SQLiteAsyncConnection connection, Workou
     }
 
     /// <inheritdoc />
-    public Task ReplaceExercisesAsync(int workoutId, IReadOnlyList<WorkoutExercise> exercises) =>
-        connection.RunInTransactionAsync(db => writers.Create(db).ReplaceExercises(workoutId, exercises));
+    public Task ReplaceAsync(int workoutId, string? note, IReadOnlyList<WorkoutExercise> exercises) =>
+        connection.RunInTransactionAsync(db => writers.Create(db).Replace(workoutId, note, exercises));
 
     /// <inheritdoc />
     public async Task<Workout?> GetAsync(int id)
@@ -37,7 +37,7 @@ internal sealed class WorkoutRepository(SQLiteAsyncConnection connection, Workou
                 .Where(c => exerciseIds.Contains(c.WorkoutExerciseId)).ToListAsync())
             .ToDictionary(c => c.WorkoutExerciseId);
 
-        return new Workout(row.Id, row.StartedAt, row.FinishedAt, ToExercises(exerciseRows, sets, entries));
+        return new Workout(row.Id, row.StartedAt, row.FinishedAt, ToExercises(exerciseRows, sets, entries), row.Note);
     }
 
     /// <inheritdoc />
@@ -51,7 +51,7 @@ internal sealed class WorkoutRepository(SQLiteAsyncConnection connection, Workou
         var entries = (await connection.Table<CardioEntryRow>().ToListAsync())
             .ToDictionary(c => c.WorkoutExerciseId);
 
-        return rows.Select(w => new Workout(w.Id, w.StartedAt, w.FinishedAt, ToExercises(exerciseRows[w.Id], sets, entries)))
+        return rows.Select(w => new Workout(w.Id, w.StartedAt, w.FinishedAt, ToExercises(exerciseRows[w.Id], sets, entries), w.Note))
             .ToList();
     }
 
@@ -120,19 +120,19 @@ internal sealed class WorkoutRepository(SQLiteAsyncConnection connection, Workou
     }
 
     /// <inheritdoc />
-    public async Task<IReadOnlyList<WorkoutWeights>> GetWeightsAsync(int exerciseId)
+    public async Task<IReadOnlyList<WorkoutWeights>> GetWeightsAsync(int exerciseId, DateTimeOffset? before)
     {
         const string sql = """
-            SELECT w.Id AS WorkoutId, s.WeightKg AS WeightKg
+            SELECT w.Id AS WorkoutId, e.Note AS Note, s.WeightKg AS WeightKg
             FROM Workout w
             JOIN WorkoutExercise e ON e.WorkoutId = w.Id
             LEFT JOIN StrengthSet s ON s.WorkoutExerciseId = e.Id
-            WHERE e.ExerciseId = ?
+            WHERE e.ExerciseId = ? AND (?2 IS NULL OR w.StartedAt < ?2)
             ORDER BY w.StartedAt DESC, s.Position
             """;
-        var rows = await connection.QueryAsync<WeightRow>(sql, exerciseId);
+        var rows = await connection.QueryAsync<WeightRow>(sql, exerciseId, before?.UtcTicks);
         return rows.GroupBy(r => r.WorkoutId)
-            .Select(g => new WorkoutWeights(g.Key, g.Where(r => r.WeightKg is not null).Select(r => r.WeightKg!.Value).ToList()))
+            .Select(g => new WorkoutWeights(g.Key, g.Where(r => r.WeightKg is not null).Select(r => r.WeightKg!.Value).ToList(), g.First().Note))
             .ToList();
     }
 
@@ -140,7 +140,7 @@ internal sealed class WorkoutRepository(SQLiteAsyncConnection connection, Workou
     public async Task<IReadOnlyList<LastSession>> GetLastSessionsAsync()
     {
         const string sql = """
-            SELECT e.Id, e.WorkoutId, e.ExerciseId, w.StartedAt
+            SELECT e.Id, e.WorkoutId, e.ExerciseId, e.Note, w.StartedAt
             FROM WorkoutExercise e
             JOIN Workout w ON w.Id = e.WorkoutId
             JOIN (
@@ -159,7 +159,7 @@ internal sealed class WorkoutRepository(SQLiteAsyncConnection connection, Workou
                 .Where(c => exerciseIds.Contains(c.WorkoutExerciseId)).ToListAsync())
             .ToDictionary(c => c.WorkoutExerciseId);
 
-        return rows.Select(r => new LastSession(r.ExerciseId, new DateTimeOffset(r.StartedAt, TimeSpan.Zero), ToExercise(r.Id, r.ExerciseId, sets, entries)))
+        return rows.Select(r => new LastSession(r.ExerciseId, new DateTimeOffset(r.StartedAt, TimeSpan.Zero), ToExercise(r.Id, r.ExerciseId, r.Note, sets, entries)))
             .ToList();
     }
 
@@ -167,7 +167,7 @@ internal sealed class WorkoutRepository(SQLiteAsyncConnection connection, Workou
     public async Task<IReadOnlyList<WorkoutSession>> GetSessionsAsync(int exerciseId)
     {
         const string exercisesSql = """
-            SELECT e.Id, e.WorkoutId, e.ExerciseId, w.StartedAt
+            SELECT e.Id, e.WorkoutId, e.ExerciseId, e.Note, w.StartedAt
             FROM WorkoutExercise e
             JOIN Workout w ON w.Id = e.WorkoutId
             WHERE e.ExerciseId = ?
@@ -190,7 +190,7 @@ internal sealed class WorkoutRepository(SQLiteAsyncConnection connection, Workou
         var sets = (await connection.QueryAsync<StrengthSetRow>(setsSql, exerciseId)).ToLookup(s => s.WorkoutExerciseId);
         var entries = (await connection.QueryAsync<CardioEntryRow>(entriesSql, exerciseId)).ToDictionary(c => c.WorkoutExerciseId);
 
-        return rows.Select(r => new WorkoutSession(r.WorkoutId, new DateTimeOffset(r.StartedAt, TimeSpan.Zero), ToExercise(r.Id, r.ExerciseId, sets, entries)))
+        return rows.Select(r => new WorkoutSession(r.WorkoutId, new DateTimeOffset(r.StartedAt, TimeSpan.Zero), ToExercise(r.Id, r.ExerciseId, r.Note, sets, entries)))
             .ToList();
     }
 
@@ -216,23 +216,26 @@ internal sealed class WorkoutRepository(SQLiteAsyncConnection connection, Workou
 
     private static List<WorkoutExercise> ToExercises(
         IEnumerable<WorkoutExerciseRow> exerciseRows, ILookup<int, StrengthSetRow> sets, Dictionary<int, CardioEntryRow> entries) =>
-        exerciseRows.Select(e => ToExercise(e.Id, e.ExerciseId, sets, entries)).ToList();
+        exerciseRows.Select(e => ToExercise(e.Id, e.ExerciseId, e.Note, sets, entries)).ToList();
 
     /// <summary>Builds the workout exercise with row id <paramref name="id"/>: cardio when it has an entry, otherwise strength with its sets.</summary>
-    private static WorkoutExercise ToExercise(int id, int exerciseId, ILookup<int, StrengthSetRow> sets, Dictionary<int, CardioEntryRow> entries) =>
+    private static WorkoutExercise ToExercise(
+        int id, int exerciseId, string? note, ILookup<int, StrengthSetRow> sets, Dictionary<int, CardioEntryRow> entries) =>
         entries.TryGetValue(id, out var entry)
-            ? new CardioExercise(exerciseId, ToEntry(entry))
-            : new StrengthExercise(exerciseId, sets[id].Select(ToSet).ToList());
+            ? new CardioExercise(exerciseId, ToEntry(entry), note)
+            : new StrengthExercise(exerciseId, sets[id].Select(ToSet).ToList(), note);
 
     private static StrengthSet ToSet(StrengthSetRow row) => new(row.Reps, row.WeightKg, row.Duration, row.Distance);
 
     private static CardioEntry ToEntry(CardioEntryRow row) =>
         new(row.Duration, row.Distance, row.Floors, row.Level, row.Incline, row.Calories, row.Rate);
 
-    /// <summary>One set's weight with its workout id; null weight for a set without one or an exercise without sets.</summary>
+    /// <summary>One set's weight with its workout id and the exercise's note; null weight for a set without one or an exercise without sets.</summary>
     private sealed class WeightRow
     {
         public int WorkoutId { get; set; }
+
+        public string? Note { get; set; }
 
         public decimal? WeightKg { get; set; }
     }
@@ -277,6 +280,8 @@ internal sealed class WorkoutRepository(SQLiteAsyncConnection connection, Workou
         public int WorkoutId { get; set; }
 
         public int ExerciseId { get; set; }
+
+        public string? Note { get; set; }
 
         public long StartedAt { get; set; }
     }

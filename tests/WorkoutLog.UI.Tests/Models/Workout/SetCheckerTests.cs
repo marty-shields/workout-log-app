@@ -580,7 +580,7 @@ public class SetCheckerTests
 
         public TimeSpan Elapsed(WorkoutDraft draft) => inner.Elapsed(draft);
 
-        public WorkoutErrors Validate(IReadOnlyList<WorkoutExercise> exercises) => inner.Validate(exercises);
+        public WorkoutErrors Validate(string? note, IReadOnlyList<WorkoutExercise> exercises) => inner.Validate(note, exercises);
 
         public ExerciseErrors ValidateSet(int exerciseId, StrengthSet set)
         {
@@ -594,11 +594,11 @@ public class SetCheckerTests
             return result ?? inner.ValidateEntry(exerciseId, entry);
         }
 
-        public Task<SaveResult> SaveNewAsync(WorkoutDraft draft, IReadOnlyList<WorkoutExercise> exercises) => inner.SaveNewAsync(draft, exercises);
+        public Task<SaveResult> SaveNewAsync(WorkoutDraft draft, string? note, IReadOnlyList<WorkoutExercise> exercises) => inner.SaveNewAsync(draft, note, exercises);
 
         public Task<WorkoutResult> GetAsync(int workoutId) => inner.GetAsync(workoutId);
 
-        public Task<SaveResult> SaveAsync(int workoutId, IReadOnlyList<WorkoutExercise> exercises) => inner.SaveAsync(workoutId, exercises);
+        public Task<SaveResult> SaveAsync(int workoutId, string? note, IReadOnlyList<WorkoutExercise> exercises) => inner.SaveAsync(workoutId, note, exercises);
 
         public Task<WorkoutDelete> DeleteAsync(int workoutId) => inner.DeleteAsync(workoutId);
     }

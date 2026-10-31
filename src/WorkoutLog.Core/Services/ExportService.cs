@@ -102,7 +102,7 @@ internal sealed partial class ExportService(
             ExportFormat.Version,
             now,
             environment.AppVersion,
-            workouts.Select(w => new ExportWorkout(w.StartedAt, w.FinishedAt, w.Exercises.Select(e => ToExercise(e, exercises)).ToList())).ToList());
+            workouts.Select(w => new ExportWorkout(w.StartedAt, w.FinishedAt, w.Note, w.Exercises.Select(e => ToExercise(e, exercises)).ToList())).ToList());
     }
 
     private static ExportExercise ToExercise(WorkoutExercise exercise, Dictionary<int, ExerciseDefinition> exercises)
@@ -112,8 +112,10 @@ internal sealed partial class ExportService(
             : new ExportExerciseInfo(exercise.ExerciseId);
         return exercise switch
         {
-            StrengthExercise strength => new ExportExercise(info, strength.Sets.Select(s => new ExportSet(s.Reps, s.WeightKg, s.Duration, s.Distance)).ToList(), null),
-            CardioExercise { Entry: var e } => new ExportExercise(info, null, new ExportEntry(e.Duration, e.Distance, e.Floors, e.Level, e.Incline, e.Calories, e.Rate)),
+            StrengthExercise strength =>
+                new ExportExercise(info, strength.Note, strength.Sets.Select(s => new ExportSet(s.Reps, s.WeightKg, s.Duration, s.Distance)).ToList(), null),
+            CardioExercise { Entry: var e } cardio =>
+                new ExportExercise(info, cardio.Note, null, new ExportEntry(e.Duration, e.Distance, e.Floors, e.Level, e.Incline, e.Calories, e.Rate)),
             _ => throw new ArgumentOutOfRangeException(nameof(exercise), $"Unknown exercise type {exercise.GetType().Name}"),
         };
     }

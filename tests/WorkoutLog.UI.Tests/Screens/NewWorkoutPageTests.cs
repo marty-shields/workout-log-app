@@ -731,7 +731,7 @@ public class NewWorkoutPageTests : ComponentTestBase
             Assert.That(weights.Loads, Is.EqualTo(new[] { 6 }));
             Assert.That(cut.FindAll("[data-testid=exercise-1-weights]"), Is.Empty);
         });
-        weights.Complete(new WeightHistoryResult(62.5m, 70m, Failed: false));
+        weights.Complete(new WeightHistoryResult(62.5m, 70m, null, Failed: false));
         await WaitForRendererAsync();
         cut.WaitForAssertion(() => Assert.That(cut.Find("[data-testid=exercise-1-weights]").TextContent, Is.EqualTo("Last 62.5kg · PB 70kg")));
     }
@@ -748,7 +748,7 @@ public class NewWorkoutPageTests : ComponentTestBase
         var cut = RenderPage();
         Add(cut, exerciseId);
 
-        weights.Complete(new WeightHistoryResult(lastKg, bestKg, Failed: false));
+        weights.Complete(new WeightHistoryResult(lastKg, bestKg, null, Failed: false));
         await WaitForRendererAsync();
 
         cut.WaitForAssertion(() => Assert.That(cut.FindAll("[data-testid=exercise-1-weights]").Select(w => w.TextContent), Is.EqualTo(line is null ? [] : new[] { line })));
@@ -762,7 +762,7 @@ public class NewWorkoutPageTests : ComponentTestBase
         var cut = RenderPage();
         Add(cut, 6);
 
-        weights.Complete(new WeightHistoryResult(null, null, failed));
+        weights.Complete(new WeightHistoryResult(null, null, null, failed));
         await WaitForRendererAsync();
 
         Assert.Multiple(() =>
@@ -790,7 +790,7 @@ public class NewWorkoutPageTests : ComponentTestBase
         var weights = UseWeights();
         var cut = RenderPage();
         Add(cut, 6);
-        weights.Complete(new WeightHistoryResult(60m, 70m, Failed: false));
+        weights.Complete(new WeightHistoryResult(60m, 70m, null, Failed: false));
         await WaitForRendererAsync();
 
         Add(cut, 6);
@@ -808,7 +808,7 @@ public class NewWorkoutPageTests : ComponentTestBase
         var weights = UseWeights();
         var cut = RenderPage();
         Add(cut, 6);
-        weights.Complete(new WeightHistoryResult(60m, 70m, Failed: false));
+        weights.Complete(new WeightHistoryResult(60m, 70m, null, Failed: false));
         await WaitForRendererAsync();
         Remove(cut, 1);
 
@@ -829,7 +829,7 @@ public class NewWorkoutPageTests : ComponentTestBase
         Add(cut, 6);
         Remove(cut, 1);
 
-        weights.Complete(new WeightHistoryResult(60m, 70m, Failed: false));
+        weights.Complete(new WeightHistoryResult(60m, 70m, null, Failed: false));
         await WaitForRendererAsync();
 
         Assert.Multiple(() =>
@@ -848,11 +848,11 @@ public class NewWorkoutPageTests : ComponentTestBase
         Remove(cut, 1);
         Add(cut, 6);
 
-        weights.Complete(new WeightHistoryResult(50m, 55m, Failed: false), index: 0);
+        weights.Complete(new WeightHistoryResult(50m, 55m, null, Failed: false), index: 0);
         await WaitForRendererAsync();
         Assert.That(cut.FindAll("[data-testid=exercise-1-weights]"), Is.Empty);
 
-        weights.Complete(new WeightHistoryResult(60m, 70m, Failed: false), index: 1);
+        weights.Complete(new WeightHistoryResult(60m, 70m, null, Failed: false), index: 1);
         await WaitForRendererAsync();
         cut.WaitForAssertion(() => Assert.That(cut.Find("[data-testid=exercise-1-weights]").TextContent, Is.EqualTo("Last 60kg · PB 70kg")));
     }
@@ -1230,7 +1230,7 @@ public class NewWorkoutPageTests : ComponentTestBase
 
         public List<int> Loads { get; } = [];
 
-        public Task<WeightHistoryResult> GetAsync(int exerciseId)
+        public Task<WeightHistoryResult> GetAsync(int exerciseId, DateTimeOffset? before)
         {
             Loads.Add(exerciseId);
             var load = new TaskCompletionSource<WeightHistoryResult>(TaskCreationOptions.RunContinuationsAsynchronously);
@@ -1326,21 +1326,21 @@ public class NewWorkoutPageTests : ComponentTestBase
 
         public TimeSpan Elapsed(WorkoutDraft draft) => ElapsedTime ?? inner.Elapsed(draft);
 
-        public WorkoutErrors Validate(IReadOnlyList<WorkoutExercise> exercises) => inner.Validate(exercises);
+        public WorkoutErrors Validate(string? note, IReadOnlyList<WorkoutExercise> exercises) => inner.Validate(note, exercises);
 
         public ExerciseErrors ValidateSet(int exerciseId, StrengthSet set) => inner.ValidateSet(exerciseId, set);
 
         public ExerciseErrors ValidateEntry(int exerciseId, CardioEntry entry) => inner.ValidateEntry(exerciseId, entry);
 
-        public Task<SaveResult> SaveNewAsync(WorkoutDraft draft, IReadOnlyList<WorkoutExercise> exercises)
+        public Task<SaveResult> SaveNewAsync(WorkoutDraft draft, string? note, IReadOnlyList<WorkoutExercise> exercises)
         {
             Saves.Add((draft, exercises));
-            return SaveNew?.Invoke() ?? inner.SaveNewAsync(draft, exercises);
+            return SaveNew?.Invoke() ?? inner.SaveNewAsync(draft, note, exercises);
         }
 
         public Task<WorkoutResult> GetAsync(int workoutId) => inner.GetAsync(workoutId);
 
-        public Task<SaveResult> SaveAsync(int workoutId, IReadOnlyList<WorkoutExercise> exercises) => inner.SaveAsync(workoutId, exercises);
+        public Task<SaveResult> SaveAsync(int workoutId, string? note, IReadOnlyList<WorkoutExercise> exercises) => inner.SaveAsync(workoutId, note, exercises);
 
         public Task<WorkoutDelete> DeleteAsync(int workoutId) => inner.DeleteAsync(workoutId);
     }

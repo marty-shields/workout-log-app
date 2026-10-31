@@ -84,7 +84,7 @@
             return;
         }
 
-        var weights = await WeightHistory.GetAsync(item.Id);
+        var weights = await WeightHistory.GetAsync(item.Id, null);
         var hideZero = exercise.Fields.Any(f => f.Metric == Metric.WeightKg && f.HideZero);
         exercise.LastKg = hideZero && weights.LastKg == 0m ? null : weights.LastKg;
         exercise.BestKg = hideZero && weights.BestKg == 0m ? null : weights.BestKg;
@@ -111,7 +111,7 @@
         int? savedId = null;
         if (await Editor.SaveAsync(async records =>
             {
-                savedId = (await Workouts.SaveNewAsync(draft, records)).WorkoutId;
+                savedId = (await Workouts.SaveNewAsync(draft, null, records)).WorkoutId;
                 return savedId is not null;
             }))
         {

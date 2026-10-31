@@ -1269,13 +1269,13 @@ public class EditWorkoutPageTests : ComponentTestBase
 
         public TimeSpan Elapsed(WorkoutDraft draft) => inner.Elapsed(draft);
 
-        public WorkoutErrors Validate(IReadOnlyList<WorkoutExercise> exercises) => inner.Validate(exercises);
+        public WorkoutErrors Validate(string? note, IReadOnlyList<WorkoutExercise> exercises) => inner.Validate(note, exercises);
 
         public ExerciseErrors ValidateSet(int exerciseId, StrengthSet set) => inner.ValidateSet(exerciseId, set);
 
         public ExerciseErrors ValidateEntry(int exerciseId, CardioEntry entry) => inner.ValidateEntry(exerciseId, entry);
 
-        public Task<SaveResult> SaveNewAsync(WorkoutDraft draft, IReadOnlyList<WorkoutExercise> exercises) => inner.SaveNewAsync(draft, exercises);
+        public Task<SaveResult> SaveNewAsync(WorkoutDraft draft, string? note, IReadOnlyList<WorkoutExercise> exercises) => inner.SaveNewAsync(draft, note, exercises);
 
         public Task<WorkoutResult> GetAsync(int workoutId)
         {
@@ -1284,10 +1284,10 @@ public class EditWorkoutPageTests : ComponentTestBase
             return pending.Task;
         }
 
-        public Task<SaveResult> SaveAsync(int workoutId, IReadOnlyList<WorkoutExercise> exercises)
+        public Task<SaveResult> SaveAsync(int workoutId, string? note, IReadOnlyList<WorkoutExercise> exercises)
         {
             Saves.Add((workoutId, exercises));
-            return Save?.Invoke() ?? inner.SaveAsync(workoutId, exercises);
+            return Save?.Invoke() ?? inner.SaveAsync(workoutId, note, exercises);
         }
 
         public Task<WorkoutDelete> DeleteAsync(int workoutId)

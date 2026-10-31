@@ -11,7 +11,7 @@ namespace WorkoutLog.Core.Tests.Import;
 
 public class ImportFileReaderTests
 {
-    private readonly ImportFileReader reader = new([new ValidationRulesFormatUpgrade(new ExerciseCatalog())]);
+    private readonly ImportFileReader reader = new([new ValidationRulesFormatUpgrade(new ExerciseCatalog()), new NotesFormatUpgrade()]);
 
     [Test]
     public async Task ReadAsync_Export_ReturnsEachWorkoutInFileOrder()
@@ -119,7 +119,7 @@ public class ImportFileReaderTests
     [Test]
     public async Task ReadAsync_NewerFormatVersion_IsNewerVersionWhateverElseItHolds()
     {
-        Assert.That((await ReadAsync("""{"formatVersion":3,"somethingNew":true}""")).Error, Is.EqualTo(ImportError.NewerVersion));
+        Assert.That((await ReadAsync("""{"formatVersion":4,"somethingNew":true}""")).Error, Is.EqualTo(ImportError.NewerVersion));
     }
 
     [Test]
@@ -136,12 +136,15 @@ public class ImportFileReaderTests
         Assert.That((await ReadAsync(json)).Error, Is.EqualTo(ImportError.NotAnExport));
     }
 
-    [TestCase("""{"startedAt":"S","finishedAt":"F","exercises":[],"note":"x"}""", TestName = "Unknown workout property")]
+    [TestCase("""{"startedAt":"S","finishedAt":"F","exercises":[],"comment":"x"}""", TestName = "Unknown workout property")]
     [TestCase("""{"startedAt":"S","finishedAt":"F","exercises":[{"exercise":{"id":8},"sets":[],"more":[]}]}""", TestName = "Unknown exercise property")]
     [TestCase("""{"startedAt":"S","finishedAt":"F","exercises":[{"exercise":{"id":8,"extra":1},"sets":[]}]}""", TestName = "Unknown exercise info property")]
     [TestCase("""{"startedAt":"S","finishedAt":"F","exercises":[{"exercise":{"id":8},"sets":[{"reps":8,"weightKg":0,"note":"x"}]}]}""", TestName = "Unknown set property")]
     [TestCase("""{"startedAt":"S","finishedAt":"F","exercises":[{"exercise":{"id":311},"entry":{"duration":"00:30:00","pace":"00:05:46"}}]}""", TestName = "Pace")]
     [TestCase("""{"startedAt":"S","finishedAt":"F","exercises":[{"exercise":{"id":300},"entry":{"duration":"00:30:00","speed":10}}]}""", TestName = "Unknown entry property")]
+    [TestCase("""{"startedAt":"S","finishedAt":"F","exercises":[{"exercise":{"id":300},"entry":{"duration":"00:30:00","note":"x"}}]}""", TestName = "Note on an entry")]
+    [TestCase("""{"startedAt":"S","finishedAt":"F","exercises":[{"exercise":{"id":8,"note":"x"},"sets":[]}]}""", TestName = "Note on the exercise info")]
+    [TestCase("""{"startedAt":"S","finishedAt":"F","Note":"x","exercises":[]}""", TestName = "Workout note in the wrong case")]
     public async Task ReadAsync_UnknownWorkoutProperty_IsMalformed(string workout)
     {
         var read = await ReadAsync(File(Workout(0), workout));
@@ -152,7 +155,7 @@ public class ImportFileReaderTests
     [Test]
     public async Task ReadAsync_RateOnATreadmillInAVersion2File_IsReadForTheSaveRules()
     {
-        var read = await ReadAsync(File(Workout(0, """{"exercise":{"id":300},"entry":{"duration":"00:30:00","distance":5,"rate":10}}""")));
+        var read = await ReadAsync(File(2, Workout(0, """{"exercise":{"id":300},"entry":{"duration":"00:30:00","distance":5,"rate":10}}""")));
 
         Assert.That(read.Workouts.Single().Exercises,
             Is.EqualTo(new[] { new ImportExercise(new ImportExerciseInfo(300), Entry: new ImportEntry(TimeSpan.FromMinutes(30), 5m, Rate: 10m)) }).UsingPropertiesComparer());
@@ -172,6 +175,45 @@ public class ImportFileReaderTests
         }).UsingPropertiesComparer());
     }
 
+    [Test]
+    public async Task ReadAsync_Version3FileWithNotes_ReadsTheWorkoutAndExerciseNotesAsWritten()
+    {
+        var read = await ReadAsync(File(Workout(0, """{"exercise":{"id":8},"note":" Grip slipped","sets":[{"reps":8,"weightKg":60}]}""", Run)
+            .Replace("\"exercises\"", "\"note\":\"  Felt strong \",\"exercises\"")));
+
+        Assert.That(read.Workouts.Single(), Is.EqualTo(new ImportWorkout(1, Time(Start), Time(Start.AddHours(1)),
+        [
+            new ImportExercise(new ImportExerciseInfo(8), [new ImportSet(8, 60m)], Note: " Grip slipped"),
+            new ImportExercise(new ImportExerciseInfo(311, "Outdoor Run", ExerciseType.Cardio, DistanceUnit.Km, PaceUnit: PaceUnit.PerKm),
+                Entry: new ImportEntry(TimeSpan.FromMinutes(30), 5.2m)),
+        ], "  Felt strong ")).UsingPropertiesComparer());
+    }
+
+    [Test]
+    public async Task ReadAsync_Version2File_ReadsWithNoNotes()
+    {
+        var read = await ReadAsync(File(2, Workout(0, Bench)));
+
+        Assert.That(read.Error, Is.EqualTo(ImportError.None));
+        Assert.That(read.Workouts.Single().Note, Is.Null);
+        Assert.That(read.Workouts.Single().Exercises!.Single().Note, Is.Null);
+    }
+
+    [Test]
+    public async Task ReadAsync_NullNotes_AreNoNotes()
+    {
+        var read = await ReadAsync(File(Workout(0, """{"exercise":{"id":8},"note":null,"sets":[{"reps":8,"weightKg":60}]}""")
+            .Replace("\"exercises\"", "\"note\":null,\"exercises\"")));
+
+        Assert.That(read.Workouts.Single().Malformed, Is.False);
+        Assert.That(read.Workouts.Single().Note, Is.Null);
+        Assert.That(read.Workouts.Single().Exercises!.Single().Note, Is.Null);
+    }
+
+    [TestCase("""{"startedAt":"S","finishedAt":"F","note":5,"exercises":[]}""", TestName = "Workout note as a number")]
+    [TestCase("""{"startedAt":"S","finishedAt":"F","note":["x"],"exercises":[]}""", TestName = "Workout note as a list")]
+    [TestCase("""{"startedAt":"S","finishedAt":"F","exercises":[{"exercise":{"id":8},"note":{},"sets":[]}]}""", TestName = "Exercise note as an object")]
+    [TestCase("""{"startedAt":"S","finishedAt":"F","exercises":[{"exercise":{"id":8},"note":true,"sets":[]}]}""", TestName = "Exercise note as a boolean")]
     [TestCase("""{"startedAt":"S","finishedAt":"F"}""", TestName = "No exercises")]
     [TestCase("""{"startedAt":"S","finishedAt":"F","exercises":null}""", TestName = "Null exercises")]
     [TestCase("""{"startedAt":"S","finishedAt":"F","exercises":{}}""", TestName = "Exercises not a list")]
@@ -232,7 +274,7 @@ public class ImportFileReaderTests
     {
         var applied = new List<int>();
         var upgrades = new[] { new RecordingUpgrade(3, applied), new RecordingUpgrade(2, applied), new RecordingUpgrade(4, applied) };
-        var json = File(Workout(0)).Replace("\"workouts\"", "\"sessions\"");
+        var json = File(2, Workout(0)).Replace("\"workouts\"", "\"sessions\"");
 
         var read = await new ImportFileReader(upgrades, currentVersion: 4, maxBytes: 1000).ReadAsync(Stream(json));
 

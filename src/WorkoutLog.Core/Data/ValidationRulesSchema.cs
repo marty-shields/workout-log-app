@@ -8,7 +8,7 @@ namespace WorkoutLog.Core.Data;
 /// <summary>
 /// Schema step 4, in order: fails on a cardio exercise twice in a workout; merges a strength exercise that is twice in a workout into its first block;
 /// sets blank strength weights to 0; blanks cardio floors, level, calories and rate of 0, and the rate of exercises with worked-out speed;
-/// fails on any row that breaks a rule of <see cref="WorkoutTables"/>, a carry set without duration, or a cardio entry without distance where the exercise has distance;
+/// fails on any row that breaks a rule of <see cref="Version4Tables"/>, a carry set without duration, or a cardio entry without distance where the exercise has distance;
 /// then rebuilds the four workout tables with their CHECK rules and indexes, which drops the Pace column, keeping each table's highest id used.
 /// </summary>
 internal sealed partial class ValidationRulesSchema(IExerciseCatalog catalog, ILogger<ValidationRulesSchema> logger) : ISchemaUpgrade
@@ -48,7 +48,7 @@ internal sealed partial class ValidationRulesSchema(IExerciseCatalog catalog, IL
             Fail(broken);
         }
 
-        foreach (var table in WorkoutTables.All)
+        foreach (var table in Version4Tables.All)
         {
             Rebuild(db, table);
         }
@@ -95,7 +95,7 @@ internal sealed partial class ValidationRulesSchema(IExerciseCatalog catalog, IL
     /// <summary>Each rule that rows break, with the row count.</summary>
     private List<(string Rule, int Rows)> BrokenRules(SQLiteConnection db)
     {
-        var counts = WorkoutTables.All
+        var counts = Version4Tables.All
             .SelectMany(t => t.Checks.Select(c => ($"{t.Name}: {c.Name}", $"SELECT COUNT(*) FROM \"{t.Name}\" WHERE NOT ({c.Sql})")))
             .Append(("StrengthSet: carry duration required", $"""
                 SELECT COUNT(*) FROM StrengthSet WHERE Duration IS NULL

@@ -48,6 +48,12 @@ public class ImportWorkoutTests
         ])).UsingPropertiesComparer());
     }
 
+    [TestCase("  Felt strong \n", "Felt strong")]
+    [TestCase("   ", null)]
+    [TestCase(null, null)]
+    public void ToNewWorkout_Note_IsTrimmedAndBlankIsNone(string? note, string? expected) =>
+        Assert.That((At(0, Bench) with { Note = note }).ToNewWorkout().Note, Is.EqualTo(expected));
+
     [Test]
     public void ToNewWorkout_InvalidTimesOrMalformed_Throws()
     {

@@ -24,7 +24,7 @@ public sealed partial class WorkoutChecker(ISetChecker sets, IWorkoutService wor
             }
         }
 
-        var result = workouts.Validate(exercises.Select(sets.Read).ToList());
+        var result = workouts.Validate(null, exercises.Select(sets.Read).ToList());
         for (var i = 0; i < exercises.Count; i++)
         {
             SetExerciseError(exercises[i], result.Exercises[i].Error);
@@ -57,7 +57,7 @@ public sealed partial class WorkoutChecker(ISetChecker sets, IWorkoutService wor
         }
 
         // Too many sets is a limit the screen never lets through, and it is left to Save with the other workout rules.
-        var code = workouts.Validate([sets.Read(exercise)]).Exercises[0].Error;
+        var code = workouts.Validate(null, [sets.Read(exercise)]).Exercises[0].Error;
         SetExerciseError(exercise, code == ExerciseError.TooManySets ? null : code);
         valid &= exercise.ErrorCode is null;
         if (valid)

@@ -62,7 +62,7 @@ public sealed class WorkoutSeeder(Native native)
                 clock.Now = workout.StartedAt;
                 var draft = workoutService.StartNew();
                 clock.Now = workout.FinishedAt;
-                var result = await workoutService.SaveNewAsync(draft, workout.Exercises);
+                var result = await workoutService.SaveNewAsync(draft, null, workout.Exercises);
                 if (result.WorkoutId != i + 1)
                 {
                     throw new InvalidOperationException($"Seeding workout {i + 1} failed: {string.Join(", ", result.Errors.Errors)}, {result.Errors.Exercises.Count(e => !e.IsValid)} exercises with errors.");

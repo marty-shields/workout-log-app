@@ -17,7 +17,7 @@ internal static class ImportJson
     public static readonly DateTimeOffset Start = new DateTimeOffset(2026, 10, 21, 17, 5, 0, TimeSpan.Zero).AddTicks(1234567);
 
     /// <summary>A file with the current version's header and <paramref name="workouts"/>.</summary>
-    public static string File(params string[] workouts) => File(2, workouts);
+    public static string File(params string[] workouts) => File(3, workouts);
 
     /// <summary>A file with the header of format <paramref name="version"/> and <paramref name="workouts"/>.</summary>
     public static string File(int version, params string[] workouts) =>
@@ -30,6 +30,10 @@ internal static class ImportJson
     /// <summary>A workout with the given time texts and <paramref name="exercises"/>.</summary>
     public static string Workout(string startedAt, string finishedAt, params string[] exercises) =>
         $$"""{"startedAt":"{{startedAt}}","finishedAt":"{{finishedAt}}","exercises":[{{string.Join(",", exercises)}}]}""";
+
+    /// <summary><paramref name="workout"/> with a <c>note</c> of <paramref name="note"/> before its exercises.</summary>
+    public static string WithNote(string workout, string note) =>
+        workout.Replace("\"exercises\"", $"\"note\":{System.Text.Json.JsonSerializer.Serialize(note)},\"exercises\"");
 
     /// <summary>The export's text for <paramref name="time"/>.</summary>
     public static string Time(DateTimeOffset time) =>

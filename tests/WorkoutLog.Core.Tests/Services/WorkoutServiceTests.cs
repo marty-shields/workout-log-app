@@ -18,6 +18,7 @@ public class WorkoutServiceTests
 {
     private const int Press = 1;
     private const int Bike = 2;
+    private const int Treadmill = 300;
     private static readonly DateTimeOffset Start = new(2026, 10, 21, 17, 5, 0, TimeSpan.Zero);
     private static readonly WorkoutErrors NoErrors = new([], []);
     private static readonly WorkoutErrors Errors = new([], [new ExerciseErrors(ExerciseError.NoSets, [])]);
@@ -37,7 +38,7 @@ public class WorkoutServiceTests
         elapsed = new FakeElapsedClock();
         repository = new Mock<IWorkoutRepository>(MockBehavior.Strict);
         validator = new Mock<IWorkoutValidator>();
-        validator.Setup(v => v.Validate(It.IsAny<IReadOnlyList<WorkoutExercise>>())).Returns(NoErrors);
+        validator.Setup(v => v.Validate(It.IsAny<string?>(), It.IsAny<IReadOnlyList<WorkoutExercise>>())).Returns(NoErrors);
         logger = new FakeLogger<WorkoutService>();
         service = new WorkoutService(repository.Object, validator.Object, time, elapsed, logger);
     }
@@ -66,7 +67,7 @@ public class WorkoutServiceTests
         elapsed.Advance(TimeSpan.FromHours(1));
         var second = service.StartNew();
 
-        var results = new[] { await service.SaveNewAsync(first, Exercises()), await service.SaveNewAsync(second, Exercises()) };
+        var results = new[] { await service.SaveNewAsync(first, null, Exercises()), await service.SaveNewAsync(second, null, Exercises()) };
 
         Assert.That(results.Select(r => r.WorkoutId), Is.EqualTo(new int?[] { 7, 8 }));
         repository.Verify(r => r.AddAsync(It.IsAny<NewWorkout>()), Times.Exactly(2));
@@ -76,10 +77,10 @@ public class WorkoutServiceTests
     public void Validate_ReturnsTheValidatorsErrorsForACopy()
     {
         var exercises = Exercises();
-        validator.Setup(v => v.Validate(It.IsAny<IReadOnlyList<WorkoutExercise>>())).Returns(Errors);
+        validator.Setup(v => v.Validate(It.IsAny<string?>(), It.IsAny<IReadOnlyList<WorkoutExercise>>())).Returns(Errors);
 
-        Assert.That(service.Validate(exercises), Is.SameAs(Errors));
-        validator.Verify(v => v.Validate(It.Is<IReadOnlyList<WorkoutExercise>>(e => e != exercises && Same(e, exercises))), Times.Once);
+        Assert.That(service.Validate(null, exercises), Is.SameAs(Errors));
+        validator.Verify(v => v.Validate(null, It.Is<IReadOnlyList<WorkoutExercise>>(e => e != exercises && Same(e, exercises))), Times.Once);
     }
 
     [Test]
@@ -102,7 +103,7 @@ public class WorkoutServiceTests
         validator.Setup(v => v.Validate(It.IsAny<WorkoutExercise>())).Returns(errors);
 
         Assert.That(service.ValidateEntry(Bike, entry), Is.SameAs(errors));
-        validator.Verify(v => v.Validate(new CardioExercise(Bike, entry)), Times.Once);
+        validator.Verify(v => v.Validate(new CardioExercise(Bike, entry, null)), Times.Once);
     }
 
     [Test]
@@ -133,7 +134,7 @@ public class WorkoutServiceTests
         NewWorkout? saved = null;
         repository.Setup(r => r.AddAsync(It.IsAny<NewWorkout>())).Callback<NewWorkout>(w => saved = w).ReturnsAsync(7);
 
-        var result = await service.SaveNewAsync(draft, Exercises());
+        var result = await service.SaveNewAsync(draft, null, Exercises());
 
         Assert.That(result, Is.EqualTo(new SaveResult(7, NoErrors)));
         Assert.That(saved!.StartedAt, Is.EqualTo(Start));
@@ -149,7 +150,7 @@ public class WorkoutServiceTests
         elapsed.Advance(TimeSpan.FromMinutes(10));
         repository.Setup(r => r.AddAsync(It.IsAny<NewWorkout>())).ReturnsAsync(7);
 
-        await service.SaveNewAsync(draft, Exercises());
+        await service.SaveNewAsync(draft, null, Exercises());
 
         repository.Verify(r => r.AddAsync(It.Is<NewWorkout>(w => w.StartedAt == Start && w.FinishedAt == Start.AddMinutes(10))), Times.Once);
     }
@@ -159,7 +160,7 @@ public class WorkoutServiceTests
     {
         repository.Setup(r => r.AddAsync(It.IsAny<NewWorkout>())).ReturnsAsync(7);
 
-        await service.SaveNewAsync(service.StartNew(), Exercises());
+        await service.SaveNewAsync(service.StartNew(), null, Exercises());
 
         repository.Verify(r => r.AddAsync(It.Is<NewWorkout>(w => w.FinishedAt == Start.AddTicks(1))), Times.Once);
     }
@@ -167,9 +168,9 @@ public class WorkoutServiceTests
     [Test]
     public async Task SaveNewAsync_Invalid_ReturnsTheErrorsAndSavesNothing()
     {
-        validator.Setup(v => v.Validate(It.IsAny<IReadOnlyList<WorkoutExercise>>())).Returns(Errors);
+        validator.Setup(v => v.Validate(It.IsAny<string?>(), It.IsAny<IReadOnlyList<WorkoutExercise>>())).Returns(Errors);
 
-        var result = await service.SaveNewAsync(service.StartNew(), Exercises());
+        var result = await service.SaveNewAsync(service.StartNew(), null, Exercises());
 
         Assert.That(result, Is.EqualTo(new SaveResult(null, Errors)));
         repository.VerifyNoOtherCalls();
@@ -184,7 +185,7 @@ public class WorkoutServiceTests
         NewWorkout? saved = null;
         repository.Setup(r => r.AddAsync(It.IsAny<NewWorkout>())).Callback<NewWorkout>(w => saved = w).Returns(write.Task);
 
-        var pending = service.SaveNewAsync(service.StartNew(), exercises);
+        var pending = service.SaveNewAsync(service.StartNew(), null, exercises);
         sets.Add(new StrengthSet(-5, -1m, null, null));
         exercises.Add(new StrengthExercise(99, []));
         write.SetResult(7);
@@ -199,7 +200,7 @@ public class WorkoutServiceTests
     {
         repository.Setup(r => r.AddAsync(It.IsAny<NewWorkout>())).ThrowsAsync(SQLiteException.New(SQLite3.Result.Full, "disk full"));
 
-        var result = await service.SaveNewAsync(service.StartNew(), Exercises());
+        var result = await service.SaveNewAsync(service.StartNew(), null, Exercises());
 
         Assert.That(result, Is.EqualTo(new SaveResult(null, SaveFailed)).UsingPropertiesComparer());
     }
@@ -219,9 +220,9 @@ public class WorkoutServiceTests
             await provider.GetRequiredService<IDatabaseInitializer>().InitializeAsync();
             var saving = provider.GetRequiredService<IWorkoutService>();
             WorkoutExercise[] exercises = [new StrengthExercise(Press, [new StrengthSet(10, 20m, null, null)])];
-            var first = await saving.SaveNewAsync(saving.StartNew(), exercises);
+            var first = await saving.SaveNewAsync(saving.StartNew(), null, exercises);
 
-            var second = await saving.SaveNewAsync(saving.StartNew(), exercises);
+            var second = await saving.SaveNewAsync(saving.StartNew(), null, exercises);
 
             Assert.That(first.WorkoutId, Is.Not.Null);
             Assert.That(second, Is.EqualTo(new SaveResult(null, SaveFailed)).UsingPropertiesComparer());
@@ -236,26 +237,127 @@ public class WorkoutServiceTests
     }
 
     [Test]
-    public async Task SaveAsync_Valid_ReplacesTheExercisesOnly()
+    public async Task SaveAsync_Valid_ReplacesTheNoteAndExercisesOnly()
     {
         IReadOnlyList<WorkoutExercise>? saved = null;
-        repository.Setup(r => r.ReplaceExercisesAsync(7, It.IsAny<IReadOnlyList<WorkoutExercise>>()))
-            .Callback<int, IReadOnlyList<WorkoutExercise>>((_, e) => saved = e).Returns(Task.CompletedTask);
+        repository.Setup(r => r.ReplaceAsync(7, It.IsAny<string?>(), It.IsAny<IReadOnlyList<WorkoutExercise>>()))
+            .Callback<int, string?, IReadOnlyList<WorkoutExercise>>((_, _, e) => saved = e).Returns(Task.CompletedTask);
 
-        var result = await service.SaveAsync(7, Exercises());
+        var result = await service.SaveAsync(7, null, Exercises());
 
         Assert.That(result, Is.EqualTo(new SaveResult(7, NoErrors)));
         Assert.That(Same(saved!, Exercises()), Is.True);
-        repository.Verify(r => r.ReplaceExercisesAsync(7, It.IsAny<IReadOnlyList<WorkoutExercise>>()), Times.Once);
+        repository.Verify(r => r.ReplaceAsync(7, It.IsAny<string?>(), It.IsAny<IReadOnlyList<WorkoutExercise>>()), Times.Once);
         repository.VerifyNoOtherCalls();
+    }
+
+    [Test]
+    public void Validate_PassesTheWorkoutNoteToTheValidator()
+    {
+        service.Validate("Felt strong", Exercises());
+
+        validator.Verify(v => v.Validate("Felt strong", It.IsAny<IReadOnlyList<WorkoutExercise>>()), Times.Once);
+    }
+
+    [TestCase("  Felt strong \n", "Felt strong")]
+    [TestCase(" \t ", null)]
+    [TestCase(null, null)]
+    public async Task SaveNewAsync_Notes_AreSavedTrimmedAndBlankAsNone(string? note, string? expected)
+    {
+        NewWorkout? saved = null;
+        repository.Setup(r => r.AddAsync(It.IsAny<NewWorkout>())).Callback<NewWorkout>(w => saved = w).ReturnsAsync(7);
+
+        await service.SaveNewAsync(service.StartNew(), note, NotedExercises());
+
+        Assert.That(saved!.Note, Is.EqualTo(expected));
+        Assert.That(saved.Exercises.Select(e => e.Note), Is.EqualTo(new[] { "Grip slipped", null }));
+    }
+
+    [Test]
+    public async Task SaveAsync_Notes_ReplacesWithTheTrimmedNotes()
+    {
+        string? savedNote = null;
+        IReadOnlyList<WorkoutExercise>? saved = null;
+        repository.Setup(r => r.ReplaceAsync(7, It.IsAny<string?>(), It.IsAny<IReadOnlyList<WorkoutExercise>>()))
+            .Callback<int, string?, IReadOnlyList<WorkoutExercise>>((_, n, e) => (savedNote, saved) = (n, e)).Returns(Task.CompletedTask);
+
+        await service.SaveAsync(7, "  Felt strong ", NotedExercises());
+
+        Assert.That(savedNote, Is.EqualTo("Felt strong"));
+        Assert.That(saved!.Select(e => e.Note), Is.EqualTo(new[] { "Grip slipped", null }));
+    }
+
+    [Test]
+    public async Task SaveAndGet_Notes_AreKeptTrimmedThroughANewSaveAndAnEdit()
+    {
+        var path = TempDatabase.NewPath();
+        using var provider = new ServiceCollection()
+            .AddSingleton(typeof(ILogger<>), typeof(NullLogger<>))
+            .AddCore(path)
+            .AddSingleton<TimeProvider>(time)
+            .AddSingleton<IElapsedClock>(elapsed)
+            .BuildServiceProvider();
+        try
+        {
+            await provider.GetRequiredService<IDatabaseInitializer>().InitializeAsync();
+            var saving = provider.GetRequiredService<IWorkoutService>();
+            var id = (await saving.SaveNewAsync(saving.StartNew(), "  Felt strong ", NotedExercises(Treadmill))).WorkoutId!.Value;
+            var added = (await saving.GetAsync(id)).Workout!;
+
+            var edit = await saving.SaveAsync(id, " ", [new StrengthExercise(Press, [new StrengthSet(10, 20m, null, null)]), new CardioExercise(Treadmill, Entry(), " Hills ")]);
+            var edited = (await saving.GetAsync(id)).Workout!;
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(added.Note, Is.EqualTo("Felt strong"));
+                Assert.That(added.Exercises.Select(e => e.Note), Is.EqualTo(new[] { "Grip slipped", null }));
+                Assert.That(edit.WorkoutId, Is.EqualTo(id));
+                Assert.That(edited.Note, Is.Null);
+                Assert.That(edited.Exercises.Select(e => e.Note), Is.EqualTo(new[] { null, "Hills" }));
+            });
+        }
+        finally
+        {
+            SQLiteAsyncConnection.ResetPool();
+            File.Delete(path);
+        }
+    }
+
+    [Test]
+    public async Task SaveAsync_NoteOver500Characters_ReturnsTooLongAndKeepsTheSavedNote()
+    {
+        var path = TempDatabase.NewPath();
+        using var provider = new ServiceCollection()
+            .AddSingleton(typeof(ILogger<>), typeof(NullLogger<>))
+            .AddCore(path)
+            .AddSingleton<TimeProvider>(time)
+            .AddSingleton<IElapsedClock>(elapsed)
+            .BuildServiceProvider();
+        try
+        {
+            await provider.GetRequiredService<IDatabaseInitializer>().InitializeAsync();
+            var saving = provider.GetRequiredService<IWorkoutService>();
+            var id = (await saving.SaveNewAsync(saving.StartNew(), "Felt strong", NotedExercises(Treadmill))).WorkoutId!.Value;
+
+            var result = await saving.SaveAsync(id, new string('n', 501), NotedExercises(Treadmill));
+
+            Assert.That(result.WorkoutId, Is.Null);
+            Assert.That(result.Errors.Note, Is.EqualTo(NoteError.TooLong));
+            Assert.That((await saving.GetAsync(id)).Workout!.Note, Is.EqualTo("Felt strong"));
+        }
+        finally
+        {
+            SQLiteAsyncConnection.ResetPool();
+            File.Delete(path);
+        }
     }
 
     [Test]
     public async Task SaveAsync_Invalid_ReturnsTheErrorsAndSavesNothing()
     {
-        validator.Setup(v => v.Validate(It.IsAny<IReadOnlyList<WorkoutExercise>>())).Returns(Errors);
+        validator.Setup(v => v.Validate(It.IsAny<string?>(), It.IsAny<IReadOnlyList<WorkoutExercise>>())).Returns(Errors);
 
-        var result = await service.SaveAsync(7, Exercises());
+        var result = await service.SaveAsync(7, null, Exercises());
 
         Assert.That(result, Is.EqualTo(new SaveResult(null, Errors)));
         repository.VerifyNoOtherCalls();
@@ -264,9 +366,9 @@ public class WorkoutServiceTests
     [Test]
     public async Task SaveAsync_MissingWorkout_ReturnsSaveFailed()
     {
-        repository.Setup(r => r.ReplaceExercisesAsync(7, It.IsAny<IReadOnlyList<WorkoutExercise>>())).ThrowsAsync(new KeyNotFoundException());
+        repository.Setup(r => r.ReplaceAsync(7, It.IsAny<string?>(), It.IsAny<IReadOnlyList<WorkoutExercise>>())).ThrowsAsync(new KeyNotFoundException());
 
-        var result = await service.SaveAsync(7, Exercises());
+        var result = await service.SaveAsync(7, null, Exercises());
 
         Assert.That(result, Is.EqualTo(new SaveResult(null, SaveFailed)).UsingPropertiesComparer());
     }
@@ -276,7 +378,7 @@ public class WorkoutServiceTests
     {
         repository.Setup(r => r.AddAsync(It.IsAny<NewWorkout>())).ReturnsAsync(7);
 
-        await service.SaveNewAsync(new WorkoutDraft(Start, TimeSpan.Zero), Exercises());
+        await service.SaveNewAsync(new WorkoutDraft(Start, TimeSpan.Zero), null, Exercises());
 
         Assert.That(LoggedEvents.Of(logger), Is.EqualTo(new[]
         {
@@ -291,7 +393,7 @@ public class WorkoutServiceTests
         var exception = SQLiteException.New(SQLite3.Result.Full, "disk full");
         repository.Setup(r => r.AddAsync(It.IsAny<NewWorkout>())).ThrowsAsync(exception);
 
-        await service.SaveNewAsync(new WorkoutDraft(Start, TimeSpan.Zero), Exercises());
+        await service.SaveNewAsync(new WorkoutDraft(Start, TimeSpan.Zero), null, Exercises());
 
         Assert.That(LoggedEvents.Of(logger), Is.EqualTo(new[] { (CoreEvent.WorkoutAddFailed, LogLevel.Error, "Adding a workout failed") }));
         Assert.That(logger.LatestRecord.Exception, Is.SameAs(exception));
@@ -300,9 +402,9 @@ public class WorkoutServiceTests
     [Test]
     public async Task SaveAsync_Saved_LogsTheIdAndExerciseCount()
     {
-        repository.Setup(r => r.ReplaceExercisesAsync(7, It.IsAny<IReadOnlyList<WorkoutExercise>>())).Returns(Task.CompletedTask);
+        repository.Setup(r => r.ReplaceAsync(7, It.IsAny<string?>(), It.IsAny<IReadOnlyList<WorkoutExercise>>())).Returns(Task.CompletedTask);
 
-        await service.SaveAsync(7, Exercises());
+        await service.SaveAsync(7, null, Exercises());
 
         Assert.That(LoggedEvents.Of(logger), Is.EqualTo(new[]
         {
@@ -314,9 +416,9 @@ public class WorkoutServiceTests
     public async Task SaveAsync_RepositoryThrows_LogsTheIdAndException()
     {
         var exception = new KeyNotFoundException();
-        repository.Setup(r => r.ReplaceExercisesAsync(7, It.IsAny<IReadOnlyList<WorkoutExercise>>())).ThrowsAsync(exception);
+        repository.Setup(r => r.ReplaceAsync(7, It.IsAny<string?>(), It.IsAny<IReadOnlyList<WorkoutExercise>>())).ThrowsAsync(exception);
 
-        await service.SaveAsync(7, Exercises());
+        await service.SaveAsync(7, null, Exercises());
 
         Assert.That(LoggedEvents.Of(logger), Is.EqualTo(new[] { (CoreEvent.WorkoutUpdateFailed, LogLevel.Error, "Updating workout 7 failed") }));
         Assert.That(logger.LatestRecord.Exception, Is.SameAs(exception));
@@ -399,10 +501,10 @@ public class WorkoutServiceTests
     [Test]
     public async Task Invalid_LogsNothing()
     {
-        validator.Setup(v => v.Validate(It.IsAny<IReadOnlyList<WorkoutExercise>>())).Returns(Errors);
+        validator.Setup(v => v.Validate(It.IsAny<string?>(), It.IsAny<IReadOnlyList<WorkoutExercise>>())).Returns(Errors);
 
-        await service.SaveNewAsync(new WorkoutDraft(Start, TimeSpan.Zero), Exercises());
-        await service.SaveAsync(7, Exercises());
+        await service.SaveNewAsync(new WorkoutDraft(Start, TimeSpan.Zero), null, Exercises());
+        await service.SaveAsync(7, null, Exercises());
 
         Assert.That(LoggedEvents.Of(logger), Is.Empty);
     }
@@ -414,17 +516,17 @@ public class WorkoutServiceTests
 
         Assert.Multiple(() =>
         {
-            Assert.That(() => service.Validate(null!), Throws.ArgumentNullException);
-            Assert.That(() => service.Validate([null!]), Throws.ArgumentNullException);
-            Assert.That(() => service.Validate([new StrengthExercise(Press, null!)]), Throws.ArgumentNullException);
-            Assert.That(() => service.Validate([new StrengthExercise(Press, [null!])]), Throws.ArgumentNullException);
-            Assert.That(() => service.Validate([new CardioExercise(Bike, null!)]), Throws.ArgumentNullException);
+            Assert.That(() => service.Validate(null, null!), Throws.ArgumentNullException);
+            Assert.That(() => service.Validate(null, [null!]), Throws.ArgumentNullException);
+            Assert.That(() => service.Validate(null, [new StrengthExercise(Press, null!)]), Throws.ArgumentNullException);
+            Assert.That(() => service.Validate(null, [new StrengthExercise(Press, [null!])]), Throws.ArgumentNullException);
+            Assert.That(() => service.Validate(null, [new CardioExercise(Bike, null!)]), Throws.ArgumentNullException);
             Assert.That(() => service.ValidateSet(Press, null!), Throws.ArgumentNullException);
             Assert.That(() => service.ValidateEntry(Bike, null!), Throws.ArgumentNullException);
             Assert.That(() => service.Elapsed(null!), Throws.ArgumentNullException);
-            Assert.That(() => service.SaveNewAsync(null!, Exercises()), Throws.ArgumentNullException);
-            Assert.That(() => service.SaveNewAsync(draft, null!), Throws.ArgumentNullException);
-            Assert.That(() => service.SaveAsync(7, [null!]), Throws.ArgumentNullException);
+            Assert.That(() => service.SaveNewAsync(null!, null, Exercises()), Throws.ArgumentNullException);
+            Assert.That(() => service.SaveNewAsync(draft, null, null!), Throws.ArgumentNullException);
+            Assert.That(() => service.SaveAsync(7, null, [null!]), Throws.ArgumentNullException);
         });
         repository.VerifyNoOtherCalls();
     }
@@ -435,10 +537,18 @@ public class WorkoutServiceTests
         new CardioExercise(Bike, new CardioEntry(TimeSpan.FromMinutes(20), 8m, null, null, null, null, null)),
     ];
 
+    private static WorkoutExercise[] NotedExercises(int cardioId = Bike) =>
+    [
+        new StrengthExercise(Press, [new StrengthSet(10, 20m, null, null)], " Grip slipped "),
+        new CardioExercise(cardioId, Entry(), "   "),
+    ];
+
+    private static CardioEntry Entry() => new(TimeSpan.FromMinutes(20), 8m, null, null, null, null, null);
+
     private static bool Same(IReadOnlyList<WorkoutExercise> actual, IReadOnlyList<WorkoutExercise> expected) =>
         actual.Count == expected.Count && actual.Zip(expected).All(p => p switch
         {
-            (StrengthExercise a, StrengthExercise e) => a.ExerciseId == e.ExerciseId && a.Sets.SequenceEqual(e.Sets),
+            (StrengthExercise a, StrengthExercise e) => a.ExerciseId == e.ExerciseId && a.Note == e.Note && a.Sets.SequenceEqual(e.Sets),
             _ => Equals(p.First, p.Second),
         });
 }
