@@ -120,6 +120,8 @@ public static class CoreServiceCollectionExtensions
             .AddSingleton<IRecentRecordsService, RecentRecordsService>()
             .AddConsistencyRules()
             .AddSingleton<IConsistencyService, ConsistencyService>()
+            .AddSingleton<IMuscleGroupMap, MuscleGroupMap>()
+            .AddSingleton<IMuscleSetsService, MuscleSetsService>()
             .AddSingleton<IWeightHistoryService, WeightHistoryService>()
             .AddSingleton<ILoggedExercisesService, LoggedExercisesService>()
             .AddSingleton<IExerciseProgressService, ExerciseProgressService>()

@@ -195,6 +195,22 @@ internal sealed class WorkoutRepository(SQLiteAsyncConnection connection, IWorko
     }
 
     /// <inheritdoc />
+    public async Task<IReadOnlyList<ExerciseSetCount>> GetSetCountsAsync(DateTimeOffset from, DateTimeOffset to)
+    {
+        const string sql = """
+            SELECT e.WorkoutId, e.ExerciseId, COUNT(*) AS Sets
+            FROM WorkoutExercise e
+            JOIN Workout w ON w.Id = e.WorkoutId
+            JOIN StrengthSet s ON s.WorkoutExerciseId = e.Id
+            WHERE w.StartedAt >= ? AND w.StartedAt <= ?
+            GROUP BY e.Id
+            ORDER BY w.StartedAt, e.Position
+            """;
+        var rows = await connection.QueryAsync<SetCountRow>(sql, from.UtcTicks, to.UtcTicks);
+        return rows.Select(r => new ExerciseSetCount(r.WorkoutId, r.ExerciseId, r.Sets)).ToList();
+    }
+
+    /// <inheritdoc />
     public Task DeleteAsync(int id) =>
         connection.RunInTransactionAsync(db => writers.Create(db).Delete(id));
 
@@ -239,6 +255,16 @@ internal sealed class WorkoutRepository(SQLiteAsyncConnection connection, IWorko
         public long StartedAt { get; set; }
 
         public long FinishedAt { get; set; }
+
+        public int Sets { get; set; }
+    }
+
+    /// <summary>A workout exercise's number of strength sets.</summary>
+    private sealed class SetCountRow
+    {
+        public int WorkoutId { get; set; }
+
+        public int ExerciseId { get; set; }
 
         public int Sets { get; set; }
     }

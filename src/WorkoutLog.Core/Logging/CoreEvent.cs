@@ -81,6 +81,15 @@ internal enum CoreEvent
     /// <summary><see cref="Services.ConsistencyService"/>: reading the Consistency card failed.</summary>
     ConsistencyLoadFailed = 1421,
 
+    /// <summary><see cref="Services.MuscleSetsService"/>: sets per muscle group read.</summary>
+    MuscleSetsLoaded = 1430,
+
+    /// <summary><see cref="Services.MuscleSetsService"/>: reading the sets per muscle group failed.</summary>
+    MuscleSetsLoadFailed = 1431,
+
+    /// <summary><see cref="Services.MuscleSetsService"/>: a saved exercise id is not in the exercise list.</summary>
+    MuscleSetsUnknownExercise = 1432,
+
     /// <summary><see cref="Services.RecentRecordsService"/>: recent records read.</summary>
     RecentRecordsLoaded = 1441,
 
