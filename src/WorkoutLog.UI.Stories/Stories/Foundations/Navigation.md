@@ -33,7 +33,7 @@ The app opens on [Startup](./?path=/custom/screens-startup-overview), then the D
 | Edit Workout | Save | Dashboard |
 | Edit Workout | Back with no changes | Workouts |
 | Edit Workout | Back with changes, then Discard | Workouts |
-| Edit Workout, opened from the Dashboard | Back with no changes, or with changes then Discard | Dashboard |
+| Edit Workout, opened from the Dashboard | Back with no changes, or with changes then Discard; or Delete, then Delete | Dashboard |
 | Edit Workout | Delete, then Delete | Workouts |
 | Add Exercise | Pick an exercise, or back | The workout it opened from |
 | Error | Restart | Dashboard |

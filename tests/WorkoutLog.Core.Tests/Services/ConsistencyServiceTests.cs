@@ -28,19 +28,18 @@ public class ConsistencyServiceTests
     {
         repository = new Mock<IWorkoutRepository>(MockBehavior.Strict);
         logger = new FakeLogger<ConsistencyService>();
+        repository.Setup(r => r.ListAsync(null, It.IsAny<DateTimeOffset?>(), null)).ReturnsAsync([]);
         UseClock(Now, TimeZoneInfo.Utc);
     }
 
     [Test]
     public async Task GetAsync_ReadsThe12WeeksOnceAndSummarisesThem()
     {
-        repository.Setup(r => r.ListTalliesAsync(From, Now)).ReturnsAsync(
-        [
+        Seed(
             Workout(From, 10),
             Workout(Now.AddDays(-7).AddHours(-2), 8),
             Workout(Now.AddDays(-8), 6),
-            Workout(Now.AddHours(-3), 12),
-        ]);
+            Workout(Now.AddHours(-3), 12));
 
         var result = await service.GetAsync();
 
@@ -53,6 +52,23 @@ public class ConsistencyServiceTests
             Assert.That(result.Streak, Is.EqualTo(2));
             Assert.That(result.Failed, Is.False);
             repository.Verify(r => r.ListTalliesAsync(From, Now), Times.Once);
+            repository.Verify(r => r.ListAsync(null, Now, null), Times.Once);
+        });
+    }
+
+    [Test]
+    public async Task GetAsync_StreakCountsWeeksBeforeThe12()
+    {
+        var weekly = Enumerable.Range(0, 20).Select(weeksAgo => Workout(Now.AddDays(-7 * weeksAgo), 3)).ToList();
+        repository.Setup(r => r.ListTalliesAsync(From, Now)).ReturnsAsync(weekly.Where(w => w.StartedAt >= From).Reverse().ToList());
+        repository.Setup(r => r.ListAsync(null, Now, null)).ReturnsAsync(weekly.Select((w, i) => new WorkoutSummary(i + 1, w.StartedAt)).ToList());
+
+        var result = await service.GetAsync();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(result.Streak, Is.EqualTo(20));
+            Assert.That(result.WeekCounts, Is.EqualTo(Enumerable.Repeat(1, 12)));
         });
     }
 
@@ -83,7 +99,7 @@ public class ConsistencyServiceTests
     [Test]
     public async Task GetAsync_LogsTheCountAtInformation()
     {
-        repository.Setup(r => r.ListTalliesAsync(From, Now)).ReturnsAsync([Workout(Now.AddDays(-7), 4), Workout(Now, 5)]);
+        Seed(Workout(Now.AddDays(-7), 4), Workout(Now, 5));
 
         await service.GetAsync();
 
@@ -113,6 +129,22 @@ public class ConsistencyServiceTests
     }
 
     [Test]
+    public async Task GetAsync_StartTimesReadThrows_ReturnsFailedAndLogsAWarning()
+    {
+        var exception = new InvalidOperationException("disk");
+        Seed();
+        repository.Setup(r => r.ListAsync(null, Now, null)).ThrowsAsync(exception);
+
+        var result = await service.GetAsync();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(result, Is.SameAs(ConsistencyResult.FailedRead));
+            Assert.That(logger.LatestRecord.Exception, Is.SameAs(exception));
+        });
+    }
+
+    [Test]
     public async Task GetAsync_ClockThrows_ReturnsFailedAndLogsAWarning()
     {
         var exception = new InvalidOperationException("clock");
@@ -134,6 +166,13 @@ public class ConsistencyServiceTests
         var time = new FakeTimeProvider(now);
         time.SetLocalTimeZone(zone);
         service = new ConsistencyService(repository.Object, new WeekComparisonRule(), new WeekBarsRule(), new StreakRule(), time, logger);
+    }
+
+    private void Seed(params WorkoutTally[] workouts)
+    {
+        repository.Setup(r => r.ListTalliesAsync(From, Now)).ReturnsAsync(workouts.OrderBy(w => w.StartedAt).ToList());
+        repository.Setup(r => r.ListAsync(null, Now, null))
+            .ReturnsAsync(workouts.OrderByDescending(w => w.StartedAt).Select((w, i) => new WorkoutSummary(i + 1, w.StartedAt)).ToList());
     }
 
     private static WorkoutTally Workout(DateTimeOffset startedAt, int sets) => new(startedAt, startedAt.AddMinutes(45), sets);

@@ -30,12 +30,24 @@ Feature: Dashboard
       | the back arrow |
       | Android back   |
 
+  Scenario: Deleting the last workout opened from the Dashboard returns to the Dashboard
+    Given these saved workouts:
+      | started          | exercises                        |
+      | 3 days ago 18:05 | Barbell Back Squat: 5 reps 60 kg |
+      | yesterday 18:05  | Barbell Back Squat: 5 reps 60 kg |
+    When I tap the last workout on the Dashboard
+    Then I am on Edit Workout titled with yesterday's date and day
+    When I tap Delete
+    And I tap Delete on the prompt
+    Then I am on the Dashboard
+    And the last workout shows the date and day of "3 days ago"
+
   @today
   Scenario: Workouts this week are counted
     Given these saved workouts:
       | started           | exercises        |
-      | 3 hours ago       | Push-up: 10 reps 0 kg |
-      | 2 hours ago       | Push-up: 10 reps 0 kg |
+      | 4 minutes ago     | Push-up: 10 reps 0 kg |
+      | 2 minutes ago     | Push-up: 10 reps 0 kg |
       | 40 days ago 10:00 | Push-up: 10 reps 0 kg |
     Then this week shows 2 workouts
 
