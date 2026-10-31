@@ -8,6 +8,12 @@
     }
     <IconButton Icon="IconName.Close" AriaLabel="@RemoveLabel" TestId="@($"{TestId}-remove")" Muted Size="IconSize.Small" OnClick="OnRemove" />
 </div>
+@if (IsRecord)
+{
+    <div class="indent">
+        <RecordBadge TestId="@($"{TestId}-record")" />
+    </div>
+}
 @if (Entry.Errors.Count > 0)
 {
     <div class="indent">
@@ -31,6 +37,10 @@
     /// <summary>Values of the set.</summary>
     [Parameter, EditorRequired]
     public EntryState Entry { get; set; } = null!;
+
+    /// <summary>Shows the Record badge under the row.</summary>
+    [Parameter]
+    public bool IsRecord { get; set; }
 
     /// <summary>Raised after a value changes.</summary>
     [Parameter]
