@@ -4,8 +4,8 @@ namespace WorkoutLog.Core.Domain.Workouts.Consistency;
 internal interface IStreakRule
 {
     /// <summary>
-    /// Consecutive weeks with a workout ending last week, plus this week once it has one.
-    /// <paramref name="weekCounts"/> is workouts per week, oldest first; the last is this week.
+    /// Consecutive weeks in <paramref name="zone"/> with a workout, ending the week before the one <paramref name="now"/> is in, plus
+    /// that week once it has one. <paramref name="starts"/> are workout start times, in any order.
     /// </summary>
-    int Streak(IReadOnlyList<int> weekCounts);
+    int Streak(IEnumerable<DateTimeOffset> starts, DateTimeOffset now, TimeZoneInfo zone);
 }
