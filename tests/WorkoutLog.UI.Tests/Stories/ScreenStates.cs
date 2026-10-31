@@ -9,6 +9,7 @@ using WorkoutLog.UI.Components.Workout;
 using WorkoutLog.UI.Models.Exercises;
 using WorkoutLog.UI.Models.Muscles;
 using WorkoutLog.UI.Models.Settings;
+using WorkoutLog.UI.Models.Summary;
 using WorkoutLog.UI.Models.Workout;
 using WorkoutLog.UI.Models.Workouts;
 using WorkoutLog.UI.Screens;
@@ -49,6 +50,7 @@ public static class ScreenStates
         new("Screens/New Workout", "Strength", c => Workout(c, WorkoutMode.New, SampleData.StrengthWorkoutWithWeights(Catalog(c)))),
         new("Screens/New Workout", "Carry", c => Workout(c, WorkoutMode.New, SampleData.CarryWorkout(Catalog(c)))),
         new("Screens/New Workout", "Cardio", c => Workout(c, WorkoutMode.New, SampleData.CardioWorkout(Catalog(c)))),
+        new("Screens/New Workout", "Records", c => Workout(c, WorkoutMode.New, SampleData.RecordsWorkout(Catalog(c)))),
         new("Screens/New Workout", "Exercises full", c => Workout(c, WorkoutMode.New, SampleData.FullWorkout(Catalog(c)))),
         new("Screens/New Workout", "Save errors", c => Workout(c, WorkoutMode.New, SampleData.WorkoutWithErrors(Catalog(c), WorkoutChecker(c)))),
         new("Screens/New Workout", "No exercises error", c => Workout(c, WorkoutMode.New, [], error: WorkoutChecker(c).Check([]).Error)),
@@ -66,6 +68,13 @@ public static class ScreenStates
         new("Screens/Edit Workout", "Loading", c => WorkoutLoad(c)),
         new("Screens/Edit Workout", "Load failed", c => WorkoutLoad(c, failed: true)),
         new("Screens/Edit Workout", "Not found", c => WorkoutLoad(c, notFound: true)),
+
+        new("Screens/Workout Summary", "Records and changes", c => Summary(c, SampleWorkoutSummary.RecordsAndChanges)),
+        new("Screens/Workout Summary", "No records", c => Summary(c, SampleWorkoutSummary.NoRecords)),
+        new("Screens/Workout Summary", "First workout", c => Summary(c, SampleWorkoutSummary.FirstWorkout)),
+        new("Screens/Workout Summary", "All first time", c => Summary(c, SampleWorkoutSummary.AllFirstTime)),
+        new("Screens/Workout Summary", "Loading", c => Summary(c, null, loading: true)),
+        new("Screens/Workout Summary", "Load failed", c => Summary(c, null, failed: true)),
 
         new("Screens/Add Exercise", "No search text", c => AddExercise(c, null)),
         new("Screens/Add Exercise", "Strength", c => AddExercise(c, null, ExerciseFilter.Strength)),
@@ -259,6 +268,15 @@ public static class ScreenStates
             .Add(x => x.NotFound, notFound)
             .Add(x => x.OnRetry, () => { })
             .Add(x => x.OnBack, () => { }))
+            .FindAll("*");
+
+    private static IReadOnlyList<IElement> Summary(BunitContext context, WorkoutSummary? summary, bool loading = false, bool failed = false) =>
+        context.Render<WorkoutSummaryView>(p => p
+            .Add(x => x.Summary, summary)
+            .Add(x => x.Loading, loading)
+            .Add(x => x.Failed, failed)
+            .Add(x => x.OnRetry, () => { })
+            .Add(x => x.OnDone, () => { }))
             .FindAll("*");
 
     private static IReadOnlyList<IElement> Workouts(

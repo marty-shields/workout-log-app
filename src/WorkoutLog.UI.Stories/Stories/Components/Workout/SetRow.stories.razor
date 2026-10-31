@@ -18,6 +18,13 @@
         </Template>
     </Story>
 
+    <Story Name="Record">
+        <Template>
+            @{ var exercise = SampleData.Exercise(Catalog, 132, ["10", "14"]); }
+            <SetRow Number="2" Fields="exercise.Fields" Entry="exercise.Entries[0]" IsRecord TestId="set-2" />
+        </Template>
+    </Story>
+
     <Story Name="Errors">
         <Template>
             @{ var exercise = SampleData.Exercise(Catalog, 132, [null, "10"]); Checker.Check([exercise]); }

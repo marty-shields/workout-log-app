@@ -39,6 +39,9 @@ public sealed class ExerciseState(int exerciseId, string name, ExerciseKind kind
     /// <summary>Core's code behind <see cref="Error"/>, when Save set it.</summary>
     public ExerciseError? ErrorCode { get; set; }
 
+    /// <summary>New Workout: the set or entry in <see cref="Entries"/> that beats the exercise's best in every saved workout, so shows the Record badge. At most one. Null shows no badge.</summary>
+    public EntryState? RecordEntry { get; set; }
+
     /// <summary>New Workout, strength: best weight in the last saved workout with the exercise, in kg. Null when that workout has none.</summary>
     public decimal? LastKg { get; set; }
 

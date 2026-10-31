@@ -1,0 +1,115 @@
+.centre {
+    display: grid;
+    place-items: center;
+    padding: var(--space-6) 0;
+}
+
+.sections {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+}
+
+.card {
+    margin: 0;
+    padding: var(--space-4) var(--space-4) 0;
+    border: var(--border-width) solid var(--color-border);
+    border-radius: var(--radius-lg);
+    background: var(--color-surface);
+}
+
+.stats {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--space-3);
+    padding-bottom: var(--space-4);
+}
+
+.stat {
+    display: flex;
+    flex-direction: column-reverse;
+    gap: var(--space-1);
+}
+
+.label {
+    color: var(--color-text-muted);
+    font-size: var(--font-size-sm);
+}
+
+.value {
+    margin: 0;
+    color: var(--color-accent);
+    font-size: var(--font-size-xl);
+    font-weight: var(--font-weight-bold);
+    font-variant-numeric: tabular-nums;
+    line-height: var(--line-height-tight);
+}
+
+.title {
+    margin: 0 0 var(--space-2);
+    font-size: var(--font-size-md);
+    font-weight: var(--font-weight-bold);
+}
+
+.none,
+.note {
+    margin: 0;
+    padding-bottom: var(--space-4);
+    color: var(--color-text-muted);
+}
+
+.rows {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.row {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-3) var(--space-1);
+    border-bottom: var(--border-width) solid var(--color-border);
+}
+
+/* The last row is the card's last line, so it has no border below it. */
+.row:last-child {
+    border-bottom: none;
+}
+
+.texts {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.text,
+.detail,
+.change {
+    font-variant-numeric: tabular-nums;
+}
+
+.detail {
+    color: var(--color-text-muted);
+    font-size: var(--font-size-sm);
+}
+
+.change {
+    display: flex;
+    align-items: center;
+    margin-left: auto;
+    font-size: var(--font-size-sm);
+}
+
+.up {
+    color: var(--color-success);
+}
+
+.down {
+    color: var(--color-error);
+}
+
+.same {
+    color: var(--color-text-muted);
+}
