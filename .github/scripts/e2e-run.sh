@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 # Usage: e2e-run.sh <filter> <tries>
-# Runs the E2E tests in the filter on emulator-5554 with the Chromedriver in $CHROMEDRIVER, then re-runs only the
-# failed scenarios until they pass or <tries> runs are done. Fails if a scenario fails on its last try; each scenario
-# that passed on a retry gets a warning. Writes e2e-<try>.trx to $RESULTS/trx.
+# Runs the E2E tests in the filter on emulator-5554 with the Chromedriver in $CHROMEDRIVER, then re-runs the failed
+# scenarios (all rows of a failed Scenario Outline) until they pass or <tries> runs are done. Fails if a scenario fails
+# on its last try; each scenario that passed on a retry gets a warning. Writes e2e-<try>.trx to $RESULTS/trx.
 set -euo pipefail
 filter="$1"
 tries="$2"
@@ -23,10 +23,10 @@ failed_tests() {
     END { for (id in failed) print full[id] }' "$1"
 }
 
-# A filter matching exactly these full names: filter operators escaped with \, and the characters MSBuild splits on
-# percent-encoded.
+# A filter for these full names: Class.Method( for a Scenario Outline (all its rows), the exact name otherwise.
 filter_for() {
-  sed 's/[\\()&|=!~]/\\&/g; s/%/%25/g; s/,/%2C/g; s/;/%3B/g; s/"/%22/g; s/^/FullyQualifiedName=/' | paste -sd '|'
+  awk '{ i = index($0, "("); print (i ? "FullyQualifiedName~" substr($0, 1, i - 1) "\\(" : "FullyQualifiedName=" $0) }' \
+    | sort -u | paste -sd '|'
 }
 
 retried=""
