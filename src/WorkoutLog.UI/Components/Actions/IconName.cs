@@ -26,4 +26,7 @@ public enum IconName
 
     /// <summary>Downward triangle (<c>arrow_drop_down</c>).</summary>
     Down,
+
+    /// <summary>Trophy (<c>emoji_events</c>).</summary>
+    Record,
 }

@@ -27,6 +27,7 @@ A Material Symbols Outlined icon (weight 400), drawn as an SVG and hidden from s
 - Chevron: the end of a tappable `ListRow`, carry `SetSummary` row and `LastWorkoutCard`, `Muted`.
 - Search: the Exercises search box, `Muted`.
 - Up and Down: an increase (`Success`) or decrease (`Error`) in `WeekComparison`.
+- Record: a trophy (`emoji_events`), `Success`, in `RecordBadge` and beside each record on the Workout Summary.
 
 ## `IconButton`
 A button that shows an `Icon`, with a 48px touch target.

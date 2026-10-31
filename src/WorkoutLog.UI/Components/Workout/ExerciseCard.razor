@@ -34,6 +34,7 @@
                                   ExerciseName="@Exercise.Name"
                                   Fields="Exercise.Fields"
                                   Entry="entry"
+                                  IsRecord="entry == Exercise.RecordEntry"
                                   OnChanged="() => EntryChanged(entry)"
                                   OnRemove="() => RemoveSet(entry)"
                                   TestId="@($"{TestId}-set-{number}")" />
@@ -45,6 +46,7 @@
                                     Number="number"
                                     Fields="Exercise.Fields"
                                     Entry="entry"
+                                    IsRecord="entry == Exercise.RecordEntry"
                                     OnOpen="() => OpenSet(entry)"
                                     TestId="@($"{TestId}-set-{number}")" />
                     }
@@ -73,6 +75,7 @@
                             ExerciseName="@Exercise.Name"
                             Fields="Exercise.Fields"
                             Entry="entry"
+                            IsRecord="entry == Exercise.RecordEntry"
                             OnChanged="() => EntryChanged(entry)"
                             OnRemove="() => RemoveSet(entry)"
                             TestId="@($"{TestId}-set-{number}")" />
@@ -94,6 +97,10 @@
                 <FieldInput @ref="cardioFields[field.Key]" Field="field" Entry="entry" OnChanged="() => EntryChanged(entry)" TestId="@($"{TestId}-{field.Key}")" />
             }
         </div>
+        @if (entry == Exercise.RecordEntry)
+        {
+            <RecordBadge TestId="@($"{TestId}-record")" />
+        }
         @if (ExerciseFields.WorkedOutText(Exercise, entry) is { } workedOut)
         {
             <p class="note" data-testid="@($"{TestId}-worked-out")">@workedOut</p>

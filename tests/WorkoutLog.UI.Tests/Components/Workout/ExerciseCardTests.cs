@@ -835,4 +835,93 @@ public class ExerciseCardTests : ComponentTestBase
 
     /// <summary>Element reference id passed to the last focus call.</summary>
     private string FocusedId() => ((ElementReference)Context.JSInterop.VerifyFocusAsyncInvoke().Arguments[0]!).Id;
+
+    [Test]
+    public void RecordEntry_ShowsTheBadgeOnThatRowOnly()
+    {
+        var exercise = Strength(3);
+        exercise.RecordEntry = exercise.Entries[1];
+
+        var cut = Context.Render<ExerciseCard>(p => p
+            .Add(x => x.Exercise, exercise)
+            .Add(x => x.TestId, "exercise-1"));
+
+        Assert.That(cut.FindAll("[data-testid$=-record]").Select(e => e.GetAttribute("data-testid")), Is.EqualTo(new[] { "exercise-1-set-2-record" }));
+    }
+
+    [Test]
+    public void RecordEntry_Null_ShowsNoBadge()
+    {
+        var cut = Context.Render<ExerciseCard>(p => p
+            .Add(x => x.Exercise, Strength(2))
+            .Add(x => x.TestId, "exercise-1"));
+
+        Assert.That(cut.FindAll("[data-testid$=-record]"), Is.Empty);
+    }
+
+    [Test]
+    public void RecordEntry_MovesWhenItChanges()
+    {
+        var exercise = Strength(2);
+        exercise.RecordEntry = exercise.Entries[0];
+        var cut = Context.Render<ExerciseCard>(p => p
+            .Add(x => x.Exercise, exercise)
+            .Add(x => x.TestId, "exercise-1"));
+
+        exercise.RecordEntry = exercise.Entries[1];
+        cut.Render(p => p.Add(x => x.Exercise, exercise).Add(x => x.TestId, "exercise-1"));
+
+        Assert.That(cut.FindAll("[data-testid$=-record]").Select(e => e.GetAttribute("data-testid")), Is.EqualTo(new[] { "exercise-1-set-2-record" }));
+    }
+
+    [Test]
+    public void RecordEntry_OnAClosedCarrySet_ShowsTheBadgeUnderItsSummary()
+    {
+        var exercise = Carry(3);
+        exercise.RecordEntry = exercise.Entries[0];
+
+        var cut = Context.Render<ExerciseCard>(p => p
+            .Add(x => x.Exercise, exercise)
+            .Add(x => x.TestId, "exercise-1"));
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.Find("[data-testid=exercise-1-set-1-record]").TextContent.Trim(), Is.EqualTo("Record"));
+            Assert.That(cut.FindAll("[data-testid$=-record]"), Has.Count.EqualTo(1));
+        });
+    }
+
+    [Test]
+    public void RecordEntry_OnTheOpenCarrySet_ShowsTheBadgeInThePanel()
+    {
+        var exercise = Carry(3);
+        exercise.RecordEntry = exercise.Entries[2];
+
+        var cut = Context.Render<ExerciseCard>(p => p
+            .Add(x => x.Exercise, exercise)
+            .Add(x => x.TestId, "exercise-1"));
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.Find("[data-testid=exercise-1-set-3] [data-testid=exercise-1-set-3-record]"), Is.Not.Null);
+            Assert.That(cut.FindAll("[data-testid$=-record]"), Has.Count.EqualTo(1));
+        });
+    }
+
+    [Test]
+    public void RecordEntry_OnACardioEntry_ShowsTheBadgeUnderTheFields()
+    {
+        var exercise = Cardio();
+        exercise.RecordEntry = exercise.Entries[0];
+
+        var cut = Context.Render<ExerciseCard>(p => p
+            .Add(x => x.Exercise, exercise)
+            .Add(x => x.TestId, "exercise-1"));
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.Find("[data-testid=exercise-1-record]").TextContent.Trim(), Is.EqualTo("Record"));
+            Assert.That(cut.Find(".cardio").NextElementSibling!.GetAttribute("data-testid"), Is.EqualTo("exercise-1-record"));
+        });
+    }
 }

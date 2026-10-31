@@ -28,6 +28,12 @@
         </Template>
     </Story>
 
+    <Story Name="Records">
+        <Template>
+            <WorkoutView Mode="WorkoutMode.New" StartedAt="SampleData.Started" Time="new TimeSpan(0, 52, 18)" Exercises="SampleData.RecordsWorkout(Catalog)" OnBack="() => { }" />
+        </Template>
+    </Story>
+
     <Story Name="Exercises full">
         <Template>
             <WorkoutView Mode="WorkoutMode.New" StartedAt="SampleData.Started" Time="new TimeSpan(1, 12, 30)" Exercises="SampleData.FullWorkout(Catalog)" OnBack="() => { }" />

@@ -49,6 +49,7 @@ public static class ScreenStates
         new("Screens/New Workout", "Strength", c => Workout(c, WorkoutMode.New, SampleData.StrengthWorkoutWithWeights(Catalog(c)))),
         new("Screens/New Workout", "Carry", c => Workout(c, WorkoutMode.New, SampleData.CarryWorkout(Catalog(c)))),
         new("Screens/New Workout", "Cardio", c => Workout(c, WorkoutMode.New, SampleData.CardioWorkout(Catalog(c)))),
+        new("Screens/New Workout", "Records", c => Workout(c, WorkoutMode.New, SampleData.RecordsWorkout(Catalog(c)))),
         new("Screens/New Workout", "Exercises full", c => Workout(c, WorkoutMode.New, SampleData.FullWorkout(Catalog(c)))),
         new("Screens/New Workout", "Save errors", c => Workout(c, WorkoutMode.New, SampleData.WorkoutWithErrors(Catalog(c), WorkoutChecker(c)))),
         new("Screens/New Workout", "No exercises error", c => Workout(c, WorkoutMode.New, [], error: WorkoutChecker(c).Check([]).Error)),

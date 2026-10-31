@@ -82,6 +82,13 @@ public static class SampleData
         return exercise;
     }
 
+    /// <summary>Marks the exercise's set or entry at <paramref name="index"/> as the record, as New Workout does for the set that beats the best, and returns the exercise.</summary>
+    public static ExerciseState WithRecord(ExerciseState exercise, int index)
+    {
+        exercise.RecordEntry = exercise.Entries[index];
+        return exercise;
+    }
+
     /// <summary><see cref="StrengthWorkout"/> with each exercise's <see cref="Weights"/>.</summary>
     public static List<ExerciseState> StrengthWorkoutWithWeights(IExerciseCatalog catalog) =>
         StrengthWorkout(catalog).Select(e => WithWeights(e, Weights[e.ExerciseId].LastKg, Weights[e.ExerciseId].BestKg)).ToList();
@@ -114,6 +121,14 @@ public static class SampleData
         Exercise(catalog, 300, ["0:20:00", "3.2", "1.5", "210"]),
         Exercise(catalog, 309, ["0:15:00", "60", "8", "150", null]),
         Exercise(catalog, 311, ["0:25:30", "5", null]),
+    ];
+
+    /// <summary>A squat whose last set is the record, a carry whose first set is the record and a run that is the record, each with its last and PB.</summary>
+    public static List<ExerciseState> RecordsWorkout(IExerciseCatalog catalog) =>
+    [
+        WithRecord(WithWeights(Exercise(catalog, 6, ["8", "60"], ["8", "60"], ["6", "62.5"]), 60m, 60m), 2),
+        WithRecord(Exercise(catalog, 187, ["40", "36", "0:00:45"], ["40", "32", "0:00:50"], ["30", "32", null]), 0),
+        WithRecord(Exercise(catalog, 311, ["0:25:30", "5.2", null]), 0),
     ];
 
     /// <summary>Ten strength exercises, so Add exercise is off.</summary>

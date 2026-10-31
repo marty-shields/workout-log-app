@@ -158,4 +158,33 @@ public class SetRowTests : ComponentTestBase
 
         Context.JSInterop.VerifyFocusAsyncInvoke().Arguments[0].ShouldBeElementReferenceTo(cut.Find("[data-testid=set-1-weight]"));
     }
+
+    [Test]
+    public void IsRecord_ShowsTheBadgeUnderTheRowInLineWithTheFields()
+    {
+        var cut = Context.Render<SetRow>(p => p
+            .Add(x => x.Number, 2)
+            .Add(x => x.Fields, Fields)
+            .Add(x => x.Entry, new EntryState())
+            .Add(x => x.IsRecord, true)
+            .Add(x => x.TestId, "set-2"));
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.Find("[data-testid=set-2-record]").TextContent.Trim(), Is.EqualTo("Record"));
+            Assert.That(cut.Find("[data-testid=set-2-record]").ParentElement!.ClassList, Does.Contain("indent"));
+        });
+    }
+
+    [Test]
+    public void NotRecord_ShowsNoBadge()
+    {
+        var cut = Context.Render<SetRow>(p => p
+            .Add(x => x.Number, 2)
+            .Add(x => x.Fields, Fields)
+            .Add(x => x.Entry, new EntryState())
+            .Add(x => x.TestId, "set-2"));
+
+        Assert.That(cut.FindAll("[data-testid=set-2-record]"), Is.Empty);
+    }
 }

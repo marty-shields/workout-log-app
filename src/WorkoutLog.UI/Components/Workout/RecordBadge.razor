@@ -1,0 +1,10 @@
+<span class="badge" data-testid="@TestId">
+    <Icon Name="IconName.Record" Tone="IconTone.Success" Size="IconSize.Small" />
+    <span>Record</span>
+</span>
+
+@code {
+    /// <summary>Value of the data-testid attribute.</summary>
+    [Parameter]
+    public string? TestId { get; set; }
+}

@@ -2,6 +2,8 @@
     --color-text-muted: var(--color-text);
     --color-border-strong: var(--color-text);
     --color-focus: var(--color-text);
+    /* The success green is under 4.5:1 on the light open-set background. */
+    --color-success: var(--color-text);
     display: flex;
     flex-direction: column;
     gap: var(--space-3);
@@ -15,6 +17,12 @@
     align-items: center;
     justify-content: space-between;
     margin: calc(-1 * var(--space-2)) calc(-1 * var(--space-2)) calc(-1 * var(--space-2)) 0;
+}
+
+.heading {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
 }
 
 .title {
