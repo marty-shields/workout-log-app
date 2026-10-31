@@ -36,6 +36,7 @@ It's built for one person and one phone: no accounts, no sign-up.
 - Start and finish times are recorded for you, with a timer while you log.
 - Saving a new workout opens a summary: how long it took, your exercises and sets, any records you set, and how each exercise compares with last time.
 - Saving checks every set and points to the field that's wrong.
+- A note on the workout and on each exercise, up to 500 characters each. Adding an exercise shows the note it had last time.
 
 <table align="center">
   <tr>
@@ -110,7 +111,7 @@ It's built for one person and one phone: no accounts, no sign-up.
 - The Dashboard shows your last workout, this week against last week up to the same day and time, a bar per week for the last 12 weeks and your weekly streak.
 - Recent records on the Dashboard shows the exercises you've beaten your best on in the last 30 days; tap one to open its progress.
 - Sets per muscle group shows each group's strength sets in the last 7 days and which you haven't trained.
-- Export saves every workout to a JSON file you can share.
+- Export saves every workout, with its notes, to a JSON file you can share.
 - Import reads an exported file, shows what's new, already there or different, and adds or replaces them.
 - Android Auto Backup and a phone-to-phone transfer restore your workouts on a new phone. Only the database is included; the logs and exports are not.
 - Light and dark themes follow the phone.
