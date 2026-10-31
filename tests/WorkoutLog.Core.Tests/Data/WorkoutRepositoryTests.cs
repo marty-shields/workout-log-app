@@ -271,6 +271,41 @@ public class WorkoutRepositoryTests
     }
 
     [Test]
+    public async Task ListTalliesAsync_CountsStrengthSetsNotCardioEntries()
+    {
+        await repository.AddAsync(new NewWorkout(Start, Finish, Exercises()));
+        await repository.AddAsync(new NewWorkout(Start.AddHours(2), Finish.AddHours(2), [new CardioExercise(300, Entry())]));
+        await repository.AddAsync(new NewWorkout(Start.AddHours(4), Finish.AddHours(4), []));
+
+        Assert.That(await repository.ListTalliesAsync(Start, Start.AddHours(4)), Is.EqualTo(new[]
+        {
+            new WorkoutTally(Start, Finish, 3),
+            new WorkoutTally(Start.AddHours(2), Finish.AddHours(2), 0),
+            new WorkoutTally(Start.AddHours(4), Finish.AddHours(4), 0),
+        }));
+    }
+
+    [Test]
+    public async Task ListTalliesAsync_ReturnsStartsFromToInclusiveOldestFirst()
+    {
+        await AddStartsAsync(1, -2, 0, -1, 2);
+
+        var tallies = await repository.ListTalliesAsync(Start.AddHours(-1).ToOffset(TimeSpan.FromHours(1)), Start.AddHours(1));
+
+        Assert.That(tallies.Select(t => t.StartedAt), Is.EqualTo(new[] { Start.AddHours(-1), Start, Start.AddHours(1) }));
+    }
+
+    [Test]
+    public async Task ListTalliesAsync_TimesReadBackAsUtc()
+    {
+        await repository.AddAsync(new NewWorkout(Start.ToOffset(TimeSpan.FromHours(1)), Finish.ToOffset(TimeSpan.FromHours(1)), []));
+
+        var tally = (await repository.ListTalliesAsync(Start, Start)).Single();
+
+        Assert.That((tally.StartedAt.Offset, tally.FinishedAt.Offset), Is.EqualTo((TimeSpan.Zero, TimeSpan.Zero)));
+    }
+
+    [Test]
     public async Task StartedAtIndex_ServesTheListOrderWithoutASort()
     {
         var plan = (await connection.QueryAsync<QueryPlanRow>(
@@ -358,6 +393,53 @@ public class WorkoutRepositoryTests
             new LastSession(2, Start, new StrengthExercise(2, [new StrengthSet(5, 60m, null, null)])),
             new LastSession(3, Start.AddDays(1), new StrengthExercise(3, [new StrengthSet(6, 25m, null, null)])),
         }).UsingPropertiesComparer());
+    }
+
+    [Test]
+    public async Task GetSetCountsAsync_ReturnsEachExercisesSetsPerWorkoutLeavingOutCardio()
+    {
+        var first = await repository.AddAsync(new NewWorkout(Start, Finish,
+        [
+            new StrengthExercise(2, [new StrengthSet(5, 60m, null, null), new StrengthSet(3, 70m, null, null)]),
+            new CardioExercise(300, Entry()),
+            new StrengthExercise(3, []),
+        ]));
+        var second = await repository.AddAsync(new NewWorkout(Start.AddDays(1), Finish.AddDays(1),
+            [new StrengthExercise(2, [new StrengthSet(5, 60m, null, null)]), new StrengthExercise(4, [new StrengthSet(8, 20m, null, null)])]));
+
+        Assert.That(await repository.GetSetCountsAsync(Start, Start.AddDays(1)), Is.EqualTo(new[]
+        {
+            new ExerciseSetCount(first, 2, 2),
+            new ExerciseSetCount(second, 2, 1),
+            new ExerciseSetCount(second, 4, 1),
+        }));
+    }
+
+    [Test]
+    public async Task GetSetCountsAsync_FromAndToAreInclusive()
+    {
+        var atFrom = await repository.AddAsync(new NewWorkout(Start, Finish, [new StrengthExercise(2, [new StrengthSet(5, 60m, null, null)])]));
+        var atTo = await repository.AddAsync(new NewWorkout(Start.AddDays(6), Finish.AddDays(6), [new StrengthExercise(2, [new StrengthSet(5, 60m, null, null)])]));
+        await repository.AddAsync(new NewWorkout(Start.AddTicks(-1), Start.AddMinutes(1), [new StrengthExercise(2, [new StrengthSet(5, 60m, null, null)])]));
+        await repository.AddAsync(new NewWorkout(Start.AddDays(6).AddTicks(1), Finish.AddDays(7), [new StrengthExercise(2, [new StrengthSet(5, 60m, null, null)])]));
+
+        Assert.That((await repository.GetSetCountsAsync(Start, Start.AddDays(6))).Select(c => c.WorkoutId), Is.EqualTo(new[] { atFrom, atTo }));
+    }
+
+    [Test]
+    public async Task GetSetCountsAsync_StartInAnotherOffset_ComparesTheInstant()
+    {
+        var id = await repository.AddAsync(new NewWorkout(Start, Finish, [new StrengthExercise(2, [new StrengthSet(5, 60m, null, null)])]));
+        var from = Start.ToOffset(TimeSpan.FromHours(10));
+
+        var atStart = await repository.GetSetCountsAsync(from, from);
+        var after = await repository.GetSetCountsAsync(from.AddTicks(1), from.AddDays(1));
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(atStart.Select(c => c.WorkoutId), Is.EqualTo(new[] { id }));
+            Assert.That(after, Is.Empty);
+        });
     }
 
     [Test]
@@ -449,6 +531,38 @@ public class WorkoutRepositoryTests
         Assert.That(await repository.GetAsync(kept),
             Is.EqualTo(new Workout(kept, Start.AddHours(2), Finish.AddHours(2), Exercises())).UsingPropertiesComparer());
         Assert.That(await RowCounts(), Is.EqualTo((1, 3, 3, 1)));
+    }
+
+    [Test]
+    public async Task GetLatestAsync_NoWorkouts_ReturnsNull() =>
+        Assert.That(await repository.GetLatestAsync(), Is.Null);
+
+    [Test]
+    public async Task GetLatestAsync_ReturnsTheTimesAndExerciseIdsInOrder()
+    {
+        var id = await repository.AddAsync(new NewWorkout(Start, Finish, Exercises()));
+
+        Assert.That(await repository.GetLatestAsync(),
+            Is.EqualTo(new WorkoutOutline(id, Start, Finish, [1, 300, 187])).UsingPropertiesComparer());
+    }
+
+    [Test]
+    public async Task GetLatestAsync_TwoOnOneDay_ReturnsTheLaterStartNotTheLatestId()
+    {
+        var later = await repository.AddAsync(new NewWorkout(Start.AddHours(3), Finish.AddHours(3), [new StrengthExercise(2, [])]));
+        await repository.AddAsync(new NewWorkout(Start, Finish, Exercises()));
+
+        Assert.That(await repository.GetLatestAsync(),
+            Is.EqualTo(new WorkoutOutline(later, Start.AddHours(3), Finish.AddHours(3), [2])).UsingPropertiesComparer());
+    }
+
+    [Test]
+    public async Task GetLatestAsync_NoExercises_ReturnsNoIds()
+    {
+        var id = await repository.AddAsync(new NewWorkout(Start, Finish, Exercises()));
+        await repository.ReplaceExercisesAsync(id, []);
+
+        Assert.That(await repository.GetLatestAsync(), Is.EqualTo(new WorkoutOutline(id, Start, Finish, [])).UsingPropertiesComparer());
     }
 
     [Test]

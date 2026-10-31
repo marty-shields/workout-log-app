@@ -22,10 +22,10 @@ Feature: App lifecycle
     Given I am on the Dashboard
     When I send the app to the background and bring it back
     Then the log shows "Activity started" once more
-    And the log shows "Dashboard loaded" once more
+    And the log shows "Last workout loaded" once more
 
   @US-20
   Scenario: The Dashboard reloads each time it is shown
     Given I am on the Dashboard
     When I open Workouts and go back
-    Then the log shows "Dashboard loaded" once more
+    Then the log shows "Last workout loaded" once more

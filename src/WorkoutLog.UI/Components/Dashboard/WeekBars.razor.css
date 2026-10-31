@@ -1,0 +1,39 @@
+.bars {
+    margin: 0;
+}
+
+.plot {
+    display: block;
+    width: 100%;
+    height: auto;
+}
+
+.bar {
+    fill: var(--color-bar-past);
+}
+
+.this-week {
+    fill: var(--color-accent);
+}
+
+.baseline {
+    stroke: var(--color-border-strong);
+    stroke-width: var(--border-width);
+}
+
+.axis {
+    display: flex;
+    justify-content: space-between;
+    margin-top: var(--space-1);
+    color: var(--color-text-muted);
+    font-size: var(--font-size-sm);
+}
+
+.none {
+    margin: 0;
+    color: var(--color-text-muted);
+}
+
+.now {
+    margin-left: auto;
+}

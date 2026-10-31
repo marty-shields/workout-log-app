@@ -49,4 +49,11 @@ public class LiftBestRuleTests
     [Test]
     public void Best_NoSetHasAWeight_IsNull() =>
         Assert.That(rule.Best(Definition(Squat), Sets(Squat, Set(12, null), Set(10, null))), Is.Null);
+
+    [TestCase(70, 3, 60, 8, 1)]
+    [TestCase(60, 8, 70, 3, -1)]
+    [TestCase(70, 5, 70, 3, 1)]
+    [TestCase(70, 3, 70, 3, 0)]
+    public void Compare_HeavierWins_TieMoreReps(decimal xKg, int xReps, decimal yKg, int yReps, int expected) =>
+        Assert.That(Math.Sign(rule.Compare(new ExerciseBest(xKg, xReps, null, null), new ExerciseBest(yKg, yReps, null, null))), Is.EqualTo(expected));
 }

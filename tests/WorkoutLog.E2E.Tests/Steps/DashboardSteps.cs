@@ -32,32 +32,80 @@ public sealed class DashboardSteps(WebView web, DashboardScreen dashboard, Journ
         web.Eventually(dashboard.LastWorkout, Is.AnyOf(Date(from), Date(to)));
     }
 
-    [Then(@"^This week shows (\d+) and This month shows (\d+)$")]
-    public void ThenTheCounts(int week, int month)
+    [Then(@"^the last workout's time shows ""(.*)""$")]
+    public void ThenTheLastWorkoutsTimeShows(string text)
+    {
+        dashboard.LastWorkout();
+        Assert.That(dashboard.LastWorkoutWhen(), Is.EqualTo(text));
+    }
+
+    [Then(@"^the last workout's exercises show ""(.*)""$")]
+    public void ThenTheLastWorkoutsExercisesShow(string text)
+    {
+        dashboard.LastWorkout();
+        Assert.That(dashboard.LastWorkoutExercises(), Is.EqualTo(text));
+    }
+
+    [When(@"^I tap the last workout on the Dashboard$")]
+    public void WhenITapTheLastWorkout()
     {
         journeys.WaitFor(Journeys.Screen.Dashboard);
         dashboard.LastWorkout();
+        dashboard.OpenLastWorkout();
+    }
+
+    [Then(@"^this week shows (\d+) workouts?$")]
+    public void ThenThisWeekShows(int workouts)
+    {
+        journeys.GoToDashboard();
+        dashboard.LastWorkout();
+        Assert.That(dashboard.WeekRow("workouts").ThisWeek, Is.EqualTo(workouts.ToString(CultureInfo.InvariantCulture)), "This week");
+    }
+
+    [Then(@"^This week vs last week shows:$")]
+    public void ThenTheComparisonShows(DataTable table)
+    {
+        journeys.GoToDashboard();
+        dashboard.LastWorkout();
         Assert.Multiple(() =>
         {
-            Assert.That(dashboard.ThisWeek(), Is.EqualTo(week.ToString(CultureInfo.InvariantCulture)), "This week");
-            Assert.That(dashboard.ThisMonth(), Is.EqualTo(month.ToString(CultureInfo.InvariantCulture)), "This month");
+            foreach (var row in table.Rows)
+            {
+                Assert.That(dashboard.WeekRow(row["row"].ToLowerInvariant()), Is.EqualTo((row["this week"], row["last week"], row["change"])), row["row"]);
+            }
         });
     }
 
-    [Then(@"^This week shows (\d+)$")]
-    public void ThenThisWeekShows(int week)
+    [Then(@"^the last 12 weeks show:$")]
+    public void ThenTheWeeksShow(DataTable table)
     {
         journeys.GoToDashboard();
-        Assert.That(dashboard.ThisWeek(), Is.EqualTo(week.ToString(CultureInfo.InvariantCulture)), "This week");
+        dashboard.LastWorkout();
+        var bars = dashboard.WeekBars();
+        Assert.Multiple(() =>
+        {
+            Assert.That(bars, Has.Count.EqualTo(12), "weeks");
+            foreach (var row in table.Rows)
+            {
+                Assert.That(bars, Does.Contain($"{row["week"]}: {row["workouts"]}"));
+            }
+        });
     }
 
-    [Then(@"^This month counts it only if it started this month$")]
-    public void ThenThisMonthCountsItIfThisMonth()
+    [Then(@"^the streak shows ""(.*)""$")]
+    public void ThenTheStreakShows(string streak)
     {
-        var now = clock.LocalNow();
-        var started = state.Seeded[1];
-        var expected = started.Year == now.Year && started.Month == now.Month ? "1" : "0";
-        Assert.That(dashboard.ThisMonth(), Is.EqualTo(expected), $"This month, for a workout on {started:d MMM}");
+        journeys.GoToDashboard();
+        dashboard.LastWorkout();
+        Assert.That(dashboard.Streak(), Is.EqualTo(streak));
+    }
+
+    [Then(@"^no streak is shown$")]
+    public void ThenNoStreak()
+    {
+        journeys.GoToDashboard();
+        dashboard.LastWorkout();
+        Assert.That(dashboard.Streak(), Is.Null);
     }
 
     [Then(@"^I can open Workouts and Exercises and start a New Workout$")]
@@ -88,12 +136,12 @@ public sealed class DashboardSteps(WebView web, DashboardScreen dashboard, Journ
     [When(@"^I go back to the Dashboard$")]
     public void WhenIGoBackToTheDashboard() => journeys.GoToDashboard();
 
-    [Then(@"^on the Dashboard the last workout shows ""(.*)"", This week (\d+) and This month (\d+)$")]
-    public void ThenOnTheDashboard(string lastWorkout, int week, int month)
+    [Then(@"^on the Dashboard the last workout shows ""(.*)"" and this week shows (\d+) workouts?$")]
+    public void ThenOnTheDashboard(string lastWorkout, int workouts)
     {
         journeys.GoToDashboard();
         ThenTheLastWorkoutShows(lastWorkout);
-        ThenTheCounts(week, month);
+        ThenThisWeekShows(workouts);
     }
 
     internal static string Date(DateTime value) => value.ToString("ddd d MMM yyyy", CultureInfo.InvariantCulture);

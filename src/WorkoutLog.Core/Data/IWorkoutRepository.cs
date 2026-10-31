@@ -26,6 +26,15 @@ internal interface IWorkoutRepository
     /// </summary>
     Task<IReadOnlyList<WorkoutSummary>> ListAsync(DateTimeOffset? from = null, DateTimeOffset? to = null, int? limit = null);
 
+    /// <summary>Returns the workout with the latest start, with its exercise ids in position order, or null if there are none.</summary>
+    Task<WorkoutOutline?> GetLatestAsync();
+
+    /// <summary>
+    /// Returns the start, finish and strength set count of each workout started from <paramref name="from"/> to <paramref name="to"/>,
+    /// both inclusive, by start time oldest first.
+    /// </summary>
+    Task<IReadOnlyList<WorkoutTally>> ListTalliesAsync(DateTimeOffset from, DateTimeOffset to);
+
     /// <summary>
     /// Returns the set weights of each workout that has the exercise, by start time newest first.
     /// Weights are in set order.
@@ -39,6 +48,12 @@ internal interface IWorkoutRepository
     /// Returns each workout that has the exercise, by start time oldest first, with the exercise's sets or entry.
     /// </summary>
     Task<IReadOnlyList<WorkoutSession>> GetSessionsAsync(int exerciseId);
+
+    /// <summary>
+    /// Returns the number of strength sets of each workout exercise that has any, in workouts started from <paramref name="from"/> to
+    /// <paramref name="to"/>, both inclusive, by start time then position.
+    /// </summary>
+    Task<IReadOnlyList<ExerciseSetCount>> GetSetCountsAsync(DateTimeOffset from, DateTimeOffset to);
 
     /// <summary>Deletes the workout and its exercises, sets and entries. Throws <see cref="KeyNotFoundException"/> if the workout doesn't exist.</summary>
     Task DeleteAsync(int id);

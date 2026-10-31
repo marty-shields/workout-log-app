@@ -1,0 +1,35 @@
+@attribute [Stories("Screens/Sets per muscle group")]
+
+<Stories TComponent="MusclesView" Layout="typeof(PhoneLayout)">
+
+    <Story Name="Some trained">
+        <Template>
+            <MusclesView Groups="SampleDashboard.SomeTrained" OnBack="() => { }" />
+        </Template>
+    </Story>
+
+    <Story Name="All trained">
+        <Template>
+            <MusclesView Groups="SampleDashboard.AllTrained" OnBack="() => { }" />
+        </Template>
+    </Story>
+
+    <Story Name="None trained">
+        <Template>
+            <MusclesView Groups="SampleDashboard.NoneTrained" OnBack="() => { }" />
+        </Template>
+    </Story>
+
+    <Story Name="Loading">
+        <Template>
+            <MusclesView Groups="[]" Loading OnBack="() => { }" />
+        </Template>
+    </Story>
+
+    <Story Name="Load failed">
+        <Template>
+            <MusclesView Groups="[]" Failed OnRetry="() => { }" OnBack="() => { }" />
+        </Template>
+    </Story>
+
+</Stories>

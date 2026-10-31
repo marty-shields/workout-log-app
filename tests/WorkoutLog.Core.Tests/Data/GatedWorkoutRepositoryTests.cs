@@ -43,9 +43,12 @@ public class GatedWorkoutRepositoryTests
         Assert.That(await repository.ListAsync(Start.AddTicks(1), null, null), Is.Empty);
         Assert.That(await repository.ListAsync(null, Start.AddTicks(-1), null), Is.Empty);
         Assert.That(await repository.ListAsync(null, null, 0), Is.Empty);
+        Assert.That(await repository.GetLatestAsync(), Is.EqualTo(new WorkoutOutline(id, Start, Start.AddMinutes(30), [])).UsingPropertiesComparer());
+        Assert.That(await repository.ListTalliesAsync(Start, Start), Is.EqualTo(new[] { new WorkoutTally(Start, Start.AddMinutes(30), 0) }));
         Assert.That(await repository.GetWeightsAsync(1), Is.Empty);
         Assert.That(await repository.GetLastSessionsAsync(), Is.Empty);
         Assert.That(await repository.GetSessionsAsync(1), Is.Empty);
+        Assert.That(await repository.GetSetCountsAsync(Start.AddTicks(1), Start.AddDays(1)), Is.Empty);
 
         await repository.DeleteAsync(id);
 
@@ -56,9 +59,12 @@ public class GatedWorkoutRepositoryTests
     [TestCase("Replace")]
     [TestCase("Get")]
     [TestCase("List")]
+    [TestCase("Latest")]
+    [TestCase("Tallies")]
     [TestCase("Weights")]
     [TestCase("LastSessions")]
     [TestCase("Sessions")]
+    [TestCase("SetCounts")]
     [TestCase("Delete")]
     public async Task Call_WhileTheGateIsHeld_WaitsForIt(string call)
     {
@@ -72,9 +78,12 @@ public class GatedWorkoutRepositoryTests
             "Replace" => repository.ReplaceExercisesAsync(id, []),
             "Get" => repository.GetAsync(id),
             "List" => repository.ListAsync(),
+            "Latest" => repository.GetLatestAsync(),
+            "Tallies" => repository.ListTalliesAsync(Start, Start),
             "Weights" => repository.GetWeightsAsync(1),
             "LastSessions" => repository.GetLastSessionsAsync(),
             "Sessions" => repository.GetSessionsAsync(1),
+            "SetCounts" => repository.GetSetCountsAsync(Start, Start),
             _ => repository.DeleteAsync(id),
         };
 

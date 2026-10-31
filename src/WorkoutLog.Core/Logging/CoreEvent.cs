@@ -1,8 +1,8 @@
 namespace WorkoutLog.Core.Logging;
 
 /// <summary>
-/// Event ids of Core's log messages: 1000–1999, a block of 100 per type; the Exercise page services share 1900.
-/// Ids never change and are never reused. Retired: 1205.
+/// Event ids of Core's log messages: 1000–1999, a block of 100 per type; the Dashboard services share 1400 and the Exercise page services share 1900.
+/// Ids never change and are never reused. Retired: 1205, 1401, 1402.
 /// </summary>
 internal enum CoreEvent
 {
@@ -60,11 +60,38 @@ internal enum CoreEvent
     /// <summary><see cref="Services.WorkoutsService"/>: reading the saved workouts failed.</summary>
     WorkoutsLoadFailed = 1302,
 
-    /// <summary><see cref="Services.DashboardService"/>: Dashboard read.</summary>
-    DashboardLoaded = 1401,
+    /// <summary><see cref="Services.LastWorkoutService"/>: last workout read.</summary>
+    LastWorkoutLoaded = 1410,
 
-    /// <summary><see cref="Services.DashboardService"/>: reading the Dashboard failed.</summary>
-    DashboardLoadFailed = 1402,
+    /// <summary><see cref="Services.LastWorkoutService"/>: reading the last workout failed.</summary>
+    LastWorkoutLoadFailed = 1411,
+
+    /// <summary><see cref="Services.LastWorkoutService"/>: a saved exercise id is not in the exercise list.</summary>
+    LastWorkoutUnknownExercise = 1412,
+
+    /// <summary><see cref="Services.ConsistencyService"/>: Consistency card read.</summary>
+    ConsistencyLoaded = 1420,
+
+    /// <summary><see cref="Services.ConsistencyService"/>: reading the Consistency card failed.</summary>
+    ConsistencyLoadFailed = 1421,
+
+    /// <summary><see cref="Services.MuscleSetsService"/>: sets per muscle group read.</summary>
+    MuscleSetsLoaded = 1430,
+
+    /// <summary><see cref="Services.MuscleSetsService"/>: reading the sets per muscle group failed.</summary>
+    MuscleSetsLoadFailed = 1431,
+
+    /// <summary><see cref="Services.MuscleSetsService"/>: a saved exercise id is not in the exercise list.</summary>
+    MuscleSetsUnknownExercise = 1432,
+
+    /// <summary><see cref="Services.RecentRecordsService"/>: recent records read.</summary>
+    RecentRecordsLoaded = 1441,
+
+    /// <summary><see cref="Services.RecentRecordsService"/>: reading the recent records failed.</summary>
+    RecentRecordsLoadFailed = 1442,
+
+    /// <summary><see cref="Services.RecentRecordsService"/>: a saved exercise id is not in the exercise list.</summary>
+    RecentRecordsUnknownExercise = 1443,
 
     /// <summary><see cref="Services.WeightHistoryService"/>: reading an exercise's weights failed.</summary>
     WeightHistoryLoadFailed = 1501,

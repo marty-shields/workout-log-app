@@ -20,12 +20,12 @@ Same layout and behaviour as [New Workout](./?path=/custom/screens-new-workout-o
 Save calls `IWorkoutService.SaveAsync`, then the App goes to the Dashboard. Save is also ignored while a delete runs and after one succeeds.
 
 ## Back
-While loading, after a failed load and when not found: Workouts. On a loaded workout with no changes: Workouts, no prompt.
+While loading, after a failed load and when not found: Workouts. On a loaded workout with no changes: Workouts, no prompt. Opened from the Dashboard's last workout, back goes to the Dashboard instead.
 
-After a change, back (arrow or Android) opens `ConfirmDialog` "Discard changes?". A change is a value typed, a set added or removed, or an exercise added, picked again or removed, even if later undone. Cancel, or Android back, closes it and the edits stay. Discard logs Information 2902 "Edits to workout {WorkoutId} discarded" and raises `OnBack`; the App goes to Workouts. Back is ignored while a save runs, after one succeeds and after a discard. Discard runs once; while a save runs or after one succeeds it closes the prompt and does nothing else.
+After a change, back (arrow or Android) opens `ConfirmDialog` "Discard changes?". A change is a value typed, a set added or removed, or an exercise added, picked again or removed, even if later undone. Cancel, or Android back, closes it and the edits stay. Discard logs Information 2902 "Edits to workout {WorkoutId} discarded" and raises `OnBack`; the App goes to Workouts, or to the Dashboard when opened from it. Back is ignored while a save runs, after one succeeds and after a discard. Discard runs once; while a save runs or after one succeeds it closes the prompt and does nothing else.
 
 ## Delete
-Delete opens `ConfirmDialog` "Delete this workout?", the same with or without changes. Cancel, or Android back, closes it. Delete removes the workout and raises `OnDeleted`; the App goes to Workouts. If the delete fails, the prompt closes, "Couldn't delete the workout. Try again" shows at the top, the workout and its edits stay, and focus moves to Delete.
+Delete opens `ConfirmDialog` "Delete this workout?", the same with or without changes. Cancel, or Android back, closes it. Delete removes the workout and raises `OnDeleted`; the App goes to Workouts, or to the Dashboard when opened from it. If the delete fails, the prompt closes, "Couldn't delete the workout. Try again" shows at the top, the workout and its edits stay, and focus moves to Delete.
 
 Delete is ignored while a save runs, after one succeeds and after a discard. While a delete runs and after one succeeds, Back, Save and Delete are ignored, the prompt's Cancel and Android back do nothing, and Discard closes its prompt. Confirm runs once; while a save runs or after one succeeds it closes the prompt and does nothing else.
 

@@ -1,0 +1,55 @@
+@using WorkoutLog.UI.Components.Feedback
+@using WorkoutLog.UI.Models.Muscles
+<AppScreen Title="Sets per muscle group" Subtitle="Last 7 days" OnBack="OnBack">
+    @if (Loading)
+    {
+        <div class="centre">
+            <Spinner Label="Loading…" TestId="muscles-loading" />
+        </div>
+    }
+    else if (Failed)
+    {
+        <LoadFailed Message="Couldn't load your muscles" OnRetry="OnRetry" TestId="muscles" />
+    }
+    else
+    {
+        <ul class="rows">
+            @foreach (var group in Groups)
+            {
+                <li class="row" data-testid="@($"muscles-{group.Group.ToLowerInvariant()}")">
+                    <span>@group.Group</span>
+                    @if (group.Sets == 0)
+                    {
+                        <span class="sets none">Not trained</span>
+                    }
+                    else
+                    {
+                        <span class="sets">@group.Sets @(group.Sets == 1 ? "set" : "sets")</span>
+                    }
+                </li>
+            }
+        </ul>
+    }
+</AppScreen>
+
+@code {
+    /// <summary>Muscle groups in order, each with its sets in the last 7 days.</summary>
+    [Parameter, EditorRequired]
+    public IReadOnlyList<MuscleGroupSets> Groups { get; set; } = [];
+
+    /// <summary>Shows a spinner instead of the groups while they load.</summary>
+    [Parameter]
+    public bool Loading { get; set; }
+
+    /// <summary>Shows the load error and Try again instead of the groups, and moves focus to Try again.</summary>
+    [Parameter]
+    public bool Failed { get; set; }
+
+    /// <summary>Raised by Try again.</summary>
+    [Parameter]
+    public EventCallback OnRetry { get; set; }
+
+    /// <summary>Raised by the back arrow and the Android back button.</summary>
+    [Parameter]
+    public EventCallback OnBack { get; set; }
+}

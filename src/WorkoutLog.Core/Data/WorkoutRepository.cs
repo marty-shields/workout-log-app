@@ -79,6 +79,47 @@ internal sealed class WorkoutRepository(SQLiteAsyncConnection connection, IWorko
     }
 
     /// <inheritdoc />
+    public async Task<WorkoutOutline?> GetLatestAsync()
+    {
+        const string sql = """
+            SELECT w.Id, w.StartedAt, w.FinishedAt, e.ExerciseId
+            FROM Workout w
+            LEFT JOIN WorkoutExercise e ON e.WorkoutId = w.Id
+            WHERE w.Id = (SELECT Id FROM Workout ORDER BY StartedAt DESC LIMIT 1)
+            ORDER BY e.Position
+            """;
+        var rows = await connection.QueryAsync<OutlineRow>(sql);
+        if (rows.Count == 0)
+        {
+            return null;
+        }
+
+        return new WorkoutOutline(
+            rows[0].Id,
+            new DateTimeOffset(rows[0].StartedAt, TimeSpan.Zero),
+            new DateTimeOffset(rows[0].FinishedAt, TimeSpan.Zero),
+            rows.Where(r => r.ExerciseId is not null).Select(r => r.ExerciseId!.Value).ToList());
+    }
+
+    /// <inheritdoc />
+    public async Task<IReadOnlyList<WorkoutTally>> ListTalliesAsync(DateTimeOffset from, DateTimeOffset to)
+    {
+        const string sql = """
+            SELECT w.StartedAt, w.FinishedAt, COUNT(s.Id) AS Sets
+            FROM Workout w
+            LEFT JOIN WorkoutExercise e ON e.WorkoutId = w.Id
+            LEFT JOIN StrengthSet s ON s.WorkoutExerciseId = e.Id
+            WHERE w.StartedAt >= ? AND w.StartedAt <= ?
+            GROUP BY w.Id
+            ORDER BY w.StartedAt
+            """;
+        var rows = await connection.QueryAsync<TallyRow>(sql, from, to);
+        return rows.Select(r => new WorkoutTally(
+                new DateTimeOffset(r.StartedAt, TimeSpan.Zero), new DateTimeOffset(r.FinishedAt, TimeSpan.Zero), r.Sets))
+            .ToList();
+    }
+
+    /// <inheritdoc />
     public async Task<IReadOnlyList<WorkoutWeights>> GetWeightsAsync(int exerciseId)
     {
         const string sql = """
@@ -154,6 +195,22 @@ internal sealed class WorkoutRepository(SQLiteAsyncConnection connection, IWorko
     }
 
     /// <inheritdoc />
+    public async Task<IReadOnlyList<ExerciseSetCount>> GetSetCountsAsync(DateTimeOffset from, DateTimeOffset to)
+    {
+        const string sql = """
+            SELECT e.WorkoutId, e.ExerciseId, COUNT(*) AS Sets
+            FROM WorkoutExercise e
+            JOIN Workout w ON w.Id = e.WorkoutId
+            JOIN StrengthSet s ON s.WorkoutExerciseId = e.Id
+            WHERE w.StartedAt >= ? AND w.StartedAt <= ?
+            GROUP BY e.Id
+            ORDER BY w.StartedAt, e.Position
+            """;
+        var rows = await connection.QueryAsync<SetCountRow>(sql, from.UtcTicks, to.UtcTicks);
+        return rows.Select(r => new ExerciseSetCount(r.WorkoutId, r.ExerciseId, r.Sets)).ToList();
+    }
+
+    /// <inheritdoc />
     public Task DeleteAsync(int id) =>
         connection.RunInTransactionAsync(db => writers.Create(db).Delete(id));
 
@@ -178,6 +235,38 @@ internal sealed class WorkoutRepository(SQLiteAsyncConnection connection, IWorko
         public int WorkoutId { get; set; }
 
         public decimal? WeightKg { get; set; }
+    }
+
+    /// <summary>A workout's times, in UTC ticks, with one of its exercise ids; null for a workout without exercises.</summary>
+    private sealed class OutlineRow
+    {
+        public int Id { get; set; }
+
+        public long StartedAt { get; set; }
+
+        public long FinishedAt { get; set; }
+
+        public int? ExerciseId { get; set; }
+    }
+
+    /// <summary>A workout's start and finish, in UTC ticks, and its strength set count.</summary>
+    private sealed class TallyRow
+    {
+        public long StartedAt { get; set; }
+
+        public long FinishedAt { get; set; }
+
+        public int Sets { get; set; }
+    }
+
+    /// <summary>A workout exercise's number of strength sets.</summary>
+    private sealed class SetCountRow
+    {
+        public int WorkoutId { get; set; }
+
+        public int ExerciseId { get; set; }
+
+        public int Sets { get; set; }
     }
 
     /// <summary>A workout exercise row with its workout's start, in UTC ticks.</summary>

@@ -42,4 +42,12 @@ public class AssistedBestRuleTests
     public void Best_BlankAssist_Is0Kg() =>
         Assert.That(rule.Best(Definition(AssistedPullUp), Sets(AssistedPullUp, Set(10, 20m), Set(4, null))),
             Is.EqualTo(new ExerciseBest(0m, 4, null, null)));
+
+    [TestCase(20, 8, 25, 10, 1)]
+    [TestCase(25, 10, 20, 8, -1)]
+    [TestCase(0, 5, 5, 8, 1)]
+    [TestCase(20, 10, 20, 8, 1)]
+    [TestCase(20, 8, 20, 8, 0)]
+    public void Compare_LessAssistWins_TieMoreReps(decimal xKg, int xReps, decimal yKg, int yReps, int expected) =>
+        Assert.That(Math.Sign(rule.Compare(new ExerciseBest(xKg, xReps, null, null), new ExerciseBest(yKg, yReps, null, null))), Is.EqualTo(expected));
 }

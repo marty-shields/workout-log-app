@@ -1,5 +1,4 @@
 @using WorkoutLog.UI.Components.Feedback
-@using WorkoutLog.UI.Models.Dashboard
 <AppScreen Title="Workout Log">
     <Actions>
         <IconButton Icon="IconName.Settings" AriaLabel="Settings" TestId="settings" OnClick="OnSettings" />
@@ -19,20 +18,10 @@
         }
         else
         {
-            <section class="section">
-                <h2 class="heading">Last workout</h2>
-                @if (Summary.LastWorkoutStartedAt is { } lastWorkout)
-                {
-                    <p class="last" data-testid="last-workout">@DisplayFormat.Date(lastWorkout)</p>
-                }
-                else
-                {
-                    <EmptyState Message="No workouts yet" TestId="last-workout-empty" />
-                }
-            </section>
-            <div class="stats">
-                <StatTile Label="This week" Value="Summary.ThisWeek" TestId="count-week" />
-                <StatTile Label="This month" Value="Summary.ThisMonth" TestId="count-month" />
+            <div class="cards">
+                @LastWorkout
+                @Consistency
+                @RecentRecords
             </div>
         }
         <ListRow Text="Workouts" OnClick="OnWorkouts" TestId="workouts-link" />
@@ -44,15 +33,23 @@
 </AppScreen>
 
 @code {
-    /// <summary>Last workout and counts.</summary>
-    [Parameter, EditorRequired]
-    public DashboardSummary Summary { get; set; } = null!;
+    /// <summary>Last workout card.</summary>
+    [Parameter]
+    public RenderFragment? LastWorkout { get; set; }
 
-    /// <summary>Shows a spinner instead of the last workout and counts while they load.</summary>
+    /// <summary>Consistency card, under the last workout.</summary>
+    [Parameter]
+    public RenderFragment? Consistency { get; set; }
+
+    /// <summary>Recent records card, under consistency.</summary>
+    [Parameter]
+    public RenderFragment? RecentRecords { get; set; }
+
+    /// <summary>Shows a spinner instead of the cards while they load.</summary>
     [Parameter]
     public bool Loading { get; set; }
 
-    /// <summary>Shows the load error and Try again instead of the last workout and counts, and moves focus to Try again.</summary>
+    /// <summary>Shows the load error and Try again instead of the cards, and moves focus to Try again.</summary>
     [Parameter]
     public bool Failed { get; set; }
 

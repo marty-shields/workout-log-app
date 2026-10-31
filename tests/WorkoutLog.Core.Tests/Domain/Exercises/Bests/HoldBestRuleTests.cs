@@ -38,4 +38,12 @@ public class HoldBestRuleTests
     [Test]
     public void Best_NoSetHasADuration_IsNull() =>
         Assert.That(rule.Best(Definition(Plank), Sets(Plank, Set(null, 10m))), Is.Null);
+
+    [TestCase(105, 90, 1)]
+    [TestCase(90, 105, -1)]
+    [TestCase(90, 90, 0)]
+    public void Compare_LongerWins(int xSeconds, int ySeconds, int expected) =>
+        Assert.That(Math.Sign(rule.Compare(
+                new ExerciseBest(null, null, TimeSpan.FromSeconds(xSeconds), null), new ExerciseBest(null, null, TimeSpan.FromSeconds(ySeconds), null))),
+            Is.EqualTo(expected));
 }

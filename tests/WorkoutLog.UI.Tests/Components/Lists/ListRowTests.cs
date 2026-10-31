@@ -27,7 +27,7 @@ public class ListRowTests : ComponentTestBase
 
         var chevron = cut.FindComponent<Icon>().Instance;
 
-        Assert.That((chevron.Name, chevron.Muted, chevron.Size), Is.EqualTo((IconName.Chevron, true, IconSize.Default)));
+        Assert.That((chevron.Name, chevron.Tone, chevron.Size), Is.EqualTo((IconName.Chevron, IconTone.Muted, IconSize.Default)));
     }
 
     [Test]

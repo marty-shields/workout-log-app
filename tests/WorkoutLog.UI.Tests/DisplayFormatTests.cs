@@ -30,6 +30,13 @@ public class DisplayFormatTests
     public void DayMonth_AnotherYear_HasTheYear() =>
         Assert.That(DisplayFormat.DayMonth(new DateTime(2025, 12, 31, 23, 59, 59), new DateTime(2026, 1, 1, 0, 0, 0)), Is.EqualTo("31 Dec 2025"));
 
+    [TestCase(0, "Today")]
+    [TestCase(1, "Yesterday")]
+    [TestCase(2, "2 days ago")]
+    [TestCase(30, "30 days ago")]
+    public void DaysAgo_TodayYesterdayOrDays(int days, string expected) =>
+        Assert.That(DisplayFormat.DaysAgo(days), Is.EqualTo(expected));
+
     [TestCase(0, 0, 5, "0:05")]
     [TestCase(0, 1, 45, "1:45")]
     [TestCase(0, 59, 59, "59:59")]

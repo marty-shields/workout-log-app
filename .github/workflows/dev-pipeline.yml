@@ -1,5 +1,6 @@
-# Builds the solution and runs the UI and Core tests, and checks Android Auto Backup is on only in Release,
-# for the PR build (pr-build.yml) and the release workflow.
+# Builds the solution and runs the UI and Core tests, checks the E2E step bindings and that Android Auto Backup is on only
+# in Release, and keeps the Debug APK and E2E tests for the QA pipeline, for the PR build (pr-build.yml) and the release
+# workflow.
 name: Dev pipeline
 
 on:
@@ -20,6 +21,10 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
+
+      # Fails on an E2E step with no step definition or more than one.
+      - name: Check the E2E step bindings
+        run: python3 -I .github/scripts/e2e-step-check.py tests/WorkoutLog.E2E.Tests
 
       - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
         with:
@@ -46,6 +51,17 @@ jobs:
       - name: Check the Debug APK
         if: ${{ !cancelled() && steps.build.outcome == 'success' }}
         run: .github/scripts/check-backup.sh src/WorkoutLog.App/bin/Debug/net10.0-android/uk.martinshields.workoutlog.debug-Signed.apk false
+
+      # The QA pipeline's shards download these. obj is included for dotnet test --no-build.
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: e2e-build
+          path: |
+            src/WorkoutLog.App/bin/Debug/net10.0-android/uk.martinshields.workoutlog.debug-Signed.apk
+            tests/WorkoutLog.E2E.Tests/bin
+            tests/WorkoutLog.E2E.Tests/obj
+          retention-days: 1
+          if-no-files-found: error
 
   # Android Auto Backup is on in the Release APK (x64, debug key, never published).
   backup-manifest:
