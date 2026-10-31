@@ -87,7 +87,7 @@ The Debug APK also runs on an x86_64 emulator.
 
 ## CI
 Every PR to `main` runs these; the four checks must pass before it can merge:
-- **PR build** (`pr-build.yml`): the dev pipeline (`dev-pipeline.yml`) checks the E2E step bindings, builds, runs the Core and UI tests and checks `allowBackup` in the Debug and Release APKs (`dev / build-and-test`, `dev / backup-manifest`). `dev / build-and-test` also keeps the Debug APK and the E2E test output as the `e2e-build` artifact. Then the QA pipeline (`qa-pipeline.yml`) runs the E2E tests on emulators in 8 shards, each downloading `e2e-build` instead of building, retrying failed scenarios up to 3 tries (`qa / emulator-e2e-tests`). The release workflow runs the same two pipelines, the QA pipeline after the dev pipeline.
+- **PR build** (`pr-build.yml`): the dev pipeline (`dev-pipeline.yml`) checks the E2E step bindings, builds, runs the Core and UI tests and checks `allowBackup` in the Debug and Release APKs (`dev / build-and-test`, `dev / backup-manifest`). `dev / build-and-test` also keeps the Debug APK and the E2E test output as the `e2e-build` artifact. Then the QA pipeline (`qa-pipeline.yml`) runs the E2E tests on emulators in 8 shards, each downloading `e2e-build` and restoring the E2E project instead of building, retrying failed scenarios up to 3 tries (`qa / emulator-e2e-tests`). The release workflow runs the same two pipelines, the QA pipeline after the dev pipeline.
 - **PR checks** (`pr-checks.yml`): a Conventional Commit title and exactly one `semver:major`, `semver:minor` or `semver:patch` label (`pr-checks`).
 
 Keep in step:

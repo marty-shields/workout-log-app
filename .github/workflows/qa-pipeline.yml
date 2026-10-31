@@ -47,6 +47,10 @@ jobs:
         with:
           global-json-file: global.json
 
+      # The downloaded obj points at the build runner's package folder; dotnet test --no-build lists no tests without a restore.
+      - name: Restore the E2E tests
+        run: dotnet restore tests/WorkoutLog.E2E.Tests
+
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: 24
