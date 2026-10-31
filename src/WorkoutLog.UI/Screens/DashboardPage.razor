@@ -6,7 +6,6 @@
 @using WorkoutLog.UI.Lifecycle
 @using WorkoutLog.UI.Models.Dashboard
 @implements IDisposable
-@inject IDashboardService Dashboard
 @inject ILastWorkoutService LastWorkoutService
 @inject IRecentRecordsService RecentRecordsService
 @inject IExerciseCatalog Catalog
@@ -35,7 +34,6 @@
 </DashboardView>
 
 @code {
-    private DashboardSummary summary = new(0, 0);
     private (int Id, LastWorkout Card)? last;
     private IReadOnlyList<RecentRecord>? records;
     private ConsistencyResult consistency = ConsistencyResult.FailedRead;
@@ -84,7 +82,7 @@
         registration?.Dispose();
     }
 
-    /// <summary>Loads the last workout, counts, the Consistency card and recent records. Shows the spinner until all finish, and the error if the last workout, counts or Consistency card fail. Records that fail to load leave their slot empty. Does nothing more once the page is disposed.</summary>
+    /// <summary>Loads the last workout, the Consistency card and recent records. Shows the spinner until all finish, and the error if the last workout or Consistency card fail. Records that fail to load leave their slot empty. Does nothing more once the page is disposed.</summary>
     private async Task LoadAsync()
     {
         if (loading)
@@ -94,11 +92,9 @@
 
         loading = true;
         StateHasChanged();
-        var summaryLoad = Dashboard.GetAsync();
         var lastLoad = LastWorkoutService.GetAsync();
         var consistencyLoad = ConsistencyService.GetAsync();
         var recordsLoad = RecentRecordsService.GetAsync();
-        var result = await summaryLoad;
         var lastResult = await lastLoad;
         var consistencyResult = await consistencyLoad;
         var recent = await recordsLoad;
@@ -107,11 +103,10 @@
             return;
         }
 
-        summary = new DashboardSummary(result.ThisWeek, result.ThisMonth);
         last = lastResult.Workout is { } workout ? (workout.Id, Card(workout)) : null;
         consistency = consistencyResult;
         records = recent.Failed ? null : RecentRecordItems.Items(recent.Records, Catalog, Clock.LocalTimeZone, recent.Now);
-        failed = result.Failed || lastResult.Failed || consistencyResult.Failed;
+        failed = lastResult.Failed || consistencyResult.Failed;
         loading = false;
     }
 

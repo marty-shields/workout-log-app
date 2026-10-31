@@ -15,7 +15,7 @@ Feature: Logging
     When I save the workout
     Then the log shows "New workout started"
     And the log shows "Workout 1 added with 2 exercises"
-    And the log shows "Dashboard loaded: 1 this week, 1 this month"
+    And the log shows "Last workout loaded"
 
   @US-15
   Scenario: Discarding a new workout is logged

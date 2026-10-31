@@ -34,8 +34,6 @@ public class CoreEventTests
             [CoreEvent.WorkoutDeleteFailed] = 1211,
             [CoreEvent.WorkoutsLoaded] = 1301,
             [CoreEvent.WorkoutsLoadFailed] = 1302,
-            [CoreEvent.DashboardLoaded] = 1401,
-            [CoreEvent.DashboardLoadFailed] = 1402,
             [CoreEvent.LastWorkoutLoaded] = 1410,
             [CoreEvent.LastWorkoutLoadFailed] = 1411,
             [CoreEvent.LastWorkoutUnknownExercise] = 1412,
@@ -71,4 +69,8 @@ public class CoreEventTests
             [CoreEvent.CardioProgressUnknownExercise] = 1907,
             [CoreEvent.CardioProgressNotCardio] = 1908,
         }));
+
+    [Test]
+    public void Values_RetiredAreNotReused() =>
+        Assert.That(Enum.GetValues<CoreEvent>().Select(e => (int)e), Has.None.AnyOf(1205, 1401, 1402));
 }
