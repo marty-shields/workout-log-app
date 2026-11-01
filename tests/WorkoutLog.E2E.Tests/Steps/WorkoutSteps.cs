@@ -165,6 +165,7 @@ public sealed class WorkoutSteps(WebView web, Native native, Journeys journeys, 
     [Then(@"^Add set on (.+) is off with ""(.*)""$")]
     public void ThenAddSetIsOff(string name, string note)
     {
+        workout.Open(name);
         web.Eventually(() => workout.SetsFull(name), Is.EqualTo(note), $"{name} sets note");
         Assert.That(workout.AddSetEnabled(name), Is.False, $"{name} Add set");
     }
