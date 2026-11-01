@@ -14,7 +14,9 @@ Feature: Edit a workout
     And Delete is shown
     And it holds exactly what was saved, newest first
 
-  Scenario: Carry sets start closed on Edit
+  Scenario: Every exercise starts as one line, and its carry sets are closed when opened
+    Then every exercise is shown as one line
+    When I tap the pencil on Farmer's Walk
     Then every Farmer's Walk set is a summary
 
   Scenario: Change a set and save

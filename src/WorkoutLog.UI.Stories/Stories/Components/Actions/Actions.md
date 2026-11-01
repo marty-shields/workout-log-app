@@ -27,6 +27,7 @@ A Material Symbols Outlined icon (weight 400), drawn as an SVG and hidden from s
 - Chevron: the end of a tappable `ListRow`, carry `SetSummary` row and `LastWorkoutCard`, `Muted`.
 - Search: the Exercises search box, `Muted`.
 - Up and Down: an increase (`Success`) or decrease (`Error`) in `WeekComparison`.
+- Edit (pencil) and Check (tick): used by `IconButton`.
 
 ## `IconButton`
 A button that shows an `Icon`, with a 48px touch target.
@@ -36,7 +37,9 @@ A button that shows an `Icon`, with a 48px touch target.
 | Settings | Opening Settings from the Dashboard top bar. |
 | Back | The back arrow in the top bar and on Add Exercise. |
 | Close | Removing a set: `Muted`, `Small`. |
-| Delete | Deleting the workout in the Edit Workout top bar; removing an exercise from its card (`Muted`). |
+| Delete | Deleting the workout in the Edit Workout top bar; deleting an exercise from its card (`Muted`), after a confirm. |
+| Check | Marking an exercise done, in its card header. |
+| Edit | Opening a done exercise again, in its one-line card (`Muted`). |
 
 - `AriaLabel` names the button.
 - The icon is `--color-text`; on the top bar and the Add Exercise bar that is `--color-on-bar`. `Muted` uses `--color-text-muted`.

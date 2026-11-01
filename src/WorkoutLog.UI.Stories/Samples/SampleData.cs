@@ -89,6 +89,20 @@ public static class SampleData
     /// <summary>A saved workout's exercises, given oldest first, in the order Edit Workout shows them: newest first.</summary>
     public static List<ExerciseState> Opened(List<ExerciseState> saved) => [.. saved.AsEnumerable().Reverse()];
 
+    /// <summary>A saved workout's exercises, given oldest first, as Edit Workout loads them: newest first, each one done.</summary>
+    public static List<ExerciseState> Loaded(List<ExerciseState> saved) => MarkDone(Opened(saved), [.. Enumerable.Range(0, saved.Count)]);
+
+    /// <summary>Marks the exercises at these positions of the screen order done, and returns the list.</summary>
+    public static List<ExerciseState> MarkDone(List<ExerciseState> exercises, params int[] positions)
+    {
+        foreach (var position in positions)
+        {
+            exercises[position].IsDone = true;
+        }
+
+        return exercises;
+    }
+
     /// <summary>A squat with two sets, and a carry with three sets: two filled, the last one partly filled.</summary>
     public static List<ExerciseState> CarryWorkout(IExerciseCatalog catalog) =>
     [

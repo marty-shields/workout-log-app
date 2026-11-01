@@ -5,7 +5,8 @@ $attribute: CustomPage("Components/Workout/Overview")
 # Workout
 
 ## `ExerciseCard`
-One exercise in a workout: name, Remove, and its sets (strength) or entry (cardio). Remove is a muted trash `IconButton` (Delete), so the name leads.
+One exercise in a workout: name, Done, Remove, and its sets (strength) or entry (cardio). Done is a tick `IconButton` (Check) and Remove a muted trash `IconButton` (Delete), both on the right of the name.
+- `ExerciseState.IsDone` shows the card as one line: the name, a muted pencil `IconButton` (Edit) and the trash. The sets, entry, last and PB line and Add set are hidden, but the card stays rendered, so the open set of a carry and a pending focus survive. The pencil sets `IsDone` false. An exercise error still shows. `IsDone` is not saved and `OnChanged` isn't raised for it.
 - Strength with up to two fields, or no duration: one `SetRow` per set and Add set.
 - Strength with more than two fields, one a duration (carries): one `SetPanel` open, the other sets as `SetSummary` lines.
 - Cardio: one entry with every field labelled. Pace (Outdoor Run, Walk) or speed (Treadmill, Outdoor Cycle) shows as a muted line under the fields, worked out from distance and duration: *Pace 5:46/km*, *Speed 10.4 km/h*, or a — until both are filled and more than 0.
@@ -13,8 +14,9 @@ One exercise in a workout: name, Remove, and its sets (strength) or entry (cardi
 - At 10 sets Add set is off, with a muted note "At most 10 sets" under it.
 - Add set and opening another set are blocked while the current set is empty or has errors. Focus then moves to its first field at fault.
 - `ValidateSet` is `ISetChecker.Check` in the App: one message per field, format messages first, then Core's rules. A cardio entry is checked on Save. Once a set or entry fails a check, every change re-checks it, even after it becomes valid, until it passes Add set or opening another set, or the whole workout passes Save.
-- `FocusFirstErrorAsync` (after a failed Save): Add set for an exercise with no sets, Remove for another exercise error, else the first field at fault in the first set or entry with errors, or a closed set's summary line.
-- `data-testid`: `TestId`, `{TestId}-remove`, `{TestId}-weights`, `{TestId}-error`, `{TestId}-add-set`, `{TestId}-sets-full`, `{TestId}-set-{n}`, `{TestId}-{field}` (cardio), `{TestId}-worked-out`.
+- `ValidateDone` is `IWorkoutChecker.CheckExercise` in the App: the Save checks for this exercise only. Done is blocked while it returns false; the card stays open and focus moves to the first error as `FocusFirstErrorAsync` does. Unset: Done is never blocked.
+- `FocusFirstErrorAsync` (after a failed Save or Done): Add set for an exercise with no sets, Remove for another exercise error, else the first field at fault in the first set or entry with errors, or a closed set's summary line.
+- `data-testid`: `TestId`, `{TestId}-done` (open card), `{TestId}-edit` (done card), `{TestId}-remove`, `{TestId}-weights`, `{TestId}-error`, `{TestId}-add-set`, `{TestId}-sets-full`, `{TestId}-set-{n}`, `{TestId}-{field}` (cardio), `{TestId}-worked-out`.
 
 ## `SetRow`
 One set on one row: number, a box per field, remove (`IconButton` Close, muted, small). Column headers come from the card.

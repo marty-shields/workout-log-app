@@ -4,12 +4,22 @@
 @using WorkoutLog.UI.Components.Inputs
 @implements IDisposable
 @inject ILogger<ExerciseCard> Logger
-<section class="card @(Exercise.Error is not null ? "has-error" : null)" data-testid="@TestId">
+<section class="card @(Exercise.IsDone ? "done" : null) @(Exercise.Error is not null ? "has-error" : null)" data-testid="@TestId">
     <header class="card-header">
         <h2 class="name">@Exercise.Name</h2>
-        <IconButton @ref="remove" Icon="IconName.Delete" AriaLabel="@($"Remove {Exercise.Name}")" TestId="@($"{TestId}-remove")" Muted OnClick="OnRemove" />
+        <div class="actions">
+            @if (Exercise.IsDone)
+            {
+                <IconButton Icon="IconName.Edit" AriaLabel="@($"Edit {Exercise.Name}")" TestId="@($"{TestId}-edit")" Muted OnClick="Reopen" />
+            }
+            else
+            {
+                <IconButton Icon="IconName.Check" AriaLabel="@($"Mark {Exercise.Name} done")" TestId="@($"{TestId}-done")" OnClick="Done" />
+            }
+            <IconButton @ref="remove" Icon="IconName.Delete" AriaLabel="@($"Delete {Exercise.Name}")" TestId="@($"{TestId}-remove")" Muted OnClick="OnRemove" />
+        </div>
     </header>
-    @if (Exercise.BestKg is { } best)
+    @if (!Exercise.IsDone && Exercise.BestKg is { } best)
     {
         <p class="weights" data-testid="@($"{TestId}-weights")"><span>Last @DisplayFormat.Weight(Exercise.LastKg)</span> <span aria-hidden="true">·</span> <span>PB @DisplayFormat.Weight(best)</span></p>
     }
@@ -17,88 +27,91 @@
     {
         <p class="error" role="alert" data-testid="@($"{TestId}-error")">@Exercise.Error</p>
     }
-    @if (Exercise.Kind == ExerciseKind.Strength)
+    @if (!Exercise.IsDone)
     {
-        <div class="sets">
-            @if (SetGrid.Collapses(Exercise.Fields))
-            {
-                @for (var i = 0; i < Exercise.Entries.Count; i++)
+        @if (Exercise.Kind == ExerciseKind.Strength)
+        {
+            <div class="sets">
+                @if (SetGrid.Collapses(Exercise.Fields))
                 {
-                    var entry = Exercise.Entries[i];
-                    var number = i + 1;
-                    if (entry == open)
+                    @for (var i = 0; i < Exercise.Entries.Count; i++)
                     {
-                        <SetPanel @key="entry"
-                                  @ref="openPanel"
-                                  Number="number"
-                                  ExerciseName="@Exercise.Name"
-                                  Fields="Exercise.Fields"
-                                  Entry="entry"
-                                  OnChanged="() => EntryChanged(entry)"
-                                  OnRemove="() => RemoveSet(entry)"
-                                  TestId="@($"{TestId}-set-{number}")" />
-                    }
-                    else
-                    {
-                        <SetSummary @key="entry"
-                                    @ref="summaries[entry]"
-                                    Number="number"
-                                    Fields="Exercise.Fields"
-                                    Entry="entry"
-                                    OnOpen="() => OpenSet(entry)"
-                                    TestId="@($"{TestId}-set-{number}")" />
-                    }
-                }
-            }
-            else
-            {
-                @if (Exercise.Entries.Count > 0)
-                {
-                    <div class="set-header" style="grid-template-columns: @SetGrid.Columns(Exercise.Fields)" aria-hidden="true">
-                        <span>Set</span>
-                        @foreach (var field in Exercise.Fields)
+                        var entry = Exercise.Entries[i];
+                        var number = i + 1;
+                        if (entry == open)
                         {
-                            <span>@field.DisplayLabel@(field.Required ? " *" : null)</span>
+                            <SetPanel @key="entry"
+                                      @ref="openPanel"
+                                      Number="number"
+                                      ExerciseName="@Exercise.Name"
+                                      Fields="Exercise.Fields"
+                                      Entry="entry"
+                                      OnChanged="() => EntryChanged(entry)"
+                                      OnRemove="() => RemoveSet(entry)"
+                                      TestId="@($"{TestId}-set-{number}")" />
                         }
-                        <span></span>
-                    </div>
+                        else
+                        {
+                            <SetSummary @key="entry"
+                                        @ref="summaries[entry]"
+                                        Number="number"
+                                        Fields="Exercise.Fields"
+                                        Entry="entry"
+                                        OnOpen="() => OpenSet(entry)"
+                                        TestId="@($"{TestId}-set-{number}")" />
+                        }
+                    }
                 }
-                @for (var i = 0; i < Exercise.Entries.Count; i++)
+                else
                 {
-                    var entry = Exercise.Entries[i];
-                    var number = i + 1;
-                    <SetRow @key="entry"
-                            @ref="rows[entry]"
-                            Number="number"
-                            ExerciseName="@Exercise.Name"
-                            Fields="Exercise.Fields"
-                            Entry="entry"
-                            OnChanged="() => EntryChanged(entry)"
-                            OnRemove="() => RemoveSet(entry)"
-                            TestId="@($"{TestId}-set-{number}")" />
+                    @if (Exercise.Entries.Count > 0)
+                    {
+                        <div class="set-header" style="grid-template-columns: @SetGrid.Columns(Exercise.Fields)" aria-hidden="true">
+                            <span>Set</span>
+                            @foreach (var field in Exercise.Fields)
+                            {
+                                <span>@field.DisplayLabel@(field.Required ? " *" : null)</span>
+                            }
+                            <span></span>
+                        </div>
+                    }
+                    @for (var i = 0; i < Exercise.Entries.Count; i++)
+                    {
+                        var entry = Exercise.Entries[i];
+                        var number = i + 1;
+                        <SetRow @key="entry"
+                                @ref="rows[entry]"
+                                Number="number"
+                                ExerciseName="@Exercise.Name"
+                                Fields="Exercise.Fields"
+                                Entry="entry"
+                                OnChanged="() => EntryChanged(entry)"
+                                OnRemove="() => RemoveSet(entry)"
+                                TestId="@($"{TestId}-set-{number}")" />
+                    }
                 }
-            }
-        </div>
-        <AppButton @ref="addSet" Variant="ButtonVariant.Secondary" FullWidth Disabled="Exercise.SetsFull" TestId="@($"{TestId}-add-set")" OnClick="AddSet">Add set</AppButton>
-        @if (Exercise.SetsFull)
-        {
-            <p class="note" data-testid="@($"{TestId}-sets-full")">At most @WorkoutLimits.MaxSets sets</p>
-        }
-    }
-    else if (Exercise.Entries.Count > 0)
-    {
-        var entry = Exercise.Entries[0];
-        <div class="cardio">
-            @foreach (var field in Exercise.Fields)
+            </div>
+            <AppButton @ref="addSet" Variant="ButtonVariant.Secondary" FullWidth Disabled="Exercise.SetsFull" TestId="@($"{TestId}-add-set")" OnClick="AddSet">Add set</AppButton>
+            @if (Exercise.SetsFull)
             {
-                <FieldInput @ref="cardioFields[field.Key]" Field="field" Entry="entry" OnChanged="() => EntryChanged(entry)" TestId="@($"{TestId}-{field.Key}")" />
+                <p class="note" data-testid="@($"{TestId}-sets-full")">At most @WorkoutLimits.MaxSets sets</p>
             }
-        </div>
-        @if (ExerciseFields.WorkedOutText(Exercise, entry) is { } workedOut)
-        {
-            <p class="note" data-testid="@($"{TestId}-worked-out")">@workedOut</p>
         }
-        <EntryErrors Fields="Exercise.Fields" Entry="entry" TestId="@($"{TestId}-entry-error")" />
+        else if (Exercise.Entries.Count > 0)
+        {
+            var entry = Exercise.Entries[0];
+            <div class="cardio">
+                @foreach (var field in Exercise.Fields)
+                {
+                    <FieldInput @ref="cardioFields[field.Key]" Field="field" Entry="entry" OnChanged="() => EntryChanged(entry)" TestId="@($"{TestId}-{field.Key}")" />
+                }
+            </div>
+            @if (ExerciseFields.WorkedOutText(Exercise, entry) is { } workedOut)
+            {
+                <p class="note" data-testid="@($"{TestId}-worked-out")">@workedOut</p>
+            }
+            <EntryErrors Fields="Exercise.Fields" Entry="entry" TestId="@($"{TestId}-entry-error")" />
+        }
     }
 </section>
 
@@ -111,7 +124,7 @@
     [Parameter]
     public EventCallback OnChanged { get; set; }
 
-    /// <summary>Raised by Remove.</summary>
+    /// <summary>Raised by the trash button, open or done.</summary>
     [Parameter]
     public EventCallback OnRemove { get; set; }
 
@@ -127,6 +140,10 @@
     [Parameter]
     public Func<ExerciseState, EntryState, bool>? ValidateSet { get; set; }
 
+    /// <summary>Checks the whole exercise before Done, as Save does. Sets its errors and returns false to block. Unset: nothing is blocked.</summary>
+    [Parameter]
+    public Func<ExerciseState, bool>? ValidateDone { get; set; }
+
     private ExerciseState? shown;
     private EntryState? open;
     private readonly Dictionary<EntryState, SetRow> rows = new();
@@ -139,6 +156,9 @@
 
     /// <summary>Set when Add set or opening another set was blocked: the next render focuses the set at fault.</summary>
     private bool focusBlockedSet;
+
+    /// <summary>Set when Done was blocked: the next render focuses the first error.</summary>
+    private bool focusFirstError;
 
     /// <summary>Moves focus to the open set or the last set row (its first field with an error, or its first field), or the cardio entry.</summary>
     public ValueTask FocusAsync()
@@ -232,6 +252,19 @@
             }
         }
 
+        if (focusFirstError)
+        {
+            focusFirstError = false;
+            try
+            {
+                await FocusFirstErrorAsync();
+            }
+            catch (Exception exception)
+            {
+                Log.FocusFailed(Logger, exception);
+            }
+        }
+
         if (pendingFocus is not { } focus || !FocusTargetRendered())
         {
             return;
@@ -289,6 +322,24 @@
         entry.CheckOnChange = !valid;
         return valid;
     }
+
+    private void Done()
+    {
+        if (ValidateDone is null || ValidateDone(Exercise))
+        {
+            Exercise.IsDone = true;
+            rows.Clear();
+            summaries.Clear();
+            cardioFields.Clear();
+            openPanel = null;
+            addSet = null;
+            return;
+        }
+
+        focusFirstError = true;
+    }
+
+    private void Reopen() => Exercise.IsDone = false;
 
     private void OpenSet(EntryState entry)
     {

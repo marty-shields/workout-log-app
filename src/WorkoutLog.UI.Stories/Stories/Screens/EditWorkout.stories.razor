@@ -4,6 +4,12 @@
 
 <Stories TComponent="WorkoutView" Layout="typeof(PhoneLayout)">
 
+    <Story Name="Loaded">
+        <Template>
+            <WorkoutView Mode="WorkoutMode.Edit" StartedAt="SampleData.Started" Time="new TimeSpan(1, 4, 37)" Exercises="SampleData.Loaded(SampleData.StrengthWorkout(Catalog))" OnBack="() => { }" OnDelete="() => { }" />
+        </Template>
+    </Story>
+
     <Story Name="Strength">
         <Template>
             <WorkoutView Mode="WorkoutMode.Edit" StartedAt="SampleData.Started" Time="new TimeSpan(1, 4, 37)" Exercises="SampleData.Opened(SampleData.StrengthWorkout(Catalog))" OnBack="() => { }" OnDelete="() => { }" />
@@ -31,6 +37,16 @@
     <Story Name="Save failed">
         <Template>
             <WorkoutView Mode="WorkoutMode.Edit" StartedAt="SampleData.Started" Time="new TimeSpan(1, 4, 37)" Exercises="SampleData.Opened(SampleData.StrengthWorkout(Catalog))" Error="@Checker.SaveFailed" OnBack="() => { }" OnDelete="() => { }" />
+        </Template>
+    </Story>
+
+    <Story Name="Delete exercise prompt">
+        <Template>
+            <WorkoutView Mode="WorkoutMode.Edit" StartedAt="SampleData.Started" Time="new TimeSpan(1, 4, 37)" Exercises="SampleData.Loaded(SampleData.StrengthWorkout(Catalog))" OnBack="() => { }" OnDelete="() => { }">
+                <Overlay>
+                    <ConfirmDialog Title="Delete Farmer's Walk?" ConfirmText="Delete" Danger />
+                </Overlay>
+            </WorkoutView>
         </Template>
     </Story>
 

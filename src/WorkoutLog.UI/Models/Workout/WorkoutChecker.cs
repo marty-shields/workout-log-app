@@ -27,13 +27,7 @@ public sealed partial class WorkoutChecker(ISetChecker sets, IWorkoutService wor
         var result = workouts.Validate(exercises.Select(sets.Read).ToList());
         for (var i = 0; i < exercises.Count; i++)
         {
-            var code = result.Exercises[i].Error;
-            exercises[i].ErrorCode = code;
-            exercises[i].Error = Message(code);
-            if (code is { } error && (error is ExerciseError.UnknownExercise or ExerciseError.WrongType || exercises[i].Error is null))
-            {
-                Log.ExerciseError(logger, exercises[i].ExerciseId, error);
-            }
+            SetExerciseError(exercises[i], result.Exercises[i].Error);
         }
 
         foreach (var error in result.Errors.Where(e => Message(e) is null))
@@ -54,10 +48,44 @@ public sealed partial class WorkoutChecker(ISetChecker sets, IWorkoutService wor
     }
 
     /// <inheritdoc />
+    public bool CheckExercise(ExerciseState exercise)
+    {
+        var valid = true;
+        foreach (var entry in exercise.Entries)
+        {
+            valid &= sets.CheckOnSave(exercise, entry);
+        }
+
+        // Too many sets is a limit the screen never lets through, and it is left to Save with the other workout rules.
+        var code = workouts.Validate([sets.Read(exercise)]).Exercises[0].Error;
+        SetExerciseError(exercise, code == ExerciseError.TooManySets ? null : code);
+        valid &= exercise.ErrorCode is null;
+        if (valid)
+        {
+            foreach (var entry in exercise.Entries)
+            {
+                entry.CheckOnChange = false;
+            }
+        }
+
+        return valid;
+    }
+
+    /// <inheritdoc />
     public string SaveFailed => Message(WorkoutError.SaveFailed)!;
 
     /// <inheritdoc />
     public string DeleteFailed => "Couldn't delete the workout. Try again";
+
+    private void SetExerciseError(ExerciseState exercise, ExerciseError? code)
+    {
+        exercise.ErrorCode = code;
+        exercise.Error = Message(code);
+        if (code is { } error && (error is ExerciseError.UnknownExercise or ExerciseError.WrongType || exercise.Error is null))
+        {
+            Log.ExerciseError(logger, exercise.ExerciseId, error);
+        }
+    }
 
     private static string? Message(WorkoutError? code) => code switch
     {
