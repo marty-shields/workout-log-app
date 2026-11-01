@@ -123,6 +123,7 @@ public static class CoreServiceCollectionExtensions
             .AddSingleton<IMuscleGroupMap, MuscleGroupMap>()
             .AddSingleton<IMuscleSetsService, MuscleSetsService>()
             .AddSingleton<IWeightHistoryService, WeightHistoryService>()
+            .AddSingleton<IRecordBaselineService, RecordBaselineService>()
             .AddSingleton<ILoggedExercisesService, LoggedExercisesService>()
             .AddSingleton<IExerciseProgressService, ExerciseProgressService>()
             .AddSingleton<ICardioProgressService, CardioProgressService>()

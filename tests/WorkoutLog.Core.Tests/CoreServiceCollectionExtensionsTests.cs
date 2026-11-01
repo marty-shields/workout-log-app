@@ -47,6 +47,7 @@ public class CoreServiceCollectionExtensionsTests
             (typeof(IMuscleGroupMap), typeof(MuscleGroupMap), ServiceLifetime.Singleton),
             (typeof(IMuscleSetsService), typeof(MuscleSetsService), ServiceLifetime.Singleton),
             (typeof(IWeightHistoryService), typeof(WeightHistoryService), ServiceLifetime.Singleton),
+            (typeof(IRecordBaselineService), typeof(RecordBaselineService), ServiceLifetime.Singleton),
             (typeof(ILoggedExercisesService), typeof(LoggedExercisesService), ServiceLifetime.Singleton),
             (typeof(IBestRule), typeof(LiftBestRule), ServiceLifetime.Singleton),
             (typeof(IBestRule), typeof(BodyweightBestRule), ServiceLifetime.Singleton),
@@ -117,6 +118,7 @@ public class CoreServiceCollectionExtensionsTests
             Assert.That(provider.GetRequiredService<IConsistencyService>(), Is.InstanceOf<ConsistencyService>());
             Assert.That(provider.GetRequiredService<IMuscleSetsService>(), Is.InstanceOf<MuscleSetsService>());
             Assert.That(provider.GetRequiredService<IWeightHistoryService>(), Is.InstanceOf<WeightHistoryService>());
+            Assert.That(provider.GetRequiredService<IRecordBaselineService>(), Is.InstanceOf<RecordBaselineService>());
             Assert.That(provider.GetRequiredService<ILoggedExercisesService>(), Is.InstanceOf<LoggedExercisesService>());
             Assert.That(provider.GetRequiredService<IExerciseProgressService>(), Is.InstanceOf<ExerciseProgressService>());
             Assert.That(provider.GetRequiredService<ICardioProgressService>(), Is.InstanceOf<CardioProgressService>());

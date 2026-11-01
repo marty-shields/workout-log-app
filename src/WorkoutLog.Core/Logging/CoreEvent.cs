@@ -99,6 +99,9 @@ internal enum CoreEvent
     /// <summary><see cref="Services.WeightHistoryService"/>: reading an exercise's weights failed.</summary>
     WeightHistoryLoadFailed = 1501,
 
+    /// <summary><see cref="Services.RecordBaselineService"/>: reading an exercise's saved sessions for the Record badge failed.</summary>
+    RecordBaselineLoadFailed = 1520,
+
     /// <summary><see cref="Services.ExportService"/>: export file written.</summary>
     ExportWritten = 1601,
 
