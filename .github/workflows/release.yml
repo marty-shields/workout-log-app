@@ -58,7 +58,7 @@ jobs:
     uses: ./.github/workflows/dev-pipeline.yml
 
   e2e:
-    needs: version
+    needs: [version, build]
     if: needs.version.outputs.release == 'true'
     uses: ./.github/workflows/qa-pipeline.yml
 

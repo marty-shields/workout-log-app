@@ -43,7 +43,7 @@ Feature: Delete a workout
     Given I have deleted workout 2
     And I have deleted workout 1
     Then Workouts shows "No workouts yet"
-    And on the Dashboard the last workout shows "No workouts yet", This week 0 and This month 0
+    And on the Dashboard the last workout shows "No workouts yet" and this week shows 0 workouts
 
   @US-28
   Scenario: Android back on the prompt cancels it

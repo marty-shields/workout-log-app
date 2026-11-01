@@ -6,7 +6,7 @@ $attribute: CustomPage("Screens/Exercise/Overview")
 
 One exercise's progress: a chart, its records and its sessions. View: `ExerciseView`; page: `ExercisePage`, for lifts, bodyweight moves, assisted machines, holds and carries, and cardio.
 
-`ExercisePage` opens from a row on [Exercises](./?path=/custom/screens-exercises-overview) (`/exercises/{id}`) on 3M and the type's first tab: Top set for a lift, Best set for a bodyweight move, Duration for a hold, Weight for a carry, and the first of its metrics for cardio. It loads every session through `IExerciseProgressService.LoadAsync`, or `ICardioProgressService.LoadAsync` for cardio, when it opens; changing the tab or range works the chart, records and sessions out again in memory, with no spinner. Back, or Android back, returns to Exercises. An id not in the exercise list shows Load failed.
+`ExercisePage` opens from a row on [Exercises](./?path=/custom/screens-exercises-overview) (`/exercises/{id}`), or a recent record on the [Dashboard](./?path=/custom/screens-dashboard-overview) (`/exercises/{id}?from=dashboard`), on 3M and the type's first tab: Top set for a lift, Best set for a bodyweight move, Duration for a hold, Weight for a carry, and the first of its metrics for cardio. It loads every session through `IExerciseProgressService.LoadAsync`, or `ICardioProgressService.LoadAsync` for cardio, when it opens; changing the tab or range works the chart, records and sessions out again in memory, with no spinner. Back, or Android back, returns to where it opened from: Exercises or the Dashboard. An id not in the exercise list shows Load failed.
 
 | Part | Content |
 |---|---|

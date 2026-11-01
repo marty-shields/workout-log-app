@@ -4,7 +4,7 @@
         aria-label="@AriaLabel"
         data-testid="@TestId"
         @onclick="OnClick">
-    <Icon Name="Icon" Muted="Muted" Size="Size" />
+    <Icon Name="Icon" Tone="@(Muted ? IconTone.Muted : IconTone.Default)" Size="Size" />
 </button>
 
 @code {

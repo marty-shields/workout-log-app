@@ -8,6 +8,7 @@ using WorkoutLog.Core.Domain.Exercises;
 using WorkoutLog.Core.Domain.Exercises.Bests;
 using WorkoutLog.Core.Domain.Exercises.Progress;
 using WorkoutLog.Core.Domain.Workouts;
+using WorkoutLog.Core.Domain.Workouts.Consistency;
 using WorkoutLog.Core.Domain.Workouts.Validation;
 using WorkoutLog.Core.Import;
 using WorkoutLog.Core.Import.Checks;
@@ -37,7 +38,14 @@ public class CoreServiceCollectionExtensionsTests
             (typeof(IWorkoutValidator), typeof(WorkoutValidator), ServiceLifetime.Singleton),
             (typeof(IWorkoutService), typeof(WorkoutService), ServiceLifetime.Singleton),
             (typeof(IWorkoutsService), typeof(WorkoutsService), ServiceLifetime.Singleton),
-            (typeof(IDashboardService), typeof(DashboardService), ServiceLifetime.Singleton),
+            (typeof(ILastWorkoutService), typeof(LastWorkoutService), ServiceLifetime.Singleton),
+            (typeof(IRecentRecordsService), typeof(RecentRecordsService), ServiceLifetime.Singleton),
+            (typeof(IWeekComparisonRule), typeof(WeekComparisonRule), ServiceLifetime.Singleton),
+            (typeof(IWeekBarsRule), typeof(WeekBarsRule), ServiceLifetime.Singleton),
+            (typeof(IStreakRule), typeof(StreakRule), ServiceLifetime.Singleton),
+            (typeof(IConsistencyService), typeof(ConsistencyService), ServiceLifetime.Singleton),
+            (typeof(IMuscleGroupMap), typeof(MuscleGroupMap), ServiceLifetime.Singleton),
+            (typeof(IMuscleSetsService), typeof(MuscleSetsService), ServiceLifetime.Singleton),
             (typeof(IWeightHistoryService), typeof(WeightHistoryService), ServiceLifetime.Singleton),
             (typeof(ILoggedExercisesService), typeof(LoggedExercisesService), ServiceLifetime.Singleton),
             (typeof(IBestRule), typeof(LiftBestRule), ServiceLifetime.Singleton),
@@ -46,6 +54,7 @@ public class CoreServiceCollectionExtensionsTests
             (typeof(IBestRule), typeof(HoldBestRule), ServiceLifetime.Singleton),
             (typeof(IBestRule), typeof(CarryBestRule), ServiceLifetime.Singleton),
             (typeof(IBestRule), typeof(CardioBestRule), ServiceLifetime.Singleton),
+            (typeof(IRecordCheck), typeof(RecordCheck), ServiceLifetime.Singleton),
             (typeof(IRangeFilter), typeof(RangeFilter), ServiceLifetime.Singleton),
             (typeof(ITopSetRule), typeof(TopSetRule), ServiceLifetime.Singleton),
             (typeof(IE1rmRule), typeof(E1rmRule), ServiceLifetime.Singleton),
@@ -103,7 +112,9 @@ public class CoreServiceCollectionExtensionsTests
             Assert.That(provider.GetRequiredService<IWorkoutRepository>(), Is.InstanceOf<GatedWorkoutRepository>());
             Assert.That(provider.GetRequiredService<IWorkoutService>(), Is.InstanceOf<WorkoutService>());
             Assert.That(provider.GetRequiredService<IWorkoutsService>(), Is.InstanceOf<WorkoutsService>());
-            Assert.That(provider.GetRequiredService<IDashboardService>(), Is.InstanceOf<DashboardService>());
+            Assert.That(provider.GetRequiredService<ILastWorkoutService>(), Is.InstanceOf<LastWorkoutService>());
+            Assert.That(provider.GetRequiredService<IConsistencyService>(), Is.InstanceOf<ConsistencyService>());
+            Assert.That(provider.GetRequiredService<IMuscleSetsService>(), Is.InstanceOf<MuscleSetsService>());
             Assert.That(provider.GetRequiredService<IWeightHistoryService>(), Is.InstanceOf<WeightHistoryService>());
             Assert.That(provider.GetRequiredService<ILoggedExercisesService>(), Is.InstanceOf<LoggedExercisesService>());
             Assert.That(provider.GetRequiredService<IExerciseProgressService>(), Is.InstanceOf<ExerciseProgressService>());

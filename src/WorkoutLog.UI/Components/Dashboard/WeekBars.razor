@@ -1,0 +1,66 @@
+@using System.Globalization
+@if (Counts.All(count => count == 0))
+{
+    <p class="none" data-testid="@(TestId is null ? null : $"{TestId}-none")">No workouts in the last @Counts.Count weeks</p>
+}
+else
+{
+    <figure class="bars" aria-label="@($"Workouts per week, last {Counts.Count} weeks")" data-testid="@TestId">
+        <svg class="plot" viewBox="0 0 @Number(Counts.Count * Slot) @Number(Height + Baseline)" aria-hidden="true" focusable="false">
+            @for (var i = 0; i < Counts.Count; i++)
+            {
+                if (Counts[i] > 0)
+                {
+                    var height = Counts[i] * (double)Height / Max;
+                    <rect class="@(i == Counts.Count - 1 ? "bar this-week" : "bar")"
+                          x="@Number(i * Slot + (Slot - BarWidth) / 2)"
+                          y="@Number(Height - height)"
+                          width="@Number(BarWidth)"
+                          height="@Number(height)"
+                          rx="@Number(Corner)" />
+                }
+            }
+            <line class="baseline" x1="0" x2="@Number(Counts.Count * Slot)" y1="@Number(Height + Baseline / 2)" y2="@Number(Height + Baseline / 2)" />
+        </svg>
+        <div class="axis" aria-hidden="true">
+            @if (Counts.Count > 1)
+            {
+                <span>@Week(Counts.Count - 1)</span>
+            }
+            <span class="now">This week</span>
+        </div>
+        <ul class="visually-hidden" data-testid="@(TestId is null ? null : $"{TestId}-values")">
+            @for (var i = 0; i < Counts.Count; i++)
+            {
+                <li>@Week(Counts.Count - 1 - i): @Counts[i] @(Counts[i] == 1 ? "workout" : "workouts")</li>
+            }
+        </ul>
+    </figure>
+}
+
+@code {
+    private const double Slot = 20;
+    private const double BarWidth = 12;
+    private const double Height = 60;
+    private const double Baseline = 2;
+    private const double Corner = 2;
+
+    /// <summary>Workouts per week, oldest first; the last is this week. All 0 shows a message instead of the chart.</summary>
+    [Parameter, EditorRequired]
+    public IReadOnlyList<int> Counts { get; set; } = [];
+
+    /// <summary>Value of the data-testid attribute, <c>{TestId}-values</c> on the text alternative, and <c>{TestId}-none</c> on the message.</summary>
+    [Parameter]
+    public string? TestId { get; set; }
+
+    private int Max => Counts.Count == 0 ? 0 : Counts.Max();
+
+    private static string Week(int weeksAgo) => weeksAgo switch
+    {
+        0 => "This week",
+        1 => "Last week",
+        _ => $"{weeksAgo} weeks ago",
+    };
+
+    private static string Number(double value) => value.ToString("0.##", CultureInfo.InvariantCulture);
+}

@@ -1,0 +1,35 @@
+<section class="card" data-testid="@TestId">
+    <h2 class="title">Recent records</h2>
+    @if (Records.Count == 0)
+    {
+        <p class="none" data-testid="@($"{TestId}-none")">No new records in the last 30 days</p>
+    }
+    else
+    {
+        <ul class="rows">
+            @foreach (var record in Records)
+            {
+                <li>
+                    <ListRow Text="@($"{record.Exercise} · {record.Best}")"
+                             Detail="@DisplayFormat.DaysAgo(record.DaysAgo)"
+                             OnClick="@(OnOpen.HasDelegate ? EventCallback.Factory.Create(this, () => OnOpen.InvokeAsync(record.ExerciseId)) : default)"
+                             TestId="@($"{TestId}-row-{record.ExerciseId}")" />
+                </li>
+            }
+        </ul>
+    }
+</section>
+
+@code {
+    /// <summary>Records to show, newest first.</summary>
+    [Parameter, EditorRequired]
+    public IReadOnlyList<RecentRecord> Records { get; set; } = [];
+
+    /// <summary>Raised with the exercise id when a row is tapped. Rows are not tappable when unset.</summary>
+    [Parameter]
+    public EventCallback<int> OnOpen { get; set; }
+
+    /// <summary>Value of the data-testid attribute, and the prefix of its parts': <c>{TestId}-row-{exercise id}</c>, <c>{TestId}-none</c>.</summary>
+    [Parameter]
+    public string? TestId { get; set; }
+}

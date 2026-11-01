@@ -15,6 +15,8 @@ public class ContrastTests
         ("--color-text-muted", "--color-surface", Text),
         ("--color-error", "--color-bg", Text),
         ("--color-error", "--color-surface", Text),
+        ("--color-success", "--color-bg", Text),
+        ("--color-success", "--color-surface", Text),
         ("--color-on-bar", "--color-bar", Text),
         ("--color-on-bar-muted", "--color-bar", Text),
         ("--color-on-primary", "--color-primary", Text),
@@ -23,6 +25,8 @@ public class ContrastTests
         ("--color-accent", "--color-surface", LargeTextOrControl),
         ("--color-border-strong", "--color-bg", LargeTextOrControl),
         ("--color-border-strong", "--color-surface", LargeTextOrControl),
+        ("--color-bar-past", "--color-bg", LargeTextOrControl),
+        ("--color-bar-past", "--color-surface", LargeTextOrControl),
         ("--color-focus", "--color-bg", LargeTextOrControl),
         ("--color-focus", "--color-surface", LargeTextOrControl),
     ];

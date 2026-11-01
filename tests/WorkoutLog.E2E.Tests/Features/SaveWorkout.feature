@@ -10,7 +10,7 @@ Feature: Save a workout
     When I save the workout
     Then I am on the Dashboard
     And the last workout shows today's date and day
-    And This week shows 1 and This month shows 1
+    And this week shows 1 workout
     And Workouts lists 1 workout, today at the time I started
 
   @smoke
@@ -70,7 +70,7 @@ Feature: Save a workout
     Given I have saved a workout with Push-up: 10 reps
     And I have saved a workout with Push-up: 12 reps
     Then Workouts lists 2 workouts, newest first
-    And This week shows 2
+    And this week shows 2 workouts
 
   Scenario: Tapping Save twice saves once
     Given I have started a new workout

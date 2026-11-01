@@ -179,7 +179,7 @@ public class SetSummaryTests : ComponentTestBase
 
         var chevron = cut.FindComponent<Icon>().Instance;
 
-        Assert.That((chevron.Name, chevron.Muted, chevron.Size), Is.EqualTo((IconName.Chevron, true, IconSize.Small)));
+        Assert.That((chevron.Name, chevron.Tone, chevron.Size), Is.EqualTo((IconName.Chevron, IconTone.Muted, IconSize.Small)));
     }
 
     [Test]

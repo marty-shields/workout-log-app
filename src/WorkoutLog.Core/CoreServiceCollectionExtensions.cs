@@ -5,6 +5,7 @@ using WorkoutLog.Core.Domain.Exercises;
 using WorkoutLog.Core.Domain.Exercises.Bests;
 using WorkoutLog.Core.Domain.Exercises.Progress;
 using WorkoutLog.Core.Domain.Workouts;
+using WorkoutLog.Core.Domain.Workouts.Consistency;
 using WorkoutLog.Core.Domain.Workouts.Validation;
 using WorkoutLog.Core.Import;
 using WorkoutLog.Core.Import.Checks;
@@ -77,7 +78,8 @@ public static class CoreServiceCollectionExtensions
             .AddSingleton<IBestRule, AssistedBestRule>()
             .AddSingleton<IBestRule, HoldBestRule>()
             .AddSingleton<IBestRule, CarryBestRule>()
-            .AddSingleton<IBestRule, CardioBestRule>();
+            .AddSingleton<IBestRule, CardioBestRule>()
+            .AddSingleton<IRecordCheck, RecordCheck>();
 
     /// <summary>Registers the Exercise page's range filter and each category's rules.</summary>
     private static IServiceCollection AddProgressRules(this IServiceCollection services) =>
@@ -97,6 +99,13 @@ public static class CoreServiceCollectionExtensions
             .AddSingleton<ICardioSessionRule, CardioSessionRule>()
             .AddSingleton<ICardioRecordsRule, CardioRecordsRule>();
 
+    /// <summary>Registers the Consistency card's rules.</summary>
+    private static IServiceCollection AddConsistencyRules(this IServiceCollection services) =>
+        services
+            .AddSingleton<IWeekComparisonRule, WeekComparisonRule>()
+            .AddSingleton<IWeekBarsRule, WeekBarsRule>()
+            .AddSingleton<IStreakRule, StreakRule>();
+
     private static IServiceCollection AddServices(this IServiceCollection services) =>
         services
             .AddSingleton<IExerciseCatalog, ExerciseCatalog>()
@@ -106,7 +115,12 @@ public static class CoreServiceCollectionExtensions
             .AddProgressRules()
             .AddSingleton<IWorkoutService, WorkoutService>()
             .AddSingleton<IWorkoutsService, WorkoutsService>()
-            .AddSingleton<IDashboardService, DashboardService>()
+            .AddSingleton<ILastWorkoutService, LastWorkoutService>()
+            .AddSingleton<IRecentRecordsService, RecentRecordsService>()
+            .AddConsistencyRules()
+            .AddSingleton<IConsistencyService, ConsistencyService>()
+            .AddSingleton<IMuscleGroupMap, MuscleGroupMap>()
+            .AddSingleton<IMuscleSetsService, MuscleSetsService>()
             .AddSingleton<IWeightHistoryService, WeightHistoryService>()
             .AddSingleton<ILoggedExercisesService, LoggedExercisesService>()
             .AddSingleton<IExerciseProgressService, ExerciseProgressService>()

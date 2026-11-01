@@ -106,7 +106,9 @@ It's built for one person and one phone: no accounts, no sign-up.
 
 ### Dashboard and data
 
-- The Dashboard shows your last workout and how many you've done this week and this month.
+- The Dashboard shows your last workout, this week against last week up to the same day and time, a bar per week for the last 12 weeks and your weekly streak.
+- Recent records on the Dashboard shows the exercises you've beaten your best on in the last 30 days; tap one to open its progress.
+- Sets per muscle group shows each group's strength sets in the last 7 days and which you haven't trained.
 - Export saves every workout to a JSON file you can share.
 - Import reads an exported file, shows what's new, already there or different, and adds or replaces them.
 - Android Auto Backup restores your workouts on a new phone.

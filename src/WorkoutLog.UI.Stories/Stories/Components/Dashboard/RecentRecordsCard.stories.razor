@@ -1,0 +1,29 @@
+@attribute [Stories("Components/Dashboard/RecentRecordsCard")]
+
+<Stories TComponent="RecentRecordsCard" Layout="typeof(ThemeLayout)">
+
+    <Story Name="One record">
+        <Template>
+            <RecentRecordsCard Records="SampleDashboard.Records.Take(1).ToList()" OnOpen="(int _) => { }" TestId="recent-records" />
+        </Template>
+    </Story>
+
+    <Story Name="Two records">
+        <Template>
+            <RecentRecordsCard Records="SampleDashboard.Records.Take(2).ToList()" OnOpen="(int _) => { }" TestId="recent-records" />
+        </Template>
+    </Story>
+
+    <Story Name="Three records">
+        <Template>
+            <RecentRecordsCard Records="SampleDashboard.Records" OnOpen="(int _) => { }" TestId="recent-records" />
+        </Template>
+    </Story>
+
+    <Story Name="No records">
+        <Template>
+            <RecentRecordsCard Records="[]" TestId="recent-records" />
+        </Template>
+    </Story>
+
+</Stories>

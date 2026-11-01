@@ -11,6 +11,14 @@
     color: var(--color-text-muted);
 }
 
+.success {
+    color: var(--color-success);
+}
+
+.error {
+    color: var(--color-error);
+}
+
 .small {
     --icon-size: var(--font-size-lg);
 }

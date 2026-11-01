@@ -20,4 +20,10 @@ public enum IconName
 
     /// <summary>Magnifying glass (<c>search</c>).</summary>
     Search,
+
+    /// <summary>Upward triangle (<c>arrow_drop_up</c>).</summary>
+    Up,
+
+    /// <summary>Downward triangle (<c>arrow_drop_down</c>).</summary>
+    Down,
 }

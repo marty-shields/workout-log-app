@@ -3,10 +3,11 @@ using Microsoft.Extensions.DependencyInjection;
 using WorkoutLog.Core.Domain.Exercises;
 using WorkoutLog.Core.Domain.Exercises.Progress;
 using WorkoutLog.Core.Services;
+using WorkoutLog.UI.Components.Dashboard;
 using WorkoutLog.UI.Components.Overlays;
 using WorkoutLog.UI.Components.Workout;
-using WorkoutLog.UI.Models.Dashboard;
 using WorkoutLog.UI.Models.Exercises;
+using WorkoutLog.UI.Models.Muscles;
 using WorkoutLog.UI.Models.Settings;
 using WorkoutLog.UI.Models.Workout;
 using WorkoutLog.UI.Models.Workouts;
@@ -32,10 +33,17 @@ public static class ScreenStates
         new("Screens/Startup", "Loading", c => c.Render<StartupView>().FindAll("*")),
         new("Screens/Startup", "Load failed", c => c.Render<StartupView>(p => p.Add(x => x.Failed, true)).FindAll("*")),
 
-        new("Screens/Dashboard", "Empty", c => Dashboard(c, new DashboardSummary(null, 0, 0))),
-        new("Screens/Dashboard", "With workouts", c => Dashboard(c, new DashboardSummary(SampleData.Started, 2, 9))),
-        new("Screens/Dashboard", "Loading", c => Dashboard(c, new DashboardSummary(null, 0, 0), loading: true)),
-        new("Screens/Dashboard", "Load failed", c => Dashboard(c, new DashboardSummary(null, 0, 0), failed: true)),
+        new("Screens/Dashboard", "With workouts", c => Dashboard(c, SampleDashboard.LastWorkout, SampleDashboard.ThisWeek, SampleDashboard.LastWeek, SampleDashboard.WeekCounts, 6, SampleDashboard.Records)),
+        new("Screens/Dashboard", "First workout", c => Dashboard(c, SampleDashboard.Workout(0, 2), SampleDashboard.FirstWeek, SampleDashboard.NoWeek, SampleDashboard.FirstWeekCounts, 1, [])),
+        new("Screens/Dashboard", "No workouts", c => Dashboard(c, null, SampleDashboard.NoWeek, SampleDashboard.NoWeek, SampleDashboard.EmptyWeeks, 0, [])),
+        new("Screens/Dashboard", "Loading", c => DashboardLoad(c, loading: true)),
+        new("Screens/Dashboard", "Load failed", c => DashboardLoad(c, failed: true)),
+
+        new("Screens/Sets per muscle group", "Some trained", c => Muscles(c, SampleDashboard.SomeTrained)),
+        new("Screens/Sets per muscle group", "All trained", c => Muscles(c, SampleDashboard.AllTrained)),
+        new("Screens/Sets per muscle group", "None trained", c => Muscles(c, SampleDashboard.NoneTrained)),
+        new("Screens/Sets per muscle group", "Loading", c => Muscles(c, [], loading: true)),
+        new("Screens/Sets per muscle group", "Load failed", c => Muscles(c, [], failed: true)),
 
         new("Screens/New Workout", "Empty", c => Workout(c, WorkoutMode.New, [])),
         new("Screens/New Workout", "Strength", c => Workout(c, WorkoutMode.New, SampleData.StrengthWorkoutWithWeights(Catalog(c)))),
@@ -158,16 +166,57 @@ public static class ScreenStates
 
     private static IWorkoutChecker WorkoutChecker(BunitContext context) => context.Services.GetRequiredService<IWorkoutChecker>();
 
-    private static IReadOnlyList<IElement> Dashboard(BunitContext context, DashboardSummary summary, bool loading = false, bool failed = false) =>
-        context.Render<DashboardView>(p => p
-            .Add(x => x.Summary, summary)
-            .Add(x => x.Loading, loading)
-            .Add(x => x.Failed, failed)
+    private static IReadOnlyList<IElement> Dashboard(
+        BunitContext context,
+        LastWorkout? lastWorkout,
+        WeekTotals thisWeek,
+        WeekTotals lastWeek,
+        IReadOnlyList<int> weekCounts,
+        int streak,
+        IReadOnlyList<RecentRecord> records) =>
+        context.Render<DashboardView>(p =>
+        {
+            DashboardCallbacks(p);
+            p.Add<LastWorkoutCard>(x => x.LastWorkout, card => card
+                    .Add(x => x.Workout, lastWorkout)
+                    .Add(x => x.OnOpen, () => { })
+                    .Add(x => x.TestId, "last-workout"))
+                .Add<ConsistencyCard>(x => x.Consistency, card => card
+                    .Add(x => x.ThisWeek, thisWeek)
+                    .Add(x => x.LastWeek, lastWeek)
+                    .Add(x => x.WeekCounts, weekCounts)
+                    .Add(x => x.Streak, streak)
+                    .Add(x => x.OnMuscles, () => { })
+                    .Add(x => x.TestId, "consistency"))
+                .Add<RecentRecordsCard>(x => x.RecentRecords, card => card
+                    .Add(x => x.Records, records)
+                    .Add(x => x.OnOpen, (int _) => { })
+                    .Add(x => x.TestId, "recent-records"));
+        }).FindAll("*");
+
+    private static IReadOnlyList<IElement> DashboardLoad(BunitContext context, bool loading = false, bool failed = false) =>
+        context.Render<DashboardView>(p =>
+        {
+            DashboardCallbacks(p);
+            p.Add(x => x.Loading, loading).Add(x => x.Failed, failed);
+        }).FindAll("*");
+
+    private static void DashboardCallbacks(ComponentParameterCollectionBuilder<DashboardView> parameters) =>
+        parameters
             .Add(x => x.OnRetry, () => { })
             .Add(x => x.OnNewWorkout, () => { })
             .Add(x => x.OnWorkouts, () => { })
             .Add(x => x.OnExercises, () => { })
-            .Add(x => x.OnSettings, () => { }))
+            .Add(x => x.OnSettings, () => { });
+
+    private static IReadOnlyList<IElement> Muscles(
+        BunitContext context, IReadOnlyList<MuscleGroupSets> groups, bool loading = false, bool failed = false) =>
+        context.Render<MusclesView>(p => p
+            .Add(x => x.Groups, groups)
+            .Add(x => x.Loading, loading)
+            .Add(x => x.Failed, failed)
+            .Add(x => x.OnRetry, () => { })
+            .Add(x => x.OnBack, () => { }))
             .FindAll("*");
 
     private static IReadOnlyList<IElement> Workout(

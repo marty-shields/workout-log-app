@@ -34,12 +34,14 @@ public class IconTests : ComponentTestBase
         Assert.That(cut.Find("svg").ClassList, Is.EquivalentTo(new[] { "icon" }));
     }
 
-    [Test]
-    public void Muted_SetsClass()
+    [TestCase(IconTone.Muted, "muted")]
+    [TestCase(IconTone.Success, "success")]
+    [TestCase(IconTone.Error, "error")]
+    public void Tone_SetsClass(IconTone tone, string expected)
     {
-        var cut = Context.Render<Icon>(p => p.Add(x => x.Name, IconName.Chevron).Add(x => x.Muted, true));
+        var cut = Context.Render<Icon>(p => p.Add(x => x.Name, IconName.Up).Add(x => x.Tone, tone));
 
-        Assert.That(cut.Find("svg").ClassList, Does.Contain("muted"));
+        Assert.That(cut.Find("svg").ClassList, Is.EquivalentTo(new[] { "icon", expected }));
     }
 
     [Test]

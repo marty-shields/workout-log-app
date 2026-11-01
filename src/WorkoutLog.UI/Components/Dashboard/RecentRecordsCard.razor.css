@@ -1,0 +1,29 @@
+.card {
+    padding: var(--space-4) var(--space-4) 0;
+    border: var(--border-width) solid var(--color-border);
+    border-radius: var(--radius-lg);
+    background: var(--color-surface);
+}
+
+.title {
+    margin: 0 0 var(--space-2);
+    font-size: var(--font-size-md);
+    font-weight: var(--font-weight-bold);
+}
+
+.none {
+    margin: 0;
+    padding-bottom: var(--space-4);
+    color: var(--color-text-muted);
+}
+
+.rows {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+/* The last row is the card's last line, so it has no border below it. */
+.rows li:last-child ::deep .row {
+    border-bottom: none;
+}

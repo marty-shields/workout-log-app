@@ -1,0 +1,47 @@
+@attribute [Stories("Components/Dashboard/LastWorkoutCard")]
+
+<Stories TComponent="LastWorkoutCard" Layout="typeof(ThemeLayout)">
+
+    <Story Name="Today">
+        <Template>
+            <LastWorkoutCard Workout="SampleDashboard.Workout(0, 5)" OnOpen="() => { }" TestId="last-workout" />
+        </Template>
+    </Story>
+
+    <Story Name="Yesterday">
+        <Template>
+            <LastWorkoutCard Workout="SampleDashboard.Workout(1, 5)" OnOpen="() => { }" TestId="last-workout" />
+        </Template>
+    </Story>
+
+    <Story Name="Days ago">
+        <Template>
+            <LastWorkoutCard Workout="SampleDashboard.LastWorkout" OnOpen="() => { }" TestId="last-workout" />
+        </Template>
+    </Story>
+
+    <Story Name="One exercise">
+        <Template>
+            <LastWorkoutCard Workout="SampleDashboard.Workout(3, 1)" OnOpen="() => { }" TestId="last-workout" />
+        </Template>
+    </Story>
+
+    <Story Name="Two exercises">
+        <Template>
+            <LastWorkoutCard Workout="SampleDashboard.Workout(3, 2)" OnOpen="() => { }" TestId="last-workout" />
+        </Template>
+    </Story>
+
+    <Story Name="More than two exercises">
+        <Template>
+            <LastWorkoutCard Workout="SampleDashboard.Workout(3, 5)" OnOpen="() => { }" TestId="last-workout" />
+        </Template>
+    </Story>
+
+    <Story Name="No workouts">
+        <Template>
+            <LastWorkoutCard Workout="null" TestId="last-workout" />
+        </Template>
+    </Story>
+
+</Stories>

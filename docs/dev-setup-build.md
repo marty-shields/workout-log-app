@@ -87,12 +87,22 @@ The Debug APK also runs on an x86_64 emulator.
 
 ## CI
 Every PR to `main` runs these; the four checks must pass before it can merge:
-- **PR build** (`pr-build.yml`): the dev pipeline (`dev-pipeline.yml`) builds, runs the Core and UI tests and checks `allowBackup` in the Debug and Release APKs (`dev / build-and-test`, `dev / backup-manifest`). Then the QA pipeline (`qa-pipeline.yml`) runs the E2E tests on emulators, sharded by feature, retrying failed scenarios up to 3 tries (`qa / emulator-e2e-tests`).
+- **PR build** (`pr-build.yml`): the dev pipeline (`dev-pipeline.yml`) checks the E2E step bindings, builds, runs the Core and UI tests and checks `allowBackup` in the Debug and Release APKs (`dev / build-and-test`, `dev / backup-manifest`). `dev / build-and-test` also keeps the Debug APK and the E2E test output as the `e2e-build` artifact. Then the QA pipeline (`qa-pipeline.yml`) runs the E2E tests on emulators in 8 shards, each downloading `e2e-build` and restoring the E2E project instead of building, retrying failed scenarios up to 3 tries (`qa / emulator-e2e-tests`). The release workflow runs the same two pipelines, the QA pipeline after the dev pipeline.
 - **PR checks** (`pr-checks.yml`): a Conventional Commit title and exactly one `semver:major`, `semver:minor` or `semver:patch` label (`pr-checks`).
 
 Keep in step:
 - When the SDK in `global.json` changes, set the workflow's workload set `--version` to match (`dotnet workload search version`) in the same PR.
 - Chromedriver is pinned in `qa-pipeline.yml` (`CHROMEDRIVER_VERSION`, `CHROMEDRIVER_SHA256`, from [Chrome for Testing](https://googlechromelabs.github.io/chrome-for-testing/)). When the emulator's WebView major version changes, the job fails: pin the matching version and its SHA-256.
+
+E2E shards and step bindings:
+- `e2e-shard.sh` gives each shard scenarios balanced by time: the longest first, each to the shard with the least time so far. It reads the median seconds of each scenario from `.github/e2e-durations.tsv`; a scenario missing from it counts as 15 s. The rows of a Scenario Outline stay in one shard, as do scenarios whose name starts with another scenario's name (the filter matches by name prefix). The shard log shows how many scenarios of its shard are not in the table.
+- Refresh the table when scenarios are added or renamed, or their times change. Download the `e2e-results-*` artifacts of recent successful PR build runs (kept 1 day), then make the table from their trx files:
+  ```
+  gh run list --workflow "PR build" --status success --limit 6
+  gh run download <run-id> --pattern "e2e-results-*" --dir <folder>/<run-id>   # for each run
+  .github/scripts/e2e-durations.sh $(find <folder> -name "*.trx") > .github/e2e-durations.tsv
+  ```
+- `.github/scripts/e2e-step-check.py` matches every step in the feature files to the step definitions, as Reqnroll does when a scenario runs, and fails on a step with no definition or more than one. Run it locally with `python3 -I .github/scripts/e2e-step-check.py tests/WorkoutLog.E2E.Tests` (`py -I` on Windows).
 
 Also: Dependabot opens weekly update PRs (`chore(deps): …`, `semver:patch`); every push to `main` publishes the stories to GitHub Pages (`stories-pages.yml`). Actions are GitHub-owned only, pinned by commit SHA.
 

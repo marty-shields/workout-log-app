@@ -1,0 +1,23 @@
+@attribute [Stories("Components/Dashboard/ConsistencyCard")]
+
+<Stories TComponent="ConsistencyCard" Layout="typeof(ThemeLayout)">
+
+    <Story Name="With streak">
+        <Template>
+            <ConsistencyCard ThisWeek="SampleDashboard.ThisWeek" LastWeek="SampleDashboard.LastWeek" WeekCounts="SampleDashboard.WeekCounts" Streak="6" OnMuscles="() => { }" TestId="consistency" />
+        </Template>
+    </Story>
+
+    <Story Name="No streak">
+        <Template>
+            <ConsistencyCard ThisWeek="SampleDashboard.NoWeek" LastWeek="SampleDashboard.NoWeek" WeekCounts="SampleDashboard.EmptyWeeks" OnMuscles="() => { }" TestId="consistency" />
+        </Template>
+    </Story>
+
+    <Story Name="Muscles not tappable">
+        <Template>
+            <ConsistencyCard ThisWeek="SampleDashboard.ThisWeek" LastWeek="SampleDashboard.LastWeek" WeekCounts="SampleDashboard.WeekCounts" Streak="6" TestId="consistency" />
+        </Template>
+    </Story>
+
+</Stories>

@@ -10,4 +10,7 @@ internal interface IBestRule
 
     /// <summary>Returns the best of <paramref name="logged"/>, or null when there is nothing to show.</summary>
     ExerciseBest? Best(ExerciseDefinition exercise, WorkoutExercise logged);
+
+    /// <summary>Compares two bests from <see cref="Best"/>: above 0 when <paramref name="x"/> beats <paramref name="y"/>, 0 for a tie.</summary>
+    int Compare(ExerciseBest x, ExerciseBest y);
 }

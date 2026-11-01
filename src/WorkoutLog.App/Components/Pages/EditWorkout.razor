@@ -2,8 +2,13 @@
 @using WorkoutLog.UI.Screens
 @inject NavigationManager Navigation
 
-<EditWorkoutPage WorkoutId="Id" OnSaved="@(() => Navigation.GoTo(string.Empty))" OnBack="@(() => Navigation.GoTo("workouts"))" OnDeleted="@(() => Navigation.GoTo("workouts"))" />
+<EditWorkoutPage WorkoutId="Id" OnSaved="@(() => Navigation.GoTo(string.Empty))" OnBack="@(() => Navigation.GoTo(Origin))" OnDeleted="@(() => Navigation.GoTo(Origin))" />
 
 @code {
     [Parameter] public int Id { get; set; }
+
+    /// <summary>"dashboard" when opened from the Dashboard: back and delete return there instead of to Workouts.</summary>
+    [SupplyParameterFromQuery] public string? From { get; set; }
+
+    private string Origin => From == "dashboard" ? string.Empty : "workouts";
 }

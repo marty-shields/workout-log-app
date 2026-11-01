@@ -1,0 +1,29 @@
+@attribute [Stories("Components/Dashboard/WeekBars")]
+
+<Stories TComponent="WeekBars" Layout="typeof(ThemeLayout)">
+
+    <Story Name="Full">
+        <Template>
+            <WeekBars Counts="SampleDashboard.FullWeeks" TestId="bars" />
+        </Template>
+    </Story>
+
+    <Story Name="Gaps">
+        <Template>
+            <WeekBars Counts="SampleDashboard.WeekCounts" TestId="bars" />
+        </Template>
+    </Story>
+
+    <Story Name="All empty">
+        <Template>
+            <WeekBars Counts="SampleDashboard.EmptyWeeks" TestId="bars" />
+        </Template>
+    </Story>
+
+    <Story Name="One week">
+        <Template>
+            <WeekBars Counts="SampleDashboard.FirstWeekCounts" TestId="bars" />
+        </Template>
+    </Story>
+
+</Stories>

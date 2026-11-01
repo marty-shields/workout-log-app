@@ -1,0 +1,49 @@
+@if (Workout is null)
+{
+    <section class="card" data-testid="@TestId">
+        <h2 class="label">Last workout</h2>
+        <p class="none" data-testid="@($"{TestId}-empty")">No workouts yet</p>
+    </section>
+}
+else if (OnOpen.HasDelegate)
+{
+    <button type="button" class="card clickable" data-testid="@TestId" @onclick="OnOpen">
+        @Content(Workout)
+        <span class="chevron"><Icon Name="IconName.Chevron" Tone="IconTone.Muted" /></span>
+    </button>
+}
+else
+{
+    <section class="card" data-testid="@TestId">
+        @Content(Workout)
+    </section>
+}
+
+@code {
+    /// <summary>The latest workout, or null when there are none.</summary>
+    [Parameter]
+    public LastWorkout? Workout { get; set; }
+
+    /// <summary>Raised when the card is tapped. The card is not tappable when unset or when there is no workout.</summary>
+    [Parameter]
+    public EventCallback OnOpen { get; set; }
+
+    /// <summary>Value of the data-testid attribute; its parts use it as a prefix: <c>{TestId}-date</c>, <c>{TestId}-when</c>, <c>{TestId}-exercises</c>, <c>{TestId}-empty</c>.</summary>
+    [Parameter]
+    public string? TestId { get; set; }
+
+    private RenderFragment Content(LastWorkout workout) =>
+        @<span class="texts">
+            <span class="label">Last workout</span>
+            <span class="date" data-testid="@($"{TestId}-date")">@DisplayFormat.Date(workout.StartedAt)</span>
+            <span class="detail" data-testid="@($"{TestId}-when")">@DisplayFormat.DaysAgo(workout.DaysAgo) · @DisplayFormat.Duration(workout.Duration)</span>
+            @if (workout.Exercises.Count > 0)
+            {
+                <span class="detail" data-testid="@($"{TestId}-exercises")">@Exercises(workout.Exercises)</span>
+            }
+        </span>;
+
+    /// <summary>The first two names, then +n for the rest, e.g. Barbell Bench Press, Cable Fly +3.</summary>
+    private static string Exercises(IReadOnlyList<string> names) =>
+        names.Count > 2 ? $"{names[0]}, {names[1]} +{names.Count - 2}" : string.Join(", ", names);
+}
