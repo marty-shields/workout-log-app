@@ -16,8 +16,9 @@ public class ImportContextTests
             new ImportWorkout(3, Time(Start.AddHours(1)), null, []),
             new ImportWorkout(4, "invalid", null, []),
             new ImportWorkout(5, null, null, null),
-        ]);
+        ], Start);
 
         Assert.That(context.StartCounts, Is.EqualTo(new Dictionary<DateTimeOffset, int> { [Start] = 2, [Start.AddHours(1)] = 1 }));
+        Assert.That(context.Now, Is.EqualTo(Start));
     }
 }

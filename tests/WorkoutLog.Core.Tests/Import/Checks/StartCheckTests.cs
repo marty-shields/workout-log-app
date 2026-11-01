@@ -7,7 +7,7 @@ namespace WorkoutLog.Core.Tests.Import.Checks;
 
 public class StartCheckTests
 {
-    private static readonly ImportContext Context = new(new Dictionary<DateTimeOffset, int>());
+    private static readonly ImportContext Context = new(new Dictionary<DateTimeOffset, int>(), DateTimeOffset.UnixEpoch);
 
     [Test]
     public void Check_ValidStart_Passes() =>

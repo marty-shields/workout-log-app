@@ -19,5 +19,5 @@ public class RepeatedStartCheckTests
     public void Check_InvalidStart_LeftToStartCheck() =>
         Assert.That(new RepeatedStartCheck().Check(At(0) with { StartedAt = null }, Counts(2)), Is.Empty);
 
-    private static ImportContext Counts(int count) => new(new Dictionary<DateTimeOffset, int> { [Start] = count });
+    private static ImportContext Counts(int count) => new(new Dictionary<DateTimeOffset, int> { [Start] = count }, DateTimeOffset.UnixEpoch);
 }
