@@ -1285,6 +1285,7 @@ public class EditWorkoutPageTests : ComponentTestBase
         RecordBaselines.SetSaved(Catalog, 132, new StrengthExercise(132, [new StrengthSet(1, 1m, null, null)]));
         var cut = await RenderLoadedAsync();
 
+        cut.Find("[data-testid=exercise-3-edit]").Click();
         cut.Find("[data-testid=exercise-3-set-1-weight]").Input("200");
         Add(cut, 132);
         cut.Find("[data-testid=exercise-1-set-1-reps]").Input("8");
