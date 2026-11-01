@@ -41,8 +41,8 @@ public class ExerciseCatalogTests
             Assert.That(exercise.Mechanic, Is.EqualTo(Mechanic.Compound));
             Assert.That(exercise.Metrics, Is.EqualTo(new[]
             {
-                new MetricDefinition(Metric.Reps, Required: true),
                 new MetricDefinition(Metric.WeightKg, Required: true, Label: "Assist"),
+                new MetricDefinition(Metric.Reps, Required: true),
             }));
         });
     }

@@ -12,11 +12,11 @@
     "mechanic": "Compound",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -38,11 +38,11 @@
     "mechanic": "Isolation",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -62,11 +62,11 @@
     "mechanic": "Compound",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -86,11 +86,11 @@
     "mechanic": "Isolation",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -110,11 +110,11 @@
     "mechanic": "Compound",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -134,11 +134,11 @@
     "mechanic": "Compound",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -160,11 +160,11 @@
     "mechanic": "Compound",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -186,11 +186,11 @@
     "mechanic": "Compound",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -210,11 +210,11 @@
     "mechanic": "Compound",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -234,11 +234,11 @@
     "mechanic": "Compound",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -258,11 +258,11 @@
     "mechanic": "Compound",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -282,11 +282,11 @@
     "mechanic": "Isolation",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -308,11 +308,11 @@
     "mechanic": "Compound",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -332,11 +332,11 @@
     "mechanic": "Isolation",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -358,11 +358,11 @@
     "mechanic": "Isolation",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -382,11 +382,11 @@
     "mechanic": "Compound",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -406,11 +406,11 @@
     "mechanic": "Isolation",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -430,11 +430,11 @@
     "mechanic": "Compound",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -454,11 +454,11 @@
     "mechanic": "Isolation",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -478,11 +478,11 @@
     "mechanic": "Compound",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -502,11 +502,11 @@
     "mechanic": "Compound",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -526,11 +526,11 @@
     "mechanic": "Compound",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -550,11 +550,11 @@
     "mechanic": "Compound",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -574,11 +574,11 @@
     "mechanic": "Compound",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -598,11 +598,11 @@
     "mechanic": "Compound",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -622,11 +622,11 @@
     "mechanic": "Compound",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -648,11 +648,11 @@
     "mechanic": "Compound",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -672,11 +672,11 @@
     "mechanic": "Compound",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -698,11 +698,11 @@
     "mechanic": "Compound",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -722,11 +722,11 @@
     "mechanic": "Isolation",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -746,11 +746,11 @@
     "mechanic": "Isolation",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -770,11 +770,11 @@
     "mechanic": "Compound",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -794,11 +794,11 @@
     "mechanic": "Compound",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -818,11 +818,11 @@
     "mechanic": "Compound",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -842,11 +842,11 @@
     "mechanic": "Isolation",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -866,11 +866,11 @@
     "mechanic": "Compound",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -890,11 +890,11 @@
     "mechanic": "Isolation",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -914,11 +914,11 @@
     "mechanic": "Compound",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -938,11 +938,11 @@
     "mechanic": "Compound",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -964,11 +964,11 @@
     "mechanic": "Compound",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -992,11 +992,11 @@
     "mechanic": "Compound",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -1016,11 +1016,11 @@
     "mechanic": "Isolation",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -1040,11 +1040,11 @@
     "mechanic": "Isolation",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -1067,11 +1067,11 @@
     "mechanic": "Isolation",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -1091,11 +1091,11 @@
     "mechanic": "Compound",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -1118,11 +1118,11 @@
     "mechanic": "Compound",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -1142,11 +1142,11 @@
     "mechanic": "Compound",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -1166,11 +1166,11 @@
     "mechanic": "Compound",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -1190,11 +1190,11 @@
     "mechanic": "Isolation",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -1214,11 +1214,11 @@
     "mechanic": "Compound",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -1238,11 +1238,11 @@
     "mechanic": "Compound",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -1262,11 +1262,11 @@
     "mechanic": "Compound",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -1286,11 +1286,11 @@
     "mechanic": "Isolation",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -1310,11 +1310,11 @@
     "mechanic": "Isolation",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -1334,11 +1334,11 @@
     "mechanic": "Compound",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -1358,11 +1358,11 @@
     "mechanic": "Compound",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -1382,11 +1382,11 @@
     "mechanic": "Compound",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -1410,11 +1410,11 @@
     "mechanic": "Compound",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -1434,11 +1434,11 @@
     "mechanic": "Isolation",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -1458,11 +1458,11 @@
     "mechanic": "Isolation",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -1482,11 +1482,11 @@
     "mechanic": "Compound",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -1506,11 +1506,11 @@
     "mechanic": "Compound",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -1532,11 +1532,11 @@
     "mechanic": "Isolation",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -1558,11 +1558,11 @@
     "mechanic": "Isolation",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -1584,11 +1584,11 @@
     "mechanic": "Isolation",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -1608,11 +1608,11 @@
     "mechanic": "Isolation",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -1632,11 +1632,11 @@
     "mechanic": "Compound",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -1656,11 +1656,11 @@
     "mechanic": "Isolation",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -1680,11 +1680,11 @@
     "mechanic": "Isolation",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -1704,11 +1704,11 @@
     "mechanic": "Isolation",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -1728,11 +1728,11 @@
     "mechanic": "Isolation",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -1752,11 +1752,11 @@
     "mechanic": "Isolation",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -1776,11 +1776,11 @@
     "mechanic": "Compound",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -1800,11 +1800,11 @@
     "mechanic": "Isolation",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -1826,11 +1826,11 @@
     "mechanic": "Compound",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -1852,11 +1852,11 @@
     "mechanic": "Isolation",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -1878,11 +1878,11 @@
     "mechanic": "Isolation",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -1904,11 +1904,11 @@
     "mechanic": "Isolation",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -1928,11 +1928,11 @@
     "mechanic": "Compound",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -1952,11 +1952,11 @@
     "mechanic": "Compound",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -1976,11 +1976,11 @@
     "mechanic": "Isolation",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -2000,11 +2000,11 @@
     "mechanic": "Isolation",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -2024,11 +2024,11 @@
     "mechanic": "Isolation",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -2048,11 +2048,11 @@
     "mechanic": "Isolation",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -2072,11 +2072,11 @@
     "mechanic": "Isolation",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -2096,11 +2096,11 @@
     "mechanic": "Compound",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -2122,11 +2122,11 @@
     "mechanic": "Isolation",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -2146,11 +2146,11 @@
     "mechanic": "Isolation",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -2170,11 +2170,11 @@
     "mechanic": "Isolation",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -2194,11 +2194,11 @@
     "mechanic": "Isolation",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -2218,11 +2218,11 @@
     "mechanic": "Isolation",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -2242,11 +2242,11 @@
     "mechanic": "Isolation",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -2266,11 +2266,11 @@
     "mechanic": "Isolation",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -2290,11 +2290,11 @@
     "mechanic": "Compound",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -2314,11 +2314,11 @@
     "mechanic": "Compound",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -2338,11 +2338,11 @@
     "mechanic": "Isolation",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -2362,11 +2362,11 @@
     "mechanic": "Isolation",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -2389,11 +2389,11 @@
     "mechanic": "Isolation",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -2413,11 +2413,11 @@
     "mechanic": "Isolation",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -2439,11 +2439,11 @@
     "mechanic": "Isolation",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -2465,11 +2465,11 @@
     "mechanic": "Compound",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -2489,11 +2489,11 @@
     "mechanic": "Compound",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -2513,11 +2513,11 @@
     "mechanic": "Compound",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -2537,11 +2537,11 @@
     "mechanic": "Isolation",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -2563,11 +2563,11 @@
     "mechanic": "Compound",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -2587,11 +2587,11 @@
     "mechanic": "Isolation",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -2613,11 +2613,11 @@
     "mechanic": "Isolation",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -2637,11 +2637,11 @@
     "mechanic": "Compound",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -2661,11 +2661,11 @@
     "mechanic": "Compound",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -2687,11 +2687,11 @@
     "mechanic": "Compound",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -2711,11 +2711,11 @@
     "mechanic": "Isolation",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -2735,11 +2735,11 @@
     "mechanic": "Isolation",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -2759,11 +2759,11 @@
     "mechanic": "Compound",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -2812,11 +2812,11 @@
     "mechanic": "Compound",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -2836,11 +2836,11 @@
     "mechanic": "Isolation",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -2860,11 +2860,11 @@
     "mechanic": "Isolation",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -2884,11 +2884,11 @@
     "mechanic": "Isolation",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -2908,11 +2908,11 @@
     "mechanic": "Compound",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -2932,11 +2932,11 @@
     "mechanic": "Isolation",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -2956,11 +2956,11 @@
     "mechanic": "Isolation",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -2983,11 +2983,11 @@
     "mechanic": "Compound",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -3007,11 +3007,11 @@
     "mechanic": "Isolation",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -3031,11 +3031,11 @@
     "mechanic": "Compound",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -3057,11 +3057,11 @@
     "mechanic": "Compound",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -3081,11 +3081,11 @@
     "mechanic": "Compound",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -3105,11 +3105,11 @@
     "mechanic": "Compound",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -3129,11 +3129,11 @@
     "mechanic": "Isolation",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -3155,11 +3155,11 @@
     "mechanic": "Compound",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -3179,11 +3179,11 @@
     "mechanic": "Isolation",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -3205,11 +3205,11 @@
     "mechanic": "Isolation",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -3231,11 +3231,11 @@
     "mechanic": "Isolation",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -3255,11 +3255,11 @@
     "mechanic": "Isolation",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -3281,11 +3281,11 @@
     "mechanic": "Compound",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -3305,11 +3305,11 @@
     "mechanic": "Compound",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -3329,11 +3329,11 @@
     "mechanic": "Isolation",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -3353,11 +3353,11 @@
     "mechanic": "Isolation",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -3377,11 +3377,11 @@
     "mechanic": "Compound",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -3401,11 +3401,11 @@
     "mechanic": "Isolation",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -3425,11 +3425,11 @@
     "mechanic": "Isolation",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -3449,11 +3449,11 @@
     "mechanic": "Isolation",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -3473,11 +3473,11 @@
     "mechanic": "Isolation",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -3497,11 +3497,11 @@
     "mechanic": "Isolation",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -3523,11 +3523,11 @@
     "mechanic": "Compound",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -3547,11 +3547,11 @@
     "mechanic": "Isolation",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -3573,11 +3573,11 @@
     "mechanic": "Compound",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -3599,11 +3599,11 @@
     "mechanic": "Compound",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -3625,11 +3625,11 @@
     "mechanic": "Isolation",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -3651,11 +3651,11 @@
     "mechanic": "Isolation",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -3675,11 +3675,11 @@
     "mechanic": "Compound",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -3702,11 +3702,11 @@
     "mechanic": "Isolation",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -3726,11 +3726,11 @@
     "mechanic": "Compound",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -3750,11 +3750,11 @@
     "mechanic": "Compound",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -3774,11 +3774,11 @@
     "mechanic": "Compound",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -3800,11 +3800,11 @@
     "mechanic": "Compound",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -3824,11 +3824,11 @@
     "mechanic": "Isolation",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -3848,11 +3848,11 @@
     "mechanic": "Isolation",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -3874,11 +3874,11 @@
     "mechanic": "Isolation",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -3898,11 +3898,11 @@
     "mechanic": "Compound",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -3924,11 +3924,11 @@
     "mechanic": "Isolation",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -3948,11 +3948,11 @@
     "mechanic": "Isolation",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -3974,11 +3974,11 @@
     "mechanic": "Compound",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -3998,11 +3998,11 @@
     "mechanic": "Isolation",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -4024,11 +4024,11 @@
     "mechanic": "Compound",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -4050,11 +4050,11 @@
     "mechanic": "Compound",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -4074,11 +4074,11 @@
     "mechanic": "Isolation",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -4098,11 +4098,11 @@
     "mechanic": "Isolation",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -4122,11 +4122,11 @@
     "mechanic": "Compound",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -4146,11 +4146,11 @@
     "mechanic": "Compound",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -4170,11 +4170,11 @@
     "mechanic": "Compound",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -4196,11 +4196,11 @@
     "mechanic": "Compound",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -4222,11 +4222,11 @@
     "mechanic": "Compound",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -4246,11 +4246,11 @@
     "mechanic": "Isolation",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -4270,11 +4270,11 @@
     "mechanic": "Compound",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -4294,11 +4294,11 @@
     "mechanic": "Compound",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -4318,11 +4318,11 @@
     "mechanic": "Isolation",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -4342,11 +4342,11 @@
     "mechanic": "Isolation",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -4369,11 +4369,11 @@
     "mechanic": "Compound",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -4397,11 +4397,11 @@
     "mechanic": "Isolation",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -4421,11 +4421,11 @@
     "mechanic": "Isolation",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -4447,11 +4447,11 @@
     "mechanic": "Isolation",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -4471,11 +4471,11 @@
     "mechanic": "Isolation",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -4495,11 +4495,11 @@
     "mechanic": "Isolation",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -4522,11 +4522,11 @@
     "mechanic": "Isolation",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -4546,11 +4546,11 @@
     "mechanic": "Isolation",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -4570,11 +4570,11 @@
     "mechanic": "Isolation",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -4624,11 +4624,11 @@
     "mechanic": "Isolation",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -4651,11 +4651,11 @@
     "mechanic": "Isolation",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -4675,11 +4675,11 @@
     "mechanic": "Isolation",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -4701,11 +4701,11 @@
     "mechanic": "Compound",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -4725,11 +4725,11 @@
     "mechanic": "Isolation",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -4749,11 +4749,11 @@
     "mechanic": "Isolation",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -4773,11 +4773,11 @@
     "mechanic": "Isolation",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -4799,11 +4799,11 @@
     "mechanic": "Isolation",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -4823,11 +4823,11 @@
     "mechanic": "Compound",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -4851,11 +4851,11 @@
     "mechanic": "Compound",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -4899,11 +4899,11 @@
     "mechanic": "Compound",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -4923,11 +4923,11 @@
     "mechanic": "Compound",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -4947,11 +4947,11 @@
     "mechanic": "Compound",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -4971,11 +4971,11 @@
     "mechanic": "Compound",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -4995,11 +4995,11 @@
     "mechanic": "Compound",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -5019,11 +5019,11 @@
     "mechanic": "Compound",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -5043,11 +5043,11 @@
     "mechanic": "Compound",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -5067,11 +5067,11 @@
     "mechanic": "Compound",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -5091,11 +5091,11 @@
     "mechanic": "Compound",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -5115,11 +5115,11 @@
     "mechanic": "Compound",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -5139,11 +5139,11 @@
     "mechanic": "Compound",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -5163,11 +5163,11 @@
     "mechanic": "Compound",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -5190,11 +5190,11 @@
     "mechanic": "Compound",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -5216,11 +5216,11 @@
     "mechanic": "Compound",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -5240,11 +5240,11 @@
     "mechanic": "Isolation",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -5264,11 +5264,11 @@
     "mechanic": "Isolation",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -5288,11 +5288,11 @@
     "mechanic": "Isolation",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -5312,13 +5312,13 @@
     "mechanic": "Compound",
     "metrics": [
       {
-        "metric": "Reps",
-        "required": true
-      },
-      {
         "metric": "WeightKg",
         "required": true,
         "label": "Assist"
+      },
+      {
+        "metric": "Reps",
+        "required": true
       }
     ],
     "distanceUnit": null,
@@ -5337,13 +5337,13 @@
     "mechanic": "Compound",
     "metrics": [
       {
-        "metric": "Reps",
-        "required": true
-      },
-      {
         "metric": "WeightKg",
         "required": true,
         "label": "Assist"
+      },
+      {
+        "metric": "Reps",
+        "required": true
       }
     ],
     "distanceUnit": null,
@@ -5364,13 +5364,13 @@
     "mechanic": "Compound",
     "metrics": [
       {
-        "metric": "Reps",
-        "required": true
-      },
-      {
         "metric": "WeightKg",
         "required": true,
         "label": "Assist"
+      },
+      {
+        "metric": "Reps",
+        "required": true
       }
     ],
     "distanceUnit": null,
@@ -5389,11 +5389,11 @@
     "mechanic": "Compound",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -5413,11 +5413,11 @@
     "mechanic": "Isolation",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -5441,11 +5441,11 @@
     "mechanic": "Isolation",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -5468,11 +5468,11 @@
     "mechanic": "Compound",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -5492,11 +5492,11 @@
     "mechanic": "Compound",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -5516,11 +5516,11 @@
     "mechanic": "Compound",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -5540,11 +5540,11 @@
     "mechanic": "Compound",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -5564,11 +5564,11 @@
     "mechanic": "Isolation",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -5590,11 +5590,11 @@
     "mechanic": "Compound",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -5614,11 +5614,11 @@
     "mechanic": "Compound",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -5638,11 +5638,11 @@
     "mechanic": "Compound",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -5665,11 +5665,11 @@
     "mechanic": "Isolation",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -5692,11 +5692,11 @@
     "mechanic": "Isolation",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -5716,11 +5716,11 @@
     "mechanic": "Isolation",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -5740,11 +5740,11 @@
     "mechanic": "Compound",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -5764,11 +5764,11 @@
     "mechanic": "Compound",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -5790,11 +5790,11 @@
     "mechanic": "Isolation",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -5814,11 +5814,11 @@
     "mechanic": "Isolation",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -5838,11 +5838,11 @@
     "mechanic": "Compound",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -5862,11 +5862,11 @@
     "mechanic": "Isolation",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -5888,11 +5888,11 @@
     "mechanic": "Isolation",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -5912,11 +5912,11 @@
     "mechanic": "Compound",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -5936,11 +5936,11 @@
     "mechanic": "Isolation",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -5962,11 +5962,11 @@
     "mechanic": "Isolation",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -5986,11 +5986,11 @@
     "mechanic": "Isolation",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -6010,11 +6010,11 @@
     "mechanic": "Compound",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -6034,11 +6034,11 @@
     "mechanic": "Isolation",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -6060,11 +6060,11 @@
     "mechanic": "Isolation",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -6084,11 +6084,11 @@
     "mechanic": "Compound",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -6108,11 +6108,11 @@
     "mechanic": "Compound",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -6132,11 +6132,11 @@
     "mechanic": "Isolation",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -6156,11 +6156,11 @@
     "mechanic": "Isolation",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -6182,11 +6182,11 @@
     "mechanic": "Isolation",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -6206,11 +6206,11 @@
     "mechanic": "Compound",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -6230,11 +6230,11 @@
     "mechanic": "Isolation",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -6254,11 +6254,11 @@
     "mechanic": "Compound",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -6280,11 +6280,11 @@
     "mechanic": "Isolation",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -6304,11 +6304,11 @@
     "mechanic": "Isolation",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -6384,11 +6384,11 @@
     "mechanic": "Isolation",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -6408,11 +6408,11 @@
     "mechanic": "Isolation",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -6432,11 +6432,11 @@
     "mechanic": "Isolation",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -6482,11 +6482,11 @@
     "mechanic": "Compound",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -6508,11 +6508,11 @@
     "mechanic": "Compound",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -6532,11 +6532,11 @@
     "mechanic": "Isolation",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -6559,11 +6559,11 @@
     "mechanic": "Compound",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -6585,11 +6585,11 @@
     "mechanic": "Isolation",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -6611,11 +6611,11 @@
     "mechanic": "Isolation",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -6635,11 +6635,11 @@
     "mechanic": "Isolation",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -6659,11 +6659,11 @@
     "mechanic": "Isolation",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -6709,11 +6709,11 @@
     "mechanic": "Compound",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -6733,11 +6733,11 @@
     "mechanic": "Isolation",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -6817,11 +6817,11 @@
     "mechanic": "Compound",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -6841,11 +6841,11 @@
     "mechanic": "Compound",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -6865,11 +6865,11 @@
     "mechanic": "Compound",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -6889,11 +6889,11 @@
     "mechanic": "Isolation",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -6913,11 +6913,11 @@
     "mechanic": "Compound",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -6937,11 +6937,11 @@
     "mechanic": "Compound",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -6961,11 +6961,11 @@
     "mechanic": "Compound",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -6985,11 +6985,11 @@
     "mechanic": "Compound",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -7009,11 +7009,11 @@
     "mechanic": "Compound",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -7033,11 +7033,11 @@
     "mechanic": "Compound",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -7057,11 +7057,11 @@
     "mechanic": "Compound",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -7081,11 +7081,11 @@
     "mechanic": "Isolation",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -7105,11 +7105,11 @@
     "mechanic": "Compound",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -7129,11 +7129,11 @@
     "mechanic": "Compound",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -7153,11 +7153,11 @@
     "mechanic": "Compound",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -7181,11 +7181,11 @@
     "mechanic": "Compound",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -7207,11 +7207,11 @@
     "mechanic": "Compound",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -7261,11 +7261,11 @@
     "mechanic": "Compound",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -7287,11 +7287,11 @@
     "mechanic": "Compound",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -7337,11 +7337,11 @@
     "mechanic": "Compound",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],
@@ -7361,11 +7361,11 @@
     "mechanic": "Isolation",
     "metrics": [
       {
-        "metric": "Reps",
+        "metric": "WeightKg",
         "required": true
       },
       {
-        "metric": "WeightKg",
+        "metric": "Reps",
         "required": true
       }
     ],

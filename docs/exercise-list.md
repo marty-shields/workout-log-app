@@ -16,10 +16,10 @@ Strength exercises are based on [free-exercise-db](https://github.com/yuhonas/fr
 ## Categories
 | Category | Fields | Weight |
 |---|---|---|
-| Lift | Reps, weight | Must be typed; 0 allowed |
-| Bodyweight (weight is extra load, e.g. Push-up, Pull-up) | Reps, weight | A blank becomes 0 |
+| Lift | Weight, reps | Must be typed; 0 allowed |
+| Bodyweight (weight is extra load, e.g. Push-up, Pull-up) | Weight, reps | A blank becomes 0 |
 | Hold (e.g. Plank, Wall Sit) | Duration, weight | A blank becomes 0 |
-| Assisted (Machine Assisted Pull-up, Chin-up, Dip) | Reps, weight labelled **Assist (kg)** | A blank becomes 0 |
+| Assisted (Machine Assisted Pull-up, Chin-up, Dip) | Weight labelled **Assist (kg)**, reps | A blank becomes 0 |
 | Carry (e.g. Farmer's Walk, Sled Push) | Duration, distance (metres), weight | A blank becomes 0 |
 | Cardio | Duration, distance where it has one, then optional metrics per exercise | |
 
