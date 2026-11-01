@@ -7,7 +7,7 @@
   },
   "devDependencies": {
     "appium": "3.9.0",
-    "appium-uiautomator2-driver": "8.7.2"
+    "appium-uiautomator2-driver": "8.7.3"
   },
   "overrides": {
     "body-parser": "2.4.0",
