@@ -61,7 +61,7 @@ Feature: Add exercise
     When I add "Dumbbell Curl"
     Then the exercises are, in order: Dumbbell Curl, Barbell Back Squat
     And the add-exercise list is closed
-    And focus is on Dumbbell Curl set 1 reps
+    And focus is on Dumbbell Curl set 1 weight
 
   Scenario: A picked exercise above the screen scrolls into view
     Given I have added "Treadmill"
@@ -69,7 +69,7 @@ Feature: Add exercise
     And I have added "Farmer's Walk"
     And I have scrolled to the bottom of the workout
     When I add "Dumbbell Curl"
-    Then focus is on Dumbbell Curl set 1 reps
+    Then focus is on Dumbbell Curl set 1 weight
     And the focused field is in view
 
   Scenario: A strength exercise starts with one empty set
@@ -97,14 +97,15 @@ Feature: Add exercise
     When I add "Barbell Back Squat"
     Then there is 1 exercise
     And Barbell Back Squat has 2 sets
-    And focus is on Barbell Back Squat set 2 reps
+    And focus is on Barbell Back Squat set 2 weight
 
   Scenario: Picking a strength exercise again while its last set is empty is blocked like Add set
     Given I have added "Barbell Back Squat"
     When I add "Barbell Back Squat"
     Then Barbell Back Squat has 1 set
+    And Barbell Back Squat set 1 shows "Enter weight"
     And Barbell Back Squat set 1 shows "Enter reps"
-    And focus is on Barbell Back Squat set 1 reps
+    And focus is on Barbell Back Squat set 1 weight
 
   Scenario: Picking a cardio exercise already added moves it to the top and focuses its entry
     Given I have added "Rowing Machine"
@@ -121,5 +122,5 @@ Feature: Add exercise
     When I add "Barbell Back Squat"
     Then the exercises are, in order: Barbell Back Squat, Plank, Treadmill
     And Barbell Back Squat has 2 sets
-    And focus is on Barbell Back Squat set 2 reps
+    And focus is on Barbell Back Squat set 2 weight
     And the focused field is in view

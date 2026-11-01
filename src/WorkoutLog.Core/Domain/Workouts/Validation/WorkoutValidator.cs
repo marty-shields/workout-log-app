@@ -91,8 +91,8 @@ internal sealed class WorkoutValidator(IExerciseCatalog catalog) : IWorkoutValid
 
     private static (Metric, decimal?)[] Values(StrengthSet set) =>
     [
-        (Metric.Reps, set.Reps),
         (Metric.WeightKg, set.WeightKg),
+        (Metric.Reps, set.Reps),
         (Metric.Duration, Seconds(set.Duration)),
         (Metric.Distance, set.Distance),
     ];

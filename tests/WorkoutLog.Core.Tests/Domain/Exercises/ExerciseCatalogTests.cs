@@ -41,11 +41,19 @@ public class ExerciseCatalogTests
             Assert.That(exercise.Mechanic, Is.EqualTo(Mechanic.Compound));
             Assert.That(exercise.Metrics, Is.EqualTo(new[]
             {
-                new MetricDefinition(Metric.Reps, Required: true),
                 new MetricDefinition(Metric.WeightKg, Required: true, Label: "Assist"),
+                new MetricDefinition(Metric.Reps, Required: true),
             }));
         });
     }
+
+    [Test]
+    public void All_ListWeightBeforeReps() =>
+        Assert.That(catalog.All
+                .Where(e => e.Metrics.Any(m => m.Metric == Metric.Reps) && e.Metrics.Any(m => m.Metric == Metric.WeightKg))
+                .Where(e => e.Metrics.ToList().FindIndex(m => m.Metric == Metric.Reps) < e.Metrics.ToList().FindIndex(m => m.Metric == Metric.WeightKg))
+                .Select(e => e.Name),
+            Is.Empty);
 
     [Test]
     public void IsAssisted_OnlyTheAssistedMachines() =>

@@ -10,7 +10,7 @@ Feature: Strength sets
     Then set 1 shows exactly the fields: <fields>
     Examples:
       | exercise                 | fields                              |
-      | Barbell Back Squat       | Reps, Weight (kg)                   |
+      | Barbell Back Squat       | Weight (kg), Reps                   |
       | Plank                    | Duration, Weight (kg)               |
       | Farmer's Walk            | Distance (m), Weight (kg), Duration |
 
@@ -26,17 +26,18 @@ Feature: Strength sets
     Given I have added "Barbell Back Squat"
     When I tap Add set on Barbell Back Squat
     Then Barbell Back Squat has 1 set
+    And Barbell Back Squat set 1 shows "Enter weight"
     And Barbell Back Squat set 1 shows "Enter reps"
-    And focus is on Barbell Back Squat set 1 reps
+    And focus is on Barbell Back Squat set 1 weight
 
   Scenario: Add set shows every problem on the set and focuses the first field at fault
     Given I have added "Barbell Back Squat"
     When I enter "60.255" in Barbell Back Squat set 1 weight
     And I tap Add set on Barbell Back Squat
     Then Barbell Back Squat set 1 shows:
-      | Enter reps                             |
       | Weight can have up to 2 decimal places |
-    And focus is on Barbell Back Squat set 1 reps
+      | Enter reps                             |
+    And focus is on Barbell Back Squat set 1 weight
 
   Scenario Outline: Strength values are checked
     Given I have added "<exercise>"

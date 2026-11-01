@@ -44,7 +44,7 @@ public class SetCheckerTests
     [TestCase("8", "0")]
     public void Check_ValidSet_PassesWithNoErrors(string reps, string? weight)
     {
-        var (valid, errors) = Check(Squat, reps, weight);
+        var (valid, errors) = Check(Squat, weight, reps);
 
         Assert.Multiple(() =>
         {
@@ -57,7 +57,7 @@ public class SetCheckerTests
     [TestCase("")]
     public void Check_LiftWithBlankWeight_EnterWeight(string? weight)
     {
-        var exercise = SampleData.Exercise(Catalog, Squat, ["8", weight]);
+        var exercise = SampleData.Exercise(Catalog, Squat, [weight, "8"]);
 
         Assert.Multiple(() =>
         {
@@ -67,8 +67,8 @@ public class SetCheckerTests
         });
     }
 
-    [TestCase(PushUp, new[] { "8", null })]
-    [TestCase(AssistedPullUp, new[] { "8", "" })]
+    [TestCase(PushUp, new[] { null, "8" })]
+    [TestCase(AssistedPullUp, new[] { "", "8" })]
     [TestCase(Plank, new[] { "0:01:00", null })]
     [TestCase(FarmersWalk, new[] { "40", null, "0:00:45" })]
     public void Check_BlankWeightOtherThanALift_IsCheckedAs0AndLeftBlank(int exerciseId, string?[] values)
@@ -86,12 +86,12 @@ public class SetCheckerTests
 
     [Test]
     public void Read_BlankWeightOtherThanALift_Is0() =>
-        Assert.That(((StrengthExercise)checker.Read(SampleData.Exercise(Catalog, PushUp, ["8", null]))).Sets.Single().WeightKg, Is.EqualTo(0m));
+        Assert.That(((StrengthExercise)checker.Read(SampleData.Exercise(Catalog, PushUp, [null, "8"]))).Sets.Single().WeightKg, Is.EqualTo(0m));
 
     [Test]
     public void CheckOnSave_BlankWeight_IsFilledWith0()
     {
-        var exercise = SampleData.Exercise(Catalog, PushUp, ["8", null]);
+        var exercise = SampleData.Exercise(Catalog, PushUp, [null, "8"]);
 
         checker.CheckOnSave(exercise, exercise.Entries[0]);
 
@@ -101,7 +101,7 @@ public class SetCheckerTests
     [Test]
     public void Check_UnreadableWeight_IsNotFilled()
     {
-        var exercise = SampleData.Exercise(Catalog, PushUp, ["8", "abc"]);
+        var exercise = SampleData.Exercise(Catalog, PushUp, ["abc", "8"]);
 
         checker.Check(exercise, exercise.Entries[0]);
 
@@ -130,7 +130,7 @@ public class SetCheckerTests
     [TestCase("٣")]
     public void Check_UnreadableNumber_MustBeANumber(string weight)
     {
-        var (valid, errors) = Check(Squat, "8", weight);
+        var (valid, errors) = Check(Squat, weight, "8");
 
         Assert.Multiple(() =>
         {
@@ -143,7 +143,7 @@ public class SetCheckerTests
     [TestCase("22.500")]
     public void Check_MoreThanTwoDecimalPlaces_IsAnError(string weight)
     {
-        Assert.That(Check(Squat, "8", weight).Errors,
+        Assert.That(Check(Squat, weight, "8").Errors,
             Is.EqualTo(new Dictionary<string, string> { ["weight"] = "Weight can have up to 2 decimal places" }));
     }
 
@@ -159,14 +159,14 @@ public class SetCheckerTests
     [TestCase(".5")]
     public void Check_PointInAWholeNumber_MustBeAWholeNumber(string reps)
     {
-        Assert.That(Check(Squat, reps, "60").Errors,
+        Assert.That(Check(Squat, "60", reps).Errors,
             Is.EqualTo(new Dictionary<string, string> { ["reps"] = "Reps must be a whole number" }));
     }
 
     [Test]
     public void Check_WholeNumberEndingInAPoint_MustBeANumber()
     {
-        Assert.That(Check(Squat, "8.", "60").Errors,
+        Assert.That(Check(Squat, "60", "8.").Errors,
             Is.EqualTo(new Dictionary<string, string> { ["reps"] = "Reps must be a number" }));
     }
 
@@ -176,14 +176,14 @@ public class SetCheckerTests
     [TestCase("99999999999", "Reps must be 1,000 or less")]
     public void Check_RepsFailingCore_IsWorded(string? reps, string message)
     {
-        Assert.That(Check(Squat, reps, "60").Errors, Is.EqualTo(new Dictionary<string, string> { ["reps"] = message }));
+        Assert.That(Check(Squat, "60", reps).Errors, Is.EqualTo(new Dictionary<string, string> { ["reps"] = message }));
     }
 
     [TestCase("1000.01")]
     [TestCase("9999999999999999999999999999999999999999")]
     public void Check_WeightAboveTheLimit_IsTooLarge(string weight)
     {
-        Assert.That(Check(Squat, "8", weight).Errors,
+        Assert.That(Check(Squat, weight, "8").Errors,
             Is.EqualTo(new Dictionary<string, string> { ["weight"] = "Weight must be 1,000 or less" }));
     }
 
@@ -202,9 +202,9 @@ public class SetCheckerTests
     {
         Assert.Multiple(() =>
         {
-            Assert.That(Check(AssistedPullUp, "8", "abc").Errors,
+            Assert.That(Check(AssistedPullUp, "abc", "8").Errors,
                 Is.EqualTo(new Dictionary<string, string> { ["weight"] = "Assist must be a number" }));
-            Assert.That(Check(AssistedPullUp, "8", "1001").Errors,
+            Assert.That(Check(AssistedPullUp, "1001", "8").Errors,
                 Is.EqualTo(new Dictionary<string, string> { ["weight"] = "Assist must be 1,000 or less" }));
         });
     }
@@ -212,7 +212,7 @@ public class SetCheckerTests
     [Test]
     public void Check_FormatErrorOnARequiredField_IsTheOnlyMessage()
     {
-        Assert.That(Check(Squat, "abc", "60").Errors,
+        Assert.That(Check(Squat, "60", "abc").Errors,
             Is.EqualTo(new Dictionary<string, string> { ["reps"] = "Reps must be a number" }));
     }
 
@@ -276,7 +276,7 @@ public class SetCheckerTests
     [Test]
     public void Check_Failing_SetsCheckOnChange_AndPassingKeepsIt()
     {
-        var exercise = SampleData.Exercise(Catalog, Squat, ["abc"]);
+        var exercise = SampleData.Exercise(Catalog, Squat, [null, "abc"]);
         var entry = exercise.Entries.Single();
 
         checker.Check(exercise, entry);
@@ -294,7 +294,7 @@ public class SetCheckerTests
     [Test]
     public void Check_Passing_LeavesCheckOnChangeUnset()
     {
-        var exercise = SampleData.Exercise(Catalog, Squat, ["8", "60"]);
+        var exercise = SampleData.Exercise(Catalog, Squat, ["60", "8"]);
 
         checker.Check(exercise, exercise.Entries[0]);
 
@@ -304,7 +304,7 @@ public class SetCheckerTests
     [Test]
     public void Check_ReplacesOldErrors()
     {
-        var exercise = SampleData.Exercise(Catalog, Squat, ["8", "60"]);
+        var exercise = SampleData.Exercise(Catalog, Squat, ["60", "8"]);
         var entry = exercise.Entries.Single();
         entry.Errors["reps"] = "Enter reps";
 
@@ -468,7 +468,7 @@ public class SetCheckerTests
     [Test]
     public void Read_ChangesNoErrorsAndLogsNothing()
     {
-        var exercise = SampleData.Exercise(Catalog, Squat, ["abc", "60"]);
+        var exercise = SampleData.Exercise(Catalog, Squat, ["60", "abc"]);
 
         checker.Read(exercise);
 
@@ -482,7 +482,7 @@ public class SetCheckerTests
     [Test]
     public void Check_FieldErrorWithNoMessage_FailsAndLogsAWarning()
     {
-        var exercise = SampleData.Exercise(Catalog, Squat, ["8"]);
+        var exercise = SampleData.Exercise(Catalog, Squat, [null, "8"]);
         var notShown = new ExerciseErrors(null, [new EntryErrors(new Dictionary<Metric, FieldError> { [Metric.Distance] = FieldError.NotShown })]);
         var stub = new SetChecker(new RecordingWorkoutService(workouts, notShown), Catalog, logger);
 
@@ -501,7 +501,7 @@ public class SetCheckerTests
     [TestCase(ExerciseError.WrongType)]
     public void Check_ExerciseError_FailsAndLogsAWarning(ExerciseError error)
     {
-        var exercise = SampleData.Exercise(Catalog, Squat, ["8"]);
+        var exercise = SampleData.Exercise(Catalog, Squat, [null, "8"]);
         var stub = new SetChecker(new RecordingWorkoutService(workouts, new ExerciseErrors(error, [])), Catalog, logger);
 
         Assert.Multiple(() =>
@@ -518,7 +518,7 @@ public class SetCheckerTests
     [Test]
     public void CheckOnSave_ExerciseError_FailsWithoutLogging()
     {
-        var exercise = SampleData.Exercise(Catalog, Squat, ["8"]);
+        var exercise = SampleData.Exercise(Catalog, Squat, [null, "8"]);
         var stub = new SetChecker(new RecordingWorkoutService(workouts, new ExerciseErrors(ExerciseError.UnknownExercise, [])), Catalog, logger);
 
         Assert.Multiple(() =>
@@ -538,8 +538,8 @@ public class SetCheckerTests
     [Test]
     public void Check_WordedAndFormatErrors_LogNothing()
     {
+        Check(Squat, "abc", null);
         Check(Squat, null, "abc");
-        Check(Squat, "abc");
         Check(FarmersWalk, null, "32", "0:00:75");
 
         Assert.That(LoggedEvents.Of(logger), Is.Empty);

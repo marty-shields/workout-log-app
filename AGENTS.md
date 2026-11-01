@@ -11,5 +11,5 @@ Personal Android app (.NET 10 MAUI Blazor Hybrid). Setup, E2E runs and release: 
 ## Rules
 - Ask about any ambiguity.
 - No new packages without approval.
-- Never commit without review. After approval, push and open a DRAFT PR; never merge.
+- Commit on a branch, push it and open a DRAFT PR when the work is done. Review happens on the draft PR, not before the commit. Never merge.
 - PR titles are Conventional Commits with exactly one `semver:major|minor|patch` label (CI checks both).

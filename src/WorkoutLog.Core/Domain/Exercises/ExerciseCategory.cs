@@ -3,7 +3,7 @@ namespace WorkoutLog.Core.Domain.Exercises;
 /// <summary>How an exercise's sets are measured, which decides how its best is picked.</summary>
 public enum ExerciseCategory
 {
-    /// <summary>Strength: reps with weight.</summary>
+    /// <summary>Strength: weight with reps.</summary>
     Lift,
 
     /// <summary>Strength: reps, with weight as optional extra load.</summary>

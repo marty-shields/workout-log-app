@@ -14,16 +14,16 @@ public class ExerciseFieldsTests
     private static readonly IExerciseCatalog Catalog = new ExerciseCatalog();
 
     [Test]
-    public void For_RepsAndWeight() =>
+    public void For_WeightAndReps() =>
         Assert.That(Fields(6), Is.EqualTo(new[]
         {
-            new FieldSpec("reps", Metric.Reps, "Reps", FieldKind.Whole, Required: true),
             new FieldSpec("weight", Metric.WeightKg, "Weight", FieldKind.Decimal, Required: true, Unit: "kg"),
+            new FieldSpec("reps", Metric.Reps, "Reps", FieldKind.Whole, Required: true),
         }));
 
     [Test]
     public void For_AssistedMachine_UsesTheLabelWithKgAndFillsABlankWith0() =>
-        Assert.That(Fields(218)[1], Is.EqualTo(new FieldSpec("weight", Metric.WeightKg, "Assist", FieldKind.Decimal, Required: true, Unit: "kg", BlankFill: "0")));
+        Assert.That(Fields(218)[0], Is.EqualTo(new FieldSpec("weight", Metric.WeightKg, "Assist", FieldKind.Decimal, Required: true, Unit: "kg", BlankFill: "0")));
 
     [TestCase(264)]
     [TestCase(258)]

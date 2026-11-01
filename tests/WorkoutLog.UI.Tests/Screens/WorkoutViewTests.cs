@@ -210,7 +210,7 @@ public class WorkoutViewTests : ComponentTestBase
         Assert.That(removed, Is.SameAs(curl));
     }
 
-    [TestCase(132, "exercise-2-set-1-reps")]
+    [TestCase(132, "exercise-2-set-1-weight")]
     [TestCase(187, "exercise-2-set-1-distance")]
     [TestCase(300, "exercise-2-duration-h")]
     public void Focus_FocusesItsFirstField(int exerciseId, string testId)

@@ -524,7 +524,7 @@ public class NewWorkoutPageTests : ComponentTestBase
             Assert.That(cut.FindAll("[data-testid=exercise-1-set-2-reps]"), Has.Count.EqualTo(1));
         });
         cut.WaitForAssertion(() => LastFocus().Arguments[0]
-            .ShouldBeElementReferenceTo(cut.Find("[data-testid=exercise-1-set-2-reps]")));
+            .ShouldBeElementReferenceTo(cut.Find("[data-testid=exercise-1-set-2-weight]")));
     }
 
     [Test]
@@ -533,7 +533,7 @@ public class NewWorkoutPageTests : ComponentTestBase
         var cut = RenderPage();
         Add(cut, 132);
         // bUnit drops the reference id from the markup once the input re-renders, so read it first.
-        var reps = cut.Find("[data-testid=exercise-1-set-1-reps]").GetAttribute("blazor:elementreference");
+        var weight = cut.Find("[data-testid=exercise-1-set-1-weight]").GetAttribute("blazor:elementreference");
         Add(cut, 6);
 
         Add(cut, 132);
@@ -541,9 +541,9 @@ public class NewWorkoutPageTests : ComponentTestBase
         Assert.Multiple(() =>
         {
             Assert.That(cut.FindAll("[data-testid=exercise-1-set-2-reps]"), Is.Empty);
-            Assert.That(cut.FindAll("[data-testid=exercise-1-set-1-error] p").Select(p => p.TextContent.Trim()), Is.EqualTo(new[] { "Enter reps", "Enter weight" }));
+            Assert.That(cut.FindAll("[data-testid=exercise-1-set-1-error] p").Select(p => p.TextContent.Trim()), Is.EqualTo(new[] { "Enter weight", "Enter reps" }));
         });
-        cut.WaitForAssertion(() => Assert.That(((ElementReference)LastFocus().Arguments[0]!).Id, Is.EqualTo(reps)));
+        cut.WaitForAssertion(() => Assert.That(((ElementReference)LastFocus().Arguments[0]!).Id, Is.EqualTo(weight)));
     }
 
     [Test]
@@ -615,7 +615,7 @@ public class NewWorkoutPageTests : ComponentTestBase
         Assert.Multiple(() =>
         {
             Assert.That(cut.FindAll("[data-testid=exercise-1-set-2-reps]"), Is.Empty);
-            Assert.That(cut.FindAll("[data-testid=exercise-1-set-1-error] p").Select(p => p.TextContent.Trim()), Is.EqualTo(new[] { "Enter reps", "Enter weight" }));
+            Assert.That(cut.FindAll("[data-testid=exercise-1-set-1-error] p").Select(p => p.TextContent.Trim()), Is.EqualTo(new[] { "Enter weight", "Enter reps" }));
         });
     }
 
@@ -857,7 +857,7 @@ public class NewWorkoutPageTests : ComponentTestBase
         {
             Assert.That(cut.FindAll("[data-testid=exercise-1-entry-error] p").Select(p => p.TextContent.Trim()),
                 Is.EqualTo(new[] { "Enter duration", "Distance can have up to 2 decimal places" }));
-            Assert.That(cut.FindAll("[data-testid=exercise-2-set-1-error] p").Select(p => p.TextContent.Trim()), Is.EqualTo(new[] { "Enter reps", "Enter weight" }));
+            Assert.That(cut.FindAll("[data-testid=exercise-2-set-1-error] p").Select(p => p.TextContent.Trim()), Is.EqualTo(new[] { "Enter weight", "Enter reps" }));
         });
         cut.WaitForAssertion(() => Assert.That(((ElementReference)LastFocus().Arguments[0]!).Id, Is.EqualTo(hours)));
     }
