@@ -1279,6 +1279,26 @@ public class EditWorkoutPageTests : ComponentTestBase
     }
 
     [Test]
+    public async Task Edit_NeverLoadsARecordBaselineOrShowsABadge()
+    {
+        RecordBaselines.SetSaved(Catalog, 6, new StrengthExercise(6, [new StrengthSet(1, 20m, null, null)]));
+        RecordBaselines.SetSaved(Catalog, 132, new StrengthExercise(132, [new StrengthSet(1, 1m, null, null)]));
+        var cut = await RenderLoadedAsync();
+
+        cut.Find("[data-testid=exercise-3-set-1-weight]").Input("200");
+        Add(cut, 132);
+        cut.Find("[data-testid=exercise-1-set-1-reps]").Input("8");
+        cut.Find("[data-testid=exercise-1-set-1-weight]").Input("50");
+        await WaitForRendererAsync();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(RecordBaselines.Loads, Is.Empty);
+            Assert.That(cut.FindAll("[data-testid$=-record]"), Is.Empty);
+        });
+    }
+
+    [Test]
     public async Task Pick_ClearsTheWorkoutError()
     {
         var cut = await RenderLoadedAsync();

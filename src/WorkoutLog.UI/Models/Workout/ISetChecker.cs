@@ -17,6 +17,15 @@ public interface ISetChecker
     /// </summary>
     bool CheckOnSave(ExerciseState exercise, EntryState entry);
 
+    /// <summary>
+    /// Whether the set or entry passes <see cref="Check"/>, without changing <see cref="EntryState.Errors"/> or <see cref="EntryState.CheckOnChange"/>
+    /// and without logging.
+    /// </summary>
+    bool IsValid(ExerciseState exercise, EntryState entry);
+
+    /// <summary>The exercise as Core records, read from the valid sets or entry (<see cref="IsValid"/>) only, with the entries it was read from. Nothing is changed.</summary>
+    (WorkoutExercise Exercise, IReadOnlyList<EntryState> Entries) ReadValid(ExerciseState exercise);
+
     /// <summary>The exercise as Core records, read from the entered text. Fields that can't be read are left empty, as is a cardio exercise with no entry.</summary>
     WorkoutExercise Read(ExerciseState exercise);
 }

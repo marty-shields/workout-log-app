@@ -902,6 +902,197 @@ public class NewWorkoutPageTests : ComponentTestBase
     }
 
     [Test]
+    public void Record_SetBeatingTheSavedBest_ShowsTheBadgeOnThatSetOnly()
+    {
+        RecordBaselines.SetSaved(Catalog, 6, Sets(6, 5, 60m));
+        var cut = RenderPage();
+        Add(cut, 6);
+
+        Log(cut, 1, "5", "50");
+        cut.Find("[data-testid=exercise-1-add-set]").Click();
+        Log(cut, 2, "5", "70");
+
+        Assert.That(Badges(cut), Is.EqualTo(new[] { "exercise-1-set-2-record" }));
+    }
+
+    [Test]
+    public void Record_MovesAndDisappearsAsValuesChange()
+    {
+        RecordBaselines.SetSaved(Catalog, 6, Sets(6, 5, 60m));
+        var cut = RenderPage();
+        Add(cut, 6);
+        Log(cut, 1, "5", "65");
+        cut.Find("[data-testid=exercise-1-add-set]").Click();
+        Log(cut, 2, "5", "50");
+        var first = Badges(cut);
+
+        cut.Find("[data-testid=exercise-1-set-2-weight]").Input("70");
+        var moved = Badges(cut);
+        cut.Find("[data-testid=exercise-1-set-2-weight]").Input("60");
+        cut.Find("[data-testid=exercise-1-set-1-weight]").Input("55");
+        var gone = Badges(cut);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(first, Is.EqualTo(new[] { "exercise-1-set-1-record" }));
+            Assert.That(moved, Is.EqualTo(new[] { "exercise-1-set-2-record" }));
+            Assert.That(gone, Is.Empty);
+        });
+    }
+
+    [Test]
+    public void Record_RemovingTheRecordSet_RemovesTheBadge()
+    {
+        RecordBaselines.SetSaved(Catalog, 6, Sets(6, 5, 60m));
+        var cut = RenderPage();
+        Add(cut, 6);
+        Log(cut, 1, "5", "65");
+
+        cut.Find("[data-testid=exercise-1-set-1-remove]").Click();
+
+        Assert.That(Badges(cut), Is.Empty);
+    }
+
+    [Test]
+    public void Record_InvalidSet_GetsNoBadgeAndNoErrors()
+    {
+        RecordBaselines.SetSaved(Catalog, 6, Sets(6, 5, 60m));
+        var cut = RenderPage();
+        Add(cut, 6);
+
+        Log(cut, 1, "5", "70.123");
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(Badges(cut), Is.Empty);
+            Assert.That(cut.FindAll("[data-testid=exercise-1-set-1-error] p"), Is.Empty);
+        });
+    }
+
+    [Test]
+    public void Record_SetWithMissingRepsAndWeightNotYetValid_GetsNoBadge()
+    {
+        RecordBaselines.SetSaved(Catalog, 6, Sets(6, 5, 60m));
+        var cut = RenderPage();
+        Add(cut, 6);
+
+        cut.Find("[data-testid=exercise-1-set-1-weight]").Input("100");
+
+        Assert.That(Badges(cut), Is.Empty);
+    }
+
+    [Test]
+    public void Record_TwoSetsBeatTheSavedBest_OnlyTheBestGetsTheBadge()
+    {
+        RecordBaselines.SetSaved(Catalog, 6, Sets(6, 5, 60m));
+        var cut = RenderPage();
+        Add(cut, 6);
+        Log(cut, 1, "5", "80");
+        cut.Find("[data-testid=exercise-1-add-set]").Click();
+        Log(cut, 2, "5", "70");
+
+        Assert.That(Badges(cut), Is.EqualTo(new[] { "exercise-1-set-1-record" }));
+    }
+
+    [Test]
+    public void Record_FirstSessionOrTie_ShowsNoBadge()
+    {
+        RecordBaselines.SetSaved(Catalog, 6, Sets(6, 5, 60m));
+        RecordBaselines.SetSaved(Catalog, 132);
+        var cut = RenderPage();
+        Add(cut, 6);
+        Add(cut, 132);
+
+        Log(cut, 1, "5", "60", exercise: 2);
+        Log(cut, 1, "8", "30", exercise: 1);
+
+        Assert.That(Badges(cut), Is.Empty);
+    }
+
+    [Test]
+    public void Record_EachExerciseHasItsOwnBadge()
+    {
+        RecordBaselines.SetSaved(Catalog, 6, Sets(6, 5, 60m));
+        RecordBaselines.SetSaved(Catalog, 132, Sets(132, 10, 10m));
+        var cut = RenderPage();
+        Add(cut, 6);
+        Add(cut, 132);
+
+        Log(cut, 1, "5", "70", exercise: 2);
+        Log(cut, 1, "10", "12", exercise: 1);
+
+        Assert.That(Badges(cut), Is.EquivalentTo(new[] { "exercise-1-set-1-record", "exercise-2-set-1-record" }));
+    }
+
+    [Test]
+    public void Record_CardioEntryBeatingTheSavedBest_ShowsTheBadge()
+    {
+        RecordBaselines.SetSaved(Catalog, 311, new CardioExercise(311, new CardioEntry(TimeSpan.FromMinutes(30), 5m, null, null, null, null, null)));
+        var cut = RenderPage();
+        Add(cut, 311);
+
+        cut.Find("[data-testid=exercise-1-duration-mm]").Input("30");
+        cut.Find("[data-testid=exercise-1-distance]").Input("4");
+        var below = Badges(cut);
+        cut.Find("[data-testid=exercise-1-distance]").Input("6");
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(below, Is.Empty);
+            Assert.That(Badges(cut), Is.EqualTo(new[] { "exercise-1-record" }));
+        });
+    }
+
+    [Test]
+    public void Record_Cardio_LoadsTheBaselineAndStrengthToo()
+    {
+        var cut = RenderPage();
+
+        Add(cut, 311);
+        Add(cut, 6);
+
+        Assert.That(RecordBaselines.Loads, Is.EqualTo(new[] { 311, 6 }));
+    }
+
+    [Test]
+    public void Record_PickAgain_DoesNotReload()
+    {
+        var cut = RenderPage();
+        Add(cut, 6);
+        Add(cut, 6);
+
+        Assert.That(RecordBaselines.Loads, Is.EqualTo(new[] { 6 }));
+    }
+
+    [Test]
+    public async Task Record_LoadFailed_ShowsNoBadgeAndLoggingStillWorks()
+    {
+        RecordBaselines.SetFailed(6);
+        var cut = RenderPage();
+        Add(cut, 6);
+        await WaitForRendererAsync();
+
+        Log(cut, 1, "5", "70");
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(Badges(cut), Is.Empty);
+            Assert.That(cut.Find("[data-testid=exercise-1-set-1-weight]").GetAttribute("value"), Is.EqualTo("70"));
+        });
+    }
+
+    [Test]
+    public void Record_BeforeTheBaselineLoads_ShowsNoBadge()
+    {
+        var cut = RenderPage();
+        Add(cut, 6);
+
+        Log(cut, 1, "5", "70");
+
+        Assert.That(Badges(cut), Is.Empty);
+    }
+
+    [Test]
     public async Task PickAgain_DoesNotReloadAndKeepsTheLine()
     {
         var weights = UseWeights();
@@ -1310,6 +1501,17 @@ public class NewWorkoutPageTests : ComponentTestBase
         cut.Find($"[data-testid=exercise-{number}-remove]").Click();
         cut.Find("[data-testid=confirm-dialog-confirm]").Click();
     }
+
+    private static void Log(IRenderedComponent<NewWorkoutPage> cut, int set, string reps, string weight, int exercise = 1)
+    {
+        cut.Find($"[data-testid=exercise-{exercise}-set-{set}-reps]").Input(reps);
+        cut.Find($"[data-testid=exercise-{exercise}-set-{set}-weight]").Input(weight);
+    }
+
+    private static StrengthExercise Sets(int exerciseId, int reps, decimal weightKg) => new(exerciseId, [new StrengthSet(reps, weightKg, null, null)]);
+
+    private static IReadOnlyList<string?> Badges(IRenderedComponent<NewWorkoutPage> cut) =>
+        cut.FindAll("[data-testid$=-record]").Select(e => e.GetAttribute("data-testid")).ToList();
 
     /// <summary>Opens the add-exercise list, searches for the exercise by name and picks it.</summary>
     private static void Add(IRenderedComponent<NewWorkoutPage> cut, int exerciseId)

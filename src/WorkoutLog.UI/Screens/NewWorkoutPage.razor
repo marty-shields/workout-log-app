@@ -8,6 +8,7 @@
 @implements IDisposable
 @inject IWorkoutService Workouts
 @inject IWeightHistoryService WeightHistory
+@inject IRecordBaselineService RecordBaselines
 @inject TimeProvider Clock
 @inject ISetChecker Checker
 @inject IWorkoutChecker WorkoutChecker
@@ -23,6 +24,7 @@
              ErrorFocus="Editor.ErrorFocus"
              ValidateSet="Checker.Check"
              ValidateDone="WorkoutChecker.CheckExercise"
+             OnChanged="UpdateRecords"
              OnSave="SaveAsync"
              OnAddExercise="Editor.OpenListAsync"
              OnRemoveExercise="Editor.AskRemove"
@@ -84,23 +86,45 @@
     private void CloseDiscard() => discardOpen = false;
 
     /// <summary>
-    /// Picks the exercise (<see cref="WorkoutEditor.Pick"/>). A strength exercise just added then loads its last and best weights
-    /// through <see cref="IWeightHistoryService.GetAsync"/>; a failed load shows none. Where 0 kg shows as no weight
-    /// (<see cref="FieldSpec.HideZero"/>), a weight of 0 is none.
+    /// Picks the exercise (<see cref="WorkoutEditor.Pick"/>). An exercise just added then loads its record baseline through
+    /// <see cref="IRecordBaselineService.LoadAsync"/>, and a strength one its last and best weights through <see cref="IWeightHistoryService.GetAsync"/>.
+    /// A failed load shows no weights and no badge. Where 0 kg shows as no weight (<see cref="FieldSpec.HideZero"/>), a weight of 0 is none.
     /// </summary>
     private async Task PickAsync(ExerciseListItem item)
     {
         var added = Editor.Exercises.All(e => e.ExerciseId != item.Id);
         Editor.Pick(item);
-        if (!added || item.Kind != ExerciseKind.Strength || Editor.Exercises.FirstOrDefault(e => e.ExerciseId == item.Id) is not { } exercise)
+        if (!added || Editor.Exercises.FirstOrDefault(e => e.ExerciseId == item.Id) is not { } exercise)
         {
             return;
         }
 
-        var weights = await WeightHistory.GetAsync(item.Id);
-        var hideZero = exercise.Fields.Any(f => f.Metric == Metric.WeightKg && f.HideZero);
-        exercise.LastKg = hideZero && weights.LastKg == 0m ? null : weights.LastKg;
-        exercise.BestKg = hideZero && weights.BestKg == 0m ? null : weights.BestKg;
+        var baselineLoad = RecordBaselines.LoadAsync(item.Id);
+        if (item.Kind == ExerciseKind.Strength)
+        {
+            var weights = await WeightHistory.GetAsync(item.Id);
+            var hideZero = exercise.Fields.Any(f => f.Metric == Metric.WeightKg && f.HideZero);
+            exercise.LastKg = hideZero && weights.LastKg == 0m ? null : weights.LastKg;
+            exercise.BestKg = hideZero && weights.BestKg == 0m ? null : weights.BestKg;
+        }
+
+        exercise.RecordBaseline = (await baselineLoad).Baseline;
+        UpdateRecords();
+    }
+
+    /// <summary>Sets each exercise's <see cref="ExerciseState.RecordEntry"/> from its valid sets or entry, without touching their errors.</summary>
+    private void UpdateRecords()
+    {
+        foreach (var exercise in Editor.Exercises)
+        {
+            if (exercise.RecordBaseline is not { } baseline)
+            {
+                continue;
+            }
+
+            var (current, valid) = Checker.ReadValid(exercise);
+            exercise.RecordEntry = valid.Count > 0 && baseline.RecordEntryIndex(current) is { } index ? valid[index] : null;
+        }
     }
 
     /// <summary>

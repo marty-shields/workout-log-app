@@ -32,21 +32,8 @@ public sealed partial class SetChecker(IWorkoutService workouts, IExerciseCatalo
     private bool Check(ExerciseState exercise, EntryState entry, bool logExerciseError)
     {
         entry.Errors.Clear();
-        var values = Values(exercise, entry, entry.Errors);
-        var result = exercise.Kind == ExerciseKind.Strength
-            ? workouts.ValidateSet(exercise.ExerciseId, ToSet(values))
-            : workouts.ValidateEntry(exercise.ExerciseId, ToEntry(values));
-        var codes = result.Entries.Count > 0 ? result.Entries[0].Fields : new Dictionary<Metric, FieldError>();
-        foreach (var field in exercise.Fields)
-        {
-            if (!entry.Errors.ContainsKey(field.Key)
-                && codes.TryGetValue(field.Metric, out var code)
-                && Message(exercise, field, code) is { } message)
-            {
-                entry.Errors[field.Key] = message;
-            }
-        }
-
+        var result = Validate(exercise, entry, entry.Errors);
+        var codes = Codes(result);
         LogUnworded(exercise, entry, logExerciseError ? result.Error : null, codes);
         var valid = entry.Errors.Count == 0 && result.IsValid;
         entry.CheckOnChange |= !valid;
@@ -54,11 +41,50 @@ public sealed partial class SetChecker(IWorkoutService workouts, IExerciseCatalo
     }
 
     /// <inheritdoc />
-    public WorkoutExercise Read(ExerciseState exercise) => exercise.Kind switch
+    public bool IsValid(ExerciseState exercise, EntryState entry)
     {
-        ExerciseKind.Strength => new StrengthExercise(exercise.ExerciseId, exercise.Entries.Select(e => ToSet(Values(exercise, e, null))).ToList()),
+        var errors = new Dictionary<string, string>();
+        return Validate(exercise, entry, errors).IsValid && errors.Count == 0;
+    }
+
+    /// <inheritdoc />
+    public (WorkoutExercise Exercise, IReadOnlyList<EntryState> Entries) ReadValid(ExerciseState exercise)
+    {
+        var entries = exercise.Entries.Where(e => IsValid(exercise, e)).ToList();
+        return (Read(exercise, entries), entries);
+    }
+
+    /// <summary>Reads the entered text into <paramref name="errors"/> (format messages) and Core's result, with a message per field Core faults.</summary>
+    private ExerciseErrors Validate(ExerciseState exercise, EntryState entry, Dictionary<string, string> errors)
+    {
+        var values = Values(exercise, entry, errors);
+        var result = exercise.Kind == ExerciseKind.Strength
+            ? workouts.ValidateSet(exercise.ExerciseId, ToSet(values))
+            : workouts.ValidateEntry(exercise.ExerciseId, ToEntry(values));
+        foreach (var field in exercise.Fields)
+        {
+            if (!errors.ContainsKey(field.Key)
+                && Codes(result).TryGetValue(field.Metric, out var code)
+                && Message(exercise, field, code) is { } message)
+            {
+                errors[field.Key] = message;
+            }
+        }
+
+        return result;
+    }
+
+    private static IReadOnlyDictionary<Metric, FieldError> Codes(ExerciseErrors result) =>
+        result.Entries.Count > 0 ? result.Entries[0].Fields : new Dictionary<Metric, FieldError>();
+
+    /// <inheritdoc />
+    public WorkoutExercise Read(ExerciseState exercise) => Read(exercise, exercise.Entries);
+
+    private static WorkoutExercise Read(ExerciseState exercise, IReadOnlyList<EntryState> entries) => exercise.Kind switch
+    {
+        ExerciseKind.Strength => new StrengthExercise(exercise.ExerciseId, entries.Select(e => ToSet(Values(exercise, e, null))).ToList()),
         ExerciseKind.Cardio => new CardioExercise(exercise.ExerciseId,
-            ToEntry(exercise.Entries.FirstOrDefault() is { } entry ? Values(exercise, entry, null) : [])),
+            ToEntry(entries.FirstOrDefault() is { } entry ? Values(exercise, entry, null) : [])),
         _ => throw new ArgumentOutOfRangeException(nameof(exercise), exercise.Kind, null),
     };
 
