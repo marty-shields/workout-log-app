@@ -23,9 +23,10 @@ failed_tests() {
     END { for (id in failed) print full[id] }' "$1"
 }
 
-# A filter for these full names: Class.Method( for a Scenario Outline (all its rows), the exact name otherwise.
+# A filter for these full names: Class.Method for a Scenario Outline (all its rows), the exact name otherwise. No "(" in
+# it: the NUnit adapter's filter parser runs out of memory on an unbalanced one, so no retry would run.
 filter_for() {
-  awk '{ i = index($0, "("); print (i ? "FullyQualifiedName~" substr($0, 1, i - 1) "\\(" : "FullyQualifiedName=" $0) }' \
+  awk '{ i = index($0, "("); print (i ? "FullyQualifiedName~" substr($0, 1, i - 1) : "FullyQualifiedName=" $0) }' \
     | sort -u | paste -sd '|'
 }
 
