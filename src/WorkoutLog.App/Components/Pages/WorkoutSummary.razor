@@ -1,0 +1,9 @@
+@page "/workout/{Id:int}/summary"
+@using WorkoutLog.UI.Screens
+@inject NavigationManager Navigation
+
+<WorkoutSummaryPage WorkoutId="Id" OnDone="@(() => Navigation.GoTo(string.Empty))" />
+
+@code {
+    [Parameter] public int Id { get; set; }
+}

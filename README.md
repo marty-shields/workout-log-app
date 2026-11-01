@@ -34,6 +34,7 @@ It's built for one person and one phone: no accounts, no sign-up.
 - 315 built-in strength and cardio exercises, with search.
 - Cardio entries record duration plus the machine's metrics: distance, incline, floors, level, calories and rate.
 - Start and finish times are recorded for you, with a timer while you log.
+- Saving a new workout opens a summary: how long it took, your exercises and sets, any records you set, and how each exercise compares with last time.
 - Saving checks every set and points to the field that's wrong.
 
 <table align="center">
@@ -124,6 +125,12 @@ It's built for one person and one phone: no accounts, no sign-up.
     </td>
     <td align="center">
       <picture>
+        <source media="(prefers-color-scheme: dark)" srcset="docs/images/readme/workout-summary-dark.png" />
+        <img src="docs/images/readme/workout-summary-light.png" alt="Workout summary after saving" width="230" />
+      </picture>
+    </td>
+    <td align="center">
+      <picture>
         <source media="(prefers-color-scheme: dark)" srcset="docs/images/readme/settings-dark.png" />
         <img src="docs/images/readme/settings-light.png" alt="Settings with Export and Import" width="230" />
       </picture>
@@ -131,6 +138,7 @@ It's built for one person and one phone: no accounts, no sign-up.
   </tr>
   <tr>
     <td align="center"><sub><b>Dashboard</b></sub></td>
+    <td align="center"><sub><b>Workout summary</b></sub></td>
     <td align="center"><sub><b>Export and import</b></sub></td>
   </tr>
 </table>

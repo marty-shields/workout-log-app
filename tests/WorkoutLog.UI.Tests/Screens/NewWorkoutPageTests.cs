@@ -1043,10 +1043,15 @@ public class NewWorkoutPageTests : ComponentTestBase
     }
 
     [Test]
-    public void Save_Valid_SavesTheReadRecordsAndRaisesOnSaved()
+    public void Save_Valid_SavesTheReadRecordsAndRaisesOnSavedWithTheNewId()
     {
         var saved = 0;
-        var cut = RenderPage(onSaved: () => saved++);
+        int? savedId = null;
+        var cut = RenderPage(onSaved: id =>
+        {
+            saved++;
+            savedId = id;
+        });
         Add(cut, 132);
         cut.Find("[data-testid=exercise-1-set-1-reps]").Input("8");
         cut.Find("[data-testid=exercise-1-set-1-weight]").Input("12.5");
@@ -1061,6 +1066,7 @@ public class NewWorkoutPageTests : ComponentTestBase
             Assert.That(exercise.ExerciseId, Is.EqualTo(132));
             Assert.That(exercise.Sets, Is.EqualTo(new[] { new StrengthSet(8, 12.5m, null, null) }));
             Assert.That(saved, Is.EqualTo(1));
+            Assert.That(savedId, Is.Not.Null);
         });
     }
 
@@ -1068,7 +1074,7 @@ public class NewWorkoutPageTests : ComponentTestBase
     public void Save_Invalid_DoesNotSave()
     {
         var saved = 0;
-        var cut = RenderPage(onSaved: () => saved++);
+        var cut = RenderPage(onSaved: _ => saved++);
         Add(cut, 132);
 
         cut.Find("[data-testid=save-workout]").Click();
@@ -1084,7 +1090,7 @@ public class NewWorkoutPageTests : ComponentTestBase
     public void Save_WriteFails_ShowsSaveFailedFocusesSaveAndKeepsTheWorkout()
     {
         var saved = 0;
-        var cut = RenderPage(onSaved: () => saved++);
+        var cut = RenderPage(onSaved: _ => saved++);
         var save = ReferenceId(cut, "save-workout");
         workouts.SaveNew = () => Task.FromResult(new SaveResult(null, new WorkoutErrors([WorkoutError.SaveFailed], [])));
         Add(cut, 132);
@@ -1121,7 +1127,7 @@ public class NewWorkoutPageTests : ComponentTestBase
     public async Task Save_WhileSaving_IsIgnored()
     {
         var saved = 0;
-        var cut = RenderPage(onSaved: () => saved++);
+        var cut = RenderPage(onSaved: _ => saved++);
         var pending = new TaskCompletionSource<SaveResult>();
         workouts.SaveNew = () => pending.Task;
         Add(cut, 132);
@@ -1141,7 +1147,7 @@ public class NewWorkoutPageTests : ComponentTestBase
     public void Save_AfterASuccessfulSave_IsIgnored()
     {
         var saved = 0;
-        var cut = RenderPage(onSaved: () => saved++);
+        var cut = RenderPage(onSaved: _ => saved++);
         Add(cut, 132);
         cut.Find("[data-testid=exercise-1-set-1-reps]").Input("8");
         cut.Find("[data-testid=exercise-1-set-1-weight]").Input("20");
@@ -1160,7 +1166,7 @@ public class NewWorkoutPageTests : ComponentTestBase
     public void Save_AfterAFailure_SavesAgainAndClearsTheError()
     {
         var saved = 0;
-        var cut = RenderPage(onSaved: () => saved++);
+        var cut = RenderPage(onSaved: _ => saved++);
         workouts.SaveNew = () => Task.FromResult(new SaveResult(null, new WorkoutErrors([WorkoutError.SaveFailed], [])));
         Add(cut, 132);
         cut.Find("[data-testid=exercise-1-set-1-reps]").Input("8");
@@ -1296,12 +1302,12 @@ public class NewWorkoutPageTests : ComponentTestBase
     /// <summary>The latest focus call; the list search and added exercises each take focus.</summary>
     private JSRuntimeInvocation LastFocus() => Context.JSInterop.Invocations["Blazor._internal.domWrapper.focus"][^1];
 
-    private IRenderedComponent<NewWorkoutPage> RenderPage(Action? onDiscarded = null, Action? onSaved = null)
+    private IRenderedComponent<NewWorkoutPage> RenderPage(Action? onDiscarded = null, Action<int>? onSaved = null)
     {
         workouts = UseWorkouts(clock);
         return Context.Render<NewWorkoutPage>(p => p
             .Add(x => x.OnDiscarded, onDiscarded ?? (() => { }))
-            .Add(x => x.OnSaved, onSaved ?? (() => { })));
+            .Add(x => x.OnSaved, onSaved ?? (_ => { })));
     }
 
     /// <summary>Taps the exercise's trash and confirms the delete.</summary>

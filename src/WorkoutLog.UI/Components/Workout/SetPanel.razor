@@ -2,7 +2,13 @@
 @using WorkoutLog.UI.Models.Fields
 <section class="panel" data-testid="@TestId">
     <header class="panel-header">
-        <h3 class="title">Set @Number</h3>
+        <div class="heading">
+            <h3 class="title">Set @Number</h3>
+            @if (IsRecord)
+            {
+                <RecordBadge TestId="@($"{TestId}-record")" />
+            }
+        </div>
         <IconButton Icon="IconName.Close" AriaLabel="@RemoveLabel" TestId="@($"{TestId}-remove")" Muted Size="IconSize.Small" OnClick="OnRemove" />
     </header>
     <div class="fields">
@@ -32,6 +38,10 @@
     /// <summary>Values of the set.</summary>
     [Parameter, EditorRequired]
     public EntryState Entry { get; set; } = null!;
+
+    /// <summary>Shows the Record badge next to the title.</summary>
+    [Parameter]
+    public bool IsRecord { get; set; }
 
     /// <summary>Raised after a value changes.</summary>
     [Parameter]

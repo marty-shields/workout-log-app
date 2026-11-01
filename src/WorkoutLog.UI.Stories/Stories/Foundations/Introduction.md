@@ -52,7 +52,7 @@ Derived from the palette:
 | Muted text and placeholders | `#5e6e72` | `#9aaaad` |
 | Input borders | Grey `#77878b` | `#9aaaad` |
 | Errors and danger buttons | `#a8231c` | `#f2b8b5` |
-| Increases | `#2e7d32` | `#a5d6a7` |
+| Increases and records | `#2e7d32` | `#a5d6a7` |
 | Past weeks in the weekly chart | Grey `#77878b` | `#7d8a8c` |
 | Past weeks in the weekly chart | Grey `#77878b` | `#7d8a8c` |
 

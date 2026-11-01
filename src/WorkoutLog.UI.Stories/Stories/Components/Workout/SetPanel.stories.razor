@@ -11,6 +11,13 @@
         </Template>
     </Story>
 
+    <Story Name="Record">
+        <Template>
+            @{ var exercise = SampleData.Exercise(Catalog, 187, ["40", "36", "0:00:45"]); }
+            <SetPanel Number="2" Fields="exercise.Fields" Entry="exercise.Entries[0]" IsRecord TestId="set-2" />
+        </Template>
+    </Story>
+
     <Story Name="Errors">
         <Template>
             @{ var exercise = SampleData.Exercise(Catalog, 187, [null, "32", "0:00:75"]); Checker.Check([exercise]); }

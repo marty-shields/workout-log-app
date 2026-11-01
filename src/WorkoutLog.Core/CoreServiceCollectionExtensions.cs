@@ -80,7 +80,8 @@ public static class CoreServiceCollectionExtensions
             .AddSingleton<IBestRule, HoldBestRule>()
             .AddSingleton<IBestRule, CarryBestRule>()
             .AddSingleton<IBestRule, CardioBestRule>()
-            .AddSingleton<IRecordCheck, RecordCheck>();
+            .AddSingleton<IRecordCheck, RecordCheck>()
+            .AddSingleton<IBestChangeRule, BestChangeRule>();
 
     /// <summary>Registers the Exercise page's range filter and each category's rules.</summary>
     private static IServiceCollection AddProgressRules(this IServiceCollection services) =>
@@ -118,6 +119,7 @@ public static class CoreServiceCollectionExtensions
             .AddSingleton<IWorkoutsService, WorkoutsService>()
             .AddSingleton<ILastWorkoutService, LastWorkoutService>()
             .AddSingleton<IRecentRecordsService, RecentRecordsService>()
+            .AddSingleton<IWorkoutSummaryService, WorkoutSummaryService>()
             .AddConsistencyRules()
             .AddSingleton<IConsistencyService, ConsistencyService>()
             .AddSingleton<IMuscleGroupMap, MuscleGroupMap>()

@@ -1,0 +1,41 @@
+@attribute [Stories("Screens/Workout Summary")]
+
+<Stories TComponent="WorkoutSummaryView" Layout="typeof(PhoneLayout)">
+
+    <Story Name="Records and changes">
+        <Template>
+            <WorkoutSummaryView Summary="SampleWorkoutSummary.RecordsAndChanges" OnDone="() => { }" />
+        </Template>
+    </Story>
+
+    <Story Name="No records">
+        <Template>
+            <WorkoutSummaryView Summary="SampleWorkoutSummary.NoRecords" OnDone="() => { }" />
+        </Template>
+    </Story>
+
+    <Story Name="First workout">
+        <Template>
+            <WorkoutSummaryView Summary="SampleWorkoutSummary.FirstWorkout" OnDone="() => { }" />
+        </Template>
+    </Story>
+
+    <Story Name="All first time">
+        <Template>
+            <WorkoutSummaryView Summary="SampleWorkoutSummary.AllFirstTime" OnDone="() => { }" />
+        </Template>
+    </Story>
+
+    <Story Name="Loading">
+        <Template>
+            <WorkoutSummaryView Loading OnDone="() => { }" />
+        </Template>
+    </Story>
+
+    <Story Name="Load failed">
+        <Template>
+            <WorkoutSummaryView Failed OnRetry="() => { }" OnDone="() => { }" />
+        </Template>
+    </Story>
+
+</Stories>
