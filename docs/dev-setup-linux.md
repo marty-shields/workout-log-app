@@ -25,7 +25,7 @@ Also needs read-write `/dev/kvm` (virtualisation on; your user in the `kvm` grou
 ## Keeping it current
 Repeat the matching step of [Setup](#setup) after each change:
 - **SDK in `global.json` bumped** (Dependabot does this): install that SDK, then the workload at the workflows' version (step 2, then 6). `e2e-local.sh` skips until the SDK matches.
-- **Workload `--version` changed in the workflows:** step 6 again; `e2e-local.sh` skips until the installed set equals the pin in `qa-pipeline.yml`. It is set in `dev-pipeline.yml`, `qa-pipeline.yml` and `release.yml`; change every occurrence together.
+- **Workload `--version` changed in the workflows:** step 6 again; `e2e-local.sh` skips until the installed set equals the pin in `dev-pipeline.yml`. It is set in `dev-pipeline.yml` and `release.yml`; change every occurrence together.
 - **Chromedriver pin changed:** nothing; `e2e-local.sh` reads the pin from `qa-pipeline.yml` and caches the download in `~/.cache/workoutlog-e2e`.
 - **Emulator image changed** (`SYSTEM_IMAGE` in `emulator-start.sh`): change the default in `e2e-local.sh` too, then step 5 for the new image; the script recreates its AVD from it. The new image's WebView may need a new Chromedriver pin.
 - **Android platform or build-tools changed by the App:** step 7.

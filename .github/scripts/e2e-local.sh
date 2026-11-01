@@ -127,7 +127,7 @@ mkdir -p "$ANDROID_AVD_HOME"
 node -e 'const [a, b] = process.versions.node.split(".").map(Number); process.exit(a >= 24 || (a === 22 && b >= 12) || (a === 20 && b >= 19) ? 0 : 1)' \
   || skip "Node.js $(node -v) is too old: Appium needs 20.19+, 22.12+ or 24+."
 dotnet --version > /dev/null 2>&1 || skip "the .NET SDK in global.json is not installed (using $(command -v dotnet))."
-workload_pin=$(sed -n 's/.*maui-android --version \([0-9.]*\).*/\1/p' .github/workflows/qa-pipeline.yml)
+workload_pin=$(sed -n 's/.*maui-android --version \([0-9.]*\).*/\1/p' .github/workflows/dev-pipeline.yml | head -n 1)
 workload=$(dotnet workload --version 2>/dev/null || true)
 [[ "$workload" == "$workload_pin" ]] \
   || skip "the maui-android workload set is '${workload:-none}', CI uses $workload_pin: dotnet workload install maui-android --version $workload_pin."
