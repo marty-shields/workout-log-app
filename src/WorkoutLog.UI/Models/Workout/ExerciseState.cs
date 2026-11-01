@@ -1,6 +1,6 @@
 using WorkoutLog.Core.Domain.Workouts;
-using WorkoutLog.Core.Services;
 using WorkoutLog.Core.Domain.Workouts.Validation;
+using WorkoutLog.Core.Services;
 using WorkoutLog.UI.Models.Fields;
 
 namespace WorkoutLog.UI.Models.Workout;
