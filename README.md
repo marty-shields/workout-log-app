@@ -190,7 +190,7 @@ dotnet run --project src/WorkoutLog.UI.Stories
 dotnet build src/WorkoutLog.App -t:Run -f net10.0-android
 ```
 
-The end-to-end tests need a connected device or an emulator: see [E2E tests](docs/dev-setup-build.md#e2e-tests).
+The end-to-end tests need a connected device or an emulator: see [E2E tests](docs/e2e-tests.md).
 
 ## License
 

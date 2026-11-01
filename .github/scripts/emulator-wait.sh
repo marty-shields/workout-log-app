@@ -59,6 +59,7 @@ echo "::endgroup::"
 
 mkdir -p "$results"
 nohup adb logcat -v threadtime > "$results/logcat.txt" 2>&1 &
+echo $! >> "$RUNNER_TEMP/background.pids"
 
 # Every 30 s: the host's load and free memory, and whether the emulator still answers.
 nohup bash -c '
@@ -67,3 +68,4 @@ nohup bash -c '
     echo "$(date -u +%T) host load $(cut -d" " -f1-3 /proc/loadavg), $(free -m | awk "/^Mem/ {print \$7}") MB free | emulator: ${guest:-NO RESPONSE}"
     sleep 30
   done' > "$results/health.log" 2>&1 &
+echo $! >> "$RUNNER_TEMP/background.pids"
