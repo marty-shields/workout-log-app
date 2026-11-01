@@ -1,7 +1,9 @@
 #!/usr/bin/env bash
 # Usage: e2e-durations.sh <trx file>...
-# Prints the shard duration table (.github/e2e-durations.tsv) from E2E trx files: the median duration in seconds of each
-# scenario's passing runs, then its full name, tab-separated, sorted by name. e2e-shard.sh balances the shards with it.
+# Prints the shard duration table (.github/e2e-durations.tsv) from E2E trx files: the median seconds of each scenario method
+# (a Scenario Outline's rows summed, so the table does not depend on the row numbers in their names), then the full method
+# name, tab-separated, sorted by name. A trx that passed fewer rows of an outline than another is left out for that method.
+# e2e-shard.sh balances the shards with it.
 set -euo pipefail
 
 echo '# Median seconds of a passing run per scenario, then its full name. Made by e2e-durations.sh (docs/dev-setup-build.md).'
@@ -25,7 +27,9 @@ passed() {
     END { for (id in seconds) printf "%s\t%.3f\n", full[id], seconds[id] }' "$1"
 }
 
-for trx in "$@"; do passed "$trx"; done | LC_ALL=C sort -t $'\t' -k1,1 -k2,2n \
+for trx in "$@"; do passed "$trx" | awk -F '\t' '
+    { m = $1; sub(/[(].*/, "", m); sum[m] += $2; rows[m]++ }
+    END { for (m in sum) printf "%s\t%.3f\t%d\n", m, sum[m], rows[m] }'; done | LC_ALL=C sort -t $'\t' -k1,1 -k3,3nr -k2,2n \
   | awk -F '\t' '
       function flush(   mid) {
         if (n == 0) return
@@ -33,6 +37,6 @@ for trx in "$@"; do passed "$trx"; done | LC_ALL=C sort -t $'\t' -k1,1 -k2,2n \
         median = (n % 2) ? v[mid] : (v[mid] + v[mid + 1]) / 2
         printf "%d\t%s\n", (median < 1 ? 1 : median + 0.5), name
       }
-      $1 != name { flush(); name = $1; n = 0 }
-      { v[++n] = $2 }
+      $1 != name { flush(); name = $1; n = 0; full = $3 }
+      $3 == full { v[++n] = $2 }
       END { flush() }'

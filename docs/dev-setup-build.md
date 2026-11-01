@@ -95,7 +95,7 @@ Keep in step:
 - Chromedriver is pinned in `qa-pipeline.yml` (`CHROMEDRIVER_VERSION`, `CHROMEDRIVER_SHA256`, from [Chrome for Testing](https://googlechromelabs.github.io/chrome-for-testing/)). When the emulator's WebView major version changes, the job fails: pin the matching version and its SHA-256.
 
 E2E shards and step bindings:
-- `e2e-shard.sh` gives each shard scenarios balanced by time: the longest first, each to the shard with the least time so far. It reads the median seconds of each scenario from `.github/e2e-durations.tsv`; a scenario missing from it counts as 15 s. The rows of a Scenario Outline stay in one shard, as do scenarios whose name starts with another scenario's name (the filter matches by name prefix). The shard log shows how many scenarios of its shard are not in the table.
+- `e2e-shard.sh` gives each shard scenarios balanced by time: the longest first, each to the shard with the least time so far. It reads the median seconds of each scenario method (a Scenario Outline's rows summed, so row numbers in their names do not matter) from `.github/e2e-durations.tsv`; a row of a method missing from it counts as 15 s. The rows of a Scenario Outline stay in one shard, as do scenarios whose name starts with another scenario's name (the filter matches by name prefix). The shard log shows how many scenarios of its shard are not in the table.
 - Refresh the table when scenarios are added or renamed, or their times change. Download the `e2e-results-*` artifacts of recent successful PR build runs (kept 1 day), then make the table from their trx files:
   ```
   gh run list --workflow "PR build" --status success --limit 6

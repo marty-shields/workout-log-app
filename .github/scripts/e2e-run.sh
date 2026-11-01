@@ -48,9 +48,7 @@ for try in $(seq "$tries"); do
     echo "::error title=E2E::The test run failed with no failed scenario in e2e-$try.trx; not retrying."
     exit 1
   fi
-  if [[ -z "$retried" ]]; then
-    retried="$failed"
-  fi
+  retried=$(sort -u <<<"$retried"$'\n'"$failed" | grep . || true)
   if (( try < tries )); then
     echo "::notice title=E2E::Try $try: $(grep -c . <<<"$failed") scenario(s) failed; running them again."
   fi
