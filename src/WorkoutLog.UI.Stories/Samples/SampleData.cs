@@ -148,7 +148,7 @@ public static class SampleData
 
     private static ExerciseDefinition Find(IExerciseCatalog catalog, int id) => catalog.All.Single(e => e.Id == id);
 
-    /// <summary>One filled set of the exercise, in its field order: reps 8, 20 kg, 0:00:45, 40.</summary>
+    /// <summary>One filled set of the exercise, in its field order: 20 kg, reps 8, 0:00:45, 40.</summary>
     private static string?[] Sets(IExerciseCatalog catalog, int id) =>
         [.. ExerciseFields.For(Find(catalog, id)).Select(f => f.Metric switch
         {

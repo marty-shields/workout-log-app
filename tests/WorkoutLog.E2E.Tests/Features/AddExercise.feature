@@ -103,6 +103,7 @@ Feature: Add exercise
     Given I have added "Barbell Back Squat"
     When I add "Barbell Back Squat"
     Then Barbell Back Squat has 1 set
+    And Barbell Back Squat set 1 shows "Enter weight"
     And Barbell Back Squat set 1 shows "Enter reps"
     And focus is on Barbell Back Squat set 1 weight
 

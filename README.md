@@ -22,7 +22,7 @@
 
 ## Why
 
-Every gym session used to go in a paper notebook: date, start and finish times, exercises, sets, reps and weights. Workout Log keeps that simple flow and drops the paper. Open the app, add exercises, log sets as you go, then look back at past sessions.
+Every gym session used to go in a paper notebook: date, start and finish times, exercises, sets, weights and reps. Workout Log keeps that simple flow and drops the paper. Open the app, add exercises, log sets as you go, then look back at past sessions.
 
 It's built for one person and one phone: no accounts, no sign-up.
 
@@ -30,7 +30,7 @@ It's built for one person and one phone: no accounts, no sign-up.
 
 ### Logging
 
-- Add exercises and log sets. Each exercise shows the fields it needs: reps and weight, duration, or distance.
+- Add exercises and log sets. Each exercise shows the fields it needs: weight and reps, duration, or distance.
 - 315 built-in strength and cardio exercises, with search.
 - Cardio entries record duration plus the machine's metrics: distance, incline, floors, level, calories and rate.
 - Start and finish times are recorded for you, with a timer while you log.

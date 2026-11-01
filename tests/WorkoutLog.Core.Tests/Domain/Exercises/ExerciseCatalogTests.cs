@@ -48,6 +48,14 @@ public class ExerciseCatalogTests
     }
 
     [Test]
+    public void All_ListWeightBeforeReps() =>
+        Assert.That(catalog.All
+                .Where(e => e.Metrics.Any(m => m.Metric == Metric.Reps) && e.Metrics.Any(m => m.Metric == Metric.WeightKg))
+                .Where(e => e.Metrics.ToList().FindIndex(m => m.Metric == Metric.Reps) < e.Metrics.ToList().FindIndex(m => m.Metric == Metric.WeightKg))
+                .Select(e => e.Name),
+            Is.Empty);
+
+    [Test]
     public void IsAssisted_OnlyTheAssistedMachines() =>
         Assert.That(catalog.All.Where(e => e.IsAssisted).Select(e => e.Name),
             Is.EquivalentTo(new[] { "Machine Assisted Chin-up", "Machine Assisted Dip", "Machine Assisted Pull-up" }));
