@@ -36,15 +36,48 @@ public sealed partial class WorkoutScreen(WebView web, Native native)
 
     public bool Has(string name) => Cards().Any(c => c.Name == name);
 
-    /// <summary>Sets on a strength card: rows, open sets and summaries.</summary>
-    public int SetCount(string name) =>
-        web.FindAll($"[data-testid^=\"{Card(name)}-set-\"]").Count(e => SetId().IsMatch(e.GetDomAttribute("data-testid") ?? ""));
+    /// <summary>Sets on a strength card: rows, open sets and summaries. A done card is opened first.</summary>
+    public int SetCount(string name)
+    {
+        Open(name);
+        return web.FindAll($"[data-testid^=\"{Card(name)}-set-\"]").Count(e => SetId().IsMatch(e.GetDomAttribute("data-testid") ?? ""));
+    }
 
-    /// <summary>Whether the set is shown as a summary line.</summary>
-    public bool IsSummary(string name, int set) => web.Exists($"{Card(name)}-set-{set}-open");
+    /// <summary>Whether the set is shown as a summary line. A done card is opened first.</summary>
+    public bool IsSummary(string name, int set)
+    {
+        Open(name);
+        return web.Exists($"{Card(name)}-set-{set}-open");
+    }
 
     public string SummaryText(string name, int set) =>
         web.Find($"{Card(name)}-set-{set}-open").FindElement(OpenQA.Selenium.By.CssSelector(".text")).Text.Trim();
+
+    /// <summary>Whether the card is the one-line done row: it has the pencil and no tick.</summary>
+    public bool IsDone(string name) => web.Exists($"{Card(name)}-edit");
+
+    /// <summary>The done row holds the name, the pencil and the trash, and no sets, entry or Add set.</summary>
+    public bool IsOneLine(string name) =>
+        IsDone(name) && web.Exists($"{Card(name)}-remove") && !web.Exists($"{Card(name)}-done") && !web.Exists($"{Card(name)}-add-set")
+        && web.FindAll($"[data-testid=\"{Card(name)}\"] input, [data-testid=\"{Card(name)}\"] [data-testid*=\"-set-\"]").Count == 0;
+
+    /// <summary>Taps the tick; the card shows as one line if it passes the checks, otherwise it stays open.</summary>
+    public void Done(string name) => TapButton($"{Card(name)}-done");
+
+    /// <summary>Taps the pencil of a done card.</summary>
+    public void Edit(string name) => TapButton($"{Card(name)}-edit");
+
+    /// <summary>As a user does before changing a done card, e.g. on Edit Workout: taps its pencil. Does nothing for an open card.</summary>
+    public void Open(string name)
+    {
+        if (!IsDone(name))
+        {
+            return;
+        }
+
+        Edit(name);
+        web.WaitUntil(() => !IsDone(name), $"{name} didn't open");
+    }
 
     /// <summary>The <c>data-testid</c> of a field: a set's (<paramref name="set"/> given) or a cardio entry's.</summary>
     public string Field(string name, int? set, string key) => set is { } number ? $"{Card(name)}-set-{number}-{key}" : $"{Card(name)}-{key}";
@@ -78,6 +111,7 @@ public sealed partial class WorkoutScreen(WebView web, Native native)
     /// <summary>Field labels of a set (<paramref name="set"/> given) or a cardio entry, in order.</summary>
     public IReadOnlyList<string> Labels(string name, int? set)
     {
+        Open(name);
         var root = set is { } number ? $"{Card(name)}-set-{number}" : Card(name);
         var script = $$"""
             const root = document.querySelector('[data-testid="{{root}}"]');
@@ -87,9 +121,10 @@ public sealed partial class WorkoutScreen(WebView web, Native native)
         return web.Strings(script);
     }
 
-    /// <summary>The field's text as the user sees it: h:mm:ss for a duration, empty when empty.</summary>
+    /// <summary>The field's text as the user sees it: h:mm:ss for a duration, empty when empty. A done card is opened first.</summary>
     public string Read(string name, int? set, string key)
     {
+        Open(name);
         var field = Field(name, set, key);
         if (key == "duration")
         {
@@ -109,6 +144,7 @@ public sealed partial class WorkoutScreen(WebView web, Native native)
     /// </summary>
     public void Enter(string name, int? set, string key, string text)
     {
+        Open(name);
         var field = Field(name, set, key);
         if (key == "duration")
         {
@@ -149,15 +185,36 @@ public sealed partial class WorkoutScreen(WebView web, Native native)
         }
     }
 
-    public void AddSet(string name) => TapButton($"{Card(name)}-add-set");
+    public void AddSet(string name)
+    {
+        Open(name);
+        TapButton($"{Card(name)}-add-set");
+    }
 
     public bool HasAddSet(string name) => web.Exists($"{Card(name)}-add-set");
 
-    public void RemoveSet(string name, int set) => TapButton($"{Card(name)}-set-{set}-remove");
+    public void RemoveSet(string name, int set)
+    {
+        Open(name);
+        TapButton($"{Card(name)}-set-{set}-remove");
+    }
 
-    public void OpenSummary(string name, int set) => TapButton($"{Card(name)}-set-{set}-open");
+    public void OpenSummary(string name, int set)
+    {
+        Open(name);
+        TapButton($"{Card(name)}-set-{set}-open");
+    }
 
-    public void Remove(string name) => TapButton($"{Card(name)}-remove");
+    /// <summary>Taps the trash, open or done; the "Delete {name}?" prompt opens.</summary>
+    public void AskRemove(string name) => TapButton($"{Card(name)}-remove");
+
+    /// <summary>Taps the trash and confirms the "Delete {name}?" prompt.</summary>
+    public void Remove(string name)
+    {
+        AskRemove(name);
+        web.WaitUntil(() => web.Exists("confirm-dialog-confirm"), $"The delete prompt for {name} didn't show");
+        web.Tap("confirm-dialog-confirm");
+    }
 
     public bool HasRemove(string name) => web.Exists($"{Card(name)}-remove");
 

@@ -7,6 +7,7 @@
 @inject IExerciseCatalog Catalog
 @inject TimeProvider Clock
 @inject ISetChecker Checker
+@inject IWorkoutChecker WorkoutChecker
 @inject WorkoutEditor Editor
 @inject ILogger<EditWorkoutPage> Logger
 
@@ -24,10 +25,11 @@ else
                  Focus="Editor.Focus"
                  ErrorFocus="Editor.ErrorFocus"
                  ValidateSet="Checker.Check"
+                 ValidateDone="WorkoutChecker.CheckExercise"
                  OnChanged="Editor.MarkChanged"
                  OnSave="SaveAsync"
                  OnAddExercise="Editor.OpenListAsync"
-                 OnRemoveExercise="Editor.Remove"
+                 OnRemoveExercise="Editor.AskRemove"
                  OnBack="BackAsync"
                  OnDelete="OpenDelete">
         <Overlay>
@@ -35,6 +37,10 @@ else
             {
                 <AddExerciseView Items="Editor.ListItems" Query="@Editor.Query" QueryChanged="Editor.Search" Filter="Editor.Filter" FilterChanged="Editor.FilterBy"
                                  Loading="Editor.ListLoading" OnPick="Editor.Pick" OnClose="Editor.CloseList" />
+            }
+            @if (Editor.Removing is { } removing)
+            {
+                <ConfirmDialog Title="@($"Delete {removing.Name}?")" ConfirmText="Delete" Danger OnConfirm="Editor.ConfirmRemove" OnCancel="Editor.CancelRemove" />
             }
             @if (discardOpen)
             {
@@ -118,6 +124,7 @@ else
                 return;
             }
 
+            state.IsDone = true;
             exercises.Add(state);
         }
 

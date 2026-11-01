@@ -16,6 +16,12 @@
         </Template>
     </Story>
 
+    <Story Name="Done">
+        <Template>
+            <WorkoutView Mode="WorkoutMode.New" StartedAt="SampleData.Started" Time="new TimeSpan(0, 41, 50)" Exercises="SampleData.MarkDone(SampleData.StrengthWorkoutWithWeights(Catalog), 1, 2)" OnBack="() => { }" />
+        </Template>
+    </Story>
+
     <Story Name="Carry">
         <Template>
             <WorkoutView Mode="WorkoutMode.New" StartedAt="SampleData.Started" Time="new TimeSpan(0, 28, 3)" Exercises="SampleData.CarryWorkout(Catalog)" OnBack="() => { }" />
@@ -49,6 +55,16 @@
     <Story Name="Save failed">
         <Template>
             <WorkoutView Mode="WorkoutMode.New" StartedAt="SampleData.Started" Time="new TimeSpan(0, 34, 12)" Exercises="SampleData.StrengthWorkout(Catalog)" Error="@Checker.SaveFailed" OnBack="() => { }" />
+        </Template>
+    </Story>
+
+    <Story Name="Delete exercise prompt">
+        <Template>
+            <WorkoutView Mode="WorkoutMode.New" StartedAt="SampleData.Started" Time="new TimeSpan(0, 34, 12)" Exercises="SampleData.StrengthWorkout(Catalog)" OnBack="() => { }">
+                <Overlay>
+                    <ConfirmDialog Title="Delete Barbell Back Squat?" ConfirmText="Delete" Danger />
+                </Overlay>
+            </WorkoutView>
         </Template>
     </Story>
 

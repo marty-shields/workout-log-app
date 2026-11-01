@@ -84,10 +84,12 @@ Feature: Strength sets
     Then Barbell Back Squat sets are: 5 reps 60 kg; 5 reps 65 kg
 
   @US-11
-  Scenario: Remove exercise removes it at once
+  Scenario: Remove exercise asks first, then removes it
     Given I have added "Barbell Back Squat"
     And I have added "Dumbbell Curl"
-    When I remove Barbell Back Squat
+    When I tap the trash on Barbell Back Squat
+    Then the prompt "Delete Barbell Back Squat?" shows Delete and Cancel
+    When I tap Delete on the prompt
     Then no prompt is shown
     And the exercises are, in order: Dumbbell Curl
 

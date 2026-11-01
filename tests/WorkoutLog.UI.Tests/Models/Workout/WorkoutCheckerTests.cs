@@ -225,4 +225,92 @@ public class WorkoutCheckerTests
             }));
         });
     }
+
+    [Test]
+    public void CheckExercise_ValidStrength_IsValidAndClearsOldErrorsAndRechecking()
+    {
+        var squat = SampleData.Exercise(Catalog, Squat, ["8", "60"]);
+        squat.Error = "Add at least one set";
+        squat.Entries[0].Errors["reps"] = "Enter reps";
+        squat.Entries[0].CheckOnChange = true;
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(checker.CheckExercise(squat), Is.True);
+            Assert.That(squat.Error, Is.Null);
+            Assert.That(squat.Entries[0].Errors, Is.Empty);
+            Assert.That(squat.Entries[0].CheckOnChange, Is.False);
+        });
+    }
+
+    [Test]
+    public void CheckExercise_BlankNewStrengthSet_EnterReps()
+    {
+        var squat = SampleData.NewExercise(Catalog, Squat);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(checker.CheckExercise(squat), Is.False);
+            Assert.That(squat.Entries[0].Errors["reps"], Is.EqualTo("Enter reps"));
+        });
+    }
+
+    [Test]
+    public void CheckExercise_StrengthWithNoSets_AddAtLeastOneSet()
+    {
+        var squat = SampleData.Exercise(Catalog, Squat);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(checker.CheckExercise(squat), Is.False);
+            Assert.That(squat.Error, Is.EqualTo("Add at least one set"));
+            Assert.That(squat.ErrorCode, Is.EqualTo(ExerciseError.NoSets));
+        });
+    }
+
+    [Test]
+    public void CheckExercise_Cardio_ChecksTheEntryLikeSave()
+    {
+        var treadmill = SampleData.NewExercise(Catalog, Treadmill);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(checker.CheckExercise(treadmill), Is.False);
+            Assert.That(treadmill.Entries[0].Errors, Is.Not.Empty);
+        });
+    }
+
+    [Test]
+    public void CheckExercise_ValidCardio_IsValid()
+    {
+        var run = SampleData.Exercise(Catalog, OutdoorRun, ["0:25:30", "5", null, "5:30"]);
+
+        Assert.That(checker.CheckExercise(run), Is.True);
+    }
+
+    [Test]
+    public void CheckExercise_TooManySets_IsLeftToSave()
+    {
+        var squat = SampleData.FullSets(Catalog, Squat);
+        squat.Entries.Add(new EntryState { Values = { ["reps"] = "8", ["weight"] = "60" } });
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(checker.CheckExercise(squat), Is.True);
+            Assert.That(squat.Error, Is.Null);
+            Assert.That(LoggedEvents.Of(logger), Is.Empty);
+        });
+    }
+
+    [Test]
+    public void CheckExercise_UnknownExercise_ExerciseNotFound()
+    {
+        var unknown = new ExerciseState(9999, "Gone", ExerciseKind.Strength, []);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(checker.CheckExercise(unknown), Is.False);
+            Assert.That(unknown.Error, Is.EqualTo("Exercise not found"));
+        });
+    }
 }

@@ -447,6 +447,61 @@ public class WorkoutViewTests : ComponentTestBase
     }
 
     [Test]
+    public void ErrorFocus_WithADoneRowAbove_StillFindsTheCardWithTheError()
+    {
+        var done = Curl();
+        done.IsDone = true;
+        var empty = Curl();
+        empty.Entries.Clear();
+        empty.Error = "Add at least one set";
+        empty.ErrorCode = ExerciseError.NoSets;
+
+        var cut = Context.Render<WorkoutView>(p => p
+            .Add(x => x.StartedAt, Started)
+            .Add(x => x.Exercises, [done, empty])
+            .Add(x => x.ErrorFocus, new ErrorFocus()));
+
+        Context.JSInterop.VerifyFocusAsyncInvoke().Arguments[0].ShouldBeElementReferenceTo(cut.Find("[data-testid=exercise-2-add-set]"));
+    }
+
+    [Test]
+    public void ErrorFocus_WithADoneRowBelow_StillFindsTheCardWithTheError()
+    {
+        var invalid = Curl();
+        invalid.Entries[0].Errors["reps"] = "Enter reps";
+        var done = Curl();
+        done.IsDone = true;
+
+        var cut = Context.Render<WorkoutView>(p => p
+            .Add(x => x.StartedAt, Started)
+            .Add(x => x.Exercises, [invalid, done])
+            .Add(x => x.ErrorFocus, new ErrorFocus()));
+
+        Context.JSInterop.VerifyFocusAsyncInvoke().Arguments[0].ShouldBeElementReferenceTo(cut.Find("[data-testid=exercise-1-set-1-reps]"));
+    }
+
+    [Test]
+    public void Done_UsesValidateDoneAndCollapsesOnlyThatCard()
+    {
+        ExerciseState? checkedExercise = null;
+        var first = Curl();
+        var second = Curl();
+        var cut = Context.Render<WorkoutView>(p => p
+            .Add(x => x.StartedAt, Started)
+            .Add(x => x.Exercises, [first, second])
+            .Add(x => x.ValidateDone, e => { checkedExercise = e; return true; }));
+
+        cut.Find("[data-testid=exercise-2-done]").Click();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(checkedExercise, Is.SameAs(second));
+            Assert.That(cut.FindAll("[data-testid=exercise-2-edit]"), Has.Count.EqualTo(1));
+            Assert.That(cut.FindAll("[data-testid=exercise-1-add-set]"), Has.Count.EqualTo(1));
+        });
+    }
+
+    [Test]
     public void ErrorFocus_ExerciseErrorWithSets_FocusesItsRemove()
     {
         var unknown = Curl();

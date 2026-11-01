@@ -258,7 +258,7 @@ public class ExerciseCardTests : ComponentTestBase
             .Add(x => x.Exercise, Strength(1))
             .Add(x => x.TestId, "exercise-1"));
 
-        Assert.That(cut.Find("[data-testid=exercise-1-remove]").GetAttribute("aria-label"), Is.EqualTo("Remove Dumbbell Curl"));
+        Assert.That(cut.Find("[data-testid=exercise-1-remove]").GetAttribute("aria-label"), Is.EqualTo("Delete Dumbbell Curl"));
     }
 
     [Test]
@@ -573,6 +573,175 @@ public class ExerciseCardTests : ComponentTestBase
         var removed = false;
         var cut = Context.Render<ExerciseCard>(p => p
             .Add(x => x.Exercise, Strength(1))
+            .Add(x => x.OnRemove, () => removed = true)
+            .Add(x => x.TestId, "exercise-1"));
+
+        cut.Find("[data-testid=exercise-1-remove]").Click();
+
+        Assert.That(removed, Is.True);
+    }
+
+    [Test]
+    public void Open_HasATickBesideTheNameAndTrash()
+    {
+        var cut = Context.Render<ExerciseCard>(p => p
+            .Add(x => x.Exercise, Strength(1))
+            .Add(x => x.TestId, "exercise-1"));
+
+        var done = cut.FindComponents<IconButton>().Single(b => b.Instance.TestId == "exercise-1-done").Instance;
+
+        Assert.Multiple(() =>
+        {
+            Assert.That((done.Icon, done.AriaLabel), Is.EqualTo((IconName.Check, "Mark Dumbbell Curl done")));
+            Assert.That(cut.FindAll("[data-testid=exercise-1-edit]"), Is.Empty);
+        });
+    }
+
+    [Test]
+    public void Done_CollapsesToOneLineWithNameEditAndRemove()
+    {
+        var exercise = Strength(2);
+        var cut = Context.Render<ExerciseCard>(p => p
+            .Add(x => x.Exercise, exercise)
+            .Add(x => x.TestId, "exercise-1"));
+
+        cut.Find("[data-testid=exercise-1-done]").Click();
+
+        var edit = cut.FindComponents<IconButton>().Single(b => b.Instance.TestId == "exercise-1-edit").Instance;
+        Assert.Multiple(() =>
+        {
+            Assert.That(exercise.IsDone, Is.True);
+            Assert.That(cut.Find(".name").TextContent, Is.EqualTo("Dumbbell Curl"));
+            Assert.That((edit.Icon, edit.AriaLabel), Is.EqualTo((IconName.Edit, "Edit Dumbbell Curl")));
+            Assert.That(cut.FindAll("[data-testid=exercise-1-remove]"), Has.Count.EqualTo(1));
+            Assert.That(cut.FindAll("[data-testid=exercise-1-done]"), Is.Empty);
+            Assert.That(cut.FindAll("[data-testid=exercise-1-add-set]"), Is.Empty);
+            Assert.That(cut.FindAll("[data-testid=exercise-1-set-1-reps]"), Is.Empty);
+        });
+    }
+
+    [Test]
+    public void Exercise_AlreadyDone_StartsCollapsed()
+    {
+        var exercise = Strength(1);
+        exercise.IsDone = true;
+
+        var cut = Context.Render<ExerciseCard>(p => p
+            .Add(x => x.Exercise, exercise)
+            .Add(x => x.TestId, "exercise-1"));
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.FindAll("[data-testid=exercise-1-edit]"), Has.Count.EqualTo(1));
+            Assert.That(cut.FindAll("[data-testid=exercise-1-add-set]"), Is.Empty);
+        });
+    }
+
+    [Test]
+    public void Done_ChecksTheWholeExercise()
+    {
+        var exercise = Strength(1);
+        ExerciseState? checkedExercise = null;
+        var cut = Context.Render<ExerciseCard>(p => p
+            .Add(x => x.Exercise, exercise)
+            .Add(x => x.ValidateDone, e => { checkedExercise = e; return true; })
+            .Add(x => x.TestId, "exercise-1"));
+
+        cut.Find("[data-testid=exercise-1-done]").Click();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(checkedExercise, Is.SameAs(exercise));
+            Assert.That(exercise.IsDone, Is.True);
+        });
+    }
+
+    [Test]
+    public void Done_Blocked_StaysOpenShowsTheErrorAndFocusesTheFieldAtFault()
+    {
+        var exercise = Strength(1);
+        var cut = Context.Render<ExerciseCard>(p => p
+            .Add(x => x.Exercise, exercise)
+            .Add(x => x.ValidateDone, e => WholeReps(e, e.Entries[0]))
+            .Add(x => x.TestId, "exercise-1"));
+        var reps = ReferenceId(cut, "exercise-1-set-1-reps");
+
+        cut.Find("[data-testid=exercise-1-done]").Click();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(exercise.IsDone, Is.False);
+            Assert.That(cut.FindAll("[data-testid=exercise-1-add-set]"), Has.Count.EqualTo(1));
+            Assert.That(cut.Find("[data-testid=exercise-1-set-1-error]").TextContent, Does.Contain("Enter reps"));
+        });
+        cut.WaitForAssertion(() => Assert.That(FocusedId(), Is.EqualTo(reps)));
+    }
+
+    [Test]
+    public void Done_BlockedForNoSets_FocusesAddSet()
+    {
+        var exercise = Strength(0);
+        var cut = Context.Render<ExerciseCard>(p => p
+            .Add(x => x.Exercise, exercise)
+            .Add(x => x.ValidateDone, e =>
+            {
+                e.Error = "Add at least one set";
+                e.ErrorCode = WorkoutLog.Core.Domain.Workouts.Validation.ExerciseError.NoSets;
+                return false;
+            })
+            .Add(x => x.TestId, "exercise-1"));
+        var addSet = ReferenceId(cut, "exercise-1-add-set");
+
+        cut.Find("[data-testid=exercise-1-done]").Click();
+
+        Assert.That(exercise.IsDone, Is.False);
+        cut.WaitForAssertion(() => Assert.That(FocusedId(), Is.EqualTo(addSet)));
+    }
+
+    [Test]
+    public void Edit_ReopensWithEverySetAsItWas()
+    {
+        var exercise = Strength(2);
+        exercise.Entries[0].Values["reps"] = "8";
+        exercise.Entries[1].Values["reps"] = "6";
+        var cut = Context.Render<ExerciseCard>(p => p
+            .Add(x => x.Exercise, exercise)
+            .Add(x => x.TestId, "exercise-1"));
+        cut.Find("[data-testid=exercise-1-done]").Click();
+
+        cut.Find("[data-testid=exercise-1-edit]").Click();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(exercise.IsDone, Is.False);
+            Assert.That(cut.Find("[data-testid=exercise-1-set-1-reps]").GetAttribute("value"), Is.EqualTo("8"));
+            Assert.That(cut.Find("[data-testid=exercise-1-set-2-reps]").GetAttribute("value"), Is.EqualTo("6"));
+            Assert.That(cut.FindAll("[data-testid=exercise-1-done]"), Has.Count.EqualTo(1));
+        });
+    }
+
+    [Test]
+    public void Carry_CollapseAndReopen_KeepsTheOpenSet()
+    {
+        var cut = Context.Render<ExerciseCard>(p => p
+            .Add(x => x.Exercise, Carry(3))
+            .Add(x => x.TestId, "exercise-1"));
+        cut.Find("[data-testid=exercise-1-set-1-open]").Click();
+
+        cut.Find("[data-testid=exercise-1-done]").Click();
+        cut.Find("[data-testid=exercise-1-edit]").Click();
+
+        Assert.That(cut.FindAll(".panel").Select(p => p.GetAttribute("data-testid")), Is.EqualTo(new[] { "exercise-1-set-1" }));
+    }
+
+    [Test]
+    public void Remove_WhileDone_RaisesOnRemove()
+    {
+        var removed = false;
+        var exercise = Strength(1);
+        exercise.IsDone = true;
+        var cut = Context.Render<ExerciseCard>(p => p
+            .Add(x => x.Exercise, exercise)
             .Add(x => x.OnRemove, () => removed = true)
             .Add(x => x.TestId, "exercise-1"));
 

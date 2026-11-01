@@ -13,7 +13,7 @@ Log a workout as you go. View: `WorkoutView` with `Mode` New; page: `NewWorkoutP
 | Top bar | Back arrow; date and day; "Elapsed h:mm:ss". |
 | Content | Workout error, if any; `EmptyState` "No exercises yet" or one `ExerciseCard` per exercise, newest first. Sets in a card are in the order added. At 10 exercises, a muted centred note "At most 10 exercises" under the cards. |
 | Bottom bar | Add exercise (secondary) and Save (primary), side by side. Add exercise is off at 10 exercises. |
-| Overlays | `AddExerciseView` ([Add Exercise](./?path=/custom/screens-add-exercise-overview)); `ConfirmDialog` "Discard this workout?" on back. |
+| Overlays | `AddExerciseView` ([Add Exercise](./?path=/custom/screens-add-exercise-overview)); `ConfirmDialog` "Discard this workout?" on back; "Delete {exercise name}?" on an exercise's trash. |
 
 ## Exercises
 Each card shows the fields its definition declares ([exercise list](https://github.com/marty-shields/workout-log-app/blob/main/docs/exercise-list.md)), with the exercise's label where it has one (e.g. Assist (kg), Resistance, Damper). Card parts: [Workout components](./?path=/custom/components-workout-overview).
@@ -22,7 +22,15 @@ Each card shows the fields its definition declares ([exercise list](https://gith
 - Carries (more than two fields, one a duration): one set is open, with every field labelled; the others show as a summary line, e.g. *40m · 32kg · 0:00:45*. Tap a summary to open it, once the open set is valid; Add set opens the new set. The last set is open. Errors on a closed set show under its summary, which gets a red outline.
 - Cardio: one entry, duration and the exercise's other metrics, with units. Starts empty; not removable on its own. Outdoor Run and Walk show their pace, and Treadmill and Outdoor Cycle their speed, worked out from distance and duration, as a muted line under the fields: *Pace 5:46/km*, *Speed 10.4 km/h*, or *Pace —* / *Speed —* until both are filled and more than 0. They are never typed.
 - A partly filled duration fills in when focus leaves it: empty boxes become 0, minutes and seconds two digits (e.g. *1:00:00*, *0:00:22*). Format errors are checked by [`SetChecker`](https://github.com/marty-shields/workout-log-app/blob/main/src/WorkoutLog.UI/Models/Workout/SetChecker.cs), then Core's rules.
-- Remove takes the exercise out at once, with no confirm.
+- The trash opens `ConfirmDialog` "Delete {exercise name}?" with a red **Delete** and Cancel, on an open or a done card. Delete takes the exercise out, and is a change in Edit. Cancel, or Android back, closes it. Removing one set stays instant.
+
+## Done
+While logging, mark an exercise done so it shrinks to one line and is hard to touch by accident. An open card has a tick beside its name and the trash.
+- The tick runs the exercise's Save checks through `IWorkoutChecker.CheckExercise`: every set and entry (cardio too), and "Add at least one set". The workout rules, a repeated exercise and the 10-set limit, stay with Save.
+- If a check fails, the card stays open and shows the errors; focus moves to the first one, as Add set does. A new strength exercise with its blank set fails "Enter reps" and stays open.
+- A done card is one line: the name, a pencil (edit) and the trash. The pencil opens the full card as it was left, with all its sets and entries and, for a carry, the same open set. Any number of cards can be open.
+- Done doesn't reorder: cards stay newest first. Picking an exercise that is done from Add exercise opens it, moves it to the top and adds a set.
+- Done is only how the screen shows an exercise. It isn't saved, isn't a change for Edit's "Discard changes?", and records no time. A done exercise saves as it stands.
 
 ## Adding an exercise
 Add exercise opens [Add Exercise](./?path=/custom/screens-add-exercise-overview), which loads the last sessions through `ILoggedExercisesService.GetAsync` each time it opens. A picked exercise goes on top, and focus moves to its first field, scrolling it into view. Picking an exercise already in the workout moves its card to the top: strength adds a set as Add set does, unless it has 10 sets, and cardio focuses its entry.
@@ -42,6 +50,6 @@ Back (arrow or Android) opens `ConfirmDialog` "Discard this workout?", even with
 
 With the soft keyboard open, Android back only hides the keyboard.
 
-States: [Empty](./?path=/story/screens-new-workout--empty) · [Strength](./?path=/story/screens-new-workout--strength) · [Carry](./?path=/story/screens-new-workout--carry) · [Cardio](./?path=/story/screens-new-workout--cardio) · [Exercises full](./?path=/story/screens-new-workout--exercises-full) · [Save errors](./?path=/story/screens-new-workout--save-errors) · [No exercises error](./?path=/story/screens-new-workout--no-exercises-error) · [Save failed](./?path=/story/screens-new-workout--save-failed) · [Discard prompt](./?path=/story/screens-new-workout--discard-prompt)
+States: [Empty](./?path=/story/screens-new-workout--empty) · [Strength](./?path=/story/screens-new-workout--strength) · [Done](./?path=/story/screens-new-workout--done) · [Carry](./?path=/story/screens-new-workout--carry) · [Cardio](./?path=/story/screens-new-workout--cardio) · [Exercises full](./?path=/story/screens-new-workout--exercises-full) · [Save errors](./?path=/story/screens-new-workout--save-errors) · [No exercises error](./?path=/story/screens-new-workout--no-exercises-error) · [Save failed](./?path=/story/screens-new-workout--save-failed) · [Delete exercise prompt](./?path=/story/screens-new-workout--delete-exercise-prompt) · [Discard prompt](./?path=/story/screens-new-workout--discard-prompt)
 
 `data-testid`: `back`, `screen-title`, `screen-subtitle`, `workout-error`, `no-exercises`, `exercises-full`, `exercise-{n}` (and its parts, see [Workout](./?path=/custom/components-workout-overview)), `add-exercise`, `save-workout`, `confirm-dialog`.

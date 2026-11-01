@@ -9,6 +9,13 @@ public interface IWorkoutChecker
     /// </summary>
     WorkoutCheck Check(IReadOnlyList<ExerciseState> exercises);
 
+    /// <summary>
+    /// Checks one exercise as <see cref="Check"/> does: every set and entry, and the exercise's own rule such as at least one set.
+    /// Sets <see cref="ExerciseState.Error"/> and <see cref="EntryState.Errors"/> and returns false if anything fails. The rules
+    /// across the workout, a repeated exercise and the set limit, are left to <see cref="Check"/>.
+    /// </summary>
+    bool CheckExercise(ExerciseState exercise);
+
     /// <summary>Message on the workout when a save fails.</summary>
     string SaveFailed { get; }
 

@@ -565,7 +565,7 @@ public class NewWorkoutPageTests : ComponentTestBase
     {
         var cut = RenderPage();
         Add(cut, 132);
-        cut.Find("[data-testid=exercise-1-remove]").Click();
+        Remove(cut, 1);
 
         Add(cut, 132);
 
@@ -574,6 +574,152 @@ public class NewWorkoutPageTests : ComponentTestBase
             Assert.That(Names(cut), Is.EqualTo(new[] { "Dumbbell Curl" }));
             Assert.That(cut.FindAll("[data-testid=exercise-1-set-2-reps]"), Is.Empty);
         });
+    }
+
+    [Test]
+    public void Remove_AsksFirstAndKeepsTheExerciseUntilConfirmed()
+    {
+        var cut = RenderPage();
+        Add(cut, 132);
+
+        cut.Find("[data-testid=exercise-1-remove]").Click();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.Find("[data-testid=confirm-dialog] h2").TextContent, Is.EqualTo("Delete Dumbbell Curl?"));
+            Assert.That(cut.Find("[data-testid=confirm-dialog-confirm]").TextContent, Is.EqualTo("Delete"));
+            Assert.That(Names(cut), Is.EqualTo(new[] { "Dumbbell Curl" }));
+        });
+    }
+
+    [Test]
+    public void Remove_Cancel_KeepsTheExercise()
+    {
+        var cut = RenderPage();
+        Add(cut, 132);
+        cut.Find("[data-testid=exercise-1-remove]").Click();
+
+        cut.Find("[data-testid=confirm-dialog-cancel]").Click();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.FindAll("[data-testid=confirm-dialog]"), Is.Empty);
+            Assert.That(Names(cut), Is.EqualTo(new[] { "Dumbbell Curl" }));
+        });
+    }
+
+    [Test]
+    public void Remove_OnADoneExercise_AsksTooAndNamesIt()
+    {
+        var cut = RenderPage();
+        Add(cut, 132);
+        cut.Find("[data-testid=exercise-1-set-1-reps]").Input("10");
+        cut.Find("[data-testid=exercise-1-set-1-weight]").Input("20");
+        cut.Find("[data-testid=exercise-1-done]").Click();
+
+        cut.Find("[data-testid=exercise-1-remove]").Click();
+
+        Assert.That(cut.Find("[data-testid=confirm-dialog] h2").TextContent, Is.EqualTo("Delete Dumbbell Curl?"));
+        cut.Find("[data-testid=confirm-dialog-confirm]").Click();
+        Assert.That(Names(cut), Is.Empty);
+    }
+
+    [Test]
+    public void RemoveSet_StaysInstant()
+    {
+        var cut = RenderPage();
+        Add(cut, 132);
+
+        cut.Find("[data-testid=exercise-1-set-1-remove]").Click();
+
+        Assert.That(cut.FindAll("[data-testid=confirm-dialog]"), Is.Empty);
+    }
+
+    [Test]
+    public void Done_BlankNewStrengthSet_StaysOpenWithEnterReps()
+    {
+        var cut = RenderPage();
+        Add(cut, 132);
+
+        cut.Find("[data-testid=exercise-1-done]").Click();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.FindAll("[data-testid=exercise-1-edit]"), Is.Empty);
+            Assert.That(cut.Find("[data-testid=exercise-1-set-1-error]").TextContent, Does.Contain("Enter reps"));
+        });
+    }
+
+    [Test]
+    public void Done_BlankCardioEntry_StaysOpenAndAFilledOneCollapses()
+    {
+        var cut = RenderPage();
+        Add(cut, 300);
+
+        cut.Find("[data-testid=exercise-1-done]").Click();
+        Assert.That(cut.FindAll("[data-testid=exercise-1-edit]"), Is.Empty);
+
+        cut.Find("[data-testid=exercise-1-duration-mm]").Input("20");
+        cut.Find("[data-testid=exercise-1-distance]").Input("3");
+        cut.Find("[data-testid=exercise-1-done]").Click();
+
+        Assert.That(cut.FindAll("[data-testid=exercise-1-edit]"), Has.Count.EqualTo(1));
+    }
+
+    [Test]
+    public void Done_ThenEdit_ShowsTheSetsAsTheyWereAndNewestStaysOnTop()
+    {
+        var cut = RenderPage();
+        Add(cut, 132);
+        cut.Find("[data-testid=exercise-1-set-1-reps]").Input("10");
+        cut.Find("[data-testid=exercise-1-set-1-weight]").Input("20");
+        cut.Find("[data-testid=exercise-1-done]").Click();
+        Add(cut, 6);
+
+        cut.Find("[data-testid=exercise-2-edit]").Click();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(Names(cut), Is.EqualTo(new[] { "Barbell Back Squat", "Dumbbell Curl" }));
+            Assert.That(cut.Find("[data-testid=exercise-2-set-1-reps]").GetAttribute("value"), Is.EqualTo("10"));
+        });
+    }
+
+    [Test]
+    public void PickAgain_DoneExercise_ReopensItAddsASetAndFocusesIt()
+    {
+        var cut = RenderPage();
+        Add(cut, 132);
+        cut.Find("[data-testid=exercise-1-set-1-reps]").Input("10");
+        cut.Find("[data-testid=exercise-1-set-1-weight]").Input("20");
+        cut.Find("[data-testid=exercise-1-done]").Click();
+        Add(cut, 6);
+
+        Add(cut, 132);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(Names(cut), Is.EqualTo(new[] { "Dumbbell Curl", "Barbell Back Squat" }));
+            Assert.That(cut.FindAll("[data-testid=exercise-1-edit]"), Is.Empty);
+            Assert.That(cut.FindAll("[data-testid=exercise-1-set-2-reps]"), Has.Count.EqualTo(1));
+        });
+        cut.WaitForAssertion(() => LastFocus().Arguments[0]
+            .ShouldBeElementReferenceTo(cut.Find("[data-testid=exercise-1-set-2-reps]")));
+    }
+
+    [Test]
+    public void Save_WithADoneExercise_SavesItsValues()
+    {
+        var cut = RenderPage();
+        Add(cut, 132);
+        cut.Find("[data-testid=exercise-1-set-1-reps]").Input("10");
+        cut.Find("[data-testid=exercise-1-set-1-weight]").Input("20");
+        cut.Find("[data-testid=exercise-1-done]").Click();
+
+        cut.Find("[data-testid=save-workout]").Click();
+
+        var saved = (StrengthExercise)workouts.Saves.Single().Exercises.Single();
+        Assert.That(saved.Sets, Is.EqualTo(new[] { new StrengthSet(10, 20m, null, null) }));
     }
 
     [Test]
@@ -781,7 +927,7 @@ public class NewWorkoutPageTests : ComponentTestBase
         Add(cut, 6);
         weights.Complete(new WeightHistoryResult(60m, 70m, Failed: false));
         await WaitForRendererAsync();
-        cut.Find("[data-testid=exercise-1-remove]").Click();
+        Remove(cut, 1);
 
         Add(cut, 6);
 
@@ -798,7 +944,7 @@ public class NewWorkoutPageTests : ComponentTestBase
         var weights = UseWeights();
         var cut = RenderPage();
         Add(cut, 6);
-        cut.Find("[data-testid=exercise-1-remove]").Click();
+        Remove(cut, 1);
 
         weights.Complete(new WeightHistoryResult(60m, 70m, Failed: false));
         await WaitForRendererAsync();
@@ -816,7 +962,7 @@ public class NewWorkoutPageTests : ComponentTestBase
         var weights = UseWeights();
         var cut = RenderPage();
         Add(cut, 6);
-        cut.Find("[data-testid=exercise-1-remove]").Click();
+        Remove(cut, 1);
         Add(cut, 6);
 
         weights.Complete(new WeightHistoryResult(50m, 55m, Failed: false), index: 0);
@@ -1040,7 +1186,7 @@ public class NewWorkoutPageTests : ComponentTestBase
         Add(cut, 6);
         Add(cut, 305);
 
-        cut.Find("[data-testid=exercise-2-remove]").Click();
+        Remove(cut, 2);
 
         Assert.That(Names(cut), Is.EqualTo(new[] { "Rowing Machine", "Dumbbell Curl" }));
     }
@@ -1051,7 +1197,7 @@ public class NewWorkoutPageTests : ComponentTestBase
         var cut = RenderPage();
         Add(cut, 132);
 
-        cut.Find("[data-testid=exercise-1-remove]").Click();
+        Remove(cut, 1);
 
         Assert.That(cut.FindAll("[data-testid=no-exercises]"), Has.Count.EqualTo(1));
     }
@@ -1156,6 +1302,13 @@ public class NewWorkoutPageTests : ComponentTestBase
         return Context.Render<NewWorkoutPage>(p => p
             .Add(x => x.OnDiscarded, onDiscarded ?? (() => { }))
             .Add(x => x.OnSaved, onSaved ?? (() => { })));
+    }
+
+    /// <summary>Taps the exercise's trash and confirms the delete.</summary>
+    private static void Remove(IRenderedComponent<NewWorkoutPage> cut, int number)
+    {
+        cut.Find($"[data-testid=exercise-{number}-remove]").Click();
+        cut.Find("[data-testid=confirm-dialog-confirm]").Click();
     }
 
     /// <summary>Opens the add-exercise list, searches for the exercise by name and picks it.</summary>

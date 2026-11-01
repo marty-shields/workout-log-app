@@ -331,6 +331,82 @@ public class WorkoutEditorTests
     }
 
     [Test]
+    public void Pick_ADoneExerciseAgain_OpensItAndMovesItToTheTop()
+    {
+        var squat = SampleData.Exercise(Catalog, Squat, ["8", "60"]);
+        editor.Start([squat, SampleData.Exercise(Catalog, Treadmill, ["0:20:00", "3"])]);
+        squat.IsDone = true;
+
+        editor.Pick(Item(Squat));
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(editor.Exercises[0], Is.SameAs(squat));
+            Assert.That(squat.IsDone, Is.False);
+            Assert.That(squat.Entries, Has.Count.EqualTo(1));
+            Assert.That(editor.Focus!.AddSet, Is.True);
+        });
+    }
+
+    [Test]
+    public void AskRemove_OnlyAsks()
+    {
+        editor.Start([SampleData.Exercise(Catalog, Squat, ["8", "60"])]);
+
+        editor.AskRemove(editor.Exercises[0]);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(editor.Removing, Is.SameAs(editor.Exercises[0]));
+            Assert.That(editor.Exercises, Has.Count.EqualTo(1));
+            Assert.That(editor.Changed, Is.False);
+        });
+    }
+
+    [Test]
+    public void CancelRemove_KeepsTheExercise()
+    {
+        editor.Start([SampleData.Exercise(Catalog, Squat, ["8", "60"])]);
+        editor.AskRemove(editor.Exercises[0]);
+
+        editor.CancelRemove();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(editor.Removing, Is.Null);
+            Assert.That(editor.Exercises, Has.Count.EqualTo(1));
+            Assert.That(editor.Changed, Is.False);
+        });
+    }
+
+    [Test]
+    public void ConfirmRemove_RemovesTheAskedExerciseAndIsAChange()
+    {
+        editor.Start([SampleData.Exercise(Catalog, Squat, ["8", "60"]), SampleData.Exercise(Catalog, Treadmill, ["0:20:00", "3"])]);
+        editor.AskRemove(editor.Exercises[1]);
+
+        editor.ConfirmRemove();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(editor.Removing, Is.Null);
+            Assert.That(editor.Exercises.Select(e => e.ExerciseId), Is.EqualTo(new[] { Treadmill }));
+            Assert.That(editor.Changed, Is.True);
+        });
+    }
+
+    [Test]
+    public void Start_ClosesAnOpenDeleteConfirm()
+    {
+        editor.Start([SampleData.Exercise(Catalog, Squat, ["8", "60"])]);
+        editor.AskRemove(editor.Exercises[0]);
+
+        editor.Start([]);
+
+        Assert.That(editor.Removing, Is.Null);
+    }
+
+    [Test]
     public void MarkChanged_IsAChange()
     {
         editor.MarkChanged();

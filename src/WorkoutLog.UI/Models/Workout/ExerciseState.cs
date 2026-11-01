@@ -33,6 +33,9 @@ public sealed class ExerciseState(int exerciseId, string name, ExerciseKind kind
     /// <summary>Sets (strength) or the single entry (cardio), in the order added.</summary>
     public List<EntryState> Entries { get; } = new();
 
+    /// <summary>The card is shown as one line. Only the screen's view of the exercise: it is never saved and is not a change.</summary>
+    public bool IsDone { get; set; }
+
     /// <summary>Validation message for the exercise.</summary>
     public string? Error { get; set; }
 

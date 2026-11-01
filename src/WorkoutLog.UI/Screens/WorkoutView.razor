@@ -28,6 +28,7 @@
                               Exercise="exercise"
                               OpenLastSet="@(Mode == WorkoutMode.New)"
                               ValidateSet="ValidateSet"
+                              ValidateDone="ValidateDone"
                               OnChanged="OnChanged"
                               OnRemove="() => OnRemoveExercise.InvokeAsync(exercise)"
                               TestId="@($"exercise-{number}")" />
@@ -73,6 +74,10 @@
     /// <summary>Checks a set or entry before moving on, and re-checks one showing errors; see <see cref="Components.Workout.ExerciseCard.ValidateSet"/>.</summary>
     [Parameter]
     public Func<ExerciseState, EntryState, bool>? ValidateSet { get; set; }
+
+    /// <summary>Checks an exercise before it is marked done; see <see cref="Components.Workout.ExerciseCard.ValidateDone"/>.</summary>
+    [Parameter]
+    public Func<ExerciseState, bool>? ValidateDone { get; set; }
 
     /// <summary>Raised by Add exercise.</summary>
     [Parameter]

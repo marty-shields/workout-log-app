@@ -26,4 +26,10 @@ public enum IconName
 
     /// <summary>Downward triangle (<c>arrow_drop_down</c>).</summary>
     Down,
+
+    /// <summary>Pencil (<c>edit</c>).</summary>
+    Edit,
+
+    /// <summary>Tick (<c>check</c>).</summary>
+    Check,
 }

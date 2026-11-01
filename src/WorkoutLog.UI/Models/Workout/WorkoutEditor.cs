@@ -45,6 +45,9 @@ public sealed class WorkoutEditor(
     /// <summary>The latest request to move focus after a failed Save or Delete.</summary>
     public ErrorFocus? ErrorFocus { get; private set; }
 
+    /// <summary>The exercise whose delete is being confirmed, or null.</summary>
+    public ExerciseState? Removing { get; private set; }
+
     /// <summary>Message on the workout itself.</summary>
     public string? Error { get; private set; }
 
@@ -69,6 +72,7 @@ public sealed class WorkoutEditor(
         ListItems = [];
         Focus = null;
         ErrorFocus = null;
+        Removing = null;
         Error = null;
         Saving = false;
         Changed = false;
@@ -121,7 +125,7 @@ public sealed class WorkoutEditor(
     public void CloseList() => ListOpen = false;
 
     /// <summary>
-    /// Moves the exercise already in the workout to the top and focuses it, adding a set to a strength one with fewer than
+    /// Moves the exercise already in the workout to the top, opens it if it is done and focuses it, adding a set to a strength one with fewer than
     /// <see cref="WorkoutLimits.MaxSets"/>; otherwise adds it at the top, unless the workout has <see cref="WorkoutLimits.MaxExercises"/>.
     /// Either is a change. Clears the workout's error and closes the add-exercise list.
     /// </summary>
@@ -143,6 +147,23 @@ public sealed class WorkoutEditor(
     {
         exercises.Remove(exercise);
         Changed = true;
+    }
+
+    /// <summary>Asks to confirm removing the exercise: sets <see cref="Removing"/>.</summary>
+    public void AskRemove(ExerciseState exercise) => Removing = exercise;
+
+    /// <summary>Closes the confirm and keeps the exercise.</summary>
+    public void CancelRemove() => Removing = null;
+
+    /// <summary>Closes the confirm and removes the exercise.</summary>
+    public void ConfirmRemove()
+    {
+        if (Removing is { } exercise)
+        {
+            Remove(exercise);
+        }
+
+        Removing = null;
     }
 
     /// <summary>Records a value, set or entry change.</summary>
@@ -195,6 +216,7 @@ public sealed class WorkoutEditor(
         {
             exercises.Remove(existing);
             exercises.Insert(0, existing);
+            existing.IsDone = false;
             Changed = true;
             return new ExerciseFocus(existing, addSet: existing.Kind == ExerciseKind.Strength && !existing.SetsFull);
         }
