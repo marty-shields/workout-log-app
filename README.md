@@ -34,6 +34,7 @@ It's built for one person and one phone: no accounts, no sign-up.
 - 315 built-in strength and cardio exercises, with search.
 - Cardio entries record duration plus the machine's metrics: distance, incline, floors, level, calories and rate.
 - Start and finish times are recorded for you, with a timer while you log.
+- A Record badge shows on the set or cardio entry that beats your best for that exercise, as you log it.
 - Saving checks every set and points to the field that's wrong.
 
 <table align="center">

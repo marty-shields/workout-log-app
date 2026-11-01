@@ -37,6 +37,8 @@ Add exercise opens [Add Exercise](./?path=/custom/screens-add-exercise-overview)
 
 A strength exercise just added loads its last and PB weights through `IWeightHistoryService.GetAsync` and shows them under its name, e.g. *Last 60kg · PB 70kg*. Nothing shows while they load, when there are none, or when the load fails; Core logs the failure. On a bodyweight move, hold or carry, 0 kg counts as none: no line when the PB is 0, and *Last —* when the last is 0. They don't change while logging. Picking it again doesn't reload; adding it again after Remove does.
 
+The bests of every saved workout load with the last and PB weights, when the exercise is added. A strength set or cardio entry that is valid and beats the exercise's headline best in all of them shows the Record badge (test ids `{card}-set-{n}-record` and `{card}-record`). Only one set per exercise has it: the set giving this session's headline best. It comes and goes as values change, and moves to a later set that does better. There is none on an exercise's first session, and none on a tie. Edit Workout shows no badges. If the bests fail to load, no badges show and logging works as usual; Core logs the failure.
+
 ## Save
 Save runs `IWorkoutChecker.Check`: every set and entry, then the workout and each exercise through `IWorkoutService.Validate`.
 - Errors show on the exercise, set or entry at fault: each faulty field is outlined, with one message per problem under its set or entry.
