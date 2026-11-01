@@ -85,7 +85,7 @@ internal sealed class WorkoutRepository(SQLiteAsyncConnection connection, IWorko
             SELECT w.Id, w.StartedAt, w.FinishedAt, e.ExerciseId
             FROM Workout w
             LEFT JOIN WorkoutExercise e ON e.WorkoutId = w.Id
-            WHERE w.Id = (SELECT Id FROM Workout ORDER BY StartedAt DESC LIMIT 1)
+            WHERE w.Id = (SELECT Id FROM Workout ORDER BY StartedAt DESC, Id DESC LIMIT 1)
             ORDER BY e.Position
             """;
         var rows = await connection.QueryAsync<OutlineRow>(sql);
@@ -113,7 +113,7 @@ internal sealed class WorkoutRepository(SQLiteAsyncConnection connection, IWorko
             GROUP BY w.Id
             ORDER BY w.StartedAt
             """;
-        var rows = await connection.QueryAsync<TallyRow>(sql, from, to);
+        var rows = await connection.QueryAsync<TallyRow>(sql, from.UtcTicks, to.UtcTicks);
         return rows.Select(r => new WorkoutTally(
                 new DateTimeOffset(r.StartedAt, TimeSpan.Zero), new DateTimeOffset(r.FinishedAt, TimeSpan.Zero), r.Sets))
             .ToList();

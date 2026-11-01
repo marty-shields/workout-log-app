@@ -45,6 +45,7 @@ public class CoreEventTests
             [CoreEvent.RecentRecordsLoaded] = 1441,
             [CoreEvent.RecentRecordsLoadFailed] = 1442,
             [CoreEvent.RecentRecordsUnknownExercise] = 1443,
+            [CoreEvent.RecentRecordsExerciseFailed] = 1444,
             [CoreEvent.WeightHistoryLoadFailed] = 1501,
             [CoreEvent.ExportWritten] = 1601,
             [CoreEvent.ExportTooLarge] = 1602,

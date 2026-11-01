@@ -93,6 +93,9 @@ internal enum CoreEvent
     /// <summary><see cref="Services.RecentRecordsService"/>: a saved exercise id is not in the exercise list.</summary>
     RecentRecordsUnknownExercise = 1443,
 
+    /// <summary><see cref="Services.RecentRecordsService"/>: finding one exercise's records failed.</summary>
+    RecentRecordsExerciseFailed = 1444,
+
     /// <summary><see cref="Services.WeightHistoryService"/>: reading an exercise's weights failed.</summary>
     WeightHistoryLoadFailed = 1501,
 

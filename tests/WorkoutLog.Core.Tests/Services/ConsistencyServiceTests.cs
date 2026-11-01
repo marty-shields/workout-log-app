@@ -28,12 +28,11 @@ public class ConsistencyServiceTests
     {
         repository = new Mock<IWorkoutRepository>(MockBehavior.Strict);
         logger = new FakeLogger<ConsistencyService>();
-        repository.Setup(r => r.ListAsync(null, It.IsAny<DateTimeOffset?>(), null)).ReturnsAsync([]);
         UseClock(Now, TimeZoneInfo.Utc);
     }
 
     [Test]
-    public async Task GetAsync_ReadsThe12WeeksOnceAndSummarisesThem()
+    public async Task GetAsync_ReadsTheHistoryOnceAndSummarisesIt()
     {
         Seed(
             Workout(From, 10),
@@ -51,8 +50,7 @@ public class ConsistencyServiceTests
             Assert.That(result.WeekCounts, Is.EqualTo(new[] { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 1 }));
             Assert.That(result.Streak, Is.EqualTo(2));
             Assert.That(result.Failed, Is.False);
-            repository.Verify(r => r.ListTalliesAsync(From, Now), Times.Once);
-            repository.Verify(r => r.ListAsync(null, Now, null), Times.Once);
+            repository.Verify(r => r.ListTalliesAsync(DateTimeOffset.MinValue, Now), Times.Once);
         });
     }
 
@@ -60,8 +58,7 @@ public class ConsistencyServiceTests
     public async Task GetAsync_StreakCountsWeeksBeforeThe12()
     {
         var weekly = Enumerable.Range(0, 20).Select(weeksAgo => Workout(Now.AddDays(-7 * weeksAgo), 3)).ToList();
-        repository.Setup(r => r.ListTalliesAsync(From, Now)).ReturnsAsync(weekly.Where(w => w.StartedAt >= From).Reverse().ToList());
-        repository.Setup(r => r.ListAsync(null, Now, null)).ReturnsAsync(weekly.Select((w, i) => new WorkoutSummary(i + 1, w.StartedAt)).ToList());
+        repository.Setup(r => r.ListTalliesAsync(DateTimeOffset.MinValue, Now)).ReturnsAsync(weekly.AsEnumerable().Reverse().ToList());
 
         var result = await service.GetAsync();
 
@@ -73,12 +70,11 @@ public class ConsistencyServiceTests
     }
 
     [Test]
-    public async Task GetAsync_ReadsFromMondayInThePhonesTimeZone()
+    public async Task GetAsync_CountsWeeksInThePhonesTimeZone()
     {
         var now = new DateTimeOffset(2026, 10, 26, 0, 0, 0, TimeSpan.FromHours(10));
-        var from = new DateTimeOffset(2026, 8, 10, 0, 0, 0, TimeSpan.FromHours(10));
         UseClock(now, ConsistencyZones.Plus10);
-        repository.Setup(r => r.ListTalliesAsync(from, now)).ReturnsAsync([Workout(now, 3)]);
+        repository.Setup(r => r.ListTalliesAsync(DateTimeOffset.MinValue, now)).ReturnsAsync([Workout(now, 3)]);
 
         var result = await service.GetAsync();
 
@@ -88,7 +84,7 @@ public class ConsistencyServiceTests
     [Test]
     public async Task GetAsync_NoWorkouts_ReturnsZerosAndNoStreak()
     {
-        repository.Setup(r => r.ListTalliesAsync(From, Now)).ReturnsAsync([]);
+        repository.Setup(r => r.ListTalliesAsync(DateTimeOffset.MinValue, Now)).ReturnsAsync([]);
 
         var result = await service.GetAsync();
 
@@ -114,7 +110,7 @@ public class ConsistencyServiceTests
     public async Task GetAsync_ReadThrows_ReturnsFailedAndLogsAWarning()
     {
         var exception = new InvalidOperationException("disk");
-        repository.Setup(r => r.ListTalliesAsync(From, Now)).ThrowsAsync(exception);
+        repository.Setup(r => r.ListTalliesAsync(DateTimeOffset.MinValue, Now)).ThrowsAsync(exception);
 
         var result = await service.GetAsync();
 
@@ -124,22 +120,6 @@ public class ConsistencyServiceTests
             Assert.That(result.Failed, Is.True);
             Assert.That(result.WeekCounts, Is.EqualTo(new int[12]));
             Assert.That(LoggedEvents.Of(logger), Is.EqualTo(new[] { (CoreEvent.ConsistencyLoadFailed, LogLevel.Warning, "Loading the Consistency card failed") }));
-            Assert.That(logger.LatestRecord.Exception, Is.SameAs(exception));
-        });
-    }
-
-    [Test]
-    public async Task GetAsync_StartTimesReadThrows_ReturnsFailedAndLogsAWarning()
-    {
-        var exception = new InvalidOperationException("disk");
-        Seed();
-        repository.Setup(r => r.ListAsync(null, Now, null)).ThrowsAsync(exception);
-
-        var result = await service.GetAsync();
-
-        Assert.Multiple(() =>
-        {
-            Assert.That(result, Is.SameAs(ConsistencyResult.FailedRead));
             Assert.That(logger.LatestRecord.Exception, Is.SameAs(exception));
         });
     }
@@ -170,9 +150,7 @@ public class ConsistencyServiceTests
 
     private void Seed(params WorkoutTally[] workouts)
     {
-        repository.Setup(r => r.ListTalliesAsync(From, Now)).ReturnsAsync(workouts.OrderBy(w => w.StartedAt).ToList());
-        repository.Setup(r => r.ListAsync(null, Now, null))
-            .ReturnsAsync(workouts.OrderByDescending(w => w.StartedAt).Select((w, i) => new WorkoutSummary(i + 1, w.StartedAt)).ToList());
+        repository.Setup(r => r.ListTalliesAsync(DateTimeOffset.MinValue, Now)).ReturnsAsync(workouts.OrderBy(w => w.StartedAt).ToList());
     }
 
     private static WorkoutTally Workout(DateTimeOffset startedAt, int sets) => new(startedAt, startedAt.AddMinutes(45), sets);

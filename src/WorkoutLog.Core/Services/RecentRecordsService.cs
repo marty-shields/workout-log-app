@@ -43,9 +43,16 @@ internal sealed partial class RecentRecordsService(
                     continue;
                 }
 
-                if (recordCheck.Records(definition, exercise).LastOrDefault(r => InWindow(r.Session.StartedAt)) is { } latest)
+                try
                 {
-                    records.Add((new ExerciseRecord(exercise.Key, latest.Session.StartedAt, latest.Best), definition.Name));
+                    if (recordCheck.Records(definition, exercise).LastOrDefault(r => InWindow(r.Session.StartedAt)) is { } latest)
+                    {
+                        records.Add((new ExerciseRecord(exercise.Key, latest.Session.StartedAt, latest.Best), definition.Name));
+                    }
+                }
+                catch (InvalidOperationException exception)
+                {
+                    Log.RecordCheckFailed(logger, exercise.Key, exception);
                 }
             }
 
@@ -74,6 +81,9 @@ internal sealed partial class RecentRecordsService(
 
         [LoggerMessage((int)CoreEvent.RecentRecordsLoadFailed, LogLevel.Warning, "Loading the recent records failed")]
         public static partial void LoadFailed(ILogger logger, Exception exception);
+
+        [LoggerMessage((int)CoreEvent.RecentRecordsExerciseFailed, LogLevel.Warning, "Finding the records of exercise {ExerciseId} failed; left out")]
+        public static partial void RecordCheckFailed(ILogger logger, int exerciseId, Exception exception);
 
         [LoggerMessage((int)CoreEvent.RecentRecordsUnknownExercise, LogLevel.Warning, "Exercise {ExerciseId} is not in the exercise list; left out")]
         public static partial void UnknownExercise(ILogger logger, int exerciseId);

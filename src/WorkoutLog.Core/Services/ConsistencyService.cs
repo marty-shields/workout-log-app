@@ -5,7 +5,7 @@ using WorkoutLog.Core.Logging;
 
 namespace WorkoutLog.Core.Services;
 
-/// <summary>Reads the last 12 weeks' workouts and every start time up to now through <see cref="IWorkoutRepository"/>, summarises them with the rules and logs the outcome.</summary>
+/// <summary>Reads every workout's start, finish and set count up to now through <see cref="IWorkoutRepository"/>, summarises them with the rules and logs the outcome.</summary>
 internal sealed partial class ConsistencyService(
     IWorkoutRepository repository,
     IWeekComparisonRule comparisonRule,
@@ -23,12 +23,10 @@ internal sealed partial class ConsistencyService(
         {
             var now = time.GetUtcNow();
             var zone = time.LocalTimeZone;
-            var from = LocalWeek.Start(LocalWeek.Monday(now, zone).AddDays(-7 * (LocalWeek.Shown - 1)), zone);
-            var tallies = await repository.ListTalliesAsync(from, now);
-            var starts = await repository.ListAsync(to: now);
+            var tallies = await repository.ListTalliesAsync(DateTimeOffset.MinValue, now);
             var weekCounts = barsRule.Count(tallies, now, zone);
-            result = new ConsistencyResult(comparisonRule.Compare(tallies, now, zone), weekCounts, streakRule.Streak(starts.Select(w => w.StartedAt), now, zone), Failed: false);
-            workouts = tallies.Count;
+            result = new ConsistencyResult(comparisonRule.Compare(tallies, now, zone), weekCounts, streakRule.Streak(tallies.Select(w => w.StartedAt), now, zone), Failed: false);
+            workouts = weekCounts.Sum();
         }
         catch (Exception exception)
         {

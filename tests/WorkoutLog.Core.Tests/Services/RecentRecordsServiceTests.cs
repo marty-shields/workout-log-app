@@ -195,7 +195,7 @@ public class RecentRecordsServiceTests
     }
 
     [Test]
-    public async Task GetAsync_FindingRecordsFails_ReturnsFailedAndLogsAWarningWithTheException()
+    public async Task GetAsync_FindingOneExercisesRecordsFails_LeavesItOutAndLogsAWarningWithTheException()
     {
         var error = new InvalidOperationException("bad set");
         var recordCheck = new Mock<IRecordCheck>();
@@ -205,11 +205,11 @@ public class RecentRecordsServiceTests
 
         var result = await service.GetAsync();
 
-        Assert.That(result, Is.EqualTo(new RecentRecordsResult([], Now, Failed: true)).UsingPropertiesComparer());
+        Assert.That(result, Is.EqualTo(new RecentRecordsResult([], Now, Failed: false)).UsingPropertiesComparer());
         Assert.Multiple(() =>
         {
-            Assert.That(LoggedEvents.Of(logger), Is.EqualTo(new[] { (CoreEvent.RecentRecordsLoadFailed, LogLevel.Warning, "Loading the recent records failed") }));
-            Assert.That(logger.Collector.LatestRecord.Exception, Is.SameAs(error));
+            Assert.That(LoggedEvents.Of(logger).Select(e => e.Item1), Does.Contain(CoreEvent.RecentRecordsExerciseFailed));
+            Assert.That(logger.Collector.GetSnapshot().Select(r => r.Exception), Does.Contain(error));
         });
     }
 
