@@ -213,9 +213,9 @@ public sealed class WorkoutSteps(WebView web, Native native, Journeys journeys, 
         }
     }
 
-    /// <summary>Logs " set N", every set (" sets") or, with neither, set 1 or the cardio entry.</summary>
     private static int? SetNumber(string set) => set.Length > 0 ? int.Parse(set[" set ".Length..], CultureInfo.InvariantCulture) : null;
 
+    /// <summary>Logs " set N", every set (" sets") or, with neither, set 1 or the cardio entry.</summary>
     private void Log(string name, string sets, string values)
     {
         if (sets == " sets")
@@ -224,8 +224,7 @@ public sealed class WorkoutSteps(WebView web, Native native, Journeys journeys, 
             return;
         }
 
-        var number = sets.Length > 0 ? int.Parse(sets[" set ".Length..], CultureInfo.InvariantCulture) : 1;
-        journeys.Log(name, number, EntryValues.Parse(values));
+        journeys.Log(name, SetNumber(sets) ?? 1, EntryValues.Parse(values));
     }
 
     /// <summary>The time in the subtitle, e.g. Elapsed 0:01:05.</summary>

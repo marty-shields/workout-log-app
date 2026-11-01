@@ -61,10 +61,11 @@ public sealed partial class SetChecker(IWorkoutService workouts, IExerciseCatalo
         var result = exercise.Kind == ExerciseKind.Strength
             ? workouts.ValidateSet(exercise.ExerciseId, ToSet(values))
             : workouts.ValidateEntry(exercise.ExerciseId, ToEntry(values));
+        var codes = Codes(result);
         foreach (var field in exercise.Fields)
         {
             if (!errors.ContainsKey(field.Key)
-                && Codes(result).TryGetValue(field.Metric, out var code)
+                && codes.TryGetValue(field.Metric, out var code)
                 && Message(exercise, field, code) is { } message)
             {
                 errors[field.Key] = message;
