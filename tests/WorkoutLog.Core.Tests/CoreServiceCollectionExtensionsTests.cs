@@ -78,6 +78,7 @@ public class CoreServiceCollectionExtensionsTests
             (typeof(IImportCheck), typeof(StartCheck), ServiceLifetime.Singleton),
             (typeof(IImportCheck), typeof(RepeatedStartCheck), ServiceLifetime.Singleton),
             (typeof(IImportCheck), typeof(FinishCheck), ServiceLifetime.Singleton),
+            (typeof(IImportCheck), typeof(FutureCheck), ServiceLifetime.Singleton),
             (typeof(IImportCheck), typeof(UnknownExerciseCheck), ServiceLifetime.Singleton),
             (typeof(IImportCheck), typeof(ExerciseDefinitionCheck), ServiceLifetime.Singleton),
             (typeof(IImportCheck), typeof(RepeatedExerciseCheck), ServiceLifetime.Singleton),

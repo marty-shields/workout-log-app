@@ -13,7 +13,7 @@ Opened from Settings after a file is picked and read. View: `ImportReviewView`; 
 | Counts | Four `StatTile`s: New, Already on this phone, Different on this phone, Can't be imported. |
 | How to import | `RadioGroup`: **Add to my workouts** (chosen first; adds New, never deletes) and **Replace all my workouts**, with the hint "Deletes the 41 on this phone" ("Deletes the 1 on this phone"; with none, "No workouts on this phone to delete"). |
 | Different workouts | Add only, when there are any: **Keep this phone's** (chosen first) or **Use the file's**, which replaces the phone workout's finish time, exercises, sets and entries. |
-| Can't be imported | "4 workouts can't be imported and will be skipped" ("1 workout…"), when there are any. |
+| Can't be imported | "4 workouts can't be imported and will be skipped" ("1 workout…"), when there are any. A workout whose start or finish is after now counts here. |
 | Nothing new | Add with no New, and Different absent or kept: "Nothing new to import"; Import is disabled. |
 | Bottom bar | Secondary **Cancel** and Primary **Import**. With Replace all chosen, a Danger **Replace all**. When no workout can be imported, both are disabled. |
 | Replace confirm | `ConfirmDialog` "Delete your 41 workouts and import 44?" with **Cancel** and Danger **Replace**, also with 0 on the phone. |

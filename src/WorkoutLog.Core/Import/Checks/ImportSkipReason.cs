@@ -18,6 +18,9 @@ internal enum ImportSkipReason
     /// <summary>The finish is not after the start.</summary>
     FinishNotAfterStart,
 
+    /// <summary>The start or the finish is after now.</summary>
+    InFuture,
+
     /// <summary>An exercise id is not in the exercise list.</summary>
     UnknownExercise,
 
