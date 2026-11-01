@@ -342,7 +342,7 @@ public class ImportServiceTests
             new StartCheck(), new RepeatedStartCheck(), new FinishCheck(), new UnknownExerciseCheck(Catalog), new ExerciseDefinitionCheck(Catalog),
             new RepeatedExerciseCheck(), new SaveRulesCheck(new WorkoutValidator(Catalog)),
         ];
-        return new ImportService(new ImportFileReader([new ValidationRulesFormatUpgrade(Catalog)]), new ImportChecker(checks), workouts, new WorkoutContentComparer(), writes, logger);
+        return new ImportService(new ImportFileReader([new ValidationRulesFormatUpgrade(Catalog)]), new ImportChecker(checks), workouts, new WorkoutContentComparer(), writes, TimeProvider.System, logger);
     }
 
     private Task<ImportReview> ReadAsync(string json) => service.ReadAsync(Stream(json), FileName);

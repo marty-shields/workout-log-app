@@ -12,5 +12,5 @@ Personal Android app (.NET 10 MAUI Blazor Hybrid). Setup: [docs/dev-setup-build.
 ## Rules
 - Ask about any ambiguity.
 - No new packages without approval.
-- Commit on a branch, push it and open a DRAFT PR when the work is done. Review happens on the draft PR, not before the commit. Never merge.
+- Commit on a branch, push it and open a DRAFT PR when the work is done. Review happens on the draft PR, not before the commit. Merge only when the user says to.
 - PR titles are Conventional Commits with exactly one `semver:major|minor|patch` label (CI checks both).

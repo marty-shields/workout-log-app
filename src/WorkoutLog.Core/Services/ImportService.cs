@@ -17,6 +17,7 @@ internal sealed partial class ImportService(
     IWorkoutRepository repository,
     IWorkoutContentComparer comparer,
     IUnitOfWork unitOfWork,
+    TimeProvider time,
     ILogger<ImportService> logger) : IImportService
 {
     /// <inheritdoc />
@@ -113,7 +114,7 @@ internal sealed partial class ImportService(
     private ImportReview Group(string fileName, IReadOnlyList<ImportWorkout> workouts, IReadOnlyList<Workout> saved)
     {
         var savedByStart = saved.ToDictionary(w => w.StartedAt);
-        var context = ImportContext.For(workouts);
+        var context = ImportContext.For(workouts, time.GetUtcNow());
         List<NewWorkout> added = [], already = [], different = [];
         foreach (var workout in workouts)
         {

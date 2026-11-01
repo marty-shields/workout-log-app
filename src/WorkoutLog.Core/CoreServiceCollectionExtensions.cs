@@ -66,6 +66,7 @@ public static class CoreServiceCollectionExtensions
             .AddSingleton<IImportCheck, StartCheck>()
             .AddSingleton<IImportCheck, RepeatedStartCheck>()
             .AddSingleton<IImportCheck, FinishCheck>()
+            .AddSingleton<IImportCheck, FutureCheck>()
             .AddSingleton<IImportCheck, UnknownExerciseCheck>()
             .AddSingleton<IImportCheck, ExerciseDefinitionCheck>()
             .AddSingleton<IImportCheck, RepeatedExerciseCheck>()

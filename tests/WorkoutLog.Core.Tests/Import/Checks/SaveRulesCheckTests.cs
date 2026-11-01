@@ -10,7 +10,7 @@ namespace WorkoutLog.Core.Tests.Import.Checks;
 
 public class SaveRulesCheckTests
 {
-    private static readonly ImportContext Context = new(new Dictionary<DateTimeOffset, int>());
+    private static readonly ImportContext Context = new(new Dictionary<DateTimeOffset, int>(), DateTimeOffset.UnixEpoch);
     private readonly SaveRulesCheck check = new(new WorkoutValidator(new ExerciseCatalog()));
 
     [Test]

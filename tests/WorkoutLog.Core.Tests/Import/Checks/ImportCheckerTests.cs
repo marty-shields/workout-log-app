@@ -7,7 +7,7 @@ namespace WorkoutLog.Core.Tests.Import.Checks;
 
 public class ImportCheckerTests
 {
-    private static readonly ImportContext Context = new(new Dictionary<DateTimeOffset, int>());
+    private static readonly ImportContext Context = new(new Dictionary<DateTimeOffset, int>(), DateTimeOffset.UnixEpoch);
 
     [Test]
     public void Check_EveryCheckPasses_ReturnsNothing()
@@ -31,6 +31,20 @@ public class ImportCheckerTests
 
         Assert.That(checker.Check(workout, Context),
             Is.EqualTo(new[] { ImportSkipReason.InvalidStart, ImportSkipReason.UnknownExercise, ImportSkipReason.FailsSaveRules }));
+    }
+
+    [Test]
+    public void Check_InFuture_SortsAfterTheTimeReasonsAndBeforeTheExerciseReasons()
+    {
+        var workout = At(0);
+        var checker = new ImportChecker(
+        [
+            Returning(workout, ImportSkipReason.UnknownExercise, ImportSkipReason.InFuture),
+            Returning(workout, ImportSkipReason.FinishNotAfterStart, ImportSkipReason.InFuture),
+        ]);
+
+        Assert.That(checker.Check(workout, Context),
+            Is.EqualTo(new[] { ImportSkipReason.FinishNotAfterStart, ImportSkipReason.InFuture, ImportSkipReason.UnknownExercise }));
     }
 
     [Test]
