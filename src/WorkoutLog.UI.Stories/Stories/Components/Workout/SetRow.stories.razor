@@ -6,7 +6,7 @@
 
     <Story Name="Lift">
         <Template>
-            @{ var exercise = SampleData.Exercise(Catalog, 132, ["12", "10"]); }
+            @{ var exercise = SampleData.Exercise(Catalog, 132, ["10", "12"]); }
             <SetRow Number="1" Fields="exercise.Fields" Entry="exercise.Entries[0]" />
         </Template>
     </Story>
@@ -20,21 +20,21 @@
 
     <Story Name="Errors">
         <Template>
-            @{ var exercise = SampleData.Exercise(Catalog, 132, [null, "10"]); Checker.Check([exercise]); }
+            @{ var exercise = SampleData.Exercise(Catalog, 132, ["10", null]); Checker.Check([exercise]); }
             <SetRow Number="2" Fields="exercise.Fields" Entry="exercise.Entries[0]" />
         </Template>
     </Story>
 
     <Story Name="Format errors">
         <Template>
-            @{ var exercise = SampleData.Exercise(Catalog, 132, ["8.5", "12.255"]); Checker.Check([exercise]); }
+            @{ var exercise = SampleData.Exercise(Catalog, 132, ["12.255", "8.5"]); Checker.Check([exercise]); }
             <SetRow Number="2" Fields="exercise.Fields" Entry="exercise.Entries[0]" />
         </Template>
     </Story>
 
     <Story Name="Not a number">
         <Template>
-            @{ var exercise = SampleData.Exercise(Catalog, 132, ["8.", "22,75"]); Checker.Check([exercise]); }
+            @{ var exercise = SampleData.Exercise(Catalog, 132, ["22,75", "8."]); Checker.Check([exercise]); }
             <SetRow Number="2" Fields="exercise.Fields" Entry="exercise.Entries[0]" />
         </Template>
     </Story>

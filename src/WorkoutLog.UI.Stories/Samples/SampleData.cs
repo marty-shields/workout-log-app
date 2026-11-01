@@ -58,8 +58,8 @@ public static class SampleData
     /// <summary>Strength exercises with filled sets, including a hold and an assisted machine.</summary>
     public static List<ExerciseState> StrengthWorkout(IExerciseCatalog catalog) =>
     [
-        Exercise(catalog, 6, ["8", "60"], ["8", "60"], ["6", "62.5"]),
-        Exercise(catalog, 218, ["10", "25"], ["8", "25"]),
+        Exercise(catalog, 6, ["60", "8"], ["60", "8"], ["62.5", "6"]),
+        Exercise(catalog, 218, ["25", "10"], ["25", "8"]),
         Exercise(catalog, 258, ["0:01:00", null]),
         Exercise(catalog, 187, ["40", "32", null]),
     ];
@@ -92,7 +92,7 @@ public static class SampleData
     /// <summary>A squat with two sets, and a carry with three sets: two filled, the last one partly filled.</summary>
     public static List<ExerciseState> CarryWorkout(IExerciseCatalog catalog) =>
     [
-        Exercise(catalog, 6, ["8", "60"], ["8", "60"]),
+        Exercise(catalog, 6, ["60", "8"], ["60", "8"]),
         Exercise(catalog, 187, ["40", "32", "0:00:45"], ["40", "32", "0:00:50"], ["30", "32", null]),
     ];
 
@@ -101,7 +101,7 @@ public static class SampleData
     {
         List<ExerciseState> exercises =
         [
-            Exercise(catalog, 6, ["8", "60"], [null, "60"]),
+            Exercise(catalog, 6, ["60", "8"], ["60", null]),
             Exercise(catalog, 187, ["40", "32", "0:00:45"], [null, "32", "0:00:40"]),
         ];
         checker.Check(exercises);
@@ -125,7 +125,7 @@ public static class SampleData
     {
         List<ExerciseState> exercises =
         [
-            Exercise(catalog, 222, ["10", "50"], [null, "50"]),
+            Exercise(catalog, 222, ["50", "10"], ["50", null]),
             Exercise(catalog, 132),
             Exercise(catalog, 305, [null, "2000", "5.5", null, null]),
             Exercise(catalog, 311, ["0:25:30", null, null]),

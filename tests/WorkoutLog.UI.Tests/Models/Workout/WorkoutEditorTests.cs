@@ -225,7 +225,7 @@ public class WorkoutEditorTests
     [Test]
     public void Pick_StrengthAgain_MovesItToTheTopFocusesItAndAsksForASet()
     {
-        var squat = SampleData.Exercise(Catalog, Squat, ["8", "60"]);
+        var squat = SampleData.Exercise(Catalog, Squat, ["60", "8"]);
         editor.Start([squat, SampleData.Exercise(Catalog, Treadmill, ["0:20:00", "3"])]);
 
         editor.Pick(Item(Squat));
@@ -288,7 +288,7 @@ public class WorkoutEditorTests
     public void Pick_CardioAgain_MovesItToTheTopAndFocusesItWithoutAdding()
     {
         var treadmill = SampleData.Exercise(Catalog, Treadmill, ["0:20:00", "3"]);
-        editor.Start([treadmill, SampleData.Exercise(Catalog, Squat, ["8", "60"])]);
+        editor.Start([treadmill, SampleData.Exercise(Catalog, Squat, ["60", "8"])]);
 
         editor.Pick(Item(Treadmill));
 
@@ -305,7 +305,7 @@ public class WorkoutEditorTests
     [Test]
     public void Pick_TheTopExerciseAgain_KeepsTheOrderAndIsAChange()
     {
-        editor.Start([SampleData.Exercise(Catalog, Squat, ["8", "60"]), SampleData.Exercise(Catalog, Treadmill, ["0:20:00", "3"])]);
+        editor.Start([SampleData.Exercise(Catalog, Squat, ["60", "8"]), SampleData.Exercise(Catalog, Treadmill, ["0:20:00", "3"])]);
 
         editor.Pick(Item(Treadmill));
 
@@ -319,7 +319,7 @@ public class WorkoutEditorTests
     [Test]
     public void Remove_RemovesOnlyThatExerciseAndIsAChange()
     {
-        editor.Start([SampleData.Exercise(Catalog, Squat, ["8", "60"]), SampleData.Exercise(Catalog, Treadmill, ["0:20:00", "3"])]);
+        editor.Start([SampleData.Exercise(Catalog, Squat, ["60", "8"]), SampleData.Exercise(Catalog, Treadmill, ["0:20:00", "3"])]);
 
         editor.Remove(editor.Exercises[0]);
 
@@ -341,7 +341,7 @@ public class WorkoutEditorTests
     [Test]
     public async Task Start_SetsTheExercisesAndResetsEverythingElse()
     {
-        var squat = SampleData.Exercise(Catalog, Squat, ["8", "60"]);
+        var squat = SampleData.Exercise(Catalog, Squat, ["60", "8"]);
         editor.Start([squat]);
         await editor.SaveAsync(_ => Task.FromResult(true));
         editor.Pick(Item(Treadmill));
@@ -370,7 +370,7 @@ public class WorkoutEditorTests
     [Test]
     public void Start_ShowsTheGivenExercisesNewestFirst()
     {
-        editor.Start([SampleData.Exercise(Catalog, Squat, ["8", "60"]), SampleData.Exercise(Catalog, Treadmill, ["0:20:00", "3"])]);
+        editor.Start([SampleData.Exercise(Catalog, Squat, ["60", "8"]), SampleData.Exercise(Catalog, Treadmill, ["0:20:00", "3"])]);
 
         Assert.That(editor.Exercises.Select(e => e.ExerciseId), Is.EqualTo(new[] { Treadmill, Squat }));
     }
@@ -378,7 +378,7 @@ public class WorkoutEditorTests
     [Test]
     public void Start_TakesACopySoLaterEditsLeaveTheGivenAndThePreviousListsAlone()
     {
-        var given = new List<ExerciseState> { SampleData.Exercise(Catalog, Squat, ["8", "60"]) };
+        var given = new List<ExerciseState> { SampleData.Exercise(Catalog, Squat, ["60", "8"]) };
         editor.Start(given);
         editor.Pick(Item(Treadmill));
         var previous = editor.Exercises;
@@ -413,7 +413,7 @@ public class WorkoutEditorTests
     [Test]
     public async Task SaveAsync_Valid_SavesTheReadRecordsAndKeepsSaving()
     {
-        editor.Start([SampleData.Exercise(Catalog, Squat, ["8", "60"]), SampleData.Exercise(Catalog, Treadmill, ["0:20:00", "3"])]);
+        editor.Start([SampleData.Exercise(Catalog, Squat, ["60", "8"]), SampleData.Exercise(Catalog, Treadmill, ["0:20:00", "3"])]);
         IReadOnlyList<WorkoutExercise>? records = null;
 
         var saved = await editor.SaveAsync(r =>
@@ -436,7 +436,7 @@ public class WorkoutEditorTests
     [Test]
     public async Task SaveAsync_AfterAPickAgain_SavesTheRecordsOldestFirst()
     {
-        editor.Start([SampleData.Exercise(Catalog, Squat, ["8", "60"]), SampleData.Exercise(Catalog, Treadmill, ["0:20:00", "3"])]);
+        editor.Start([SampleData.Exercise(Catalog, Squat, ["60", "8"]), SampleData.Exercise(Catalog, Treadmill, ["0:20:00", "3"])]);
         editor.Pick(Item(Squat));
         IReadOnlyList<WorkoutExercise>? records = null;
 
@@ -452,7 +452,7 @@ public class WorkoutEditorTests
     [Test]
     public async Task SaveAsync_WhileSavingOrAfterASave_IsIgnored()
     {
-        editor.Start([SampleData.Exercise(Catalog, Squat, ["8", "60"])]);
+        editor.Start([SampleData.Exercise(Catalog, Squat, ["60", "8"])]);
         var pending = new TaskCompletionSource<bool>();
         var saves = 0;
         Task<bool> Save(IReadOnlyList<WorkoutExercise> _)
@@ -478,7 +478,7 @@ public class WorkoutEditorTests
     [Test]
     public async Task SaveAsync_Fails_ShowsSaveFailedFocusesSaveAndCanSaveAgain()
     {
-        editor.Start([SampleData.Exercise(Catalog, Squat, ["8", "60"])]);
+        editor.Start([SampleData.Exercise(Catalog, Squat, ["60", "8"])]);
 
         var failed = await editor.SaveAsync(_ => Task.FromResult(false));
 

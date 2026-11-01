@@ -52,7 +52,7 @@ public class WorkoutCheckerTests
     [Test]
     public void Check_ValidWorkout_IsValidAndClearsOldErrors()
     {
-        var squat = SampleData.Exercise(Catalog, Squat, ["8", "60"]);
+        var squat = SampleData.Exercise(Catalog, Squat, ["60", "8"]);
         var run = SampleData.Exercise(Catalog, OutdoorRun, ["0:25:30", "5", null, "5:30"]);
         squat.Error = "Add at least one set";
         run.Entries[0].Errors["duration"] = "Enter duration";
@@ -70,9 +70,9 @@ public class WorkoutCheckerTests
     [Test]
     public void Check_Valid_ClearsCheckOnChange_AndInvalidKeepsIt()
     {
-        var squat = SampleData.Exercise(Catalog, Squat, ["8", "60"]);
+        var squat = SampleData.Exercise(Catalog, Squat, ["60", "8"]);
         squat.Entries[0].CheckOnChange = true;
-        var other = SampleData.Exercise(Catalog, Squat, ["8", "60"]);
+        var other = SampleData.Exercise(Catalog, Squat, ["60", "8"]);
         other.Entries[0].CheckOnChange = true;
 
         checker.Check([squat]);
@@ -100,7 +100,7 @@ public class WorkoutCheckerTests
     [Test]
     public void Check_ChecksEverySetAndEntry()
     {
-        var squat = SampleData.Exercise(Catalog, Squat, ["8", "60"], [null, "60"], ["8", "60.255"]);
+        var squat = SampleData.Exercise(Catalog, Squat, ["60", "8"], ["60", null], ["60.255", "8"]);
         var treadmill = SampleData.Exercise(Catalog, Treadmill, [null, "3.2", "1.255"]);
 
         var result = checker.Check([squat, treadmill]);
@@ -148,8 +148,8 @@ public class WorkoutCheckerTests
     {
         List<ExerciseState> exercises =
         [
-            SampleData.Exercise(Catalog, Squat, ["8", "60"]),
-            SampleData.Exercise(Catalog, Squat, ["8", "60"]),
+            SampleData.Exercise(Catalog, Squat, ["60", "8"]),
+            SampleData.Exercise(Catalog, Squat, ["60", "8"]),
             .. new[] { 8, 132, 222, 218, 258, 187, 263, 264, 13 }.Select(id => SampleData.FullWorkout(Catalog).Single(e => e.ExerciseId == id)),
         ];
 
