@@ -11,7 +11,7 @@ namespace WorkoutLog.E2E.Tests.Steps;
 /// on the page; the others leave it as a user would.
 /// </summary>
 [Binding]
-public sealed class WorkoutSteps(WebView web, Native native, Journeys journeys, WorkoutScreen workout, DeviceClock clock, ScenarioState state)
+public sealed class WorkoutSteps(WebView web, Native native, Journeys journeys, WorkoutScreen workout, SummaryScreen summary, DeviceClock clock, ScenarioState state)
 {
     [Given(@"^I have started a new workout$")]
     [When(@"^I start a new workout$")]
@@ -78,6 +78,8 @@ public sealed class WorkoutSteps(WebView web, Native native, Journeys journeys, 
             // The Dashboard replaced the page before the second tap.
         }
 
+        journeys.WaitFor(Journeys.Screen.Summary);
+        summary.Done();
         journeys.WaitFor(Journeys.Screen.Dashboard);
     }
 

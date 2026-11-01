@@ -7,7 +7,7 @@ namespace WorkoutLog.E2E.Tests.Support;
 public sealed class Journeys(
     WebView web, Native native, DeviceClock clock, ScenarioState state,
     DashboardScreen dashboard, WorkoutScreen workout, AddExerciseScreen addExercise, WorkoutsScreen workouts, ExercisesScreen exercises, MusclesScreen muscles,
-    ConfirmDialog dialog)
+    ConfirmDialog dialog, SummaryScreen summary)
 {
     public enum Screen
     {
@@ -17,6 +17,7 @@ public sealed class Journeys(
         Muscles,
         Settings,
         ImportReview,
+        Summary,
         Workout,
         Other,
     }
@@ -33,6 +34,7 @@ public sealed class Journeys(
             MusclesScreen.Title => Screen.Muscles,
             SettingsScreen.Title => Screen.Settings,
             ImportReviewScreen.Title => Screen.ImportReview,
+            SummaryScreen.Title => Screen.Summary,
             _ when workout.IsShown() => Screen.Workout,
             _ => Screen.Other,
         };
@@ -95,12 +97,27 @@ public sealed class Journeys(
         }
     }
 
-    public void Save() => workout.Save();
+    /// <summary>Taps Save. A new workout opens the Workout Summary, which Done dismisses.</summary>
+    public void Save()
+    {
+        workout.Save();
+        web.Settle();
+        if (Current() == Screen.Summary)
+        {
+            summary.Done();
+        }
+    }
 
-    /// <summary>Saves a valid workout and waits for the Dashboard.</summary>
+    /// <summary>Saves a valid workout, dismisses the Workout Summary a new one opens and waits for the Dashboard.</summary>
     public void SaveAndWait()
     {
         workout.Save();
+        web.WaitUntil(() => Current() is Screen.Summary or Screen.Dashboard, "neither the Workout Summary nor the Dashboard showed");
+        if (Current() == Screen.Summary)
+        {
+            summary.Done();
+        }
+
         WaitFor(Screen.Dashboard);
     }
 

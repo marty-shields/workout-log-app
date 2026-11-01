@@ -1,0 +1,35 @@
+@using WorkoutLog.Core.Domain.Exercises
+@using WorkoutLog.Core.Services
+@using WorkoutLog.UI.Models.Summary
+@inject IWorkoutSummaryService Summaries
+@inject IExerciseCatalog Catalog
+
+<WorkoutSummaryView Summary="summary" Loading="loading" Failed="failed" OnRetry="LoadAsync" OnDone="OnDone" />
+
+@code {
+    private WorkoutSummary? summary;
+    private bool loading = true;
+    private bool failed;
+
+    /// <summary>Id of the saved workout to summarise.</summary>
+    [Parameter, EditorRequired]
+    public int WorkoutId { get; set; }
+
+    /// <summary>Raised by Done and the Android back button.</summary>
+    [Parameter]
+    public EventCallback OnDone { get; set; }
+
+    protected override Task OnInitializedAsync() => LoadAsync();
+
+    /// <summary>Loads the summary through <see cref="IWorkoutSummaryService.GetAsync"/> and shows the error with Try again when that fails.</summary>
+    private async Task LoadAsync()
+    {
+        loading = true;
+        failed = false;
+        StateHasChanged();
+        var result = await Summaries.GetAsync(WorkoutId);
+        summary = result.Summary is { } saved ? SummaryItems.Summary(saved, Catalog) : null;
+        failed = result.Failed;
+        loading = false;
+    }
+}

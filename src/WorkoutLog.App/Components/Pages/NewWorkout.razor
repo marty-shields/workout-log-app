@@ -2,4 +2,4 @@
 @using WorkoutLog.UI.Screens
 @inject NavigationManager Navigation
 
-<NewWorkoutPage OnDiscarded="@(() => Navigation.GoTo(string.Empty))" OnSaved="@(() => Navigation.GoTo(string.Empty))" />
+<NewWorkoutPage OnDiscarded="@(() => Navigation.GoTo(string.Empty))" OnSaved="@(id => Navigation.GoTo($"workout/{id}/summary"))" />

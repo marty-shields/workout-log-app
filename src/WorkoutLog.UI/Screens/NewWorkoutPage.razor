@@ -55,9 +55,9 @@
     [Parameter]
     public EventCallback OnDiscarded { get; set; }
 
-    /// <summary>Raised after the workout is saved.</summary>
+    /// <summary>Raised with the new workout's id after the workout is saved.</summary>
     [Parameter]
-    public EventCallback OnSaved { get; set; }
+    public EventCallback<int> OnSaved { get; set; }
 
     /// <summary>Time since the start, by <see cref="IWorkoutService.Elapsed"/>.</summary>
     private TimeSpan Elapsed => Workouts.Elapsed(draft);
@@ -125,12 +125,17 @@
         await OnDiscarded.InvokeAsync();
     }
 
-    /// <summary>Saves through <see cref="IWorkoutService.SaveNewAsync"/> (<see cref="WorkoutEditor.SaveAsync"/>) and raises <see cref="OnSaved"/>.</summary>
+    /// <summary>Saves through <see cref="IWorkoutService.SaveNewAsync"/> (<see cref="WorkoutEditor.SaveAsync"/>) and raises <see cref="OnSaved"/> with the new id.</summary>
     private async Task SaveAsync()
     {
-        if (await Editor.SaveAsync(async records => (await Workouts.SaveNewAsync(draft, records)).WorkoutId is not null))
+        int? savedId = null;
+        if (await Editor.SaveAsync(async records =>
+            {
+                savedId = (await Workouts.SaveNewAsync(draft, records)).WorkoutId;
+                return savedId is not null;
+            }))
         {
-            await OnSaved.InvokeAsync();
+            await OnSaved.InvokeAsync(savedId!.Value);
         }
     }
 

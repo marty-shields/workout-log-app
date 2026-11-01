@@ -4,7 +4,7 @@ $attribute: CustomPage("Screens/Workout Summary/Overview")
 
 # Workout Summary
 
-What you did and what improved, shown after saving a new workout. View: `WorkoutSummaryView`; page: `WorkoutSummaryPage` (not built yet). Saving an edit goes to the [Dashboard](./?path=/custom/screens-dashboard-overview) as before.
+What you did and what improved, shown after saving a new workout. View: `WorkoutSummaryView`; page: `WorkoutSummaryPage`. Saving an edit goes to the [Dashboard](./?path=/custom/screens-dashboard-overview) as before.
 
 | Part | Content |
 |---|---|
