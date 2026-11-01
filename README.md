@@ -125,6 +125,12 @@ It's built for one person and one phone: no accounts, no sign-up.
     </td>
     <td align="center">
       <picture>
+        <source media="(prefers-color-scheme: dark)" srcset="docs/images/readme/workout-summary-dark.png" />
+        <img src="docs/images/readme/workout-summary-light.png" alt="Workout summary after saving" width="230" />
+      </picture>
+    </td>
+    <td align="center">
+      <picture>
         <source media="(prefers-color-scheme: dark)" srcset="docs/images/readme/settings-dark.png" />
         <img src="docs/images/readme/settings-light.png" alt="Settings with Export and Import" width="230" />
       </picture>
@@ -132,6 +138,7 @@ It's built for one person and one phone: no accounts, no sign-up.
   </tr>
   <tr>
     <td align="center"><sub><b>Dashboard</b></sub></td>
+    <td align="center"><sub><b>Workout summary</b></sub></td>
     <td align="center"><sub><b>Export and import</b></sub></td>
   </tr>
 </table>
