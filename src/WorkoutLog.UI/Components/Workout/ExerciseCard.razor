@@ -328,6 +328,11 @@
         if (ValidateDone is null || ValidateDone(Exercise))
         {
             Exercise.IsDone = true;
+            rows.Clear();
+            summaries.Clear();
+            cardioFields.Clear();
+            openPanel = null;
+            addSet = null;
             return;
         }
 

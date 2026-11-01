@@ -186,6 +186,11 @@ public sealed class WorkoutEditor(
         Error = check.Error;
         if (!check.IsValid)
         {
+            foreach (var exercise in exercises.Where(e => e.HasError))
+            {
+                exercise.IsDone = false;
+            }
+
             ErrorFocus = new ErrorFocus();
             return false;
         }

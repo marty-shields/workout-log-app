@@ -487,6 +487,24 @@ public class WorkoutEditorTests
     }
 
     [Test]
+    public async Task SaveAsync_Invalid_ReopensTheDoneExercisesWithErrorsOnly()
+    {
+        var bad = SampleData.Exercise(Catalog, Squat, ["0", "60"]);
+        var good = SampleData.Exercise(Catalog, Treadmill, ["0:20:00", "3"]);
+        editor.Start([bad, good]);
+        bad.IsDone = true;
+        good.IsDone = true;
+
+        await editor.SaveAsync(_ => Task.FromResult(true));
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(bad.IsDone, Is.False);
+            Assert.That(good.IsDone, Is.True);
+        });
+    }
+
+    [Test]
     public async Task SaveAsync_Valid_SavesTheReadRecordsAndKeepsSaving()
     {
         editor.Start([SampleData.Exercise(Catalog, Squat, ["60", "8"]), SampleData.Exercise(Catalog, Treadmill, ["0:20:00", "3"])]);

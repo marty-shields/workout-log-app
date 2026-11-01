@@ -721,6 +721,21 @@ public class ExerciseCardTests : ComponentTestBase
     }
 
     [Test]
+    public async Task Edit_ThenAddSetAndFocus_AddsAndFocusesTheNewSet()
+    {
+        var exercise = Strength(2);
+        var cut = Context.Render<ExerciseCard>(p => p
+            .Add(x => x.Exercise, exercise)
+            .Add(x => x.TestId, "exercise-1"));
+        cut.Find("[data-testid=exercise-1-done]").Click();
+        cut.Find("[data-testid=exercise-1-edit]").Click();
+
+        await cut.InvokeAsync(() => cut.Instance.AddSetAndFocusAsync());
+
+        Assert.That(cut.FindAll("[data-testid=exercise-1-set-3-reps]"), Has.Count.EqualTo(1));
+    }
+
+    [Test]
     public void Carry_CollapseAndReopen_KeepsTheOpenSet()
     {
         var cut = Context.Render<ExerciseCard>(p => p

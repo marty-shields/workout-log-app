@@ -182,7 +182,7 @@
             {
                 await addExercise.FocusAsync();
             }
-            else if (Exercises.FirstOrDefault(HasError) is { } exercise && cards.TryGetValue(exercise, out var card))
+            else if (Exercises.FirstOrDefault(e => e.HasError) is { } exercise && cards.TryGetValue(exercise, out var card))
             {
                 await card.FocusFirstErrorAsync();
             }
@@ -192,8 +192,6 @@
             Log.ErrorFocusFailed(Logger, exception);
         }
     }
-
-    private static bool HasError(ExerciseState exercise) => exercise.Error is not null || exercise.Entries.Any(e => e.Errors.Count > 0);
 
     private string TimeText => Mode == WorkoutMode.New
         ? $"Elapsed {DisplayFormat.Duration(Time)}"
