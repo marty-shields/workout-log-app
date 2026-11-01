@@ -69,7 +69,7 @@ teardown() {
     if [[ -f "$state/emulator.pid" ]]; then
       pid=$(cat "$state/emulator.pid")
       echo "Stopping the emulator (pid $pid)."
-      kill -0 "$pid" 2>/dev/null && timeout 20 adb -s "$SERIAL" emu kill > /dev/null 2>&1
+      kill -0 "$pid" 2>/dev/null && timeout 20 adb -s "$SERIAL" emu kill 9>&- > /dev/null 2>&1
       for _ in $(seq 30); do kill -0 "$pid" 2>/dev/null || break; sleep 1; done
       kill -0 "$pid" 2>/dev/null && kill -9 "$pid"
       rm -f "$pidfile"
@@ -149,7 +149,7 @@ busy_reason() {
   avail_mb=$(awk '/MemAvailable/ {print int($2 / 1024)}' /proc/meminfo)
   free_gb=$(df -BG --output=avail "$HOME" | tail -n 1 | tr -dc 0-9)
   load=$(cut -d' ' -f1 /proc/loadavg)
-  devices=$(timeout 10 adb devices 2>/dev/null || true)
+  devices=$(timeout 10 adb devices 9>&- 2>/dev/null || true)
   if grep -q "^$SERIAL" <<<"$devices"; then
     echo "$SERIAL is already in use"
   elif command -v ss > /dev/null && [[ -n "$(ss -Hltn '( sport = :5554 or sport = :5555 )' 2>/dev/null)" ]]; then
@@ -163,12 +163,16 @@ busy_reason() {
   fi
 }
 
-# One emulator per machine: other worktrees' runs queue on this lock. The kernel drops it when the run dies.
+# One emulator per machine: other worktrees' runs queue on this lock. The kernel drops it when the run dies. Anything
+# that can start a daemon (adb) runs with 9>&-, or the daemon would hold the lock after the run.
 exec 9> "$lockfile"
-if ! flock -n 9; then
-  echo "Another emulator run holds the slot; waiting."
-  flock -w "$max_wait" 9 || skip "the emulator slot stayed taken for ${max_wait}s."
-fi
+announced=""
+until flock -n 9; do
+  (( SECONDS < deadline )) || skip "the emulator slot stayed taken for ${max_wait}s."
+  [[ -n "$announced" ]] || echo "Another emulator run holds the slot; waiting."
+  announced=1
+  run sleep 5
+done
 
 # Holding the lock means no live run owns an emulator: one left by a killed run would block the port for good.
 if [[ -f "$pidfile" ]]; then
@@ -223,7 +227,7 @@ run .github/scripts/emulator-wait.sh "$results" || exit 1
 pin() { sed -n "s/^ *$1: *//p" .github/workflows/qa-pipeline.yml; }
 cd_version=$(pin CHROMEDRIVER_VERSION)
 cd_sha=$(pin CHROMEDRIVER_SHA256)
-webview=$(adb shell dumpsys webviewupdate | sed -n 's/.*Current WebView package (name, version): ([^,]*, \([0-9.]*\)).*/\1/p')
+webview=$(adb shell dumpsys webviewupdate 9>&- | sed -n 's/.*Current WebView package (name, version): ([^,]*, \([0-9.]*\)).*/\1/p')
 if [[ "${webview%%.*}" != "${cd_version%%.*}" ]]; then
   echo "Chromedriver: WebView $webview, pinned Chromedriver $cd_version: update the pin in qa-pipeline.yml (docs/dev-setup-build.md)." >&2
   exit 1
