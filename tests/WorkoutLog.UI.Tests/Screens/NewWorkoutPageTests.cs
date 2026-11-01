@@ -704,7 +704,7 @@ public class NewWorkoutPageTests : ComponentTestBase
             Assert.That(cut.FindAll("[data-testid=exercise-1-set-2-reps]"), Has.Count.EqualTo(1));
         });
         cut.WaitForAssertion(() => LastFocus().Arguments[0]
-            .ShouldBeElementReferenceTo(cut.Find("[data-testid=exercise-1-set-2-reps]")));
+            .ShouldBeElementReferenceTo(cut.Find("[data-testid=exercise-1-set-2-weight]")));
     }
 
     [Test]

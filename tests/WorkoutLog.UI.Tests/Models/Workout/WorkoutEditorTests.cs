@@ -489,7 +489,7 @@ public class WorkoutEditorTests
     [Test]
     public async Task SaveAsync_Invalid_ReopensTheDoneExercisesWithErrorsOnly()
     {
-        var bad = SampleData.Exercise(Catalog, Squat, ["0", "60"]);
+        var bad = SampleData.Exercise(Catalog, Squat, ["60", "0"]);
         var good = SampleData.Exercise(Catalog, Treadmill, ["0:20:00", "3"]);
         editor.Start([bad, good]);
         bad.IsDone = true;
