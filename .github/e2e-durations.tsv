@@ -55,10 +55,8 @@
 10	WorkoutLog.E2E.Tests.Features.DashboardFeature.DeletingTheLastWorkoutOpenedFromTheDashboardReturnsToTheDashboard
 9	WorkoutLog.E2E.Tests.Features.DashboardFeature.TappingTheLastWorkoutOpensItBackReturnsToTheDashboard("Android back","3",null)
 9	WorkoutLog.E2E.Tests.Features.DashboardFeature.TappingTheLastWorkoutOpensItBackReturnsToTheDashboard("the back arrow","2",null)
-7	WorkoutLog.E2E.Tests.Features.DashboardFeature.TheDashboardLinksToWorkoutsAndNewWorkout("New Workout","New Workout","10",null)
 8	WorkoutLog.E2E.Tests.Features.DashboardFeature.TheDashboardLinksToWorkoutsAndNewWorkout("New Workout","New Workout","11",null)
 7	WorkoutLog.E2E.Tests.Features.DashboardFeature.TheDashboardLinksToWorkoutsAndNewWorkout("Workouts","Workouts","10",null)
-7	WorkoutLog.E2E.Tests.Features.DashboardFeature.TheDashboardLinksToWorkoutsAndNewWorkout("Workouts","Workouts","9",null)
 9	WorkoutLog.E2E.Tests.Features.DashboardFeature.TheLast12WeeksAndTheStreakSeededAcrossThreeWeeks
 7	WorkoutLog.E2E.Tests.Features.DashboardFeature.TheLastWorkoutIsTheOneWithTheLatestStart
 8	WorkoutLog.E2E.Tests.Features.DashboardFeature.TheLastWorkoutShowsHowLongAgoHowLongItTookAndWhatIDid
@@ -88,10 +86,10 @@
 13	WorkoutLog.E2E.Tests.Features.DiscardEditsFeature.OpeningTheAdd_ExerciseListIsntAChange("open the add-exercise list and close it","5",null)
 20	WorkoutLog.E2E.Tests.Features.EditAWorkoutFeature.ABlankAssistIsSavedAs0Kg
 21	WorkoutLog.E2E.Tests.Features.EditAWorkoutFeature.AddASetAndSaveTheTimesDontChange
-10	WorkoutLog.E2E.Tests.Features.EditAWorkoutFeature.CarrySetsStartClosedOnEdit
 18	WorkoutLog.E2E.Tests.Features.EditAWorkoutFeature.ChangeACardioEntryAndSave
 17	WorkoutLog.E2E.Tests.Features.EditAWorkoutFeature.ChangeASetAndSave
 16	WorkoutLog.E2E.Tests.Features.EditAWorkoutFeature.EditsAreCheckedAsOnNewWorkout
+12	WorkoutLog.E2E.Tests.Features.EditAWorkoutFeature.EveryExerciseStartsAsOneLineAndItsCarrySetsAreClosedWhenOpened
 21	WorkoutLog.E2E.Tests.Features.EditAWorkoutFeature.PickingAnExerciseAgainSavesItOnTop
 14	WorkoutLog.E2E.Tests.Features.EditAWorkoutFeature.RemoveASetAndSave
 12	WorkoutLog.E2E.Tests.Features.EditAWorkoutFeature.RemovingEveryExerciseBlocksSave
@@ -172,6 +170,18 @@
 6	WorkoutLog.E2E.Tests.Features.LoggingFeature.StartupIsLogged
 35	WorkoutLog.E2E.Tests.Features.LoggingFeature.ValidationErrorsArentLogged
 54	WorkoutLog.E2E.Tests.Features.LoggingFeature.ValuesITypeNeverReachTheLog
+22	WorkoutLog.E2E.Tests.Features.MarkAnExerciseDoneFeature.ADoneExerciseIsSavedAsItStands
+18	WorkoutLog.E2E.Tests.Features.MarkAnExerciseDoneFeature.DoneChecksACardioEntryToo
+16	WorkoutLog.E2E.Tests.Features.MarkAnExerciseDoneFeature.DoneDoesNotReorderTheExercises
+17	WorkoutLog.E2E.Tests.Features.MarkAnExerciseDoneFeature.DoneIsBlockedByABlankSet
+22	WorkoutLog.E2E.Tests.Features.MarkAnExerciseDoneFeature.DoneShrinksAValidExerciseToOneLine
+21	WorkoutLog.E2E.Tests.Features.MarkAnExerciseDoneFeature.PickingADoneExerciseAgainOpensItOnTopWithANewSet
+19	WorkoutLog.E2E.Tests.Features.MarkAnExerciseDoneFeature.ThePencilOpensTheExerciseAsILeftIt
+27	WorkoutLog.E2E.Tests.Features.MarkAnExerciseDoneFeature.TheTrashAsksFirstOnADoneExercise
+16	WorkoutLog.E2E.Tests.Features.MarkAnExerciseDoneFeature.TheTrashAsksFirstOnAnOpenExercise
+11	WorkoutLog.E2E.Tests.Features.MarkAnExerciseDoneOnEditWorkoutFeature.EveryExerciseStartsAsOneLine
+8	WorkoutLog.E2E.Tests.Features.MarkAnExerciseDoneOnEditWorkoutFeature.OpeningAndClosingAnExerciseIsNotAChange
+11	WorkoutLog.E2E.Tests.Features.MarkAnExerciseDoneOnEditWorkoutFeature.ThePencilOpensOneExerciseWithItsSavedValues
 8	WorkoutLog.E2E.Tests.Features.NewWorkoutFeature.ANewWorkoutShowsTodaysDateAndARunningTimer
 15	WorkoutLog.E2E.Tests.Features.NewWorkoutFeature.TheTimerKeepsRunningWhileILog
 8	WorkoutLog.E2E.Tests.Features.RecentRecordsFeature.ARecordOpensItsExercisePageAndBackReturnsToTheDashboard("Android back","3",null)
@@ -207,11 +217,11 @@
 24	WorkoutLog.E2E.Tests.Features.StrengthSetsFeature.AddSetShowsEveryProblemOnTheSetAndFocusesTheFirstFieldAtFault
 24	WorkoutLog.E2E.Tests.Features.StrengthSetsFeature.AnAcceptedValueLetsMeAddTheNextSet
 18	WorkoutLog.E2E.Tests.Features.StrengthSetsFeature.EachDurationBoxTakesTwoDigits
-15	WorkoutLog.E2E.Tests.Features.StrengthSetsFeature.EachKindOfStrengthExerciseShowsItsOwnFields("Barbell Back Squat","Reps, Weight (kg)","0",null)
+15	WorkoutLog.E2E.Tests.Features.StrengthSetsFeature.EachKindOfStrengthExerciseShowsItsOwnFields("Barbell Back Squat","Weight (kg), Reps","0",null)
 14	WorkoutLog.E2E.Tests.Features.StrengthSetsFeature.EachKindOfStrengthExerciseShowsItsOwnFields("Farmer's Walk","Distance (m), Weight (kg), Duration","2",null)
 14	WorkoutLog.E2E.Tests.Features.StrengthSetsFeature.EachKindOfStrengthExerciseShowsItsOwnFields("Plank","Duration, Weight (kg)","1",null)
 33	WorkoutLog.E2E.Tests.Features.StrengthSetsFeature.OnceASetFailsEachChangeRe_ChecksIt
-27	WorkoutLog.E2E.Tests.Features.StrengthSetsFeature.RemoveExerciseRemovesItAtOnce
+17	WorkoutLog.E2E.Tests.Features.StrengthSetsFeature.RemoveExerciseAsksFirstThenRemovesIt
 28	WorkoutLog.E2E.Tests.Features.StrengthSetsFeature.RemoveSetIsNeverBlocked
 38	WorkoutLog.E2E.Tests.Features.StrengthSetsFeature.RemovingAMiddleSetKeepsTheOthersInOrder
 20	WorkoutLog.E2E.Tests.Features.StrengthSetsFeature.StrengthValuesAreChecked("Barbell Back Squat","8 reps","reps","8.5","Reps must be a whole number","6",null)
