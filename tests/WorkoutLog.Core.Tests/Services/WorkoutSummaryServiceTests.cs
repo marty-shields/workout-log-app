@@ -2,6 +2,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Testing;
 using Moq;
 using WorkoutLog.Core.Data;
+using WorkoutLog.Core.Domain.Exercises;
 using WorkoutLog.Core.Domain.Exercises.Bests;
 using WorkoutLog.Core.Domain.Exercises.Progress;
 using WorkoutLog.Core.Domain.Workouts;
@@ -31,7 +32,7 @@ public class WorkoutSummaryServiceTests
             new LiftBestRule(new TopSetRule()), new BodyweightBestRule(new BodyweightRule(new TopSetRule(), new E1rmRule())), new AssistedBestRule(new LeastAssistRule()),
             new HoldBestRule(new HoldRule()), new CarryBestRule(new CarryRule()), new CardioBestRule(new CardioSessionRule()),
         ];
-        service = new WorkoutSummaryService(repository.Object, Catalog, rules, new RecordCheck(rules), new BestChangeRule(rules), logger);
+        service = new WorkoutSummaryService(repository.Object, Catalog, new RecordCheck(rules), new BestChangeRule(rules), logger);
         nextId = 0;
         workouts.Clear();
     }
@@ -200,6 +201,47 @@ public class WorkoutSummaryServiceTests
             (CoreEvent.WorkoutSummaryUnknownExercise, LogLevel.Warning, "Exercise 999 is not in the exercise list; left out"),
             (CoreEvent.WorkoutSummaryLoaded, LogLevel.Information, $"Loaded the summary of workout {saved.Id}"),
         }));
+    }
+
+    [Test]
+    public async Task GetAsync_ExerciseWithNoBest_IsLeftOutButCounted()
+    {
+        Workout(Start.AddDays(-7), Sets(Squat, Set(5, 100m)));
+        var saved = Workout(Start, Sets(Squat, Set(5, 100m)), Sets(Curl));
+        Setup();
+
+        var summary = (await service.GetAsync(saved.Id)).Summary!;
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(summary.ExerciseCount, Is.EqualTo(2));
+            Assert.That(summary.Exercises.Select(e => e.ExerciseId), Is.EqualTo(new[] { Squat }));
+        });
+    }
+
+    [Test]
+    public async Task GetAsync_SummarisingAnExerciseFails_LeavesItOutAndLogsAWarningWithTheException()
+    {
+        var error = new InvalidOperationException("bad set");
+        var recordCheck = new Mock<IRecordCheck>();
+        recordCheck.Setup(c => c.Records(It.IsAny<ExerciseDefinition>(), It.IsAny<IEnumerable<WorkoutSession>>())).Returns([]);
+        var changeRule = new Mock<IBestChangeRule>();
+        changeRule.Setup(r => r.Change(It.Is<ExerciseDefinition>(d => d.Id == Squat), It.IsAny<WorkoutExercise>(), It.IsAny<IEnumerable<WorkoutExercise>>())).Throws(error);
+        changeRule.Setup(r => r.Change(It.Is<ExerciseDefinition>(d => d.Id == Curl), It.IsAny<WorkoutExercise>(), It.IsAny<IEnumerable<WorkoutExercise>>()))
+            .Returns(new SessionChange(new ExerciseBest(10m, 8, null, null), new BestChange(BestChangeKind.FirstTime, null)));
+        service = new WorkoutSummaryService(repository.Object, Catalog, recordCheck.Object, changeRule.Object, logger);
+        var saved = Workout(Start, Sets(Squat, Set(5, 100m)), Sets(Curl, Set(8, 10m)));
+        Setup();
+
+        var result = await service.GetAsync(saved.Id);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(result.Failed, Is.False);
+            Assert.That(result.Summary!.Exercises.Select(e => e.ExerciseId), Is.EqualTo(new[] { Curl }));
+            Assert.That(LoggedEvents.Of(logger).Select(e => (e.Id, e.Level)), Does.Contain((CoreEvent.WorkoutSummaryExerciseFailed, LogLevel.Warning)));
+            Assert.That(logger.Collector.GetSnapshot().Single(r => r.Id.Id == (int)CoreEvent.WorkoutSummaryExerciseFailed).Exception, Is.SameAs(error));
+        });
     }
 
     [Test]

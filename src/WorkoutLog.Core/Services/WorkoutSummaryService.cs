@@ -14,7 +14,6 @@ namespace WorkoutLog.Core.Services;
 internal sealed partial class WorkoutSummaryService(
     IWorkoutRepository repository,
     IExerciseCatalog catalog,
-    IEnumerable<IBestRule> bestRules,
     IRecordCheck recordCheck,
     IBestChangeRule changeRule,
     ILogger<WorkoutSummaryService> logger) : IWorkoutSummaryService
@@ -26,7 +25,10 @@ internal sealed partial class WorkoutSummaryService(
         {
             var workouts = await repository.GetAllAsync();
             var workout = workouts.SingleOrDefault(w => w.Id == workoutId) ?? throw new KeyNotFoundException($"Workout {workoutId} does not exist.");
-            var earlier = workouts.Where(w => w.StartedAt < workout.StartedAt).ToList();
+            var sessions = workouts
+                .Where(w => w.StartedAt <= workout.StartedAt)
+                .SelectMany(w => w.Exercises.Select(e => new WorkoutSession(w.Id, w.StartedAt, e)))
+                .ToLookup(s => s.Exercise.ExerciseId);
             var definitions = catalog.All.ToDictionary(e => e.Id);
             var exercises = new List<SummaryExercise>();
             foreach (var logged in workout.Exercises)
@@ -37,28 +39,27 @@ internal sealed partial class WorkoutSummaryService(
                     continue;
                 }
 
-                var rule = bestRules.Single(r => r.AppliesTo(definition));
-                if (rule.Best(definition, logged) is not { } best)
+                try
                 {
-                    continue;
+                    var history = sessions[logged.ExerciseId].ToList();
+                    var earlier = history.Where(s => s.StartedAt < workout.StartedAt).Select(s => s.Exercise);
+                    if (changeRule.Change(definition, logged, earlier) is { } session)
+                    {
+                        var isRecord = recordCheck.Records(definition, history).Any(r => r.Session.WorkoutId == workoutId);
+                        exercises.Add(new SummaryExercise(logged.ExerciseId, session.Best, isRecord, session.Change));
+                    }
                 }
-
-                var before = earlier.Select(w => (w.StartedAt, Exercise: w.Exercises.FirstOrDefault(e => e.ExerciseId == logged.ExerciseId)))
-                    .Where(s => s.Exercise is not null)
-                    .Select(s => (s.StartedAt, Best: rule.Best(definition, s.Exercise!)))
-                    .Where(s => s.Best is not null)
-                    .OrderBy(s => s.StartedAt)
-                    .LastOrDefault().Best;
-                var sessions = workouts.Where(w => w.StartedAt <= workout.StartedAt)
-                    .SelectMany(w => w.Exercises.Where(e => e.ExerciseId == logged.ExerciseId).Select(e => new WorkoutSession(w.Id, w.StartedAt, e)));
-                var isRecord = recordCheck.Records(definition, sessions).Any(r => r.Session.WorkoutId == workoutId);
-                exercises.Add(new SummaryExercise(logged.ExerciseId, best, isRecord, changeRule.Change(definition, best, before)));
+                catch (InvalidOperationException exception)
+                {
+                    Log.ExerciseFailed(logger, logged.ExerciseId, exception);
+                }
             }
 
             var sets = workout.Exercises.OfType<StrengthExercise>().Sum(e => e.Sets.Count);
+            var hasEarlierWorkout = workouts.Any(w => w.StartedAt < workout.StartedAt);
             Log.Loaded(logger, workoutId);
             return new WorkoutSummaryResult(
-                new SavedWorkoutSummary(workout.FinishedAt - workout.StartedAt, workout.Exercises.Count, sets, earlier.Count > 0, exercises),
+                new SavedWorkoutSummary(workout.FinishedAt - workout.StartedAt, workout.Exercises.Count, sets, hasEarlierWorkout, exercises),
                 Failed: false);
         }
         catch (Exception exception)
@@ -78,5 +79,8 @@ internal sealed partial class WorkoutSummaryService(
 
         [LoggerMessage((int)CoreEvent.WorkoutSummaryUnknownExercise, LogLevel.Warning, "Exercise {ExerciseId} is not in the exercise list; left out")]
         public static partial void UnknownExercise(ILogger logger, int exerciseId);
+
+        [LoggerMessage((int)CoreEvent.WorkoutSummaryExerciseFailed, LogLevel.Warning, "Summarising exercise {ExerciseId} failed; left out")]
+        public static partial void ExerciseFailed(ILogger logger, int exerciseId, Exception exception);
     }
 }

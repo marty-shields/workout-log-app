@@ -56,21 +56,24 @@
                             </ul>
                         }
                     </section>
-                    <section class="card" data-testid="summary-changes">
-                        <h2 class="title">Since last time</h2>
-                        <ul class="rows">
-                            @foreach (var change in summary.Changes)
-                            {
-                                <li class="row" data-testid="@($"summary-change-{change.ExerciseId}")">
-                                    <span class="texts">
-                                        <span class="text">@change.Exercise</span>
-                                        <span class="detail">@change.Best</span>
-                                    </span>
-                                    @Change(change.Since)
-                                </li>
-                            }
-                        </ul>
-                    </section>
+                    @if (summary.Changes.Count > 0)
+                    {
+                        <section class="card" data-testid="summary-changes">
+                            <h2 class="title">Since last time</h2>
+                            <ul class="rows">
+                                @foreach (var change in summary.Changes)
+                                {
+                                    <li class="row" data-testid="@($"summary-change-{change.ExerciseId}")">
+                                        <span class="texts">
+                                            <span class="text">@change.Exercise</span>
+                                            <span class="detail">@change.Best</span>
+                                        </span>
+                                        @Change(change.Since)
+                                    </li>
+                                }
+                            </ul>
+                        </section>
+                    }
                 }
             </div>
         }

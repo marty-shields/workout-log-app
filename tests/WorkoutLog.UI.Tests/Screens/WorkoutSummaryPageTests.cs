@@ -108,6 +108,34 @@ public class WorkoutSummaryPageTests : ComponentTestBase
     }
 
     [Test]
+    public async Task DisposedWhileLoading_IgnoresTheResult()
+    {
+        summaries.Hold = true;
+        Render(7);
+        await Context.DisposeComponentsAsync();
+
+        summaries.Complete();
+        await Task.Delay(50);
+
+        Assert.That(summaries.Loads, Is.EqualTo(new[] { 7 }));
+    }
+
+    [Test]
+    public void EarlierWorkoutButNoShownExercises_ShowsNoSinceLastTimeCard()
+    {
+        summaries.Result = new WorkoutSummaryResult(Loaded with { Exercises = [] }, Failed: false);
+
+        var cut = Render(7);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.FindAll("[data-testid=summary-first-workout]"), Is.Empty);
+            Assert.That(cut.FindAll("[data-testid=summary-records-none]"), Has.Count.EqualTo(1));
+            Assert.That(cut.FindAll("[data-testid=summary-changes]"), Is.Empty);
+        });
+    }
+
+    [Test]
     public void Done_RaisesOnDone()
     {
         var done = 0;

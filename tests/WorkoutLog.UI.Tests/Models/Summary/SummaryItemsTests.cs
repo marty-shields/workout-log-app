@@ -77,6 +77,28 @@ public class SummaryItemsTests
         Assert.That(summary.Changes.Single().Since, Is.EqualTo(SinceLastTime.FirstTime));
     }
 
+    [Test]
+    public void Summary_EarlierWorkoutButNothingToShow_IsNotTheFirstWorkout()
+    {
+        var summary = SummaryItems.Summary(Saved(true), Catalog);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(summary.IsFirstWorkout, Is.False);
+            Assert.That(summary.Changes, Is.Empty);
+        });
+    }
+
+    [Test]
+    public void Summary_ExerciseNotInTheCatalog_IsLeftOut()
+    {
+        var summary = SummaryItems.Summary(Saved(true,
+            Exercise(999, new ExerciseBest(100m, 5, null, null), true, BestChangeKind.FirstTime),
+            Exercise(Squat, new ExerciseBest(100m, 5, null, null), false, BestChangeKind.FirstTime)), Catalog);
+
+        Assert.That(summary.Changes.Select(c => c.ExerciseId), Is.EqualTo(new[] { Squat }));
+    }
+
     private static SummaryExercise Exercise(int id, ExerciseBest best, bool record, BestChangeKind kind, ExerciseBest? difference = null) =>
         new(id, best, record, new BestChange(kind, difference));
 

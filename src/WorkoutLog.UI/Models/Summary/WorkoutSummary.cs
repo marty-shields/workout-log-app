@@ -8,6 +8,6 @@ namespace WorkoutLog.UI.Models.Summary;
 /// <param name="Changes">Each exercise's best against its last session, in the workout's order. Empty when the workout is the first one.</param>
 public sealed record WorkoutSummary(TimeSpan Duration, int Exercises, int Sets, IReadOnlyList<SummaryRecord> Records, IReadOnlyList<SummaryChange> Changes)
 {
-    /// <summary>There is no earlier workout to compare with: <see cref="Changes"/> is empty.</summary>
-    public bool IsFirstWorkout => Changes.Count == 0;
+    /// <summary>There is no earlier workout to compare with. Defaults to <see cref="Changes"/> being empty.</summary>
+    public bool IsFirstWorkout { get; init; } = Changes.Count == 0;
 }

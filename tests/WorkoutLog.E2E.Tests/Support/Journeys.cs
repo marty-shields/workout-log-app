@@ -9,6 +9,8 @@ public sealed class Journeys(
     DashboardScreen dashboard, WorkoutScreen workout, AddExerciseScreen addExercise, WorkoutsScreen workouts, ExercisesScreen exercises, MusclesScreen muscles,
     ConfirmDialog dialog, SummaryScreen summary)
 {
+    private static readonly TimeSpan SaveGrace = TimeSpan.FromSeconds(3);
+
     public enum Screen
     {
         Dashboard,
@@ -97,10 +99,15 @@ public sealed class Journeys(
         }
     }
 
-    /// <summary>Taps Save. A new workout opens the Workout Summary, which Done dismisses.</summary>
+    /// <summary>
+    /// Taps Save. A new workout opens the Workout Summary, which Done dismisses. A save that is blocked leaves the workout showing,
+    /// so this waits a few seconds for the screen to change and then carries on.
+    /// </summary>
     public void Save()
     {
         workout.Save();
+        var deadline = DateTime.UtcNow + SaveGrace;
+        web.WaitUntil(() => Current() != Screen.Workout || DateTime.UtcNow > deadline, "the screen didn't settle after Save");
         web.Settle();
         if (Current() == Screen.Summary)
         {
