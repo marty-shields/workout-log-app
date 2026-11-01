@@ -140,7 +140,7 @@ public static class SampleData
     /// <summary>A squat whose last set is the record, a carry whose first set is the record and a run that is the record, each with its last and PB.</summary>
     public static List<ExerciseState> RecordsWorkout(IExerciseCatalog catalog) =>
     [
-        WithRecord(WithWeights(Exercise(catalog, 6, ["8", "60"], ["8", "60"], ["6", "62.5"]), 60m, 60m), 2),
+        WithRecord(WithWeights(Exercise(catalog, 6, ["60", "8"], ["60", "8"], ["62.5", "6"]), 60m, 60m), 2),
         WithRecord(Exercise(catalog, 187, ["40", "36", "0:00:45"], ["40", "32", "0:00:50"], ["30", "32", null]), 0),
         WithRecord(Exercise(catalog, 311, ["0:25:30", "5.2", null]), 0),
     ];
