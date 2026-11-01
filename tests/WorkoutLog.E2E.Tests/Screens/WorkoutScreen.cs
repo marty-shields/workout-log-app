@@ -93,6 +93,13 @@ public sealed partial class WorkoutScreen(WebView web, Native native)
     public string? Weights(string name) =>
         web.Exists($"{Card(name)}-weights") ? web.Find($"{Card(name)}-weights").GetDomProperty("textContent")?.Trim() : null;
 
+    /// <summary>Whether the Record badge shows on a set (<paramref name="set"/> given) or a cardio entry. A done card is opened first.</summary>
+    public bool HasRecord(string name, int? set)
+    {
+        Open(name);
+        return web.Exists(set is { } number ? $"{Card(name)}-set-{number}-record" : $"{Card(name)}-record");
+    }
+
     /// <summary>The cardio entry's worked-out pace or speed line, e.g. Pace 5:46/km; null when the card has none.</summary>
     public string? WorkedOut(string name) => web.Exists($"{Card(name)}-worked-out") ? web.Text($"{Card(name)}-worked-out") : null;
 

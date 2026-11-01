@@ -190,6 +190,19 @@ public sealed class WorkoutSteps(WebView web, Native native, Journeys journeys, 
         Assert.That(workout.Weights(name), Is.Null, $"{name} last and PB");
     }
 
+    [Then(@"^(.+?)((?: set \d+)?) has the Record badge$")]
+    public void ThenHasTheRecordBadge(string name, string set) =>
+        web.Eventually(() => workout.HasRecord(name, SetNumber(set)), Is.True, $"{name}{set} Record badge");
+
+    /// <summary>Waits for the card, then the settle time, then checks the set or entry has no Record badge.</summary>
+    [Then(@"^(.+?)((?: set \d+)?) has no Record badge$")]
+    public void ThenHasNoRecordBadge(string name, string set)
+    {
+        workout.Card(name);
+        web.Settle();
+        Assert.That(workout.HasRecord(name, SetNumber(set)), Is.False, $"{name}{set} Record badge");
+    }
+
     [When(@"^I remove every exercise$")]
     public void WhenIRemoveEveryExercise()
     {
@@ -201,6 +214,8 @@ public sealed class WorkoutSteps(WebView web, Native native, Journeys journeys, 
     }
 
     /// <summary>Logs " set N", every set (" sets") or, with neither, set 1 or the cardio entry.</summary>
+    private static int? SetNumber(string set) => set.Length > 0 ? int.Parse(set[" set ".Length..], CultureInfo.InvariantCulture) : null;
+
     private void Log(string name, string sets, string values)
     {
         if (sets == " sets")
