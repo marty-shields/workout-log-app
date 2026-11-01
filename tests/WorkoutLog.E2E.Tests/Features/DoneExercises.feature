@@ -15,7 +15,7 @@ Feature: Mark an exercise done
     When I tap Done on Barbell Back Squat
     Then Barbell Back Squat is shown open
     And Barbell Back Squat set 1 shows "Enter reps"
-    And focus is on Barbell Back Squat set 1 reps
+    And focus is on Barbell Back Squat set 1 weight
 
   Scenario: Done checks a cardio entry too
     Given I have added "Treadmill"
