@@ -61,6 +61,47 @@ public class WorkoutDiscardTests(WorkoutMode mode) : ComponentTestBase
         });
     }
 
+    [TestCase("workout-note", "workout-note-add")]
+    [TestCase("exercise-1-note", "exercise-1-add-note")]
+    public void NoteEdit_BackAsksAndCancelKeepsTheNote(string note, string addNote)
+    {
+        var cut = Render(() => leaves++);
+        cut.Find($"[data-testid={addNote}]").Click();
+        cut.Find($"[data-testid={note}-input]").Input("Slept badly");
+        cut.Find($"[data-testid={note}-input]").Blur();
+
+        cut.Find("[data-testid=back]").Click();
+        var asked = cut.FindAll("[data-testid=confirm-dialog]").Count;
+        cut.Find("[data-testid=confirm-dialog-cancel]").Click();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(asked, Is.EqualTo(1));
+            Assert.That(cut.FindAll("[data-testid=confirm-dialog]"), Is.Empty);
+            Assert.That(cut.Find($"[data-testid={note}-open] .text").TextContent, Is.EqualTo("Slept badly"));
+            Assert.That(leaves, Is.Zero);
+        });
+    }
+
+    [TestCase("workout-note", "workout-note-add")]
+    [TestCase("exercise-1-note", "exercise-1-add-note")]
+    public void NoteEdit_Discard_LogsNoNoteTextAndRaisesOnce(string note, string addNote)
+    {
+        var cut = Render(() => leaves++);
+        cut.Find($"[data-testid={addNote}]").Click();
+        cut.Find($"[data-testid={note}-input]").Input("Slept badly");
+        cut.Find($"[data-testid={note}-input]").Blur();
+        cut.Find("[data-testid=back]").Click();
+
+        cut.Find("[data-testid=confirm-dialog-confirm]").Click();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(leaves, Is.EqualTo(1));
+            Assert.That(LoggedEvents.Of(logger).Select(e => e.Message), Has.All.Not.Contain("Slept badly"));
+        });
+    }
+
     [Test]
     public async Task Discard_Twice_LogsAndRaisesOnceAndBackIsIgnored()
     {

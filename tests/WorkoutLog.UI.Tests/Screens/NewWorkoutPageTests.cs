@@ -793,6 +793,59 @@ public class NewWorkoutPageTests : ComponentTestBase
     }
 
     [Test]
+    public async Task Pick_Strength_ShowsTheLastNoteUnderTheLastAndPbLine()
+    {
+        var weights = UseWeights();
+        var cut = RenderPage();
+        Add(cut, 6);
+
+        weights.Complete(new WeightHistoryResult(62.5m, 70m, "Belt on from set 3", Failed: false));
+        await WaitForRendererAsync();
+
+        cut.WaitForAssertion(() =>
+        {
+            Assert.That(cut.Find("[data-testid=exercise-1-weights]").TextContent, Is.EqualTo("Last 62.5kg · PB 70kg"));
+            Assert.That(cut.Find("[data-testid=exercise-1-last-note] .text").TextContent, Is.EqualTo("Belt on from set 3"));
+        });
+    }
+
+    [Test]
+    public async Task Pick_FailedLoad_ShowsNoLastNoteAndNoError()
+    {
+        var weights = UseWeights();
+        var cut = RenderPage();
+        Add(cut, 300);
+
+        weights.Complete(new WeightHistoryResult(null, null, null, Failed: true));
+        await WaitForRendererAsync();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.FindAll("[data-testid=exercise-1-last-note]"), Is.Empty);
+            Assert.That(cut.FindAll("[role=alert]"), Is.Empty);
+            Assert.That(LoggedEvents.Of(logger), Is.Empty);
+        });
+    }
+
+    [Test]
+    public async Task PickAgain_DoesNotReloadAndKeepsTheLastNote()
+    {
+        var weights = UseWeights();
+        var cut = RenderPage();
+        Add(cut, 300);
+        weights.Complete(new WeightHistoryResult(null, null, "Windy", Failed: false));
+        await WaitForRendererAsync();
+
+        Add(cut, 300);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(weights.Loads, Is.EqualTo(new[] { 300 }));
+            Assert.That(cut.Find("[data-testid=exercise-1-last-note] .text").TextContent, Is.EqualTo("Windy"));
+        });
+    }
+
+    [Test]
     public async Task PickAgain_DoesNotReloadAndKeepsTheLine()
     {
         var weights = UseWeights();
@@ -958,6 +1011,119 @@ public class NewWorkoutPageTests : ComponentTestBase
             Assert.That(exercise.Sets, Is.EqualTo(new[] { new StrengthSet(8, 12.5m, null, null) }));
             Assert.That(saved, Is.EqualTo(1));
             Assert.That(savedId, Is.Not.Null);
+        });
+    }
+
+    [Test]
+    public void Save_WithNotes_SavesTheWorkoutNoteAndEachExercisesNote()
+    {
+        var cut = RenderPage();
+        Add(cut, 132);
+        cut.Find("[data-testid=exercise-1-set-1-reps]").Input("8");
+        cut.Find("[data-testid=exercise-1-set-1-weight]").Input("12.5");
+        Add(cut, 300);
+        cut.Find("[data-testid=exercise-1-duration-mm]").Input("20");
+        cut.Find("[data-testid=exercise-1-distance]").Input("3");
+        TypeNote(cut, null, "Slept badly");
+        TypeNote(cut, 1, "Windy");
+        TypeNote(cut, 2, "Left knee twinge");
+
+        cut.Find("[data-testid=save-workout]").Click();
+
+        var (_, note, exercises) = workouts.Saves.Single();
+        Assert.Multiple(() =>
+        {
+            Assert.That(note, Is.EqualTo("Slept badly"));
+            Assert.That(exercises.Select(e => (e.ExerciseId, e.Note)), Is.EqualTo(new[] { (132, "Left knee twinge"), (300, "Windy") }));
+        });
+    }
+
+    [Test]
+    public void Save_WithNoNotes_SavesNone()
+    {
+        var cut = RenderPage();
+        Add(cut, 132);
+        cut.Find("[data-testid=exercise-1-set-1-reps]").Input("8");
+        cut.Find("[data-testid=exercise-1-set-1-weight]").Input("12.5");
+
+        cut.Find("[data-testid=save-workout]").Click();
+
+        var (_, note, exercises) = workouts.Saves.Single();
+        Assert.Multiple(() =>
+        {
+            Assert.That(note, Is.Null);
+            Assert.That(exercises.Single().Note, Is.Null);
+        });
+    }
+
+    [Test]
+    public void Save_WorkoutNoteTooLong_ShowsTheNoteErrorAndDoesNotSaveUntilItIsShortened()
+    {
+        var cut = RenderPage();
+        Add(cut, 132);
+        cut.Find("[data-testid=exercise-1-set-1-reps]").Input("8");
+        cut.Find("[data-testid=exercise-1-set-1-weight]").Input("12.5");
+        TypeNote(cut, null, SampleData.NoteTooLong);
+
+        cut.Find("[data-testid=save-workout]").Click();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.Find("[data-testid=workout-note-error]").TextContent, Is.EqualTo("Note must be 500 characters or less"));
+            Assert.That(cut.FindAll("[data-testid=workout-error]"), Is.Empty);
+            Assert.That(workouts.Saves, Is.Empty);
+        });
+
+        Retype(cut, null, "Short");
+
+        Assert.That(cut.FindAll("[data-testid=workout-note-error]"), Is.Empty);
+        cut.Find("[data-testid=save-workout]").Click();
+        Assert.That(workouts.Saves.Single().Note, Is.EqualTo("Short"));
+    }
+
+    [Test]
+    public void Save_ExerciseNoteTooLong_ShowsTheNoteErrorAndDoesNotSaveUntilItIsShortened()
+    {
+        var cut = RenderPage();
+        Add(cut, 132);
+        cut.Find("[data-testid=exercise-1-set-1-reps]").Input("8");
+        cut.Find("[data-testid=exercise-1-set-1-weight]").Input("12.5");
+        TypeNote(cut, 1, SampleData.NoteTooLong);
+
+        cut.Find("[data-testid=save-workout]").Click();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.Find("[data-testid=exercise-1-note-error]").TextContent, Is.EqualTo("Note must be 500 characters or less"));
+            Assert.That(workouts.Saves, Is.Empty);
+        });
+
+        Retype(cut, 1, "Short");
+
+        Assert.That(cut.FindAll("[data-testid=exercise-1-note-error]"), Is.Empty);
+        cut.Find("[data-testid=save-workout]").Click();
+        Assert.That(workouts.Saves.Single().Exercises.Single().Note, Is.EqualTo("Short"));
+    }
+
+    [Test]
+    public void Save_WriteFailsWithNotes_ShowsTheSaveErrorAndKeepsTheNotes()
+    {
+        var cut = RenderPage();
+        workouts.SaveNew = () => Task.FromResult(new SaveResult(null, new WorkoutErrors([WorkoutError.SaveFailed], [])));
+        Add(cut, 132);
+        cut.Find("[data-testid=exercise-1-set-1-reps]").Input("8");
+        cut.Find("[data-testid=exercise-1-set-1-weight]").Input("20");
+        TypeNote(cut, null, "Slept badly");
+        TypeNote(cut, 1, "Left knee twinge");
+
+        cut.Find("[data-testid=save-workout]").Click();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.Find("[data-testid=workout-error]").TextContent, Is.EqualTo("Couldn't save the workout. Try again"));
+            Assert.That(cut.Find("[data-testid=workout-note-open] .text").TextContent, Is.EqualTo("Slept badly"));
+            Assert.That(cut.Find("[data-testid=exercise-1-note-open] .text").TextContent, Is.EqualTo("Left knee twinge"));
+            Assert.That(cut.FindAll("[data-testid$=-note-error]"), Is.Empty);
         });
     }
 
@@ -1208,6 +1374,27 @@ public class NewWorkoutPageTests : ComponentTestBase
         cut.Find("[data-testid=confirm-dialog-confirm]").Click();
     }
 
+    /// <summary>Taps Add note on the workout (<paramref name="number"/> null) or the numbered exercise, types the text and leaves the field, so it shows as one line.</summary>
+    private static void TypeNote(IRenderedComponent<NewWorkoutPage> cut, int? number, string text)
+    {
+        cut.Find(number is { } n ? $"[data-testid=exercise-{n}-add-note]" : "[data-testid=workout-note-add]").Click();
+        var input = cut.Find(number is { } m ? $"[data-testid=exercise-{m}-note-input]" : "[data-testid=workout-note-input]");
+        input.Input(text);
+        input.Blur();
+    }
+
+    /// <summary>Types over the note that shows an error, opening its field first when it is a one-line summary.</summary>
+    private static void Retype(IRenderedComponent<NewWorkoutPage> cut, int? number, string text)
+    {
+        var prefix = number is { } n ? $"exercise-{n}-note" : "workout-note";
+        if (cut.FindAll($"[data-testid={prefix}-input]").Count == 0)
+        {
+            cut.Find($"[data-testid={prefix}-open]").Click();
+        }
+
+        cut.Find($"[data-testid={prefix}-input]").Input(text);
+    }
+
     /// <summary>Opens the add-exercise list, searches for the exercise by name and picks it.</summary>
     private static void Add(IRenderedComponent<NewWorkoutPage> cut, int exerciseId)
     {
@@ -1321,7 +1508,7 @@ public class NewWorkoutPageTests : ComponentTestBase
 
         public List<WorkoutDraft> Drafts { get; } = [];
 
-        public List<(WorkoutDraft Draft, IReadOnlyList<WorkoutExercise> Exercises)> Saves { get; } = [];
+        public List<(WorkoutDraft Draft, string? Note, IReadOnlyList<WorkoutExercise> Exercises)> Saves { get; } = [];
 
         /// <summary>When set, <see cref="SaveNewAsync"/> returns its result instead of the inner service's.</summary>
         public Func<Task<SaveResult>>? SaveNew { get; set; }
@@ -1346,7 +1533,7 @@ public class NewWorkoutPageTests : ComponentTestBase
 
         public Task<SaveResult> SaveNewAsync(WorkoutDraft draft, string? note, IReadOnlyList<WorkoutExercise> exercises)
         {
-            Saves.Add((draft, exercises));
+            Saves.Add((draft, note, exercises));
             return SaveNew?.Invoke() ?? inner.SaveNewAsync(draft, note, exercises);
         }
 
