@@ -39,7 +39,7 @@ public class SetGridTests
     {
         Assert.Multiple(() =>
         {
-            Assert.That(SetGrid.Columns([Weight, Reps], true), Is.EqualTo("var(--set-number-width) minmax(0, 0.7fr) minmax(0, 1fr) minmax(0, 1fr) var(--touch-target)"));
+            Assert.That(SetGrid.Columns([Weight, Reps], true), Is.EqualTo("var(--set-number-width) var(--set-last-width) minmax(0, 1fr) minmax(0, 1fr) var(--touch-target)"));
         });
     }
 

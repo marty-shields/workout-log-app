@@ -16,6 +16,38 @@ jobs:
   dev:
     uses: ./.github/workflows/dev-pipeline.yml
 
+  # Fails when a story clips, overflows or wraps at the narrowest card.
+  story-layout:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: ./.github/actions/setup-maui
+
+      - name: Build the stories
+        run: dotnet build src/WorkoutLog.UI.Stories
+
+      - name: Check the story layout
+        run: |
+          trap 'kill "$SERVER_PID" 2>/dev/null || true' EXIT
+          dotnet run --project src/WorkoutLog.UI.Stories --no-build --urls http://localhost:5056 > "$RUNNER_TEMP/stories.log" 2>&1 &
+          SERVER_PID=$!
+          ready=false
+          for _ in $(seq 60); do
+            if curl -fs -o /dev/null http://localhost:5056/iframe.html; then ready=true; break; fi
+            kill -0 "$SERVER_PID" 2>/dev/null || break
+            sleep 1
+          done
+          if [ "$ready" != true ]; then
+            echo "Stories server did not come up:"
+            cat "$RUNNER_TEMP/stories.log"
+            exit 1
+          fi
+          node .github/scripts/check-story-layout.mjs http://localhost:5056 "$(command -v google-chrome)" || { cat "$RUNNER_TEMP/stories.log"; exit 1; }
+
   qa:
     needs: dev
     uses: ./.github/workflows/qa-pipeline.yml

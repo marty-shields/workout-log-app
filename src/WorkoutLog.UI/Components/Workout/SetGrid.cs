@@ -23,7 +23,7 @@ internal static class SetGrid
             FieldKind.Duration => "minmax(0, 2fr)",
             _ => "minmax(0, 1fr)",
         });
-        var last = LastColumn(fields, hasLast) ? "minmax(0, 0.7fr) " : null;
+        var last = LastColumn(fields, hasLast) ? "var(--set-last-width) " : null;
         return $"var(--set-number-width) {last}{string.Join(' ', fieldColumns)} var(--touch-target)";
     }
 }
