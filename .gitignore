@@ -36,6 +36,7 @@ TestResults/
 # Tool output
 .playwright-mcp/
 node_modules/
+.chromedriver/
 
 # OS files
 Thumbs.db
