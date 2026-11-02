@@ -8,7 +8,6 @@ namespace WorkoutLog.Core.Domain.Exercises.Progress;
 /// </summary>
 internal sealed class BodyweightRecordsRule(LiftRecordsRule liftRecordsRule)
 {
-    /// <summary>The records of <paramref name="sessions"/>.</summary>
     public BodyweightRecords Records(IReadOnlyList<BodyweightSessionProgress> sessions)
     {
         var lift = liftRecordsRule.Records([.. sessions.Select(s => new LiftSessionProgress(s.Session, s.TopSet, s.E1rmKg))]);

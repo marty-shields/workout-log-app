@@ -9,7 +9,6 @@ internal sealed class StrengthSetRow
     [PrimaryKey, AutoIncrement]
     public int Id { get; set; }
 
-    /// <summary>Id of the workout exercise.</summary>
     [Indexed]
     public int WorkoutExerciseId { get; set; }
 

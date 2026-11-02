@@ -21,10 +21,8 @@ public static class ExerciseProgressItems
     /// <summary>Key of the e1RM tab.</summary>
     public const string E1rmTab = "e1rm";
 
-    /// <summary>The Top set tab.</summary>
     public static RadioOption<string> TopSetOption { get; } = new(TopSetTab, "Top set", $"exercise-tab-{TopSetTab}");
 
-    /// <summary>The e1RM tab.</summary>
     public static RadioOption<string> E1rmOption { get; } = new(E1rmTab, "e1RM", $"exercise-tab-{E1rmTab}");
 
     /// <summary>The lift tabs: Top set, e1RM.</summary>

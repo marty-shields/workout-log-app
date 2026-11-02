@@ -8,7 +8,6 @@ namespace WorkoutLog.Core.Logging;
 /// <param name="maxBytes">Size at which the file rolls over.</param>
 public sealed class FileLogWriter(string folder, long maxBytes)
 {
-    /// <summary>The file name.</summary>
     public const string FileName = "workoutlog.log";
 
     /// <summary>The name of the previous file.</summary>

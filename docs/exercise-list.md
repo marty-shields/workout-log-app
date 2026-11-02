@@ -3,7 +3,7 @@
 The list ships with the app and changes only through an app update. The full list is [exercises.json](../src/WorkoutLog.Core/Domain/Exercises/exercises.json), embedded in Core.
 
 ## Source
-Strength exercises are based on [free-exercise-db](https://github.com/yuhonas/free-exercise-db) (public domain; strength and powerlifting only), checked for gaps against muscleandstrength.com, and include the reviewer's 44 must-haves. Cardio, carries and a few others were written by hand. Only names are used.
+Strength exercises are based on [free-exercise-db](https://github.com/yuhonas/free-exercise-db) (public domain; strength and powerlifting only), checked for gaps against muscleandstrength.com, and include Martin's 44 must-haves. Cardio, carries and a few others were written by hand. Only names are used.
 
 ## Adding an exercise
 - Ids are one sequence for all exercises, never reused or changed; a new exercise takes the next number.

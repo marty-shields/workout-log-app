@@ -126,7 +126,6 @@ internal static class WorkoutTables
     public sealed record Check(string Name, string Sql);
 
     /// <summary>A table with its columns, CHECK rules and indexes.</summary>
-    /// <param name="Name">Table name.</param>
     /// <param name="Columns">Column definitions.</param>
     /// <param name="ColumnNames">Column names, in order.</param>
     /// <param name="Checks">CHECK rules.</param>

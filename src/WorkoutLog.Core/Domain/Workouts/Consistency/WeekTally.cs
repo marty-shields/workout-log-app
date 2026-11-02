@@ -6,6 +6,5 @@ namespace WorkoutLog.Core.Domain.Workouts.Consistency;
 /// <param name="Sets">Strength sets.</param>
 public sealed record WeekTally(int Workouts, TimeSpan Time, int Sets)
 {
-    /// <summary>No workouts.</summary>
     public static WeekTally None { get; } = new(0, TimeSpan.Zero, 0);
 }

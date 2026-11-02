@@ -1,7 +1,6 @@
 namespace WorkoutLog.Core.Domain.Workouts;
 
 /// <summary>A saved workout.</summary>
-/// <param name="Id">Workout id.</param>
 /// <param name="StartedAt">Start time, UTC.</param>
 /// <param name="FinishedAt">Finish time, UTC.</param>
 /// <param name="Exercises">Exercises, in the order added or last picked.</param>

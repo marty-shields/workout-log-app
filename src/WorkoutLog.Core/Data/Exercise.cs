@@ -11,9 +11,7 @@ public sealed class Exercise
     [PrimaryKey]
     public int Id { get; set; }
 
-    /// <summary>Exercise name.</summary>
     public string Name { get; set; } = "";
 
-    /// <summary>Strength or cardio.</summary>
     public ExerciseType Type { get; set; }
 }

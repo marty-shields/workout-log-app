@@ -43,7 +43,6 @@ internal static class BestRuleCases
 
     public static ExerciseDefinition Definition(int id) => Catalog.All.Single(e => e.Id == id);
 
-    /// <summary>A strength exercise with the sets.</summary>
     public static StrengthExercise Sets(int id, params StrengthSet[] sets) => new(id, sets);
 
     public static StrengthSet Set(int? reps, decimal? weightKg, TimeSpan? duration = null, decimal? distance = null) =>

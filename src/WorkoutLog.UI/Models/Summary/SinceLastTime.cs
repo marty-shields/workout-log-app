@@ -15,7 +15,6 @@ public sealed record SinceLastTime
     /// <summary>The best is the same as last time.</summary>
     public static SinceLastTime Equal { get; } = new(ChangeKind.Equal, null);
 
-    /// <summary>How the best compares.</summary>
     public ChangeKind Kind { get; }
 
     /// <summary>How much better or worse, e.g. 2.5kg. Null unless <see cref="Kind"/> is Up or Down.</summary>

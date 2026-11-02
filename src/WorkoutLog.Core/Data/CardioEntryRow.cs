@@ -18,7 +18,6 @@ internal sealed class CardioEntryRow
     /// <summary>Distance, in the exercise's unit.</summary>
     public decimal? Distance { get; set; }
 
-    /// <summary>Floors climbed.</summary>
     public int? Floors { get; set; }
 
     /// <summary>Resistance, damper or speed level.</summary>
