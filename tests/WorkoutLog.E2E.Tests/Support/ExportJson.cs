@@ -7,10 +7,10 @@ namespace WorkoutLog.E2E.Tests.Support;
 /// <summary>Workouts as the export file writes them.</summary>
 public static class ExportJson
 {
-    /// <summary>A file with the version 2 header and <paramref name="workouts"/>.</summary>
+    /// <summary>A file with the version 3 header and <paramref name="workouts"/>.</summary>
     public static JsonObject File(IEnumerable<JsonNode> workouts) => new()
     {
-        ["formatVersion"] = 2,
+        ["formatVersion"] = 3,
         ["exportedAt"] = "2026-10-26T18:05:12Z",
         ["appVersion"] = "1.0.0",
         ["workouts"] = new JsonArray(workouts.ToArray()),

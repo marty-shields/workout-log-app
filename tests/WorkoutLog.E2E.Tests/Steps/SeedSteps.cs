@@ -20,7 +20,8 @@ public sealed class SeedSteps(WorkoutSeeder seeder, DeviceClock clock, ScenarioS
         {
             var started = SeedTime.Resolve(row["started"], now);
             var finished = row.TryGetValue("finished", out var text) ? SeedTime.Resolve(text, now) : started + DefaultLength;
-            return (started, finished, row["exercises"]);
+            var note = row.TryGetValue("note", out var noteText) && !string.IsNullOrWhiteSpace(noteText) ? noteText : null;
+            return (started, finished, row["exercises"], note);
         }).ToList();
 
         await SeedAsync(workouts);
@@ -32,7 +33,7 @@ public sealed class SeedSteps(WorkoutSeeder seeder, DeviceClock clock, ScenarioS
         var today = clock.LocalNow().Date;
         var workouts = Enumerable.Range(1, count)
             .Select(i => today.AddDays(i - count - 1).AddHours(10))
-            .Select(started => (started, started + DefaultLength, "Push-up: 10 reps 0 kg"))
+            .Select(started => (started, started + DefaultLength, "Push-up: 10 reps 0 kg", (string?)null))
             .ToList();
 
         await SeedAsync(workouts);
@@ -41,13 +42,14 @@ public sealed class SeedSteps(WorkoutSeeder seeder, DeviceClock clock, ScenarioS
     [Given(@"^I have saved a workout with (.+)$")]
     public void GivenIHaveSavedAWorkoutWith(string exercises) => journeys.SaveWorkout(ExerciseValues.ParseWorkout(exercises));
 
-    private async Task SeedAsync(IReadOnlyList<(DateTime Started, DateTime Finished, string Exercises)> workouts)
+    private async Task SeedAsync(IReadOnlyList<(DateTime Started, DateTime Finished, string Exercises, string? Note)> workouts)
     {
         var exercises = workouts.Select(w => ExerciseValues.ParseWorkout(w.Exercises)).ToList();
         var seeds = workouts.Select((w, i) => new SeedWorkout(
             clock.FromLocal(w.Started),
             clock.FromLocal(w.Finished),
-            exercises[i].Select(e => e.ToWorkoutExercise()).ToList())).ToList();
+            exercises[i].Select(e => e.ToWorkoutExercise()).ToList(),
+            w.Note)).ToList();
 
         await seeder.SeedAsync(seeds);
         for (var i = 0; i < workouts.Count; i++)

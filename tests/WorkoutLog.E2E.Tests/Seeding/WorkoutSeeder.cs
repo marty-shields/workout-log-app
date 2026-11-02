@@ -62,7 +62,7 @@ public sealed class WorkoutSeeder(Native native)
                 clock.Now = workout.StartedAt;
                 var draft = workoutService.StartNew();
                 clock.Now = workout.FinishedAt;
-                var result = await workoutService.SaveNewAsync(draft, null, workout.Exercises);
+                var result = await workoutService.SaveNewAsync(draft, workout.Note, workout.Exercises);
                 if (result.WorkoutId != i + 1)
                 {
                     throw new InvalidOperationException($"Seeding workout {i + 1} failed: {string.Join(", ", result.Errors.Errors)}, {result.Errors.Exercises.Count(e => !e.IsValid)} exercises with errors.");
@@ -112,5 +112,5 @@ public sealed class WorkoutSeeder(Native native)
     }
 }
 
-/// <summary>A workout to seed: its start and finish, and its exercises in order.</summary>
-public sealed record SeedWorkout(DateTimeOffset StartedAt, DateTimeOffset FinishedAt, IReadOnlyList<WorkoutExercise> Exercises);
+/// <summary>A workout to seed: its start and finish, its exercises in order and its note, if any.</summary>
+public sealed record SeedWorkout(DateTimeOffset StartedAt, DateTimeOffset FinishedAt, IReadOnlyList<WorkoutExercise> Exercises, string? Note = null);
