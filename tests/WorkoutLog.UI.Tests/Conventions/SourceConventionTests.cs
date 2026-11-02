@@ -2,10 +2,6 @@ using System.Text.RegularExpressions;
 
 namespace WorkoutLog.UI.Tests.Conventions;
 
-/// <summary>
-/// The source reads time through TimeProvider and reaches SQLite only from Core's Data folder and the one registration line.
-/// These are tripwires for honest mistakes, not a proof: reflection or <c>dynamic</c> with a non-interpolated string gets past them.
-/// </summary>
 public partial class SourceConventionTests
 {
     private static readonly string[] SourceExtensions = ["*.cs", "*.razor"];
