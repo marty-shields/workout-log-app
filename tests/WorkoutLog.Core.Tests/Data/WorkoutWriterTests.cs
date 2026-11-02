@@ -6,7 +6,7 @@ using WorkoutLog.Core.Domain.Workouts;
 namespace WorkoutLog.Core.Tests.Data;
 
 /// <summary>
-/// Replace, DeleteAll and the blank assist on each write. Add, ReplaceExercises and Delete are otherwise covered through <see cref="WorkoutRepositoryTests"/>.
+/// Replace by start, DeleteAll and the blank assist on each write. Add, Replace by id and Delete are otherwise covered through <see cref="WorkoutRepositoryTests"/>.
 /// </summary>
 public class WorkoutWriterTests
 {
@@ -58,6 +58,18 @@ public class WorkoutWriterTests
             new Workout(other, Start.AddHours(3), Finish.AddHours(3), Exercises()),
         }).UsingPropertiesComparer());
         Assert.That(RowCounts(), Is.EqualTo((2, 3, 3, 1)));
+    }
+
+    [TestCase("Felt tired")]
+    [TestCase(null)]
+    public async Task Replace_SetsTheNoteAndTheExerciseNotes(string? note)
+    {
+        var id = writer.Add(new NewWorkout(Start, Finish, Exercises(), "Felt strong"));
+        WorkoutExercise[] replacement = [new StrengthExercise(1, [new StrengthSet(8, 40m, null, null)], "Paused reps")];
+
+        writer.Replace(new NewWorkout(Start, Finish, replacement, note));
+
+        Assert.That(await repository.GetAsync(id), Is.EqualTo(new Workout(id, Start, Finish, replacement, note)).UsingPropertiesComparer());
     }
 
     [Test]

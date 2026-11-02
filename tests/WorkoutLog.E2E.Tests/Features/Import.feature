@@ -87,7 +87,7 @@ Feature: Import
     And the log shows "Workout 1 in the file can't be imported: RepeatedExercise"
 
   Scenario: A workout with a property the format doesn't have can't be imported
-    Given an export file "e2e-import.json" in Downloads with these workouts, the first with the unknown property "note":
+    Given an export file "e2e-import.json" in Downloads with these workouts, the first with the unknown property "comment":
       | started          | exercises             |
       | yesterday 18:05  | Push-up: 10 reps 0 kg |
       | 3 days ago 18:05 | Push-up: 12 reps 0 kg |

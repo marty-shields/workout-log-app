@@ -6,6 +6,6 @@ public enum DifferentChoice
     /// <summary>Keeps the phone's workout.</summary>
     KeepPhones,
 
-    /// <summary>Replaces the phone's finish time, exercises, sets and entries with the file's.</summary>
+    /// <summary>Replaces the phone's finish time, note, exercises, sets and entries with the file's.</summary>
     UseFiles,
 }

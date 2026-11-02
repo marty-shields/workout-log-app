@@ -10,3 +10,8 @@
     color: var(--color-text);
     cursor: pointer;
 }
+
+.active {
+    border-radius: var(--radius-round);
+    background: var(--color-selected);
+}

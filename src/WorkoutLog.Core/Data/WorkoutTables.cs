@@ -20,20 +20,22 @@ internal static class WorkoutTables
             """
             "Id" integer primary key autoincrement not null,
             "StartedAt" bigint not null,
-            "FinishedAt" bigint not null
+            "FinishedAt" bigint not null,
+            "Note" varchar
             """,
-            ["Id", "StartedAt", "FinishedAt"],
-            [new("finish after start", "\"StartedAt\" IS NOT NULL AND \"FinishedAt\" IS NOT NULL AND \"FinishedAt\" > \"StartedAt\"")],
+            ["Id", "StartedAt", "FinishedAt", "Note"],
+            [new("finish after start", "\"StartedAt\" IS NOT NULL AND \"FinishedAt\" IS NOT NULL AND \"FinishedAt\" > \"StartedAt\""), Note()],
             ["CREATE UNIQUE INDEX {0} \"Workout_StartedAt\" ON \"Workout\"(\"StartedAt\")"]),
         new("WorkoutExercise",
             """
             "Id" integer primary key autoincrement not null,
             "WorkoutId" integer not null,
             "ExerciseId" integer not null,
-            "Position" integer not null
+            "Position" integer not null,
+            "Note" varchar
             """,
-            ["Id", "WorkoutId", "ExerciseId", "Position"],
-            [Required("WorkoutId"), Required("ExerciseId"), Position()],
+            ["Id", "WorkoutId", "ExerciseId", "Position", "Note"],
+            [Required("WorkoutId"), Required("ExerciseId"), Position(), Note()],
             [
                 "CREATE INDEX {0} \"WorkoutExercise_WorkoutId\" ON \"WorkoutExercise\"(\"WorkoutId\")",
                 "CREATE UNIQUE INDEX {0} \"WorkoutExercise_WorkoutId_ExerciseId\" ON \"WorkoutExercise\"(\"WorkoutId\", \"ExerciseId\")",
@@ -111,6 +113,10 @@ internal static class WorkoutTables
     private static Check Distance() =>
         new("Distance over 0 to 100000, 2 decimal places",
             $"\"Distance\" IS NULL OR (\"Distance\" > 0 AND \"Distance\" <= 100000 AND {TwoPlaces("Distance")})");
+
+    private static Check Note() =>
+        new($"Note 1 to {Domain.Workouts.WorkoutLimits.MaxNoteLength} characters",
+            $"\"Note\" IS NULL OR length(\"Note\") BETWEEN 1 AND {Domain.Workouts.WorkoutLimits.MaxNoteLength}");
 
     private static string TwoPlaces(string column) => $"ROUND(\"{column}\", 2) = \"{column}\"";
 

@@ -18,20 +18,20 @@ public class GatedWorkoutRepositoryMockTests
         IReadOnlyList<WorkoutSummary> summaries = [new WorkoutSummary(3, Start)];
         var outline = new WorkoutOutline(3, Start, Start.AddHours(1), [1]);
         IReadOnlyList<WorkoutTally> tallies = [new WorkoutTally(Start, Start.AddHours(1), 1)];
-        IReadOnlyList<WorkoutWeights> weights = [new WorkoutWeights(3, [20m])];
+        IReadOnlyList<WorkoutWeights> weights = [new WorkoutWeights(3, [20m], "Felt strong")];
         IReadOnlyList<LastSession> sessions = [new LastSession(1, Start, Exercises[0])];
         IReadOnlyList<WorkoutSession> workoutSessions = [new WorkoutSession(3, Start, Exercises[0])];
         var lastSession = new LastSession(1, Start, Exercises[0]);
         IReadOnlyList<ExerciseSetCount> setCounts = [new ExerciseSetCount(3, 1, 1)];
         var inner = new Mock<IWorkoutRepository>(MockBehavior.Strict);
         inner.Setup(r => r.AddAsync(workout)).ReturnsAsync(3);
-        inner.Setup(r => r.ReplaceExercisesAsync(3, Exercises)).Returns(Task.CompletedTask);
+        inner.Setup(r => r.ReplaceAsync(3, "Felt strong", Exercises)).Returns(Task.CompletedTask);
         inner.Setup(r => r.GetAsync(3)).ReturnsAsync(stored);
         inner.Setup(r => r.GetAllAsync()).ReturnsAsync(all);
         inner.Setup(r => r.ListAsync(Start, Start, 5)).ReturnsAsync(summaries);
         inner.Setup(r => r.GetLatestAsync()).ReturnsAsync(outline);
         inner.Setup(r => r.ListTalliesAsync(Start, Start.AddDays(1))).ReturnsAsync(tallies);
-        inner.Setup(r => r.GetWeightsAsync(1)).ReturnsAsync(weights);
+        inner.Setup(r => r.GetWeightsAsync(1, Start)).ReturnsAsync(weights);
         inner.Setup(r => r.GetLastSessionsAsync()).ReturnsAsync(sessions);
         inner.Setup(r => r.GetLastSessionOfAsync(1, Start)).ReturnsAsync(lastSession);
         inner.Setup(r => r.GetSessionsAsync(1)).ReturnsAsync(workoutSessions);
@@ -40,13 +40,13 @@ public class GatedWorkoutRepositoryMockTests
         var gated = new GatedWorkoutRepository(inner.Object, new DatabaseGate());
 
         Assert.That(await gated.AddAsync(workout), Is.EqualTo(3));
-        await gated.ReplaceExercisesAsync(3, Exercises);
+        await gated.ReplaceAsync(3, "Felt strong", Exercises);
         Assert.That(await gated.GetAsync(3), Is.SameAs(stored));
         Assert.That(await gated.GetAllAsync(), Is.SameAs(all));
         Assert.That(await gated.ListAsync(Start, Start, 5), Is.SameAs(summaries));
         Assert.That(await gated.GetLatestAsync(), Is.SameAs(outline));
         Assert.That(await gated.ListTalliesAsync(Start, Start.AddDays(1)), Is.SameAs(tallies));
-        Assert.That(await gated.GetWeightsAsync(1), Is.SameAs(weights));
+        Assert.That(await gated.GetWeightsAsync(1, Start), Is.SameAs(weights));
         Assert.That(await gated.GetLastSessionsAsync(), Is.SameAs(sessions));
         Assert.That(await gated.GetLastSessionOfAsync(1, Start), Is.SameAs(lastSession));
         Assert.That(await gated.GetSessionsAsync(1), Is.SameAs(workoutSessions));
@@ -57,7 +57,7 @@ public class GatedWorkoutRepositoryMockTests
     }
 
     [TestCase("Add", nameof(IWorkoutRepository.AddAsync))]
-    [TestCase("Replace", nameof(IWorkoutRepository.ReplaceExercisesAsync))]
+    [TestCase("Replace", nameof(IWorkoutRepository.ReplaceAsync))]
     [TestCase("Get", nameof(IWorkoutRepository.GetAsync))]
     [TestCase("GetAll", nameof(IWorkoutRepository.GetAllAsync))]
     [TestCase("List", nameof(IWorkoutRepository.ListAsync))]
@@ -80,13 +80,13 @@ public class GatedWorkoutRepositoryMockTests
         Task pending = call switch
         {
             "Add" => gated.AddAsync(new NewWorkout(Start, Start, Exercises)),
-            "Replace" => gated.ReplaceExercisesAsync(1, []),
+            "Replace" => gated.ReplaceAsync(1, null, []),
             "Get" => gated.GetAsync(1),
             "GetAll" => gated.GetAllAsync(),
             "List" => gated.ListAsync(),
             "Latest" => gated.GetLatestAsync(),
             "Tallies" => gated.ListTalliesAsync(Start, Start),
-            "Weights" => gated.GetWeightsAsync(1),
+            "Weights" => gated.GetWeightsAsync(1, null),
             "LastSessions" => gated.GetLastSessionsAsync(),
             "LastSessionOf" => gated.GetLastSessionOfAsync(1, null),
             "Sessions" => gated.GetSessionsAsync(1),

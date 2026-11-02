@@ -24,6 +24,7 @@ public class GatedDatabaseInitializerTests
             new WorkoutStartedAtUniqueIndex(),
             new BlankAssistToZero(new ExerciseCatalog()),
             new ValidationRulesSchema(new ExerciseCatalog(), NullLogger<ValidationRulesSchema>.Instance),
+            new NotesSchema(),
         ];
         initializer = new GatedDatabaseInitializer(new DatabaseInitializer(connection, steps, Mock.Of<IExerciseSeeder>(), NullLogger<DatabaseInitializer>.Instance), gate);
     }

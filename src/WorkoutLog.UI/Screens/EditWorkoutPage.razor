@@ -5,6 +5,7 @@
 @using WorkoutLog.UI.Components.Workout
 @using WorkoutLog.UI.Models.Exercises
 @inject IWorkoutService Workouts
+@inject IWeightHistoryService WeightHistory
 @inject IExerciseCatalog Catalog
 @inject LastTimeLoader LastTimes
 @inject TimeProvider Clock
@@ -24,6 +25,9 @@ else
                  Time="total"
                  Exercises="Editor.Exercises"
                  Error="@Editor.Error"
+                 Note="@Editor.Note"
+                 NoteChanged="Editor.SetNote"
+                 NoteError="@Editor.NoteError"
                  Focus="Editor.Focus"
                  ErrorFocus="Editor.ErrorFocus"
                  ValidateSet="Checker.Check"
@@ -95,7 +99,7 @@ else
     protected override Task OnInitializedAsync() => FetchAsync();
 
     /// <summary>
-    /// Loads the workout, with the start in the phone's time zone. An exercise missing from the catalog or saved as the
+    /// Loads the workout and each exercise's last note, with the start in the phone's time zone. An exercise missing from the catalog or saved as the
     /// wrong type is logged and shows the load failure. A second call while one runs is ignored.
     /// </summary>
     private async Task LoadAsync()
@@ -133,6 +137,7 @@ else
             }
 
             state.IsDone = true;
+            state.LastNote = (await WeightHistory.GetAsync(exercise.ExerciseId, workout.StartedAt)).LastNote;
             exercises.Add(state);
         }
 
@@ -145,13 +150,13 @@ else
         total = workout.FinishedAt - workout.StartedAt;
         loadedId = workoutId;
         loadedStart = workout.StartedAt;
-        Editor.Start(exercises);
+        Editor.Start(exercises, workout.Note);
         phase = EditPhase.Editing;
     }
 
     /// <summary>
     /// Picks the exercise (<see cref="WorkoutEditor.Pick"/>). An exercise just added then loads its last time before this workout
-    /// (<see cref="LastTimeLoader.LoadAsync"/>); a failed load shows none.
+    /// (<see cref="LastTimeLoader.LoadAsync"/>) and the note it had in the last saved workout that started before this one; a failed load shows none.
     /// </summary>
     private async Task PickAsync(ExerciseListItem item)
     {
@@ -160,6 +165,7 @@ else
         if (added && Editor.Exercises.FirstOrDefault(e => e.ExerciseId == item.Id) is { } exercise)
         {
             await LastTimes.LoadAsync(exercise, loadedStart);
+            exercise.LastNote = (await WeightHistory.GetAsync(item.Id, loadedStart)).LastNote;
         }
     }
 
@@ -265,7 +271,7 @@ else
             return;
         }
 
-        if (await Editor.SaveAsync(async records => (await Workouts.SaveAsync(loadedId, records)).WorkoutId is not null))
+        if (await Editor.SaveAsync(async (note, records) => (await Workouts.SaveAsync(loadedId, note, records)).WorkoutId is not null))
         {
             await OnSaved.InvokeAsync();
         }

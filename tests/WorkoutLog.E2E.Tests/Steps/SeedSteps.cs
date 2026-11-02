@@ -23,7 +23,8 @@ public sealed class SeedSteps(WorkoutSeeder seeder, ImportSeeder importSeeder, D
         {
             var started = SeedTime.Resolve(row["started"], now);
             var finished = row.TryGetValue("finished", out var text) ? SeedTime.Resolve(text, now) : started + DefaultLength;
-            return (started, finished, row["exercises"]);
+            var note = row.TryGetValue("note", out var noteText) && !string.IsNullOrWhiteSpace(noteText) ? noteText : null;
+            return (started, finished, row["exercises"], note);
         }).ToList();
 
         await SeedAsync(workouts);
@@ -35,7 +36,7 @@ public sealed class SeedSteps(WorkoutSeeder seeder, ImportSeeder importSeeder, D
         var today = clock.LocalNow().Date;
         var workouts = Enumerable.Range(1, count)
             .Select(i => today.AddDays(i - count - 1).AddHours(10))
-            .Select(started => (started, started + DefaultLength, "Push-up: 10 reps 0 kg"))
+            .Select(started => (started, started + DefaultLength, "Push-up: 10 reps 0 kg", (string?)null))
             .ToList();
 
         await SeedAsync(workouts);
@@ -44,7 +45,7 @@ public sealed class SeedSteps(WorkoutSeeder seeder, ImportSeeder importSeeder, D
     [Given(@"^I have saved a workout with (.+)$")]
     public void GivenIHaveSavedAWorkoutWith(string exercises) => journeys.SaveWorkout(ExerciseValues.ParseWorkout(exercises));
 
-    private async Task SeedAsync(IReadOnlyList<(DateTime Started, DateTime Finished, string Exercises)> workouts)
+    private async Task SeedAsync(IReadOnlyList<(DateTime Started, DateTime Finished, string Exercises, string? Note)> workouts)
     {
         var exercises = workouts.Select(w => ExerciseValues.ParseWorkout(w.Exercises)).ToList();
         if (AppiumSetup.App.IsDebug)
@@ -52,11 +53,12 @@ public sealed class SeedSteps(WorkoutSeeder seeder, ImportSeeder importSeeder, D
             await seeder.SeedAsync(workouts.Select((w, i) => new SeedWorkout(
                 clock.FromLocal(w.Started),
                 clock.FromLocal(w.Finished),
-                exercises[i].Select(e => e.ToWorkoutExercise()).ToList())).ToList());
+                exercises[i].Select(e => e.ToWorkoutExercise()).ToList(),
+                w.Note)).ToList());
         }
         else
         {
-            importSeeder.Seed(workouts.Select((w, i) => ExportJson.Workout(clock.FromLocal(w.Started), clock.FromLocal(w.Finished), exercises[i])).ToList());
+            importSeeder.Seed(workouts.Select((w, i) => ExportJson.Workout(clock.FromLocal(w.Started), clock.FromLocal(w.Finished), exercises[i], w.Note)).ToList());
         }
 
         for (var i = 0; i < workouts.Count; i++)

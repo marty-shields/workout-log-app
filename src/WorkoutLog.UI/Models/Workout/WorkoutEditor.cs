@@ -51,6 +51,12 @@ public sealed class WorkoutEditor(
     /// <summary>Message on the workout itself.</summary>
     public string? Error { get; private set; }
 
+    /// <summary>The workout's note as typed. Null when there is none.</summary>
+    public string? Note { get; private set; }
+
+    /// <summary>Validation message for <see cref="Note"/>, set by a failed Save and cleared when the note changes.</summary>
+    public string? NoteError { get; private set; }
+
     /// <summary>Whether a save is running or has succeeded.</summary>
     public SavePhase SaveState { get; private set; }
 
@@ -61,15 +67,17 @@ public sealed class WorkoutEditor(
     public bool Discarded { get; private set; }
 
     /// <summary>
-    /// A value was typed, a set added or removed, or an exercise added, picked again or removed since <see cref="Start"/>, even if
-    /// later undone.
+    /// A value or note was typed, a set added or removed, or an exercise added, picked again or removed since <see cref="Start"/>,
+    /// even if later undone.
     /// </summary>
     public bool Changed { get; private set; }
 
-    /// <summary>Edits a copy of these exercises, given oldest first, with nothing else open, shown or changed.</summary>
-    public void Start(IEnumerable<ExerciseState> loaded)
+    /// <summary>Edits a copy of these exercises, given oldest first, and the workout's note, with nothing else open, shown or changed.</summary>
+    public void Start(IEnumerable<ExerciseState> loaded, string? note)
     {
         exercises = [.. loaded.Reverse()];
+        Note = note;
+        NoteError = null;
         ListOpen = false;
         ListLoading = false;
         Query = "";
@@ -207,24 +215,33 @@ public sealed class WorkoutEditor(
         Removing = null;
     }
 
-    /// <summary>Records a value, set or entry change.</summary>
+    /// <summary>Records a value, note, set or entry change.</summary>
     public void MarkChanged() => Changed = true;
 
+    /// <summary>Sets the workout's note, a change, and clears its error.</summary>
+    public void SetNote(string? note)
+    {
+        Note = note;
+        NoteError = null;
+        Changed = true;
+    }
+
     /// <summary>
-    /// Checks the workout and asks to focus the first error. A valid workout goes to <paramref name="save"/> as records,
-    /// oldest first; returns true when it was saved. If not, shows SaveFailed and asks to focus Save. Ignored while a save
+    /// Checks the workout and asks to focus the first error. A valid workout goes to <paramref name="save"/> with its note and
+    /// the records, oldest first; returns true when it was saved. If not, shows SaveFailed and asks to focus Save. Ignored while a save
     /// runs and after one succeeds.
     /// </summary>
-    /// <param name="save">Saves the records; true when saved.</param>
-    public async Task<bool> SaveAsync(Func<IReadOnlyList<WorkoutExercise>, Task<bool>> save)
+    /// <param name="save">Saves the note and the records; true when saved.</param>
+    public async Task<bool> SaveAsync(Func<string?, IReadOnlyList<WorkoutExercise>, Task<bool>> save)
     {
         if (SaveState != SavePhase.Idle)
         {
             return false;
         }
 
-        var check = workoutChecker.Check(exercises);
+        var check = workoutChecker.Check(exercises, Note);
         Error = check.Error;
+        NoteError = check.NoteError;
         if (!check.IsValid)
         {
             foreach (var exercise in exercises.Where(e => e.HasError))
@@ -237,7 +254,7 @@ public sealed class WorkoutEditor(
         }
 
         SaveState = SavePhase.Running;
-        var saved = await save(exercises.Select(setChecker.Read).Reverse().ToList());
+        var saved = await save(Note, exercises.Select(setChecker.Read).Reverse().ToList());
         SaveState = saved ? SavePhase.Succeeded : SavePhase.Idle;
         if (!saved)
         {

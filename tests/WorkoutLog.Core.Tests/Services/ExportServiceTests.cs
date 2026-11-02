@@ -20,7 +20,7 @@ public class ExportServiceTests
     private static readonly DateTimeOffset Finish = new DateTimeOffset(2026, 10, 21, 18, 2, 41, TimeSpan.Zero).AddTicks(7654321);
     private static readonly ExerciseCatalog Catalog = new();
 
-    private const string Header = """{"formatVersion":2,"exportedAt":"2026-10-26T18:05:12Z","appVersion":"1.4.0","workouts":""";
+    private const string Header = """{"formatVersion":3,"exportedAt":"2026-10-26T18:05:12Z","appVersion":"1.4.0","workouts":""";
     private const string FileName = "workout-log-2026-10-26-1805.json";
 
     private Mock<IWorkoutRepository> repository = null!;
@@ -83,6 +83,25 @@ public class ExportServiceTests
             """{"exercise":{"id":307,"name":"Cross Trainer","type":"Cardio","distanceUnit":"Km","rateUnit":"StridesPerMin"},"entry":""" +
             """{"duration":"01:02:03","distance":10,"floors":4,"level":5,"incline":1.5,"calories":310,"rate":9.5}},""" +
             """{"exercise":{"id":309,"name":"Stair Climber","type":"Cardio","rateUnit":"StepsPerMin"},"entry":{"duration":"00:20:00","floors":40,"level":6,"calories":200,"rate":70}}"""));
+    }
+
+    [Test]
+    public async Task ExportAsync_Notes_WrittenOnTheWorkoutAndEachExerciseThatHasOne()
+    {
+        Workouts(new Workout(1, Start, Finish,
+        [
+            new StrengthExercise(8, [new StrengthSet(8, 60m, null, null)], "Grip \"slipped\"\non set 2"),
+            new CardioExercise(311, new CardioEntry(TimeSpan.FromMinutes(30), 5.2m, null, null, null, null, null)),
+            new CardioExercise(300, new CardioEntry(TimeSpan.FromMinutes(10), 1m, null, null, null, null, null), "Hills é"),
+        ], "Felt strong"));
+
+        var result = await service.ExportAsync();
+
+        Assert.That(await File.ReadAllTextAsync(result.FilePath!), Is.EqualTo(Header +
+            """[{"startedAt":"2026-10-21T17:05:00.1234567Z","finishedAt":"2026-10-21T18:02:41.7654321Z","note":"Felt strong","exercises":[""" +
+            """{"exercise":{"id":8,"name":"Barbell Bench Press","type":"Strength"},"note":"Grip \"slipped\"\non set 2","sets":[{"reps":8,"weightKg":60}]},""" +
+            """{"exercise":{"id":311,"name":"Outdoor Run","type":"Cardio","distanceUnit":"Km","paceUnit":"PerKm"},"entry":{"duration":"00:30:00","distance":5.2}},""" +
+            """{"exercise":{"id":300,"name":"Treadmill","type":"Cardio","distanceUnit":"Km","rateUnit":"KmPerHour"},"note":"Hills é","entry":{"duration":"00:10:00","distance":1}}]}]}"""));
     }
 
     [Test]

@@ -21,7 +21,7 @@ public static class ExerciseFields
     }
 
     /// <summary>
-    /// A saved exercise, with each value as the user would type it: decimals with up to 2 places and no trailing zeros, 0 included,
+    /// A saved exercise, with its note and each value as the user would type it: decimals with up to 2 places and no trailing zeros, 0 included,
     /// and duration as h:mm:ss. Null when the record doesn't match the definition's type.
     /// </summary>
     public static ExerciseState? Saved(ExerciseDefinition exercise, WorkoutExercise saved)
@@ -40,6 +40,7 @@ public static class ExerciseFields
         }
 
         var state = State(exercise);
+        state.Note = saved.Note;
         foreach (var values in entries)
         {
             var entry = new EntryState();

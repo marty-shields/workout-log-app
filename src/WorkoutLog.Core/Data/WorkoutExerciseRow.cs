@@ -20,4 +20,7 @@ internal sealed class WorkoutExerciseRow
 
     /// <summary>Order added or last picked, from 0 to 9.</summary>
     public int Position { get; set; }
+
+    /// <summary>The exercise's note in this workout, 1 to 500 characters; null when none.</summary>
+    public string? Note { get; set; }
 }

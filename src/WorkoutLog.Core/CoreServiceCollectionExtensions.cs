@@ -51,11 +51,13 @@ public static class CoreServiceCollectionExtensions
         services
             .AddSingleton<ISchemaUpgrade, WorkoutStartedAtUniqueIndex>()
             .AddSingleton<ISchemaUpgrade, BlankAssistToZero>()
-            .AddSingleton<ISchemaUpgrade, ValidationRulesSchema>();
+            .AddSingleton<ISchemaUpgrade, ValidationRulesSchema>()
+            .AddSingleton<ISchemaUpgrade, NotesSchema>();
 
     private static IServiceCollection AddImport(this IServiceCollection services) =>
         services
             .AddSingleton<IFormatUpgrade, ValidationRulesFormatUpgrade>()
+            .AddSingleton<IFormatUpgrade, NotesFormatUpgrade>()
             .AddSingleton<ImportFileReader>()
             .AddImportChecks()
             .AddSingleton<ImportChecker>()
@@ -112,6 +114,7 @@ public static class CoreServiceCollectionExtensions
         services
             .AddSingleton<IExerciseCatalog, ExerciseCatalog>()
             .AddSingleton(TimeProvider.System)
+            .AddSingleton<NoteLengthRule>()
             .AddSingleton<IWorkoutValidator, WorkoutValidator>()
             .AddBestRules()
             .AddProgressRules()

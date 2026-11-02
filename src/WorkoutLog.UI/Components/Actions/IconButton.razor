@@ -1,6 +1,6 @@
 <button @ref="button"
         type="button"
-        class="icon-btn"
+        class="icon-btn @(Active ? "active" : null)"
         aria-label="@AriaLabel"
         data-testid="@TestId"
         @onclick="OnClick">
@@ -23,6 +23,10 @@
     /// <summary>Shows the icon in the muted text colour.</summary>
     [Parameter]
     public bool Muted { get; set; }
+
+    /// <summary>Marks the button as on, with a filled round background.</summary>
+    [Parameter]
+    public bool Active { get; set; }
 
     /// <summary>Size of the icon.</summary>
     [Parameter]

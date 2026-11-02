@@ -112,6 +112,47 @@ public sealed partial class WorkoutScreen(WebView web, Native native)
     /// <summary>The note under Add set when the exercise has 10 sets; null when there is none.</summary>
     public string? SetsFull(string name) => web.Exists($"{Card(name)}-sets-full") ? web.Text($"{Card(name)}-sets-full") : null;
 
+    /// <summary>The workout note: the text box's text while it is open, otherwise the one line. Null when there is none.</summary>
+    public string? WorkoutNote() => NoteText("workout-note");
+
+    /// <summary>The exercise's note, read as <see cref="WorkoutNote"/> is. A done card is opened first.</summary>
+    public string? Note(string name)
+    {
+        Open(name);
+        return NoteText($"{Card(name)}-note");
+    }
+
+    /// <summary>The note the exercise had in the last saved workout with it, or null when no line shows. A done card is opened first.</summary>
+    public string? LastNote(string name)
+    {
+        Open(name);
+        var line = $"{Card(name)}-last-note";
+        return web.Exists(line) ? web.Find(line).FindElement(OpenQA.Selenium.By.CssSelector(".text")).GetDomProperty("textContent")?.Trim() : null;
+    }
+
+    /// <summary>Types the workout note, then leaves the field so it shows as one line.</summary>
+    public void EnterWorkoutNote(string text) => EnterNote("workout-note", "workout-note-add", text);
+
+    /// <summary>Types the exercise's note, then leaves the field. A done card is opened first.</summary>
+    public void EnterNote(string name, string text)
+    {
+        Open(name);
+        EnterNote($"{Card(name)}-note", $"{Card(name)}-add-note", text);
+    }
+
+    /// <summary>Opens the workout note (<paramref name="name"/> null) or the exercise's note without typing, then leaves the field.</summary>
+    public void OpenNoteAndLeave(string? name)
+    {
+        if (name is not null)
+        {
+            Open(name);
+        }
+
+        var note = name is null ? "workout-note" : $"{Card(name)}-note";
+        OpenNote(note, name is null ? "workout-note-add" : $"{Card(name)}-add-note");
+        web.Blur();
+    }
+
     public bool AddSetEnabled(string name) => web.Find($"{Card(name)}-add-set").Enabled;
 
     public bool AddExerciseEnabled() => web.Find("add-exercise").Enabled;
@@ -249,6 +290,38 @@ public sealed partial class WorkoutScreen(WebView web, Native native)
     {
         native.HideKeyboard();
         web.Tap(testId);
+    }
+
+    private string? NoteText(string testId)
+    {
+        if (web.Exists($"{testId}-input"))
+        {
+            var text = web.Value($"{testId}-input");
+            return text.Length == 0 ? null : text;
+        }
+
+        return web.Exists($"{testId}-open")
+            ? web.Find($"{testId}-open").FindElement(OpenQA.Selenium.By.CssSelector(".text")).GetDomProperty("textContent")?.Trim()
+            : null;
+    }
+
+    /// <summary>Taps Add note, or the one-line note, and waits for the text box.</summary>
+    private void OpenNote(string testId, string addButton)
+    {
+        if (web.Exists($"{testId}-input"))
+        {
+            return;
+        }
+
+        TapButton(web.Exists($"{testId}-open") ? $"{testId}-open" : addButton);
+        web.WaitUntil(() => web.Exists($"{testId}-input"), $"{testId} didn't open");
+    }
+
+    private void EnterNote(string testId, string addButton, string text)
+    {
+        OpenNote(testId, addButton);
+        web.Type($"{testId}-input", text);
+        web.Blur();
     }
 
     private IEnumerable<(string TestId, string Name)> Cards()

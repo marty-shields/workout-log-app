@@ -2,31 +2,31 @@ using WorkoutLog.Core.Domain.Exercises;
 
 namespace WorkoutLog.Core.Domain.Workouts.Validation;
 
-/// <summary>Checks workouts against the definitions in <see cref="IExerciseCatalog"/>.</summary>
-public sealed class WorkoutValidator(IExerciseCatalog catalog) : IWorkoutValidator
+/// <summary>Checks workouts against the definitions in <see cref="IExerciseCatalog"/>, and notes with <see cref="NoteLengthRule"/>.</summary>
+public sealed class WorkoutValidator(IExerciseCatalog catalog, NoteLengthRule noteRule) : IWorkoutValidator
 {
     private readonly Dictionary<int, ExerciseDefinition> definitions = catalog.All.ToDictionary(e => e.Id);
 
     /// <inheritdoc />
-    public WorkoutErrors Validate(IReadOnlyList<WorkoutExercise> exercises) =>
-        new(Errors(exercises), exercises.Select(Validate).ToList());
+    public WorkoutErrors Validate(string? note, IReadOnlyList<WorkoutExercise> exercises) =>
+        new(Errors(exercises), exercises.Select(Validate).ToList(), noteRule.Check(note));
 
     /// <inheritdoc />
     public ExerciseErrors Validate(WorkoutExercise exercise)
     {
         if (!definitions.TryGetValue(exercise.ExerciseId, out var definition))
         {
-            return new ExerciseErrors(ExerciseError.UnknownExercise, []);
+            return new ExerciseErrors(ExerciseError.UnknownExercise, [], noteRule.Check(exercise.Note));
         }
 
         return exercise switch
         {
             StrengthExercise strength when definition.Type == ExerciseType.Strength =>
                 new ExerciseErrors(SetCountError(strength.Sets.Count),
-                    strength.Sets.Select(s => Check(definition, Values(s))).ToList()),
+                    strength.Sets.Select(s => Check(definition, Values(s))).ToList(), noteRule.Check(strength.Note)),
             CardioExercise cardio when definition.Type == ExerciseType.Cardio =>
-                new ExerciseErrors(null, [Check(definition, Values(cardio.Entry))]),
-            _ => new ExerciseErrors(ExerciseError.WrongType, []),
+                new ExerciseErrors(null, [Check(definition, Values(cardio.Entry))], noteRule.Check(cardio.Note)),
+            _ => new ExerciseErrors(ExerciseError.WrongType, [], noteRule.Check(exercise.Note)),
         };
     }
 

@@ -30,6 +30,23 @@ public class WorkoutContentComparerTests
     public void AreSame_FinishInAnotherOffset_IsTrue() =>
         Assert.That(comparer.AreSame(Saved(Exercises()), Imported(Exercises()) with { FinishedAt = Finish.ToOffset(TimeSpan.FromHours(2)) }), Is.True);
 
+    [TestCase("Felt strong", "Felt strong", ExpectedResult = true)]
+    [TestCase(null, null, ExpectedResult = true)]
+    [TestCase("Felt strong", null, ExpectedResult = false)]
+    [TestCase(null, "Felt strong", ExpectedResult = false)]
+    [TestCase("Felt strong", "felt strong", ExpectedResult = false)]
+    public bool AreSame_WorkoutNotes_ComparedOrdinal(string? saved, string? imported) =>
+        comparer.AreSame(Saved(Exercises()) with { Note = saved }, Imported(Exercises()) with { Note = imported });
+
+    [TestCase("Grip", "Grip", ExpectedResult = true)]
+    [TestCase("Grip", null, ExpectedResult = false)]
+    [TestCase(null, "Grip", ExpectedResult = false)]
+    [TestCase("Grip", "Grip.", ExpectedResult = false)]
+    public bool AreSame_ExerciseNotes_ComparedOrdinal(string? saved, string? imported) =>
+        comparer.AreSame(
+            Saved([new StrengthExercise(1, [new StrengthSet(5, 60m, null, null)], saved), new CardioExercise(300, Entry(), saved)]),
+            Imported([new StrengthExercise(1, [new StrengthSet(5, 60m, null, null)], saved), new CardioExercise(300, Entry(), imported)]));
+
     [Test]
     public void AreSame_DecimalsThatRoundTheSame_IsTrue() =>
         Assert.That(comparer.AreSame(

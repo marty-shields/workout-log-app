@@ -36,7 +36,7 @@ public class GatedWorkoutRepositoryTests
     public async Task Calls_PassThroughToTheRepository()
     {
         var id = await repository.AddAsync(new NewWorkout(Start, Start.AddMinutes(30), Exercises));
-        await repository.ReplaceExercisesAsync(id, []);
+        await repository.ReplaceAsync(id, null, []);
 
         Assert.That(await repository.GetAsync(id), Is.EqualTo(new Workout(id, Start, Start.AddMinutes(30), [])).UsingPropertiesComparer());
         Assert.That(await repository.ListAsync(), Is.EqualTo(new[] { new WorkoutSummary(id, Start) }));
@@ -45,7 +45,7 @@ public class GatedWorkoutRepositoryTests
         Assert.That(await repository.ListAsync(null, null, 0), Is.Empty);
         Assert.That(await repository.GetLatestAsync(), Is.EqualTo(new WorkoutOutline(id, Start, Start.AddMinutes(30), [])).UsingPropertiesComparer());
         Assert.That(await repository.ListTalliesAsync(Start, Start), Is.EqualTo(new[] { new WorkoutTally(Start, Start.AddMinutes(30), 0) }));
-        Assert.That(await repository.GetWeightsAsync(1), Is.Empty);
+        Assert.That(await repository.GetWeightsAsync(1, null), Is.Empty);
         Assert.That(await repository.GetLastSessionsAsync(), Is.Empty);
         Assert.That(await repository.GetLastSessionOfAsync(1, null), Is.Null);
         Assert.That(await repository.GetSessionsAsync(1), Is.Empty);
@@ -77,12 +77,12 @@ public class GatedWorkoutRepositoryTests
         Task pending = call switch
         {
             "Add" => repository.AddAsync(new NewWorkout(Start.AddHours(1), Start.AddHours(1).AddMinutes(30), Exercises)),
-            "Replace" => repository.ReplaceExercisesAsync(id, []),
+            "Replace" => repository.ReplaceAsync(id, null, []),
             "Get" => repository.GetAsync(id),
             "List" => repository.ListAsync(),
             "Latest" => repository.GetLatestAsync(),
             "Tallies" => repository.ListTalliesAsync(Start, Start),
-            "Weights" => repository.GetWeightsAsync(1),
+            "Weights" => repository.GetWeightsAsync(1, null),
             "LastSessions" => repository.GetLastSessionsAsync(),
             "LastSessionOf" => repository.GetLastSessionOfAsync(1, null),
             "Sessions" => repository.GetSessionsAsync(1),

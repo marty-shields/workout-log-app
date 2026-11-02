@@ -13,7 +13,7 @@ internal sealed class ImportFileReader
     private const int ChunkBytes = 81920;
 
     private static readonly HashSet<string> HeaderNames = ["formatVersion", "exportedAt", "appVersion", "workouts"];
-    private static readonly HashSet<string> WorkoutNames = ["startedAt", "finishedAt", "exercises"];
+    private static readonly HashSet<string> WorkoutNames = ["startedAt", "finishedAt", "note", "exercises"];
 
     private readonly IReadOnlyList<IFormatUpgrade> upgrades;
     private readonly int currentVersion;
@@ -118,7 +118,7 @@ internal sealed class ImportFileReader
             finished = Text(workout, "finishedAt");
             var body = HasOnly(workout, WorkoutNames) ? workout.Deserialize<ImportWorkoutBody>(ImportFormat.Options) : null;
             return body is not null && !body.Exercises.Contains(null!) && body.Exercises.All(e => e.IsWellFormed)
-                ? new ImportWorkout(position, started, finished, body.Exercises)
+                ? new ImportWorkout(position, started, finished, body.Exercises, body.Note)
                 : new ImportWorkout(position, started, finished, null);
         }
         catch (Exception)

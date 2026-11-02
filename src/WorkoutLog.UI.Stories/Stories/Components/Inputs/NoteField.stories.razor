@@ -1,0 +1,41 @@
+@attribute [Stories("Components/Inputs/NoteField")]
+
+<Stories TComponent="NoteField" Layout="typeof(ThemeLayout)">
+
+    <Story Name="Editing">
+        <Template>
+            <NoteField Label="Workout note" Editing TestId="note" />
+        </Template>
+    </Story>
+
+    <Story Name="Editing with text">
+        <Template>
+            <NoteField Label="Workout note" Editing Value="@SampleData.Note" TestId="note" />
+        </Template>
+    </Story>
+
+    <Story Name="Collapsed">
+        <Template>
+            <NoteField Label="Workout note" Value="@SampleData.Note" TestId="note" />
+        </Template>
+    </Story>
+
+    <Story Name="Collapsed long">
+        <Template>
+            <NoteField Label="Workout note" Value="@SampleData.LongNote" TestId="note" />
+        </Template>
+    </Story>
+
+    <Story Name="Over the limit">
+        <Template>
+            <NoteField Label="Workout note" Editing Value="@SampleData.NoteTooLong" Error="@SampleData.NoteTooLongError" TestId="note" />
+        </Template>
+    </Story>
+
+    <Story Name="Over the limit collapsed">
+        <Template>
+            <NoteField Label="Workout note" Value="@SampleData.NoteTooLong" Error="@SampleData.NoteTooLongError" TestId="note" />
+        </Template>
+    </Story>
+
+</Stories>

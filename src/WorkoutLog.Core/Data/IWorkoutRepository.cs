@@ -11,8 +11,11 @@ internal interface IWorkoutRepository
     /// </summary>
     Task<int> AddAsync(NewWorkout workout);
 
-    /// <summary>Replaces the workout's exercises, sets and entries. Times are not changed. Throws <see cref="KeyNotFoundException"/> if the workout doesn't exist.</summary>
-    Task ReplaceExercisesAsync(int workoutId, IReadOnlyList<WorkoutExercise> exercises);
+    /// <summary>
+    /// Sets the workout's note and replaces its exercises, sets and entries. Times are not changed.
+    /// Throws <see cref="KeyNotFoundException"/> if the workout doesn't exist.
+    /// </summary>
+    Task ReplaceAsync(int workoutId, string? note, IReadOnlyList<WorkoutExercise> exercises);
 
     /// <summary>Returns the workout, or null if it doesn't exist.</summary>
     Task<Workout?> GetAsync(int id);
@@ -36,10 +39,10 @@ internal interface IWorkoutRepository
     Task<IReadOnlyList<WorkoutTally>> ListTalliesAsync(DateTimeOffset from, DateTimeOffset to);
 
     /// <summary>
-    /// Returns the set weights of each workout that has the exercise, by start time newest first.
-    /// Weights are in set order.
+    /// Returns the set weights and note of the exercise in each workout that has it, by start time newest first.
+    /// Weights are in set order. <paramref name="before"/>, when given, keeps only workouts that started before it.
     /// </summary>
-    Task<IReadOnlyList<WorkoutWeights>> GetWeightsAsync(int exerciseId);
+    Task<IReadOnlyList<WorkoutWeights>> GetWeightsAsync(int exerciseId, DateTimeOffset? before);
 
     /// <summary>Returns each saved exercise id with its last workout: the one with the latest start that has it, with its sets or entry.</summary>
     Task<IReadOnlyList<LastSession>> GetLastSessionsAsync();
