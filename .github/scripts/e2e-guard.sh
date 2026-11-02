@@ -1,3 +1,4 @@
+# shellcheck shell=bash
 # Refuses local E2E runs too broad for one emulator. Sourced by e2e-local.sh; E2E_ALLOW_BROAD=1 skips the checks.
 
 # Why a dotnet test filter is too broad, or nothing.
