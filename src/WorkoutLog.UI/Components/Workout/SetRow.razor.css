@@ -11,11 +11,10 @@
 }
 
 .last {
-    min-width: 0;
     color: var(--color-text-muted);
     font-size: var(--font-size-sm);
     font-variant-numeric: tabular-nums;
-    overflow-wrap: anywhere;
+    white-space: nowrap;
 }
 
 .last-line {

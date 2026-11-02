@@ -13,7 +13,7 @@
 .input {
     width: 100%;
     min-height: var(--touch-target);
-    padding: 0 var(--space-3);
+    padding: 0 var(--space-2);
     border: var(--border-width) solid var(--color-border-strong);
     border-radius: var(--radius-sm);
     background: var(--color-bg);
