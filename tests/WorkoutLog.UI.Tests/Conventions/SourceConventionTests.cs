@@ -2,16 +2,23 @@ using System.Text.RegularExpressions;
 
 namespace WorkoutLog.UI.Tests.Conventions;
 
-/// <summary>The source reads time through TimeProvider and keeps SQL text under Core's Data folder.</summary>
+/// <summary>The source reads time through TimeProvider and reaches SQLite only from Core's Data folder and its registration.</summary>
 public partial class SourceConventionTests
 {
     private static readonly string[] SourceExtensions = ["*.cs", "*.razor"];
 
-    [GeneratedRegex(@"\b(DateTime|DateTimeOffset)\.(Now|UtcNow)\b")]
+    [GeneratedRegex(@"\bDateTime(Offset)?\s*\.\s*(Now|UtcNow|Today)\b|\busing\s+static\s+(System\s*\.\s*)?DateTime(Offset)?\s*;")]
     private static partial Regex WallClock();
 
-    [GeneratedRegex("""\b(Execute|Query)\w*(<[^>]*>)?\(\s*(\$+@?|@\$+)"{1,3}""")]
-    private static partial Regex InterpolatedSql();
+    [GeneratedRegex(@"\bSqlite\w*", RegexOptions.IgnoreCase)]
+    private static partial Regex SqliteApi();
+
+    [GeneratedRegex(@"^[ \t]*//.*$", RegexOptions.Multiline)]
+    private static partial Regex CommentLine();
+
+    private static string Code(string source) => CommentLine().Replace(source, "");
+
+    private static readonly string[] SqliteRegistrar = ["src", "WorkoutLog.Core", "CoreServiceCollectionExtensions.cs"];
 
     private static IEnumerable<TestCaseData> Files(Func<string, bool> include) =>
         SourceExtensions
@@ -25,34 +32,63 @@ public partial class SourceConventionTests
     private static IEnumerable<TestCaseData> NonStoriesFiles() =>
         Files(f => !IsUnder(f, "src", "WorkoutLog.UI.Stories"));
 
-    private static IEnumerable<TestCaseData> NonDataFiles() =>
-        Files(f => !IsUnder(f, "src", "WorkoutLog.Core", "Data"));
+    private static IEnumerable<TestCaseData> NonSqliteFiles() =>
+        Files(f => !IsUnder(f, "src", "WorkoutLog.Core", "Data") && f != RepoFiles.PathOf(SqliteRegistrar));
 
     [TestCaseSource(nameof(NonStoriesFiles))]
     public void Source_ReadsTimeThroughTimeProvider(string file) =>
-        Assert.That(WallClock().Matches(File.ReadAllText(file)).Select(m => m.Value), Is.Empty,
+        Assert.That(WallClock().Matches(Code(File.ReadAllText(file))).Select(m => m.Value), Is.Empty,
             "Inject TimeProvider and call GetUtcNow() or GetLocalNow().");
 
-    [TestCaseSource(nameof(NonDataFiles))]
-    public void Source_KeepsInterpolatedSqlInTheDataFolder(string file) =>
-        Assert.That(InterpolatedSql().Matches(File.ReadAllText(file)).Select(m => m.Value), Is.Empty,
-            "Interpolated SQL belongs under src/WorkoutLog.Core/Data/. Elsewhere, pass values as ? parameters.");
+    [TestCaseSource(nameof(NonSqliteFiles))]
+    public void Source_UsesSqliteOnlyInTheDataFolder(string file) =>
+        Assert.That(SqliteApi().Matches(Code(File.ReadAllText(file))).Select(m => m.Value), Is.Empty,
+            "SQL runs only under src/WorkoutLog.Core/Data/, plus the registration in CoreServiceCollectionExtensions.cs. Add a repository method there.");
 
-    [Test]
-    public void WallClockPattern_FindsTheCallsItGuards()
-    {
-        Assert.That(WallClock().IsMatch("var t = DateTime.Now;"));
-        Assert.That(WallClock().IsMatch("var t = DateTime.UtcNow;"));
-        Assert.That(WallClock().IsMatch("var t = DateTimeOffset.Now;"));
-        Assert.That(WallClock().IsMatch("var t = clock.GetUtcNow();"), Is.False);
-    }
+    [TestCase("var t = DateTime.Now;")]
+    [TestCase("var t = DateTime.UtcNow;")]
+    [TestCase("var t = DateTime.Today;")]
+    [TestCase("var t = DateTimeOffset.Now;")]
+    [TestCase("var t = DateTimeOffset.UtcNow;")]
+    [TestCase("var t = System.DateTime.Now;")]
+    [TestCase("var t = DateTime .Now;")]
+    [TestCase("var t = DateTime\n    .Now;")]
+    [TestCase("var t = DateTime. \r\n UtcNow;")]
+    [TestCase("using static System.DateTime;")]
+    [TestCase("using static System.DateTimeOffset;")]
+    [TestCase("using   static  System . DateTime ;")]
+    [TestCase("// old\nvar t = DateTime.Now;")]
+    public void WallClock_CatchesEveryWayToReadIt(string source) =>
+        Assert.That(WallClock().IsMatch(Code(source)));
 
-    [Test]
-    public void InterpolatedSqlPattern_FindsTheCallsItGuards()
-    {
-        Assert.That(InterpolatedSql().IsMatch("db.Execute($\"DELETE FROM A WHERE Id = {id}\");"));
-        Assert.That(InterpolatedSql().IsMatch("db.Query<Workout>($\"SELECT * FROM {table}\");"));
-        Assert.That(InterpolatedSql().IsMatch("db.ExecuteScalar<int>($\"\"\"SELECT {x}\"\"\");"));
-        Assert.That(InterpolatedSql().IsMatch("db.Execute(\"DELETE FROM A WHERE Id = ?\", id);"), Is.False);
-    }
+    [TestCase("var t = clock.GetUtcNow();")]
+    [TestCase("var d = new DateTime(2024, 1, 1);")]
+    [TestCase("var d = DateTime.MinValue;")]
+    [TestCase("using System;")]
+    [TestCase("/// Uses TimeProvider rather than DateTime.Now.")]
+    [TestCase("    // not DateTime.UtcNow or DateTimeOffset.Now\nvar t = clock.GetUtcNow();")]
+    public void WallClock_AllowsTimeProviderAndComments(string source) =>
+        Assert.That(WallClock().IsMatch(Code(source)), Is.False);
+
+    [TestCase("SQLiteAsyncConnection db = Open();\nvar sql = $\"DELETE FROM A WHERE Id = {id}\"; db.Execute(sql);")]
+    [TestCase("SQLiteAsyncConnection db = Open();\ndb.Execute($\"DELETE FROM A WHERE Id = {id}\");")]
+    [TestCase("SQLiteAsyncConnection db = Open();\ndb.Execute(string.Format(\"DELETE FROM A WHERE Id = {0}\", id));")]
+    [TestCase("SQLiteAsyncConnection db = Open();\ndb.Execute(\"DELETE FROM A WHERE Id = \" + id);")]
+    [TestCase("SQLiteAsyncConnection db = Open();\ndb.Execute(string.Concat(\"DELETE FROM A WHERE Id = \", id));")]
+    [TestCase("SQLiteAsyncConnection db = Open();\ndb.CreateCommand($\"DELETE FROM A WHERE Id = {id}\");")]
+    [TestCase("SQLiteAsyncConnection db = Open();\ndb.FindWithQuery<A>($\"SELECT * FROM A WHERE Id = {id}\");")]
+    [TestCase("SQLiteAsyncConnection db = Open();\ndb.Execute(\"DELETE FROM A WHERE Id = ?\", $\"{id}\");")]
+    [TestCase("private readonly SQLiteAsyncConnection db;")]
+    [TestCase("var db = new SQLiteConnection(path);")]
+    [TestCase("using SQLite;")]
+    [TestCase("using Microsoft.Data.Sqlite;")]
+    public void SqliteApi_CatchesEveryWayToReachTheDatabase(string source) =>
+        Assert.That(SqliteApi().IsMatch(Code(source)));
+
+    [TestCase("repository.SaveAsync(workout);")]
+    [TestCase("var sql = $\"Hello {name}\";")]
+    [TestCase("/// Full path of the SQLite database file.")]
+    [TestCase("    // SQLiteAsyncConnection is registered by Core\nvar x = 1;")]
+    public void SqliteApi_AllowsRepositoriesAndComments(string source) =>
+        Assert.That(SqliteApi().IsMatch(Code(source)), Is.False);
 }
