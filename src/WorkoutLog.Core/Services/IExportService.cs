@@ -8,7 +8,10 @@ public interface IExportService
 
     /// <summary>
     /// Writes every saved workout to <c>workout-log-YYYY-MM-DD-HHmm.json</c> (local time) in <see cref="IExportEnvironment.CacheFolder"/>,
-    /// replacing a file of the same name. A file over <see cref="Export.ExportFormat.MaxBytes"/> is not written.
+    /// after deleting every earlier export file there. A file over <see cref="Export.ExportFormat.MaxBytes"/> is not written.
     /// </summary>
     Task<ExportResult> ExportAsync();
+
+    /// <summary>Deletes every export file in <see cref="IExportEnvironment.CacheFolder"/>, for the app start. A failure is logged, not thrown.</summary>
+    Task DeleteLeftoversAsync();
 }

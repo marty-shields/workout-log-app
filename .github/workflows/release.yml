@@ -87,8 +87,9 @@ jobs:
 
       - name: Build the Release APK (x64, debug key)
         run: |
+          dotnet restore src/WorkoutLog.App
           dotnet publish src/WorkoutLog.App -c Release -f net10.0-android -p:AndroidPackageFormat=apk \
-            -r android-x64 -o "$RUNNER_TEMP/smoke"
+            -r android-x64 --no-restore -o "$RUNNER_TEMP/smoke"
 
       - name: Wait for the emulator
         run: .github/scripts/emulator-wait.sh "$RESULTS"
@@ -141,7 +142,7 @@ jobs:
 
       # Packages are downloaded before any secret is on the runner.
       - name: Restore
-        run: dotnet restore src/WorkoutLog.App -r android-arm64
+        run: dotnet restore src/WorkoutLog.App
 
       - name: Keystore
         env:
@@ -169,8 +170,8 @@ jobs:
       - name: Check the APK
         run: .github/scripts/check-apk.sh "$RUNNER_TEMP/release/uk.martinshields.workoutlog-Signed.apk" "$VERSION" "$CODE" "$CERT_SHA256" "$RUNNER_TEMP/out"
 
-      - name: Check Android Auto Backup is on
-        run: .github/scripts/check-backup.sh "$RUNNER_TEMP/release/uk.martinshields.workoutlog-Signed.apk" true
+      - name: Check the backup rules
+        run: .github/scripts/check-backup.sh "$RUNNER_TEMP/release/uk.martinshields.workoutlog-Signed.apk" true backup_rules
 
       # Creates the v* tag on this commit with the release.
       - name: Publish the release

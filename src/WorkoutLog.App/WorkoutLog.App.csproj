@@ -9,16 +9,17 @@
     <EnableDefaultCssItems>false</EnableDefaultCssItems>
     <MauiXamlInflator>SourceGen</MauiXamlInflator>
     <SupportedOSPlatformVersion>36.0</SupportedOSPlatformVersion>
+    <RuntimeIdentifiers>android-arm64;android-x64</RuntimeIdentifiers>
 
     <ApplicationTitle>Workout Log</ApplicationTitle>
     <ApplicationId>uk.martinshields.workoutlog</ApplicationId>
-    <AndroidManifestPlaceholders>allowBackup=true</AndroidManifestPlaceholders>
+    <AndroidManifestPlaceholders>allowBackup=true;dataExtractionRules=backup_rules</AndroidManifestPlaceholders>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
     <ApplicationTitle>Workout Log (Dev)</ApplicationTitle>
     <ApplicationId>uk.martinshields.workoutlog.debug</ApplicationId>
-    <AndroidManifestPlaceholders>allowBackup=false</AndroidManifestPlaceholders>
+    <AndroidManifestPlaceholders>allowBackup=false;dataExtractionRules=no_backup</AndroidManifestPlaceholders>
     <EmbedAssembliesIntoApk>true</EmbedAssembliesIntoApk>
   </PropertyGroup>
 

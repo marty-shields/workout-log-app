@@ -4,7 +4,7 @@
              xmlns:components="clr-namespace:WorkoutLog.App.Components"
              x:Class="WorkoutLog.App.MainPage">
 
-    <BlazorWebView HostPage="wwwroot/index.html">
+    <BlazorWebView HostPage="wwwroot/index.html" UrlLoading="OnUrlLoading">
         <BlazorWebView.RootComponents>
             <RootComponent Selector="#app" ComponentType="{x:Type components:Routes}" />
         </BlazorWebView.RootComponents>

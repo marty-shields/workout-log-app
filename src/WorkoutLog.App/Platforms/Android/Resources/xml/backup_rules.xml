@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The database is the only thing worth restoring; the logs and the rest of the app's data stay off the backup. -->
+<data-extraction-rules>
+    <cloud-backup>
+        <include domain="file" path="workoutlog.db3" />
+    </cloud-backup>
+    <device-transfer>
+        <include domain="file" path="workoutlog.db3" />
+    </device-transfer>
+</data-extraction-rules>

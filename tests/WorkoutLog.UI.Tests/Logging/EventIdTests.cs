@@ -82,6 +82,7 @@ public partial class EventIdTests
             ["ActivityDestroyed"] = 5013,
             ["ActivityStarted"] = 5014,
             ["TrimMemory"] = 5021,
+            ["UrlBlocked"] = 5041,
             ["UnhandledException"] = 5031,
             ["UnobservedTaskException"] = 5033,
         }));
