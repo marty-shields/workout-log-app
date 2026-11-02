@@ -59,4 +59,3 @@ echo "Next release ${prefix}${version}, version code $code."
   echo "version=$version"
   echo "code=$code"
 } >> "$out"
-rm -rf $1/*
