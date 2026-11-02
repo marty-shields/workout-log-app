@@ -1,5 +1,4 @@
 using Reqnroll;
-using WorkoutLog.Core.Domain.Exercises;
 using WorkoutLog.E2E.Tests.Device;
 using WorkoutLog.E2E.Tests.Screens;
 using WorkoutLog.E2E.Tests.Support;

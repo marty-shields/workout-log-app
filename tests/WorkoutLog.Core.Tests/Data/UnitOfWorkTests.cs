@@ -1,6 +1,5 @@
 using SQLite;
 using WorkoutLog.Core.Data;
-using WorkoutLog.Core.Domain.Exercises;
 using WorkoutLog.Core.Domain.Workouts;
 
 namespace WorkoutLog.Core.Tests.Data;

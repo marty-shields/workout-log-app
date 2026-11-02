@@ -40,6 +40,10 @@ jobs:
         id: build
         run: dotnet build WorkoutLog.slnx
 
+      # Fails on a file that breaks .editorconfig, such as import order, braces or private field names.
+      - name: Check code style
+        run: dotnet format WorkoutLog.slnx --verify-no-changes --no-restore
+
       # Failed tests are reported as annotations and in the job summary. A test host that hangs for 5 minutes is killed and fails the step.
       - name: Core tests
         run: dotnet test tests/WorkoutLog.Core.Tests --no-build --logger GitHubActions --blame-hang-timeout 5m --collect "Code Coverage;Format=cobertura" --results-directory "$RUNNER_TEMP/coverage/core" -- RunConfiguration.CollectSourceInformation=true

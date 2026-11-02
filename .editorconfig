@@ -1,0 +1,86 @@
+root = true
+
+[*]
+end_of_line = lf
+insert_final_newline = true
+indent_style = space
+indent_size = 4
+trim_trailing_whitespace = true
+
+[*.{yml,yaml,json,props,targets,csproj,slnx,xml,razor,css,js}]
+indent_size = 2
+
+[*.md]
+trim_trailing_whitespace = false
+
+[*.cs]
+csharp_style_namespace_declarations = file_scoped:warning
+csharp_prefer_braces = true:warning
+csharp_style_var_for_built_in_types = true:suggestion
+csharp_style_var_when_type_is_apparent = true:suggestion
+csharp_style_var_elsewhere = true:suggestion
+csharp_using_directive_placement = outside_namespace:warning
+dotnet_sort_system_directives_first = true
+dotnet_style_qualification_for_field = false:warning
+dotnet_style_qualification_for_property = false:warning
+dotnet_style_qualification_for_method = false:warning
+dotnet_style_qualification_for_event = false:warning
+dotnet_diagnostic.IDE0005.severity = warning
+
+dotnet_naming_rule.private_static_fields_pascal_case.symbols = private_static_fields
+dotnet_naming_rule.private_static_fields_pascal_case.style = pascal_case
+dotnet_naming_rule.private_static_fields_pascal_case.severity = warning
+dotnet_naming_symbols.private_static_fields.applicable_kinds = field
+dotnet_naming_symbols.private_static_fields.applicable_accessibilities = private
+dotnet_naming_symbols.private_static_fields.required_modifiers = static
+
+dotnet_naming_rule.private_const_fields_pascal_case.symbols = private_const_fields
+dotnet_naming_rule.private_const_fields_pascal_case.style = pascal_case
+dotnet_naming_rule.private_const_fields_pascal_case.severity = warning
+dotnet_naming_symbols.private_const_fields.applicable_kinds = field
+dotnet_naming_symbols.private_const_fields.applicable_accessibilities = private
+dotnet_naming_symbols.private_const_fields.required_modifiers = const
+dotnet_naming_style.pascal_case.capitalization = pascal_case
+
+dotnet_naming_rule.private_fields_camel_case.symbols = private_fields
+dotnet_naming_rule.private_fields_camel_case.style = camel_case
+dotnet_naming_rule.private_fields_camel_case.severity = warning
+dotnet_naming_symbols.private_fields.applicable_kinds = field
+dotnet_naming_symbols.private_fields.applicable_accessibilities = private
+dotnet_naming_style.camel_case.capitalization = camel_case
+
+# CA1822: stateless rule classes keep instance methods so they stay swappable behind their interface and through DI.
+dotnet_diagnostic.CA1822.severity = none
+# CA1716: a parameter named set reads naturally in a domain about sets of reps.
+dotnet_diagnostic.CA1716.severity = none
+# CA1720: FieldKind.Decimal names a UI field kind, not the type.
+dotnet_diagnostic.CA1720.severity = none
+
+[tests/**.cs]
+# CA1707: test names read as sentences with underscores.
+dotnet_diagnostic.CA1707.severity = none
+# CA1861: constant arrays in test data are built once per test.
+dotnet_diagnostic.CA1861.severity = none
+# CA1859: tests hold the interface so they exercise it the way callers do.
+dotnet_diagnostic.CA1859.severity = none
+# CA1305, CA1310, CA1826, CA1829: culture and collection speed do not matter in a test.
+dotnet_diagnostic.CA1305.severity = none
+dotnet_diagnostic.CA1310.severity = none
+dotnet_diagnostic.CA1826.severity = none
+dotnet_diagnostic.CA1829.severity = none
+
+[src/WorkoutLog.App/Navigation/AndroidBackButton.cs]
+# CA1001: the Android dispatcher owns the back callback and removes it, so this class must not dispose it.
+dotnet_diagnostic.CA1001.severity = none
+
+[src/WorkoutLog.Core/Data/DatabaseGate.cs]
+# CA1001: one gate lives for the whole process and its semaphore never allocates a wait handle, so there is nothing to release.
+dotnet_diagnostic.CA1001.severity = none
+
+[tests/WorkoutLog.E2E.Tests/**.cs]
+# Static fields in the E2E hooks are camelCase, matching the Appium driver state they hold.
+dotnet_naming_rule.private_static_fields_pascal_case.severity = none
+
+[src/WorkoutLog.UI.Stories/Samples/SampleData.cs]
+# CA1861: the constant id list is built once in a sample.
+dotnet_diagnostic.CA1861.severity = none

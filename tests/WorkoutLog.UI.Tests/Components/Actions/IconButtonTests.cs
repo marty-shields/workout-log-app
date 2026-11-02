@@ -71,4 +71,5 @@ public class IconButtonTests : ComponentTestBase
             .Add(x => x.Active, true));
 
         Assert.That(cut.Find("button").ClassList, Is.EquivalentTo(new[] { "icon-btn", "active" }));
-    }}
+    }
+}

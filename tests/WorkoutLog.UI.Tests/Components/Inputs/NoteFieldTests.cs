@@ -1,4 +1,3 @@
-using Microsoft.AspNetCore.Components;
 using WorkoutLog.UI.Components.Inputs;
 
 namespace WorkoutLog.UI.Tests.Components.Inputs;

@@ -1,6 +1,5 @@
 using Reqnroll;
 using WorkoutLog.E2E.Tests.Screens;
-using WorkoutLog.E2E.Tests.Support;
 
 namespace WorkoutLog.E2E.Tests.Steps;
 

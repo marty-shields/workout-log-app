@@ -1,3 +1,4 @@
+using System.Globalization;
 using Microsoft.Extensions.Logging;
 using SQLite;
 using WorkoutLog.Core.Domain.Exercises;
@@ -124,7 +125,7 @@ internal sealed partial class ValidationRulesSchema(IExerciseCatalog catalog, IL
         }
         foreach (var index in table.Indexes)
         {
-            db.Execute(string.Format(index, ""));
+            db.Execute(string.Format(CultureInfo.InvariantCulture, index, ""));
         }
     }
 
