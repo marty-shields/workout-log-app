@@ -1,4 +1,3 @@
-using System.Text.RegularExpressions;
 using Reqnroll;
 using WorkoutLog.E2E.Tests.Device;
 using WorkoutLog.E2E.Tests.Support;
@@ -10,7 +9,7 @@ namespace WorkoutLog.E2E.Tests.Steps;
 /// (<c>@backup</c>). A scenario that stops with another build installed, or none, gets the tested build back.
 /// </summary>
 [Binding]
-public sealed partial class InstallSteps(Native native, AppLog log, ScenarioState state)
+public sealed class InstallSteps(Native native, AppLog log, ScenarioState state)
 {
     private const string LocalTransport = "com.android.localtransport/.LocalTransport";
 
@@ -37,9 +36,12 @@ public sealed partial class InstallSteps(Native native, AppLog log, ScenarioStat
         native.Launch();
     }
 
-    /// <summary>Android's "Test backup and restore" steps, on the local transport.</summary>
-    [When(@"^Android backs up the app, and it is uninstalled, installed again and restored$")]
-    public void WhenAndroidBacksUpAndRestores()
+    /// <summary>
+    /// Android's "Test backup and restore" steps, on the local transport. No <c>bmgr restore</c> runs: the install itself
+    /// restores the backup, as on a new phone.
+    /// </summary>
+    [When(@"^Android backs up the app, and it is uninstalled and installed again$")]
+    public void WhenAndroidBacksUpAndReinstalls()
     {
         if (App.IsDebug)
         {
@@ -57,9 +59,7 @@ public sealed partial class InstallSteps(Native native, AppLog log, ScenarioStat
         Adb.Run("install", App.Apk);
         state.TestedAppReplaced = false;
 
-        var token = CurrentSet().Match(Adb.Shell("dumpsys", "backup"));
-        Assert.That(token.Success, Is.True, "dumpsys backup shows no current restore set");
-        Assert.That(Adb.Shell("bmgr", "restore", token.Groups[1].Value, App.Package), Does.Contain("restoreFinished: 0"), "restore");
+        Assert.That(Adb.AppShell(App, "find", App.DataFolder, "-name", "workoutlog.db3"), Is.Not.Empty, "the install restored the database");
         native.Launch();
     }
 
@@ -83,7 +83,4 @@ public sealed partial class InstallSteps(Native native, AppLog log, ScenarioStat
     }
 
     private static string[] Lines(string log) => log.Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
-
-    [GeneratedRegex(@"^\s*Current:\s+(\w+)", RegexOptions.Multiline)]
-    private static partial Regex CurrentSet();
 }

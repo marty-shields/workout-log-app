@@ -45,7 +45,7 @@ E2E_PREVIOUS_APK=<file> .github/scripts/e2e-local.sh "Category=upgrade"
 The scenarios that need them:
 - **Release build** (`release-e2e.yml`): the x64 Release APK, signed with the debug key and never published, starts cleanly (`release-smoke.sh`), then the `@release` and `@backup` scenarios run on it.
 - **Upgrade** (`@upgrade`, `upgrade-e2e.yml`): installs the last release's build, saves workouts through its screens, installs this build over it with `adb install -r`, then checks the workouts, an edit and save, and the Exercise page.
-- **Backup and restore** (`@backup`, Release app only): saves workouts, backs the app up with `bmgr backupnow` on Android's local transport, uninstalls, installs and restores it (Android's "Test backup and restore" steps), then checks the workouts came back and no log line did. It leaves the emulator on the local transport.
+- **Backup and restore** (`@backup`, Release app only): saves workouts, backs the app up with `bmgr backupnow` on Android's local transport, then uninstalls and installs it again (Android's "Test backup and restore" steps). No `bmgr restore` runs: Android restores the backup when it installs the app, as on a new phone. The scenario checks that the install restored the database, the workouts came back and no log line did. It leaves the emulator on the local transport.
 
 ## Results
 - `tests/WorkoutLog.E2E.Tests/TestResults/E2E/<yyyyMMdd-HHmmss>/` per run. A failed scenario saves its screen, page source, app log and Appium log in its own folder there.
