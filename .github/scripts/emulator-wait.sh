@@ -62,6 +62,7 @@ nohup adb logcat -v threadtime > "$results/logcat.txt" 2>&1 &
 echo $! >> "$RUNNER_TEMP/background.pids"
 
 # Every 30 s: the host's load and free memory, and whether the emulator still answers.
+# shellcheck disable=SC2016 # the loop runs in its own bash, so $ must reach it unexpanded
 nohup bash -c '
   while true; do
     guest=$(timeout 10 adb shell cat /proc/loadavg 2>/dev/null | tr -d "\r" | cut -d" " -f1-3)
