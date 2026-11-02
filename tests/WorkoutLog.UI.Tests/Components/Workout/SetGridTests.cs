@@ -28,9 +28,19 @@ public class SetGridTests
     {
         Assert.Multiple(() =>
         {
-            Assert.That(SetGrid.Columns([Reps]), Is.EqualTo("var(--set-number-width) minmax(0, 1fr) var(--touch-target)"));
-            Assert.That(SetGrid.Columns([Weight, Reps]), Is.EqualTo("var(--set-number-width) minmax(0, 1fr) minmax(0, 1fr) var(--touch-target)"));
-            Assert.That(SetGrid.Columns([Reps, Time]), Is.EqualTo("var(--set-number-width) minmax(0, 1fr) minmax(0, 2fr) var(--touch-target)"));
+            Assert.That(SetGrid.Columns([Reps], false), Is.EqualTo("var(--set-number-width) minmax(0, 1fr) var(--touch-target)"));
+            Assert.That(SetGrid.Columns([Weight, Reps], false), Is.EqualTo("var(--set-number-width) minmax(0, 1fr) minmax(0, 1fr) var(--touch-target)"));
+            Assert.That(SetGrid.Columns([Reps, Time], false), Is.EqualTo("var(--set-number-width) minmax(0, 1fr) minmax(0, 2fr) var(--touch-target)"));
+        });
+    }
+
+    [Test]
+    public void Columns_WithLast_AddALastColumnAfterTheNumber()
+    {
+        Assert.Multiple(() =>
+        {
+            Assert.That(SetGrid.Columns([Weight, Reps], true), Is.EqualTo("var(--set-number-width) minmax(0, 0.7fr) minmax(0, 1fr) minmax(0, 1fr) var(--touch-target)"));
+            Assert.That(SetGrid.Columns([Time, Weight], true), Is.EqualTo("var(--set-number-width) minmax(0, 0.7fr) minmax(0, 2fr) minmax(0, 1fr) var(--touch-target)"));
         });
     }
 }
