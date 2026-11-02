@@ -37,9 +37,9 @@ internal sealed class AndroidLogProvider : ILoggerProvider
             try
             {
                 var text = LogLine.Format(logLevel, category, eventId, formatter(state, exception), exception);
-                for (var start = 0; start < text.Length; start += MaxEntryLength)
+                foreach (var entry in LogLine.Split(text, MaxEntryLength))
                 {
-                    Android.Util.Log.WriteLine(Priority(logLevel), Tag, text.Substring(start, Math.Min(MaxEntryLength, text.Length - start)));
+                    Android.Util.Log.WriteLine(Priority(logLevel), Tag, entry);
                 }
             }
             catch (Exception)

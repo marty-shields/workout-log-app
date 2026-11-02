@@ -47,7 +47,7 @@ Pick the phone as the target in Visual Studio or VS Code, or run `dotnet build s
 
 ## CI
 Every PR to `main` runs these; the four checks must pass before it can merge:
-- **PR build** (`pr-build.yml`): the dev pipeline (`dev-pipeline.yml`) checks the E2E step bindings, builds, runs the Core and UI tests and checks `allowBackup` and `dataExtractionRules` in the Debug and Release APKs (`dev / build-and-test`, `dev / backup-manifest`). `dev / build-and-test` also keeps the Debug APK and the E2E test output as the `e2e-build` artifact. Then the QA pipeline (`qa-pipeline.yml`) runs the E2E tests on emulators in 8 shards, each downloading `e2e-build` and restoring the E2E project instead of building, retrying failed scenarios up to 3 tries (`qa / emulator-e2e-tests`). The release workflow runs the same two pipelines, the QA pipeline after the dev pipeline.
+- **PR build** (`pr-build.yml`): the dev pipeline (`dev-pipeline.yml`) checks the E2E step bindings, builds, runs the Core and UI tests with coverage, tests the CI scripts and checks `allowBackup` and `dataExtractionRules` in the Debug and Release APKs (`dev / build-and-test`, `dev / backup-manifest`). `dev / build-and-test` also keeps the Debug APK and the E2E test output as the `e2e-build` artifact. Then the QA pipeline (`qa-pipeline.yml`) runs the E2E tests on emulators in 8 shards, each downloading `e2e-build` and restoring the E2E project instead of building, retrying failed scenarios up to 3 tries (`qa / emulator-e2e-tests`). The release workflow runs the same two pipelines, the QA pipeline after the dev pipeline.
 - **PR checks** (`pr-checks.yml`): a Conventional Commit title and exactly one `semver:major`, `semver:minor` or `semver:patch` label (`pr-checks`).
 
 Keep in step:
@@ -56,6 +56,10 @@ Keep in step:
 - Chromedriver is pinned in `qa-pipeline.yml` (`CHROMEDRIVER_VERSION`, `CHROMEDRIVER_SHA256`, from [Chrome for Testing](https://googlechromelabs.github.io/chrome-for-testing/)). When the emulator's WebView major version changes, the job fails: pin the matching version and its SHA-256.
 
 On a Linux machine set up for `e2e-local.sh`, see [Keeping it current](dev-setup-linux.md#keeping-it-current).
+
+Coverage and script tests:
+- `dev / build-and-test` collects Cobertura coverage for the Core and UI tests. The job summary lists line and branch % per assembly (`coverage-summary.py`) and the `coverage` artifact holds the XML (kept 14 days). There is no gate yet. Locally: `dotnet test tests/WorkoutLog.Core.Tests --collect "Code Coverage;Format=cobertura" --results-directory <folder>`, then `python3 -I .github/scripts/coverage-summary.py $(find <folder> -name '*.cobertura.xml')`.
+- `.github/scripts/tests/run.sh` tests `next-version.sh` (a stub `gh` answers with canned PR JSON, in a throwaway git repo), the shard grouping in `e2e-shard-plan.sh` (the part of `e2e-shard.sh` after the `dotnet test --list-tests` call) and `failed_tests` / `filter_for` in `e2e-trx.sh` (sourced by `e2e-run.sh`), against the sample files in `.github/scripts/tests/fixtures`. It needs bash, git, jq and awk, and runs as a step of `dev / build-and-test`. Add a `*-test.sh` there for another script.
 
 E2E shards and step bindings:
 - `e2e-shard.sh` gives each shard scenarios balanced by time: the longest first, each to the shard with the least time so far. It reads the median seconds of each scenario method (a Scenario Outline's rows summed, so row numbers in their names do not matter) from `.github/e2e-durations.tsv`; a row of a method missing from it counts as 15 s. The rows of a Scenario Outline stay in one shard, as do scenarios whose name starts with another scenario's name (the filter matches by name prefix). The shard log shows how many scenarios of its shard are not in the table.

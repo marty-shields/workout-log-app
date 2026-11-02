@@ -1,8 +1,9 @@
 @page "/workout/{Id:int}"
+@using WorkoutLog.UI.Navigation
 @using WorkoutLog.UI.Screens
 @inject NavigationManager Navigation
 
-<EditWorkoutPage WorkoutId="Id" OnSaved="@(() => Navigation.GoTo(string.Empty))" OnBack="@(() => Navigation.GoTo(Origin))" OnDeleted="@(() => Navigation.GoTo(Origin))" />
+<EditWorkoutPage WorkoutId="Id" OnSaved="@(() => Navigation.GoTo(string.Empty))" OnBack="@(() => Navigation.GoTo(BackRoute))" OnDeleted="@(() => Navigation.GoTo(BackRoute))" />
 
 @code {
     [Parameter] public int Id { get; set; }
@@ -10,5 +11,5 @@
     /// <summary>"dashboard" when opened from the Dashboard: back and delete return there instead of to Workouts.</summary>
     [SupplyParameterFromQuery] public string? From { get; set; }
 
-    private string Origin => From == "dashboard" ? string.Empty : "workouts";
+    private string BackRoute => Origin.Route(From, "workouts");
 }
