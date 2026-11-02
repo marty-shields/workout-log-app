@@ -22,7 +22,7 @@ jobs:
         with:
           persist-credentials: false
 
-      # next-version.sh, e2e-shard-plan.sh, e2e-trx.sh, upgrade-seed-ref.sh, check-filler-comments.py and check-docs.py against stubs, sample files and throwaway repos.
+      # next-version.sh, e2e-shard-plan.sh, e2e-trx.sh, upgrade-seed-ref.sh and check-filler-comments.py against stubs, sample files and throwaway repos.
       - name: Test the CI scripts
         run: .github/scripts/tests/run.sh
 
@@ -34,7 +34,6 @@ jobs:
       - name: Check for filler doc comments
         run: python3 -I .github/scripts/check-filler-comments.py
 
-      # Fails on a broken relative link or #anchor in a tracked Markdown file, or a README screenshot and its table row that don't match.
       - name: Check the docs
         run: python3 -I .github/scripts/check-docs.py
 

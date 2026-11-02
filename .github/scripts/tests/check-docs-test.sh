@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-# check-docs.py on small repos of markdown files in a temp folder.
 set -uo pipefail
 here="$(cd "$(dirname "$0")" && pwd)"
 source "$here/lib.sh"
@@ -8,7 +7,6 @@ script="$here/../check-docs.py"
 work=$(mktemp -d)
 trap 'rm -rf "$work"' EXIT
 
-# repo <name> <readme contents>: a fresh repo with README.md, docs/guide.md and the screenshot table.
 repo() {
   rm -rf "$work/$1" && mkdir -p "$work/$1/docs/images/readme" && cd "$work/$1" || exit 1
   git init -q
@@ -19,7 +17,6 @@ repo() {
   git add -A
 }
 
-# run <name> <expected output and exit>
 run() {
   check "$1" "$2" "$(python3 -I "$script" "$work/$3" 2>&1; echo "exit=$?")"
 }

@@ -1,12 +1,9 @@
 #!/usr/bin/env python3
 """Usage: check-docs.py [repo root]   (default: the current folder)
 
-Fails on a relative link, image or `#anchor` in a tracked *.md that does not resolve, and on a screenshot in
-docs/images/readme with no row in the README screenshots table of docs/dev-setup-build.md, or a row whose image is
-missing. Links are `[text](target)`, `[label]: target` and href, src and srcset attributes. Fenced code and inline code
-are skipped, and so is any target with a scheme (https:, mailto:). An anchor is checked against the headings of the
-target .md with GitHub's slug rules, and against `id` and `name` attributes. Prints each finding with its file and line
-and exits 1 if there are any. A `?query` on a link, as on the stories pages' `./?path=/story/...`, is not checked.
+Exits 1 and prints file:line for a relative link, image or `#anchor` in a tracked *.md that does not resolve, and for a
+docs/images/readme screenshot with no row in the README screenshots table of docs/dev-setup-build.md or a row whose
+image is missing. A `?query` on a link, as on the stories pages' `./?path=/story/...`, is not checked.
 """
 import pathlib
 import re
@@ -28,7 +25,6 @@ SCREENSHOT_DOC = pathlib.PurePosixPath('docs/dev-setup-build.md')
 
 
 def prose_lines(text):
-    """(line number, line) for each line outside a fenced block."""
     fence = None
     for number, line in enumerate(text.splitlines(), 1):
         match = FENCE.match(line)
@@ -81,7 +77,13 @@ def check_links(root, files):
                 continue
             path_part, _, fragment = urllib.parse.unquote(target).partition('#')
             path_part = path_part.partition('?')[0]
-            resolved = (root / path_part.lstrip('/') if path_part.startswith('/') else source.parent / path_part).resolve() if path_part else source.resolve()
+            if not path_part:
+                base = source
+            elif path_part.startswith('/'):
+                base = root / path_part.lstrip('/')
+            else:
+                base = source.parent / path_part
+            resolved = base.resolve()
             if not resolved.is_relative_to(root.resolve()) or not resolved.exists():
                 findings.append(f'{file}:{number}: link to a missing path: {target}')
             elif fragment and resolved.suffix == '.md' and fragment.lower() not in anchors_of(resolved):
