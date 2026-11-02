@@ -54,9 +54,10 @@ jobs:
       # Line and branch coverage of Core (from the Core tests) and UI (from the UI tests) in the job summary; no gate yet. The Cobertura XML is the coverage artifact.
       - name: Coverage summary
         if: ${{ !cancelled() && steps.build.outcome == 'success' }}
-        run: python3 -I .github/scripts/coverage-summary.py \
-          WorkoutLog.Core="$(find "$RUNNER_TEMP/coverage/core" -name '*.cobertura.xml')" \
-          WorkoutLog.UI="$(find "$RUNNER_TEMP/coverage/ui" -name '*.cobertura.xml')" >> "$GITHUB_STEP_SUMMARY"
+        run: |
+          python3 -I .github/scripts/coverage-summary.py \
+            WorkoutLog.Core="$(find "$RUNNER_TEMP/coverage/core" -name '*.cobertura.xml')" \
+            WorkoutLog.UI="$(find "$RUNNER_TEMP/coverage/ui" -name '*.cobertura.xml')" >> "$GITHUB_STEP_SUMMARY"
 
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         if: ${{ !cancelled() && steps.build.outcome == 'success' }}
