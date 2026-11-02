@@ -44,25 +44,31 @@ It's built for one person and one phone: no accounts, no sign-up.
     <td align="center">
       <picture>
         <source media="(prefers-color-scheme: dark)" srcset="docs/images/readme/new-workout-dark.png" />
-        <img src="docs/images/readme/new-workout-light.png" alt="Logging strength sets" width="190" />
+        <img src="docs/images/readme/new-workout-light.png" alt="Logging strength sets" width="150" />
       </picture>
     </td>
     <td align="center">
       <picture>
         <source media="(prefers-color-scheme: dark)" srcset="docs/images/readme/cardio-dark.png" />
-        <img src="docs/images/readme/cardio-light.png" alt="Logging cardio entries" width="190" />
+        <img src="docs/images/readme/cardio-light.png" alt="Logging cardio entries" width="150" />
       </picture>
     </td>
     <td align="center">
       <picture>
         <source media="(prefers-color-scheme: dark)" srcset="docs/images/readme/add-exercise-dark.png" />
-        <img src="docs/images/readme/add-exercise-light.png" alt="Adding an exercise" width="190" />
+        <img src="docs/images/readme/add-exercise-light.png" alt="Adding an exercise" width="150" />
       </picture>
     </td>
     <td align="center">
       <picture>
         <source media="(prefers-color-scheme: dark)" srcset="docs/images/readme/last-time-dark.png" />
-        <img src="docs/images/readme/last-time-light.png" alt="Last time's values beside each set" width="190" />
+        <img src="docs/images/readme/last-time-light.png" alt="Last time's values beside each set" width="150" />
+      </picture>
+    </td>
+    <td align="center">
+      <picture>
+        <source media="(prefers-color-scheme: dark)" srcset="docs/images/readme/notes-dark.png" />
+        <img src="docs/images/readme/notes-light.png" alt="A workout note and exercise notes, with last time's note" width="150" />
       </picture>
     </td>
   </tr>
@@ -71,6 +77,7 @@ It's built for one person and one phone: no accounts, no sign-up.
     <td align="center"><sub><b>Cardio</b></sub></td>
     <td align="center"><sub><b>Add exercise</b></sub></td>
     <td align="center"><sub><b>Last time</b></sub></td>
+    <td align="center"><sub><b>Notes</b></sub></td>
   </tr>
 </table>
 
