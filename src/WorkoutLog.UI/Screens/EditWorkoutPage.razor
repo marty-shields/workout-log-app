@@ -3,8 +3,10 @@
 @using WorkoutLog.Core.Services
 @using WorkoutLog.UI.Components.Overlays
 @using WorkoutLog.UI.Components.Workout
+@using WorkoutLog.UI.Models.Exercises
 @inject IWorkoutService Workouts
 @inject IExerciseCatalog Catalog
+@inject LastTimeLoader LastTimes
 @inject TimeProvider Clock
 @inject ISetChecker Checker
 @inject IWorkoutChecker WorkoutChecker
@@ -36,7 +38,7 @@ else
             @if (Editor.ListOpen)
             {
                 <AddExerciseView Items="Editor.ListItems" Query="@Editor.Query" QueryChanged="Editor.Search" Filter="Editor.Filter" FilterChanged="Editor.FilterBy"
-                                 Loading="Editor.ListLoading" OnPick="Editor.Pick" OnClose="Editor.CloseList" />
+                                 Loading="Editor.ListLoading" OnPick="PickAsync" OnClose="Editor.CloseList" />
             }
             @if (Editor.Removing is { } removing)
             {
@@ -67,6 +69,7 @@ else
 
     private EditPhase phase = EditPhase.Loading;
     private int loadedId;
+    private DateTimeOffset loadedStart;
     private DateTime startedAt;
     private TimeSpan total;
 
@@ -133,11 +136,31 @@ else
             exercises.Add(state);
         }
 
+        foreach (var state in exercises)
+        {
+            await LastTimes.LoadAsync(state, workout.StartedAt);
+        }
+
         startedAt = TimeZoneInfo.ConvertTime(workout.StartedAt, Clock.LocalTimeZone).DateTime;
         total = workout.FinishedAt - workout.StartedAt;
         loadedId = workoutId;
+        loadedStart = workout.StartedAt;
         Editor.Start(exercises);
         phase = EditPhase.Editing;
+    }
+
+    /// <summary>
+    /// Picks the exercise (<see cref="WorkoutEditor.Pick"/>). An exercise just added then loads its last time before this workout
+    /// (<see cref="LastTimeLoader.LoadAsync"/>); a failed load shows none.
+    /// </summary>
+    private async Task PickAsync(ExerciseListItem item)
+    {
+        var added = Editor.Exercises.All(e => e.ExerciseId != item.Id);
+        Editor.Pick(item);
+        if (added && Editor.Exercises.FirstOrDefault(e => e.ExerciseId == item.Id) is { } exercise)
+        {
+            await LastTimes.LoadAsync(exercise, loadedStart);
+        }
     }
 
     /// <summary>

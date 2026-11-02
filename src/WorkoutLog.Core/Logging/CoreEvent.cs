@@ -111,6 +111,9 @@ internal enum CoreEvent
     /// <summary><see cref="Services.WeightHistoryService"/>: reading an exercise's weights failed.</summary>
     WeightHistoryLoadFailed = 1501,
 
+    /// <summary><see cref="Services.LastSessionService"/>: reading an exercise's last session failed.</summary>
+    LastSessionLoadFailed = 1510,
+
     /// <summary><see cref="Services.ExportService"/>: export file written.</summary>
     ExportWritten = 1601,
 

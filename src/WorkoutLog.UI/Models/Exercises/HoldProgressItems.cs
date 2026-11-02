@@ -56,9 +56,15 @@ public static class HoldProgressItems
     private static string Heaviest(ExerciseBest best) =>
         best.Duration is { } duration ? $"{DisplayFormat.Weight(best.WeightKg)} · {DisplayFormat.Clock(duration)}" : DisplayFormat.Weight(best.WeightKg);
 
-    private static string SetText(StrengthSet set)
+    /// <summary>A set as the Exercise page lists it, e.g. 20kg 1:30 or 1:30; — when it has neither.</summary>
+    private static string SetText(StrengthSet set) => Joined(" ", set);
+
+    /// <summary>A set as the Exercise page writes the heaviest hold, e.g. 20kg · 1:30 or 1:30; — when it has neither.</summary>
+    internal static string LastText(StrengthSet set) => Joined(" · ", set);
+
+    private static string Joined(string separator, StrengthSet set)
     {
         var parts = new[] { set.WeightKg > 0m ? DisplayFormat.Weight(set.WeightKg) : null, set.Duration is { } d ? DisplayFormat.Clock(d) : null }.OfType<string>().ToList();
-        return parts.Count > 0 ? string.Join(" ", parts) : "—";
+        return parts.Count > 0 ? string.Join(separator, parts) : "—";
     }
 }

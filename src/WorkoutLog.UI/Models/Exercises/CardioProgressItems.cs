@@ -142,9 +142,9 @@ public static class CardioProgressItems
     };
 
     /// <summary>
-    /// The entry's values in the order Distance, Duration, Pace or Speed, Floors, Calories, Level, Incline, Rate, leaving out <paramref name="skip"/>.
+    /// The entry's values in the order Distance, Duration, Pace or Speed, Floors, Calories, Level, Incline, Rate, leaving out <paramref name="skip"/> if it has a value.
     /// </summary>
-    private static string EntryText(ExerciseDefinition exercise, CardioEntry entry, CardioBest best, Metric skip)
+    internal static string EntryText(ExerciseDefinition exercise, CardioEntry entry, CardioBest best, Metric? skip)
     {
         var level = exercise.Metrics.FirstOrDefault(m => m.Metric == Metric.Level)?.Label ?? "Level";
         (Metric? Metric, string? Text)[] values =
@@ -159,7 +159,7 @@ public static class CardioProgressItems
             (Metric.Incline, entry.Incline is { } incline ? $"{ExerciseProgressItems.Number(incline)}%" : null),
             (Metric.Rate, entry.Rate is { } rate ? Rate(exercise, rate) : null),
         ];
-        return string.Join(" · ", values.Where(v => v.Metric != skip && v.Text is not null).Select(v => v.Text));
+        return string.Join(" · ", values.Where(v => (skip is null || v.Metric != skip) && v.Text is not null).Select(v => v.Text));
     }
 
     /// <summary>Rate with its unit: no space before a symbol (85rpm), a space before a word (28 strokes/min).</summary>

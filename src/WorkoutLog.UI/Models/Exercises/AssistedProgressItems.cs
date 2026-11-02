@@ -34,6 +34,7 @@ public static class AssistedProgressItems
     private static string Assist(ExerciseBest best) =>
         best.Reps is { } reps ? $"{DisplayFormat.Weight(best.WeightKg)} × {reps}" : DisplayFormat.Weight(best.WeightKg);
 
-    private static string SetText(StrengthSet set) =>
+    /// <summary>A set as the Exercise page lists it, e.g. 5kg×8.</summary>
+    internal static string SetText(StrengthSet set) =>
         set.Reps is { } reps ? $"{DisplayFormat.Weight(set.WeightKg ?? 0m)}×{reps}" : DisplayFormat.Weight(set.WeightKg ?? 0m);
 }
