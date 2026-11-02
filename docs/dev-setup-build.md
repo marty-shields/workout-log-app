@@ -24,6 +24,7 @@ The stories need only the .NET SDK.
 | `dashboard` | `screens-dashboard--with-workouts` |
 | `workout-summary` | `screens-workout-summary--records-and-changes` |
 | `new-workout` | `screens-new-workout--strength` |
+| `cardio` | `screens-new-workout--cardio` |
 | `last-time` | `screens-new-workout--last-time` |
 | `notes` | `screens-new-workout--notes` |
 | `add-exercise` | `screens-add-exercise--results` |
