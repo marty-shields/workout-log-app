@@ -4,7 +4,7 @@
 # Writes WorkoutLog-<version>.apk, its .sha256 and notes.md to the out dir.
 set -euo pipefail
 apk="$1"; version="$2"; code="$3"; cert="$4"; out="$5"
-tools=$(ls -d "$ANDROID_HOME"/build-tools/* | sort -V | tail -n 1)
+tools=$(printf '%s\n' "$ANDROID_HOME"/build-tools/* | sort -V | tail -n 1)
 
 fail() { echo "::error title=APK check::$1"; exit 1; }
 
@@ -30,6 +30,7 @@ mkdir -p "$out"
 cp "$apk" "$out/WorkoutLog-$version.apk"
 (cd "$out" && sha256sum "WorkoutLog-$version.apk" > "WorkoutLog-$version.apk.sha256")
 fingerprint=$(sed 's/../&:/g; s/:$//' <<<"$digests" | tr 'a-f' 'A-F')
+# shellcheck disable=SC2016 # the backticks are Markdown, not a command substitution
 printf 'Signing certificate SHA-256: `%s`\n\nCheck an APK before installing: `apksigner verify --print-certs <apk>` must show this digest ([Install](https://github.com/%s#install)).\n' \
   "$fingerprint" "$GITHUB_REPOSITORY" > "$out/notes.md"
 echo "Checked: $(head -n 1 <<<"$badging"); ABIs $abis; cert $fingerprint"
