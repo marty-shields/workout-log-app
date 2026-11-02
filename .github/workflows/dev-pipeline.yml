@@ -42,14 +42,14 @@ jobs:
         id: build
         run: dotnet build WorkoutLog.slnx
 
-      # Failed tests are reported as annotations and in the job summary.
+      # Failed tests are reported as annotations and in the job summary. A test host that hangs for 5 minutes is killed and fails the step.
       - name: Core tests
-        run: dotnet test tests/WorkoutLog.Core.Tests --no-build --logger GitHubActions --collect "Code Coverage;Format=cobertura" --results-directory "$RUNNER_TEMP/coverage/core" -- RunConfiguration.CollectSourceInformation=true
+        run: dotnet test tests/WorkoutLog.Core.Tests --no-build --logger GitHubActions --blame-hang-timeout 5m --collect "Code Coverage;Format=cobertura" --results-directory "$RUNNER_TEMP/coverage/core" -- RunConfiguration.CollectSourceInformation=true
 
       # Runs even when the Core tests fail.
       - name: UI tests
         if: ${{ !cancelled() && steps.build.outcome == 'success' }}
-        run: dotnet test tests/WorkoutLog.UI.Tests --no-build --logger GitHubActions --collect "Code Coverage;Format=cobertura" --results-directory "$RUNNER_TEMP/coverage/ui" -- RunConfiguration.CollectSourceInformation=true
+        run: dotnet test tests/WorkoutLog.UI.Tests --no-build --logger GitHubActions --blame-hang-timeout 5m --collect "Code Coverage;Format=cobertura" --results-directory "$RUNNER_TEMP/coverage/ui" -- RunConfiguration.CollectSourceInformation=true
 
       # Line and branch coverage of Core (from the Core tests) and UI (from the UI tests) in the job summary; no gate yet. The Cobertura XML is the coverage artifact.
       - name: Coverage summary

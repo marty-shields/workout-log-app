@@ -52,7 +52,7 @@ Every PR to `main` runs these; the four checks must pass before it can merge:
 
 Keep in step:
 - NuGet restores are locked: each project commits a `packages.lock.json`, and CI (`CI` set) fails a restore that would change one (`RestoreLockedMode`). After changing a package or its version, run `dotnet restore WorkoutLog.slnx --force-evaluate` and commit the lock files. Dependabot's NuGet PRs rewrite them. Restore the App without `-r` and publish with `-r ... --no-restore`; a restore with `-r` doesn't match the App's lock file, which lists `android-arm64` and `android-x64` (`RuntimeIdentifiers` in the App's project file).
-- When the SDK in `global.json` changes, set the workflow's workload set `--version` to match (`dotnet workload search version`) in the same PR.
+- When the SDK in `global.json` changes, set the workflow's workload set `--version` to match (`dotnet workload search version`) in the same PR, in `dev-pipeline.yml`, `release.yml` and `stories-pages.yml`. The workload set decides the WebAssembly SDK pack version the Stories lock file records, so a job without it fails the locked restore.
 - Chromedriver is pinned in `qa-pipeline.yml` (`CHROMEDRIVER_VERSION`, `CHROMEDRIVER_SHA256`, from [Chrome for Testing](https://googlechromelabs.github.io/chrome-for-testing/)). When the emulator's WebView major version changes, the job fails: pin the matching version and its SHA-256.
 
 On a Linux machine set up for `e2e-local.sh`, see [Keeping it current](dev-setup-linux.md#keeping-it-current).
