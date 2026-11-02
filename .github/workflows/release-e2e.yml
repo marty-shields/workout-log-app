@@ -12,6 +12,12 @@ on:
       - src/WorkoutLog.Core/Export/**
       - src/WorkoutLog.Core/Import/**
       - .github/workflows/release-e2e.yml
+      - src/WorkoutLog.App/**
+      - .github/scripts/e2e-run.sh
+      - .github/scripts/chromedriver.sh
+      - .github/scripts/emulator-start.sh
+      - .github/scripts/emulator-wait.sh
+      - .github/scripts/release-smoke.sh
 
 permissions:
   contents: read

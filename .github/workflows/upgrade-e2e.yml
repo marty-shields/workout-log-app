@@ -12,6 +12,11 @@ on:
       - src/WorkoutLog.Core/Data/**
       - .github/workflows/upgrade-e2e.yml
       - .github/scripts/previous-apk.sh
+      - src/WorkoutLog.App/**
+      - .github/scripts/e2e-run.sh
+      - .github/scripts/chromedriver.sh
+      - .github/scripts/emulator-start.sh
+      - .github/scripts/emulator-wait.sh
 
 permissions:
   contents: read
