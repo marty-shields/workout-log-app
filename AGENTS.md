@@ -10,6 +10,16 @@ Personal Android app (.NET 10 MAUI Blazor Hybrid). Setup: [docs/dev-setup-build.
 - Story layout (needs Chrome and the stories running): `node .github/scripts/check-story-layout.mjs http://localhost:5056 <chrome>` fails on clipped, overflowing or wrapping story content at the narrowest card; CI runs it as `story-layout`, and `data-wrap-ok` marks text allowed to wrap.
 - Design system: `dotnet run --project src/WorkoutLog.UI.Stories` → http://localhost:5056
 
+## How the code fits
+- Projects: App → UI → Core; Stories → UI. `WorkoutLog.UI.Tests` reads the App's files because it can't reference it.
+- Screens: a `*Page` calls services, a `*View` takes parameters. `StoryCoverageTests` requires a screen story for every `*View`.
+- Services return a status (`ExportStatus`), not exceptions.
+- Every database call goes through `DatabaseGate` (`DatabaseGateTests`).
+- Event ids: `CoreEvent` 1000s, `UiEvent` 2000s, `AppEvent` 5000s. `CoreEventTests` and `EventIdTests` fix the values and ranges.
+- Styling: tokens only, no literal colours or sizes (`TokensOnlyCssTests`).
+- Logs never hold workout contents (`NotesNotLoggedTests`, `Logging.feature`).
+- Docs: `ReadmeDocsTests` checks the README's screenshot table and Project layout.
+
 ## Rules
 - Ask about any ambiguity.
 - No new packages without approval.

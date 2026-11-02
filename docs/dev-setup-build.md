@@ -22,9 +22,11 @@ The stories need only the .NET SDK.
 | File | Story id |
 |---|---|
 | `dashboard` | `screens-dashboard--with-workouts` |
+| `workout-summary` | `screens-workout-summary--records-and-changes` |
 | `new-workout` | `screens-new-workout--strength` |
 | `cardio` | `screens-new-workout--cardio` |
 | `last-time` | `screens-new-workout--last-time` |
+| `notes` | `screens-new-workout--notes` |
 | `add-exercise` | `screens-add-exercise--results` |
 | `workouts` | `screens-workouts--with-workouts` |
 | `settings` | `screens-settings--with-workouts` |
@@ -83,4 +85,4 @@ Also: Dependabot opens weekly update PRs (`chore(deps): …`, `semver:patch`); e
 ## Source control
 - GitHub: [marty-shields/workout-log-app](https://github.com/marty-shields/workout-log-app), public, default branch `main`.
 - `main` is protected by the `Protect main` ruleset: no direct pushes, force pushes or deletion; changes go through a PR with the [CI](#ci) checks passing. PRs are opened as drafts; the reviewer marks them ready and squash-merges. Merged branches are deleted.
-- Branches: `type/us-xx-slug` (e.g. `feat/us-26-signed-release-apk`); work that isn't a story leaves out the ID (e.g. `chore/update-readme`).
+- Branches: `type/<issue>-slug` (e.g. `ci/123-faster-e2e-shards`, `fix/118-skip-future-workouts`); work with no issue leaves out the number (e.g. `chore/update-readme`).
