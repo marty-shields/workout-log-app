@@ -51,8 +51,14 @@ public sealed class WorkoutEditor(
     /// <summary>Message on the workout itself.</summary>
     public string? Error { get; private set; }
 
-    /// <summary>A save is running or has succeeded.</summary>
-    public bool Saving { get; private set; }
+    /// <summary>Whether a save is running or has succeeded.</summary>
+    public SavePhase SaveState { get; private set; }
+
+    /// <summary>The Discard prompt is open.</summary>
+    public bool DiscardOpen { get; private set; }
+
+    /// <summary>Discard was confirmed. Nothing is saved after it.</summary>
+    public bool Discarded { get; private set; }
 
     /// <summary>
     /// A value was typed, a set added or removed, or an exercise added, picked again or removed since <see cref="Start"/>, even if
@@ -74,8 +80,43 @@ public sealed class WorkoutEditor(
         ErrorFocus = null;
         Removing = null;
         Error = null;
-        Saving = false;
+        SaveState = SavePhase.Idle;
+        DiscardOpen = false;
+        Discarded = false;
         Changed = false;
+    }
+
+    /// <summary>Opens the Discard prompt. Ignored while a save runs, after one succeeds and after a discard.</summary>
+    public void AskDiscard()
+    {
+        if (SaveState == SavePhase.Idle && !Discarded)
+        {
+            DiscardOpen = true;
+        }
+    }
+
+    /// <summary>Closes the Discard prompt.</summary>
+    public void CloseDiscard() => DiscardOpen = false;
+
+    /// <summary>
+    /// Confirms Discard, once; returns true the first time. While a save runs or after one succeeds, closes the prompt and
+    /// returns false. After a discard, returns false and leaves the prompt open.
+    /// </summary>
+    public bool ConfirmDiscard()
+    {
+        if (SaveState != SavePhase.Idle)
+        {
+            DiscardOpen = false;
+            return false;
+        }
+
+        if (Discarded)
+        {
+            return false;
+        }
+
+        Discarded = true;
+        return true;
     }
 
     /// <summary>
@@ -177,7 +218,7 @@ public sealed class WorkoutEditor(
     /// <param name="save">Saves the records; true when saved.</param>
     public async Task<bool> SaveAsync(Func<IReadOnlyList<WorkoutExercise>, Task<bool>> save)
     {
-        if (Saving)
+        if (SaveState != SavePhase.Idle)
         {
             return false;
         }
@@ -195,15 +236,16 @@ public sealed class WorkoutEditor(
             return false;
         }
 
-        Saving = true;
-        Saving = await save(exercises.Select(setChecker.Read).Reverse().ToList());
-        if (!Saving)
+        SaveState = SavePhase.Running;
+        var saved = await save(exercises.Select(setChecker.Read).Reverse().ToList());
+        SaveState = saved ? SavePhase.Succeeded : SavePhase.Idle;
+        if (!saved)
         {
             Error = workoutChecker.SaveFailed;
             ErrorFocus = new ErrorFocus(ErrorFocusTarget.Save);
         }
 
-        return Saving;
+        return saved;
     }
 
     /// <summary>Shows DeleteFailed and asks to focus Delete.</summary>

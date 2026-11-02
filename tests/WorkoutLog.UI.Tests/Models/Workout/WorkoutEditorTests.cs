@@ -42,7 +42,7 @@ public class WorkoutEditorTests
             Assert.That(editor.Exercises, Is.Empty);
             Assert.That(editor.ListOpen, Is.False);
             Assert.That(editor.Changed, Is.False);
-            Assert.That(editor.Saving, Is.False);
+            Assert.That(editor.SaveState, Is.EqualTo(SavePhase.Idle));
         });
     }
 
@@ -439,7 +439,7 @@ public class WorkoutEditorTests
             Assert.That(editor.ErrorFocus, Is.Null);
             Assert.That(editor.Error, Is.Null);
             Assert.That(editor.Changed, Is.False);
-            Assert.That(editor.Saving, Is.False);
+            Assert.That(editor.SaveState, Is.EqualTo(SavePhase.Idle));
         });
     }
 
@@ -482,7 +482,7 @@ public class WorkoutEditorTests
             Assert.That(saves, Is.Zero);
             Assert.That(editor.Error, Is.EqualTo("Add at least one exercise"));
             Assert.That(editor.ErrorFocus!.Target, Is.EqualTo(ErrorFocusTarget.FirstError));
-            Assert.That(editor.Saving, Is.False);
+            Assert.That(editor.SaveState, Is.EqualTo(SavePhase.Idle));
         });
     }
 
@@ -523,7 +523,7 @@ public class WorkoutEditorTests
             Assert.That(records![0], Is.InstanceOf<StrengthExercise>());
             Assert.That(records[1], Is.InstanceOf<CardioExercise>());
             Assert.That(editor.Error, Is.Null);
-            Assert.That(editor.Saving, Is.True);
+            Assert.That(editor.SaveState, Is.Not.EqualTo(SavePhase.Idle));
         });
     }
 
@@ -581,7 +581,7 @@ public class WorkoutEditorTests
             Assert.That(failed, Is.False);
             Assert.That(editor.Error, Is.EqualTo(workoutChecker.SaveFailed));
             Assert.That(editor.ErrorFocus!.Target, Is.EqualTo(ErrorFocusTarget.Save));
-            Assert.That(editor.Saving, Is.False);
+            Assert.That(editor.SaveState, Is.EqualTo(SavePhase.Idle));
         });
 
         var retried = await editor.SaveAsync(_ => Task.FromResult(true));

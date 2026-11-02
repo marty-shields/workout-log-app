@@ -11,9 +11,9 @@
 @inject WorkoutEditor Editor
 @inject ILogger<EditWorkoutPage> Logger
 
-@if (!loaded)
+@if (phase is EditPhase.Loading or EditPhase.LoadFailed or EditPhase.NotFound)
 {
-    <WorkoutLoadView Failed="failed" NotFound="notFound" OnRetry="LoadAsync" OnBack="OnBack" />
+    <WorkoutLoadView Failed="phase == EditPhase.LoadFailed" NotFound="phase == EditPhase.NotFound" OnRetry="LoadAsync" OnBack="OnBack" />
 }
 else
 {
@@ -42,11 +42,11 @@ else
             {
                 <ConfirmDialog Title="@($"Delete {removing.Name}?")" ConfirmText="Delete" Danger OnConfirm="Editor.ConfirmRemove" OnCancel="Editor.CancelRemove" />
             }
-            @if (discardOpen)
+            @if (Editor.DiscardOpen)
             {
-                <ConfirmDialog Title="Discard changes?" ConfirmText="Discard" Danger OnConfirm="DiscardAsync" OnCancel="CloseDiscard" />
+                <ConfirmDialog Title="Discard changes?" ConfirmText="Discard" Danger OnConfirm="DiscardAsync" OnCancel="Editor.CloseDiscard" />
             }
-            @if (deleteOpen)
+            @if (phase is EditPhase.ConfirmingDelete or EditPhase.Deleting)
             {
                 <ConfirmDialog Title="Delete this workout?" ConfirmText="Delete" Danger OnConfirm="DeleteAsync" OnCancel="CloseDelete" />
             }
@@ -55,17 +55,20 @@ else
 }
 
 @code {
-    private bool loaded;
+    private enum EditPhase
+    {
+        Loading,
+        LoadFailed,
+        NotFound,
+        Editing,
+        ConfirmingDelete,
+        Deleting,
+    }
+
+    private EditPhase phase = EditPhase.Loading;
     private int loadedId;
     private DateTime startedAt;
     private TimeSpan total;
-    private bool loading;
-    private bool failed;
-    private bool notFound;
-    private bool discardOpen;
-    private bool discarded;
-    private bool deleteOpen;
-    private bool deleting;
 
     /// <summary>Id of the saved workout.</summary>
     [Parameter, EditorRequired]
@@ -86,7 +89,7 @@ else
     [Parameter]
     public EventCallback OnBack { get; set; }
 
-    protected override Task OnInitializedAsync() => LoadAsync();
+    protected override Task OnInitializedAsync() => FetchAsync();
 
     /// <summary>
     /// Loads the workout, with the start in the phone's time zone. An exercise missing from the catalog or saved as the
@@ -94,21 +97,23 @@ else
     /// </summary>
     private async Task LoadAsync()
     {
-        if (loading)
+        if (phase is EditPhase.Loading)
         {
             return;
         }
 
-        loading = true;
-        failed = false;
+        phase = EditPhase.Loading;
         StateHasChanged();
+        await FetchAsync();
+    }
+
+    private async Task FetchAsync()
+    {
         var workoutId = WorkoutId;
         var result = await Workouts.GetAsync(workoutId);
-        loading = false;
-        notFound = result.Status == WorkoutLoad.NotFound;
-        failed = result.Status == WorkoutLoad.Failed;
         if (result.Status != WorkoutLoad.Loaded)
         {
+            phase = result.Status == WorkoutLoad.NotFound ? EditPhase.NotFound : EditPhase.LoadFailed;
             return;
         }
 
@@ -120,7 +125,7 @@ else
                 || ExerciseFields.Saved(definition, exercise) is not { } state)
             {
                 Log.OpenFailed(Logger, workoutId, exercise.ExerciseId);
-                failed = true;
+                phase = EditPhase.LoadFailed;
                 return;
             }
 
@@ -132,7 +137,7 @@ else
         total = workout.FinishedAt - workout.StartedAt;
         loadedId = workoutId;
         Editor.Start(exercises);
-        loaded = true;
+        phase = EditPhase.Editing;
     }
 
     /// <summary>
@@ -142,21 +147,19 @@ else
     /// </summary>
     private async Task BackAsync()
     {
-        if (Editor.Saving || discarded || deleting)
+        if (Editor.SaveState != SavePhase.Idle || Editor.Discarded || phase == EditPhase.Deleting)
         {
             return;
         }
 
         if (Editor.Changed)
         {
-            discardOpen = true;
+            Editor.AskDiscard();
             return;
         }
 
         await OnBack.InvokeAsync();
     }
-
-    private void CloseDiscard() => discardOpen = false;
 
     /// <summary>
     /// Logs the workout id only and raises <see cref="OnBack"/>, once. While a save or delete runs or after one succeeds,
@@ -164,18 +167,17 @@ else
     /// </summary>
     private async Task DiscardAsync()
     {
-        if (Editor.Saving || deleting)
+        if (phase == EditPhase.Deleting)
         {
-            discardOpen = false;
+            Editor.CloseDiscard();
             return;
         }
 
-        if (discarded)
+        if (!Editor.ConfirmDiscard())
         {
             return;
         }
 
-        discarded = true;
         Log.EditsDiscarded(Logger, loadedId);
         await OnBack.InvokeAsync();
     }
@@ -183,20 +185,20 @@ else
     /// <summary>Asks Delete / Cancel. Ignored while a save or delete runs, after one succeeds and after a discard.</summary>
     private void OpenDelete()
     {
-        if (Editor.Saving || deleting || discarded)
+        if (Editor.SaveState != SavePhase.Idle || phase == EditPhase.Deleting || Editor.Discarded)
         {
             return;
         }
 
-        deleteOpen = true;
+        phase = EditPhase.ConfirmingDelete;
     }
 
     /// <summary>Closes the prompt. Ignored while a delete runs and after one succeeds.</summary>
     private void CloseDelete()
     {
-        if (!deleting)
+        if (phase == EditPhase.ConfirmingDelete)
         {
-            deleteOpen = false;
+            phase = EditPhase.Editing;
         }
     }
 
@@ -207,22 +209,21 @@ else
     /// </summary>
     private async Task DeleteAsync()
     {
-        if (Editor.Saving)
+        if (Editor.SaveState != SavePhase.Idle)
         {
-            deleteOpen = false;
+            phase = EditPhase.Editing;
             return;
         }
 
-        if (deleting || discarded)
+        if (phase == EditPhase.Deleting || Editor.Discarded)
         {
             return;
         }
 
-        deleting = true;
+        phase = EditPhase.Deleting;
         if (await Workouts.DeleteAsync(loadedId) == WorkoutDelete.Failed)
         {
-            deleting = false;
-            deleteOpen = false;
+            phase = EditPhase.Editing;
             Editor.ShowDeleteFailed();
             return;
         }
@@ -236,7 +237,7 @@ else
     /// </summary>
     private async Task SaveAsync()
     {
-        if (deleting)
+        if (phase == EditPhase.Deleting)
         {
             return;
         }
