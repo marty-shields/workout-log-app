@@ -251,7 +251,15 @@
 
     private void Request(FocusRequest request)
     {
-        pending?.Completion?.TrySetCanceled();
+        if (request.Completion is null)
+        {
+            request = request with { Completion = pending?.Completion };
+        }
+        else
+        {
+            pending?.Completion?.TrySetCanceled();
+        }
+
         pending = request;
     }
 
