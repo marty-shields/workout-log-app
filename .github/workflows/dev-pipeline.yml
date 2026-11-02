@@ -82,8 +82,9 @@ jobs:
 
       - name: Build the Release APK (x64, debug key)
         run: |
+          dotnet restore src/WorkoutLog.App
           dotnet publish src/WorkoutLog.App -c Release -f net10.0-android -p:AndroidPackageFormat=apk \
-            -r android-x64 -o "$RUNNER_TEMP/backup"
+            -r android-x64 --no-restore -o "$RUNNER_TEMP/backup"
 
       - name: Check the Release APK
         run: .github/scripts/check-backup.sh "$RUNNER_TEMP/backup/uk.martinshields.workoutlog-Signed.apk" true backup_rules

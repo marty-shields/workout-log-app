@@ -11,6 +11,9 @@
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <!-- MSBuild task warnings (including the Android XA ones) fail the build. -->
     <MSBuildTreatWarningsAsErrors>true</MSBuildTreatWarningsAsErrors>
+    <!-- Each project commits a packages.lock.json; CI fails a restore that would change it. -->
+    <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
+    <RestoreLockedMode Condition="'$(CI)' != ''">true</RestoreLockedMode>
   </PropertyGroup>
 
   <!-- Test projects (*.Tests): NUnit. -->
