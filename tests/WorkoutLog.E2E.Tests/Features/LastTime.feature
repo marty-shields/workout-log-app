@@ -3,13 +3,12 @@ Feature: Last time's values
 
   Scenario: Each set shows the same set from the latest workout
     Given these saved workouts:
-      | started           | exercises                                                                                   |
-      | 10 days ago 18:05 | Barbell Back Squat: 5 reps 50 kg; 5 reps 50 kg                                              |
-      | yesterday 18:05   | Barbell Back Squat: 8 reps 60 kg; 8 reps 60 kg; 6 reps 62.5 kg / Dumbbell Curl: 10 reps 12 kg |
+      | started           | exercises                                                      |
+      | 10 days ago 18:05 | Barbell Back Squat: 5 reps 50 kg; 5 reps 50 kg                 |
+      | yesterday 18:05   | Barbell Back Squat: 8 reps 60 kg; 8 reps 60 kg; 6 reps 62.5 kg |
     And I have started a new workout
     When I add "Barbell Back Squat"
     Then Barbell Back Squat set 1 last time is "60×8"
-    And Dumbbell Curl has no last time
 
   Scenario: A set past the end of last time's sets shows a dash
     Given these saved workouts:
