@@ -30,6 +30,10 @@
     font-variant-numeric: tabular-nums;
 }
 
+.input::placeholder {
+    font-size: var(--font-size-sm);
+}
+
 .invalid {
     border: var(--border-width-error) solid var(--color-error);
 }

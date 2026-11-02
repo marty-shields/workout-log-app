@@ -64,6 +64,19 @@ function inspect() {
         findings.push(`${label(el)} text overflows its box (${el.scrollWidth}px in ${el.clientWidth}px)`);
       }
     }
+    if (el.tagName === 'INPUT' && el.placeholder && !el.value) {
+      // Placeholder text never counts toward scrollWidth, so it needs its own measurement.
+      const probe = document.createElement('span');
+      probe.style.cssText = 'position:absolute;visibility:hidden;white-space:pre';
+      probe.style.font = style.font;
+      probe.style.fontSize = getComputedStyle(el, '::placeholder').fontSize;
+      probe.textContent = el.placeholder;
+      document.body.append(probe);
+      const needed = probe.getBoundingClientRect().width;
+      probe.remove();
+      const room = el.clientWidth - parseFloat(style.paddingLeft) - parseFloat(style.paddingRight);
+      if (needed > room + 0.5) findings.push(`${label(el)} placeholder is cut off (${Math.round(needed)}px in ${Math.round(room)}px)`);
+    }
     if (box.right > viewport + 1) {
       findings.push(`${label(el)} runs past the screen edge (${Math.round(box.right)}px > ${viewport}px)`);
     }
