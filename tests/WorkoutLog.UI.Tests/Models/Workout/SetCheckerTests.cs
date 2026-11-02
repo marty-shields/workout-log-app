@@ -466,6 +466,22 @@ public class SetCheckerTests
     }
 
     [Test]
+    public void Read_CarriesTheNoteAsTypedOnStrengthAndCardio()
+    {
+        var squat = SampleData.Exercise(Catalog, Squat, ["60", "8"]);
+        squat.Note = "Belt on ";
+        var run = SampleData.Exercise(Catalog, OutdoorRun, ["0:25:30", "5"]);
+        run.Note = "Windy";
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(checker.Read(squat).Note, Is.EqualTo("Belt on "));
+            Assert.That(checker.Read(run).Note, Is.EqualTo("Windy"));
+            Assert.That(checker.Read(SampleData.Exercise(Catalog, Squat, ["60", "8"])).Note, Is.Null);
+        });
+    }
+
+    [Test]
     public void Read_ChangesNoErrorsAndLogsNothing()
     {
         var exercise = SampleData.Exercise(Catalog, Squat, ["60", "abc"]);

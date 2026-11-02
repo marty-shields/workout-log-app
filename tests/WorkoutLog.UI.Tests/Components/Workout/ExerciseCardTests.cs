@@ -1355,6 +1355,27 @@ public class ExerciseCardTests : ComponentTestBase
     }
 
     [Test]
+    public void NoteError_ClearsWhenTheNoteChanges()
+    {
+        var exercise = Strength(1);
+        exercise.Note = new string('a', 501);
+        exercise.NoteError = "Note must be 500 characters or less";
+        var cut = Context.Render<ExerciseCard>(p => p
+            .Add(x => x.Exercise, exercise)
+            .Add(x => x.TestId, "exercise-1"));
+        cut.Find("[data-testid=exercise-1-note-open]").Click();
+
+        cut.Find("textarea").Input(new string('a', 500));
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(exercise.NoteError, Is.Null);
+            Assert.That(cut.FindAll("[data-testid=exercise-1-note-error]"), Is.Empty);
+            Assert.That(cut.Find("textarea").ClassList, Does.Not.Contain("invalid"));
+        });
+    }
+
+    [Test]
     public async Task FocusFirstError_OnlyANoteError_FocusesTheNoteTextBox()
     {
         var exercise = Strength(1);

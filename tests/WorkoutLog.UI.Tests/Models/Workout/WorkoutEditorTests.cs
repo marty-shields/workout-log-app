@@ -470,6 +470,135 @@ public class WorkoutEditorTests
     }
 
     [Test]
+    public void Start_TakesTheNoteAndClearsTheNoteErrorAndChanged()
+    {
+        editor.Start([], "Slept badly");
+        editor.SetNote(SampleData.NoteTooLong);
+        Assume.That(editor.Changed, Is.True);
+
+        editor.Start([], "Felt strong");
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(editor.Note, Is.EqualTo("Felt strong"));
+            Assert.That(editor.NoteError, Is.Null);
+            Assert.That(editor.Changed, Is.False);
+        });
+    }
+
+    [Test]
+    public void SetNote_SetsTheNoteAndIsAChange()
+    {
+        editor.Start([], null);
+
+        editor.SetNote("Felt strong");
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(editor.Note, Is.EqualTo("Felt strong"));
+            Assert.That(editor.Changed, Is.True);
+        });
+    }
+
+    [Test]
+    public async Task SetNote_ClearsTheNoteErrorOfAFailedSave()
+    {
+        editor.Start([SampleData.Exercise(Catalog, Squat, ["60", "8"])], SampleData.NoteTooLong);
+        await editor.SaveAsync((_, _) => Task.FromResult(true));
+        Assume.That(editor.NoteError, Is.Not.Null);
+
+        editor.SetNote("Short");
+
+        Assert.That(editor.NoteError, Is.Null);
+    }
+
+    [Test]
+    public async Task SaveAsync_PassesTheWorkoutNoteAndTheExerciseNotes()
+    {
+        var squat = SampleData.Exercise(Catalog, Squat, ["60", "8"]);
+        squat.Note = "Belt on";
+        var treadmill = SampleData.Exercise(Catalog, Treadmill, ["0:20:00", "3"]);
+        treadmill.Note = "Windy";
+        editor.Start([squat, treadmill], "Felt strong");
+        string? note = null;
+        IReadOnlyList<WorkoutExercise>? records = null;
+
+        await editor.SaveAsync((n, r) =>
+        {
+            note = n;
+            records = r;
+            return Task.FromResult(true);
+        });
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(note, Is.EqualTo("Felt strong"));
+            Assert.That(records!.Select(r => r.Note), Is.EqualTo(new[] { "Belt on", "Windy" }));
+        });
+    }
+
+    [Test]
+    public async Task SaveAsync_NoteTooLong_ShowsTheNoteErrorFocusesItAndDoesNotSave()
+    {
+        editor.Start([SampleData.Exercise(Catalog, Squat, ["60", "8"])], SampleData.NoteTooLong);
+        var saves = 0;
+
+        var saved = await editor.SaveAsync((_, _) => Task.FromResult(++saves > 0));
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(saved, Is.False);
+            Assert.That(saves, Is.Zero);
+            Assert.That(editor.NoteError, Is.EqualTo(WorkoutChecker.NoteTooLong));
+            Assert.That(editor.Error, Is.Null);
+            Assert.That(editor.ErrorFocus!.Target, Is.EqualTo(ErrorFocusTarget.FirstError));
+        });
+    }
+
+    [Test]
+    public async Task SaveAsync_ExerciseNoteTooLong_ReopensTheDoneExerciseAndDoesNotSave()
+    {
+        var squat = SampleData.Exercise(Catalog, Squat, ["60", "8"]);
+        squat.Note = SampleData.NoteTooLong;
+        squat.IsDone = true;
+        editor.Start([squat], null);
+
+        var saved = await editor.SaveAsync((_, _) => Task.FromResult(true));
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(saved, Is.False);
+            Assert.That(squat.NoteError, Is.EqualTo(WorkoutChecker.NoteTooLong));
+            Assert.That(squat.IsDone, Is.False);
+        });
+    }
+
+    [Test]
+    public async Task SaveAsync_Fails_KeepsTheNotesAndSavesThemOnRetry()
+    {
+        var squat = SampleData.Exercise(Catalog, Squat, ["60", "8"]);
+        squat.Note = "Belt on";
+        editor.Start([squat], "Felt strong");
+        await editor.SaveAsync((_, _) => Task.FromResult(false));
+        string? note = null;
+        IReadOnlyList<WorkoutExercise>? records = null;
+
+        await editor.SaveAsync((n, r) =>
+        {
+            note = n;
+            records = r;
+            return Task.FromResult(true);
+        });
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(editor.Note, Is.EqualTo("Felt strong"));
+            Assert.That(note, Is.EqualTo("Felt strong"));
+            Assert.That(records!.Single().Note, Is.EqualTo("Belt on"));
+        });
+    }
+
+    [Test]
     public async Task SaveAsync_Invalid_ShowsTheErrorFocusesTheFirstErrorAndDoesNotSave()
     {
         var saves = 0;
