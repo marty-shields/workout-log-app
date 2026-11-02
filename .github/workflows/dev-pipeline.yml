@@ -90,7 +90,8 @@ jobs:
           retention-days: 1
           if-no-files-found: error
 
-  # Only the database is backed up and transferred from the Release APK (x64, debug key, never published).
+  # Only the database is backed up and transferred from the Release APK (x64, debug key, never published). The arm64 Release
+  # APK, built as the release builds it, must hold arm64-v8a only.
   backup-manifest:
     runs-on: ubuntu-latest
     timeout-minutes: 30
@@ -109,3 +110,11 @@ jobs:
 
       - name: Check the Release APK
         run: .github/scripts/check-backup.sh "$RUNNER_TEMP/backup/uk.martinshields.workoutlog-Signed.apk" true backup_rules
+
+      - name: Build the Release APK (arm64, debug key)
+        run: |
+          dotnet publish src/WorkoutLog.App -c Release -f net10.0-android -p:AndroidPackageFormat=apk \
+            -r android-arm64 --no-restore -o "$RUNNER_TEMP/arm64"
+
+      - name: Check the arm64 Release APK holds arm64 only
+        run: .github/scripts/check-abi.sh "$RUNNER_TEMP/arm64/uk.martinshields.workoutlog-Signed.apk"
