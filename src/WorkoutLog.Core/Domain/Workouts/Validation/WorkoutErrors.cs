@@ -1,6 +1,5 @@
 namespace WorkoutLog.Core.Domain.Workouts.Validation;
 
-/// <summary>Errors of a workout.</summary>
 /// <param name="Errors">Every error on the workout itself. Empty when there is none.</param>
 /// <param name="Exercises">Errors per exercise, in order.</param>
 /// <param name="Note">Error on the workout's note, or null.</param>

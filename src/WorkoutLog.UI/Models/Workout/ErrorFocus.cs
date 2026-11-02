@@ -4,6 +4,5 @@ namespace WorkoutLog.UI.Models.Workout;
 /// <param name="target">Where focus moves.</param>
 public sealed class ErrorFocus(ErrorFocusTarget target = ErrorFocusTarget.FirstError)
 {
-    /// <summary>Where focus moves.</summary>
     public ErrorFocusTarget Target { get; } = target;
 }

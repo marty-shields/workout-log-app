@@ -15,7 +15,6 @@ internal enum ImportSkipReason
     /// <summary><c>finishedAt</c> is missing or not a valid time.</summary>
     InvalidFinish,
 
-    /// <summary>The finish is not after the start.</summary>
     FinishNotAfterStart,
 
     /// <summary>The start or the finish is after now.</summary>

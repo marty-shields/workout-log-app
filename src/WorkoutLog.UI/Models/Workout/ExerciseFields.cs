@@ -88,7 +88,6 @@ public static class ExerciseFields
         }
     }
 
-    /// <summary>Strength or cardio.</summary>
     public static ExerciseKind Kind(ExerciseType type) => type switch
     {
         ExerciseType.Strength => ExerciseKind.Strength,

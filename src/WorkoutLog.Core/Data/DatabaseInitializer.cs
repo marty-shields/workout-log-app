@@ -7,7 +7,6 @@ namespace WorkoutLog.Core.Data;
 /// <summary>Upgrades the schema version stored in SQLite <c>user_version</c>, creates missing tables, then seeds the exercise list.</summary>
 internal sealed partial class DatabaseInitializer : IDatabaseInitializer
 {
-    /// <summary>The app's schema version.</summary>
     public const int CurrentVersion = 5;
 
     private readonly SQLiteAsyncConnection connection;

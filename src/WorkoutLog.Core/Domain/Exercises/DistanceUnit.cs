@@ -6,9 +6,7 @@ public enum DistanceUnit
     /// <summary>Kilometres.</summary>
     Km,
 
-    /// <summary>Metres.</summary>
     Metres,
 
-    /// <summary>Feet.</summary>
     Feet,
 }

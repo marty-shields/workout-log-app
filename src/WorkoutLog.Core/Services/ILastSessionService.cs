@@ -8,7 +8,6 @@ public interface ILastSessionService
     /// one that started before that time. No such workout returns a null <see cref="LastSessionResult.Exercise"/>.
     /// A failed read returns <see cref="LastSessionResult.Failed"/> and no exercise.
     /// </summary>
-    /// <param name="exerciseId">Exercise id.</param>
     /// <param name="before">Workouts must start before this time. Null for any.</param>
     Task<LastSessionResult> GetAsync(int exerciseId, DateTimeOffset? before = null);
 }

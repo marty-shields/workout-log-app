@@ -7,6 +7,8 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <IsPackable>false</IsPackable>
+    <!-- A public member needs no XML comment (CS1591), nor a param tag for each parameter (CS1573); a comment is written only where it says more than the name. -->
+    <NoWarn>$(NoWarn);CS1591;CS1573</NoWarn>
     <!-- Compiler and NuGet warnings fail the build. -->
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <!-- MSBuild task warnings (including the Android XA ones) fail the build. -->

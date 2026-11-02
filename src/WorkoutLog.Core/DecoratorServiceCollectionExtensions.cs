@@ -2,7 +2,6 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace WorkoutLog.Core;
 
-/// <summary>Registers decorated services.</summary>
 internal static class DecoratorServiceCollectionExtensions
 {
     /// <summary>

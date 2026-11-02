@@ -8,7 +8,6 @@ namespace WorkoutLog.Core.Domain.Exercises.Progress;
 /// </summary>
 internal sealed class LiftRecordsRule
 {
-    /// <summary>The records of <paramref name="sessions"/>.</summary>
     public LiftRecords Records(IReadOnlyList<LiftSessionProgress> sessions) => new(
         First(sessions, s => s.Session.StartedAt, s => s.TopSet, r => r.OrderByDescending(x => x.Value.WeightKg).ThenByDescending(x => x.Value.Reps)),
         Highest(sessions, s => s.Session.StartedAt, s => s.E1rmKg));

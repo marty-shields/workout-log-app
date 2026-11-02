@@ -14,7 +14,6 @@ using WorkoutLog.Core.Services;
 
 namespace WorkoutLog.Core;
 
-/// <summary>Registers Core's services.</summary>
 public static class CoreServiceCollectionExtensions
 {
     /// <summary>
@@ -22,7 +21,6 @@ public static class CoreServiceCollectionExtensions
     /// that run each call through one <see cref="DatabaseGate"/>; the connection and exercise seeder are not registered.
     /// The host must register logging, <see cref="IExportEnvironment"/> and <see cref="IElapsedClock"/>.
     /// </summary>
-    /// <param name="services">Service collection.</param>
     /// <param name="databasePath">Full path of the SQLite database file.</param>
     public static IServiceCollection AddCore(this IServiceCollection services, string databasePath) =>
         services
