@@ -1,4 +1,4 @@
-namespace WorkoutLog.Core.Data;
+namespace WorkoutLog.Core.Data;  
 
 /// <summary>Runs database work one call at a time.</summary>
 internal sealed class DatabaseGate
