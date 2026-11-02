@@ -26,6 +26,9 @@ internal enum AppEvent
     /// <summary>Android asked the app to trim memory.</summary>
     TrimMemory = 5021,
 
+    /// <summary>The WebView tried to leave the app's own origin; the load was cancelled.</summary>
+    UrlBlocked = 5041,
+
     /// <summary>Unhandled exception; the app crashes.</summary>
     UnhandledException = 5031,
 

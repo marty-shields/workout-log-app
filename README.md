@@ -112,7 +112,7 @@ It's built for one person and one phone: no accounts, no sign-up.
 - Sets per muscle group shows each group's strength sets in the last 7 days and which you haven't trained.
 - Export saves every workout to a JSON file you can share.
 - Import reads an exported file, shows what's new, already there or different, and adds or replaces them.
-- Android Auto Backup restores your workouts on a new phone.
+- Android Auto Backup and a phone-to-phone transfer restore your workouts on a new phone. Only the database is included; the logs and exports are not.
 - Light and dark themes follow the phone.
 
 <table align="center">

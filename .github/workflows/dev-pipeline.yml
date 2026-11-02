@@ -1,5 +1,5 @@
-# Builds the solution and runs the UI and Core tests, checks the E2E step bindings and that Android Auto Backup is on only
-# in Release, and keeps the Debug APK and E2E tests for the QA pipeline, for the PR build (pr-build.yml) and the release
+# Builds the solution and runs the UI and Core tests, checks the E2E step bindings and the backup rules in the Debug and
+# Release APKs, and keeps the Debug APK and E2E tests for the QA pipeline, for the PR build (pr-build.yml) and the release
 # workflow.
 name: Dev pipeline
 
@@ -47,10 +47,10 @@ jobs:
         if: ${{ !cancelled() && steps.build.outcome == 'success' }}
         run: dotnet test tests/WorkoutLog.UI.Tests --no-build --logger GitHubActions -- RunConfiguration.CollectSourceInformation=true
 
-      # Android Auto Backup is off in the Debug APK.
+      # Nothing is backed up or transferred from the Debug APK.
       - name: Check the Debug APK
         if: ${{ !cancelled() && steps.build.outcome == 'success' }}
-        run: .github/scripts/check-backup.sh src/WorkoutLog.App/bin/Debug/net10.0-android/uk.martinshields.workoutlog.debug-Signed.apk false
+        run: .github/scripts/check-backup.sh src/WorkoutLog.App/bin/Debug/net10.0-android/uk.martinshields.workoutlog.debug-Signed.apk false no_backup
 
       # The QA pipeline's shards download these. obj is included for dotnet test --no-build.
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
@@ -63,7 +63,7 @@ jobs:
           retention-days: 1
           if-no-files-found: error
 
-  # Android Auto Backup is on in the Release APK (x64, debug key, never published).
+  # Only the database is backed up and transferred from the Release APK (x64, debug key, never published).
   backup-manifest:
     runs-on: ubuntu-latest
     timeout-minutes: 30
@@ -86,4 +86,4 @@ jobs:
             -r android-x64 -o "$RUNNER_TEMP/backup"
 
       - name: Check the Release APK
-        run: .github/scripts/check-backup.sh "$RUNNER_TEMP/backup/uk.martinshields.workoutlog-Signed.apk" true
+        run: .github/scripts/check-backup.sh "$RUNNER_TEMP/backup/uk.martinshields.workoutlog-Signed.apk" true backup_rules
