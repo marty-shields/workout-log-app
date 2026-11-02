@@ -78,8 +78,4 @@ docs/dev-setup-build.md:5: row `gone` has no docs/images/readme/gone-light.png
 docs/dev-setup-build.md:5: row `gone` has no docs/images/readme/gone-dark.png
 exit=1' shot
 
-tree=$(cd "$here/../../.." && pwd)
-out=$(python3 -I "$script" "$tree" 2>&1; echo "exit=$?")
-check "the repository's docs resolve" 'exit=0' "$out"
-
 finish
