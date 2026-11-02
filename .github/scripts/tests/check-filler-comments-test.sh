@@ -12,8 +12,8 @@ trap 'rm -rf "$work"' EXIT
 run() {
   local name="$1" expected="$2" out
   printf '%s\n' "$3" > "$work/Sample.cs"
-  out=$(GITHUB_ACTIONS= python3 -I "$script" "$work/Sample.cs" 2>/dev/null; echo "exit=$?")
-  check "$name" "$expected" "$(sed "s#$work/##" <<<"$out")"
+  out=$(GITHUB_ACTIONS='' python3 -I "$script" "$work/Sample.cs" 2>/dev/null; echo "exit=$?")
+  check "$name" "$expected" "${out//"$work/"/}"
 }
 
 run "a summary that restates the property name" 'Sample.cs:3: <summary> only restates the name: "Exercise name."

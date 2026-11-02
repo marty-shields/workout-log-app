@@ -1,3 +1,4 @@
+# shellcheck shell=bash
 # Test helpers, sourced by the *-test.sh scripts.
 failures=0
 

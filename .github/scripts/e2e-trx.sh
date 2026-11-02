@@ -1,3 +1,4 @@
+# shellcheck shell=bash
 # Reads a trx file and builds a dotnet test filter from failed tests. Sourced by e2e-run.sh.
 
 # The full name of each failed test in a trx file, one per line.
