@@ -353,6 +353,7 @@
     private Task NoteChanged(string? note)
     {
         Exercise.Note = note;
+        Exercise.NoteError = null;
         return OnChanged.InvokeAsync();
     }
 

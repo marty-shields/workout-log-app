@@ -56,9 +56,9 @@ public sealed partial class SetChecker(IWorkoutService workouts, IExerciseCatalo
     /// <inheritdoc />
     public WorkoutExercise Read(ExerciseState exercise) => exercise.Kind switch
     {
-        ExerciseKind.Strength => new StrengthExercise(exercise.ExerciseId, exercise.Entries.Select(e => ToSet(Values(exercise, e, null))).ToList()),
+        ExerciseKind.Strength => new StrengthExercise(exercise.ExerciseId, exercise.Entries.Select(e => ToSet(Values(exercise, e, null))).ToList(), exercise.Note),
         ExerciseKind.Cardio => new CardioExercise(exercise.ExerciseId,
-            ToEntry(exercise.Entries.FirstOrDefault() is { } entry ? Values(exercise, entry, null) : [])),
+            ToEntry(exercise.Entries.FirstOrDefault() is { } entry ? Values(exercise, entry, null) : []), exercise.Note),
         _ => throw new ArgumentOutOfRangeException(nameof(exercise), exercise.Kind, null),
     };
 

@@ -774,14 +774,22 @@ public class NewWorkoutPageTests : ComponentTestBase
     }
 
     [Test]
-    public void Pick_Cardio_LoadsNoWeights()
+    public async Task Pick_Cardio_LoadsTheLastNoteAndShowsNoWeights()
     {
         var weights = UseWeights();
         var cut = RenderPage();
 
         Add(cut, 300);
+        weights.Complete(new WeightHistoryResult(60m, 70m, "Felt strong", Failed: false));
+        await WaitForRendererAsync();
 
-        Assert.That(weights.Loads, Is.Empty);
+        Assert.Multiple(() =>
+        {
+            Assert.That(weights.Loads, Is.EqualTo(new[] { 300 }));
+            Assert.That(weights.Befores, Is.EqualTo(new DateTimeOffset?[] { null }));
+            cut.WaitForAssertion(() => Assert.That(cut.Find("[data-testid=exercise-1-last-note] .text").TextContent, Is.EqualTo("Felt strong")));
+            Assert.That(cut.FindAll("[data-testid=exercise-1-weights]"), Is.Empty);
+        });
     }
 
     [Test]
@@ -1230,9 +1238,13 @@ public class NewWorkoutPageTests : ComponentTestBase
 
         public List<int> Loads { get; } = [];
 
+        /// <summary>The <c>before</c> of each load.</summary>
+        public List<DateTimeOffset?> Befores { get; } = [];
+
         public Task<WeightHistoryResult> GetAsync(int exerciseId, DateTimeOffset? before)
         {
             Loads.Add(exerciseId);
+            Befores.Add(before);
             var load = new TaskCompletionSource<WeightHistoryResult>(TaskCreationOptions.RunContinuationsAsynchronously);
             pending.Add(load);
             return load.Task;

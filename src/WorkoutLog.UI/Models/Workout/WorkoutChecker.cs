@@ -1,4 +1,5 @@
 using Microsoft.Extensions.Logging;
+using WorkoutLog.Core.Domain.Workouts;
 using WorkoutLog.Core.Domain.Workouts.Validation;
 using WorkoutLog.Core.Services;
 using WorkoutLog.UI.Logging;
@@ -12,8 +13,11 @@ namespace WorkoutLog.UI.Models.Workout;
 /// </summary>
 public sealed partial class WorkoutChecker(ISetChecker sets, IWorkoutService workouts, ILogger<WorkoutChecker> logger) : IWorkoutChecker
 {
+    /// <summary>Message for a note over <see cref="WorkoutLimits.MaxNoteLength"/> characters.</summary>
+    public static readonly string NoteTooLong =$"Note must be {WorkoutLimits.MaxNoteLength} characters or less";
+
     /// <inheritdoc />
-    public WorkoutCheck Check(IReadOnlyList<ExerciseState> exercises)
+    public WorkoutCheck Check(IReadOnlyList<ExerciseState> exercises, string? note = null)
     {
         var valid = true;
         foreach (var exercise in exercises)
@@ -24,10 +28,11 @@ public sealed partial class WorkoutChecker(ISetChecker sets, IWorkoutService wor
             }
         }
 
-        var result = workouts.Validate(null, exercises.Select(sets.Read).ToList());
+        var result = workouts.Validate(note, exercises.Select(sets.Read).ToList());
         for (var i = 0; i < exercises.Count; i++)
         {
             SetExerciseError(exercises[i], result.Exercises[i].Error);
+            exercises[i].NoteError = Message(result.Exercises[i].Note);
         }
 
         foreach (var error in result.Errors.Where(e => Message(e) is null))
@@ -44,7 +49,7 @@ public sealed partial class WorkoutChecker(ISetChecker sets, IWorkoutService wor
             }
         }
 
-        return new WorkoutCheck(valid, result.Errors.Select(e => Message(e)).FirstOrDefault(m => m is not null));
+        return new WorkoutCheck(valid, result.Errors.Select(e => Message(e)).FirstOrDefault(m => m is not null), Message(result.Note));
     }
 
     /// <inheritdoc />
@@ -57,9 +62,10 @@ public sealed partial class WorkoutChecker(ISetChecker sets, IWorkoutService wor
         }
 
         // Too many sets is a limit the screen never lets through, and it is left to Save with the other workout rules.
-        var code = workouts.Validate(null, [sets.Read(exercise)]).Exercises[0].Error;
-        SetExerciseError(exercise, code == ExerciseError.TooManySets ? null : code);
-        valid &= exercise.ErrorCode is null;
+        var errors = workouts.Validate(null, [sets.Read(exercise)]).Exercises[0];
+        SetExerciseError(exercise, errors.Error == ExerciseError.TooManySets ? null : errors.Error);
+        exercise.NoteError = Message(errors.Note);
+        valid &= exercise.ErrorCode is null && exercise.NoteError is null;
         if (valid)
         {
             foreach (var entry in exercise.Entries)
@@ -91,6 +97,12 @@ public sealed partial class WorkoutChecker(ISetChecker sets, IWorkoutService wor
     {
         WorkoutError.NoExercises => "Add at least one exercise",
         WorkoutError.SaveFailed => "Couldn't save the workout. Try again",
+        _ => null,
+    };
+
+    private static string? Message(NoteError? code) => code switch
+    {
+        NoteError.TooLong => NoteTooLong,
         _ => null,
     };
 

@@ -17,6 +17,6 @@ public interface ISetChecker
     /// </summary>
     bool CheckOnSave(ExerciseState exercise, EntryState entry);
 
-    /// <summary>The exercise as Core records, read from the entered text. Fields that can't be read are left empty, as is a cardio exercise with no entry.</summary>
+    /// <summary>The exercise as Core records, read from the entered text, with the exercise's note as typed. Fields that can't be read are left empty, as is a cardio exercise with no entry.</summary>
     WorkoutExercise Read(ExerciseState exercise);
 }

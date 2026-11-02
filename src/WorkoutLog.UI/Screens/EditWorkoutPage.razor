@@ -3,7 +3,9 @@
 @using WorkoutLog.Core.Services
 @using WorkoutLog.UI.Components.Overlays
 @using WorkoutLog.UI.Components.Workout
+@using WorkoutLog.UI.Models.Exercises
 @inject IWorkoutService Workouts
+@inject IWeightHistoryService WeightHistory
 @inject IExerciseCatalog Catalog
 @inject TimeProvider Clock
 @inject ISetChecker Checker
@@ -22,6 +24,9 @@ else
                  Time="total"
                  Exercises="Editor.Exercises"
                  Error="@Editor.Error"
+                 Note="@Editor.Note"
+                 NoteChanged="Editor.SetNote"
+                 NoteError="@Editor.NoteError"
                  Focus="Editor.Focus"
                  ErrorFocus="Editor.ErrorFocus"
                  ValidateSet="Checker.Check"
@@ -36,7 +41,7 @@ else
             @if (Editor.ListOpen)
             {
                 <AddExerciseView Items="Editor.ListItems" Query="@Editor.Query" QueryChanged="Editor.Search" Filter="Editor.Filter" FilterChanged="Editor.FilterBy"
-                                 Loading="Editor.ListLoading" OnPick="Editor.Pick" OnClose="Editor.CloseList" />
+                                 Loading="Editor.ListLoading" OnPick="PickAsync" OnClose="Editor.CloseList" />
             }
             @if (Editor.Removing is { } removing)
             {
@@ -67,6 +72,7 @@ else
 
     private EditPhase phase = EditPhase.Loading;
     private int loadedId;
+    private DateTimeOffset workoutStart;
     private DateTime startedAt;
     private TimeSpan total;
 
@@ -130,14 +136,30 @@ else
             }
 
             state.IsDone = true;
+            state.LastNote = (await WeightHistory.GetAsync(exercise.ExerciseId, workout.StartedAt)).LastNote;
             exercises.Add(state);
         }
 
+        workoutStart = workout.StartedAt;
         startedAt = TimeZoneInfo.ConvertTime(workout.StartedAt, Clock.LocalTimeZone).DateTime;
         total = workout.FinishedAt - workout.StartedAt;
         loadedId = workoutId;
-        Editor.Start(exercises);
+        Editor.Start(exercises, workout.Note);
         phase = EditPhase.Editing;
+    }
+
+    /// <summary>
+    /// Picks the exercise (<see cref="WorkoutEditor.Pick"/>). One just added loads the note it had in the last saved workout that started
+    /// before this one; a failed load shows none.
+    /// </summary>
+    private async Task PickAsync(ExerciseListItem item)
+    {
+        var added = Editor.Exercises.All(e => e.ExerciseId != item.Id);
+        Editor.Pick(item);
+        if (added && Editor.Exercises.FirstOrDefault(e => e.ExerciseId == item.Id) is { } exercise)
+        {
+            exercise.LastNote = (await WeightHistory.GetAsync(item.Id, workoutStart)).LastNote;
+        }
     }
 
     /// <summary>
@@ -242,7 +264,7 @@ else
             return;
         }
 
-        if (await Editor.SaveAsync(async records => (await Workouts.SaveAsync(loadedId, null, records)).WorkoutId is not null))
+        if (await Editor.SaveAsync(async (note, records) => (await Workouts.SaveAsync(loadedId, note, records)).WorkoutId is not null))
         {
             await OnSaved.InvokeAsync();
         }
