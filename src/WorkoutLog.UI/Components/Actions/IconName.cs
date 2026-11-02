@@ -35,4 +35,6 @@ public enum IconName
 
     /// <summary>Trophy (<c>emoji_events</c>).</summary>
     Record,
+    /// <summary>Sticky note (<c>sticky_note_2</c>).</summary>
+    Note,
 }

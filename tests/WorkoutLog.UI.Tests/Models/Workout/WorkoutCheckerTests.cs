@@ -313,4 +313,119 @@ public class WorkoutCheckerTests
             Assert.That(unknown.Error, Is.EqualTo("Exercise not found"));
         });
     }
+
+    [Test]
+    public void NoteTooLong_NamesTheLimit()
+    {
+        Assert.That(WorkoutChecker.NoteTooLong, Is.EqualTo("Note must be 500 characters or less"));
+    }
+
+    [Test]
+    public void Check_WorkoutNoteTooLong_FailsWithTheNoteMessageAndNoWorkoutMessage()
+    {
+        var squat = SampleData.Exercise(Catalog, Squat, ["60", "8"]);
+
+        var result = checker.Check([squat], SampleData.NoteTooLong);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(result, Is.EqualTo(new WorkoutCheck(false, null, "Note must be 500 characters or less")));
+            Assert.That(squat.NoteError, Is.Null);
+        });
+    }
+
+    [Test]
+    public void Check_WorkoutNoteOf500CharactersWithSpaces_Passes()
+    {
+        var squat = SampleData.Exercise(Catalog, Squat, ["60", "8"]);
+
+        var result = checker.Check([squat], $"  {new string('a', 500)}  ");
+
+        Assert.That(result, Is.EqualTo(new WorkoutCheck(true, null)));
+    }
+
+    [Test]
+    public void Check_ExerciseNoteTooLong_SetsThatExercisesNoteErrorOnly()
+    {
+        var squat = SampleData.Exercise(Catalog, Squat, ["60", "8"]);
+        squat.Note = SampleData.NoteTooLong;
+        var run = SampleData.Exercise(Catalog, OutdoorRun, ["0:25:30", "5", null, "5:30"]);
+        run.Note = "Windy";
+
+        var result = checker.Check([squat, run], null);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(result, Is.EqualTo(new WorkoutCheck(false, null)));
+            Assert.That(squat.NoteError, Is.EqualTo("Note must be 500 characters or less"));
+            Assert.That(squat.Error, Is.Null);
+            Assert.That(squat.HasError, Is.True);
+            Assert.That(run.NoteError, Is.Null);
+        });
+    }
+
+    [Test]
+    public void Check_CardioNoteTooLong_SetsItsNoteError()
+    {
+        var run = SampleData.Exercise(Catalog, OutdoorRun, ["0:25:30", "5", null, "5:30"]);
+        run.Note = SampleData.NoteTooLong;
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(checker.Check([run], null).IsValid, Is.False);
+            Assert.That(run.NoteError, Is.EqualTo("Note must be 500 characters or less"));
+        });
+    }
+
+    [Test]
+    public void Check_ShortenedNote_ClearsTheNoteError()
+    {
+        var squat = SampleData.Exercise(Catalog, Squat, ["60", "8"]);
+        squat.Note = SampleData.NoteTooLong;
+        checker.Check([squat], null);
+        squat.Note = "Belt on";
+
+        var result = checker.Check([squat], null);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(result.IsValid, Is.True);
+            Assert.That(squat.NoteError, Is.Null);
+        });
+    }
+
+    [Test]
+    public void Check_NoteErrors_LogNothing()
+    {
+        var squat = SampleData.Exercise(Catalog, Squat, ["60", "8"]);
+        squat.Note = SampleData.NoteTooLong;
+
+        checker.Check([squat], SampleData.NoteTooLong);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(LoggedEvents.Of(logger), Is.Empty);
+            Assert.That(logger.Collector.GetSnapshot(), Is.Empty);
+        });
+    }
+
+    [Test]
+    public void CheckExercise_NoteTooLong_FailsWithTheNoteErrorAndPassesOnceShortened()
+    {
+        var squat = SampleData.Exercise(Catalog, Squat, ["60", "8"]);
+        squat.Note = SampleData.NoteTooLong;
+
+        var tooLong = checker.CheckExercise(squat);
+        var noteError = squat.NoteError;
+        squat.Note = "Belt on";
+        var shortened = checker.CheckExercise(squat);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(tooLong, Is.False);
+            Assert.That(noteError, Is.EqualTo("Note must be 500 characters or less"));
+            Assert.That(shortened, Is.True);
+            Assert.That(squat.NoteError, Is.Null);
+        });
+    }
 }

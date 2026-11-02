@@ -15,8 +15,8 @@ public interface IWorkoutService
     /// <summary>Time since <paramref name="draft"/> started, by <see cref="IElapsedClock"/>; never below 0.</summary>
     TimeSpan Elapsed(WorkoutDraft draft);
 
-    /// <summary>Checks the workout against the save rules.</summary>
-    WorkoutErrors Validate(IReadOnlyList<WorkoutExercise> exercises);
+    /// <summary>Checks the workout and its note against the save rules.</summary>
+    WorkoutErrors Validate(string? note, IReadOnlyList<WorkoutExercise> exercises);
 
     /// <summary>Checks one strength set. The result holds that set only.</summary>
     ExerciseErrors ValidateSet(int exerciseId, StrengthSet set);
@@ -26,9 +26,10 @@ public interface IWorkoutService
 
     /// <summary>
     /// Saves a new workout if it is valid. Its finish is the start plus <see cref="Elapsed"/>, and always after the start.
+    /// The workout and exercise notes are saved trimmed; a blank note is saved as none.
     /// Nothing is saved when invalid or when the write fails.
     /// </summary>
-    Task<SaveResult> SaveNewAsync(WorkoutDraft draft, IReadOnlyList<WorkoutExercise> exercises);
+    Task<SaveResult> SaveNewAsync(WorkoutDraft draft, string? note, IReadOnlyList<WorkoutExercise> exercises);
 
     /// <summary>
     /// Returns the saved workout. A missing id returns <see cref="WorkoutLoad.NotFound"/>;
@@ -37,10 +38,11 @@ public interface IWorkoutService
     Task<WorkoutResult> GetAsync(int workoutId);
 
     /// <summary>
-    /// Replaces a saved workout's exercises if they are valid. The times are not changed.
+    /// Replaces a saved workout's note and exercises if they are valid. The times are not changed.
+    /// The workout and exercise notes are saved trimmed; a blank note is saved as none.
     /// Nothing is saved when invalid or when the write fails, including when the workout doesn't exist.
     /// </summary>
-    Task<SaveResult> SaveAsync(int workoutId, IReadOnlyList<WorkoutExercise> exercises);
+    Task<SaveResult> SaveAsync(int workoutId, string? note, IReadOnlyList<WorkoutExercise> exercises);
 
     /// <summary>
     /// Deletes a saved workout with its exercises, sets and entries. Returns <see cref="WorkoutDelete.Failed"/>

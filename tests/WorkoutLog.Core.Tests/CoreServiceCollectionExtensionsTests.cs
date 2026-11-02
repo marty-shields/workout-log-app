@@ -31,10 +31,13 @@ public class CoreServiceCollectionExtensionsTests
             (typeof(ISchemaUpgrade), typeof(WorkoutStartedAtUniqueIndex), ServiceLifetime.Singleton),
             (typeof(ISchemaUpgrade), typeof(BlankAssistToZero), ServiceLifetime.Singleton),
             (typeof(ISchemaUpgrade), typeof(ValidationRulesSchema), ServiceLifetime.Singleton),
+            (typeof(ISchemaUpgrade), typeof(NotesSchema), ServiceLifetime.Singleton),
             (typeof(IFormatUpgrade), typeof(ValidationRulesFormatUpgrade), ServiceLifetime.Singleton),
+            (typeof(IFormatUpgrade), typeof(NotesFormatUpgrade), ServiceLifetime.Singleton),
             (typeof(IDatabaseInitializer), (Type?)null, ServiceLifetime.Singleton),
             (typeof(IWorkoutRepository), (Type?)null, ServiceLifetime.Singleton),
             (typeof(TimeProvider), (Type?)null, ServiceLifetime.Singleton),
+            (typeof(NoteLengthRule), typeof(NoteLengthRule), ServiceLifetime.Singleton),
             (typeof(IWorkoutValidator), typeof(WorkoutValidator), ServiceLifetime.Singleton),
             (typeof(IWorkoutService), typeof(WorkoutService), ServiceLifetime.Singleton),
             (typeof(IWorkoutsService), typeof(WorkoutsService), ServiceLifetime.Singleton),
@@ -97,7 +100,7 @@ public class CoreServiceCollectionExtensionsTests
     {
         using var provider = new ServiceCollection().AddCore(TempDatabase.NewPath()).BuildServiceProvider();
 
-        Assert.That(provider.GetServices<IFormatUpgrade>().Select(u => u.Version), Is.EqualTo(new[] { 2 }));
+        Assert.That(provider.GetServices<IFormatUpgrade>().Select(u => u.Version), Is.EqualTo(new[] { 2, 3 }));
     }
 
     [Test]

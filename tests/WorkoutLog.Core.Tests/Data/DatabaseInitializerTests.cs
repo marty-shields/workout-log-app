@@ -66,10 +66,12 @@ public class DatabaseInitializerTests
             ("Workout", "Id", "integer"),
             ("Workout", "StartedAt", "bigint"),
             ("Workout", "FinishedAt", "bigint"),
+            ("Workout", "Note", "varchar"),
             ("WorkoutExercise", "Id", "integer"),
             ("WorkoutExercise", "WorkoutId", "integer"),
             ("WorkoutExercise", "ExerciseId", "integer"),
             ("WorkoutExercise", "Position", "integer"),
+            ("WorkoutExercise", "Note", "varchar"),
         }));
         Assert.That(await Indexes(), Is.EquivalentTo(new[]
         {
@@ -107,11 +109,26 @@ public class DatabaseInitializerTests
     [TestCase("INSERT INTO StrengthSet (WorkoutExerciseId, Reps, WeightKg) VALUES (1, 5, 0)", TestName = "No set position")]
     [TestCase("INSERT INTO WorkoutExercise (WorkoutId, Position) VALUES (1, 0)", TestName = "No exercise id")]
     [TestCase("INSERT INTO Workout (StartedAt) VALUES (100)", TestName = "No finish")]
+    [TestCase("INSERT INTO Workout (StartedAt, FinishedAt, Note) VALUES (100, 200, '')", TestName = "Empty workout note")]
+    [TestCase("INSERT INTO Workout (StartedAt, FinishedAt, Note) VALUES (100, 200, replace(hex(zeroblob(501)), '00', 'n'))", TestName = "501-character workout note")]
+    [TestCase("INSERT INTO WorkoutExercise (WorkoutId, ExerciseId, Position, Note) VALUES (1, 6, 0, '')", TestName = "Empty exercise note")]
+    [TestCase("INSERT INTO WorkoutExercise (WorkoutId, ExerciseId, Position, Note) VALUES (1, 6, 0, replace(hex(zeroblob(501)), '00', 'n'))", TestName = "501-character exercise note")]
     public async Task InitializeAsync_NewDatabase_RejectsRowsThatBreakTheRules(string insert)
     {
         await Initializer(DatabaseInitializer.CurrentVersion, AppSteps()).InitializeAsync();
 
         Assert.That(() => connection.ExecuteAsync(insert), Throws.InstanceOf<SQLiteException>());
+    }
+
+    [TestCase("INSERT INTO Workout (StartedAt, FinishedAt, Note) VALUES (100, 200, replace(hex(zeroblob(500)), '00', 'n'))", TestName = "500-character workout note")]
+    [TestCase("INSERT INTO Workout (StartedAt, FinishedAt, Note) VALUES (100, 200, NULL)", TestName = "No workout note")]
+    [TestCase("INSERT INTO WorkoutExercise (WorkoutId, ExerciseId, Position, Note) VALUES (1, 6, 0, replace(hex(zeroblob(500)), '00', 'n'))", TestName = "500-character exercise note")]
+    [TestCase("INSERT INTO WorkoutExercise (WorkoutId, ExerciseId, Position, Note) VALUES (1, 6, 0, 'n')", TestName = "1-character exercise note")]
+    public async Task InitializeAsync_NewDatabase_AcceptsNotesWithinTheRule(string insert)
+    {
+        await Initializer(DatabaseInitializer.CurrentVersion, AppSteps()).InitializeAsync();
+
+        Assert.That(await connection.ExecuteAsync(insert), Is.EqualTo(1));
     }
 
     [TestCase(0.29)]
@@ -406,7 +423,7 @@ public class DatabaseInitializerTests
     }
 
     private static ISchemaUpgrade[] AppSteps() =>
-        [new WorkoutStartedAtUniqueIndex(), new BlankAssistToZero(Catalog), new ValidationRulesSchema(Catalog, NullLogger<ValidationRulesSchema>.Instance)];
+        [new WorkoutStartedAtUniqueIndex(), new BlankAssistToZero(Catalog), new ValidationRulesSchema(Catalog, NullLogger<ValidationRulesSchema>.Instance), new NotesSchema()];
 
     /// <summary>
     /// Creates the version 1 schema with two exercises and a workout at each of <paramref name="startedAt"/> (ticks);

@@ -58,13 +58,13 @@ public class WorkoutValidatorTests
             ], DistanceUnit.Km, RateUnit.KmPerHour, null, Loaded: false),
             .. MoreLifts.Select(id => Strength(id, ExerciseCategory.Lift, new MetricDefinition(Metric.Reps, Required: true), Weight())),
         ]);
-        validator = new WorkoutValidator(catalog.Object);
+        validator = new WorkoutValidator(catalog.Object, new NoteLengthRule());
     }
 
     [Test]
     public void Validate_ValidWorkout_IsValid()
     {
-        var errors = validator.Validate(
+        var errors = validator.Validate(null,
         [
             new StrengthExercise(Press, [new StrengthSet(10, 22.75m, null, null), new StrengthSet(8, 0m, null, null)]),
             new CardioExercise(Bike, new CardioEntry(TimeSpan.FromMinutes(20), 8.5m, null, 6, null, 210, 85m)),
@@ -79,7 +79,7 @@ public class WorkoutValidatorTests
     [Test]
     public void Validate_NoExercises_ReturnsNoExercises()
     {
-        var errors = validator.Validate([]);
+        var errors = validator.Validate(null, []);
 
         Assert.That(errors.Errors, Is.EqualTo(new[] { WorkoutError.NoExercises }));
         Assert.That(errors.IsValid, Is.False);
@@ -88,7 +88,7 @@ public class WorkoutValidatorTests
     [Test]
     public void Validate_RepeatedExercise_ReturnsRepeatedExerciseAndChecksEachExercise()
     {
-        var errors = validator.Validate([Lift(Press), new StrengthExercise(Press, [])]);
+        var errors = validator.Validate(null, [Lift(Press), new StrengthExercise(Press, [])]);
 
         Assert.That(errors.Errors, Is.EqualTo(new[] { WorkoutError.RepeatedExercise }));
         Assert.That(errors.Exercises.Select(e => e.Error), Is.EqualTo(new ExerciseError?[] { null, ExerciseError.NoSets }));
@@ -97,12 +97,12 @@ public class WorkoutValidatorTests
 
     [Test]
     public void Validate_TenExercises_IsValid() =>
-        Assert.That(validator.Validate([Lift(Press), .. MoreLifts.Take(9).Select(Lift)]).IsValid, Is.True);
+        Assert.That(validator.Validate(null, [Lift(Press), .. MoreLifts.Take(9).Select(Lift)]).IsValid, Is.True);
 
     [Test]
     public void Validate_ElevenExercises_ReturnsTooManyExercises()
     {
-        var errors = validator.Validate([Lift(Press), .. MoreLifts.Select(Lift)]);
+        var errors = validator.Validate(null, [Lift(Press), .. MoreLifts.Select(Lift)]);
 
         Assert.That(errors.Errors, Is.EqualTo(new[] { WorkoutError.TooManyExercises }));
         Assert.That(errors.Exercises.All(e => e.IsValid), Is.True);
@@ -110,7 +110,7 @@ public class WorkoutValidatorTests
 
     [Test]
     public void Validate_TooManyAndRepeated_ReturnsBoth() =>
-        Assert.That(validator.Validate([Lift(Press), Lift(Press), .. MoreLifts.Take(9).Select(Lift)]).Errors,
+        Assert.That(validator.Validate(null, [Lift(Press), Lift(Press), .. MoreLifts.Take(9).Select(Lift)]).Errors,
             Is.EqualTo(new[] { WorkoutError.TooManyExercises, WorkoutError.RepeatedExercise }));
 
     [Test]
@@ -400,12 +400,74 @@ public class WorkoutValidatorTests
     [Test]
     public void Validate_WorkoutWithAFaultyExercise_IsInvalidWithNoWorkoutError()
     {
-        var errors = validator.Validate([Lift(Press), new StrengthExercise(MoreLifts[0], [])]);
+        var errors = validator.Validate(null, [Lift(Press), new StrengthExercise(MoreLifts[0], [])]);
 
         Assert.That(errors.Errors, Is.Empty);
         Assert.That(errors.IsValid, Is.False);
         Assert.That(errors.Exercises.Select(e => e.Error), Is.EqualTo(new ExerciseError?[] { null, ExerciseError.NoSets }));
     }
+
+    [TestCase(500, ExpectedResult = null, TestName = "Workout note of 500 characters")]
+    [TestCase(501, ExpectedResult = NoteError.TooLong, TestName = "Workout note of 501 characters")]
+    public NoteError? Validate_WorkoutNoteLength(int length)
+    {
+        var errors = validator.Validate(new string('n', length), [Lift(Press)]);
+
+        Assert.That(errors.IsValid, Is.EqualTo(errors.Note is null));
+        return errors.Note;
+    }
+
+    [TestCase("", TestName = "Empty workout note")]
+    [TestCase(" \t\n ", TestName = "Whitespace workout note")]
+    [TestCase(null, TestName = "No workout note")]
+    public void Validate_BlankWorkoutNote_IsValid(string? note) =>
+        Assert.That(validator.Validate(note, [Lift(Press)]).IsValid, Is.True);
+
+    [Test]
+    public void Validate_WorkoutNoteOf500AfterTrimming_IsValid() =>
+        Assert.That(validator.Validate($"  {new string('n', 500)}  ", [Lift(Press)]).Note, Is.Null);
+
+    [Test]
+    public void Validate_LongWorkoutNoteAndAnExerciseWithNoSets_ReturnsBoth()
+    {
+        var errors = validator.Validate(new string('n', 501), [Lift(Press), new StrengthExercise(MoreLifts[0], [])]);
+
+        Assert.That(errors.Note, Is.EqualTo(NoteError.TooLong));
+        Assert.That(errors.Exercises.Select(e => e.Error), Is.EqualTo(new ExerciseError?[] { null, ExerciseError.NoSets }));
+    }
+
+    [TestCase(500, ExpectedResult = null, TestName = "Exercise note of 500 characters")]
+    [TestCase(501, ExpectedResult = NoteError.TooLong, TestName = "Exercise note of 501 characters")]
+    public NoteError? Validate_StrengthNoteLength(int length)
+    {
+        var errors = validator.Validate(Lift(Press) with { Note = new string('n', length) });
+
+        Assert.That(errors.IsValid, Is.EqualTo(errors.Note is null));
+        return errors.Note;
+    }
+
+    [TestCase("")]
+    [TestCase("   ")]
+    public void Validate_BlankExerciseNote_IsValid(string note) =>
+        Assert.That(validator.Validate(Lift(Press) with { Note = note }).IsValid, Is.True);
+
+    [Test]
+    public void Validate_LongCardioNote_ReturnsTooLong() =>
+        Assert.That(validator.Validate(new CardioExercise(Bike, Entry(), new string('n', 501))).Note, Is.EqualTo(NoteError.TooLong));
+
+    [Test]
+    public void Validate_LongNoteOnAnExerciseWithNoSets_ReturnsBothAndTheWorkoutIsInvalid()
+    {
+        var errors = validator.Validate(null, [new StrengthExercise(Press, [], new string('n', 501))]);
+
+        Assert.That(errors.Exercises.Single(), Is.EqualTo(new ExerciseErrors(ExerciseError.NoSets, [], NoteError.TooLong)).UsingPropertiesComparer());
+        Assert.That(errors.IsValid, Is.False);
+    }
+
+    [Test]
+    public void Validate_LongNoteOnAnUnknownExercise_ReturnsBoth() =>
+        Assert.That(validator.Validate(new StrengthExercise(99, [], new string('n', 501))),
+            Is.EqualTo(new ExerciseErrors(ExerciseError.UnknownExercise, [], NoteError.TooLong)).UsingPropertiesComparer());
 
     private static MetricDefinition Weight() => new(Metric.WeightKg, Required: true);
 

@@ -97,6 +97,11 @@ public sealed class Journeys(
         {
             Log(exercise.Name, i + 1, exercise.Entries[i]);
         }
+
+        if (exercise.Note is not null)
+        {
+            workout.EnterNote(exercise.Name, exercise.Note);
+        }
     }
 
     /// <summary>

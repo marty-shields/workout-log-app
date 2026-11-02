@@ -14,7 +14,7 @@ namespace WorkoutLog.UI.Stories.Samples;
 /// </summary>
 public sealed class SampleWorkoutService(TimeProvider time, IExerciseCatalog catalog) : IWorkoutService
 {
-    private readonly WorkoutValidator validator = new(catalog);
+    private readonly WorkoutValidator validator = new(catalog, new NoteLengthRule());
 
     /// <inheritdoc />
     public WorkoutDraft StartNew() => new(time.GetUtcNow(), TimeSpan.Zero);
@@ -23,7 +23,7 @@ public sealed class SampleWorkoutService(TimeProvider time, IExerciseCatalog cat
     public TimeSpan Elapsed(WorkoutDraft draft) => TimeSpan.FromTicks(Math.Max(0, (time.GetUtcNow() - draft.StartedAt).Ticks));
 
     /// <inheritdoc />
-    public WorkoutErrors Validate(IReadOnlyList<WorkoutExercise> exercises) => validator.Validate(exercises);
+    public WorkoutErrors Validate(string? note, IReadOnlyList<WorkoutExercise> exercises) => validator.Validate(note, exercises);
 
     /// <inheritdoc />
     public ExerciseErrors ValidateSet(int exerciseId, StrengthSet set) => validator.Validate(new StrengthExercise(exerciseId, [set]));
@@ -32,9 +32,9 @@ public sealed class SampleWorkoutService(TimeProvider time, IExerciseCatalog cat
     public ExerciseErrors ValidateEntry(int exerciseId, CardioEntry entry) => validator.Validate(new CardioExercise(exerciseId, entry));
 
     /// <inheritdoc />
-    public Task<SaveResult> SaveNewAsync(WorkoutDraft draft, IReadOnlyList<WorkoutExercise> exercises)
+    public Task<SaveResult> SaveNewAsync(WorkoutDraft draft, string? note, IReadOnlyList<WorkoutExercise> exercises)
     {
-        var errors = validator.Validate(exercises);
+        var errors = validator.Validate(note, exercises);
         return Task.FromResult(new SaveResult(errors.IsValid ? 1 : null, errors));
     }
 
@@ -43,9 +43,9 @@ public sealed class SampleWorkoutService(TimeProvider time, IExerciseCatalog cat
         Task.FromResult(new WorkoutResult(SampleData.SavedStrengthWorkout with { Id = workoutId }, WorkoutLoad.Loaded));
 
     /// <inheritdoc />
-    public Task<SaveResult> SaveAsync(int workoutId, IReadOnlyList<WorkoutExercise> exercises)
+    public Task<SaveResult> SaveAsync(int workoutId, string? note, IReadOnlyList<WorkoutExercise> exercises)
     {
-        var errors = validator.Validate(exercises);
+        var errors = validator.Validate(note, exercises);
         return Task.FromResult(new SaveResult(errors.IsValid ? workoutId : null, errors));
     }
 

@@ -6,17 +6,19 @@ namespace WorkoutLog.Core.Domain.Workouts;
 internal sealed class WorkoutContentComparer
 {
     /// <summary>
-    /// True when the two would export the same: finish to the tick; exercises and sets in order;
+    /// True when the two would export the same: finish to the tick; workout and exercise notes, ordinal; exercises and sets in order;
     /// decimals rounded by <see cref="Exercises.Decimals.Round2"/>; durations to the second.
     /// Starts and exercise names aren't compared.
     /// </summary>
     public bool AreSame(Workout saved, NewWorkout imported) =>
         saved.FinishedAt.UtcTicks == imported.FinishedAt.UtcTicks
+        && string.Equals(saved.Note, imported.Note, StringComparison.Ordinal)
         && saved.Exercises.Count == imported.Exercises.Count
         && saved.Exercises.Zip(imported.Exercises).All(pair => AreSame(pair.First, pair.Second));
 
     private static bool AreSame(WorkoutExercise saved, WorkoutExercise imported) =>
         saved.ExerciseId == imported.ExerciseId
+        && string.Equals(saved.Note, imported.Note, StringComparison.Ordinal)
         && (saved, imported) switch
         {
             (StrengthExercise a, StrengthExercise b) => a.Sets.Count == b.Sets.Count && a.Sets.Zip(b.Sets).All(s => AreSame(s.First, s.Second)),

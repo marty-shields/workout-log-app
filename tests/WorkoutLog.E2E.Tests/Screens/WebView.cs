@@ -105,6 +105,9 @@ public sealed class WebView
         Clear(input);
     }
 
+    /// <summary>Moves focus out of the focused field, as the user does by tapping away.</summary>
+    public void Blur() => App.ExecuteScript("document.activeElement?.blur();");
+
     public string Value(string testId) => Find(testId).GetDomProperty("value") ?? "";
 
     public string Attribute(string testId, string name) => Find(testId).GetDomAttribute(name) ?? "";

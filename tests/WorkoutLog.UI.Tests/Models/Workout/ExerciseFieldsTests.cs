@@ -283,6 +283,30 @@ public class ExerciseFieldsTests
     }
 
     [Test]
+    public void Saved_CarriesTheNoteOfStrengthAndCardio()
+    {
+        var strength = ExerciseFields.Saved(Find(6), new StrengthExercise(6, [new StrengthSet(8, 60m, null, null)], "Belt on"));
+        var cardio = ExerciseFields.Saved(Find(300), new CardioExercise(300, new CardioEntry(TimeSpan.FromMinutes(20), 3.2m, null, null, null, null, null), "Windy"));
+        var none = ExerciseFields.Saved(Find(6), new StrengthExercise(6, [new StrengthSet(8, 60m, null, null)]));
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(strength!.Note, Is.EqualTo("Belt on"));
+            Assert.That(cardio!.Note, Is.EqualTo("Windy"));
+            Assert.That(none!.Note, Is.Null);
+        });
+    }
+
+    [Test]
+    public void Saved_ReadBack_KeepsTheNote()
+    {
+        var checker = new SetChecker(new SampleWorkoutService(new FakeTimeProvider(), Catalog), Catalog, NullLogger<SetChecker>.Instance);
+        var saved = new CardioExercise(300, new CardioEntry(TimeSpan.FromMinutes(20), 3.2m, null, null, null, null, null), "Windy");
+
+        Assert.That(checker.Read(ExerciseFields.Saved(Find(300), saved)!).Note, Is.EqualTo("Windy"));
+    }
+
+    [Test]
     public void Saved_StrengthDefinitionWithCardioRecord_IsNull() =>
         Assert.That(ExerciseFields.Saved(Find(6), new CardioExercise(6, new CardioEntry(TimeSpan.FromMinutes(1), null, null, null, null, null, null))),
             Is.Null);

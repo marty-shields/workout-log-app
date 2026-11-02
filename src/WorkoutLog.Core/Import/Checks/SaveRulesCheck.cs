@@ -11,8 +11,8 @@ internal sealed class SaveRulesCheck(IWorkoutValidator validator) : IImportCheck
     /// <inheritdoc />
     public IEnumerable<ImportSkipReason> Check(ImportWorkout workout, ImportContext context)
     {
-        var errors = validator.Validate(workout.Exercises!.Select(e => e.ToDomain()).ToList());
-        return errors.Errors.Any(e => e != WorkoutError.RepeatedExercise) || errors.Exercises.Any(e => e.Error != ExerciseError.UnknownExercise && !e.IsValid)
+        var errors = validator.Validate(workout.Note, workout.Exercises!.Select(e => e.ToDomain()).ToList());
+        return errors.Errors.Any(e => e != WorkoutError.RepeatedExercise) || errors.Note is not null || errors.Exercises.Any(e => e.Error != ExerciseError.UnknownExercise && !e.IsValid)
             ? [ImportSkipReason.FailsSaveRules]
             : [];
     }

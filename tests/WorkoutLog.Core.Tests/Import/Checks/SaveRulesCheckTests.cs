@@ -11,25 +11,39 @@ namespace WorkoutLog.Core.Tests.Import.Checks;
 public class SaveRulesCheckTests
 {
     private static readonly ImportContext Context = new(new Dictionary<DateTimeOffset, int>(), DateTimeOffset.UnixEpoch);
-    private readonly SaveRulesCheck check = new(new WorkoutValidator(new ExerciseCatalog()));
+    private readonly SaveRulesCheck check = new(new WorkoutValidator(new ExerciseCatalog(), new NoteLengthRule()));
 
     [Test]
     public void Check_ValidWorkout_Passes() =>
         Assert.That(check.Check(At(0, Bench, Run), Context), Is.Empty);
 
     [Test]
-    public void Check_PassesTheDomainExercisesToTheValidator()
+    public void Check_PassesTheNoteAndDomainExercisesToTheValidator()
     {
+        string? note = null;
         IReadOnlyList<WorkoutExercise>? validated = null;
         var validator = new Mock<IWorkoutValidator>(MockBehavior.Strict);
-        validator.Setup(v => v.Validate(It.IsAny<IReadOnlyList<WorkoutExercise>>()))
-            .Callback<IReadOnlyList<WorkoutExercise>>(e => validated = e)
+        validator.Setup(v => v.Validate(It.IsAny<string?>(), It.IsAny<IReadOnlyList<WorkoutExercise>>()))
+            .Callback<string?, IReadOnlyList<WorkoutExercise>>((n, e) => (note, validated) = (n, e))
             .Returns(new WorkoutErrors([], []));
 
-        new SaveRulesCheck(validator.Object).Check(At(0, Bench, Run), Context);
+        new SaveRulesCheck(validator.Object).Check(At(0, Bench with { Note = "Grip" }, Run) with { Note = "Felt strong" }, Context);
 
-        Assert.That(validated, Is.EqualTo(new[] { Bench.ToDomain(), Run.ToDomain() }).UsingPropertiesComparer());
+        Assert.That(note, Is.EqualTo("Felt strong"));
+        Assert.That(validated, Is.EqualTo(new[] { new StrengthExercise(8, [new StrengthSet(8, 60m, null, null)], "Grip"), Run.ToDomain() }).UsingPropertiesComparer());
     }
+
+    [Test]
+    public void Check_WorkoutNoteOver500Characters_FailsSaveRules() =>
+        Assert.That(check.Check(At(0) with { Note = new string('n', 501) }, Context), Is.EqualTo(new[] { ImportSkipReason.FailsSaveRules }));
+
+    [Test]
+    public void Check_ExerciseNoteOver500Characters_FailsSaveRules() =>
+        Assert.That(check.Check(At(0, Bench with { Note = new string('n', 501) }), Context), Is.EqualTo(new[] { ImportSkipReason.FailsSaveRules }));
+
+    [Test]
+    public void Check_NotesOf500CharactersInsideWhitespace_Pass() =>
+        Assert.That(check.Check(At(0, Bench with { Note = $" {new string('n', 500)} " }) with { Note = $"\n{new string('n', 500)}" }, Context), Is.Empty);
 
     [Test]
     public void Check_NoExercises_FailsSaveRules() =>

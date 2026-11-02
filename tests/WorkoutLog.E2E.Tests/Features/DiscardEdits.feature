@@ -26,14 +26,20 @@ Feature: Discard edits
       | enter "62.5" in Barbell Back Squat set 1 weight |
       | add "Push-up"                                   |
       | add "Rowing Machine"                            |
+      | add the workout note "Slept badly"              |
+      | add the note "Belt on" to Barbell Back Squat    |
+      | add the note "Headwind" to Rowing Machine       |
 
-  Scenario Outline: Opening the add-exercise list isn't a change
+  Scenario Outline: Opening the add-exercise list or a note isn't a change
     When I <action>
     And I go back with the back arrow
     Then I am on Workouts with no prompt
     Examples:
-      | action                                |
-      | open the add-exercise list and close it |
+      | action                                          |
+      | open the add-exercise list and close it         |
+      | open the workout note and leave it              |
+      | open the note of Barbell Back Squat and leave it |
+      | open the note of Rowing Machine and leave it    |
 
   Scenario: Cancel keeps my edit
     Given I have entered "62.5" in Barbell Back Squat set 1 weight

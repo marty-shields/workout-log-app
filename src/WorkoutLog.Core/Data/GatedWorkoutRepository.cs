@@ -9,8 +9,8 @@ internal sealed class GatedWorkoutRepository(IWorkoutRepository inner, DatabaseG
     public Task<int> AddAsync(NewWorkout workout) => gate.RunAsync(() => inner.AddAsync(workout));
 
     /// <inheritdoc />
-    public Task ReplaceExercisesAsync(int workoutId, IReadOnlyList<WorkoutExercise> exercises) =>
-        gate.RunAsync(() => inner.ReplaceExercisesAsync(workoutId, exercises));
+    public Task ReplaceAsync(int workoutId, string? note, IReadOnlyList<WorkoutExercise> exercises) =>
+        gate.RunAsync(() => inner.ReplaceAsync(workoutId, note, exercises));
 
     /// <inheritdoc />
     public Task<Workout?> GetAsync(int id) => gate.RunAsync(() => inner.GetAsync(id));
@@ -30,7 +30,8 @@ internal sealed class GatedWorkoutRepository(IWorkoutRepository inner, DatabaseG
         gate.RunAsync(() => inner.ListTalliesAsync(from, to));
 
     /// <inheritdoc />
-    public Task<IReadOnlyList<WorkoutWeights>> GetWeightsAsync(int exerciseId) => gate.RunAsync(() => inner.GetWeightsAsync(exerciseId));
+    public Task<IReadOnlyList<WorkoutWeights>> GetWeightsAsync(int exerciseId, DateTimeOffset? before) =>
+        gate.RunAsync(() => inner.GetWeightsAsync(exerciseId, before));
 
     /// <inheritdoc />
     public Task<IReadOnlyList<LastSession>> GetLastSessionsAsync() => gate.RunAsync(inner.GetLastSessionsAsync);

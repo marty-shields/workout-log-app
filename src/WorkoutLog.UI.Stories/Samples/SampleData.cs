@@ -110,6 +110,46 @@ public static class SampleData
         Exercise(catalog, 311, ["0:25:30", "5", null]),
     ];
 
+    /// <summary>A short note.</summary>
+    public const string Note = "Left knee twinge on the last set";
+
+    /// <summary>A short note from the last workout.</summary>
+    public const string LastNote = "Belt on from set 3, felt strong";
+
+    /// <summary>A note too long for one line on a phone.</summary>
+    public const string LongNote = "Slow tempo, three seconds down and a pause at the bottom. Grip gave out before the legs did, so try straps next time. Warm up with the empty bar and two lighter sets first.";
+
+    /// <summary>A note of <see cref="WorkoutLimits.MaxNoteLength"/> + 1 characters.</summary>
+    public static readonly string NoteTooLong = string.Concat(Enumerable.Repeat("Felt heavy today. ", 28))[..(WorkoutLimits.MaxNoteLength + 1)];
+
+    /// <summary>The note field's error for a note over <see cref="WorkoutLimits.MaxNoteLength"/> characters.</summary>
+    public static readonly string NoteTooLongError = WorkoutChecker.NoteTooLong;
+
+    /// <summary>Sets the exercise's note and last note, as New Workout does after a pick, and returns it.</summary>
+    public static ExerciseState WithNotes(ExerciseState exercise, string? note, string? lastNote)
+    {
+        exercise.Note = note;
+        exercise.LastNote = lastNote;
+        return exercise;
+    }
+
+    /// <summary>Sets the notes of the first three exercises: both, last time's only, and today's only (long). The rest have none. Returns the list.</summary>
+    public static List<ExerciseState> WithSampleNotes(List<ExerciseState> workout)
+    {
+        WithNotes(workout[0], Note, LastNote);
+        WithNotes(workout[1], null, LongNote);
+        WithNotes(workout[2], LongNote, null);
+        return workout;
+    }
+
+    /// <summary>Sets a note over the limit and its error on the first exercise. Returns the list.</summary>
+    public static List<ExerciseState> WithNoteTooLong(List<ExerciseState> workout)
+    {
+        workout[0].Note = NoteTooLong;
+        workout[0].NoteError = NoteTooLongError;
+        return workout;
+    }
+
     /// <summary><see cref="StrengthWorkout"/> with each exercise's <see cref="Weights"/>.</summary>
     public static List<ExerciseState> StrengthWorkoutWithWeights(IExerciseCatalog catalog) =>
         StrengthWorkout(catalog).Select(e => WithWeights(e, Weights[e.ExerciseId].LastKg, Weights[e.ExerciseId].BestKg)).ToList();

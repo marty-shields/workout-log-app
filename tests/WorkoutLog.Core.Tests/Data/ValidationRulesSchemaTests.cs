@@ -273,10 +273,31 @@ public class ValidationRulesSchemaTests
             t => t.AddWorkoutAsync(1, (Squat, Sets([.. Enumerable.Repeat("(5, 60, NULL, NULL)", 6)])), (Squat, Sets([.. Enumerable.Repeat("(5, 60, NULL, NULL)", 5)]))));
     }
 
+    [Test]
+    public async Task Initialize_Version3DatabaseToTheCurrentVersion_RunsSteps4And5AndKeepsEveryRow()
+    {
+        await AddWorkoutAsync(1, (Squat, Sets("(5, NULL, NULL, NULL)", "(5, 60, NULL, NULL)")), (Run, Entry($"({Minutes30}, 5.2, NULL, NULL, NULL, 0, NULL, NULL)")));
+
+        await new DatabaseInitializer(connection,
+            [new WorkoutStartedAtUniqueIndex(), new BlankAssistToZero(Catalog), new ValidationRulesSchema(Catalog, logger), new NotesSchema()],
+            Mock.Of<IExerciseSeeder>(), NullLogger<DatabaseInitializer>.Instance).InitializeAsync();
+
+        Assert.Multiple(async () =>
+        {
+            Assert.That(await Version(), Is.EqualTo(5));
+            Assert.That(await connection.QueryScalarsAsync<double>("SELECT WeightKg FROM StrengthSet ORDER BY Id"), Is.EqualTo(new[] { 0d, 60 }));
+            Assert.That(await connection.QueryScalarsAsync<int?>("SELECT Calories FROM CardioEntry"), Is.EqualTo(new int?[] { null }));
+            Assert.That(await connection.QueryScalarsAsync<string>("SELECT Note FROM Workout UNION ALL SELECT Note FROM WorkoutExercise"),
+                Is.EqualTo(new string?[] { null, null, null }));
+            Assert.That(() => connection.ExecuteAsync("UPDATE WorkoutExercise SET Note = ''"), Throws.InstanceOf<SQLiteException>());
+        });
+    }
+
+    /// <summary>Runs steps 2 to 4 with step 4's app version.</summary>
     private Task InitializeAsync() =>
         new DatabaseInitializer(connection,
             [new WorkoutStartedAtUniqueIndex(), new BlankAssistToZero(Catalog), new ValidationRulesSchema(Catalog, logger)],
-            Mock.Of<IExerciseSeeder>(), NullLogger<DatabaseInitializer>.Instance).InitializeAsync();
+            Mock.Of<IExerciseSeeder>(), NullLogger<DatabaseInitializer>.Instance, currentVersion: 4).InitializeAsync();
 
     /// <summary>The version 3 schema: as sqlite-net made it, with the unique start index and the Pace column.</summary>
     private async Task CreateVersion3Async()

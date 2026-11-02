@@ -12,13 +12,16 @@ internal interface IWorkoutWriter
     int Add(NewWorkout workout);
 
     /// <summary>
-    /// Sets the finish time and replaces the exercises, sets and entries of the workout with the same start.
+    /// Sets the finish time and note and replaces the exercises, sets and entries of the workout with the same start.
     /// Throws <see cref="KeyNotFoundException"/> if no workout has that start.
     /// </summary>
     void Replace(NewWorkout workout);
 
-    /// <summary>Replaces the workout's exercises, sets and entries. Times are not changed. Throws <see cref="KeyNotFoundException"/> if the workout doesn't exist.</summary>
-    void ReplaceExercises(int workoutId, IReadOnlyList<WorkoutExercise> exercises);
+    /// <summary>
+    /// Sets the workout's note and replaces its exercises, sets and entries. Times are not changed.
+    /// Throws <see cref="KeyNotFoundException"/> if the workout doesn't exist.
+    /// </summary>
+    void Replace(int workoutId, string? note, IReadOnlyList<WorkoutExercise> exercises);
 
     /// <summary>Deletes the workout and its exercises, sets and entries. Throws <see cref="KeyNotFoundException"/> if the workout doesn't exist.</summary>
     void Delete(int workoutId);

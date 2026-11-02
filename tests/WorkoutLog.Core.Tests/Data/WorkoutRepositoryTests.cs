@@ -321,7 +321,7 @@ public class WorkoutRepositoryTests
     {
         await repository.AddAsync(new NewWorkout(Start, Finish, [new StrengthExercise(2, [new StrengthSet(5, 60m, null, null)])]));
 
-        Assert.That(await repository.GetWeightsAsync(1), Is.Empty);
+        Assert.That(await repository.GetWeightsAsync(1, null), Is.Empty);
     }
 
     [Test]
@@ -331,11 +331,11 @@ public class WorkoutRepositoryTests
         var oldest = await AddWeightsAsync(Start.AddDays(-2), 50m);
         var newest = await AddWeightsAsync(Start.AddHours(3), 70m);
 
-        Assert.That(await repository.GetWeightsAsync(1), Is.EqualTo(new[]
+        Assert.That(await repository.GetWeightsAsync(1, null), Is.EqualTo(new[]
         {
-            new WorkoutWeights(newest, [70m]),
-            new WorkoutWeights(middle, [60m]),
-            new WorkoutWeights(oldest, [50m]),
+            new WorkoutWeights(newest, [70m], null),
+            new WorkoutWeights(middle, [60m], null),
+            new WorkoutWeights(oldest, [50m], null),
         }).UsingPropertiesComparer());
     }
 
@@ -348,7 +348,7 @@ public class WorkoutRepositoryTests
             new StrengthExercise(2, [new StrengthSet(5, 100m, null, null)]),
         ]));
 
-        Assert.That(await repository.GetWeightsAsync(1), Is.EqualTo(new[] { new WorkoutWeights(id, [22.75m, 0m]) }).UsingPropertiesComparer());
+        Assert.That(await repository.GetWeightsAsync(1, null), Is.EqualTo(new[] { new WorkoutWeights(id, [22.75m, 0m], null) }).UsingPropertiesComparer());
     }
 
     [Test]
@@ -356,7 +356,7 @@ public class WorkoutRepositoryTests
     {
         var noSets = await repository.AddAsync(new NewWorkout(Start, Finish, [new StrengthExercise(1, [])]));
 
-        Assert.That(await repository.GetWeightsAsync(1), Is.EqualTo(new[] { new WorkoutWeights(noSets, []) }).UsingPropertiesComparer());
+        Assert.That(await repository.GetWeightsAsync(1, null), Is.EqualTo(new[] { new WorkoutWeights(noSets, [], null) }).UsingPropertiesComparer());
     }
 
     [Test]
@@ -569,25 +569,95 @@ public class WorkoutRepositoryTests
     }
 
     [Test]
-    public async Task ReplaceExercisesAsync_ReplacesTheChildrenAndKeepsTheTimes()
+    public async Task ReplaceAsync_ReplacesTheNoteAndChildrenAndKeepsTheTimes()
     {
-        var id = await repository.AddAsync(new NewWorkout(Start, Finish, Exercises()));
-        WorkoutExercise[] replacement = [new StrengthExercise(5, [new StrengthSet(8, 40m, null, null)])];
+        var id = await repository.AddAsync(new NewWorkout(Start, Finish, Exercises(), "Felt strong"));
+        WorkoutExercise[] replacement = [new StrengthExercise(5, [new StrengthSet(8, 40m, null, null)], "Slow eccentrics")];
 
-        await repository.ReplaceExercisesAsync(id, replacement);
+        await repository.ReplaceAsync(id, "Felt tired", replacement);
 
         Assert.That(await repository.GetAsync(id),
-            Is.EqualTo(new Workout(id, Start, Finish, replacement)).UsingPropertiesComparer());
+            Is.EqualTo(new Workout(id, Start, Finish, replacement, "Felt tired")).UsingPropertiesComparer());
         Assert.That(await RowCounts(), Is.EqualTo((1, 1, 1, 0)));
     }
 
     [Test]
-    public async Task ReplaceExercisesAsync_LeavesOtherWorkoutsAlone()
+    public async Task ReplaceAsync_NoNote_ClearsTheNotes()
+    {
+        var id = await repository.AddAsync(new NewWorkout(Start, Finish, NotedExercises(), "Felt strong"));
+
+        await repository.ReplaceAsync(id, null, Exercises());
+
+        Assert.That(await repository.GetAsync(id), Is.EqualTo(new Workout(id, Start, Finish, Exercises())).UsingPropertiesComparer());
+    }
+
+    [Test]
+    public async Task AddAsync_Notes_ReadBackOnTheWorkoutAndEachExercise()
+    {
+        var id = await repository.AddAsync(new NewWorkout(Start, Finish, NotedExercises(), "Felt strong"));
+
+        Assert.Multiple(async () =>
+        {
+            Assert.That(await repository.GetAsync(id),
+                Is.EqualTo(new Workout(id, Start, Finish, NotedExercises(), "Felt strong")).UsingPropertiesComparer());
+            Assert.That(await repository.GetAllAsync(),
+                Is.EqualTo(new[] { new Workout(id, Start, Finish, NotedExercises(), "Felt strong") }).UsingPropertiesComparer());
+        });
+    }
+
+    [Test]
+    public async Task GetSessionsAndLastSessionsAsync_ReturnTheExercisesNote()
+    {
+        var id = await repository.AddAsync(new NewWorkout(Start, Finish, NotedExercises()));
+
+        Assert.Multiple(async () =>
+        {
+            Assert.That((await repository.GetSessionsAsync(300)).Single(), Is.EqualTo(new WorkoutSession(id, Start, NotedExercises()[1])).UsingPropertiesComparer());
+            Assert.That((await repository.GetLastSessionsAsync()).Select(s => s.Exercise.Note), Is.EqualTo(new[] { "Grip slipped", null, "Hills" }));
+        });
+    }
+
+    [Test]
+    public async Task GetWeightsAsync_ReturnsTheExercisesNoteInEachWorkout()
+    {
+        var older = await repository.AddAsync(new NewWorkout(Start.AddDays(-1), Finish.AddDays(-1),
+            [new StrengthExercise(1, [new StrengthSet(5, 50m, null, null)], "Easy"), new CardioExercise(300, Entry(), "Flat")]));
+        var newer = await repository.AddAsync(new NewWorkout(Start, Finish, NotedExercises()));
+
+        Assert.Multiple(async () =>
+        {
+            Assert.That(await repository.GetWeightsAsync(1, null), Is.EqualTo(new[]
+            {
+                new WorkoutWeights(newer, [22.75m, 25m], "Grip slipped"),
+                new WorkoutWeights(older, [50m], "Easy"),
+            }).UsingPropertiesComparer());
+            Assert.That(await repository.GetWeightsAsync(300, null), Is.EqualTo(new[]
+            {
+                new WorkoutWeights(newer, [], "Hills"),
+                new WorkoutWeights(older, [], "Flat"),
+            }).UsingPropertiesComparer());
+            Assert.That((await repository.GetWeightsAsync(187, null)).Single().Note, Is.Null);
+        });
+    }
+
+    [Test]
+    public async Task GetWeightsAsync_Before_KeepsOnlyWorkoutsThatStartedBeforeIt()
+    {
+        var oldest = await AddWeightsAsync(Start.AddDays(-2), 50m);
+        await AddWeightsAsync(Start, 60m);
+        await AddWeightsAsync(Start.AddDays(1), 70m);
+
+        Assert.That(await repository.GetWeightsAsync(1, Start.ToOffset(TimeSpan.FromHours(2))),
+            Is.EqualTo(new[] { new WorkoutWeights(oldest, [50m], null) }).UsingPropertiesComparer());
+    }
+
+    [Test]
+    public async Task ReplaceAsync_LeavesOtherWorkoutsAlone()
     {
         var replaced = await repository.AddAsync(new NewWorkout(Start, Finish, Exercises()));
         var kept = await repository.AddAsync(new NewWorkout(Start.AddHours(2), Finish.AddHours(2), Exercises()));
 
-        await repository.ReplaceExercisesAsync(replaced, [new StrengthExercise(5, [new StrengthSet(8, 40m, null, null)])]);
+        await repository.ReplaceAsync(replaced, "Felt strong", [new StrengthExercise(5, [new StrengthSet(8, 40m, null, null)])]);
 
         Assert.That(await repository.GetAsync(kept),
             Is.EqualTo(new Workout(kept, Start.AddHours(2), Finish.AddHours(2), Exercises())).UsingPropertiesComparer());
@@ -595,9 +665,9 @@ public class WorkoutRepositoryTests
     }
 
     [Test]
-    public async Task ReplaceExercisesAsync_MissingId_ThrowsAndWritesNothing()
+    public async Task ReplaceAsync_MissingId_ThrowsAndWritesNothing()
     {
-        Assert.That(() => repository.ReplaceExercisesAsync(1, Exercises()), Throws.TypeOf<KeyNotFoundException>());
+        Assert.That(() => repository.ReplaceAsync(1, null, Exercises()), Throws.TypeOf<KeyNotFoundException>());
 
         Assert.That(await RowCounts(), Is.EqualTo((0, 0, 0, 0)));
     }
@@ -643,7 +713,7 @@ public class WorkoutRepositoryTests
     public async Task GetLatestAsync_NoExercises_ReturnsNoIds()
     {
         var id = await repository.AddAsync(new NewWorkout(Start, Finish, Exercises()));
-        await repository.ReplaceExercisesAsync(id, []);
+        await repository.ReplaceAsync(id, null, []);
 
         Assert.That(await repository.GetLatestAsync(), Is.EqualTo(new WorkoutOutline(id, Start, Finish, [])).UsingPropertiesComparer());
     }
@@ -672,6 +742,13 @@ public class WorkoutRepositoryTests
             new StrengthSet(8, 25m, null, null),
         ]),
         new CardioExercise(300, Entry()),
+        new StrengthExercise(187, [new StrengthSet(null, 20m, TimeSpan.FromSeconds(45), 30.5m)]),
+    ];
+
+    private static WorkoutExercise[] NotedExercises() =>
+    [
+        new StrengthExercise(1, [new StrengthSet(10, 22.75m, null, null), new StrengthSet(8, 25m, null, null)], "Grip slipped"),
+        new CardioExercise(300, Entry(), "Hills"),
         new StrengthExercise(187, [new StrengthSet(null, 20m, TimeSpan.FromSeconds(45), 30.5m)]),
     ];
 

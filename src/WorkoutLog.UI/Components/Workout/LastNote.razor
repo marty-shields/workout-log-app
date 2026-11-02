@@ -1,0 +1,21 @@
+<button type="button" class="last-note @(Expanded ? "open" : null)" aria-expanded="@(Expanded ? "true" : "false")" data-testid="@TestId" @onclick="Toggle">
+    <Icon Name="IconName.Note" Tone="IconTone.Muted" Size="IconSize.Small" />
+    <span class="visually-hidden">Last note: </span>
+    <span class="text">@Text</span>
+</button>
+
+@code {
+    /// <summary>The note from the last saved workout with the exercise.</summary>
+    [Parameter, EditorRequired]
+    public string Text { get; set; } = "";
+
+    /// <summary>Value of the data-testid attribute.</summary>
+    [Parameter]
+    public string? TestId { get; set; }
+
+    /// <summary>Shows the whole note instead of one line. Tapping the note toggles it.</summary>
+    [Parameter]
+    public bool Expanded { get; set; }
+
+    private void Toggle() => Expanded = !Expanded;
+}

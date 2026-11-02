@@ -7,22 +7,23 @@ namespace WorkoutLog.E2E.Tests.Support;
 /// <summary>Workouts as the export file writes them.</summary>
 public static class ExportJson
 {
-    /// <summary>A file with the version 2 header and <paramref name="workouts"/>.</summary>
+    /// <summary>A file with the version 3 header and <paramref name="workouts"/>.</summary>
     public static JsonObject File(IEnumerable<JsonNode> workouts) => new()
     {
-        ["formatVersion"] = 2,
+        ["formatVersion"] = 3,
         ["exportedAt"] = "2026-10-26T18:05:12Z",
         ["appVersion"] = "1.0.0",
         ["workouts"] = new JsonArray(workouts.ToArray()),
     };
 
     /// <summary>A workout: start and finish as UTC with 7 fractional digits, then its exercises.</summary>
-    public static JsonObject Workout(DateTimeOffset started, DateTimeOffset finished, IEnumerable<ExerciseValues> exercises) => new()
+    public static JsonObject Workout(DateTimeOffset started, DateTimeOffset finished, IEnumerable<ExerciseValues> exercises, string? note = null)
     {
-        ["startedAt"] = Time(started),
-        ["finishedAt"] = Time(finished),
-        ["exercises"] = new JsonArray(exercises.Select(Exercise).ToArray()),
-    };
+        var workout = new JsonObject { ["startedAt"] = Time(started), ["finishedAt"] = Time(finished) };
+        AddIf(workout, "note", note);
+        workout["exercises"] = new JsonArray(exercises.Select(Exercise).ToArray());
+        return workout;
+    }
 
     public static string Time(DateTimeOffset time) =>
         time.UtcDateTime.ToString("yyyy-MM-dd'T'HH:mm:ss.fffffff'Z'", CultureInfo.InvariantCulture);
@@ -36,6 +37,7 @@ public static class ExportJson
         AddIf(exercise, "rateUnit", definition.RateUnit?.ToString());
         AddIf(exercise, "paceUnit", definition.PaceUnit?.ToString());
         var node = new JsonObject { ["exercise"] = exercise };
+        AddIf(node, "note", values.Note);
         switch (values.ToWorkoutExercise())
         {
             case StrengthExercise strength:

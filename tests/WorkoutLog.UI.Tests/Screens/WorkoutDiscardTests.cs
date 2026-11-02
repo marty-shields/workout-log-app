@@ -61,6 +61,47 @@ public class WorkoutDiscardTests(WorkoutMode mode) : ComponentTestBase
         });
     }
 
+    [TestCase("workout-note", "workout-note-add")]
+    [TestCase("exercise-1-note", "exercise-1-add-note")]
+    public void NoteEdit_BackAsksAndCancelKeepsTheNote(string note, string addNote)
+    {
+        var cut = Render(() => leaves++);
+        cut.Find($"[data-testid={addNote}]").Click();
+        cut.Find($"[data-testid={note}-input]").Input("Slept badly");
+        cut.Find($"[data-testid={note}-input]").Blur();
+
+        cut.Find("[data-testid=back]").Click();
+        var asked = cut.FindAll("[data-testid=confirm-dialog]").Count;
+        cut.Find("[data-testid=confirm-dialog-cancel]").Click();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(asked, Is.EqualTo(1));
+            Assert.That(cut.FindAll("[data-testid=confirm-dialog]"), Is.Empty);
+            Assert.That(cut.Find($"[data-testid={note}-open] .text").TextContent, Is.EqualTo("Slept badly"));
+            Assert.That(leaves, Is.Zero);
+        });
+    }
+
+    [TestCase("workout-note", "workout-note-add")]
+    [TestCase("exercise-1-note", "exercise-1-add-note")]
+    public void NoteEdit_Discard_LogsNoNoteTextAndRaisesOnce(string note, string addNote)
+    {
+        var cut = Render(() => leaves++);
+        cut.Find($"[data-testid={addNote}]").Click();
+        cut.Find($"[data-testid={note}-input]").Input("Slept badly");
+        cut.Find($"[data-testid={note}-input]").Blur();
+        cut.Find("[data-testid=back]").Click();
+
+        cut.Find("[data-testid=confirm-dialog-confirm]").Click();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(leaves, Is.EqualTo(1));
+            Assert.That(LoggedEvents.Of(logger).Select(e => e.Message), Has.All.Not.Contain("Slept badly"));
+        });
+    }
+
     [Test]
     public async Task Discard_Twice_LogsAndRaisesOnceAndBackIsIgnored()
     {
@@ -223,24 +264,24 @@ public class WorkoutDiscardTests(WorkoutMode mode) : ComponentTestBase
 
         public TimeSpan Elapsed(WorkoutDraft draft) => inner.Elapsed(draft);
 
-        public WorkoutErrors Validate(IReadOnlyList<WorkoutExercise> exercises) => inner.Validate(exercises);
+        public WorkoutErrors Validate(string? note, IReadOnlyList<WorkoutExercise> exercises) => inner.Validate(note, exercises);
 
         public ExerciseErrors ValidateSet(int exerciseId, StrengthSet set) => inner.ValidateSet(exerciseId, set);
 
         public ExerciseErrors ValidateEntry(int exerciseId, CardioEntry entry) => inner.ValidateEntry(exerciseId, entry);
 
-        public Task<SaveResult> SaveNewAsync(WorkoutDraft draft, IReadOnlyList<WorkoutExercise> exercises)
+        public Task<SaveResult> SaveNewAsync(WorkoutDraft draft, string? note, IReadOnlyList<WorkoutExercise> exercises)
         {
             Saves++;
-            return Save?.Invoke() ?? inner.SaveNewAsync(draft, exercises);
+            return Save?.Invoke() ?? inner.SaveNewAsync(draft, note, exercises);
         }
 
         public Task<WorkoutResult> GetAsync(int workoutId) => Task.FromResult(new WorkoutResult(Saved, WorkoutLoad.Loaded));
 
-        public Task<SaveResult> SaveAsync(int workoutId, IReadOnlyList<WorkoutExercise> exercises)
+        public Task<SaveResult> SaveAsync(int workoutId, string? note, IReadOnlyList<WorkoutExercise> exercises)
         {
             Saves++;
-            return Save?.Invoke() ?? inner.SaveAsync(workoutId, exercises);
+            return Save?.Invoke() ?? inner.SaveAsync(workoutId, note, exercises);
         }
 
         public Task<WorkoutDelete> DeleteAsync(int workoutId) => inner.DeleteAsync(workoutId);
