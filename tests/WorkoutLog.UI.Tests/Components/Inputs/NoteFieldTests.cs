@@ -13,49 +13,20 @@ public class NoteFieldTests : ComponentTestBase
         });
 
     [Test]
-    public void Empty_ShowsOnlyAddNote()
+    public void Empty_RendersNothing()
     {
         var cut = Render();
-
-        Assert.Multiple(() =>
-        {
-            Assert.That(cut.Find("[data-testid=note-add]").TextContent.Trim(), Is.EqualTo("Add note"));
-            Assert.That(cut.FindAll("textarea, [data-testid=note-open], [data-testid=note-count]"), Is.Empty);
-        });
-    }
-
-    [Test]
-    public void Empty_BlankText_IsEmpty()
-    {
-        var cut = Render(p => p.Add(x => x.Value, "  "));
-
-        Assert.That(cut.FindAll("[data-testid=note-add]"), Has.Count.EqualTo(1));
-    }
-
-    [Test]
-    public void Empty_WithoutAddButton_RendersNothing()
-    {
-        var cut = Render(p => p.Add(x => x.ShowAddButton, false));
 
         Assert.That(cut.FindAll("*"), Is.Empty);
     }
 
     [Test]
-    public void AddNote_OpensTheTextBoxWithFocus()
+    public void BlankText_RendersNothing()
     {
-        var editing = new List<bool>();
-        var cut = Render(p => p.Add(x => x.EditingChanged, (bool e) => editing.Add(e)));
+        var cut = Render(p => p.Add(x => x.Value, "  "));
 
-        cut.Find("[data-testid=note-add]").Click();
-
-        Assert.Multiple(() =>
-        {
-            Assert.That(editing, Is.EqualTo(new[] { true }));
-            Assert.That(cut.FindAll("[data-testid=note-add]"), Is.Empty);
-            Context.JSInterop.VerifyFocusAsyncInvoke().Arguments[0].ShouldBeElementReferenceTo(cut.Find("textarea"));
-        });
+        Assert.That(cut.FindAll("*"), Is.Empty);
     }
-
     [Test]
     public void Editing_ShowsLabelCounterAndATextBoxWithNoLengthLimit()
     {
@@ -168,7 +139,7 @@ public class NoteFieldTests : ComponentTestBase
     }
 
     [Test]
-    public void Blur_BlankNote_BecomesNullAndShowsAddNote()
+    public void Blur_BlankNote_BecomesNullAndShowsNothing()
     {
         string? value = "Belt on";
         var cut = Render(p => p.Add(x => x.Editing, true).Add(x => x.Value, "Belt on").Add(x => x.ValueChanged, (string? v) => value = v));
@@ -179,7 +150,7 @@ public class NoteFieldTests : ComponentTestBase
         Assert.Multiple(() =>
         {
             Assert.That(value, Is.Null);
-            Assert.That(cut.FindAll("[data-testid=note-add]"), Has.Count.EqualTo(1));
+            Assert.That(cut.FindAll("*"), Is.Empty);
         });
     }
 
@@ -195,7 +166,7 @@ public class NoteFieldTests : ComponentTestBase
     }
 
     [Test]
-    public void Collapsed_ShowsTheNoteOnOneLineAndHidesAddNote()
+    public void Collapsed_ShowsTheNoteOnOneLine()
     {
         var cut = Render(p => p.Add(x => x.Value, "Belt on from set 3"));
 
@@ -204,7 +175,7 @@ public class NoteFieldTests : ComponentTestBase
         {
             Assert.That(TestText.Normalise(open.TextContent), Is.EqualTo("Edit Workout note: Belt on from set 3"));
             Assert.That(open.QuerySelector(".text")!.TextContent, Is.EqualTo("Belt on from set 3"));
-            Assert.That(cut.FindAll("[data-testid=note-add], textarea"), Is.Empty);
+            Assert.That(cut.FindAll("textarea"), Is.Empty);
         });
     }
 
@@ -227,9 +198,8 @@ public class NoteFieldTests : ComponentTestBase
     [Test]
     public void WithoutAParentBinding_OpensAndCollapsesOnItsOwn()
     {
-        var cut = Render();
+        var cut = Render(p => p.Add(x => x.Editing, true));
 
-        cut.Find("[data-testid=note-add]").Click();
         cut.Find("textarea").Input("Belt on");
         cut.Find("textarea").Blur();
 

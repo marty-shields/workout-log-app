@@ -688,31 +688,34 @@ public class WorkoutViewTests : ComponentTestBase
     }
 
     [Test]
-    public void WorkoutNote_Empty_ShowsAddNoteAboveTheCards()
+    public void WorkoutNote_Empty_ShowsAnAddNoteButtonInTheTopBarAndNoRow()
     {
         var cut = Context.Render<WorkoutView>(p => p
             .Add(x => x.StartedAt, Started)
             .Add(x => x.Exercises, [Curl()]));
 
+        var button = cut.Find(".top-bar [data-testid=workout-note-add]");
         Assert.Multiple(() =>
         {
-            Assert.That(cut.Find("[data-testid=workout-note-add]").TextContent.Trim(), Is.EqualTo("Add note"));
-            Assert.That(cut.FindAll(".exercises > [data-testid=workout-note] + [data-testid=exercise-1]"), Has.Count.EqualTo(1));
+            Assert.That(button.GetAttribute("aria-label"), Is.EqualTo("Add note"));
+            Assert.That(cut.FindAll("[data-testid=workout-note]"), Is.Empty);
         });
     }
 
     [Test]
-    public void WorkoutNote_NoExercises_ShowsAddNoteAboveTheEmptyState()
+    public void WorkoutNote_NewAndEdit_ShowTheNoteButtonBesideDeleteInEdit()
     {
         var cut = Context.Render<WorkoutView>(p => p
+            .Add(x => x.Mode, WorkoutMode.Edit)
             .Add(x => x.StartedAt, Started)
-            .Add(x => x.Exercises, []));
+            .Add(x => x.Exercises, [Curl()]));
 
-        Assert.That(cut.FindAll(".exercises > [data-testid=workout-note] + [data-testid=no-exercises]"), Has.Count.EqualTo(1));
+        Assert.That(cut.Find(".top-bar").QuerySelectorAll("button").Select(b => b.GetAttribute("data-testid")),
+            Is.EqualTo(new[] { "workout-note-add", "delete-workout" }));
     }
 
     [Test]
-    public void WorkoutNote_Set_ShowsOneLine()
+    public void WorkoutNote_Set_ShowsOnePlainLineAboveTheCardsAndTheButtonSaysEditNote()
     {
         var cut = Context.Render<WorkoutView>(p => p
             .Add(x => x.StartedAt, Started)
@@ -722,12 +725,38 @@ public class WorkoutViewTests : ComponentTestBase
         Assert.Multiple(() =>
         {
             Assert.That(cut.Find("[data-testid=workout-note-open] .text").TextContent, Is.EqualTo("Slept badly, kept it light"));
-            Assert.That(cut.FindAll("[data-testid=workout-note-add]"), Is.Empty);
+            Assert.That(cut.Find("[data-testid=workout-note-add]").GetAttribute("aria-label"), Is.EqualTo("Edit note"));
+            Assert.That(cut.FindAll(".exercises > [data-testid=workout-note] + [data-testid=exercise-1]"), Has.Count.EqualTo(1));
         });
     }
 
     [Test]
-    public void WorkoutNote_AddNote_OpensTheFieldAndTypingRaisesNoteChanged()
+    public void WorkoutNote_TapOnTheSavedLine_OpensTheTextBox()
+    {
+        var cut = Context.Render<WorkoutView>(p => p
+            .Add(x => x.StartedAt, Started)
+            .Add(x => x.Exercises, [Curl()])
+            .Add(x => x.Note, "Slept badly"));
+
+        cut.Find("[data-testid=workout-note-open]").Click();
+
+        Assert.That(cut.Find("[data-testid=workout-note-input]").GetAttribute("value"), Is.EqualTo("Slept badly"));
+    }
+
+    [Test]
+    public void WorkoutNote_EditNoteButton_OpensTheTextBoxWithTheNote()
+    {
+        var cut = Context.Render<WorkoutView>(p => p
+            .Add(x => x.StartedAt, Started)
+            .Add(x => x.Exercises, [Curl()])
+            .Add(x => x.Note, "Slept badly"));
+
+        cut.Find("[data-testid=workout-note-add]").Click();
+
+        Assert.That(cut.Find("[data-testid=workout-note-input]").GetAttribute("value"), Is.EqualTo("Slept badly"));
+    }
+    [Test]
+    public void WorkoutNote_AddNote_OpensTheFieldWithFocusAndTypingRaisesNoteChanged()
     {
         string? note = null;
         var cut = Context.Render<WorkoutView>(p => p
@@ -788,7 +817,11 @@ public class WorkoutViewTests : ComponentTestBase
             .Add(x => x.NoteError, "Note must be 500 characters or less")
             .Add(x => x.ErrorFocus, new ErrorFocus()));
 
-        cut.WaitForAssertion(() => Context.JSInterop.VerifyFocusAsyncInvoke().Arguments[0].ShouldBeElementReferenceTo(cut.Find("[data-testid=workout-note-input]")));
+        cut.WaitForAssertion(() =>
+        {
+            Assert.That(cut.FindAll("[data-testid=workout-note-input]"), Has.Count.EqualTo(1));
+            Context.JSInterop.VerifyFocusAsyncInvoke();
+        });
     }
 
     [Test]
@@ -804,7 +837,11 @@ public class WorkoutViewTests : ComponentTestBase
             .Add(x => x.NoteError, "Note must be 500 characters or less")
             .Add(x => x.ErrorFocus, new ErrorFocus()));
 
-        cut.WaitForAssertion(() => Context.JSInterop.VerifyFocusAsyncInvoke().Arguments[0].ShouldBeElementReferenceTo(cut.Find("[data-testid=workout-note-input]")));
+        cut.WaitForAssertion(() =>
+        {
+            Assert.That(cut.FindAll("[data-testid=workout-note-input]"), Has.Count.EqualTo(1));
+            Context.JSInterop.VerifyFocusAsyncInvoke();
+        });
     }
 
     [Test]
