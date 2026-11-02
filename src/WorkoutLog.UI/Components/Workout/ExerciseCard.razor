@@ -159,13 +159,19 @@
     private SetPanel? openPanel;
     private IconButton? remove;
     private AppButton? addSet;
-    private TaskCompletionSource? pendingFocus;
 
-    /// <summary>Set when Add set or opening another set was blocked: the next render focuses the set at fault.</summary>
-    private bool focusBlockedSet;
+    /// <summary>What the next render moves focus to: the set at fault when Add set or opening another set was blocked, the first error when Done was blocked, or the set just added.</summary>
+    private enum FocusTarget
+    {
+        BlockedSet,
+        FirstError,
+        AddedSet,
+    }
 
-    /// <summary>Set when Done was blocked: the next render focuses the first error.</summary>
-    private bool focusFirstError;
+    /// <summary>The latest focus request. <c>Completion</c> is completed once focus has moved.</summary>
+    private sealed record FocusRequest(FocusTarget Target, TaskCompletionSource? Completion = null);
+
+    private FocusRequest? pending;
 
     /// <summary>Moves focus to the open set or the last set row (its first field with an error, or its first field), or the cardio entry.</summary>
     public ValueTask FocusAsync()
@@ -235,57 +241,51 @@
             await OnChanged.InvokeAsync();
         }
 
-        pendingFocus?.TrySetCanceled();
         var focus = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
-        pendingFocus = focus;
+        Request(new FocusRequest(FocusTarget.AddedSet, focus));
         StateHasChanged();
         await focus.Task;
     }
 
-    public void Dispose() => pendingFocus?.TrySetCanceled();
+    public void Dispose() => pending?.Completion?.TrySetCanceled();
+
+    private void Request(FocusRequest request)
+    {
+        if (request.Completion is null)
+        {
+            request = request with { Completion = pending?.Completion };
+        }
+        else
+        {
+            pending?.Completion?.TrySetCanceled();
+        }
+
+        pending = request;
+    }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (focusBlockedSet)
-        {
-            focusBlockedSet = false;
-            try
-            {
-                await FocusAsync();
-            }
-            catch (Exception exception)
-            {
-                Log.FocusFailed(Logger, exception);
-            }
-        }
-
-        if (focusFirstError)
-        {
-            focusFirstError = false;
-            try
-            {
-                await FocusFirstErrorAsync();
-            }
-            catch (Exception exception)
-            {
-                Log.FocusFailed(Logger, exception);
-            }
-        }
-
-        if (pendingFocus is not { } focus || !FocusTargetRendered())
+        if (pending is not { } request || (request.Target == FocusTarget.AddedSet && !FocusTargetRendered()))
         {
             return;
         }
 
-        pendingFocus = null;
+        pending = null;
         try
         {
-            await FocusAsync();
-            focus.TrySetResult();
+            await (request.Target == FocusTarget.FirstError ? FocusFirstErrorAsync() : FocusAsync());
+            request.Completion?.TrySetResult();
         }
         catch (Exception exception)
         {
-            focus.TrySetException(exception);
+            if (request.Completion is { } completion)
+            {
+                completion.TrySetException(exception);
+            }
+            else
+            {
+                Log.FocusFailed(Logger, exception);
+            }
         }
     }
 
@@ -343,7 +343,7 @@
             return;
         }
 
-        focusFirstError = true;
+        Request(new FocusRequest(FocusTarget.FirstError));
     }
 
     private void Reopen() => Exercise.IsDone = false;
@@ -356,7 +356,7 @@
             return;
         }
 
-        focusBlockedSet = true;
+        Request(new FocusRequest(FocusTarget.BlockedSet));
     }
 
     private Task AddSet()
@@ -366,7 +366,11 @@
             return OnChanged.InvokeAsync();
         }
 
-        focusBlockedSet = !Exercise.SetsFull;
+        if (!Exercise.SetsFull)
+        {
+            Request(new FocusRequest(FocusTarget.BlockedSet));
+        }
+
         return Task.CompletedTask;
     }
 

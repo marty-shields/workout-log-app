@@ -12,19 +12,28 @@
 @inject IAppStart AppStart
 @inject ILogger<SettingsPage> Logger
 
-<SettingsView Loading="loading" Failed="failed" Count="count" Exporting="exporting" ExportMessage="message"
-              Reading="reading" ImportFailed="importFailed" Imported="imported"
+<SettingsView Loading="phase == SettingsPhase.Loading" Failed="phase == SettingsPhase.LoadFailed" Count="count"
+              Exporting="phase == SettingsPhase.Exporting" ExportMessage="message"
+              Reading="phase == SettingsPhase.Reading" ImportFailed="phase == SettingsPhase.ImportFailed" Imported="imported"
               OnRetry="LoadAsync" OnExport="ExportAsync" OnImport="ImportAsync" OnBack="OnBack" />
 
 @code {
-    private bool loading;
-    private bool failed;
+    private enum SettingsPhase
+    {
+        Idle,
+        Loading,
+        LoadFailed,
+        Exporting,
+        Reading,
+        ImportFailed,
+    }
+
+    private SettingsPhase phase;
     private int count;
-    private bool exporting;
     private ExportMessage message;
-    private bool reading;
-    private bool importFailed;
     private ImportResult? imported;
+    private bool Busy => phase is SettingsPhase.Loading or SettingsPhase.Exporting or SettingsPhase.Reading;
+
     private IDisposable? registration;
     private bool disposed;
 
@@ -57,12 +66,12 @@
     /// </summary>
     private async Task LoadAsync()
     {
-        if (loading || exporting || reading)
+        if (Busy)
         {
             return;
         }
 
-        loading = true;
+        phase = SettingsPhase.Loading;
         ClearMessages();
         StateHasChanged();
         var result = await Export.CountAsync();
@@ -72,8 +81,7 @@
         }
 
         count = result.Count;
-        failed = result.Failed;
-        loading = false;
+        phase = result.Failed ? SettingsPhase.LoadFailed : SettingsPhase.Idle;
     }
 
     /// <summary>Loads again when the app comes back on screen. Does nothing once the page is disposed, before or during the load.</summary>
@@ -98,12 +106,12 @@
     /// </summary>
     private async Task ExportAsync()
     {
-        if (exporting || loading || reading)
+        if (Busy)
         {
             return;
         }
 
-        exporting = true;
+        phase = SettingsPhase.Exporting;
         ClearMessages();
         StateHasChanged();
         var result = await Export.ExportAsync();
@@ -129,7 +137,7 @@
             message = result.Status == ExportStatus.TooLarge ? ExportMessage.TooLarge : ExportMessage.Failed;
         }
 
-        exporting = false;
+        phase = SettingsPhase.Idle;
     }
 
     /// <summary>
@@ -139,15 +147,16 @@
     /// </summary>
     private async Task ImportAsync()
     {
-        if (reading || exporting || loading)
+        if (Busy)
         {
             return;
         }
 
-        reading = true;
+        phase = SettingsPhase.Reading;
         ClearMessages();
         StateHasChanged();
         ImportReview? review = null;
+        var pickFailed = false;
         try
         {
             review = await Opener.OpenAsync();
@@ -155,7 +164,7 @@
         catch (Exception exception)
         {
             Log.PickFailed(Logger, exception);
-            importFailed = true;
+            pickFailed = true;
         }
 
         if (disposed)
@@ -163,17 +172,13 @@
             return;
         }
 
-        reading = false;
-        if (review is null)
+        if (review is null || review.Error == ImportError.Failed)
         {
+            phase = pickFailed || review is not null ? SettingsPhase.ImportFailed : SettingsPhase.Idle;
             return;
         }
 
-        if (review.Error == ImportError.Failed)
-        {
-            importFailed = true;
-            return;
-        }
+        phase = SettingsPhase.Idle;
 
         Session.Review = review;
         await OnImportReview.InvokeAsync();
@@ -182,7 +187,6 @@
     private void ClearMessages()
     {
         message = ExportMessage.None;
-        importFailed = false;
         imported = null;
     }
 }

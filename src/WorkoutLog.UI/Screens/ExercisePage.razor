@@ -25,12 +25,19 @@
               RangeChanged="ChooseRange"
               Records="records"
               Sessions="sessions"
-              Loading="loading"
-              Failed="failed"
+              Loading="phase == ExercisePhase.Loading"
+              Failed="phase == ExercisePhase.LoadFailed"
               OnRetry="LoadAsync"
               OnBack="OnBack" />
 
 @code {
+    private enum ExercisePhase
+    {
+        Loading,
+        LoadFailed,
+        Loaded,
+    }
+
     private ExerciseDefinition? definition;
     private IReadOnlyList<StrengthSession> loaded = [];
     private IReadOnlyList<CardioSession> loadedCardio = [];
@@ -46,8 +53,7 @@
     private string? noDataMessage;
     private IReadOnlyList<RecordRow> records = [];
     private IReadOnlyList<ExerciseSession> sessions = [];
-    private bool loading;
-    private bool failed;
+    private ExercisePhase phase = ExercisePhase.Loading;
 
     /// <summary>Id of the strength or cardio exercise to show.</summary>
     [Parameter, EditorRequired]
@@ -71,7 +77,7 @@
             ExerciseCategory.Cardio => OnFirstTab(CardioProgressItems.Tabs(definition)),
             _ => (tabs, tab),
         };
-        return LoadAsync();
+        return FetchAsync();
     }
 
     /// <summary>The tabs, with the first chosen.</summary>
@@ -84,13 +90,19 @@
     /// </summary>
     private async Task LoadAsync()
     {
-        if (loading)
+        if (phase == ExercisePhase.Loading)
         {
             return;
         }
 
-        loading = true;
+        phase = ExercisePhase.Loading;
         StateHasChanged();
+        await FetchAsync();
+    }
+
+    private async Task FetchAsync()
+    {
+        bool failed;
         if (IsCardio)
         {
             var result = await CardioProgress.LoadAsync(ExerciseId);
@@ -104,7 +116,7 @@
             failed = result.Failed;
         }
 
-        loading = false;
+        phase = failed ? ExercisePhase.LoadFailed : ExercisePhase.Loaded;
         Summarise();
     }
 

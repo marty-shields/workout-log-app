@@ -10,19 +10,32 @@
 @if (review is not null)
 {
     <ImportReviewView Review="review" Mode="mode" ModeChanged="OnModeChanged" Different="different" DifferentChanged="OnDifferentChanged"
-                      Confirming="confirming" Importing="importing" Failed="failed" Reading="reading"
+                      Confirming="activity == ReviewActivity.Confirming" Importing="activity == ReviewActivity.Importing"
+                      Failed="notice == ReviewNotice.Failed" Reading="activity == ReviewActivity.Reading"
                       OnImport="OnImportAsync" OnConfirmReplace="OnConfirmReplaceAsync" OnCancelReplace="OnCancelReplace"
                       OnCancel="LeaveAsync" OnChooseAnother="ChooseAnotherAsync" OnBack="LeaveAsync" />
 }
 
 @code {
+    private enum ReviewActivity
+    {
+        Idle,
+        Confirming,
+        Importing,
+        Reading,
+    }
+
+    private enum ReviewNotice
+    {
+        None,
+        Failed,
+    }
+
     private ImportReview? review;
     private ImportMode mode;
     private DifferentChoice different;
-    private bool confirming;
-    private bool importing;
-    private bool failed;
-    private bool reading;
+    private ReviewActivity activity;
+    private ReviewNotice notice;
     private bool disposed;
 
     /// <summary>Raised by Cancel and back, and when there is no file to review. <see cref="ImportSession.Review"/> is cleared first.</summary>
@@ -52,14 +65,14 @@
     /// <summary>Import runs the import; Replace all asks first.</summary>
     private Task OnImportAsync()
     {
-        if (importing)
+        if (activity == ReviewActivity.Importing)
         {
             return Task.CompletedTask;
         }
 
         if (mode == ImportMode.ReplaceAll)
         {
-            confirming = true;
+            activity = ReviewActivity.Confirming;
             return Task.CompletedTask;
         }
 
@@ -68,24 +81,34 @@
 
     private Task OnConfirmReplaceAsync()
     {
-        confirming = false;
+        if (activity == ReviewActivity.Confirming)
+        {
+            activity = ReviewActivity.Idle;
+        }
+
         return RunAsync();
     }
 
-    private void OnCancelReplace() => confirming = false;
+    private void OnCancelReplace()
+    {
+        if (activity == ReviewActivity.Confirming)
+        {
+            activity = ReviewActivity.Idle;
+        }
+    }
 
     /// <summary>
     /// Writes the import, showing Import busy; ignored while one runs. On success goes to Settings with the result; on failure shows the failed message.
     /// </summary>
     private async Task RunAsync()
     {
-        if (importing)
+        if (activity == ReviewActivity.Importing)
         {
             return;
         }
 
-        importing = true;
-        failed = false;
+        activity = ReviewActivity.Importing;
+        notice = ReviewNotice.None;
         StateHasChanged();
         var result = await Import.ImportAsync(review!, mode, different);
         if (result.Status == ImportStatus.Imported)
@@ -98,15 +121,15 @@
 
         if (!disposed)
         {
-            importing = false;
-            failed = true;
+            activity = ReviewActivity.Idle;
+            notice = ReviewNotice.Failed;
         }
     }
 
     /// <summary>Goes back to Settings, unless an import is running. Nothing has been written.</summary>
     private async Task LeaveAsync()
     {
-        if (importing)
+        if (activity == ReviewActivity.Importing)
         {
             return;
         }
@@ -121,12 +144,12 @@
     /// </summary>
     private async Task ChooseAnotherAsync()
     {
-        if (reading)
+        if (activity == ReviewActivity.Reading)
         {
             return;
         }
 
-        reading = true;
+        activity = ReviewActivity.Reading;
         StateHasChanged();
         ImportReview? next = null;
         var pickFailed = false;
@@ -145,16 +168,16 @@
             return;
         }
 
-        reading = false;
+        activity = ReviewActivity.Idle;
         if (pickFailed || next?.Error == ImportError.Failed)
         {
-            failed = true;
+            notice = ReviewNotice.Failed;
         }
         else if (next is not null)
         {
             review = next;
             Session.Review = next;
-            failed = false;
+            notice = ReviewNotice.None;
         }
     }
 }

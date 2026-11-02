@@ -26,7 +26,7 @@
              OnSave="SaveAsync"
              OnAddExercise="Editor.OpenListAsync"
              OnRemoveExercise="Editor.AskRemove"
-             OnBack="Back">
+             OnBack="Editor.AskDiscard">
     <Overlay>
         @if (Editor.ListOpen)
         {
@@ -37,9 +37,9 @@
         {
             <ConfirmDialog Title="@($"Delete {removing.Name}?")" ConfirmText="Delete" Danger OnConfirm="Editor.ConfirmRemove" OnCancel="Editor.CancelRemove" />
         }
-        @if (discardOpen)
+        @if (Editor.DiscardOpen)
         {
-            <ConfirmDialog Title="Discard this workout?" ConfirmText="Discard" Danger OnConfirm="DiscardAsync" OnCancel="CloseDiscard" />
+            <ConfirmDialog Title="Discard this workout?" ConfirmText="Discard" Danger OnConfirm="DiscardAsync" OnCancel="Editor.CloseDiscard" />
         }
     </Overlay>
 </WorkoutView>
@@ -48,8 +48,6 @@
     private WorkoutDraft draft = null!;
     private DateTime startedAt;
     private PeriodicTimer? timer;
-    private bool discardOpen;
-    private bool discarded;
 
     /// <summary>Raised after Discard is confirmed. Nothing is saved.</summary>
     [Parameter]
@@ -71,17 +69,6 @@
     }
 
     public void Dispose() => timer?.Dispose();
-
-    /// <summary>Asks Discard / Cancel. Ignored while a save runs, after one succeeds and after a discard.</summary>
-    private void Back()
-    {
-        if (!Editor.Saving && !discarded)
-        {
-            discardOpen = true;
-        }
-    }
-
-    private void CloseDiscard() => discardOpen = false;
 
     /// <summary>
     /// Picks the exercise (<see cref="WorkoutEditor.Pick"/>). A strength exercise just added then loads its last and best weights
@@ -109,18 +96,11 @@
     /// </summary>
     private async Task DiscardAsync()
     {
-        if (Editor.Saving)
-        {
-            discardOpen = false;
-            return;
-        }
-
-        if (discarded)
+        if (!Editor.ConfirmDiscard())
         {
             return;
         }
 
-        discarded = true;
         Log.Discarded(Logger, Editor.Exercises.Count);
         await OnDiscarded.InvokeAsync();
     }
