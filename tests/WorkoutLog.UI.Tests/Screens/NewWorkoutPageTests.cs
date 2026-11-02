@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Testing;
 using Microsoft.Extensions.Time.Testing;
 using WorkoutLog.Core.Domain.Exercises;
+using WorkoutLog.Core.Domain.Exercises.Progress;
 using WorkoutLog.Core.Domain.Workouts;
 using WorkoutLog.Core.Domain.Workouts.Validation;
 using WorkoutLog.Core.Services;
@@ -822,6 +823,167 @@ public class NewWorkoutPageTests : ComponentTestBase
     }
 
     [Test]
+    public void Pick_WithAnEarlierWorkout_ShowsEachSetsLastTimeBySetNumber()
+    {
+        LastSessions.Set(new StrengthExercise(6, [new StrengthSet(8, 60m, null, null), new StrengthSet(8, 60m, null, null), new StrengthSet(6, 62.5m, null, null)]));
+        var cut = RenderPage();
+
+        Add(cut, 6);
+        AddSets(cut, 1, 3);
+
+        Assert.That(Lasts(cut, 1, 3), Is.EqualTo(new[] { "Last time 60×8", "Last time 60×8", "Last time 62.5×6" }));
+    }
+
+    [Test]
+    public void Pick_MoreSetsThanLastTime_ShowsADashForTheExtraSets()
+    {
+        LastSessions.Set(new StrengthExercise(6, [new StrengthSet(8, 60m, null, null)]));
+        var cut = RenderPage();
+
+        Add(cut, 6);
+        AddSets(cut, 1, 3);
+
+        Assert.That(Lasts(cut, 1, 3), Is.EqualTo(new[] { "Last time 60×8", "Last time —", "Last time —" }));
+    }
+
+    [Test]
+    public void Pick_FewerSetsThanLastTime_ShowsOnlyTheSetsBeingLogged()
+    {
+        LastSessions.Set(new StrengthExercise(6, [new StrengthSet(8, 60m, null, null), new StrengthSet(8, 60m, null, null), new StrengthSet(6, 62.5m, null, null)]));
+        var cut = RenderPage();
+
+        Add(cut, 6);
+
+        Assert.That(cut.FindAll("[data-testid^=exercise-1-set-][data-testid$=-last]").Select(l => l.TextContent), Is.EqualTo(new[] { "Last time 60×8" }));
+    }
+
+    [Test]
+    public void Pick_WithAnEarlierWorkout_AsksForTheLastWorkoutWithNoCutoff()
+    {
+        var cut = RenderPage();
+
+        Add(cut, 6);
+
+        Assert.That(LastSessions.Requests, Is.EqualTo(new[] { (6, (DateTimeOffset?)null) }));
+    }
+
+    [Test]
+    public void Pick_FirstTime_ShowsNothing()
+    {
+        var cut = RenderPage();
+
+        Add(cut, 6);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.FindAll("[data-testid$=-last]"), Is.Empty);
+            Assert.That(cut.FindAll(".set-header span").Select(h => h.TextContent), Does.Not.Contain("Last"));
+        });
+    }
+
+    [Test]
+    public void Pick_WithAnEarlierWorkout_ShowsTheLastColumnHeader()
+    {
+        LastSessions.Set(new StrengthExercise(6, [new StrengthSet(8, 60m, null, null)]));
+        var cut = RenderPage();
+
+        Add(cut, 6);
+
+        Assert.That(cut.FindAll(".set-header span").Select(h => h.TextContent), Does.Contain("Last"));
+    }
+
+    [Test]
+    public void Pick_WithAnEarlierWorkout_CopiesNothingIntoTheSet()
+    {
+        LastSessions.Set(new StrengthExercise(6, [new StrengthSet(8, 60m, null, null)]));
+        var cut = RenderPage();
+
+        Add(cut, 6);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.Find("[data-testid=exercise-1-set-1-weight]").GetAttribute("value") ?? "", Is.Empty);
+            Assert.That(cut.Find("[data-testid=exercise-1-set-1-reps]").GetAttribute("value") ?? "", Is.Empty);
+        });
+    }
+
+    [Test]
+    public void Pick_Cardio_ShowsLastTimesEntryAboveTheFields()
+    {
+        var entry = new CardioEntry(new TimeSpan(0, 20, 0), 3m, null, null, 1.5m, 190, null);
+        LastSessions.Set(new CardioExercise(300, entry), new CardioBest(3m, entry.Duration, WorkedOut.Pace(entry.Duration, entry.Distance), WorkedOut.Speed(entry.Duration, entry.Distance), null, 190));
+        var cut = RenderPage();
+
+        Add(cut, 300);
+
+        Assert.That(cut.Find("[data-testid=exercise-1-last]").TextContent, Is.EqualTo("Last time 3km · 20:00 · 9 km/h · 190 calories · 1.5%"));
+    }
+
+    [Test]
+    public void Pick_CardioFirstTime_ShowsNoLine()
+    {
+        var cut = RenderPage();
+
+        Add(cut, 300);
+
+        Assert.That(cut.FindAll("[data-testid=exercise-1-last]"), Is.Empty);
+    }
+
+    [TestCase(20, 90, "Last time 20kg · 1:30")]
+    [TestCase(0, 90, "Last time 1:30")]
+    public void Pick_Hold_ShowsTheWeightOnlyWhenOneWasLogged(int kg, int seconds, string expected)
+    {
+        LastSessions.Set(new StrengthExercise(258, [new StrengthSet(null, kg, TimeSpan.FromSeconds(seconds), null)]));
+        var cut = RenderPage();
+
+        Add(cut, 258);
+
+        Assert.That(cut.Find("[data-testid=exercise-1-set-1-last]").TextContent, Is.EqualTo(expected));
+    }
+
+    [Test]
+    public void Pick_LoadFails_ShowsNoLastValuesAndLoggingStillWorks()
+    {
+        LastSessions.Failing = true;
+        var cut = RenderPage();
+
+        Add(cut, 6);
+        cut.Find("[data-testid=exercise-1-set-1-weight]").Input("60");
+        cut.Find("[data-testid=exercise-1-set-1-reps]").Input("8");
+        cut.Find("[data-testid=exercise-1-add-set]").Click();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.FindAll("[data-testid$=-last]"), Is.Empty);
+            Assert.That(cut.Find("[data-testid=exercise-1-set-1-reps]").GetAttribute("value"), Is.EqualTo("8"));
+            Assert.That(cut.FindAll("[data-testid=exercise-1-set-2-reps]"), Has.Count.EqualTo(1));
+        });
+    }
+
+    [Test]
+    public void PickAgain_DoesNotReloadLastTime()
+    {
+        var cut = RenderPage();
+        Add(cut, 6);
+
+        Add(cut, 6);
+
+        Assert.That(LastSessions.Requests.Select(r => r.ExerciseId), Is.EqualTo(new[] { 6 }));
+    }
+
+    [Test]
+    public void PickAgain_AfterRemoving_LoadsLastTimeAgain()
+    {
+        var cut = RenderPage();
+        Add(cut, 6);
+        Remove(cut, 1);
+
+        Add(cut, 6);
+
+        Assert.That(LastSessions.Requests.Select(r => r.ExerciseId), Is.EqualTo(new[] { 6, 6 }));
+    }
+
+    [Test]
     public async Task LoadFinishingAfterRemove_ShowsNothing()
     {
         var weights = UseWeights();
@@ -1177,6 +1339,21 @@ public class NewWorkoutPageTests : ComponentTestBase
     /// <summary>The element's reference id. bUnit drops it from the markup once the element re-renders, so read it first.</summary>
     private static string? ReferenceId(IRenderedComponent<NewWorkoutPage> cut, string testId) =>
         cut.Find($"[data-testid={testId}]").GetAttribute("blazor:elementreference");
+
+    /// <summary>Fills each set of the squat and adds a set until it has <paramref name="count"/>.</summary>
+    private static void AddSets(IRenderedComponent<NewWorkoutPage> cut, int number, int count)
+    {
+        for (var set = 1; set < count; set++)
+        {
+            cut.Find($"[data-testid=exercise-{number}-set-{set}-weight]").Input("50");
+            cut.Find($"[data-testid=exercise-{number}-set-{set}-reps]").Input("5");
+            cut.Find($"[data-testid=exercise-{number}-add-set]").Click();
+        }
+    }
+
+    /// <summary>The Last time text of the first <paramref name="sets"/> sets of exercise <paramref name="number"/>.</summary>
+    private static List<string> Lasts(IRenderedComponent<NewWorkoutPage> cut, int number, int sets) =>
+        [.. Enumerable.Range(1, sets).Select(set => cut.Find($"[data-testid=exercise-{number}-set-{set}-last]").TextContent)];
 
     private static string Subtitle(IRenderedComponent<NewWorkoutPage> cut) => cut.Find("[data-testid=screen-subtitle]").TextContent;
 

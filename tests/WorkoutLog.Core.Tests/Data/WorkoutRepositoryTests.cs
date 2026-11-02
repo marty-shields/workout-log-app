@@ -396,6 +396,89 @@ public class WorkoutRepositoryTests
     }
 
     [Test]
+    public async Task GetLastSessionOfAsync_NoWorkoutWithTheExercise_ReturnsNull()
+    {
+        await repository.AddAsync(new NewWorkout(Start, Finish, [new StrengthExercise(3, [new StrengthSet(8, 20m, null, null)])]));
+
+        Assert.That(await repository.GetLastSessionOfAsync(2, null), Is.Null);
+    }
+
+    [Test]
+    public async Task GetLastSessionOfAsync_ManyWorkouts_ReturnsTheLatestStartNotTheLatestId()
+    {
+        await repository.AddAsync(new NewWorkout(Start, Finish, [new StrengthExercise(2, [new StrengthSet(5, 60m, null, null), new StrengthSet(3, 62.5m, null, null)])]));
+        await repository.AddAsync(new NewWorkout(Start.AddDays(-1), Finish.AddDays(-1), [new StrengthExercise(2, [new StrengthSet(5, 90m, null, null)])]));
+
+        Assert.That(await repository.GetLastSessionOfAsync(2, null), Is.EqualTo(new LastSession(2, Start,
+            new StrengthExercise(2, [new StrengthSet(5, 60m, null, null), new StrengthSet(3, 62.5m, null, null)]))).UsingPropertiesComparer());
+    }
+
+    [Test]
+    public async Task GetLastSessionOfAsync_ReturnsTheSetsInOrderWithEachMetric()
+    {
+        var sets = new[]
+        {
+            new StrengthSet(null, 20m, TimeSpan.FromSeconds(90), null),
+            new StrengthSet(null, 32m, TimeSpan.FromSeconds(45), 40m),
+            new StrengthSet(8, 0m, null, null),
+        };
+        await repository.AddAsync(new NewWorkout(Start, Finish, [new StrengthExercise(2, sets)]));
+
+        Assert.That(((StrengthExercise)(await repository.GetLastSessionOfAsync(2, null))!.Exercise).Sets, Is.EqualTo(sets));
+    }
+
+    [Test]
+    public async Task GetLastSessionOfAsync_OnlyAnotherExercisesLaterWorkout_IgnoresIt()
+    {
+        await repository.AddAsync(new NewWorkout(Start, Finish, [new StrengthExercise(2, [new StrengthSet(5, 60m, null, null)])]));
+        await repository.AddAsync(new NewWorkout(Start.AddDays(3), Finish.AddDays(3), [new StrengthExercise(3, [new StrengthSet(8, 20m, null, null)])]));
+
+        Assert.That((await repository.GetLastSessionOfAsync(2, null))!.StartedAt, Is.EqualTo(Start));
+    }
+
+    [Test]
+    public async Task GetLastSessionOfAsync_Cardio_ReturnsTheEntry()
+    {
+        await repository.AddAsync(new NewWorkout(Start, Finish, [new CardioExercise(300, Entry())]));
+
+        Assert.That(await repository.GetLastSessionOfAsync(300, null),
+            Is.EqualTo(new LastSession(300, Start, new CardioExercise(300, Entry()))).UsingPropertiesComparer());
+    }
+
+    [Test]
+    public async Task GetLastSessionOfAsync_Before_ReturnsTheLatestThatStartedEarlierExcludingThatWorkout()
+    {
+        await repository.AddAsync(new NewWorkout(Start.AddDays(-2), Finish.AddDays(-2), [new StrengthExercise(2, [new StrengthSet(5, 50m, null, null)])]));
+        await repository.AddAsync(new NewWorkout(Start.AddDays(-1), Finish.AddDays(-1), [new StrengthExercise(2, [new StrengthSet(5, 55m, null, null)])]));
+        await repository.AddAsync(new NewWorkout(Start, Finish, [new StrengthExercise(2, [new StrengthSet(5, 60m, null, null)])]));
+        await repository.AddAsync(new NewWorkout(Start.AddDays(1), Finish.AddDays(1), [new StrengthExercise(2, [new StrengthSet(5, 65m, null, null)])]));
+
+        var last = await repository.GetLastSessionOfAsync(2, Start);
+
+        Assert.That(((StrengthExercise)last!.Exercise).Sets.Single().WeightKg, Is.EqualTo(55m));
+    }
+
+    [Test]
+    public async Task GetLastSessionOfAsync_BeforeTheOldestWorkout_ReturnsNull()
+    {
+        await repository.AddAsync(new NewWorkout(Start, Finish, [new StrengthExercise(2, [new StrengthSet(5, 60m, null, null)])]));
+
+        Assert.That(await repository.GetLastSessionOfAsync(2, Start), Is.Null);
+    }
+
+    [Test]
+    public async Task GetLastSessionOfAsync_BeforeInAnotherOffset_ComparesTheInstant()
+    {
+        await repository.AddAsync(new NewWorkout(Start, Finish, [new StrengthExercise(2, [new StrengthSet(5, 60m, null, null)])]));
+
+        Assert.Multiple(async () =>
+        {
+            Assert.That(await repository.GetLastSessionOfAsync(2, Start.ToOffset(TimeSpan.FromHours(5))), Is.Null);
+            Assert.That(await repository.GetLastSessionOfAsync(2, Start.AddTicks(1).ToOffset(TimeSpan.FromHours(-3))), Is.Not.Null);
+        });
+    }
+
+    [Test]
     public async Task GetSetCountsAsync_ReturnsEachExercisesSetsPerWorkoutLeavingOutCardio()
     {
         var first = await repository.AddAsync(new NewWorkout(Start, Finish,

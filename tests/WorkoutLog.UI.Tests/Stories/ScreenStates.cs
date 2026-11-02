@@ -65,6 +65,7 @@ public static class ScreenStates
         new("Screens/Edit Workout", "Strength", c => Workout(c, WorkoutMode.Edit, SampleData.Opened(SampleData.StrengthWorkout(Catalog(c))))),
         new("Screens/Edit Workout", "Carry", c => Workout(c, WorkoutMode.Edit, SampleData.Opened(SampleData.CarryWorkout(Catalog(c))))),
         new("Screens/Edit Workout", "Cardio", c => Workout(c, WorkoutMode.Edit, SampleData.Opened(SampleData.CardioWorkout(Catalog(c))))),
+        new("Screens/Edit Workout", "Last time", c => Workout(c, WorkoutMode.Edit, SampleData.MarkDone(SampleData.LastTimeWorkout(Catalog(c)), 1, 2, 3, 4, 6))),
         new("Screens/Edit Workout", "Save errors", c => Workout(c, WorkoutMode.Edit, SampleData.EditWorkoutWithErrors(Catalog(c), WorkoutChecker(c)))),
         new("Screens/Edit Workout", "Save failed", c => Workout(c, WorkoutMode.Edit, SampleData.Opened(SampleData.StrengthWorkout(Catalog(c))), error: WorkoutChecker(c).SaveFailed)),
         new("Screens/Edit Workout", "Delete exercise prompt", c => Workout(c, WorkoutMode.Edit, SampleData.Loaded(SampleData.StrengthWorkout(Catalog(c))), dialog: ("Delete Farmer's Walk?", "Delete"))),

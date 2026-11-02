@@ -25,6 +25,7 @@ public class UiServiceCollectionExtensionsTests
             (typeof(IAppLifecycle), (Type?)null, ServiceLifetime.Singleton),
             (typeof(ISetChecker), typeof(SetChecker), ServiceLifetime.Singleton),
             (typeof(IWorkoutChecker), typeof(WorkoutChecker), ServiceLifetime.Singleton),
+            (typeof(LastTimeLoader), typeof(LastTimeLoader), ServiceLifetime.Singleton),
             (typeof(WorkoutEditor), typeof(WorkoutEditor), ServiceLifetime.Transient),
         }));
     }
