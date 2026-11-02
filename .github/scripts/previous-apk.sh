@@ -4,7 +4,7 @@
 # and prints the tag. The tag's files are built with this commit's global.json, so the SDK CI installs builds them. Build
 # this commit's APK on the same machine: one APK installs over another only when the same debug key signs both.
 set -euo pipefail
-out="$1"
+out=$(realpath -m -- "$1")
 cd "$(git rev-parse --show-toplevel)"
 
 tag=$(git describe --tags --abbrev=0 --match 'v[0-9]*' HEAD 2> /dev/null) || {

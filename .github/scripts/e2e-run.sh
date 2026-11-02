@@ -11,6 +11,9 @@ tries="$2"
 
 source "$(dirname "$0")/e2e-trx.sh"
 
+if [[ -n "${E2E_APP_APK:-}" ]]; then E2E_APP_APK=$(realpath -m -- "$E2E_APP_APK"); fi
+if [[ -n "${E2E_PREVIOUS_APK:-}" ]]; then E2E_PREVIOUS_APK=$(realpath -m -- "$E2E_PREVIOUS_APK"); fi
+
 settings=(DeviceUdid=emulator-5554 "ChromedriverExecutable=$CHROMEDRIVER")
 if [[ -n "${E2E_APP_PACKAGE:-}" ]]; then settings+=("AppPackage=$E2E_APP_PACKAGE"); fi
 if [[ -n "${E2E_APP_APK:-}" ]]; then settings+=("AppApk=$E2E_APP_APK"); fi
