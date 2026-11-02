@@ -23,8 +23,7 @@ grep -q "^package: name='uk.martinshields.workoutlog' versionCode='$code' versio
   || fail "Package, version code or version doesn't match: $(head -n 1 <<<"$badging")"
 ! grep -q "application-debuggable" <<<"$badging" || fail "The APK is debuggable."
 
-abis=$(unzip -Z1 "$apk" | sed -n 's|^lib/\([^/]*\)/.*|\1|p' | sort -u | paste -sd ' ')
-[[ "$abis" == "arm64-v8a" ]] || fail "The APK must hold arm64-v8a only; it has: $abis"
+"$(dirname "$0")/check-abi.sh" "$apk"
 
 mkdir -p "$out"
 cp "$apk" "$out/WorkoutLog-$version.apk"
@@ -33,4 +32,4 @@ fingerprint=$(sed 's/../&:/g; s/:$//' <<<"$digests" | tr 'a-f' 'A-F')
 # shellcheck disable=SC2016 # the backticks are Markdown, not a command substitution
 printf 'Signing certificate SHA-256: `%s`\n\nCheck an APK before installing: `apksigner verify --print-certs <apk>` must show this digest ([Install](https://github.com/%s#install)).\n' \
   "$fingerprint" "$GITHUB_REPOSITORY" > "$out/notes.md"
-echo "Checked: $(head -n 1 <<<"$badging"); ABIs $abis; cert $fingerprint"
+echo "Checked: $(head -n 1 <<<"$badging"); arm64-v8a only; cert $fingerprint"
