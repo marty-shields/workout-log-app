@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# shellcheck disable=SC2016 # the backticks in the sample Markdown are not command substitutions
 set -uo pipefail
 here="$(cd "$(dirname "$0")" && pwd)"
 source "$here/lib.sh"
@@ -8,7 +9,7 @@ work=$(mktemp -d)
 trap 'rm -rf "$work"' EXIT
 
 repo() {
-  rm -rf "$work/$1" && mkdir -p "$work/$1/docs/images/readme" && cd "$work/$1" || exit 1
+  rm -rf "${work:?}/$1" && mkdir -p "$work/$1/docs/images/readme" && cd "$work/$1" || exit 1
   git init -q
   printf '%s\n' "$2" > README.md
   printf '# Guide\n\n## Setup & run\n\n## Setup & run\n\n### `Code` heading\n\n```\n[not a link](missing.md)\n```\n' > docs/guide.md
