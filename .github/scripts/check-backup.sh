@@ -4,7 +4,7 @@
 # expected rules file, and that file says what it should: backup_rules includes only the database, no_backup includes nothing.
 set -euo pipefail
 apk="$1"; expected="$2"; rules="$3"
-tools=$(ls -d "$ANDROID_HOME"/build-tools/* | sort -V | tail -n 1)
+tools=$(printf '%s\n' "$ANDROID_HOME"/build-tools/* | sort -V | tail -n 1)
 name=$(basename "$apk")
 
 fail() { echo "::error title=Backup check::$1"; exit 1; }

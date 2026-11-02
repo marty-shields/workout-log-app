@@ -10,6 +10,7 @@
 set -euo pipefail
 previous=$(realpath -- "$1")
 tries="$2"
+# shellcheck disable=SC2153 # RESULTS is the caller's input, not a typo of results
 results=$(realpath -m -- "$RESULTS")
 scripts=$(realpath -- "$(dirname "$0")")
 cd "$(git rev-parse --show-toplevel)"

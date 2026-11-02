@@ -22,9 +22,13 @@ jobs:
         with:
           persist-credentials: false
 
-      # next-version.sh, e2e-shard-plan.sh, e2e-trx.sh, upgrade-seed-ref.sh and check-filler-comments.py against stubs, sample files and throwaway repos.
+      # next-version.sh, e2e-shard-plan.sh, e2e-trx.sh, upgrade-seed-ref.sh, check-filler-comments.py and coverage-summary.py against stubs, sample files and throwaway repos.
       - name: Test the CI scripts
         run: .github/scripts/tests/run.sh
+
+      # shellcheck over .github/scripts and the pinned, SHA-256-checked actionlint over the workflows (and their run steps).
+      - name: Lint the CI scripts and workflows
+        run: .github/scripts/lint-ci.sh
 
       # Fails on an E2E step with no step definition or more than one.
       - name: Check the E2E step bindings
@@ -53,11 +57,12 @@ jobs:
         if: ${{ !cancelled() && steps.build.outcome == 'success' }}
         run: dotnet test tests/WorkoutLog.UI.Tests --no-build --logger GitHubActions --blame-hang-timeout 5m --collect "Code Coverage;Format=cobertura" --results-directory "$RUNNER_TEMP/coverage/ui" -- RunConfiguration.CollectSourceInformation=true
 
-      # Line and branch coverage of Core (from the Core tests) and UI (from the UI tests) in the job summary; no gate yet. The Cobertura XML is the coverage artifact.
+      # Line and branch coverage of Core (from the Core tests) and UI (from the UI tests) in the job summary. Fails when either line coverage is more than 1 point
+      # below .github/coverage-baseline.tsv. The Cobertura XML is the coverage artifact.
       - name: Coverage summary
         if: ${{ !cancelled() && steps.build.outcome == 'success' }}
         run: |
-          python3 -I .github/scripts/coverage-summary.py \
+          python3 -I .github/scripts/coverage-summary.py --baseline .github/coverage-baseline.tsv \
             WorkoutLog.Core="$(find "$RUNNER_TEMP/coverage/core" -name '*.cobertura.xml')" \
             WorkoutLog.UI="$(find "$RUNNER_TEMP/coverage/ui" -name '*.cobertura.xml')" >> "$GITHUB_STEP_SUMMARY"
 
