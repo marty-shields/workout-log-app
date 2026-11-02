@@ -12,8 +12,8 @@ One exercise in a workout: name, Done, Remove, and its sets (strength) or entry 
 - Cardio: one entry with every field labelled. Pace (Outdoor Run, Walk) or speed (Treadmill, Outdoor Cycle) shows as a muted line under the fields, worked out from distance and duration: *Pace 5:46/km*, *Speed 10.4 km/h*, or a — until both are filled and more than 0.
 - With `BestKg` set, a muted line under the name: *Last 62.5kg · PB 70kg*, — for no `LastKg`. Not tappable.
 - With `LastNote` set, a `LastNote` line directly under that line, or under the name when `BestKg` is not set. Strength and cardio.
-- Add note: a link (`AppButton` Link) while there is no note. Strength: beside Add set, which shrinks to fill the rest of the row. Cardio: alone under the entry, left-aligned. Tapping it opens the note text box at the bottom of the card; leaving the text box with a note shows it as one line (`NoteField`), with no Add note. A cleared note shows Add note again.
-- A done card shows neither note nor Add note. They show again when the card is opened, with the text as left.
+- The note button is an `IconButton` (Note) named "Add note", or "Edit note" once there is a note. It is `Muted` with no note, and `Active` (filled round) with one. Strength and carry: at the right of the Add set row, so Add set keeps its width with and without a note. Cardio: on the card footer, right-aligned, on the same line as the muted Speed or Pace text when there is one. It is never in the card header. Tapping it opens the note text box at the bottom of the card. Leaving the text box with a note shows it as one plain line (`NoteField`); a cleared note shows nothing.
+- A done card shows neither note nor the note button. They show again when the card is opened, with the text as left.
 - `Note` is raised through `OnChanged`. `NoteError` shows in the note field, not as the card error; the card's red outline is for `Error`.
 - `FocusFirstErrorAsync` ends at the note field when only `NoteError` is set.
 - At 10 sets Add set is off, with a muted note "At most 10 sets" under it.
