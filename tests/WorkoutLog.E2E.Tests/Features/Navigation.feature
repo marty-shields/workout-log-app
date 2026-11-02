@@ -1,4 +1,3 @@
-@US-28
 Feature: Back navigation
   Android back does what the on-screen back or Cancel does.
 

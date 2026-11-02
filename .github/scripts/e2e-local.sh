@@ -2,15 +2,16 @@
 # Usage: e2e-local.sh <dotnet test filter> [tries]
 # Boots the CI emulator (emulator-start.sh's image and flags), builds the App and the tests, runs the E2E tests in the
 # filter through e2e-run.sh, then stops the emulator, whatever the result. For an agent or a developer in a worktree.
-#   e2e-local.sh "Category=US-17"
-#   e2e-local.sh "FullyQualifiedName~EditWorkoutFeature" 2
+#   e2e-local.sh "Category=smoke"
+#   e2e-local.sh "FullyQualifiedName~.EditAWorkoutFeature." 2
 # Exit: 0 passed, 1 failed, 2 skipped (this machine can't host the emulator, or stayed too busy), 64 bad usage.
 # Skips at once when a prerequisite is missing. Otherwise waits for the emulator slot and for free CPU, memory and disk,
 # and skips after MAX_WAIT_SECONDS (default 3600) in all. One emulator runs per machine: runs from other worktrees queue
 # on a lock. A run takes a boot, a build and the tests (10+ minutes) plus any wait: run it in the background.
 # Output: tests/WorkoutLog.E2E.Tests/TestResults/E2E-emulator/ (results, logcat, emulator log) and, for a failed
 # scenario's screen, page source and Appium log, TestResults/E2E/<yyyyMMdd-HHmmss>/. E2E_TRIES is the total number of
-# tries (1 = no retry) when none is passed.
+# tries (1 = no retry) when none is passed. With E2E_PREVIOUS_APK set the filter must be Category=upgrade, and
+# upgrade-e2e.sh runs the upgrade check.
 set -euo pipefail
 
 usage() {
@@ -21,6 +22,10 @@ script=$(readlink -f "$0")
 filter="${1:-}"
 tries="${2:-${E2E_TRIES:-1}}"
 [[ -n "$filter" && "$tries" =~ ^[1-9][0-9]*$ ]] || usage
+if [[ -n "${E2E_PREVIOUS_APK:-}" && "$filter" != "Category=upgrade" ]]; then
+  echo "With E2E_PREVIOUS_APK set the filter is Category=upgrade: upgrade-e2e.sh runs the upgrade check's two halves." >&2
+  exit 64
+fi
 cd "$(git rev-parse --show-toplevel)"
 
 AVD="${AVD:-WorkoutLog_Local_API36}"
@@ -127,7 +132,7 @@ mkdir -p "$ANDROID_AVD_HOME"
 node -e 'const [a, b] = process.versions.node.split(".").map(Number); process.exit(a >= 24 || (a === 22 && b >= 12) || (a === 20 && b >= 19) ? 0 : 1)' \
   || skip "Node.js $(node -v) is too old: Appium needs 20.19+, 22.12+ or 24+."
 dotnet --version > /dev/null 2>&1 || skip "the .NET SDK in global.json is not installed (using $(command -v dotnet))."
-workload_pin=$(sed -n 's/.*maui-android --version \([0-9.]*\).*/\1/p' .github/workflows/dev-pipeline.yml | head -n 1)
+workload_pin=$(sed -n 's/.*maui-android --version \([0-9.]*\).*/\1/p' .github/actions/setup-maui/action.yml)
 workload=$(dotnet workload --version 2>/dev/null || true)
 [[ "$workload" == "$workload_pin" ]] \
   || skip "the maui-android workload set is '${workload:-none}', CI uses $workload_pin: dotnet workload install maui-android --version $workload_pin."
@@ -218,29 +223,21 @@ e2e=tests/WorkoutLog.E2E.Tests
 if [[ ! -d $e2e/node_modules || $e2e/package-lock.json -nt $e2e/node_modules/.package-lock.json ]]; then
   run npm ci --ignore-scripts --prefix "$e2e"
 fi
-run dotnet build src/WorkoutLog.App -f net10.0-android
+# A given APK needs no Debug build.
+if [[ -z "${E2E_APP_APK:-}" ]]; then
+  run dotnet build src/WorkoutLog.App -f net10.0-android
+fi
 run dotnet build "$e2e"
 
 run .github/scripts/emulator-wait.sh "$results" || exit 1
 
 # The Chromedriver for the image's WebView, pinned in qa-pipeline.yml and cached.
-pin() { sed -n "s/^ *$1: *//p" .github/workflows/qa-pipeline.yml; }
-cd_version=$(pin CHROMEDRIVER_VERSION)
-cd_sha=$(pin CHROMEDRIVER_SHA256)
-webview=$(adb shell dumpsys webviewupdate 9>&- | sed -n 's/.*Current WebView package (name, version): ([^,]*, \([0-9.]*\)).*/\1/p')
-if [[ "${webview%%.*}" != "${cd_version%%.*}" ]]; then
-  echo "Chromedriver: WebView $webview, pinned Chromedriver $cd_version: update the pin in qa-pipeline.yml (docs/dev-setup-build.md)." >&2
-  exit 1
-fi
-cache="${XDG_CACHE_HOME:-$HOME/.cache}/workoutlog-e2e/chromedriver-$cd_version"
-if [[ ! -x "$cache/chromedriver-linux64/chromedriver" ]]; then
-  mkdir -p "$cache"
-  run curl -fsSL -o "$cache/chromedriver.zip" \
-    "https://storage.googleapis.com/chrome-for-testing-public/$cd_version/linux64/chromedriver-linux64.zip"
-  echo "$cd_sha  $cache/chromedriver.zip" | sha256sum -c -
-  unzip -q -o -d "$cache" "$cache/chromedriver.zip"
-fi
+CHROMEDRIVER=$(.github/scripts/chromedriver.sh "${XDG_CACHE_HOME:-$HOME/.cache}/workoutlog-e2e" 9>&-) || exit 1
 
 export RESULTS="$results"
-export CHROMEDRIVER="$cache/chromedriver-linux64/chromedriver"
-run .github/scripts/e2e-run.sh "$filter" "$tries" || exit 1
+export CHROMEDRIVER
+if [[ -n "${E2E_PREVIOUS_APK:-}" ]]; then
+  run .github/scripts/upgrade-e2e.sh "$E2E_PREVIOUS_APK" "$tries" || exit 1
+else
+  run .github/scripts/e2e-run.sh "$filter" "$tries" || exit 1
+fi

@@ -1,8 +1,7 @@
-@US-10
 Feature: New workout
   Opening New Workout starts the workout and its timer.
 
-  @smoke @today
+  @smoke @release @today
   Scenario: A new workout shows today's date and a running timer
     When I start a new workout
     Then the title is today's date and day

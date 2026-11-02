@@ -5,9 +5,10 @@ using WorkoutLog.E2E.Tests.Steps;
 namespace WorkoutLog.E2E.Tests.Hooks;
 
 /// <summary>
-/// Before each scenario: fails if the device is locked and clears the Debug app's data, so each scenario starts as a fresh
-/// install. <c>@today</c> scenarios first fail if local midnight is close. Before the first step, launches the app and
-/// switches to its WebView, unless that step launches it itself (it may seed workouts first).
+/// Before each scenario: fails if the device is locked and clears the app's data, so each scenario starts as a fresh
+/// install. An <c>@upgrade</c> scenario keeps the data instead: it starts from the workouts the last release saved.
+/// <c>@today</c> scenarios first fail if local midnight is close. Before the first step, launches the app and switches to
+/// its WebView, unless that step launches it itself (it may seed workouts first).
 /// A failed scenario saves its files to <c>&lt;run&gt;/&lt;nn&gt;-&lt;scenario&gt;/</c> and attaches them.
 /// </summary>
 [Binding]
@@ -16,9 +17,12 @@ public sealed class AppHooks(ScenarioContext scenario, DeviceClock clock, Native
     /// <summary>A <c>@today</c> scenario doesn't start this close to local midnight.</summary>
     private static readonly TimeSpan MidnightMargin = TimeSpan.FromMinutes(5);
 
-    /// <summary>Steps that launch the app themselves: they may seed workouts first.</summary>
+    /// <summary>Steps that launch the app themselves: they may seed workouts or install another build first.</summary>
     private static readonly string[] LaunchingSteps =
-        [nameof(SeedSteps.GivenTheseSavedWorkouts), nameof(SeedSteps.GivenWorkoutsOnDifferentDays), nameof(AppSteps.GivenIAmOn)];
+    [
+        nameof(SeedSteps.GivenTheseSavedWorkouts), nameof(SeedSteps.GivenWorkoutsOnDifferentDays), nameof(AppSteps.GivenIAmOn),
+        nameof(InstallSteps.GivenTheLastReleaseIsInstalledWithItsWorkouts),
+    ];
 
     private static int scenarioCount;
 
@@ -46,7 +50,10 @@ public sealed class AppHooks(ScenarioContext scenario, DeviceClock clock, Native
             RequireAwayFromMidnight(clock.LocalNow());
         }
 
-        app.ExecuteScript("mobile: clearApp", new Dictionary<string, object> { ["appId"] = AppiumSetup.Package });
+        if (!scenario.ScenarioInfo.CombinedTags.Contains("upgrade"))
+        {
+            app.ExecuteScript("mobile: clearApp", new Dictionary<string, object> { ["appId"] = AppiumSetup.App.Package });
+        }
     }
 
     [BeforeStep]
@@ -75,7 +82,7 @@ public sealed class AppHooks(ScenarioContext scenario, DeviceClock clock, Native
             app.Context = Native.NativeApp;
             app.GetScreenshot().SaveAsFile(path);
         });
-        Save("workoutlog.log", path => File.WriteAllBytes(path, app.PullFile(AppLog.DevicePath)));
+        Save("workoutlog.log", path => File.WriteAllBytes(path, app.PullFile(AppiumSetup.App.LogPath)));
     }
 
     private static void RequireAwayFromMidnight(DateTime now)

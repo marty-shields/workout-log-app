@@ -79,14 +79,14 @@ public sealed class WorkoutSeeder(Native native)
     private static void Install(string path)
     {
         var adb = AppiumSetup.Adb;
-        AppiumSetup.Driver.TerminateApp(AppiumSetup.Package);
+        AppiumSetup.Driver.TerminateApp(AppiumSetup.App.Package);
         adb.Run("push", path, DeviceTemp);
         try
         {
             adb.Shell("chmod", "644", DeviceTemp);
-            adb.Shell("run-as", AppiumSetup.Package, "mkdir", "-p", "files");
-            adb.Shell("run-as", AppiumSetup.Package, "rm", "-f", $"{AppDatabase}-journal", $"{AppDatabase}-wal", $"{AppDatabase}-shm");
-            adb.Shell("run-as", AppiumSetup.Package, "cp", DeviceTemp, AppDatabase);
+            adb.Shell("run-as", AppiumSetup.App.Package, "mkdir", "-p", "files");
+            adb.Shell("run-as", AppiumSetup.App.Package, "rm", "-f", $"{AppDatabase}-journal", $"{AppDatabase}-wal", $"{AppDatabase}-shm");
+            adb.Shell("run-as", AppiumSetup.App.Package, "cp", DeviceTemp, AppDatabase);
         }
         finally
         {

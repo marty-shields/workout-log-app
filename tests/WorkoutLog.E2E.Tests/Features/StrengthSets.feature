@@ -1,4 +1,3 @@
-@US-12
 Feature: Strength sets
   A strength exercise shows only its own fields, and Add set waits for a valid set.
 
@@ -14,7 +13,7 @@ Feature: Strength sets
       | Plank                    | Duration, Weight (kg)               |
       | Farmer's Walk            | Distance (m), Weight (kg), Duration |
 
-  @smoke
+  @smoke @release
   Scenario: Add set after a valid set adds the next set below it
     Given I have added "Barbell Back Squat"
     And I have logged Barbell Back Squat set 1: 8 reps, 60 kg
@@ -39,20 +38,13 @@ Feature: Strength sets
       | Enter reps                             |
     And focus is on Barbell Back Squat set 1 weight
 
-  Scenario Outline: Strength values are checked
-    Given I have added "<exercise>"
-    And I have logged <exercise> set 1: <valid>
-    When I enter "<value>" in <exercise> set 1 <field>
-    And I tap Add set on <exercise>
-    Then <exercise> set 1 shows "<message>"
-    And <exercise> has 1 set
-    Examples:
-      | exercise                 | valid   | field    | value   | message                                    |
-      | Barbell Back Squat       | 8 reps  | reps     | 8.5     | Reps must be a whole number                |
-      | Barbell Back Squat       | 8 reps  | weight   | 22,75   | Weight must be a number                    |
-      | Machine Assisted Pull-up | 8 reps  | weight   | 1001    | Assist must be 1,000 or less               |
-      | Plank                    | 0:01:00 | duration | 0:75:00 | Duration minutes and seconds must be 00–59 |
-      | Farmer's Walk            | 40 m    | distance | 0       | Distance must be more than 0               |
+  Scenario: Strength values are checked
+    Given I have added "Barbell Back Squat"
+    And I have logged Barbell Back Squat set 1: 8 reps
+    When I enter "22,75" in Barbell Back Squat set 1 weight
+    And I tap Add set on Barbell Back Squat
+    Then Barbell Back Squat set 1 shows "Weight must be a number"
+    And Barbell Back Squat has 1 set
 
   Scenario: An accepted value lets me add the next set
     Given I have added "Barbell Back Squat"
@@ -83,7 +75,6 @@ Feature: Strength sets
     When I remove Barbell Back Squat set 2
     Then Barbell Back Squat sets are: 5 reps 60 kg; 5 reps 65 kg
 
-  @US-11
   Scenario: Remove exercise asks first, then removes it
     Given I have added "Barbell Back Squat"
     And I have added "Dumbbell Curl"

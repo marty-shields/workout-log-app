@@ -1,4 +1,3 @@
-@US-13
 Feature: Cardio entry
   A cardio exercise has one entry: duration plus the machine's own fields.
 
@@ -15,7 +14,7 @@ Feature: Cardio entry
       | Stair Climber  | Duration, Floors, Speed level, Calories, Rate (steps/min)                      |
       | Outdoor Run    | Duration, Distance (km), Calories                                              |
 
-  @smoke
+  @smoke @release
   Scenario: Stair Climber saves with duration only
     Given I have added "Stair Climber"
     When I log Stair Climber: 0:15:00
@@ -32,19 +31,13 @@ Feature: Cardio entry
     When I enter "1001" in Treadmill distance
     Then Treadmill shows no errors
 
-  Scenario Outline: Cardio values are checked on Save
-    Given I have added "<machine>"
-    And I have logged <machine>: <valid>
-    When I enter "<value>" in <machine> <field>
+  Scenario: Cardio values are checked on Save
+    Given I have added "Outdoor Run"
+    And I have logged Outdoor Run: 0:25:30
+    When I enter "0" in Outdoor Run distance
     And I save the workout
-    Then <machine> shows "<message>"
+    Then Outdoor Run shows "Distance must be more than 0"
     And I am still on New Workout
-    Examples:
-      | machine        | valid             | field    | value | message                       |
-      | Rowing Machine | 0:10:00, 2000 m   | level    | 5.5   | Damper must be a whole number |
-      | Rowing Machine | 0:10:00, 2000 m   | calories | abc   | Calories must be a number     |
-      | Outdoor Run    | 0:25:30           | distance | 0     | Distance must be more than 0  |
-      | Stair Climber  | 0:15:00           | floors   | 0     | Floors must be more than 0    |
 
   Scenario: A cardio entry with no distance can't be saved
     Given I have added "Outdoor Run"

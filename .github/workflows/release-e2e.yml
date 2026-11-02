@@ -1,0 +1,143 @@
+# Runs a Release build of this commit (x64, debug key, never published) on emulators (docs/e2e-tests.md). One job builds it;
+# then on one emulator it starts cleanly (release-smoke.sh) and the @release and @backup scenarios run on it, and on another
+# it installs over the last release's Release build in the upgrade check (upgrade-e2e.sh). For the release workflow, and
+# for PRs that change the E2E tests, the export and import code, which trimming is most likely to break, or the database
+# code.
+name: Release E2E
+
+on:
+  workflow_call:
+  pull_request:
+    branches: [main]
+    paths:
+      - tests/WorkoutLog.E2E.Tests/**
+      - src/WorkoutLog.Core/Export/**
+      - src/WorkoutLog.Core/Import/**
+      - src/WorkoutLog.Core/Data/**
+      - .github/workflows/release-e2e.yml
+      - .github/actions/**
+      - src/WorkoutLog.App/**
+      - .github/scripts/e2e-run.sh
+      - .github/scripts/chromedriver.sh
+      - .github/scripts/emulator-start.sh
+      - .github/scripts/emulator-wait.sh
+      - .github/scripts/release-smoke.sh
+      - .github/scripts/previous-apk.sh
+      - .github/scripts/upgrade-e2e.sh
+      - .github/scripts/upgrade-seed-ref.sh
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-e2e-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: ./.github/actions/setup-maui
+
+      - name: Build the Release APK (x64, debug key)
+        run: |
+          dotnet restore src/WorkoutLog.App
+          dotnet publish src/WorkoutLog.App -c Release -f net10.0-android -p:AndroidPackageFormat=apk \
+            -r android-x64 --no-restore -o "$RUNNER_TEMP/release"
+          cp "$HOME/.local/share/Xamarin/Mono for Android/debug.keystore" "$RUNNER_TEMP/release/"
+
+      # The upgrade job signs the last release's build with the same debug key: one APK installs over another only when one
+      # key signs both. This runner made the key for these test builds, and it signs nothing published.
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: release-apk
+          path: |
+            ${{ runner.temp }}/release/uk.martinshields.workoutlog-Signed.apk
+            ${{ runner.temp }}/release/debug.keystore
+          retention-days: 1
+          if-no-files-found: error
+
+  release-e2e:
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 75
+    env:
+      E2E_APP_PACKAGE: uk.martinshields.workoutlog
+      E2E_APP_APK: release-apk/uk.martinshields.workoutlog-Signed.apk
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Start the emulator
+        run: .github/scripts/emulator-start.sh
+
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: release-apk
+          path: release-apk
+
+      - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
+        with:
+          global-json-file: global.json
+
+      - name: Build the E2E tests
+        run: dotnet build tests/WorkoutLog.E2E.Tests
+
+      # Failed scenarios run again, up to 3 tries in all (e2e-run.sh).
+      - uses: ./.github/actions/emulator-e2e
+        with:
+          artifact: release-e2e
+          timeout-minutes: 40
+          run: |
+            .github/scripts/release-smoke.sh "$E2E_APP_APK"
+            .github/scripts/e2e-run.sh "Category=release|Category=backup" 3
+
+  release-upgrade-e2e:
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      E2E_APP_PACKAGE: uk.martinshields.workoutlog
+      E2E_APP_APK: release-apk/uk.martinshields.workoutlog-Signed.apk
+    steps:
+      # The tags, for the last release.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Start the emulator
+        run: .github/scripts/emulator-start.sh
+
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: release-apk
+          path: release-apk
+
+      # Where the Android build looks for its debug keystore, so the last release's build gets the build job's key.
+      - name: Use the build job's debug key
+        run: install -D -m 600 release-apk/debug.keystore "$HOME/.local/share/Xamarin/Mono for Android/debug.keystore"
+
+      - uses: ./.github/actions/setup-maui
+
+      - name: Build the last release's Release APK
+        run: |
+          tag=$(.github/scripts/previous-apk.sh "$RUNNER_TEMP/previous.apk" Release)
+          echo "::notice title=Upgrade::Upgrading the Release build from $tag."
+          echo "E2E_PREVIOUS_APK=$RUNNER_TEMP/previous.apk" >> "$GITHUB_ENV"
+
+      - name: Build the E2E tests
+        run: dotnet build tests/WorkoutLog.E2E.Tests
+
+      # A failed try starts again from an uninstalled app, up to 3 tries in all.
+      - uses: ./.github/actions/emulator-e2e
+        with:
+          artifact: release-upgrade-e2e
+          timeout-minutes: 30
+          run: .github/scripts/upgrade-e2e.sh "$E2E_PREVIOUS_APK" 3

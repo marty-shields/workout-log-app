@@ -1,4 +1,3 @@
-@US-15
 Feature: Discard a new workout
   Back asks before dropping a workout I haven't saved.
 
@@ -7,7 +6,6 @@ Feature: Discard a new workout
     And I have added "Barbell Back Squat"
     And I have logged Barbell Back Squat set 1: 5 reps
 
-  @US-28
   Scenario Outline: Back asks "Discard this workout?"
     When I go back with <how>
     Then the prompt "Discard this workout?" shows Discard and Cancel
@@ -23,7 +21,7 @@ Feature: Discard a new workout
     Then I am still on New Workout
     And Barbell Back Squat set 1 still shows 5 reps
 
-  @smoke
+  @smoke @release
   Scenario: Discard drops the workout
     Given I have gone back with Android back
     When I tap Discard
@@ -31,7 +29,6 @@ Feature: Discard a new workout
     And the last workout shows "No workouts yet"
     And Workouts is empty
 
-  @US-28
   Scenario: Android back on the prompt cancels it
     Given I have gone back with the back arrow
     When I press Android back

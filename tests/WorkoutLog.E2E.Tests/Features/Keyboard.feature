@@ -4,7 +4,6 @@ Feature: Keyboard
   Background:
     Given I have started a new workout
 
-  @US-12 @US-13
   Scenario Outline: Focusing a number field shows the soft keyboard with a number keypad
     Given I have added "<exercise>"
     When I tap <exercise> <field>
@@ -17,12 +16,10 @@ Feature: Keyboard
       | Plank              | set 1 duration hours | numeric |
       | Treadmill          | distance             | decimal |
 
-  @US-11
   Scenario: The add-exercise search shows the soft keyboard
     When I open the add-exercise list
     Then the soft keyboard is shown
 
-  @US-15 @US-28
   Scenario: On a new workout, Android back with the keyboard open hides the keyboard first
     Given I have added "Barbell Back Squat"
     When I tap Barbell Back Squat set 1 reps
@@ -33,14 +30,12 @@ Feature: Keyboard
     When I go back with Android back
     Then the prompt "Discard this workout?" shows Discard and Cancel
 
-  @US-15
   Scenario: On a new workout, the back arrow with the keyboard open goes straight to the prompt
     Given I have added "Barbell Back Squat"
     When I tap Barbell Back Squat set 1 reps
     And I go back with the back arrow
     Then the prompt "Discard this workout?" shows Discard and Cancel
 
-  @US-18
   Scenario: On an edited workout, Android back with the keyboard open hides the keyboard first
     Given these saved workouts:
       | started         | exercises                  |
@@ -53,7 +48,6 @@ Feature: Keyboard
     When I go back with Android back
     Then the prompt "Discard changes?" shows Discard and Cancel
 
-  @US-18
   Scenario: On an edited workout, the back arrow with the keyboard open goes straight to the prompt
     Given these saved workouts:
       | started         | exercises                  |
@@ -63,7 +57,6 @@ Feature: Keyboard
     And I go back with the back arrow
     Then the prompt "Discard changes?" shows Discard and Cancel
 
-  @US-11
   Scenario: In the add-exercise list, Android back with the keyboard open hides the keyboard first
     When I open the add-exercise list
     And I go back with Android back
@@ -72,7 +65,6 @@ Feature: Keyboard
     When I go back with Android back
     Then the add-exercise list is closed
 
-  @US-11
   Scenario: In the add-exercise list, its back arrow with the keyboard open closes it at once
     When I open the add-exercise list
     And I close the add-exercise list with its back arrow

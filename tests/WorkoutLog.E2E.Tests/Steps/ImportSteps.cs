@@ -127,19 +127,10 @@ public sealed class ImportSteps(
         }
     }
 
-    /// <summary>Writes <paramref name="content"/> to a temp file and copies it to the device's Download folder as <paramref name="name"/>.</summary>
+    /// <summary>Writes <paramref name="content"/> to the device's Download folder as <paramref name="name"/>, removed after the scenario.</summary>
     private void Push(string name, string content)
     {
-        var path = Path.Combine(Path.GetTempPath(), $"workoutlog-{Guid.NewGuid():N}.json");
-        try
-        {
-            File.WriteAllText(path, content);
-            AppiumSetup.Adb.PushToDownloads(path, name);
-            state.Downloads.Add(name);
-        }
-        finally
-        {
-            File.Delete(path);
-        }
+        AppiumSetup.Adb.WriteToDownloads(name, content);
+        state.Downloads.Add(name);
     }
 }

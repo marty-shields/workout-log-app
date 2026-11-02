@@ -1,11 +1,10 @@
-@US-09 @US-13 @US-14
 Feature: Save checks
   Save only keeps a complete workout and shows what's wrong.
 
   Background:
     Given I have started a new workout
 
-  @smoke
+  @smoke @release
   Scenario: Save with no exercises is blocked
     When I save the workout
     Then the workout shows "Add at least one exercise"

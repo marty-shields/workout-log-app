@@ -237,6 +237,7 @@ public class SetCheckerTests
     [TestCase("0:00:00", "Duration must be more than 0")]
     [TestCase("0:60:00", "Duration minutes and seconds must be 00–59")]
     [TestCase("0:00:75", "Duration minutes and seconds must be 00–59")]
+    [TestCase("0:75:00", "Duration minutes and seconds must be 00–59")]
     [TestCase("24:00:00", "Duration must be 23:59:59 or less")]
     [TestCase("99:59:59", "Duration must be 23:59:59 or less")]
     [TestCase("0:-1:00", "Duration must be a time")]

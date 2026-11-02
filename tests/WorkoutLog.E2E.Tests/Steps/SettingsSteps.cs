@@ -42,7 +42,8 @@ public sealed partial class SettingsSteps(
     public void ThenTheExportedFileHoldsTheSavedWorkouts()
     {
         var name = ExportedFileName();
-        var file = JsonNode.Parse(AppiumSetup.Adb.Shell("run-as", AppiumSetup.Package, "cat", $"cache/{name}"))!;
+        var app = AppiumSetup.App;
+        var file = JsonNode.Parse(AppiumSetup.Adb.AppShell(app, "cat", $"{app.DataFolder}/cache/{name}"))!;
 
         var exportedAt = DateTimeOffset.ParseExact((string)file["exportedAt"]!, "yyyy-MM-dd'T'HH:mm:ss'Z'", CultureInfo.InvariantCulture,
             DateTimeStyles.AssumeUniversal);
@@ -77,7 +78,8 @@ public sealed partial class SettingsSteps(
     /// <summary>The one export file in the app's cache folder.</summary>
     private static string ExportedFileName()
     {
-        var files = AppiumSetup.Adb.Shell("run-as", AppiumSetup.Package, "ls", "cache")
+        var app = AppiumSetup.App;
+        var files = AppiumSetup.Adb.AppShell(app, "ls", $"{app.DataFolder}/cache")
             .Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
             .Where(f => ExportFile().IsMatch(f))
             .ToList();

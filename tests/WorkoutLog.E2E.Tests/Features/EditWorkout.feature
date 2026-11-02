@@ -1,4 +1,3 @@
-@US-17
 Feature: Edit a workout
   I open a saved workout and fix it; its times never change.
 
@@ -25,7 +24,7 @@ Feature: Edit a workout
     Then I am on the Dashboard
     And reopening workout 1 shows Barbell Back Squat set 3 at 70 kg
 
-  @smoke @US-09
+  @smoke
   Scenario: Add a set and save; the times don't change
     When I tap Add set on Barbell Back Squat
     And I log Barbell Back Squat set 4: 5 reps, 65 kg

@@ -1,4 +1,3 @@
-@US-35
 Feature: Logging
   The log records what happened, never what I typed.
 
@@ -7,7 +6,7 @@ Feature: Logging
     And the log shows "Startup finished in"
     And the log shows "Activity created"
 
-  @US-10 @today
+  @today
   Scenario: Starting and saving a workout are logged with ids and counts
     Given I have started a new workout
     And I have logged Barbell Back Squat set 1: 5 reps, 60 kg
@@ -17,14 +16,12 @@ Feature: Logging
     And the log shows "Workout 1 added with 2 exercises"
     And the log shows "Consistency loaded: 1 workouts in the last 12 weeks"
 
-  @US-15
   Scenario: Discarding a new workout is logged
     Given I have started a new workout
     And I have added "Barbell Back Squat"
     When I discard the workout
     Then the log shows "New workout discarded with 1 exercises"
 
-  @US-17 @US-18
   Scenario: Opening, saving and discarding edits are logged
     Given these saved workouts:
       | started         | exercises                                     |
@@ -38,7 +35,6 @@ Feature: Logging
     And the log shows "Workout 1 updated with 2 exercises"
     And the log shows "Edits to workout 1 discarded"
 
-  @US-19
   Scenario: Deleting with unsaved edits logs the delete only
     Given these saved workouts:
       | started         | exercises        |
@@ -49,7 +45,7 @@ Feature: Logging
     Then the log shows "Workout 1 deleted"
     And the log doesn't show "Edits to workout 1 discarded"
 
-  @smoke
+  @smoke @release
   Scenario: Values I type never reach the log
     Given I have started a new workout
     And I have logged Barbell Back Squat set 1: 5 reps, 987.65 kg
@@ -59,7 +55,6 @@ Feature: Logging
     And I open the latest workout from Workouts and save it
     Then the log contains none of: 987.65, 876.54, 87.65, 76.54
 
-  @US-12 @US-13
   Scenario: Validation errors aren't logged
     Given I have started a new workout
     And I have added "Barbell Back Squat"
