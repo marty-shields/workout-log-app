@@ -61,4 +61,14 @@ public class IconButtonTests : ComponentTestBase
             Assert.That(cut.Find("button").ClassList, Is.EquivalentTo(new[] { "icon-btn" }));
         });
     }
-}
+
+    [Test]
+    public void Active_SetsClass()
+    {
+        var cut = Context.Render<IconButton>(p => p
+            .Add(x => x.Icon, IconName.Note)
+            .Add(x => x.AriaLabel, "Edit note")
+            .Add(x => x.Active, true));
+
+        Assert.That(cut.Find("button").ClassList, Is.EquivalentTo(new[] { "icon-btn", "active" }));
+    }}

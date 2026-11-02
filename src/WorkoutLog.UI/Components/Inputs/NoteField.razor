@@ -1,5 +1,4 @@
 @using WorkoutLog.Core.Domain.Workouts
-@using WorkoutLog.UI.Components.Actions
 @{ textBoxShown = Editing; }
 @if (Visible)
 {
@@ -22,27 +21,21 @@
                           @onblur="OnBlur"></textarea>
             </label>
         }
-        else if (HasValue)
+        else
         {
             <button type="button" class="summary @(Error is not null ? "invalid" : null)" aria-describedby="@(Error is not null ? ErrorId : null)" data-testid="@($"{TestId}-open")" @onclick="FocusAsync">
                 <span class="visually-hidden">Edit @Label: </span>
                 <span class="text">@Value</span>
             </button>
         }
-        else if (ShowAddButton)
-        {
-            <div class="add">
-                <AppButton Variant="ButtonVariant.Link" TestId="@($"{TestId}-add")" OnClick="FocusAsync">Add note</AppButton>
-            </div>
-        }
-        @if (Error is not null && (Editing || HasValue))
+        @if (Error is not null)
         {
             <p class="error" id="@ErrorId" role="alert" data-testid="@($"{TestId}-error")">@Error</p>
         }
     </div>
 }
 @code {
-    /// <summary>Name of the note, shown above the text box and read out for the collapsed line.</summary>
+    /// <summary>Name of the note, shown above the text box and read out for the collapsed line. With no note and the text box closed, the field shows nothing.</summary>
     [Parameter, EditorRequired]
     public string Label { get; set; } = "";
 
@@ -54,7 +47,7 @@
     [Parameter]
     public EventCallback<string?> ValueChanged { get; set; }
 
-    /// <summary>Shows the text box. Set by the field when Add note or the collapsed line is tapped and when focus leaves; a parent may set it too.</summary>
+    /// <summary>Shows the text box. A parent sets it from its note button; the field sets it when the collapsed line is tapped and when focus leaves.</summary>
     [Parameter]
     public bool Editing { get; set; }
 
@@ -65,10 +58,6 @@
     /// <summary>Validation message. Shows under the text box or the collapsed line, and the text box turns invalid.</summary>
     [Parameter]
     public string? Error { get; set; }
-
-    /// <summary>Shows Add note while there is no note and the text box is closed. A parent that has its own Add note turns it off.</summary>
-    [Parameter]
-    public bool ShowAddButton { get; set; } = true;
 
     /// <summary>data-testid of the field; also the prefix for its controls.</summary>
     [Parameter]
@@ -81,7 +70,7 @@
 
     private string ErrorId => $"{TestId}-error";
 
-    private bool Visible => Editing || HasValue || ShowAddButton;
+    private bool Visible => Editing || HasValue;
 
     private bool HasValue => !string.IsNullOrWhiteSpace(Value);
 

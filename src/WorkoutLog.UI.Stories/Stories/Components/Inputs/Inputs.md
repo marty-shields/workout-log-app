@@ -19,15 +19,14 @@ Three boxes, h : mm : ss. When focus leaves, empty boxes become 0 and minutes an
 - `data-testid`: `{TestId}-h`, `{TestId}-mm`, `{TestId}-ss`.
 
 ## `NoteField`
-A note on a workout or an exercise, in three states.
-- Empty: only an **Add note** link (`AppButton` Link). A parent that shows its own Add note, like `ExerciseCard`, turns it off with `ShowAddButton` and sets `Editing`.
-- Editing: the label and a counter such as *120/500* on one line, over a three-row text box that has no length limit. At the limit the counter reads *500/500*; above it the counter is red. Tapping Add note or the collapsed line opens it with focus in the text box.
-- Collapsed: the note on one line, cut with … when long, in a bordered row. Tap to edit. Leaving the text box collapses it.
+A note on a workout or an exercise. The parent has the note button (an `IconButton`) that opens it, and sets `Editing`.
+- No note and `Editing` off: nothing shows.
+- Editing: the label and a counter such as *120/500* on one line, over a three-row text box that has no length limit. At the limit the counter reads *500/500*; above it the counter is red. Setting `Editing` from the parent, or tapping the saved note, moves focus into the text box.
+- Saved note: one plain line, cut with … when long, in the muted text colour, with no border or fill. Tap to edit. Leaving the text box collapses it to this line.
 - The text is trimmed when the field collapses. Blank or only spaces is no note: `ValueChanged` gets null.
-- With an `Error` the text box or collapsed line gets a red 2px border and the message shows under it in red. It is not set by the field: the screen sets it, e.g. *Note must be 500 characters or less*.
+- With an `Error` the text box or the saved line gets a red 2px border and the message shows under it in red. It is not set by the field: the screen sets it, e.g. *Note must be 500 characters or less*.
 - `FocusAsync` opens the text box and focuses it.
-- `data-testid`: `TestId`, `{TestId}-add`, `{TestId}-input`, `{TestId}-count`, `{TestId}-open` (collapsed line), `{TestId}-error`.
-
+- `data-testid`: `TestId`, `{TestId}-input`, `{TestId}-count`, `{TestId}-open` (saved line), `{TestId}-error`.
 ## `RadioGroup`
 A labelled group of choices; one is chosen. Each choice is a full-width row with a radio, its label and an optional hint under it. The chosen row is highlighted. Disabled dims every row and ignores taps.
 - `data-testid`: `TestId` on the group; each option's `TestId` on its radio.

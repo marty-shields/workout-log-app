@@ -180,6 +180,18 @@
         </Template>
     </Story>
 
+    <Story Name="Cardio no worked out value">
+        <Template>
+            <ExerciseCard Exercise="@SampleData.Exercise(Catalog, 305, ["0:07:30", "2000", "5", "180", "24"])" />
+        </Template>
+    </Story>
+
+    <Story Name="Cardio no worked out value with note">
+        <Template>
+            <ExerciseCard Exercise="@SampleData.WithNotes(SampleData.Exercise(Catalog, 305, ["0:07:30", "2000", "5", "180", "24"]), SampleData.Note, SampleData.LastNote)" />
+        </Template>
+    </Story>
+
     <Story Name="Done with notes">
         <Template>
             <ExerciseCard Exercise="@SampleData.MarkDone([SampleData.WithNotes(SampleData.WithWeights(SampleData.Exercise(Catalog, 6, ["8", "60"], ["8", "60"], ["6", "62.5"]), 62.5m, 70m), SampleData.Note, SampleData.LastNote)], 0)[0]" />

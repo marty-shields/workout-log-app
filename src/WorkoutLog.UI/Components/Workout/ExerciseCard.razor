@@ -102,10 +102,7 @@
                 <div class="add-set">
                     <AppButton @ref="addSet" Variant="ButtonVariant.Secondary" FullWidth Disabled="Exercise.SetsFull" TestId="@($"{TestId}-add-set")" OnClick="AddSet">Add set</AppButton>
                 </div>
-                @if (AddNoteShown)
-                {
-                    <AppButton Variant="ButtonVariant.Link" TestId="@($"{TestId}-add-note")" OnClick="OpenNote">Add note</AppButton>
-                }
+                <IconButton Icon="IconName.Note" AriaLabel="@NoteLabel" TestId="@($"{TestId}-add-note")" Muted="!HasNote" Active="HasNote" OnClick="OpenNote" />
             </div>
             @if (Exercise.SetsFull)
             {
@@ -125,16 +122,15 @@
             {
                 <RecordBadge TestId="@($"{TestId}-record")" />
             }
-            @if (ExerciseFields.WorkedOutText(Exercise, entry) is { } workedOut)
-            {
-                <p class="note" data-testid="@($"{TestId}-worked-out")">@workedOut</p>
-            }
             <EntryErrors Fields="Exercise.Fields" Entry="entry" TestId="@($"{TestId}-entry-error")" />
-        }
-        @if (Exercise.Kind == ExerciseKind.Cardio && AddNoteShown)
-        {
-            <div class="add-row start">
-                <AppButton Variant="ButtonVariant.Link" TestId="@($"{TestId}-add-note")" OnClick="OpenNote">Add note</AppButton>
+            <div class="footer">
+                @if (ExerciseFields.WorkedOutText(Exercise, entry) is { } workedOut)
+                {
+                    <p class="note" data-testid="@($"{TestId}-worked-out")">@workedOut</p>
+                }
+                <div class="note-button">
+                    <IconButton Icon="IconName.Note" AriaLabel="@NoteLabel" TestId="@($"{TestId}-add-note")" Muted="!HasNote" Active="HasNote" OnClick="OpenNote" />
+                </div>
             </div>
         }
         <NoteField @ref="noteField"
@@ -143,7 +139,6 @@
                    ValueChanged="NoteChanged"
                    @bind-Editing="editingNote"
                    Error="@Exercise.NoteError"
-                   ShowAddButton="false"
                    TestId="@($"{TestId}-note")" />
     }
 </section>
@@ -346,7 +341,9 @@
         open = last is not null && (OpenLastSet || last.Values.Values.All(string.IsNullOrEmpty)) ? last : null;
     }
 
-    private bool AddNoteShown => string.IsNullOrWhiteSpace(Exercise.Note) && !editingNote;
+    private bool HasNote => !string.IsNullOrWhiteSpace(Exercise.Note);
+
+    private string NoteLabel => HasNote ? "Edit note" : "Add note";
 
     private void OpenNote() => editingNote = true;
 

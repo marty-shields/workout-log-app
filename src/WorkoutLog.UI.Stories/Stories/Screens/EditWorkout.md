@@ -10,7 +10,7 @@ Same layout and behaviour as [New Workout](./?path=/custom/screens-new-workout-o
 
 | Part | Content |
 |---|---|
-| Top bar | "Total h:mm:ss" instead of the live timer; Delete (trash `IconButton`) on the right. |
+| Top bar | "Total h:mm:ss" instead of the live timer; the note icon button and Delete (trash `IconButton`) on the right. |
 | Content | The saved workout opens newest first, every value as saved, 0 included. Every exercise starts done, as one line; the pencil opens its card, with every carry set closed. No last and PB line. The workout note shows as saved. An open card shows last time's note, the note from the last saved workout with the exercise that started before this one, through `IWeightHistoryService.GetAsync`. An exercise picked from Add exercise gets its last note the same way. A failed read shows none. |
 | Overlays | `AddExerciseView` ([Add Exercise](./?path=/custom/screens-add-exercise-overview)); `ConfirmDialog` "Discard changes?" on back with changes; "Delete this workout?" on Delete; "Delete {exercise name}?" on an exercise's trash. |
 | Loading | `WorkoutLoadView`: title "Workout", `Spinner` "Loading…" centred. |

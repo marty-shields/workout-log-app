@@ -24,13 +24,6 @@
     color: var(--color-on-danger);
 }
 
-.link {
-    padding: 0 var(--space-3);
-    background: transparent;
-    color: var(--color-text);
-    text-decoration: underline;
-}
-
 .btn:disabled {
     opacity: var(--opacity-disabled);
     cursor: default;

@@ -71,8 +71,21 @@
     gap: var(--space-2);
 }
 
-.start {
-    margin-left: calc(-1 * var(--space-3));
+.footer {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    margin-block: calc(-1 * var(--space-2));
+}
+
+.footer .note {
+    flex: 1;
+    min-width: 0;
+}
+
+.note-button {
+    flex: none;
+    margin-left: auto;
 }
 
 .add-set {
