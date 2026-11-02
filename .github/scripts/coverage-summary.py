@@ -1,6 +1,6 @@
-"""Usage: python3 -I coverage-summary.py <cobertura xml>...
-Prints a Markdown table of line and branch coverage per assembly, for the job summary. Test assemblies are left out; an
-assembly that appears in several files (Core in the Core and UI runs) is listed once per file."""
+"""Usage: python3 -I coverage-summary.py <assembly>=<cobertura xml>...
+Prints a Markdown table of line and branch coverage for each named assembly, read from the report of the test run that
+targets it. Other assemblies in the report (what the run pulls in, such as Core in the UI run) are left out."""
 import sys
 import xml.etree.ElementTree as ET
 
@@ -9,14 +9,11 @@ def percent(rate):
     return f"{float(rate) * 100:.1f}%"
 
 
-rows = []
-for path in sys.argv[1:]:
-    for package in ET.parse(path).getroot().iter("package"):
-        name = package.get("name")
-        if not name.endswith(".Tests"):
-            rows.append((name, path, package.get("line-rate"), package.get("branch-rate")))
-
-print("| Assembly | Lines | Branches | Report |")
-print("| --- | ---: | ---: | --- |")
-for name, path, lines, branches in sorted(rows):
-    print(f"| {name} | {percent(lines)} | {percent(branches)} | {path.split('/')[-3]} |")
+print("| Assembly | Lines | Branches |")
+print("| --- | ---: | ---: |")
+for argument in sys.argv[1:]:
+    assembly, path = argument.split("=", 1)
+    package = next((p for p in ET.parse(path).getroot().iter("package") if p.get("name") == assembly), None)
+    if package is None:
+        sys.exit(f"{assembly} is not in {path}")
+    print(f"| {assembly} | {percent(package.get('line-rate'))} | {percent(package.get('branch-rate'))} |")

@@ -58,7 +58,7 @@ Keep in step:
 On a Linux machine set up for `e2e-local.sh`, see [Keeping it current](dev-setup-linux.md#keeping-it-current).
 
 Coverage and script tests:
-- `dev / build-and-test` collects Cobertura coverage for the Core and UI tests. The job summary lists line and branch % per assembly (`coverage-summary.py`) and the `coverage` artifact holds the XML (kept 14 days). There is no gate yet. Locally: `dotnet test tests/WorkoutLog.Core.Tests --collect "Code Coverage;Format=cobertura" --results-directory <folder>`, then `python3 -I .github/scripts/coverage-summary.py $(find <folder> -name '*.cobertura.xml')`.
+- `dev / build-and-test` collects Cobertura coverage for the Core and UI tests. The job summary lists line and branch % of `WorkoutLog.Core` (from the Core tests) and `WorkoutLog.UI` (from the UI tests) (`coverage-summary.py`) and the `coverage` artifact holds the XML (kept 14 days). There is no gate yet. Locally: `dotnet test tests/WorkoutLog.Core.Tests --collect "Code Coverage;Format=cobertura" --results-directory <folder>`, then `python3 -I .github/scripts/coverage-summary.py WorkoutLog.Core=<Core xml>` (one `assembly=file` per run).
 - `.github/scripts/tests/run.sh` tests `next-version.sh` (a stub `gh` answers with canned PR JSON, in a throwaway git repo), the shard grouping in `e2e-shard-plan.sh` (the part of `e2e-shard.sh` after the `dotnet test --list-tests` call) and `failed_tests` / `filter_for` in `e2e-trx.sh` (sourced by `e2e-run.sh`), against the sample files in `.github/scripts/tests/fixtures` (the trx sample is named `.xml` because `.gitignore` excludes `*.trx`). It needs bash, git, jq and awk, and runs as a step of `dev / build-and-test`. Add a `*-test.sh` there for another script.
 
 E2E shards and step bindings:
