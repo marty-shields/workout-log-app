@@ -26,6 +26,10 @@ jobs:
       - name: Test the CI scripts
         run: .github/scripts/tests/run.sh
 
+      # shellcheck over .github/scripts and the pinned, SHA-256-checked actionlint over the workflows (and their run steps).
+      - name: Lint the CI scripts and workflows
+        run: .github/scripts/lint-ci.sh
+
       # Fails on an E2E step with no step definition or more than one.
       - name: Check the E2E step bindings
         run: python3 -I .github/scripts/e2e-step-check.py tests/WorkoutLog.E2E.Tests
