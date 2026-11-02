@@ -15,6 +15,6 @@ src=$(mktemp -d)
 trap 'rm -rf "$src"' EXIT
 git archive "$tag" | tar -x -C "$src"
 cp global.json "$src/global.json"
-dotnet build "$src/src/WorkoutLog.App" -f net10.0-android >&2
+dotnet build "$src/src/WorkoutLog.App" -f net10.0-android -p:TreatWarningsAsErrors=false -p:MSBuildTreatWarningsAsErrors=false >&2
 cp "$src/src/WorkoutLog.App/bin/Debug/net10.0-android/uk.martinshields.workoutlog.debug-Signed.apk" "$out"
 echo "$tag"
