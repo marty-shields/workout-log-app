@@ -56,6 +56,8 @@ public class CoreEventTests
             [CoreEvent.ExportFailed] = 1603,
             [CoreEvent.ExportUnknownExercise] = 1604,
             [CoreEvent.ExportCountFailed] = 1605,
+            [CoreEvent.ExportLeftoversDeleted] = 1606,
+            [CoreEvent.ExportLeftoversFailed] = 1607,
             [CoreEvent.ImportDone] = 1701,
             [CoreEvent.ImportWorkoutSkipped] = 1702,
             [CoreEvent.ImportFileUnreadable] = 1703,

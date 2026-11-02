@@ -1,4 +1,3 @@
-using System.Globalization;
 using System.Text.Json;
 using Microsoft.Extensions.Logging;
 using WorkoutLog.Core.Data;
@@ -45,7 +44,8 @@ internal sealed partial class ExportService(
                 return new ExportResult(ExportStatus.TooLarge, null);
             }
 
-            var path = Path.Combine(environment.CacheFolder, FileName(now));
+            DeleteExportFiles();
+            var path = Path.Combine(environment.CacheFolder, ExportFormat.FileName(TimeZoneInfo.ConvertTime(now, time.LocalTimeZone)));
             await File.WriteAllBytesAsync(path, bytes);
             Log.Written(logger, workouts.Count);
             return new ExportResult(ExportStatus.Exported, path);
@@ -57,8 +57,31 @@ internal sealed partial class ExportService(
         }
     }
 
-    private string FileName(DateTimeOffset now) =>
-        $"workout-log-{TimeZoneInfo.ConvertTime(now, time.LocalTimeZone).ToString("yyyy-MM-dd-HHmm", CultureInfo.InvariantCulture)}.json";
+    /// <inheritdoc />
+    public Task DeleteLeftoversAsync()
+    {
+        try
+        {
+            Log.LeftoversDeleted(logger, DeleteExportFiles());
+        }
+        catch (Exception exception)
+        {
+            Log.LeftoversFailed(logger, exception);
+        }
+
+        return Task.CompletedTask;
+    }
+
+    private int DeleteExportFiles()
+    {
+        var files = Directory.GetFiles(environment.CacheFolder, ExportFormat.FilePattern);
+        foreach (var file in files)
+        {
+            File.Delete(file);
+        }
+
+        return files.Length;
+    }
 
     private ExportFile ToFile(IReadOnlyList<Workout> workouts, DateTimeOffset now)
     {
@@ -101,6 +124,12 @@ internal sealed partial class ExportService(
 
         [LoggerMessage((int)CoreEvent.ExportUnknownExercise, LogLevel.Warning, "Exercise {ExerciseId} is not in the exercise list; exported with its id only")]
         public static partial void UnknownExercise(ILogger logger, int exerciseId);
+
+        [LoggerMessage((int)CoreEvent.ExportLeftoversDeleted, LogLevel.Information, "Deleted {Count} earlier export files")]
+        public static partial void LeftoversDeleted(ILogger logger, int count);
+
+        [LoggerMessage((int)CoreEvent.ExportLeftoversFailed, LogLevel.Warning, "Deleting earlier export files failed")]
+        public static partial void LeftoversFailed(ILogger logger, Exception exception);
 
         [LoggerMessage((int)CoreEvent.ExportCountFailed, LogLevel.Error, "Counting the workouts to export failed")]
         public static partial void CountFailed(ILogger logger, Exception exception);

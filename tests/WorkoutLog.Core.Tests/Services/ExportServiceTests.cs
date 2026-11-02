@@ -182,6 +182,45 @@ public class ExportServiceTests
     }
 
     [Test]
+    public async Task ExportAsync_DeletesEarlierExportFilesAndLeavesOtherFilesAlone()
+    {
+        var earlier = await Seed("workout-log-2026-10-25-0900.json", "workout-log-2026-10-24-0900.json");
+        var others = await Seed("notes.json", "workout-log.txt", "other-workout-log-2026-10-25-0900.json");
+        Workouts();
+
+        var result = await service.ExportAsync();
+
+        Assert.That(earlier.Any(File.Exists), Is.False);
+        Assert.That(others.All(File.Exists), Is.True);
+        Assert.That(Directory.GetFiles(folder, ExportFormat.FilePattern), Is.EqualTo(new[] { result.FilePath }));
+    }
+
+    [Test]
+    public async Task DeleteLeftoversAsync_DeletesExportFilesAndLeavesOtherFilesAlone()
+    {
+        var exports = await Seed("workout-log-2026-10-25-0900.json", FileName);
+        var others = await Seed("notes.json", "workout-log.txt", "other-workout-log-2026-10-25-0900.json");
+
+        await service.DeleteLeftoversAsync();
+
+        Assert.That(exports.Any(File.Exists), Is.False);
+        Assert.That(others.All(File.Exists), Is.True);
+        Assert.That(logger.Collector.GetSnapshot().Select(r => r.Id.Id), Is.EqualTo(new[] { (int)CoreEvent.ExportLeftoversDeleted }));
+    }
+
+    [Test]
+    public async Task DeleteLeftoversAsync_MissingCacheFolder_LogsAWarningAndDoesNotThrow()
+    {
+        Directory.Delete(folder, recursive: true);
+        Directory.CreateDirectory(folder);
+        environment.SetupGet(e => e.CacheFolder).Returns(Path.Combine(folder, "missing"));
+
+        await service.DeleteLeftoversAsync();
+
+        Assert.That(logger.Collector.GetSnapshot().Select(r => r.Id.Id), Is.EqualTo(new[] { (int)CoreEvent.ExportLeftoversFailed }));
+    }
+
+    [Test]
     public async Task ExportAsync_ExactlyTheLimit_IsWritten()
     {
         Workouts();
@@ -266,6 +305,17 @@ public class ExportServiceTests
         Assert.That(await service.CountAsync(), Is.EqualTo(new ExportCount(0, Failed: true)));
         Assert.That(LoggedEvents.Of(logger), Is.EqualTo(new[] { (CoreEvent.ExportCountFailed, LogLevel.Error, "Counting the workouts to export failed") }));
         Assert.That(logger.LatestRecord.Exception, Is.SameAs(exception));
+    }
+
+    private async Task<string[]> Seed(params string[] names)
+    {
+        var paths = names.Select(n => Path.Combine(folder, n)).ToArray();
+        foreach (var path in paths)
+        {
+            await File.WriteAllTextAsync(path, "{}");
+        }
+
+        return paths;
     }
 
     private void Workouts(params Workout[] workouts) => repository.Setup(r => r.GetAllAsync()).ReturnsAsync(workouts);

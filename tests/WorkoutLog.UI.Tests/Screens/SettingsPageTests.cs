@@ -547,6 +547,8 @@ public class SettingsPageTests : ComponentTestBase
 
         public int ExportCalls { get; private set; }
 
+        public Task DeleteLeftoversAsync() => Task.CompletedTask;
+
         public Task<ExportCount> CountAsync()
         {
             CountCalls++;

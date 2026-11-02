@@ -18,7 +18,7 @@ namespace WorkoutLog.E2E.Tests;
 /// puts back the rotation settings and removes Appium's helper apps from the device.
 /// Writes the server log to <c>TestResults/E2E/&lt;run&gt;/appium.log</c>.
 /// Run settings: optional <c>DeviceUdid</c>; without it the first device adb lists is used.
-/// Optional <c>ChromedriverExecutable</c>, a Chromedriver binary to use; without it Chromedriver downloads itself.
+/// Required <c>ChromedriverExecutable</c>, the path of a Chromedriver matching the device's WebView; the run fails without it rather than let Appium download an unpinned one.
 /// </summary>
 [SetUpFixture]
 [Explicit("Needs a device")]
@@ -79,17 +79,9 @@ public class AppiumSetup
         options.AddAdditionalAppiumOption("adbExecTimeout", (int)TimeSpan.FromMinutes(1).TotalMilliseconds);
         var arguments = new OptionCollector();
         var chromedriver = TestContext.Parameters.Get("ChromedriverExecutable");
-        if (chromedriver is null)
-        {
-            var chromedrivers = Directory.CreateDirectory(Path.Combine(project, ".chromedriver")).FullName;
-            options.AddAdditionalAppiumOption("chromedriverExecutableDir", chromedrivers);
-            arguments.AddArguments(new("--allow-insecure", "uiautomator2:chromedriver_autodownload"));
-        }
-        else
-        {
-            Require(File.Exists(chromedriver), $"ChromedriverExecutable {chromedriver} is missing.");
-            options.AddAdditionalAppiumOption("chromedriverExecutable", chromedriver);
-        }
+        Require(chromedriver is not null, "ChromedriverExecutable is not set: pass the Chromedriver pinned in .github/workflows/qa-pipeline.yml (docs/e2e-tests.md).");
+        Require(File.Exists(chromedriver), $"ChromedriverExecutable {chromedriver} is missing.");
+        options.AddAdditionalAppiumOption("chromedriverExecutable", chromedriver);
 
         var udid = TestContext.Parameters.Get("DeviceUdid");
         adb = new Adb(udid);

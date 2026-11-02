@@ -126,6 +126,12 @@ internal enum CoreEvent
     /// <summary><see cref="Services.ExportService"/>: counting the workouts failed.</summary>
     ExportCountFailed = 1605,
 
+    /// <summary><see cref="Services.ExportService"/>: earlier export files deleted.</summary>
+    ExportLeftoversDeleted = 1606,
+
+    /// <summary><see cref="Services.ExportService"/>: deleting earlier export files failed.</summary>
+    ExportLeftoversFailed = 1607,
+
     /// <summary><see cref="Services.ImportService"/>: import written.</summary>
     ImportDone = 1701,
 

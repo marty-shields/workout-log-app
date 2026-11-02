@@ -11,6 +11,7 @@ Running the E2E suite on a phone or an emulator, and where the results go. Set u
    dotnet test tests/WorkoutLog.E2E.Tests --filter "Category=US-17"
    dotnet test tests/WorkoutLog.E2E.Tests --filter "FullyQualifiedName~EditWorkoutFeature"
    ```
+   Every `dotnet test` command above also needs `-- 'TestRunParameters.Parameter(name="ChromedriverExecutable", value="<path>")'` (combine it with `DeviceUdid` in the same `--`). Without it the run fails: Appium's own Chromedriver download is not allowed, because it fetches an unpinned binary. Download the Chromedriver at `CHROMEDRIVER_VERSION` in `.github/workflows/qa-pipeline.yml` from [Chrome for Testing](https://googlechromelabs.github.io/chrome-for-testing/), check it against `CHROMEDRIVER_SHA256` there, and pass its path. It must match the device's WebView major version. `e2e-local.sh` does all of this for you.
    With more than one device connected, add `-- 'TestRunParameters.Parameter(name="DeviceUdid", value="<id from adb devices>")'`.
 
 - Every scenario deletes the workouts in "Workout Log (Dev)"; the Release app is never touched.
