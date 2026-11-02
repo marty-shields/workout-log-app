@@ -25,8 +25,30 @@ internal sealed class Adb(string? udid)
     /// <summary>Runs <c>adb shell</c> and returns its trimmed standard output; throws if it exits with an error.</summary>
     public string Shell(params string[] args) => Run(["shell", .. args]).Trim();
 
+    /// <summary>
+    /// Runs <c>adb shell</c> with access to <paramref name="app"/>'s private folder: as the app with run-as when it is the Debug app,
+    /// otherwise as root, which an emulator allows. Give paths under <see cref="TestedApp.DataFolder"/>.
+    /// </summary>
+    public string AppShell(TestedApp app, params string[] args) =>
+        Shell([.. app.IsDebug ? (string[])["run-as", app.Package] : ["su", "0"], .. args]);
+
+    /// <summary>Writes <paramref name="content"/> to the device's Download folder as <paramref name="name"/>, through a temp file.</summary>
+    public void WriteToDownloads(string name, string content)
+    {
+        var path = Path.Combine(Path.GetTempPath(), $"workoutlog-{Guid.NewGuid():N}");
+        try
+        {
+            File.WriteAllText(path, content);
+            PushToDownloads(path, name);
+        }
+        finally
+        {
+            File.Delete(path);
+        }
+    }
+
     /// <summary>Copies the file at <paramref name="localPath"/> to the device's Download folder as <paramref name="name"/>, then rescans shared storage so the file picker lists it.</summary>
-    public void PushToDownloads(string localPath, string name)
+    private void PushToDownloads(string localPath, string name)
     {
         Run("push", localPath, $"{Downloads}/{name}");
         ScanSharedStorage();

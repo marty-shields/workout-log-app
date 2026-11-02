@@ -12,7 +12,7 @@ namespace WorkoutLog.E2E.Tests.Device;
 public sealed class Native(WebView web)
 {
     internal const string NativeApp = "NATIVE_APP";
-    internal const string WebView = $"WEBVIEW_{AppiumSetup.Package}";
+    internal static string WebView => AppiumSetup.App.WebViewContext;
 
     /// <summary>The package that shows Android's share sheet.</summary>
     private const string ShareSheetPackage = "com.android.intentresolver";
@@ -55,7 +55,7 @@ public sealed class Native(WebView web)
         {
             web.WaitUntil(() => App.CurrentPackage == ShareSheetPackage, "the share sheet didn't open", LaunchTimeout);
             App.PressKeyCode(AndroidKeyCode.Back);
-            web.WaitUntil(() => App.CurrentPackage == AppiumSetup.Package, "the app didn't come back from the share sheet", LaunchTimeout);
+            web.WaitUntil(() => App.CurrentPackage == AppiumSetup.App.Package, "the app didn't come back from the share sheet", LaunchTimeout);
         }
         finally
         {
@@ -116,9 +116,9 @@ public sealed class Native(WebView web)
         App.Context = NativeApp;
         try
         {
-            web.WaitUntil(() => App.CurrentPackage is { Length: > 0 } package && package != AppiumSetup.Package, "the file picker didn't open", LaunchTimeout);
+            web.WaitUntil(() => App.CurrentPackage is { Length: > 0 } package && package != AppiumSetup.App.Package, "the file picker didn't open", LaunchTimeout);
             act();
-            web.WaitUntil(() => App.CurrentPackage == AppiumSetup.Package, "the app didn't come back from the file picker", LaunchTimeout);
+            web.WaitUntil(() => App.CurrentPackage == AppiumSetup.App.Package, "the app didn't come back from the file picker", LaunchTimeout);
         }
         finally
         {
@@ -129,7 +129,7 @@ public sealed class Native(WebView web)
     /// <summary>Sends the app to the background for <paramref name="time"/>, then brings it back.</summary>
     public void Background(TimeSpan time) => App.BackgroundApp(time);
 
-    public AppState State() => App.GetAppState(AppiumSetup.Package);
+    public AppState State() => App.GetAppState(AppiumSetup.App.Package);
 
     /// <summary>Whether <see cref="Launch"/> has run in this scenario.</summary>
     public bool Launched { get; private set; }
@@ -137,7 +137,7 @@ public sealed class Native(WebView web)
     /// <summary>Stops the app, then starts it and switches to its WebView.</summary>
     public void Restart()
     {
-        App.TerminateApp(AppiumSetup.Package);
+        App.TerminateApp(AppiumSetup.App.Package);
         Launch();
     }
 
@@ -145,7 +145,7 @@ public sealed class Native(WebView web)
     public void Launch()
     {
         App.Context = NativeApp;
-        App.ActivateApp(AppiumSetup.Package);
+        App.ActivateApp(AppiumSetup.App.Package);
         web.WaitUntil(() => App.Contexts.Contains(WebView), $"{WebView} didn't appear", LaunchTimeout);
         App.Context = WebView;
         Launched = true;

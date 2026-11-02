@@ -5,9 +5,12 @@ using WorkoutLog.E2E.Tests.Support;
 
 namespace WorkoutLog.E2E.Tests.Steps;
 
-/// <summary>Saved workouts a scenario starts from: seeded into the database, or saved through the app.</summary>
+/// <summary>
+/// Saved workouts a scenario starts from: seeded, or saved through the app. The Debug app is seeded by copying a database in;
+/// another build, by importing an export file.
+/// </summary>
 [Binding]
-public sealed class SeedSteps(WorkoutSeeder seeder, DeviceClock clock, ScenarioState state, Journeys journeys)
+public sealed class SeedSteps(WorkoutSeeder seeder, ImportSeeder importSeeder, DeviceClock clock, ScenarioState state, Journeys journeys)
 {
     /// <summary>A seeded workout without a finish time lasts this long.</summary>
     private static readonly TimeSpan DefaultLength = TimeSpan.FromMinutes(45);
@@ -44,12 +47,18 @@ public sealed class SeedSteps(WorkoutSeeder seeder, DeviceClock clock, ScenarioS
     private async Task SeedAsync(IReadOnlyList<(DateTime Started, DateTime Finished, string Exercises)> workouts)
     {
         var exercises = workouts.Select(w => ExerciseValues.ParseWorkout(w.Exercises)).ToList();
-        var seeds = workouts.Select((w, i) => new SeedWorkout(
-            clock.FromLocal(w.Started),
-            clock.FromLocal(w.Finished),
-            exercises[i].Select(e => e.ToWorkoutExercise()).ToList())).ToList();
+        if (AppiumSetup.App.IsDebug)
+        {
+            await seeder.SeedAsync(workouts.Select((w, i) => new SeedWorkout(
+                clock.FromLocal(w.Started),
+                clock.FromLocal(w.Finished),
+                exercises[i].Select(e => e.ToWorkoutExercise()).ToList())).ToList());
+        }
+        else
+        {
+            importSeeder.Seed(workouts.Select((w, i) => ExportJson.Workout(clock.FromLocal(w.Started), clock.FromLocal(w.Finished), exercises[i])).ToList());
+        }
 
-        await seeder.SeedAsync(seeds);
         for (var i = 0; i < workouts.Count; i++)
         {
             state.Seeded[i + 1] = workouts[i].Started;
