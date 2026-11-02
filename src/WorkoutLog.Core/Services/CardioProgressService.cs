@@ -14,9 +14,9 @@ namespace WorkoutLog.Core.Services;
 internal sealed partial class CardioProgressService(
     IWorkoutRepository repository,
     IExerciseCatalog catalog,
-    IRangeFilter rangeFilter,
-    ICardioSessionRule sessionRule,
-    ICardioRecordsRule recordsRule,
+    RangeFilter rangeFilter,
+    CardioSessionRule sessionRule,
+    CardioRecordsRule recordsRule,
     ILogger<CardioProgressService> logger) : ICardioProgressService
 {
     /// <inheritdoc />

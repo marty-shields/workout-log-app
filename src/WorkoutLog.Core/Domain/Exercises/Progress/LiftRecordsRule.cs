@@ -6,9 +6,9 @@ namespace WorkoutLog.Core.Domain.Exercises.Progress;
 /// Heaviest weight: the heaviest top set; tie → most reps. Best e1RM: the highest unrounded estimate.
 /// A tie across sessions takes the earliest start.
 /// </summary>
-internal sealed class LiftRecordsRule : ILiftRecordsRule
+internal sealed class LiftRecordsRule
 {
-    /// <inheritdoc />
+    /// <summary>The records of <paramref name="sessions"/>.</summary>
     public LiftRecords Records(IReadOnlyList<LiftSessionProgress> sessions) => new(
         First(sessions, s => s.Session.StartedAt, s => s.TopSet, r => r.OrderByDescending(x => x.Value.WeightKg).ThenByDescending(x => x.Value.Reps)),
         Highest(sessions, s => s.Session.StartedAt, s => s.E1rmKg));

@@ -8,14 +8,14 @@ using WorkoutLog.Core.Logging;
 namespace WorkoutLog.Core.Services;
 
 /// <summary>
-/// Reads the file with <see cref="IImportFileReader"/>, checks each workout with <see cref="IImportChecker"/>, groups it against
-/// <see cref="IWorkoutRepository.GetAllAsync"/> with <see cref="IWorkoutContentComparer"/>, and writes through <see cref="IUnitOfWork"/>.
+/// Reads the file with <see cref="ImportFileReader"/>, checks each workout with <see cref="ImportChecker"/>, groups it against
+/// <see cref="IWorkoutRepository.GetAllAsync"/> with <see cref="WorkoutContentComparer"/>, and writes through <see cref="IUnitOfWork"/>.
 /// </summary>
 internal sealed partial class ImportService(
-    IImportFileReader reader,
-    IImportChecker checker,
+    ImportFileReader reader,
+    ImportChecker checker,
     IWorkoutRepository repository,
-    IWorkoutContentComparer comparer,
+    WorkoutContentComparer comparer,
     IUnitOfWork unitOfWork,
     TimeProvider time,
     ILogger<ImportService> logger) : IImportService

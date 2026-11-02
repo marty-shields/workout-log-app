@@ -3,8 +3,8 @@ using WorkoutLog.Core.Domain.Workouts;
 
 namespace WorkoutLog.Core.Domain.Exercises.Bests;
 
-/// <summary>Carries (<see cref="ExerciseCategory.Carry"/>). Best is the heaviest set over 0 kg with its distance (<see cref="ICarryRule.Heaviest"/>); heavier beats lighter, tie → farther.</summary>
-internal sealed class CarryBestRule(ICarryRule carryRule) : IBestRule
+/// <summary>Carries (<see cref="ExerciseCategory.Carry"/>). Best is the heaviest set over 0 kg with its distance (<see cref="CarryRule.Heaviest"/>); heavier beats lighter, tie → farther.</summary>
+internal sealed class CarryBestRule(CarryRule carryRule) : IBestRule
 {
     /// <inheritdoc />
     public bool AppliesTo(ExerciseDefinition exercise) => exercise.Category == ExerciseCategory.Carry;

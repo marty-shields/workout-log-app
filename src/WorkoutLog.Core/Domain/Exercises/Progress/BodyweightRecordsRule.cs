@@ -6,9 +6,9 @@ namespace WorkoutLog.Core.Domain.Exercises.Progress;
 /// Most reps in a set: the highest best set. Most reps in a session: the highest total. Heaviest weight and best e1RM: the lift records rule.
 /// A tie across sessions takes the earliest start.
 /// </summary>
-internal sealed class BodyweightRecordsRule(ILiftRecordsRule liftRecordsRule) : IBodyweightRecordsRule
+internal sealed class BodyweightRecordsRule(LiftRecordsRule liftRecordsRule)
 {
-    /// <inheritdoc />
+    /// <summary>The records of <paramref name="sessions"/>.</summary>
     public BodyweightRecords Records(IReadOnlyList<BodyweightSessionProgress> sessions)
     {
         var lift = liftRecordsRule.Records([.. sessions.Select(s => new LiftSessionProgress(s.Session, s.TopSet, s.E1rmKg))]);

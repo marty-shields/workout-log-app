@@ -1,9 +1,10 @@
 namespace WorkoutLog.Core.Services;
 
-/// <summary>A new workout that hasn't been saved yet. Created only by <see cref="IWorkoutService.StartNew"/>.</summary>
+/// <summary>A new workout that hasn't been saved yet. Created by <see cref="IWorkoutService.StartNew"/>.</summary>
 public sealed record WorkoutDraft
 {
-    internal WorkoutDraft(DateTimeOffset startedAt, TimeSpan startedElapsed)
+    /// <summary>A draft started at <paramref name="startedAt"/>. Call <see cref="IWorkoutService.StartNew"/> instead outside the stories.</summary>
+    public WorkoutDraft(DateTimeOffset startedAt, TimeSpan startedElapsed)
     {
         StartedAt = startedAt;
         StartedElapsed = startedElapsed;

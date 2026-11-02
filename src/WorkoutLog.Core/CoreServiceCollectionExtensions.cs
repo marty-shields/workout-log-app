@@ -37,7 +37,7 @@ public static class CoreServiceCollectionExtensions
         var connection = new SQLiteAsyncConnection(databasePath);
         return services
             .AddSingleton<DatabaseGate>()
-            .AddSingleton<IWorkoutWriterFactory, WorkoutWriterFactory>()
+            .AddSingleton<WorkoutWriterFactory>()
             .AddDecoratedSingleton<IDatabaseInitializer, GatedDatabaseInitializer>(provider =>
                 ActivatorUtilities.CreateInstance<DatabaseInitializer>(provider, connection,
                     ActivatorUtilities.CreateInstance<ExerciseSeeder>(provider, connection)))
@@ -56,10 +56,10 @@ public static class CoreServiceCollectionExtensions
     private static IServiceCollection AddImport(this IServiceCollection services) =>
         services
             .AddSingleton<IFormatUpgrade, ValidationRulesFormatUpgrade>()
-            .AddSingleton<IImportFileReader, ImportFileReader>()
+            .AddSingleton<ImportFileReader>()
             .AddImportChecks()
-            .AddSingleton<IImportChecker, ImportChecker>()
-            .AddSingleton<IWorkoutContentComparer, WorkoutContentComparer>();
+            .AddSingleton<ImportChecker>()
+            .AddSingleton<WorkoutContentComparer>();
 
     private static IServiceCollection AddImportChecks(this IServiceCollection services) =>
         services
@@ -86,27 +86,27 @@ public static class CoreServiceCollectionExtensions
     /// <summary>Registers the Exercise page's range filter and each category's rules.</summary>
     private static IServiceCollection AddProgressRules(this IServiceCollection services) =>
         services
-            .AddSingleton<IRangeFilter, RangeFilter>()
-            .AddSingleton<ITopSetRule, TopSetRule>()
-            .AddSingleton<IE1rmRule, E1rmRule>()
-            .AddSingleton<ILiftRecordsRule, LiftRecordsRule>()
-            .AddSingleton<IBodyweightRule, BodyweightRule>()
-            .AddSingleton<IBodyweightRecordsRule, BodyweightRecordsRule>()
-            .AddSingleton<ILeastAssistRule, LeastAssistRule>()
-            .AddSingleton<IAssistedRecordsRule, AssistedRecordsRule>()
-            .AddSingleton<IHoldRule, HoldRule>()
-            .AddSingleton<IHoldRecordsRule, HoldRecordsRule>()
-            .AddSingleton<ICarryRule, CarryRule>()
-            .AddSingleton<ICarryRecordsRule, CarryRecordsRule>()
-            .AddSingleton<ICardioSessionRule, CardioSessionRule>()
-            .AddSingleton<ICardioRecordsRule, CardioRecordsRule>();
+            .AddSingleton<RangeFilter>()
+            .AddSingleton<TopSetRule>()
+            .AddSingleton<E1rmRule>()
+            .AddSingleton<LiftRecordsRule>()
+            .AddSingleton<BodyweightRule>()
+            .AddSingleton<BodyweightRecordsRule>()
+            .AddSingleton<LeastAssistRule>()
+            .AddSingleton<AssistedRecordsRule>()
+            .AddSingleton<HoldRule>()
+            .AddSingleton<HoldRecordsRule>()
+            .AddSingleton<CarryRule>()
+            .AddSingleton<CarryRecordsRule>()
+            .AddSingleton<CardioSessionRule>()
+            .AddSingleton<CardioRecordsRule>();
 
     /// <summary>Registers the Consistency card's rules.</summary>
     private static IServiceCollection AddConsistencyRules(this IServiceCollection services) =>
         services
-            .AddSingleton<IWeekComparisonRule, WeekComparisonRule>()
-            .AddSingleton<IWeekBarsRule, WeekBarsRule>()
-            .AddSingleton<IStreakRule, StreakRule>();
+            .AddSingleton<WeekComparisonRule>()
+            .AddSingleton<WeekBarsRule>()
+            .AddSingleton<StreakRule>();
 
     private static IServiceCollection AddServices(this IServiceCollection services) =>
         services
@@ -122,7 +122,7 @@ public static class CoreServiceCollectionExtensions
             .AddSingleton<IWorkoutSummaryService, WorkoutSummaryService>()
             .AddConsistencyRules()
             .AddSingleton<IConsistencyService, ConsistencyService>()
-            .AddSingleton<IMuscleGroupMap, MuscleGroupMap>()
+            .AddSingleton<MuscleGroupMap>()
             .AddSingleton<IMuscleSetsService, MuscleSetsService>()
             .AddSingleton<IWeightHistoryService, WeightHistoryService>()
             .AddSingleton<ILoggedExercisesService, LoggedExercisesService>()

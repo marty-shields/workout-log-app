@@ -5,9 +5,9 @@ namespace WorkoutLog.Core.Domain.Exercises.Bests;
 
 /// <summary>
 /// Bodyweight moves (<see cref="ExerciseCategory.Bodyweight"/>). Best is the top set when a set has more than 0 kg, else the
-/// unweighted set with the most reps (<see cref="IBodyweightRule"/>). Heavier beats lighter, unweighted being 0 kg; tie → more reps.
+/// unweighted set with the most reps (<see cref="BodyweightRule"/>). Heavier beats lighter, unweighted being 0 kg; tie → more reps.
 /// </summary>
-internal sealed class BodyweightBestRule(IBodyweightRule bodyweightRule) : IBestRule
+internal sealed class BodyweightBestRule(BodyweightRule bodyweightRule) : IBestRule
 {
     /// <inheritdoc />
     public bool AppliesTo(ExerciseDefinition exercise) => exercise.Category == ExerciseCategory.Bodyweight;

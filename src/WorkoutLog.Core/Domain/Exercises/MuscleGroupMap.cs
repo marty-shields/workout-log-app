@@ -1,9 +1,9 @@
 namespace WorkoutLog.Core.Domain.Exercises;
 
-/// <inheritdoc />
-internal sealed class MuscleGroupMap : IMuscleGroupMap
+/// <summary>Maps a primary muscle to its muscle group.</summary>
+internal sealed class MuscleGroupMap
 {
-    /// <inheritdoc />
+    /// <summary>The muscle's group. Throws <see cref="ArgumentOutOfRangeException"/> for a muscle with no group.</summary>
     public MuscleGroup GroupOf(Muscle muscle) => muscle switch
     {
         Muscle.Chest => MuscleGroup.Chest,

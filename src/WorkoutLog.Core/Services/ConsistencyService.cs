@@ -8,9 +8,9 @@ namespace WorkoutLog.Core.Services;
 /// <summary>Reads every workout's start, finish and set count up to now through <see cref="IWorkoutRepository"/>, summarises them with the rules and logs the outcome.</summary>
 internal sealed partial class ConsistencyService(
     IWorkoutRepository repository,
-    IWeekComparisonRule comparisonRule,
-    IWeekBarsRule barsRule,
-    IStreakRule streakRule,
+    WeekComparisonRule comparisonRule,
+    WeekBarsRule barsRule,
+    StreakRule streakRule,
     TimeProvider time,
     ILogger<ConsistencyService> logger) : IConsistencyService
 {
