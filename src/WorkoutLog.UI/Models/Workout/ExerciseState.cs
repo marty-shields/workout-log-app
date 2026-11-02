@@ -36,8 +36,8 @@ public sealed class ExerciseState(int exerciseId, string name, ExerciseKind kind
     /// <summary>The card is shown as one line. Only the screen's view of the exercise: it is never saved and is not a change.</summary>
     public bool IsDone { get; set; }
 
-    /// <summary>The exercise or one of its sets or entries shows an error.</summary>
-    public bool HasError => Error is not null || Entries.Any(e => e.Errors.Count > 0);
+    /// <summary>The exercise, its note or one of its sets or entries shows an error.</summary>
+    public bool HasError => Error is not null || NoteError is not null || Entries.Any(e => e.Errors.Count > 0);
 
     /// <summary>Validation message for the exercise.</summary>
     public string? Error { get; set; }
@@ -53,4 +53,13 @@ public sealed class ExerciseState(int exerciseId, string name, ExerciseKind kind
 
     /// <summary>New Workout, strength: best weight in any saved workout (PB), in kg. Null hides the last and PB line.</summary>
     public decimal? BestKg { get; set; }
+
+    /// <summary>Note on the exercise in this workout. Null when there is none.</summary>
+    public string? Note { get; set; }
+
+    /// <summary>The note the exercise had in the last saved workout with it. Null hides the last note line.</summary>
+    public string? LastNote { get; set; }
+
+    /// <summary>Validation message for <see cref="Note"/>, shown in the note field.</summary>
+    public string? NoteError { get; set; }
 }

@@ -40,6 +40,17 @@
         </Template>
     </Story>
 
+    <Story Name="Notes">
+        <Template>
+            <WorkoutView Mode="WorkoutMode.New" StartedAt="SampleData.Started" Time="new TimeSpan(0, 34, 12)" Exercises="SampleData.WithSampleNotes(SampleData.StrengthWorkoutWithWeights(Catalog))" Note="@SampleData.Note" OnBack="() => { }" />
+        </Template>
+    </Story>
+
+    <Story Name="Note over the limit">
+        <Template>
+            <WorkoutView Mode="WorkoutMode.New" StartedAt="SampleData.Started" Time="new TimeSpan(0, 34, 12)" Exercises="SampleData.WithNoteTooLong(SampleData.StrengthWorkoutWithWeights(Catalog))" Note="@SampleData.NoteTooLong" NoteError="@SampleData.NoteTooLongError" OnBack="() => { }" />
+        </Template>
+    </Story>
     <Story Name="Exercises full">
         <Template>
             <WorkoutView Mode="WorkoutMode.New" StartedAt="SampleData.Started" Time="new TimeSpan(1, 12, 30)" Exercises="SampleData.FullWorkout(Catalog)" OnBack="() => { }" />

@@ -29,6 +29,7 @@ A Material Symbols Outlined icon (weight 400), drawn as an SVG and hidden from s
 - Up and Down: an increase (`Success`) or decrease (`Error`) in `WeekComparison`.
 - Edit (pencil) and Check (tick): used by `IconButton`.
 - Record: a trophy (`emoji_events`), `Success`, in `RecordBadge` and beside each record on the Workout Summary.
+- Note: before a last note on an exercise card, `Muted`, `Small`; also the note `IconButton`.
 
 ## `IconButton`
 A button that shows an `Icon`, with a 48px touch target.
@@ -41,9 +42,11 @@ A button that shows an `Icon`, with a 48px touch target.
 | Delete | Deleting the workout in the Edit Workout top bar; deleting an exercise from its card (`Muted`), after a confirm. |
 | Check | Marking an exercise done, in its card header. |
 | Edit | Opening a done exercise again, in its one-line card (`Muted`). |
+| Note | Adding or editing a note: in the Edit and New Workout top bar for the workout note, beside Add set on a card (`Muted` while there is no note, `Active` once there is one), and on the card footer of a cardio exercise. Named "Add note", or "Edit note" once there is a note. |
 
 - `AriaLabel` names the button.
 - The icon is `--color-text`; on the top bar and the Add Exercise bar that is `--color-on-bar`. `Muted` uses `--color-text-muted`.
+- `Active` fills the button with a round `--color-selected` background to show it is on.
 - `Size`: `Default` is `--font-size-xl`, `Small` is `--font-size-lg`.
 - `data-testid`: `TestId`.
 
