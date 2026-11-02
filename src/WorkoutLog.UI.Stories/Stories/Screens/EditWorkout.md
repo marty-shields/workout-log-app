@@ -11,18 +11,18 @@ Same layout and behaviour as [New Workout](./?path=/custom/screens-new-workout-o
 | Part | Content |
 |---|---|
 | Top bar | "Total h:mm:ss" instead of the live timer; Delete (trash `IconButton`) on the right. |
-| Content | The saved workout opens newest first, every value as saved, 0 included. Every exercise starts done, as one line; the pencil opens its card, with every carry set closed. No last and PB line. The workout note shows as saved. An open card shows last time's note, the note from the last saved workout with the exercise before this one. |
+| Content | The saved workout opens newest first, every value as saved, 0 included. Every exercise starts done, as one line; the pencil opens its card, with every carry set closed. No last and PB line. The workout note shows as saved. An open card shows last time's note, the note from the last saved workout with the exercise that started before this one, through `IWeightHistoryService.GetAsync`. An exercise picked from Add exercise gets its last note the same way. A failed read shows none. |
 | Overlays | `AddExerciseView` ([Add Exercise](./?path=/custom/screens-add-exercise-overview)); `ConfirmDialog` "Discard changes?" on back with changes; "Delete this workout?" on Delete; "Delete {exercise name}?" on an exercise's trash. |
 | Loading | `WorkoutLoadView`: title "Workout", `Spinner` "Loading…" centred. |
 | Load failed | Error "Couldn't load the workout" and a Secondary **Try again** that reloads. Focus moves to Try again. An exercise missing from the list, or saved as the wrong kind, also shows this. |
 | Not found | "This workout no longer exists", no retry. |
 
-Save calls `IWorkoutService.SaveAsync`, then the App goes to the Dashboard. Save is also ignored while a delete runs and after one succeeds.
+Save calls `IWorkoutService.SaveAsync` with the workout note and every exercise with its note, whether or not its card was opened, then the App goes to the Dashboard. Save is also ignored while a delete runs and after one succeeds.
 
 ## Back
 While loading, after a failed load and when not found: Workouts. On a loaded workout with no changes: Workouts, no prompt. Opened from the Dashboard's last workout, back goes to the Dashboard instead.
 
-After a change, back (arrow or Android) opens `ConfirmDialog` "Discard changes?". A change is a value or note typed, a set added or removed, or an exercise added, picked again or removed, even if later undone. Opening a card with the pencil and marking it done again is not a change. Cancel, or Android back, closes it and the edits stay. Discard logs Information 2902 "Edits to workout {WorkoutId} discarded" and raises `OnBack`; the App goes to Workouts, or to the Dashboard when opened from it. Back is ignored while a save runs, after one succeeds and after a discard. Discard runs once; while a save runs or after one succeeds it closes the prompt and does nothing else.
+After a change, back (arrow or Android) opens `ConfirmDialog` "Discard changes?". A change is a value or note typed, a set added or removed, or an exercise added, picked again or removed, even if later undone. Opening a card with the pencil and marking it done again is not a change. Neither is opening a note field and leaving it without typing. Cancel, or Android back, closes it and the edits stay. Discard logs Information 2902 "Edits to workout {WorkoutId} discarded" and raises `OnBack`; the App goes to Workouts, or to the Dashboard when opened from it. Back is ignored while a save runs, after one succeeds and after a discard. Discard runs once; while a save runs or after one succeeds it closes the prompt and does nothing else.
 
 ## Delete
 Delete opens `ConfirmDialog` "Delete this workout?", the same with or without changes. Cancel, or Android back, closes it. Delete removes the workout and raises `OnDeleted`; the App goes to Workouts, or to the Dashboard when opened from it. If the delete fails, the prompt closes, "Couldn't delete the workout. Try again" shows at the top, the workout and its edits stay, and focus moves to Delete.

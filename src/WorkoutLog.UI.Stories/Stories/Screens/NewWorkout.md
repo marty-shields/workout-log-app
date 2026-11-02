@@ -26,7 +26,7 @@ Each card shows the fields its definition declares ([exercise list](https://gith
 
 ## Done
 While logging, mark an exercise done so it shrinks to one line and is hard to touch by accident. An open card has a tick beside its name and the trash.
-- The tick runs the exercise's Save checks through `IWorkoutChecker.CheckExercise`: every set and entry (cardio too), and "Add at least one set". The workout rules, a repeated exercise and the 10-set limit, stay with Save.
+- The tick runs the exercise's Save checks through `IWorkoutChecker.CheckExercise`: every set and entry (cardio too), its note, and "Add at least one set". The workout rules, a repeated exercise and the 10-set limit, stay with Save.
 - If a check fails, the card stays open and shows the errors; focus moves to the first one, as Add set does. A new strength exercise with its blank set fails "Enter reps" and stays open.
 - A done card is one line: the name, a pencil (edit) and the trash. The pencil opens the full card as it was left, with all its sets and entries and, for a carry, the same open set. Any number of cards can be open.
 - Done doesn't reorder: cards stay newest first. Picking an exercise that is done from Add exercise opens it, moves it to the top and adds a set.
@@ -38,20 +38,21 @@ Written like the margin notes of a paper notebook: one on the workout and one on
 - Exercise note: one per exercise, on its card. **Add note** is a link beside Add set (cardio: alone under the entry). It opens a text box at the bottom of the card, with the same counter and the same one line when you leave it.
 - Last time's note: an exercise just added shows the note it had in the last saved workout with it, as one muted line with the note icon under its last and PB line, or under its name when there is no weights line. Cut with … when long; tap to show the whole note, tap again to cut it. It cannot be edited and does not change while logging.
 - A done card hides its notes and last time's note. They show again when the card is opened.
-- Limit: 500 characters each, trimmed; blank is no note. Over 500 shows "Note must be 500 characters or less" under the field, which gets a red border, and the counter turns red. Save checks the notes with the sets.
+- Limit: 500 characters each, trimmed; blank is no note. Save checks each note through `IWorkoutService.Validate`. Over 500 shows "Note must be 500 characters or less" under the field, which gets a red border, and the counter turns red. The message goes away when that note changes. The tick on an exercise checks its note too.
+- A note is saved with the workout or its exercise and is never logged.
 
 ## Adding an exercise
 Add exercise opens [Add Exercise](./?path=/custom/screens-add-exercise-overview), which loads the last sessions through `ILoggedExercisesService.GetAsync` each time it opens. A picked exercise goes on top, and focus moves to its first field, scrolling it into view. Picking an exercise already in the workout moves its card to the top: strength adds a set as Add set does, unless it has 10 sets, and cardio focuses its entry.
 
-A strength exercise just added loads its last and PB weights through `IWeightHistoryService.GetAsync` and shows them under its name, e.g. *Last 60kg · PB 70kg*. Nothing shows while they load, when there are none, or when the load fails; Core logs the failure. On a bodyweight move, hold or carry, 0 kg counts as none: no line when the PB is 0, and *Last —* when the last is 0. They don't change while logging. Picking it again doesn't reload; adding it again after Remove does.
+An exercise just added, strength or cardio, loads its history through `IWeightHistoryService.GetAsync`. A strength exercise shows its last and PB weights under its name, e.g. *Last 60kg · PB 70kg*. Either kind shows last time's note when it has one. Nothing shows while they load, when there are none, or when the load fails; Core logs the failure. On a bodyweight move, hold or carry, 0 kg counts as none: no line when the PB is 0, and *Last —* when the last is 0. They don't change while logging. Picking it again doesn't reload; adding it again after Remove does.
 
 ## Save
-Save runs `IWorkoutChecker.Check`: every set and entry, then the workout and each exercise through `IWorkoutService.Validate`.
-- Errors show on the exercise, set or entry at fault: each faulty field is outlined, with one message per problem under its set or entry.
-- Focus moves to the first error in screen order: Add exercise for the workout error, the workout note when it has an error, an exercise's Add set or Remove, the first field at fault, or a closed set's summary line, then an exercise's note.
+Save runs `IWorkoutChecker.Check`: every set and entry, then the workout, its note and each exercise and its note through `IWorkoutService.Validate`.
+- Errors show on the exercise, set or entry at fault: each faulty field is outlined, with one message per problem under its set or entry. A note over the limit shows its message in its field.
+- Focus moves to the first error in screen order: Add exercise for the workout error, otherwise the workout note when it has an error, otherwise the first exercise with an error, which takes it to its Add set or Remove, the first field at fault, a closed set's summary line, or its note.
 - Once a set or entry fails a check, every change re-checks it until it passes Add set or opening another set, or the whole workout passes Save. Adding a set clears "Add at least one set"; adding an exercise clears the workout error. Cardio entries are first checked on Save.
 
-A valid Save calls `IWorkoutService.SaveNewAsync` with `ISetChecker.Read`'s records, oldest first, then raises `OnSaved`; the App goes to the Dashboard. If nothing was saved, the workout error shows "Couldn't save the workout. Try again", the workout stays and focus moves to Save. Taps on Save while a save runs are ignored.
+A valid Save calls `IWorkoutService.SaveNewAsync` with the workout note and `ISetChecker.Read`'s records, oldest first, each with its note, then raises `OnSaved`; the App goes to the Dashboard. If nothing was saved, the workout error shows "Couldn't save the workout. Try again", the workout and its notes stay and focus moves to Save. Taps on Save while a save runs are ignored.
 
 ## Back
 Back (arrow or Android) opens `ConfirmDialog` "Discard this workout?", even with no exercises. Cancel, or Android back, closes it and the workout stays. Discard logs Information 2701 "New workout discarded with {ExerciseCount} exercises" and raises `OnDiscarded`; the App goes to the Dashboard. Back is ignored while a save runs, after one succeeds and after a discard. Discard runs once; while a save runs or after one succeeds it closes the prompt and does nothing else.
