@@ -167,6 +167,13 @@ Workout Log is sideloaded: it isn't on Google Play.
 2. Check it's signed with the release key: `apksigner verify --print-certs WorkoutLog-X.Y.Z.apk` (Android SDK build tools) must show the SHA-256 digest at the top of the release notes.
 3. Open it on the phone (allow your file manager to install apps), or run `adb install -r WorkoutLog-X.Y.Z.apk`. A newer version installs over the old one and keeps your workouts.
 
+## Your data
+
+- Your workouts are in a SQLite database on the phone. Nothing is sent to a server.
+- Android Auto Backup copies that database, and only that, to your Google account, and a phone-to-phone transfer carries it too. The Dev build is never backed up.
+- Export writes its JSON file to the app's cache, and the share sheet hands it on. Android may clear the cache at any time.
+- Logs are in `Android/data/<package id>/files/logs`, readable over USB or `adb pull`. They hold events, ids and counts, never what you typed ([`Logging.feature`](tests/WorkoutLog.E2E.Tests/Features/Logging.feature) checks it).
+
 ## Built with
 
 | Area | Choice |
@@ -186,7 +193,7 @@ src/
   WorkoutLog.App/          MAUI Blazor Hybrid host (Android): startup, DI, routing
   WorkoutLog.UI/           Razor class library: screens, components, design tokens
   WorkoutLog.UI.Stories/   BlazingStory stories site for the UI
-  WorkoutLog.Core/         Exercise list, SQLite data, logging
+  WorkoutLog.Core/         Domain rules, SQLite data, services, import and export
 tests/
   WorkoutLog.Core.Tests/   NUnit tests for Core
   WorkoutLog.UI.Tests/     bUnit tests for components and screens
