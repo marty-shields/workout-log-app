@@ -8,13 +8,13 @@ using WorkoutLog.Core.Logging;
 namespace WorkoutLog.Core.Services;
 
 /// <summary>
-/// Reads the last 7 days' set counts through <see cref="IWorkoutRepository"/>, adds them up per group with <see cref="IMuscleGroupMap"/>
+/// Reads the last 7 days' set counts through <see cref="IWorkoutRepository"/>, adds them up per group with <see cref="MuscleGroupMap"/>
 /// and logs the outcome.
 /// </summary>
 internal sealed partial class MuscleSetsService(
     IWorkoutRepository repository,
     IExerciseCatalog catalog,
-    IMuscleGroupMap groups,
+    MuscleGroupMap groups,
     TimeProvider time,
     ILogger<MuscleSetsService> logger) : IMuscleSetsService
 {

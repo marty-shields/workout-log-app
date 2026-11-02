@@ -4,9 +4,9 @@ namespace WorkoutLog.Core.Domain.Exercises.Progress;
 /// Calendar months in the phone's time zone: a session is in range when its local start date is on or after today minus 3, 6 or 12 months.
 /// <see cref="ChartRange.All"/> includes every session.
 /// </summary>
-internal sealed class RangeFilter(TimeProvider clock) : IRangeFilter
+internal sealed class RangeFilter(TimeProvider clock)
 {
-    /// <inheritdoc />
+    /// <summary>True when the session starting at <paramref name="startedAt"/> is in <paramref name="range"/>.</summary>
     public bool Includes(DateTimeOffset startedAt, ChartRange range)
     {
         if (range == ChartRange.All)

@@ -3,9 +3,13 @@ using WorkoutLog.Core.Domain.Exercises;
 namespace WorkoutLog.Core.Domain.Workouts;
 
 /// <summary>Compares workouts as their export would write them.</summary>
-internal sealed class WorkoutContentComparer : IWorkoutContentComparer
+internal sealed class WorkoutContentComparer
 {
-    /// <inheritdoc />
+    /// <summary>
+    /// True when the two would export the same: finish to the tick; exercises and sets in order;
+    /// decimals rounded by <see cref="Exercises.Decimals.Round2"/>; durations to the second.
+    /// Starts and exercise names aren't compared.
+    /// </summary>
     public bool AreSame(Workout saved, NewWorkout imported) =>
         saved.FinishedAt.UtcTicks == imported.FinishedAt.UtcTicks
         && saved.Exercises.Count == imported.Exercises.Count

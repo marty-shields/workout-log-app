@@ -3,7 +3,7 @@ using WorkoutLog.Core.Domain.Exercises;
 namespace WorkoutLog.Core.Domain.Workouts.Validation;
 
 /// <summary>Checks workouts against the definitions in <see cref="IExerciseCatalog"/>.</summary>
-internal sealed class WorkoutValidator(IExerciseCatalog catalog) : IWorkoutValidator
+public sealed class WorkoutValidator(IExerciseCatalog catalog) : IWorkoutValidator
 {
     private readonly Dictionary<int, ExerciseDefinition> definitions = catalog.All.ToDictionary(e => e.Id);
 

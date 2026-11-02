@@ -3,8 +3,8 @@ using WorkoutLog.Core.Domain.Workouts;
 
 namespace WorkoutLog.Core.Domain.Exercises.Bests;
 
-/// <summary>Assisted machines (<see cref="ExerciseCategory.Assisted"/>). Best is the least assist (<see cref="ILeastAssistRule"/>); less assist beats more, tie → more reps.</summary>
-internal sealed class AssistedBestRule(ILeastAssistRule leastAssistRule) : IBestRule
+/// <summary>Assisted machines (<see cref="ExerciseCategory.Assisted"/>). Best is the least assist (<see cref="LeastAssistRule"/>); less assist beats more, tie → more reps.</summary>
+internal sealed class AssistedBestRule(LeastAssistRule leastAssistRule) : IBestRule
 {
     /// <inheritdoc />
     public bool AppliesTo(ExerciseDefinition exercise) => exercise.Category == ExerciseCategory.Assisted;

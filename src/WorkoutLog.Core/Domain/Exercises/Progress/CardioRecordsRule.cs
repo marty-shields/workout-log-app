@@ -6,9 +6,9 @@ namespace WorkoutLog.Core.Domain.Exercises.Progress;
 /// Longest distance and duration, fastest (lowest) pace, fastest (highest) speed, most floors and calories, from each session's chart values.
 /// A tie across sessions takes the earliest start.
 /// </summary>
-internal sealed class CardioRecordsRule : ICardioRecordsRule
+internal sealed class CardioRecordsRule
 {
-    /// <inheritdoc />
+    /// <summary>The records of <paramref name="sessions"/>.</summary>
     public CardioRecords Records(IReadOnlyList<CardioSessionProgress> sessions) => new(
         Highest(sessions, s => s.Session.StartedAt, s => s.Best.Distance),
         Highest(sessions, s => s.Session.StartedAt, s => s.Best.Duration),

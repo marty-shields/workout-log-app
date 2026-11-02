@@ -4,9 +4,9 @@ using WorkoutLog.Core.Domain.Workouts;
 namespace WorkoutLog.Core.Domain.Exercises.Progress;
 
 /// <summary>The set with the least assist, with its reps; tie → most reps.</summary>
-internal sealed class LeastAssistRule : ILeastAssistRule
+internal sealed class LeastAssistRule
 {
-    /// <inheritdoc />
+    /// <summary>The set of <paramref name="sets"/> with the least assist, or null when there are no sets.</summary>
     public ExerciseBest? LeastAssist(IReadOnlyList<StrengthSet> sets) =>
         sets.OrderBy(s => s.WeightKg ?? 0m)
             .ThenByDescending(s => s.Reps)

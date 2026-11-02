@@ -3,8 +3,8 @@ using WorkoutLog.Core.Domain.Workouts;
 
 namespace WorkoutLog.Core.Domain.Exercises.Bests;
 
-/// <summary>Lifts (<see cref="ExerciseCategory.Lift"/>). Best is the top set (<see cref="ITopSetRule"/>); heavier beats lighter, tie → more reps.</summary>
-internal sealed class LiftBestRule(ITopSetRule topSetRule) : IBestRule
+/// <summary>Lifts (<see cref="ExerciseCategory.Lift"/>). Best is the top set (<see cref="TopSetRule"/>); heavier beats lighter, tie → more reps.</summary>
+internal sealed class LiftBestRule(TopSetRule topSetRule) : IBestRule
 {
     /// <inheritdoc />
     public bool AppliesTo(ExerciseDefinition exercise) => exercise.Category == ExerciseCategory.Lift;

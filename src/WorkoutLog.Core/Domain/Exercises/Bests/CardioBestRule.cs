@@ -5,9 +5,9 @@ namespace WorkoutLog.Core.Domain.Exercises.Bests;
 
 /// <summary>
 /// Cardio (<see cref="ExerciseCategory.Cardio"/>). Best is the entry's distance when the exercise has a distance metric, else its duration;
-/// null when that value is empty (<see cref="ICardioSessionRule"/>). Higher beats lower.
+/// null when that value is empty (<see cref="CardioSessionRule"/>). Higher beats lower.
 /// </summary>
-internal sealed class CardioBestRule(ICardioSessionRule sessionRule) : IBestRule
+internal sealed class CardioBestRule(CardioSessionRule sessionRule) : IBestRule
 {
     /// <inheritdoc />
     public bool AppliesTo(ExerciseDefinition exercise) => exercise.Category == ExerciseCategory.Cardio;

@@ -4,7 +4,7 @@ using WorkoutLog.Core.Domain.Workouts;
 namespace WorkoutLog.Core.Data;
 
 /// <summary>Reads workouts from SQLite and runs each write in its own transaction through an <see cref="IWorkoutWriter"/>.</summary>
-internal sealed class WorkoutRepository(SQLiteAsyncConnection connection, IWorkoutWriterFactory writers) : IWorkoutRepository
+internal sealed class WorkoutRepository(SQLiteAsyncConnection connection, WorkoutWriterFactory writers) : IWorkoutRepository
 {
     /// <inheritdoc />
     public async Task<int> AddAsync(NewWorkout workout)

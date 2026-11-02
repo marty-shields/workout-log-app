@@ -4,9 +4,9 @@ using WorkoutLog.Core.Domain.Workouts;
 namespace WorkoutLog.Core.Domain.Exercises.Progress;
 
 /// <summary>The heaviest set with its reps; tie → most reps. Sets with no weight are left out.</summary>
-internal sealed class TopSetRule : ITopSetRule
+internal sealed class TopSetRule
 {
-    /// <inheritdoc />
+    /// <summary>The top set of <paramref name="sets"/>, or null when no set has a weight.</summary>
     public ExerciseBest? TopSet(IReadOnlyList<StrengthSet> sets) =>
         sets.Where(s => s.WeightKg is not null)
             .OrderByDescending(s => s.WeightKg)

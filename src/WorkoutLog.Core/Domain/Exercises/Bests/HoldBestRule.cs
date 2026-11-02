@@ -3,8 +3,8 @@ using WorkoutLog.Core.Domain.Workouts;
 
 namespace WorkoutLog.Core.Domain.Exercises.Bests;
 
-/// <summary>Holds (<see cref="ExerciseCategory.Hold"/>). Best is the longest (<see cref="IHoldRule.Longest"/>); longer beats shorter.</summary>
-internal sealed class HoldBestRule(IHoldRule holdRule) : IBestRule
+/// <summary>Holds (<see cref="ExerciseCategory.Hold"/>). Best is the longest (<see cref="HoldRule.Longest"/>); longer beats shorter.</summary>
+internal sealed class HoldBestRule(HoldRule holdRule) : IBestRule
 {
     /// <inheritdoc />
     public bool AppliesTo(ExerciseDefinition exercise) => exercise.Category == ExerciseCategory.Hold;
