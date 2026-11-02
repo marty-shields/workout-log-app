@@ -2,9 +2,12 @@
 # Usage: e2e-local.sh <dotnet test filter> [tries]
 # Boots the CI emulator (emulator-start.sh's image and flags), builds the App and the tests, runs the E2E tests in the
 # filter through e2e-run.sh, then stops the emulator, whatever the result. For an agent or a developer in a worktree.
-#   e2e-local.sh "Category=smoke"
+#   e2e-local.sh "Category=upgrade"
 #   e2e-local.sh "FullyQualifiedName~.EditAWorkoutFeature." 2
 # Exit: 0 passed, 1 failed, 2 skipped (this machine can't host the emulator, or stayed too busy), 64 bad usage.
+# The full suite is CI's: before booting, it refuses an empty filter, Category=smoke, a filter of only negations and a
+# filter of more than E2E_MAX_SCENARIOS (default 15) scenarios, and it stops the tests after E2E_TIMEOUT_SECONDS
+# (default 600). E2E_ALLOW_BROAD=1 skips the refusals and the time limit, unless E2E_TIMEOUT_SECONDS is set.
 # Skips at once when a prerequisite is missing. Otherwise waits for the emulator slot and for free CPU, memory and disk,
 # and skips after MAX_WAIT_SECONDS (default 3600) in all. One emulator runs per machine: runs from other worktrees queue
 # on a lock. A run takes a boot, a build and the tests (10+ minutes) plus any wait: run it in the background.
@@ -19,9 +22,21 @@ usage() {
   exit 64
 }
 script=$(readlink -f "$0")
-filter="${1:-}"
+source "$(dirname "$script")/e2e-guard.sh"
+(( $# >= 1 )) || usage
+filter="$1"
 tries="${2:-${E2E_TRIES:-1}}"
-[[ -n "$filter" && "$tries" =~ ^[1-9][0-9]*$ ]] || usage
+[[ "$tries" =~ ^[1-9][0-9]*$ ]] || usage
+allow_broad=""
+[[ "${E2E_ALLOW_BROAD:-}" == 1 ]] && allow_broad=1
+if [[ -z "$allow_broad" ]]; then
+  reason=$(broad_filter_reason "$filter")
+  [[ -z "$reason" ]] || refuse_broad "$reason"
+fi
+max_scenarios="${E2E_MAX_SCENARIOS:-15}"
+test_timeout="${E2E_TIMEOUT_SECONDS:-600}"
+# 0 is no limit to timeout.
+[[ -n "$allow_broad" && -z "${E2E_TIMEOUT_SECONDS:-}" ]] && test_timeout=0
 if [[ -n "${E2E_PREVIOUS_APK:-}" && "$filter" != "Category=upgrade" ]]; then
   echo "With E2E_PREVIOUS_APK set the filter is Category=upgrade: upgrade-e2e.sh runs the upgrade check's two halves." >&2
   exit 64
@@ -149,6 +164,14 @@ grep -q 'libpulse\.so\.0' <<<"$libs" || skip "libpulse0 is not installed (the em
 echo "All present."
 echo "::endgroup::"
 
+if [[ -z "$allow_broad" ]]; then
+  run dotnet build tests/WorkoutLog.E2E.Tests
+  scenarios=$(dotnet test tests/WorkoutLog.E2E.Tests --no-build --list-tests --filter "$filter" -- NUnit.DisplayName=FullName \
+    | count_scenarios)
+  (( scenarios <= max_scenarios )) || refuse_broad "the filter selects $scenarios scenarios, more than $max_scenarios"
+  echo "The filter selects $scenarios scenarios."
+fi
+
 busy_reason() {
   local avail_mb free_gb load devices
   avail_mb=$(awk '/MemAvailable/ {print int($2 / 1024)}' /proc/meminfo)
@@ -237,7 +260,13 @@ CHROMEDRIVER=$(.github/scripts/chromedriver.sh "${XDG_CACHE_HOME:-$HOME/.cache}/
 export RESULTS="$results"
 export CHROMEDRIVER
 if [[ -n "${E2E_PREVIOUS_APK:-}" ]]; then
-  run .github/scripts/upgrade-e2e.sh "$E2E_PREVIOUS_APK" "$tries" || exit 1
+  tests=(.github/scripts/upgrade-e2e.sh "$E2E_PREVIOUS_APK" "$tries")
 else
-  run .github/scripts/e2e-run.sh "$filter" "$tries" || exit 1
+  tests=(.github/scripts/e2e-run.sh "$filter" "$tries")
 fi
+status=0
+run timeout "$test_timeout" "${tests[@]}" || status=$?
+if (( status == 124 )); then
+  echo "The tests ran past E2E_TIMEOUT_SECONDS ($test_timeout s) and were stopped." >&2
+fi
+(( status == 0 )) || exit 1
