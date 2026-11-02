@@ -85,6 +85,11 @@ public class WorkoutDiscardTests(WorkoutMode mode) : ComponentTestBase
     [TestCase(true)]
     public async Task Back_WhileSaving_IsIgnored(bool edited)
     {
+        if (!edited && mode == WorkoutMode.New)
+        {
+            Assert.Ignore("A new workout is always edited once an exercise is added.");
+        }
+
         var cut = Render(() => leaves++);
         workouts.Save = () => new TaskCompletionSource<SaveResult>().Task;
         if (edited)
@@ -103,6 +108,7 @@ public class WorkoutDiscardTests(WorkoutMode mode) : ComponentTestBase
 
         Assert.Multiple(() =>
         {
+            Assert.That(workouts.Saves, Is.EqualTo(1));
             Assert.That(cut.FindAll("[data-testid=confirm-dialog]"), Is.Empty);
             Assert.That(leaves, Is.Zero);
         });

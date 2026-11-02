@@ -57,7 +57,7 @@ public sealed class WorkoutEditor(
     /// <summary>The Discard prompt is open.</summary>
     public bool DiscardOpen { get; private set; }
 
-    /// <summary>Discard was confirmed. Nothing is saved after it.</summary>
+    /// <summary>Discard was confirmed.</summary>
     public bool Discarded { get; private set; }
 
     /// <summary>
