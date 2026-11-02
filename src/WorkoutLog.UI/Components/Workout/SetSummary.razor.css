@@ -30,7 +30,19 @@
     text-align: center;
 }
 
+.content {
+    display: flex;
+    flex-direction: column;
+    padding: var(--space-2) 0;
+}
+
 .text {
+    font-variant-numeric: tabular-nums;
+}
+
+.last {
+    color: var(--color-text-muted);
+    font-size: var(--font-size-sm);
     font-variant-numeric: tabular-nums;
 }
 

@@ -34,6 +34,7 @@
                                   ExerciseName="@Exercise.Name"
                                   Fields="Exercise.Fields"
                                   Entry="entry"
+                                  Last="@(Exercise.LastTime?.Entry(number))"
                                   OnChanged="() => EntryChanged(entry)"
                                   OnRemove="() => RemoveSet(entry)"
                                   TestId="@($"{TestId}-set-{number}")" />
@@ -45,6 +46,7 @@
                                     Number="number"
                                     Fields="Exercise.Fields"
                                     Entry="entry"
+                                    Last="@(Exercise.LastTime?.Entry(number))"
                                     OnOpen="() => OpenSet(entry)"
                                     TestId="@($"{TestId}-set-{number}")" />
                     }
@@ -54,8 +56,12 @@
             {
                 @if (Exercise.Entries.Count > 0)
                 {
-                    <div class="set-header" style="grid-template-columns: @SetGrid.Columns(Exercise.Fields)" aria-hidden="true">
+                    <div class="set-header" style="grid-template-columns: @SetGrid.Columns(Exercise.Fields, Exercise.LastTime is not null)" aria-hidden="true">
                         <span>Set</span>
+                        @if (Exercise.LastTime is not null)
+                        {
+                            <span>Last</span>
+                        }
                         @foreach (var field in Exercise.Fields)
                         {
                             <span>@field.DisplayLabel@(field.Required ? " *" : null)</span>
@@ -73,6 +79,7 @@
                             ExerciseName="@Exercise.Name"
                             Fields="Exercise.Fields"
                             Entry="entry"
+                            Last="@(Exercise.LastTime?.Entry(number))"
                             OnChanged="() => EntryChanged(entry)"
                             OnRemove="() => RemoveSet(entry)"
                             TestId="@($"{TestId}-set-{number}")" />
@@ -88,6 +95,10 @@
     else if (Exercise.Entries.Count > 0)
     {
         var entry = Exercise.Entries[0];
+        if (Exercise.LastTime is { } last)
+        {
+            <p class="last-time" data-testid="@($"{TestId}-last")">Last time @last.Entry(1)</p>
+        }
         <div class="cardio">
             @foreach (var field in Exercise.Fields)
             {

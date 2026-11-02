@@ -10,6 +10,14 @@
     text-align: center;
 }
 
+.last {
+    min-width: 0;
+    color: var(--color-text-muted);
+    font-size: var(--font-size-sm);
+    font-variant-numeric: tabular-nums;
+    overflow-wrap: anywhere;
+}
+
 .indent {
     margin-left: calc(var(--set-number-width) + var(--space-2));
 }

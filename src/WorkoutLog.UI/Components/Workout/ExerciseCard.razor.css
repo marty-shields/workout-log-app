@@ -35,6 +35,12 @@
     font-size: var(--font-size-sm);
 }
 
+.last-time {
+    margin: calc(-1 * var(--space-2)) 0 0;
+    color: var(--color-text-muted);
+    font-size: var(--font-size-sm);
+}
+
 .sets {
     display: flex;
     flex-direction: column;

@@ -3,7 +3,13 @@
     <button @ref="button" type="button" class="open @(Entry.Errors.Count > 0 ? "invalid" : null)" data-testid="@($"{TestId}-open")" @onclick="OnOpen">
         <span class="visually-hidden">Set </span>
         <span class="number">@Number</span>
-        <span class="text">@Text</span>
+        <span class="content">
+            <span class="text">@Text</span>
+            @if (Last is not null)
+            {
+                <span class="last" data-testid="@($"{TestId}-last")">Last time @Last</span>
+            }
+        </span>
         <span class="chevron"><Icon Name="IconName.Chevron" Muted Size="IconSize.Small" /></span>
     </button>
     @if (Entry.Errors.Count > 0)
@@ -26,6 +32,10 @@
     /// <summary>Values of the set.</summary>
     [Parameter, EditorRequired]
     public EntryState Entry { get; set; } = null!;
+
+    /// <summary>Last time's text for this set (<see cref="LastTime.Entry"/>), in a muted line under the summary. Null leaves it out.</summary>
+    [Parameter]
+    public string? Last { get; set; }
 
     /// <summary>Raised when the summary is tapped.</summary>
     [Parameter]
