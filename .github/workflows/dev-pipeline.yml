@@ -24,7 +24,7 @@ jobs:
 
       # next-version.sh, e2e-shard-plan.sh, e2e-trx.sh, upgrade-seed-ref.sh and check-filler-comments.py against stubs, sample files and throwaway repos.
       - name: Test the CI scripts
-        run: echo ${{ github.evnt.name }}
+        run: .github/scripts/tests/run.sh
 
       # shellcheck over .github/scripts and the pinned, SHA-256-checked actionlint over the workflows (and their run steps).
       - name: Lint the CI scripts and workflows
