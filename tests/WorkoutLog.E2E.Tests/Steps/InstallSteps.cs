@@ -77,6 +77,7 @@ public sealed partial class InstallSteps(Native native, AppLog log, ScenarioStat
     {
         if (state.TestedAppReplaced)
         {
+            Adb.TryRun(out _, "uninstall", App.Package);
             Adb.Run("install", "-r", App.Apk);
         }
     }
