@@ -1,5 +1,5 @@
 <div class="field" role="group" aria-label="@Label" @onfocusin="() => focused = true" @onfocusout="OnFocusOut">
-    <span class="label @(ShowLabel ? null : "visually-hidden")" aria-hidden="true">
+    <span class="label @(ShowLabel ? null : "visually-hidden")" aria-hidden="true" data-wrap-ok>
         @Label
         @if (Required)
         {

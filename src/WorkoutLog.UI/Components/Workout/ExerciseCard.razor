@@ -75,14 +75,14 @@
                     @if (Exercise.Entries.Count > 0)
                     {
                         <div class="set-header" style="grid-template-columns: @SetGrid.Columns(Exercise.Fields, Exercise.LastTime is not null)" aria-hidden="true">
-                            <span>Set</span>
+                            <span data-wrap-ok>Set</span>
                             @if (SetGrid.LastColumn(Exercise.Fields, Exercise.LastTime is not null))
                             {
-                                <span>Last</span>
+                                <span data-wrap-ok>Last</span>
                             }
                             @foreach (var field in Exercise.Fields)
                             {
-                                <span>@field.DisplayLabel@(field.Required ? " *" : null)</span>
+                                <span data-wrap-ok>@field.DisplayLabel@(field.Required ? " *" : null)</span>
                             }
                             <span></span>
                         </div>
@@ -121,7 +121,7 @@
             var entry = Exercise.Entries[0];
             if (Exercise.LastTime?.EntryOrNull(1) is { } last)
             {
-                <p class="last-time" data-testid="@($"{TestId}-last")">Last time @last</p>
+                <p class="last-time" data-wrap-ok data-testid="@($"{TestId}-last")">Last time @last</p>
             }
             <div class="cardio">
                 @foreach (var field in Exercise.Fields)

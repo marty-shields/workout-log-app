@@ -4,10 +4,10 @@
         <span class="visually-hidden">Set </span>
         <span class="number">@Number</span>
         <span class="content">
-            <span class="text">@Text</span>
+            <span class="text" data-wrap-ok>@Text</span>
             @if (Last is not null)
             {
-                <span class="last" data-testid="@($"{TestId}-last")">Last time @Last</span>
+                <span class="last" data-wrap-ok data-testid="@($"{TestId}-last")">Last time @Last</span>
             }
         </span>
         <span class="chevron"><Icon Name="IconName.Chevron" Tone="IconTone.Muted" Size="IconSize.Small" /></span>

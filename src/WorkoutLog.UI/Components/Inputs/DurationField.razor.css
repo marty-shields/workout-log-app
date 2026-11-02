@@ -20,7 +20,7 @@
     width: 100%;
     min-width: 0;
     min-height: var(--touch-target);
-    padding: 0 var(--space-1);
+    padding: 0;
     border: var(--border-width) solid var(--color-border-strong);
     border-radius: var(--radius-sm);
     background: var(--color-bg);

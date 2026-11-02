@@ -1,7 +1,7 @@
 <button type="button" class="last-note @(Expanded ? "open" : null)" aria-expanded="@(Expanded ? "true" : "false")" data-testid="@TestId" @onclick="Toggle">
     <Icon Name="IconName.Note" Tone="IconTone.Muted" Size="IconSize.Small" />
     <span class="visually-hidden">Last note: </span>
-    <span class="text">@Text</span>
+    <span class="text" data-wrap-ok>@Text</span>
 </button>
 
 @code {

@@ -71,7 +71,7 @@ public class SetRowTests : ComponentTestBase
             Assert.That(cut.Find("[data-testid=set-1-last]").TextContent, Is.EqualTo($"Last time {last}"));
             Assert.That(cut.Find(".last .visually-hidden").TextContent, Is.EqualTo("Last time "));
             Assert.That(cut.Find(".set-row").GetAttribute("style"),
-                Is.EqualTo("grid-template-columns: var(--set-number-width) minmax(0, 0.7fr) minmax(0, 1fr) minmax(0, 1fr) var(--touch-target)"));
+                Is.EqualTo("grid-template-columns: var(--set-number-width) var(--set-last-width) minmax(0, 1fr) minmax(0, 1fr) var(--touch-target)"));
         });
     }
 
