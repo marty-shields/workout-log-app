@@ -11,4 +11,7 @@ public enum ButtonVariant
 
     /// <summary>Destructive action.</summary>
     Danger,
+
+    /// <summary>Quiet action shown as underlined text.</summary>
+    Link,
 }

@@ -44,4 +44,13 @@ public sealed class ExerciseState(int exerciseId, string name, ExerciseKind kind
 
     /// <summary>New Workout, strength: best weight in any saved workout (PB), in kg. Null hides the last and PB line.</summary>
     public decimal? BestKg { get; set; }
+
+    /// <summary>Note on the exercise in this workout. Null when there is none.</summary>
+    public string? Note { get; set; }
+
+    /// <summary>The note the exercise had in the last saved workout with it. Null hides the last note line.</summary>
+    public string? LastNote { get; set; }
+
+    /// <summary>Validation message for <see cref="Note"/>, shown in the note field.</summary>
+    public string? NoteError { get; set; }
 }

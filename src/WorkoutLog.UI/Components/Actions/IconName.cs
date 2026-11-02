@@ -20,4 +20,7 @@ public enum IconName
 
     /// <summary>Magnifying glass (<c>search</c>).</summary>
     Search,
+
+    /// <summary>Sticky note (<c>sticky_note_2</c>).</summary>
+    Note,
 }

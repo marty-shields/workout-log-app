@@ -12,6 +12,7 @@ A button with a 48px touch target.
 | Primary | The main action on a screen: New Workout, Save. One per screen. |
 | Secondary | Other actions in the bottom bar or a card: Add exercise, Add set, Cancel in a confirm dialog. |
 | Danger | Confirming a destructive action: Discard, Delete. Filled red. |
+| Link | A quiet action next to a main one: Add note. Underlined text in `--color-text` on no fill. |
 
 - `FullWidth` fills the row; bottom-bar buttons use it.
 - `Disabled` dims the button with `--opacity-disabled`.
@@ -26,6 +27,7 @@ A Material Symbols Outlined icon (weight 400), drawn as an SVG and hidden from s
 - `Size`: `Default` is `--font-size-xl`, `Small` is `--font-size-lg`.
 - Chevron: the end of a tappable `ListRow` and carry `SetSummary` row.
 - Search: the Exercises search box, `Muted`.
+- Note: before a last note on an exercise card, `Muted`, `Small`.
 
 ## `IconButton`
 A button that shows an `Icon`, with a 48px touch target.
