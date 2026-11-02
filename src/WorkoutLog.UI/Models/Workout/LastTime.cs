@@ -9,6 +9,9 @@ namespace WorkoutLog.UI.Models.Workout;
 /// </param>
 public sealed record LastTime(IReadOnlyList<string> Entries)
 {
-    /// <summary>The text of set (or entry) <paramref name="number"/>, from 1; — when last time had no such set.</summary>
-    public string Entry(int number) => number <= Entries.Count ? Entries[number - 1] : "—";
+    /// <summary>The text of set (or entry) <paramref name="number"/>, from 1; null when last time had no such set.</summary>
+    public string? EntryOrNull(int number) => number >= 1 && number <= Entries.Count ? Entries[number - 1] : null;
+
+    /// <summary>The text of set (or entry) <paramref name="number"/>, from 1; — when last time had no such set, to keep a Last column aligned.</summary>
+    public string Entry(int number) => EntryOrNull(number) ?? "—";
 }

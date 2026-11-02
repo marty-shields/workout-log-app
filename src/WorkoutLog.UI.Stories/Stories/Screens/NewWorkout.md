@@ -41,11 +41,11 @@ A strength exercise just added loads its last and PB weights through `IWeightHis
 While logging, each exercise shows what its last saved workout had, so you know what to beat. It is display only: nothing is copied into a set, and every value is still typed. The values come from `ExerciseState.LastTime`; none means the exercise's first time, and nothing shows. This sits beside the Last and PB line, which stays.
 
 An exercise just added, strength or cardio, loads its last time through `ILastSessionService.GetAsync`: its sets or entry in the saved workout with the latest start that has it. Nothing shows while it loads, and the values don't change while logging. Picking it again doesn't reload; adding it again after Remove does. When the load fails nothing shows and logging works as usual; Core logs Warning 1510 "Loading the last session of exercise {ExerciseId} failed" with the exception, and no workout contents.
-- Sets match by number: set 1 shows last time's set 1, set 2 its set 2. A set number last time didn't have, such as set 4 after 3 sets, shows *—*. Last time's extra sets show nowhere.
-- Strength rows: a muted **Last** column after Set, as wide as a field, with last time's set as the Exercise page writes it: *60×8* (weight × reps), *1:30*, *20kg · 1:30*. Read out as "Last time 60×8".
-- Holds: *1:30*, or *20kg · 1:30* when a weight was logged. Carries: *32kg · 40m · 0:45*. A weight of 0 isn't shown.
-- Carries (set panel): a muted *Last time 32kg · 40m · 0:45* line at the top of the open panel and under each closed set's summary; *Last time —* for a set number last time didn't have.
-- Cardio: a muted line above the fields with the entry's values, e.g. *Last time 5.2km · 30:00 · 5:46/km*.
+- Sets match by number: set 1 shows last time's set 1, set 2 its set 2. A set number last time didn't have, such as set 4 after 3 sets, shows *—* in the Last column and no line anywhere else. Last time's extra sets show nowhere.
+- Lift, assisted and bodyweight rows: a muted **Last** column after Set, as wide as a field, with last time's set as the Exercise page writes it: *60×8* (weight × reps), *1:30*, *20kg · 1:30*. Read out as "Last time 60×8".
+- Holds (duration with an optional weight): no Last column, so the duration boxes keep their width. A muted full-width line under each row, e.g. *Last time 1:30*, or *Last time 20kg · 1:30* when a weight was logged. No line for a set number last time didn't have.
+- Carries (set panel): a muted *Last time 32kg · 40m · 0:45* line at the top of the open panel and under each closed set's summary; no line for a set number last time didn't have. A weight of 0 isn't shown in holds or carries.
+- Cardio: a muted line above the fields with the entry's values, e.g. *Last time 5.2km · 30:00 · 5:46/km*; none when last time had no entry.
 - A done card is one line, so its Last column and lines are hidden with its sets and entry. The pencil brings them back.
 
 ## Save

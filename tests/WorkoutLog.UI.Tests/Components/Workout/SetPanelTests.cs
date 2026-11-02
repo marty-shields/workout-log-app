@@ -197,10 +197,10 @@ public class SetPanelTests : ComponentTestBase
         Assert.That(cut.FindAll(".last"), Is.Empty);
     }
 
-    [TestCase("32kg · 40m · 0:45", "Last time 32kg · 40m · 0:45")]
-    [TestCase("—", "Last time —")]
-    public void Last_ShowsALastTimeLineBetweenTheTitleAndTheFields(string last, string text)
+    [Test]
+    public void Last_ShowsALastTimeLineBetweenTheTitleAndTheFields()
     {
+        const string last = "32kg · 40m · 0:45";
         var entry = new EntryState();
         var cut = Context.Render<SetPanel>(p => p
             .Add(x => x.Number, 1)
@@ -211,7 +211,7 @@ public class SetPanelTests : ComponentTestBase
 
         Assert.Multiple(() =>
         {
-            Assert.That(cut.Find("[data-testid=set-1-last]").TextContent, Is.EqualTo(text));
+            Assert.That(cut.Find("[data-testid=set-1-last]").TextContent, Is.EqualTo($"Last time {last}"));
             Assert.That(cut.FindAll(".panel-header + .last + .fields"), Has.Count.EqualTo(1));
             Assert.That(entry.Values, Is.Empty);
         });

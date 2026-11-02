@@ -18,6 +18,13 @@
     overflow-wrap: anywhere;
 }
 
+.last-line {
+    margin: calc(-1 * var(--space-1)) 0 0 calc(var(--set-number-width) + var(--space-2));
+    color: var(--color-text-muted);
+    font-size: var(--font-size-sm);
+    font-variant-numeric: tabular-nums;
+}
+
 .indent {
     margin-left: calc(var(--set-number-width) + var(--space-2));
 }

@@ -40,7 +40,38 @@ public class SetGridTests
         Assert.Multiple(() =>
         {
             Assert.That(SetGrid.Columns([Weight, Reps], true), Is.EqualTo("var(--set-number-width) minmax(0, 0.7fr) minmax(0, 1fr) minmax(0, 1fr) var(--touch-target)"));
-            Assert.That(SetGrid.Columns([Time, Weight], true), Is.EqualTo("var(--set-number-width) minmax(0, 0.7fr) minmax(0, 2fr) minmax(0, 1fr) var(--touch-target)"));
+        });
+    }
+
+    [Test]
+    public void LastBelow_IsTrueForAnyDuration()
+    {
+        Assert.Multiple(() =>
+        {
+            Assert.That(SetGrid.LastBelow([Time]), Is.True);
+            Assert.That(SetGrid.LastBelow([Time, Weight]), Is.True);
+            Assert.That(SetGrid.LastBelow([Reps, Weight]), Is.False);
+        });
+    }
+
+    [Test]
+    public void LastColumn_NeedsLastTimeAndNoDuration()
+    {
+        Assert.Multiple(() =>
+        {
+            Assert.That(SetGrid.LastColumn([Reps, Weight], true), Is.True);
+            Assert.That(SetGrid.LastColumn([Reps, Weight], false), Is.False);
+            Assert.That(SetGrid.LastColumn([Time, Weight], true), Is.False);
+        });
+    }
+
+    [Test]
+    public void Columns_WithLast_LeaveOutTheLastColumnForADuration()
+    {
+        Assert.Multiple(() =>
+        {
+            Assert.That(SetGrid.Columns([Time, Weight], true), Is.EqualTo(SetGrid.Columns([Time, Weight], false)));
+            Assert.That(SetGrid.Columns([Time, Weight], true), Is.EqualTo("var(--set-number-width) minmax(0, 2fr) minmax(0, 1fr) var(--touch-target)"));
         });
     }
 }

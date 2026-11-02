@@ -46,7 +46,7 @@
                                       ExerciseName="@Exercise.Name"
                                       Fields="Exercise.Fields"
                                       Entry="entry"
-                                      Last="@(Exercise.LastTime?.Entry(number))"
+                                      Last="@(Exercise.LastTime?.EntryOrNull(number))"
                                       IsRecord="entry == Exercise.RecordEntry"
                                       OnChanged="() => EntryChanged(entry)"
                                       OnRemove="() => RemoveSet(entry)"
@@ -59,7 +59,7 @@
                                         Number="number"
                                         Fields="Exercise.Fields"
                                         Entry="entry"
-                                        Last="@(Exercise.LastTime?.Entry(number))"
+                                        Last="@(Exercise.LastTime?.EntryOrNull(number))"
                                         IsRecord="entry == Exercise.RecordEntry"
                                         OnOpen="() => OpenSet(entry)"
                                         TestId="@($"{TestId}-set-{number}")" />
@@ -72,7 +72,7 @@
                     {
                         <div class="set-header" style="grid-template-columns: @SetGrid.Columns(Exercise.Fields, Exercise.LastTime is not null)" aria-hidden="true">
                             <span>Set</span>
-                            @if (Exercise.LastTime is not null)
+                            @if (SetGrid.LastColumn(Exercise.Fields, Exercise.LastTime is not null))
                             {
                                 <span>Last</span>
                             }
@@ -93,7 +93,7 @@
                                 ExerciseName="@Exercise.Name"
                                 Fields="Exercise.Fields"
                                 Entry="entry"
-                                Last="@(Exercise.LastTime?.Entry(number))"
+                                Last="@LastText(number)"
                                 IsRecord="entry == Exercise.RecordEntry"
                                 OnChanged="() => EntryChanged(entry)"
                                 OnRemove="() => RemoveSet(entry)"
@@ -110,9 +110,9 @@
         else if (Exercise.Entries.Count > 0)
         {
             var entry = Exercise.Entries[0];
-            if (Exercise.LastTime is { } last)
+            if (Exercise.LastTime?.EntryOrNull(1) is { } last)
             {
-                <p class="last-time" data-testid="@($"{TestId}-last")">Last time @last.Entry(1)</p>
+                <p class="last-time" data-testid="@($"{TestId}-last")">Last time @last</p>
             }
             <div class="cardio">
                 @foreach (var field in Exercise.Fields)
@@ -327,6 +327,9 @@
         var last = Exercise.Entries.LastOrDefault();
         open = last is not null && (OpenLastSet || last.Values.Values.All(string.IsNullOrEmpty)) ? last : null;
     }
+
+    private string? LastText(int number) =>
+        SetGrid.LastBelow(Exercise.Fields) ? Exercise.LastTime?.EntryOrNull(number) : Exercise.LastTime?.Entry(number);
 
     private bool CanLeave(EntryState? entry)
     {

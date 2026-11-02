@@ -2,7 +2,7 @@
 @using WorkoutLog.UI.Models.Fields
 <div class="set-row" style="grid-template-columns: @SetGrid.Columns(Fields, Last is not null)" data-testid="@TestId">
     <span class="number">@Number</span>
-    @if (Last is not null)
+    @if (Last is not null && !SetGrid.LastBelow(Fields))
     {
         <span class="last" data-testid="@($"{TestId}-last")"><span class="visually-hidden">Last time </span>@Last</span>
     }
@@ -12,6 +12,10 @@
     }
     <IconButton Icon="IconName.Close" AriaLabel="@RemoveLabel" TestId="@($"{TestId}-remove")" Muted Size="IconSize.Small" OnClick="OnRemove" />
 </div>
+@if (Last is not null && SetGrid.LastBelow(Fields))
+{
+    <p class="last-line" data-testid="@($"{TestId}-last")">Last time @Last</p>
+}
 @if (IsRecord)
 {
     <div class="indent">
@@ -42,7 +46,7 @@
     [Parameter, EditorRequired]
     public EntryState Entry { get; set; } = null!;
 
-    /// <summary>Last time's text for this set (<see cref="LastTime.Entry"/>), in a muted Last column after the number. Null leaves the column out.</summary>
+    /// <summary>Last time's text for this set (<see cref="LastTime.Entry"/>), in a muted Last column after the number, or for a duration row on a line under it. Null leaves it out.</summary>
     [Parameter]
     public string? Last { get; set; }
 
