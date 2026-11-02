@@ -27,6 +27,12 @@ public sealed class ScenarioState
     /// <summary>The app's log when the scenario's starting point was reached, for counting new lines.</summary>
     internal string LogAtStart { get; set; } = "";
 
+    /// <summary>The app's log just before Android backed it up.</summary>
+    internal string LogBeforeBackup { get; set; } = "";
+
+    /// <summary>Whether another build of the app is installed, or none, so the tested build must be installed again.</summary>
+    internal bool TestedAppReplaced { get; set; }
+
     /// <summary>Records a set's or entry's values as typed, replacing the fields given.</summary>
     internal void RecordLogged(string name, int set, IReadOnlyDictionary<string, string> values)
     {

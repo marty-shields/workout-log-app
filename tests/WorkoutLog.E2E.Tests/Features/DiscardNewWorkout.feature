@@ -23,7 +23,7 @@ Feature: Discard a new workout
     Then I am still on New Workout
     And Barbell Back Squat set 1 still shows 5 reps
 
-  @smoke
+  @smoke @release
   Scenario: Discard drops the workout
     Given I have gone back with Android back
     When I tap Discard

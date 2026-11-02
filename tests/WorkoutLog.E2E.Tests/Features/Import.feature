@@ -1,3 +1,4 @@
+@release
 Feature: Import
   Settings imports a file made by Export: the file is read and checked, reviewed, then written in one go.
 

@@ -1,3 +1,4 @@
+@release
 Feature: Export
   Settings writes every saved workout to one JSON file and opens the share sheet.
 

@@ -49,7 +49,7 @@ Feature: Logging
     Then the log shows "Workout 1 deleted"
     And the log doesn't show "Edits to workout 1 discarded"
 
-  @smoke
+  @smoke @release
   Scenario: Values I type never reach the log
     Given I have started a new workout
     And I have logged Barbell Back Squat set 1: 5 reps, 987.65 kg

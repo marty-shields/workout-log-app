@@ -1,7 +1,7 @@
 Feature: App lifecycle
   Saved data stays; an unsaved workout doesn't.
 
-  @smoke @today @US-08
+  @smoke @release @today @US-08
   Scenario: Saved workouts survive closing and reopening the app
     Given I have saved a workout with Barbell Back Squat: 5 reps 60 kg
     When I close the app and open it again

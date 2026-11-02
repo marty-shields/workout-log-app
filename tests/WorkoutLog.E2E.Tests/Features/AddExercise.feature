@@ -55,7 +55,7 @@ Feature: Add exercise
     And I open the add-exercise list
     Then the search box is empty, the All chip is on and every exercise shows
 
-  @smoke
+  @smoke @release
   Scenario: Picking an exercise adds it at the top and focuses its first field
     Given I have added "Barbell Back Squat"
     When I add "Dumbbell Curl"

@@ -224,23 +224,8 @@ run dotnet build "$e2e"
 run .github/scripts/emulator-wait.sh "$results" || exit 1
 
 # The Chromedriver for the image's WebView, pinned in qa-pipeline.yml and cached.
-pin() { sed -n "s/^ *$1: *//p" .github/workflows/qa-pipeline.yml; }
-cd_version=$(pin CHROMEDRIVER_VERSION)
-cd_sha=$(pin CHROMEDRIVER_SHA256)
-webview=$(adb shell dumpsys webviewupdate 9>&- | sed -n 's/.*Current WebView package (name, version): ([^,]*, \([0-9.]*\)).*/\1/p')
-if [[ "${webview%%.*}" != "${cd_version%%.*}" ]]; then
-  echo "Chromedriver: WebView $webview, pinned Chromedriver $cd_version: update the pin in qa-pipeline.yml (docs/dev-setup-build.md)." >&2
-  exit 1
-fi
-cache="${XDG_CACHE_HOME:-$HOME/.cache}/workoutlog-e2e/chromedriver-$cd_version"
-if [[ ! -x "$cache/chromedriver-linux64/chromedriver" ]]; then
-  mkdir -p "$cache"
-  run curl -fsSL -o "$cache/chromedriver.zip" \
-    "https://storage.googleapis.com/chrome-for-testing-public/$cd_version/linux64/chromedriver-linux64.zip"
-  echo "$cd_sha  $cache/chromedriver.zip" | sha256sum -c -
-  unzip -q -o -d "$cache" "$cache/chromedriver.zip"
-fi
+CHROMEDRIVER=$(.github/scripts/chromedriver.sh "${XDG_CACHE_HOME:-$HOME/.cache}/workoutlog-e2e" 9>&-) || exit 1
 
 export RESULTS="$results"
-export CHROMEDRIVER="$cache/chromedriver-linux64/chromedriver"
+export CHROMEDRIVER
 run .github/scripts/e2e-run.sh "$filter" "$tries" || exit 1

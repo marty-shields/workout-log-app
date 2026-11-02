@@ -14,7 +14,7 @@ Feature: Strength sets
       | Plank                    | Duration, Weight (kg)               |
       | Farmer's Walk            | Distance (m), Weight (kg), Duration |
 
-  @smoke
+  @smoke @release
   Scenario: Add set after a valid set adds the next set below it
     Given I have added "Barbell Back Squat"
     And I have logged Barbell Back Squat set 1: 8 reps, 60 kg

@@ -15,7 +15,7 @@ Feature: Cardio entry
       | Stair Climber  | Duration, Floors, Speed level, Calories, Rate (steps/min)                      |
       | Outdoor Run    | Duration, Distance (km), Calories                                              |
 
-  @smoke
+  @smoke @release
   Scenario: Stair Climber saves with duration only
     Given I have added "Stair Climber"
     When I log Stair Climber: 0:15:00

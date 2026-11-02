@@ -13,7 +13,8 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  # Chrome for Testing build for the emulator image's WebView major version (133.0.6943.137).
+  # Chrome for Testing build for the emulator image's WebView major version (133.0.6943.137); chromedriver.sh reads it for
+  # every E2E job.
   CHROMEDRIVER_VERSION: 133.0.6943.141
   CHROMEDRIVER_SHA256: d3826586626a8e91d8b1d2da76423e2b4fd7179148284afe4677c72dcd0f1a27
 
@@ -64,16 +65,8 @@ jobs:
 
       - name: Pinned Chromedriver
         run: |
-          webview=$(adb shell dumpsys webviewupdate | sed -n 's/.*Current WebView package (name, version): ([^,]*, \([0-9.]*\)).*/\1/p')
-          if [[ "${webview%%.*}" != "${CHROMEDRIVER_VERSION%%.*}" ]]; then
-            echo "::error title=Chromedriver::WebView $webview, pinned Chromedriver $CHROMEDRIVER_VERSION: update the pin in qa-pipeline.yml (docs/dev-setup-build.md)."
-            exit 1
-          fi
-          curl -fsSL -o "$RUNNER_TEMP/chromedriver.zip" \
-            "https://storage.googleapis.com/chrome-for-testing-public/$CHROMEDRIVER_VERSION/linux64/chromedriver-linux64.zip"
-          echo "$CHROMEDRIVER_SHA256  $RUNNER_TEMP/chromedriver.zip" | sha256sum -c -
-          unzip -q -d "$RUNNER_TEMP" "$RUNNER_TEMP/chromedriver.zip"
-          echo "CHROMEDRIVER=$RUNNER_TEMP/chromedriver-linux64/chromedriver" >> "$GITHUB_ENV"
+          chromedriver=$(.github/scripts/chromedriver.sh "$RUNNER_TEMP")
+          echo "CHROMEDRIVER=$chromedriver" >> "$GITHUB_ENV"
 
       # Times out after 30 minutes; the logs still upload. Failed scenarios run again, up to 3 tries in all (e2e-run.sh).
       - name: E2E tests

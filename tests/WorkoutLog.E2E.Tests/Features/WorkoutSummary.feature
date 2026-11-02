@@ -1,7 +1,7 @@
 Feature: Workout Summary
   Saving a new workout shows what I did and what improved; Done or Android back returns to the Dashboard. Saving an edit goes straight to the Dashboard.
 
-  @smoke
+  @smoke @release
   Scenario: Saving a new workout opens the summary and Done returns to the Dashboard
     Given I have started a new workout
     And I have added "Push-up"

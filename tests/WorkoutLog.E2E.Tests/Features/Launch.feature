@@ -2,7 +2,7 @@
 Feature: Launch
   The app opens on the Dashboard.
 
-  @smoke
+  @smoke @release
   Scenario: A fresh install opens on the empty Dashboard
     Then I am on the Dashboard titled "Workout Log"
     And the last workout shows "No workouts yet"

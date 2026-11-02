@@ -1,7 +1,7 @@
 Feature: Settings
   The gear on the Dashboard opens Settings; back returns to the Dashboard.
 
-  @smoke
+  @smoke @release
   Scenario: The gear on the Dashboard opens Settings
     When I tap Settings on the Dashboard
     Then I am on Settings

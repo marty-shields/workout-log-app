@@ -1,0 +1,96 @@
+# Installs the Debug build of the last release (the latest v* tag) on an emulator and saves workouts through it, then installs
+# this commit's Debug build over it and checks them: the @upgrade scenario (docs/e2e-tests.md). This job builds both, so the
+# same debug key signs them. For the release workflow, and for PRs that change the database code or the E2E tests.
+name: Upgrade E2E
+
+on:
+  workflow_call:
+  pull_request:
+    branches: [main]
+    paths:
+      - tests/WorkoutLog.E2E.Tests/**
+      - src/WorkoutLog.Core/Data/**
+      - .github/workflows/upgrade-e2e.yml
+      - .github/scripts/previous-apk.sh
+
+permissions:
+  contents: read
+
+concurrency:
+  group: upgrade-e2e-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  upgrade-e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      RESULTS: tests/WorkoutLog.E2E.Tests/TestResults/E2E
+    steps:
+      # The tags, for the last release.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Start the emulator
+        run: .github/scripts/emulator-start.sh
+
+      - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
+        with:
+          global-json-file: global.json
+
+      # Workload set matching the SDK in global.json; bump both together.
+      - name: Install the MAUI Android workload
+        run: dotnet workload install maui-android --version 10.0.402.1
+
+      - name: Build the last release's Debug APK
+        run: |
+          tag=$(.github/scripts/previous-apk.sh "$RUNNER_TEMP/previous.apk")
+          echo "::notice title=Upgrade::Upgrading from $tag."
+          echo "E2E_PREVIOUS_APK=$RUNNER_TEMP/previous.apk" >> "$GITHUB_ENV"
+
+      - name: Build the App and the E2E tests
+        run: |
+          dotnet build src/WorkoutLog.App -f net10.0-android
+          dotnet build tests/WorkoutLog.E2E.Tests
+
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24
+
+      - name: Install Appium
+        working-directory: tests/WorkoutLog.E2E.Tests
+        run: npm ci --ignore-scripts
+
+      - name: Wait for the emulator
+        run: .github/scripts/emulator-wait.sh "$RESULTS"
+
+      - name: Pinned Chromedriver
+        run: |
+          chromedriver=$(.github/scripts/chromedriver.sh "$RUNNER_TEMP")
+          echo "CHROMEDRIVER=$chromedriver" >> "$GITHUB_ENV"
+
+      # Failed scenarios run again, up to 3 tries in all (e2e-run.sh).
+      - name: E2E tests
+        timeout-minutes: 20
+        run: .github/scripts/e2e-run.sh "Category=upgrade" 3
+
+      # Runs on a failure or a cancel too. Each adb call is time-limited.
+      - name: Keep the emulator log
+        if: always()
+        timeout-minutes: 3
+        run: |
+          mkdir -p "$RESULTS"
+          cp "$RUNNER_TEMP/emulator.log" "$RESULTS/" || true
+          timeout 30 adb exec-out screencap -p > "$RESULTS/final-screen.png" 2>/dev/null || true
+          echo "::group::Health (last 20)"; tail -n 20 "$RESULTS/health.log" 2>/dev/null || true; echo "::endgroup::"
+          ls -la "$RESULTS"
+
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        if: always()
+        with:
+          name: upgrade-e2e
+          path: ${{ env.RESULTS }}/
+          retention-days: 1
+          if-no-files-found: ignore

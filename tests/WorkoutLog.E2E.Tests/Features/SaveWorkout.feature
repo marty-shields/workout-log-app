@@ -2,7 +2,7 @@
 Feature: Save a workout
   Saving keeps the workout, records the finish time and returns to the Dashboard.
 
-  @smoke @today
+  @smoke @release @today
   Scenario: Save a strength workout with two sets
     Given I have started a new workout
     And I have added "Barbell Back Squat"
@@ -13,7 +13,7 @@ Feature: Save a workout
     And this week shows 1 workout
     And Workouts lists 1 workout, today at the time I started
 
-  @smoke
+  @smoke @release
   Scenario: Save a cardio workout and see its values again
     Given I have started a new workout
     And I have added "Treadmill"

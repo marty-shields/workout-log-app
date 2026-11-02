@@ -16,9 +16,12 @@ public sealed class AppHooks(ScenarioContext scenario, DeviceClock clock, Native
     /// <summary>A <c>@today</c> scenario doesn't start this close to local midnight.</summary>
     private static readonly TimeSpan MidnightMargin = TimeSpan.FromMinutes(5);
 
-    /// <summary>Steps that launch the app themselves: they may seed workouts first.</summary>
+    /// <summary>Steps that launch the app themselves: they may seed workouts or install another build first.</summary>
     private static readonly string[] LaunchingSteps =
-        [nameof(SeedSteps.GivenTheseSavedWorkouts), nameof(SeedSteps.GivenWorkoutsOnDifferentDays), nameof(AppSteps.GivenIAmOn)];
+    [
+        nameof(SeedSteps.GivenTheseSavedWorkouts), nameof(SeedSteps.GivenWorkoutsOnDifferentDays), nameof(AppSteps.GivenIAmOn),
+        nameof(InstallSteps.GivenTheLastReleaseIsInstalled),
+    ];
 
     private static int scenarioCount;
 

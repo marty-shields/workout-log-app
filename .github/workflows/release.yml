@@ -1,6 +1,7 @@
 # Releases main by hand (Actions > Release > Run workflow): works out the next version from the semver labels of the PRs
-# merged since the last v* tag, builds and tests, runs the E2E suite on emulators (qa-pipeline.yml), then, after the owner approves
-# the release environment, builds the signed APK and publishes the GitHub release with its v* tag (docs/release.md).
+# merged since the last v* tag, builds and tests, runs the E2E suite on emulators (qa-pipeline.yml, release-e2e.yml and
+# upgrade-e2e.yml), then, after the owner approves the release environment, builds the signed APK and publishes the GitHub
+# release with its v* tag (docs/release.md).
 name: Release
 
 on:
@@ -62,63 +63,21 @@ jobs:
     if: needs.version.outputs.release == 'true'
     uses: ./.github/workflows/qa-pipeline.yml
 
-  # A Release build of the same commit (x64, debug key, never published) starts cleanly on an emulator.
-  release-smoke:
+  # A Release build of the same commit on an emulator: it starts cleanly, then the @release and @backup scenarios run on it.
+  release-e2e:
     needs: version
     if: needs.version.outputs.release == 'true'
-    runs-on: ubuntu-latest
-    timeout-minutes: 45
-    env:
-      RESULTS: release-smoke
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          persist-credentials: false
+    uses: ./.github/workflows/release-e2e.yml
 
-      - name: Start the emulator
-        run: .github/scripts/emulator-start.sh
-
-      - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
-        with:
-          global-json-file: global.json
-
-      - name: Install the MAUI Android workload
-        run: dotnet workload install maui-android --version 10.0.402.1
-
-      - name: Build the Release APK (x64, debug key)
-        run: |
-          dotnet restore src/WorkoutLog.App
-          dotnet publish src/WorkoutLog.App -c Release -f net10.0-android -p:AndroidPackageFormat=apk \
-            -r android-x64 --no-restore -o "$RUNNER_TEMP/smoke"
-
-      - name: Wait for the emulator
-        run: .github/scripts/emulator-wait.sh "$RESULTS"
-
-      - name: Launch
-        run: .github/scripts/release-smoke.sh "$RUNNER_TEMP/smoke/uk.martinshields.workoutlog-Signed.apk"
-
-      # Runs on a failure or a cancel too, so the logs are kept.
-      - name: Keep the emulator log
-        if: always()
-        timeout-minutes: 3
-        run: |
-          mkdir -p "$RESULTS"
-          cp "$RUNNER_TEMP/emulator.log" "$RESULTS/" || true
-          timeout 30 adb exec-out screencap -p > "$RESULTS/final-screen.png" 2>/dev/null || true
-          echo "::group::Health (last 20)"; tail -n 20 "$RESULTS/health.log" 2>/dev/null || true; echo "::endgroup::"
-          ls -la "$RESULTS"
-
-      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
-        if: always()
-        with:
-          name: release-smoke
-          path: ${{ env.RESULTS }}/
-          retention-days: 1
-          if-no-files-found: ignore
+  # The last release's Debug build, then this commit's installed over it: the @upgrade scenario.
+  upgrade-e2e:
+    needs: version
+    if: needs.version.outputs.release == 'true'
+    uses: ./.github/workflows/upgrade-e2e.yml
 
   # Waits for the owner's approval of the release environment, which holds the signing secrets.
   release:
-    needs: [version, build, e2e, release-smoke]
+    needs: [version, build, e2e, release-e2e, upgrade-e2e]
     if: needs.version.outputs.release == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 45
