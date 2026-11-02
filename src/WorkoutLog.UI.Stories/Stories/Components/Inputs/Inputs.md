@@ -18,6 +18,16 @@ One text box with `inputmode="numeric"` (whole) or `"decimal"`.
 Three boxes, h : mm : ss. When focus leaves, empty boxes become 0 and minutes and seconds are padded to two digits.
 - `data-testid`: `{TestId}-h`, `{TestId}-mm`, `{TestId}-ss`.
 
+## `NoteField`
+A note on a workout or an exercise, in three states.
+- Empty: only an **Add note** link (`AppButton` Link). A parent that shows its own Add note, like `ExerciseCard`, turns it off with `ShowAddButton` and sets `Editing`.
+- Editing: the label and a counter such as *120/500* on one line, over a three-row text box that has no length limit. At the limit the counter reads *500/500*; above it the counter is red. Tapping Add note or the collapsed line opens it with focus in the text box.
+- Collapsed: the note on one line, cut with … when long, in a bordered row. Tap to edit. Leaving the text box collapses it.
+- The text is trimmed when the field collapses. Blank or only spaces is no note: `ValueChanged` gets null.
+- With an `Error` the text box or collapsed line gets a red 2px border and the message shows under it in red. It is not set by the field: the screen sets it, e.g. *Note must be 500 characters or less*.
+- `FocusAsync` opens the text box and focuses it.
+- `data-testid`: `TestId`, `{TestId}-add`, `{TestId}-input`, `{TestId}-count`, `{TestId}-open` (collapsed line), `{TestId}-error`.
+
 ## `RadioGroup`
 A labelled group of choices; one is chosen. Each choice is a full-width row with a radio, its label and an optional hint under it. The chosen row is highlighted. Disabled dims every row and ignores taps.
 - `data-testid`: `TestId` on the group; each option's `TestId` on its radio.
@@ -30,4 +40,4 @@ A full-width row of 2–4 segments; one is chosen and filled with `--color-selec
 A row of rounded chips; one is chosen and filled with `--color-selected`. For the Exercises list's All, Strength, Cardio. Each chip is a radio with a 48px touch target; `Label` names the group for screen readers only.
 - `data-testid`: `TestId` on the group; each option's `TestId` on its radio.
 
-Stories: [FieldInput](./?path=/docs/components-inputs-fieldinput--docs) · [NumberField](./?path=/docs/components-inputs-numberfield--docs) · [DurationField](./?path=/docs/components-inputs-durationfield--docs) · [RadioGroup](./?path=/docs/components-inputs-radiogroup--docs) · [SegmentedControl](./?path=/docs/components-inputs-segmentedcontrol--docs) · [FilterChips](./?path=/docs/components-inputs-filterchips--docs)
+Stories: [FieldInput](./?path=/docs/components-inputs-fieldinput--docs) · [NumberField](./?path=/docs/components-inputs-numberfield--docs) · [NoteField](./?path=/docs/components-inputs-notefield--docs) · [DurationField](./?path=/docs/components-inputs-durationfield--docs) · [RadioGroup](./?path=/docs/components-inputs-radiogroup--docs) · [SegmentedControl](./?path=/docs/components-inputs-segmentedcontrol--docs) · [FilterChips](./?path=/docs/components-inputs-filterchips--docs)

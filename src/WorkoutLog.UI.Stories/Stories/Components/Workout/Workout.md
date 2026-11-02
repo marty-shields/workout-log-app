@@ -10,11 +10,19 @@ One exercise in a workout: name, Remove, and its sets (strength) or entry (cardi
 - Strength with more than two fields, one a duration (carries): one `SetPanel` open, the other sets as `SetSummary` lines.
 - Cardio: one entry with every field labelled. Pace (Outdoor Run, Walk) or speed (Treadmill, Outdoor Cycle) shows as a muted line under the fields, worked out from distance and duration: *Pace 5:46/km*, *Speed 10.4 km/h*, or a — until both are filled and more than 0.
 - With `BestKg` set, a muted line under the name: *Last 62.5kg · PB 70kg*, — for no `LastKg`. Not tappable.
+- With `LastNote` set, a `LastNote` line directly under that line, or under the name when `BestKg` is not set. Strength and cardio.
+- Add note: a link (`AppButton` Link) while there is no note. Strength: beside Add set, which shrinks to fill the rest of the row. Cardio: alone under the entry, left-aligned. Tapping it opens the note text box at the bottom of the card; leaving the text box with a note shows it as one line (`NoteField`), with no Add note. A cleared note shows Add note again.
+- `Note` is raised through `OnChanged`. `NoteError` shows in the note field, not as the card error; the card's red outline is for `Error`.
+- `FocusFirstErrorAsync` ends at the note field when only `NoteError` is set.
 - At 10 sets Add set is off, with a muted note "At most 10 sets" under it.
 - Add set and opening another set are blocked while the current set is empty or has errors. Focus then moves to its first field at fault.
 - `ValidateSet` is `ISetChecker.Check` in the App: one message per field, format messages first, then Core's rules. A cardio entry is checked on Save. Once a set or entry fails a check, every change re-checks it, even after it becomes valid, until it passes Add set or opening another set, or the whole workout passes Save.
 - `FocusFirstErrorAsync` (after a failed Save): Add set for an exercise with no sets, Remove for another exercise error, else the first field at fault in the first set or entry with errors, or a closed set's summary line.
-- `data-testid`: `TestId`, `{TestId}-remove`, `{TestId}-weights`, `{TestId}-error`, `{TestId}-add-set`, `{TestId}-sets-full`, `{TestId}-set-{n}`, `{TestId}-{field}` (cardio), `{TestId}-worked-out`.
+- `data-testid`: `TestId`, `{TestId}-remove`, `{TestId}-weights`, `{TestId}-error`, `{TestId}-add-set`, `{TestId}-sets-full`, `{TestId}-set-{n}`, `{TestId}-{field}` (cardio), `{TestId}-worked-out`, `{TestId}-last-note`, `{TestId}-add-note`, `{TestId}-note` (and its parts, see [Inputs](./?path=/custom/components-inputs-overview)).
+
+## `LastNote`
+The note an exercise had in the last saved workout with it: one muted line, the note `Icon` (`Muted`, `Small`) and the text. Cut with … when long; tap to show the whole note, tap again to cut it. Read-only. Screen readers hear "Last note:" before the text.
+- `data-testid`: `TestId`.
 
 ## `SetRow`
 One set on one row: number, a box per field, remove (`IconButton` Close, muted, small). Column headers come from the card.
@@ -32,4 +40,4 @@ A closed set as one line, e.g. *40m · 32kg · 0:00:45*, ending in a small muted
 One message per faulty field under a set or entry, in field order.
 - `data-testid`: `TestId`.
 
-Stories: [ExerciseCard](./?path=/docs/components-workout-exercisecard--docs) · [SetRow](./?path=/docs/components-workout-setrow--docs) · [SetPanel](./?path=/docs/components-workout-setpanel--docs) · [SetSummary](./?path=/docs/components-workout-setsummary--docs) · [EntryErrors](./?path=/docs/components-workout-entryerrors--docs).
+Stories: [ExerciseCard](./?path=/docs/components-workout-exercisecard--docs) · [LastNote](./?path=/docs/components-workout-lastnote--docs) · [SetRow](./?path=/docs/components-workout-setrow--docs) · [SetPanel](./?path=/docs/components-workout-setpanel--docs) · [SetSummary](./?path=/docs/components-workout-setsummary--docs) · [EntryErrors](./?path=/docs/components-workout-entryerrors--docs).
