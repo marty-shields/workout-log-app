@@ -23,7 +23,8 @@ Personal Android app (.NET 10 MAUI Blazor Hybrid). Setup: [docs/dev-setup-build.
 ## Rules
 - Ask about any ambiguity.
 - No new packages without approval.
-- XML comments only where they say more than the name and type do (a unit, a range, what null means, an order, a why); never restate the name. Build warnings no longer ask for them, and CI's `check-filler-comments.py` fails a `<summary>` or `<param>` that only restates the name (a real exception gets `/// <!-- filler-ok: why -->`).
+- XML comments only when they add something the name and type don't (a unit, a range, what null means, an order, a why). Component parameters are the exception. Never restate the name. Build warnings no longer ask for them, and CI's `check-filler-comments.py` fails a `<summary>` or `<param>` that only restates the name (a real exception gets `/// <!-- filler-ok: why -->`).
+- Interfaces only where something else implements them, such as a test fake or the stories site. No interface for a single implementation nothing swaps.
 - Commit on a branch, push it and open a DRAFT PR when the work is done. Review happens on the draft PR, not before the commit. Merge only when the user says to, or in an autopilot run (below).
 - PR titles are Conventional Commits with exactly one `semver:major|minor|patch` label (CI checks both).
 - A PR that changes the UI includes screenshots of the changed screens, posted as a PR comment or in the body, before it is marked ready.
