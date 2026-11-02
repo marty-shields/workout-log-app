@@ -1,13 +1,21 @@
 @using WorkoutLog.UI.Components.Inputs
 @using WorkoutLog.UI.Models.Fields
-<div class="set-row" style="grid-template-columns: @SetGrid.Columns(Fields)" data-testid="@TestId">
+<div class="set-row" style="grid-template-columns: @SetGrid.Columns(Fields, Last is not null)" data-testid="@TestId">
     <span class="number">@Number</span>
+    @if (Last is not null && !SetGrid.LastBelow(Fields))
+    {
+        <span class="last" data-testid="@($"{TestId}-last")"><span class="visually-hidden">Last time </span>@Last</span>
+    }
     @foreach (var field in Fields)
     {
         <FieldInput @ref="fields[field.Key]" Field="field" Entry="Entry" ShowLabel="false" OnChanged="OnChanged" TestId="@($"{TestId}-{field.Key}")" />
     }
     <IconButton Icon="IconName.Close" AriaLabel="@RemoveLabel" TestId="@($"{TestId}-remove")" Muted Size="IconSize.Small" OnClick="OnRemove" />
 </div>
+@if (Last is not null && SetGrid.LastBelow(Fields))
+{
+    <p class="last-line" data-testid="@($"{TestId}-last")">Last time @Last</p>
+}
 @if (IsRecord)
 {
     <div class="indent">
@@ -37,6 +45,10 @@
     /// <summary>Values of the set.</summary>
     [Parameter, EditorRequired]
     public EntryState Entry { get; set; } = null!;
+
+    /// <summary>Last time's text for this set (<see cref="LastTime.Entry"/>), in a muted Last column after the number, or for a duration row on a line under it. Null leaves it out.</summary>
+    [Parameter]
+    public string? Last { get; set; }
 
     /// <summary>Shows the Record badge under the row.</summary>
     [Parameter]

@@ -119,6 +119,72 @@
         </Template>
     </Story>
 
+    <Story Name="Last time - first time">
+        <Template>
+            <ExerciseCard Exercise="@SampleData.Exercise(Catalog, 6, ["60", "8"], ["60", "8"], ["62.5", "6"])" />
+        </Template>
+    </Story>
+
+    <Story Name="Last time - same sets">
+        <Template>
+            <ExerciseCard Exercise="@SampleData.WithLastTime(SampleData.Exercise(Catalog, 6, ["62.5", "8"], ["62.5", "8"], ["65", "6"]), "60×8", "60×8", "62.5×6")" />
+        </Template>
+    </Story>
+
+    <Story Name="Last time - more sets">
+        <Template>
+            <ExerciseCard Exercise="@SampleData.WithLastTime(SampleData.Exercise(Catalog, 6, ["60", "8"], ["60", "8"], ["62.5", "6"]), "60×8", "60×8")" />
+        </Template>
+    </Story>
+
+    <Story Name="Last time - fewer sets">
+        <Template>
+            <ExerciseCard Exercise="@SampleData.WithLastTime(SampleData.Exercise(Catalog, 6, ["60", "8"]), "60×8", "60×8", "62.5×6")" />
+        </Template>
+    </Story>
+
+    <Story Name="Last time - hold">
+        <Template>
+            <ExerciseCard Exercise="@SampleData.WithLastTime(SampleData.Exercise(Catalog, 258, ["0:01:00", null], [null, null], [null, null]), "1:30", "1:20")" />
+        </Template>
+    </Story>
+
+    <Story Name="Last time - hold, weighted">
+        <Template>
+            <ExerciseCard Exercise="@SampleData.WithLastTime(SampleData.Exercise(Catalog, 258, ["0:01:00", "10"], [null, null], [null, null]), "12.5kg · 1:30", "12.5kg · 1:20")" />
+        </Template>
+    </Story>
+
+    <Story Name="Last time - collapsed">
+        <Template>
+            <ExerciseCard Exercise="@SampleData.WithLastTime(SampleData.Exercise(Catalog, 187, ["40", "32", "0:00:45"], ["40", "32", "0:00:50"], ["30", "32", null]), "32kg · 40m · 0:45", "32kg · 40m · 0:50")" />
+        </Template>
+    </Story>
+
+    <Story Name="Last time - collapsed, set closed">
+        <Template>
+            <ExerciseCard OpenLastSet="false" Exercise="@SampleData.WithLastTime(SampleData.Exercise(Catalog, 187, ["40", "32", "0:00:45"], ["40", "32", "0:00:50"], ["30", "32", "0:00:40"]), "32kg · 40m · 0:45", "32kg · 40m · 0:50")" />
+        </Template>
+    </Story>
+
+    <Story Name="Last time - cardio">
+        <Template>
+            <ExerciseCard Exercise="@SampleData.WithLastTime(SampleData.Exercise(Catalog, 311, ["0:25:30", "5", null]), "5.2km · 30:00 · 5:46/km")" />
+        </Template>
+    </Story>
+
+    <Story Name="Last time - done">
+        <Template>
+            <ExerciseCard Exercise="@SampleData.MarkDone([SampleData.WithLastTime(SampleData.Exercise(Catalog, 6, ["62.5", "8"], ["62.5", "8"], ["65", "6"]), "60×8", "60×8", "62.5×6")], 0)[0]" />
+        </Template>
+    </Story>
+
+    <Story Name="Last time - cardio, first time">
+        <Template>
+            <ExerciseCard Exercise="@SampleData.Exercise(Catalog, 311, ["0:25:30", "5", null])" />
+        </Template>
+    </Story>
+
     <Story Name="Strength errors">
         <Template>
             <ExerciseCard Exercise="@SampleData.WorkoutWithErrors(Catalog, Checker)[0]" />

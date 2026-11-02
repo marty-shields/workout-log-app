@@ -45,6 +45,12 @@ internal interface IWorkoutRepository
     Task<IReadOnlyList<LastSession>> GetLastSessionsAsync();
 
     /// <summary>
+    /// Returns the exercise's last workout: the one with the latest start that has it, with its sets or entry. With <paramref name="before"/>, the
+    /// latest one that started before that time. Null if there is none.
+    /// </summary>
+    Task<LastSession?> GetLastSessionOfAsync(int exerciseId, DateTimeOffset? before);
+
+    /// <summary>
     /// Returns each workout that has the exercise, by start time oldest first, with the exercise's sets or entry.
     /// </summary>
     Task<IReadOnlyList<WorkoutSession>> GetSessionsAsync(int exerciseId);

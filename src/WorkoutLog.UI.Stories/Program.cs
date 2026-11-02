@@ -18,6 +18,7 @@ builder.Services.AddSingleton<IWorkoutService, SampleWorkoutService>();
 builder.Services.AddSingleton<IExerciseCatalog, ExerciseCatalog>();
 builder.Services.AddSingleton<IImportService, SampleImportService>();
 builder.Services.AddSingleton<ILoggedExercisesService, SampleLoggedExercisesService>();
+builder.Services.AddSingleton<ILastSessionService, SampleLastSessionService>();
 builder.Services.AddSingleton<IImportFilePicker, SampleImportFilePicker>();
 
 await builder.Build().RunAsync();

@@ -51,6 +51,7 @@ public class CoreEventTests
             [CoreEvent.WorkoutSummaryUnknownExercise] = 1532,
             [CoreEvent.WorkoutSummaryExerciseFailed] = 1533,
             [CoreEvent.WeightHistoryLoadFailed] = 1501,
+            [CoreEvent.LastSessionLoadFailed] = 1510,
             [CoreEvent.ExportWritten] = 1601,
             [CoreEvent.ExportTooLarge] = 1602,
             [CoreEvent.ExportFailed] = 1603,

@@ -33,6 +33,7 @@ It's built for one person and one phone: no accounts, no sign-up.
 - Add exercises and log sets. Each exercise shows the fields it needs: weight and reps, duration, or distance.
 - 315 built-in strength and cardio exercises, with search.
 - Cardio entries record duration plus the machine's metrics: distance, incline, floors, level, calories and rate.
+- Each set shows what you did in it last time, so you know what to beat. It's display only: you still type every value.
 - Start and finish times are recorded for you, with a timer while you log.
 - Saving a new workout opens a summary: how long it took, your exercises and sets, any records you set, and how each exercise compares with last time.
 - Saving checks every set and points to the field that's wrong.
@@ -42,19 +43,25 @@ It's built for one person and one phone: no accounts, no sign-up.
     <td align="center">
       <picture>
         <source media="(prefers-color-scheme: dark)" srcset="docs/images/readme/new-workout-dark.png" />
-        <img src="docs/images/readme/new-workout-light.png" alt="Logging strength sets" width="230" />
+        <img src="docs/images/readme/new-workout-light.png" alt="Logging strength sets" width="190" />
       </picture>
     </td>
     <td align="center">
       <picture>
         <source media="(prefers-color-scheme: dark)" srcset="docs/images/readme/cardio-dark.png" />
-        <img src="docs/images/readme/cardio-light.png" alt="Logging cardio entries" width="230" />
+        <img src="docs/images/readme/cardio-light.png" alt="Logging cardio entries" width="190" />
       </picture>
     </td>
     <td align="center">
       <picture>
         <source media="(prefers-color-scheme: dark)" srcset="docs/images/readme/add-exercise-dark.png" />
-        <img src="docs/images/readme/add-exercise-light.png" alt="Adding an exercise" width="230" />
+        <img src="docs/images/readme/add-exercise-light.png" alt="Adding an exercise" width="190" />
+      </picture>
+    </td>
+    <td align="center">
+      <picture>
+        <source media="(prefers-color-scheme: dark)" srcset="docs/images/readme/last-time-dark.png" />
+        <img src="docs/images/readme/last-time-light.png" alt="Last time's values beside each set" width="190" />
       </picture>
     </td>
   </tr>
@@ -62,6 +69,7 @@ It's built for one person and one phone: no accounts, no sign-up.
     <td align="center"><sub><b>Strength sets</b></sub></td>
     <td align="center"><sub><b>Cardio</b></sub></td>
     <td align="center"><sub><b>Add exercise</b></sub></td>
+    <td align="center"><sub><b>Last time</b></sub></td>
   </tr>
 </table>
 

@@ -89,6 +89,27 @@ public static class SampleData
         return exercise;
     }
 
+    /// <summary>Sets the exercise's last time, as New Workout does after a pick, and returns it.</summary>
+    public static ExerciseState WithLastTime(ExerciseState exercise, params string[] entries)
+    {
+        exercise.LastTime = new LastTime(entries);
+        return exercise;
+    }
+
+    /// <summary>
+    /// New Workout with last time's values: a squat with as many sets as last time, a curl with more, an assisted pull-up with fewer, a plank, a carry and a treadmill run, and an outdoor run with no last time.
+    /// </summary>
+    public static List<ExerciseState> LastTimeWorkout(IExerciseCatalog catalog) =>
+    [
+        WithLastTime(Exercise(catalog, 6, ["60", "8"], ["60", "8"], ["62.5", "6"]), "60×8", "60×8", "62.5×6"),
+        WithLastTime(Exercise(catalog, 132, ["10", "12"], ["10", "10"], ["12", "8"]), "10×12", "10×10"),
+        WithLastTime(Exercise(catalog, 218, ["25", "10"]), "25kg×10", "25kg×8"),
+        WithLastTime(Exercise(catalog, 258, ["0:01:00", null]), "1:30"),
+        WithLastTime(Exercise(catalog, 187, ["40", "32", "0:00:45"], ["40", "32", "0:00:50"], ["30", "32", null]), "32kg · 40m · 0:45", "32kg · 40m · 0:50"),
+        WithLastTime(Exercise(catalog, 300, ["0:20:00", "3.2", "1.5", "210"]), "3km · 20:00 · 9 km/h · 190 calories · 1.5%"),
+        Exercise(catalog, 311, ["0:25:30", "5", null]),
+    ];
+
     /// <summary><see cref="StrengthWorkout"/> with each exercise's <see cref="Weights"/>.</summary>
     public static List<ExerciseState> StrengthWorkoutWithWeights(IExerciseCatalog catalog) =>
         StrengthWorkout(catalog).Select(e => WithWeights(e, Weights[e.ExerciseId].LastKg, Weights[e.ExerciseId].BestKg)).ToList();

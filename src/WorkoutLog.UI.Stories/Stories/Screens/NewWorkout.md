@@ -37,6 +37,17 @@ Add exercise opens [Add Exercise](./?path=/custom/screens-add-exercise-overview)
 
 A strength exercise just added loads its last and PB weights through `IWeightHistoryService.GetAsync` and shows them under its name, e.g. *Last 60kg · PB 70kg*. Nothing shows while they load, when there are none, or when the load fails; Core logs the failure. On a bodyweight move, hold or carry, 0 kg counts as none: no line when the PB is 0, and *Last —* when the last is 0. They don't change while logging. Picking it again doesn't reload; adding it again after Remove does.
 
+## Last time
+While logging, each exercise shows what its last saved workout had, so you know what to beat. It is display only: nothing is copied into a set, and every value is still typed. The values come from `ExerciseState.LastTime`; none means the exercise's first time, and nothing shows. This sits beside the Last and PB line, which stays.
+
+An exercise just added, strength or cardio, loads its last time through `ILastSessionService.GetAsync`: its sets or entry in the saved workout with the latest start that has it. Nothing shows while it loads, and the values don't change while logging. Picking it again doesn't reload; adding it again after Remove does. When the load fails nothing shows and logging works as usual; Core logs Warning 1510 "Loading the last session of exercise {ExerciseId} failed" with the exception, and no workout contents.
+- Sets match by number: set 1 shows last time's set 1, set 2 its set 2. A set number last time didn't have, such as set 4 after 3 sets, shows *—* in the Last column and no line anywhere else. Last time's extra sets show nowhere.
+- Lift, assisted and bodyweight rows: a muted **Last** column after Set, as wide as a field, with last time's set as the Exercise page writes it: *60×8* (weight × reps), *1:30*, *20kg · 1:30*. Read out as "Last time 60×8".
+- Holds (duration with an optional weight): no Last column, so the duration boxes keep their width. A muted full-width line under each row, e.g. *Last time 1:30*, or *Last time 20kg · 1:30* when a weight was logged. No line for a set number last time didn't have.
+- Carries (set panel): a muted *Last time 32kg · 40m · 0:45* line at the top of the open panel and under each closed set's summary; no line for a set number last time didn't have. A weight of 0 isn't shown in holds or carries.
+- Cardio: a muted line above the fields with the entry's values, e.g. *Last time 5.2km · 30:00 · 5:46/km*; none when last time had no entry.
+- A done card is one line, so its Last column and lines are hidden with its sets and entry. The pencil brings them back.
+
 ## Save
 Save runs `IWorkoutChecker.Check`: every set and entry, then the workout and each exercise through `IWorkoutService.Validate`.
 - Errors show on the exercise, set or entry at fault: each faulty field is outlined, with one message per problem under its set or entry.
@@ -50,6 +61,6 @@ Back (arrow or Android) opens `ConfirmDialog` "Discard this workout?", even with
 
 With the soft keyboard open, Android back only hides the keyboard.
 
-States: [Empty](./?path=/story/screens-new-workout--empty) · [Strength](./?path=/story/screens-new-workout--strength) · [Done](./?path=/story/screens-new-workout--done) · [Carry](./?path=/story/screens-new-workout--carry) · [Cardio](./?path=/story/screens-new-workout--cardio) · [Records](./?path=/story/screens-new-workout--records) · [Exercises full](./?path=/story/screens-new-workout--exercises-full) · [Save errors](./?path=/story/screens-new-workout--save-errors) · [No exercises error](./?path=/story/screens-new-workout--no-exercises-error) · [Save failed](./?path=/story/screens-new-workout--save-failed) · [Delete exercise prompt](./?path=/story/screens-new-workout--delete-exercise-prompt) · [Discard prompt](./?path=/story/screens-new-workout--discard-prompt)
+States: [Empty](./?path=/story/screens-new-workout--empty) · [Strength](./?path=/story/screens-new-workout--strength) · [Done](./?path=/story/screens-new-workout--done) · [Carry](./?path=/story/screens-new-workout--carry) · [Cardio](./?path=/story/screens-new-workout--cardio) · [Records](./?path=/story/screens-new-workout--records) · [Last time](./?path=/story/screens-new-workout--last-time) · [Last time done](./?path=/story/screens-new-workout--last-time-done) · [Exercises full](./?path=/story/screens-new-workout--exercises-full) · [Save errors](./?path=/story/screens-new-workout--save-errors) · [No exercises error](./?path=/story/screens-new-workout--no-exercises-error) · [Save failed](./?path=/story/screens-new-workout--save-failed) · [Delete exercise prompt](./?path=/story/screens-new-workout--delete-exercise-prompt) · [Discard prompt](./?path=/story/screens-new-workout--discard-prompt)
 
 `data-testid`: `back`, `screen-title`, `screen-subtitle`, `workout-error`, `no-exercises`, `exercises-full`, `exercise-{n}` (and its parts, see [Workout](./?path=/custom/components-workout-overview)), `add-exercise`, `save-workout`, `confirm-dialog`.

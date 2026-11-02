@@ -14,6 +14,12 @@ public class SetRowTests : ComponentTestBase
         new("weight", Metric.WeightKg, "Weight", FieldKind.Decimal, Unit: "kg"),
     ];
 
+    private static readonly FieldSpec[] HoldFields =
+    [
+        new("duration", Metric.Duration, "Duration", FieldKind.Duration, Required: true),
+        new("weight", Metric.WeightKg, "Weight", FieldKind.Decimal, Unit: "kg", HideZero: true),
+    ];
+
     [Test]
     public void Render_ShowsNumberAndOneInputPerField()
     {
@@ -28,6 +34,96 @@ public class SetRowTests : ComponentTestBase
             Assert.That(cut.Find(".number").TextContent, Is.EqualTo("2"));
             Assert.That(cut.Find("[data-testid=set-2-reps]"), Is.Not.Null);
             Assert.That(cut.Find("[data-testid=set-2-weight]"), Is.Not.Null);
+        });
+    }
+
+    [Test]
+    public void Last_Unset_LeavesTheColumnOut()
+    {
+        var cut = Context.Render<SetRow>(p => p
+            .Add(x => x.Number, 1)
+            .Add(x => x.Fields, Fields)
+            .Add(x => x.Entry, new EntryState())
+            .Add(x => x.TestId, "set-1"));
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.FindAll(".last"), Is.Empty);
+            Assert.That(cut.Find(".set-row").GetAttribute("style"),
+                Is.EqualTo("grid-template-columns: var(--set-number-width) minmax(0, 1fr) minmax(0, 1fr) var(--touch-target)"));
+        });
+    }
+
+    [TestCase("60×8")]
+    [TestCase("—")]
+    public void Last_ShowsItAfterTheNumberInItsOwnColumn(string last)
+    {
+        var cut = Context.Render<SetRow>(p => p
+            .Add(x => x.Number, 1)
+            .Add(x => x.Fields, Fields)
+            .Add(x => x.Entry, new EntryState())
+            .Add(x => x.Last, last)
+            .Add(x => x.TestId, "set-1"));
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.FindAll(".number + .last"), Has.Count.EqualTo(1));
+            Assert.That(cut.Find("[data-testid=set-1-last]").TextContent, Is.EqualTo($"Last time {last}"));
+            Assert.That(cut.Find(".last .visually-hidden").TextContent, Is.EqualTo("Last time "));
+            Assert.That(cut.Find(".set-row").GetAttribute("style"),
+                Is.EqualTo("grid-template-columns: var(--set-number-width) minmax(0, 0.7fr) minmax(0, 1fr) minmax(0, 1fr) var(--touch-target)"));
+        });
+    }
+
+    [TestCase("1:30", "Last time 1:30")]
+    [TestCase("12.5kg · 1:30", "Last time 12.5kg · 1:30")]
+    public void Last_OnADurationRow_ShowsALineUnderTheRowAndNoColumn(string last, string text)
+    {
+        var cut = Context.Render<SetRow>(p => p
+            .Add(x => x.Number, 1)
+            .Add(x => x.Fields, HoldFields)
+            .Add(x => x.Entry, new EntryState())
+            .Add(x => x.Last, last)
+            .Add(x => x.TestId, "set-1"));
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.FindAll(".set-row .last"), Is.Empty);
+            Assert.That(cut.FindAll(".set-row + .last-line"), Has.Count.EqualTo(1));
+            Assert.That(cut.Find("[data-testid=set-1-last]").TextContent, Is.EqualTo(text));
+            Assert.That(cut.Find(".set-row").GetAttribute("style"),
+                Is.EqualTo("grid-template-columns: var(--set-number-width) minmax(0, 2fr) minmax(0, 1fr) var(--touch-target)"));
+        });
+    }
+
+    [Test]
+    public void Last_OnADurationRow_Unset_ShowsNoLine()
+    {
+        var cut = Context.Render<SetRow>(p => p
+            .Add(x => x.Number, 3)
+            .Add(x => x.Fields, HoldFields)
+            .Add(x => x.Entry, new EntryState())
+            .Add(x => x.TestId, "set-3"));
+
+        Assert.That(cut.FindAll(".last, .last-line"), Is.Empty);
+    }
+
+    [Test]
+    public void Last_IsNotAValueOfTheSet()
+    {
+        var entry = new EntryState();
+        var cut = Context.Render<SetRow>(p => p
+            .Add(x => x.Number, 1)
+            .Add(x => x.Fields, Fields)
+            .Add(x => x.Entry, entry)
+            .Add(x => x.Last, "60×8")
+            .Add(x => x.TestId, "set-1"));
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(entry.Values, Is.Empty);
+            Assert.That(cut.Find("[data-testid=set-1-reps]").GetAttribute("value"), Is.Null.Or.Empty);
+            Assert.That(cut.Find("[data-testid=set-1-weight]").GetAttribute("value"), Is.Null.Or.Empty);
         });
     }
 

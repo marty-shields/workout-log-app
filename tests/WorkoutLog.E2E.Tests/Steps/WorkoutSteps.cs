@@ -183,6 +183,27 @@ public sealed class WorkoutSteps(WebView web, Native native, Journeys journeys, 
     [Then(@"^(.+) has last and PB ""(.*)""$")]
     public void ThenHasLastAndPb(string name, string text) => web.Eventually(() => workout.Weights(name), Is.EqualTo(text), $"{name} last and PB");
 
+    [Then(@"^(.+) set (\d+) last time is ""(.*)""$")]
+    public void ThenSetLastTimeIs(string name, int set, string text) =>
+        web.Eventually(() => workout.LastTime(name, set), Is.EqualTo(text), $"{name} set {set} last time");
+
+    [Then(@"^(.+) entry last time is ""(.*)""$")]
+    public void ThenEntryLastTimeIs(string name, string text) =>
+        web.Eventually(() => workout.LastTime(name, null), Is.EqualTo(text), $"{name} entry last time");
+
+    /// <summary>Waits for the card, then the settle time, then checks it shows no last time.</summary>
+    [Then(@"^(.+) has no last time$")]
+    public void ThenHasNoLastTime(string name)
+    {
+        workout.Card(name);
+        web.Settle();
+        Assert.That(workout.HasLastTime(name), Is.False, $"{name} last time");
+    }
+
+    [Then(@"^(.+) set (\d+) weight and reps are empty$")]
+    public void ThenSetIsEmpty(string name, int set) =>
+        Assert.That((workout.Read(name, set, "weight"), workout.Read(name, set, "reps")), Is.EqualTo(("", "")), $"{name} set {set} fields");
+
     /// <summary>Waits for the card, then the settle time, then checks it has no last and PB line.</summary>
     [Then(@"^(.+) has no last and PB$")]
     public void ThenHasNoLastAndPb(string name)

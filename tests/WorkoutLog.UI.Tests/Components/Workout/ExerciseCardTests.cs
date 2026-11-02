@@ -85,6 +85,21 @@ public class ExerciseCardTests : ComponentTestBase
         return exercise;
     }
 
+    private static ExerciseState Hold(int sets)
+    {
+        var exercise = new ExerciseState(258, "Plank", ExerciseKind.Strength,
+        [
+            new FieldSpec("duration", Metric.Duration, "Duration", FieldKind.Duration, Required: true),
+            new FieldSpec("weight", Metric.WeightKg, "Weight", FieldKind.Decimal, Unit: "kg", HideZero: true),
+        ]);
+        for (var i = 0; i < sets; i++)
+        {
+            exercise.Entries.Add(new EntryState());
+        }
+
+        return exercise;
+    }
+
     /// <summary>A bodyweight move whose blank weight fills with 0, with one set of 8 reps and a blank weight.</summary>
     private static ExerciseState Bodyweight()
     {
@@ -1000,6 +1015,304 @@ public class ExerciseCardTests : ComponentTestBase
             Assert.That(cut.FindAll(".card-header + .weights + .sets"), Has.Count.EqualTo(1));
             Assert.That(cut.FindAll(".weights button, .weights [blazor\\:onclick]"), Is.Empty);
         });
+    }
+
+    private static string[] LastColumn(IRenderedComponent<ExerciseCard> cut) =>
+        cut.FindAll(".set-row .last").Select(l => TestText.Normalise(l.TextContent)).ToArray();
+
+    [Test]
+    public void LastTime_DoneCard_HidesTheLastColumnAndLinesUntilItReopens()
+    {
+        var last = new LastTime(["60×8", "60×8"]);
+        var rows = Strength(2);
+        rows.LastTime = last;
+        var panel = Carry(2);
+        panel.LastTime = last;
+        var hold = Hold(2);
+        hold.LastTime = new LastTime(["1:30", "1:20"]);
+        var cardio = Cardio();
+        cardio.LastTime = new LastTime(["5.2km · 30:00"]);
+
+        foreach (var exercise in new[] { rows, hold, panel, cardio })
+        {
+            exercise.IsDone = true;
+            var cut = Context.Render<ExerciseCard>(p => p
+                .Add(x => x.Exercise, exercise)
+                .Add(x => x.TestId, "exercise-1"));
+
+            Assert.That(cut.FindAll(".last, .last-line, .last-time"), Is.Empty, exercise.Name);
+
+            cut.Find("[data-testid=exercise-1-edit]").Click();
+
+            Assert.That(cut.FindAll(".last, .last-line, .last-time"), Is.Not.Empty, exercise.Name);
+        }
+    }
+
+    [Test]
+    public void LastTime_FirstTime_StrengthHasNoLastColumn()
+    {
+        var cut = Context.Render<ExerciseCard>(p => p
+            .Add(x => x.Exercise, Strength(2))
+            .Add(x => x.TestId, "exercise-1"));
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.FindAll(".last"), Is.Empty);
+            Assert.That(cut.FindAll(".set-header span").Select(s => s.TextContent), Is.EqualTo(new[] { "Set", "Reps *", "Weight (kg)", "" }));
+        });
+    }
+
+    [Test]
+    public void LastTime_SameSets_EachRowShowsItsSetUnderALastHeader()
+    {
+        var exercise = Strength(3);
+        exercise.LastTime = new LastTime(["60×8", "60×8", "62.5×6"]);
+
+        var cut = Context.Render<ExerciseCard>(p => p
+            .Add(x => x.Exercise, exercise)
+            .Add(x => x.TestId, "exercise-1"));
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.FindAll(".set-header span").Select(s => s.TextContent), Is.EqualTo(new[] { "Set", "Last", "Reps *", "Weight (kg)", "" }));
+            Assert.That(LastColumn(cut), Is.EqualTo(new[] { "Last time 60×8", "Last time 60×8", "Last time 62.5×6" }));
+            Assert.That(cut.Find("[data-testid=exercise-1-set-3-last]").TextContent, Is.EqualTo("Last time 62.5×6"));
+            Assert.That(cut.Find(".set-header").GetAttribute("style"),
+                Is.EqualTo("grid-template-columns: var(--set-number-width) minmax(0, 0.7fr) minmax(0, 1fr) minmax(0, 1fr) var(--touch-target)"));
+        });
+    }
+
+    [Test]
+    public void LastTime_MoreSetsThanLastTime_ExtraRowsShowADash()
+    {
+        var exercise = Strength(3);
+        exercise.LastTime = new LastTime(["60×8", "60×8"]);
+
+        var cut = Context.Render<ExerciseCard>(p => p
+            .Add(x => x.Exercise, exercise)
+            .Add(x => x.TestId, "exercise-1"));
+
+        Assert.That(LastColumn(cut), Is.EqualTo(new[] { "Last time 60×8", "Last time 60×8", "Last time —" }));
+    }
+
+    [Test]
+    public void LastTime_FewerSetsThanLastTime_ShowsOnlyTheSetsLogged()
+    {
+        var exercise = Strength(1);
+        exercise.LastTime = new LastTime(["60×8", "60×8", "62.5×6"]);
+
+        var cut = Context.Render<ExerciseCard>(p => p
+            .Add(x => x.Exercise, exercise)
+            .Add(x => x.TestId, "exercise-1"));
+
+        Assert.That(LastColumn(cut), Is.EqualTo(new[] { "Last time 60×8" }));
+    }
+
+    [Test]
+    public void LastTime_AddSet_ShowsThatSetsLastTime()
+    {
+        var exercise = Strength(1);
+        exercise.LastTime = new LastTime(["60×8", "62.5×6"]);
+        var cut = Context.Render<ExerciseCard>(p => p
+            .Add(x => x.Exercise, exercise)
+            .Add(x => x.TestId, "exercise-1"));
+
+        cut.Find("[data-testid=exercise-1-add-set]").Click();
+
+        Assert.That(LastColumn(cut), Is.EqualTo(new[] { "Last time 60×8", "Last time 62.5×6" }));
+    }
+
+    [Test]
+    public void LastTime_IsDisplayOnly()
+    {
+        var exercise = Strength(2);
+        exercise.LastTime = new LastTime(["60×8", "60×8"]);
+
+        var cut = Context.Render<ExerciseCard>(p => p
+            .Add(x => x.Exercise, exercise)
+            .Add(x => x.TestId, "exercise-1"));
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(exercise.Entries.SelectMany(e => e.Values), Is.Empty);
+            Assert.That(cut.FindAll("input").Select(i => i.GetAttribute("value")), Is.All.Null.Or.Empty);
+        });
+    }
+
+    [Test]
+    public void LastTime_KeepsTheLastAndPbLine()
+    {
+        var exercise = Strength(1);
+        exercise.LastKg = 62.5m;
+        exercise.BestKg = 70m;
+        exercise.LastTime = new LastTime(["62.5×6"]);
+
+        var cut = Context.Render<ExerciseCard>(p => p
+            .Add(x => x.Exercise, exercise)
+            .Add(x => x.TestId, "exercise-1"));
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.Find("[data-testid=exercise-1-weights]").TextContent, Is.EqualTo("Last 62.5kg · PB 70kg"));
+            Assert.That(LastColumn(cut), Is.EqualTo(new[] { "Last time 62.5×6" }));
+        });
+    }
+
+    [Test]
+    public void LastTime_Collapsed_OpenPanelAndSummariesShowTheirSet()
+    {
+        var exercise = Carry(3);
+        exercise.LastTime = new LastTime(["32kg · 40m · 0:45", "32kg · 40m · 0:50"]);
+
+        var cut = Context.Render<ExerciseCard>(p => p
+            .Add(x => x.Exercise, exercise)
+            .Add(x => x.TestId, "exercise-1"));
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.FindAll(".set-header"), Is.Empty);
+            Assert.That(cut.FindAll(".set-row"), Is.Empty);
+            Assert.That(cut.Find(".summary [data-testid=exercise-1-set-1-last]").TextContent, Is.EqualTo("Last time 32kg · 40m · 0:45"));
+            Assert.That(cut.Find(".summary [data-testid=exercise-1-set-2-last]").TextContent, Is.EqualTo("Last time 32kg · 40m · 0:50"));
+            Assert.That(cut.FindAll("[data-testid=exercise-1-set-3-last]"), Is.Empty);
+        });
+    }
+
+    [Test]
+    public void LastTime_Collapsed_ASetLastTimeHadNoneOfShowsNoLine()
+    {
+        var exercise = Carry(3);
+        exercise.LastTime = new LastTime(["32kg · 40m · 0:45"]);
+        var cut = Context.Render<ExerciseCard>(p => p
+            .Add(x => x.Exercise, exercise)
+            .Add(x => x.TestId, "exercise-1")
+            .Add(x => x.OpenLastSet, false));
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.Find(".summary [data-testid=exercise-1-set-1-last]").TextContent, Is.EqualTo("Last time 32kg · 40m · 0:45"));
+            Assert.That(cut.FindAll("[data-testid=exercise-1-set-2-last], [data-testid=exercise-1-set-3-last]"), Is.Empty);
+            Assert.That(cut.FindAll(".last").Select(l => l.TextContent), Does.Not.Contain("Last time —"));
+        });
+    }
+
+    [Test]
+    public void LastTime_Hold_ShowsALineUnderEachRowAndNoLastColumn()
+    {
+        var exercise = Hold(3);
+        exercise.LastTime = new LastTime(["1:30", "12.5kg · 1:20"]);
+        var cut = Context.Render<ExerciseCard>(p => p
+            .Add(x => x.Exercise, exercise)
+            .Add(x => x.TestId, "exercise-1"));
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.FindAll(".set-header span").Select(s => s.TextContent), Is.EqualTo(new[] { "Set", "Duration *", "Weight (kg)", "" }));
+            Assert.That(cut.Find(".set-header").GetAttribute("style"),
+                Is.EqualTo("grid-template-columns: var(--set-number-width) minmax(0, 2fr) minmax(0, 1fr) var(--touch-target)"));
+            Assert.That(cut.FindAll(".set-row .last"), Is.Empty);
+            Assert.That(cut.FindAll(".set-row + .last-line"), Has.Count.EqualTo(2));
+            Assert.That(cut.Find("[data-testid=exercise-1-set-1-last]").TextContent, Is.EqualTo("Last time 1:30"));
+            Assert.That(cut.Find("[data-testid=exercise-1-set-2-last]").TextContent, Is.EqualTo("Last time 12.5kg · 1:20"));
+            Assert.That(cut.FindAll("[data-testid=exercise-1-set-3-last]"), Is.Empty);
+            Assert.That(cut.FindAll(".last-line").Select(l => l.TextContent), Does.Not.Contain("Last time —"));
+        });
+    }
+
+    [Test]
+    public void LastTime_Hold_FirstTimeHasNoLines()
+    {
+        var cut = Context.Render<ExerciseCard>(p => p
+            .Add(x => x.Exercise, Hold(2))
+            .Add(x => x.TestId, "exercise-1"));
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.FindAll(".last, .last-line"), Is.Empty);
+            Assert.That(cut.FindAll(".set-header span").Select(s => s.TextContent), Is.EqualTo(new[] { "Set", "Duration *", "Weight (kg)", "" }));
+        });
+    }
+
+    [Test]
+    public void LastTime_Hold_AddSetShowsThatSetsLastTime()
+    {
+        var exercise = Hold(1);
+        exercise.LastTime = new LastTime(["1:30", "1:20"]);
+        var cut = Context.Render<ExerciseCard>(p => p
+            .Add(x => x.Exercise, exercise)
+            .Add(x => x.TestId, "exercise-1"));
+
+        cut.Find("[data-testid=exercise-1-add-set]").Click();
+
+        Assert.That(cut.FindAll(".last-line").Select(l => l.TextContent), Is.EqualTo(new[] { "Last time 1:30", "Last time 1:20" }));
+    }
+
+    [Test]
+    public void LastTime_Collapsed_OpeningASetMovesTheLineToItsPanel()
+    {
+        var exercise = Carry(2);
+        exercise.LastTime = new LastTime(["32kg · 40m · 0:45", "32kg · 40m · 0:50"]);
+        var cut = Context.Render<ExerciseCard>(p => p
+            .Add(x => x.Exercise, exercise)
+            .Add(x => x.TestId, "exercise-1"));
+
+        cut.Find("[data-testid=exercise-1-set-1-open]").Click();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.Find(".panel [data-testid=exercise-1-set-1-last]").TextContent, Is.EqualTo("Last time 32kg · 40m · 0:45"));
+            Assert.That(cut.Find(".summary [data-testid=exercise-1-set-2-last]").TextContent, Is.EqualTo("Last time 32kg · 40m · 0:50"));
+        });
+    }
+
+    [Test]
+    public void LastTime_Collapsed_FirstTimeShowsNoLine()
+    {
+        var cut = Context.Render<ExerciseCard>(p => p
+            .Add(x => x.Exercise, Carry(3))
+            .Add(x => x.TestId, "exercise-1"));
+
+        Assert.That(cut.FindAll(".last"), Is.Empty);
+    }
+
+    [Test]
+    public void LastTime_Cardio_ShowsALineAboveTheFields()
+    {
+        var exercise = Cardio();
+        exercise.LastTime = new LastTime(["5.2km · 30:00"]);
+
+        var cut = Context.Render<ExerciseCard>(p => p
+            .Add(x => x.Exercise, exercise)
+            .Add(x => x.TestId, "exercise-1"));
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.Find("[data-testid=exercise-1-last]").TextContent, Is.EqualTo("Last time 5.2km · 30:00"));
+            Assert.That(cut.FindAll(".last-time + .cardio"), Has.Count.EqualTo(1));
+            Assert.That(exercise.Entries[0].Values, Is.Empty);
+        });
+    }
+
+    [Test]
+    public void LastTime_Cardio_WithNoEntriesShowsNoLine()
+    {
+        var exercise = Cardio();
+        exercise.LastTime = new LastTime([]);
+        var cut = Context.Render<ExerciseCard>(p => p
+            .Add(x => x.Exercise, exercise)
+            .Add(x => x.TestId, "exercise-1"));
+
+        Assert.That(cut.FindAll("[data-testid=exercise-1-last]"), Is.Empty);
+    }
+
+    [Test]
+    public void LastTime_Cardio_FirstTimeShowsNoLine()
+    {
+        var cut = Context.Render<ExerciseCard>(p => p
+            .Add(x => x.Exercise, Cardio())
+            .Add(x => x.TestId, "exercise-1"));
+
+        Assert.That(cut.FindAll("[data-testid=exercise-1-last]"), Is.Empty);
     }
 
     private static bool RequireReps(ExerciseState exercise, EntryState entry)

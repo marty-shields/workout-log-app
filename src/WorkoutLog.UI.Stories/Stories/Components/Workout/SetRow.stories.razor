@@ -25,6 +25,34 @@
         </Template>
     </Story>
 
+    <Story Name="Last time">
+        <Template>
+            @{ var exercise = SampleData.Exercise(Catalog, 132, ["10", "12"]); }
+            <SetRow Number="1" Fields="exercise.Fields" Entry="exercise.Entries[0]" Last="10×12" />
+        </Template>
+    </Story>
+
+    <Story Name="Last time - none">
+        <Template>
+            @{ var exercise = SampleData.Exercise(Catalog, 132, ["10", "12"]); }
+            <SetRow Number="4" Fields="exercise.Fields" Entry="exercise.Entries[0]" Last="—" />
+        </Template>
+    </Story>
+
+    <Story Name="Last time - hold">
+        <Template>
+            @{ var exercise = SampleData.Exercise(Catalog, 258, ["0:01:00", null]); }
+            <SetRow Number="1" Fields="exercise.Fields" Entry="exercise.Entries[0]" Last="1:30" />
+        </Template>
+    </Story>
+
+    <Story Name="Last time - hold, weighted">
+        <Template>
+            @{ var exercise = SampleData.Exercise(Catalog, 258, ["0:01:00", "10"]); }
+            <SetRow Number="1" Fields="exercise.Fields" Entry="exercise.Entries[0]" Last="12.5kg · 1:30" />
+        </Template>
+    </Story>
+
     <Story Name="Errors">
         <Template>
             @{ var exercise = SampleData.Exercise(Catalog, 132, ["10", null]); Checker.Check([exercise]); }

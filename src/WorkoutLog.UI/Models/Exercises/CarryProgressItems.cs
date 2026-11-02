@@ -67,9 +67,15 @@ public static class CarryProgressItems
     private static string Longest(ExerciseBest best, ExerciseDefinition exercise) =>
         Join(" · ", best.Distance is { } d ? ExerciseFields.Distance(exercise, d) : null, best.WeightKg is { } kg ? DisplayFormat.Weight(kg) : null);
 
-    private static string SetText(StrengthSet set, ExerciseDefinition exercise)
+    /// <summary>A set as the Exercise page lists it, e.g. 28kg 40m 0:45; — when it has nothing.</summary>
+    private static string SetText(StrengthSet set, ExerciseDefinition exercise) => Joined(" ", set, exercise);
+
+    /// <summary>A set as the Exercise page writes the heaviest carry, e.g. 28kg · 40m · 0:45; — when it has nothing.</summary>
+    internal static string LastText(StrengthSet set, ExerciseDefinition exercise) => Joined(" · ", set, exercise);
+
+    private static string Joined(string separator, StrengthSet set, ExerciseDefinition exercise)
     {
-        var text = Join(" ", set.WeightKg > 0m ? DisplayFormat.Weight(set.WeightKg) : null, set.Distance is { } d ? ExerciseFields.Distance(exercise, d) : null,
+        var text = Join(separator, set.WeightKg > 0m ? DisplayFormat.Weight(set.WeightKg) : null, set.Distance is { } d ? ExerciseFields.Distance(exercise, d) : null,
             set.Duration is { } duration ? DisplayFormat.Clock(duration) : null);
         return text.Length > 0 ? text : "—";
     }

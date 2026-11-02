@@ -8,6 +8,7 @@
 @implements IDisposable
 @inject IWorkoutService Workouts
 @inject IWeightHistoryService WeightHistory
+@inject LastTimeLoader LastTimes
 @inject TimeProvider Clock
 @inject ISetChecker Checker
 @inject IWorkoutChecker WorkoutChecker
@@ -71,7 +72,8 @@
     public void Dispose() => timer?.Dispose();
 
     /// <summary>
-    /// Picks the exercise (<see cref="WorkoutEditor.Pick"/>). A strength exercise just added then loads its last and best weights
+    /// Picks the exercise (<see cref="WorkoutEditor.Pick"/>). An exercise just added then loads its last time
+    /// (<see cref="LastTimeLoader.LoadAsync"/>); a failed load shows none. A strength exercise also loads its last and best weights
     /// through <see cref="IWeightHistoryService.GetAsync"/>; a failed load shows none. Where 0 kg shows as no weight
     /// (<see cref="FieldSpec.HideZero"/>), a weight of 0 is none.
     /// </summary>
@@ -79,7 +81,13 @@
     {
         var added = Editor.Exercises.All(e => e.ExerciseId != item.Id);
         Editor.Pick(item);
-        if (!added || item.Kind != ExerciseKind.Strength || Editor.Exercises.FirstOrDefault(e => e.ExerciseId == item.Id) is not { } exercise)
+        if (!added || Editor.Exercises.FirstOrDefault(e => e.ExerciseId == item.Id) is not { } exercise)
+        {
+            return;
+        }
+
+        await LastTimes.LoadAsync(exercise);
+        if (item.Kind != ExerciseKind.Strength)
         {
             return;
         }
