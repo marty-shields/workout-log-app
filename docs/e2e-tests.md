@@ -28,6 +28,7 @@ Running the E2E suite on a phone or an emulator, and where the results go. Set u
 ## Other builds
 Run settings choose the build under test. The Debug app is the default.
 - `AppPackage` and `AppApk`: the app's package and its APK. A package other than `uk.martinshields.workoutlog.debug` runs only on an emulator (`emulator-*`), so the app on a phone is never touched. The Release app has no run-as, so the tests read its files as root, which emulator images allow. They seed it by importing an export file instead of copying a database in, so a seeded workout can't be in the future.
+- The Release app keeps WebView debugging off (`AddBlazorWebViewDeveloperTools` is Debug only), and the tests drive its screens through the WebView's DevTools socket. Only a `userdebug` or `eng` image opens that socket for every app, so a Release run needs one, such as the AOSP image `emulator-start.sh` installs. On another image the run fails at the start. If the app shows a WebView with no DevTools socket (a new image or WebView that stopped doing this), the launch fails with that reason and so does every later launch in the run, without waiting.
 - `PreviousApk`: the last release's Debug APK, for `@upgrade`. `.github/scripts/previous-apk.sh <out apk>` builds it from the latest `v*` tag. Build it on the machine that builds the App: one APK installs over another only when the same debug key signs both.
 
 `e2e-run.sh` (and so `e2e-local.sh`) passes these from `E2E_APP_PACKAGE`, `E2E_APP_APK` and `E2E_PREVIOUS_APK`:

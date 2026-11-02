@@ -98,6 +98,9 @@ public class AppiumSetup
             var serial = udid ?? adb.Run("get-serialno").Trim();
             Require(serial.StartsWith("emulator-", StringComparison.Ordinal),
                 $"AppPackage {tested.Package} runs only on an emulator (emulator-*), not on {serial}: the app on a phone is never touched (docs/e2e-tests.md).");
+            var image = adb.Shell("getprop", "ro.build.type");
+            Require(image is "userdebug" or "eng",
+                $"AppPackage {tested.Package} keeps WebView debugging off, so the tests reach its WebView only on a userdebug or eng image, which makes every WebView debuggable; {serial} runs a {image} image (docs/e2e-tests.md).");
         }
 
         app = tested;

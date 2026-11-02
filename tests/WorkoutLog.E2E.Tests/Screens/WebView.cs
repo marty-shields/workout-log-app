@@ -161,14 +161,23 @@ public sealed class WebView
     /// <summary>Waits until <paramref name="condition"/> holds; fails with <paramref name="failure"/> on timeout.</summary>
     public void WaitUntil(Func<bool> condition, string failure, TimeSpan? timeout = null)
     {
-        var deadline = DateTime.UtcNow + (timeout ?? Timeout);
+        if (!Holds(condition, timeout ?? Timeout))
+        {
+            Assert.Fail($"Timed out: {failure}.");
+        }
+    }
+
+    /// <summary>Whether <paramref name="condition"/> holds within <paramref name="timeout"/>.</summary>
+    public bool Holds(Func<bool> condition, TimeSpan timeout)
+    {
+        var deadline = DateTime.UtcNow + timeout;
         while (true)
         {
             try
             {
                 if (condition())
                 {
-                    return;
+                    return true;
                 }
             }
             catch (WebDriverException) when (DateTime.UtcNow < deadline)
@@ -178,7 +187,7 @@ public sealed class WebView
 
             if (DateTime.UtcNow > deadline)
             {
-                Assert.Fail($"Timed out: {failure}.");
+                return false;
             }
 
             Thread.Sleep(Poll);
