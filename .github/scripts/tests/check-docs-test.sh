@@ -46,6 +46,7 @@ run "a reference-style link" 'README.md:1: link to a missing path: docs/nope.md
 exit=1' ref
 
 repo escape '[out](../outside.md)'
+touch "$work/outside.md"
 run "a link out of the repository" 'README.md:1: link to a missing path: ../outside.md
 exit=1' escape
 
@@ -67,6 +68,17 @@ run "a fence opens and closes as in GFM" 'README.md:1: link to a missing path: d
 README.md:4: link to a missing path: docs/nope.md
 README.md:10: link to a missing path: docs/nope.md
 exit=1' fence
+
+repo long '````
+```
+[hidden](docs/nope.md)
+````
+~~~ has `tick`
+[hidden](docs/nope.md)
+~~~
+[seen](docs/nope.md)'
+run "a shorter fence does not close a longer one and a tilde fence takes a backtick" 'README.md:8: link to a missing path: docs/nope.md
+exit=1' long
 
 repo shot 'x'
 touch "$work/shot/docs/images/readme/extra-light.png"
