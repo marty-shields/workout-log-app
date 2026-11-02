@@ -44,9 +44,9 @@ internal sealed partial class ExportService(
                 return new ExportResult(ExportStatus.TooLarge, null);
             }
 
-            DeleteExportFiles();
             var path = Path.Combine(environment.CacheFolder, ExportFormat.FileName(TimeZoneInfo.ConvertTime(now, time.LocalTimeZone)));
             await File.WriteAllBytesAsync(path, bytes);
+            DeleteExportFiles(except: path);
             Log.Written(logger, workouts.Count);
             return new ExportResult(ExportStatus.Exported, path);
         }
@@ -58,29 +58,36 @@ internal sealed partial class ExportService(
     }
 
     /// <inheritdoc />
-    public Task DeleteLeftoversAsync()
+    public Task DeleteLeftoversAsync() => Task.Run(() =>
+    {
+        if (DeleteExportFiles(except: null) is { } deleted)
+        {
+            Log.LeftoversDeleted(logger, deleted);
+        }
+    });
+
+    /// <summary>Deletes the earlier export files other than <paramref name="except"/>. Best effort: a failure is logged, never thrown, so it cannot fail an export or the startup. Returns the count deleted, or null on failure.</summary>
+    private int? DeleteExportFiles(string? except)
     {
         try
         {
-            Log.LeftoversDeleted(logger, DeleteExportFiles());
+            var deleted = 0;
+            foreach (var file in Directory.GetFiles(environment.CacheFolder, ExportFormat.FilePattern))
+            {
+                if (file != except)
+                {
+                    File.Delete(file);
+                    deleted++;
+                }
+            }
+
+            return deleted;
         }
         catch (Exception exception)
         {
             Log.LeftoversFailed(logger, exception);
+            return null;
         }
-
-        return Task.CompletedTask;
-    }
-
-    private int DeleteExportFiles()
-    {
-        var files = Directory.GetFiles(environment.CacheFolder, ExportFormat.FilePattern);
-        foreach (var file in files)
-        {
-            File.Delete(file);
-        }
-
-        return files.Length;
     }
 
     private ExportFile ToFile(IReadOnlyList<Workout> workouts, DateTimeOffset now)
