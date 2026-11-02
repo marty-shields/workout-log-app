@@ -17,6 +17,17 @@ public static class LogLine
         return exception is null ? line : $"{line}{Environment.NewLine}{exception}";
     }
 
+    /// <summary>Splits <paramref name="text"/> into pieces of at most <paramref name="maxLength"/> characters, in order. Empty text gives no pieces.</summary>
+    /// <param name="text">Text to split.</param>
+    /// <param name="maxLength">Longest piece.</param>
+    public static IEnumerable<string> Split(string text, int maxLength)
+    {
+        for (var start = 0; start < text.Length; start += maxLength)
+        {
+            yield return text.Substring(start, Math.Min(maxLength, text.Length - start));
+        }
+    }
+
     private static string Level(LogLevel level) => level switch
     {
         LogLevel.Trace => "TRCE",

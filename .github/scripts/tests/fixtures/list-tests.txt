@@ -1,0 +1,8 @@
+The following Tests are available:
+    WorkoutLog.E2E.Tests.Features.AFeature.Long
+    WorkoutLog.E2E.Tests.Features.AFeature.Long2WithMore
+    WorkoutLog.E2E.Tests.Features.AFeature.Outline(1,"a")
+    WorkoutLog.E2E.Tests.Features.AFeature.Outline(2,"b")
+    WorkoutLog.E2E.Tests.Features.AFeature.Short
+    WorkoutLog.E2E.Tests.Features.AFeature.Missing
+    WorkoutLog.E2E.Tests.Other.NotAFeature

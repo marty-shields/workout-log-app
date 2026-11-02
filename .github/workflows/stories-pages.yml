@@ -26,6 +26,11 @@ jobs:
         with:
           global-json-file: global.json
 
+      # The workload set pins the WebAssembly SDK pack the lock files record; without it the SDK's newer one fails the
+      # locked restore. Bump with the SDK in global.json, with dev-pipeline.yml.
+      - name: Install the MAUI Android workload
+        run: dotnet workload install maui-android --version 10.0.402.1
+
       - id: pages
         uses: actions/configure-pages@45bfe0192ca1faeb007ade9deae92b16b8254a0d # v6.0.0
 

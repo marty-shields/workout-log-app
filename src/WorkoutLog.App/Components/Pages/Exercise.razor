@@ -1,8 +1,9 @@
 @page "/exercises/{Id:int}"
+@using WorkoutLog.UI.Navigation
 @using WorkoutLog.UI.Screens
 @inject NavigationManager Navigation
 
-<ExercisePage ExerciseId="Id" OnBack="@(() => Navigation.GoTo(From == "dashboard" ? string.Empty : "exercises"))" />
+<ExercisePage ExerciseId="Id" OnBack="@(() => Navigation.GoTo(Origin.Route(From, "exercises")))" />
 
 @code {
     [Parameter] public int Id { get; set; }
