@@ -63,13 +63,14 @@ jobs:
     if: needs.version.outputs.release == 'true'
     uses: ./.github/workflows/qa-pipeline.yml
 
-  # A Release build of the same commit on an emulator: it starts cleanly, then the @release and @backup scenarios run on it.
+  # A Release build of the same commit on emulators: it starts cleanly and the @release and @backup scenarios run on it, and
+  # it installs over the last release's Release build in the upgrade check.
   release-e2e:
     needs: version
     if: needs.version.outputs.release == 'true'
     uses: ./.github/workflows/release-e2e.yml
 
-  # The last release's Debug build, then this commit's installed over it: the @upgrade scenario.
+  # The last release's Debug build, then this commit's installed over it: the upgrade check.
   upgrade-e2e:
     needs: version
     if: needs.version.outputs.release == 'true'

@@ -223,8 +223,8 @@ e2e=tests/WorkoutLog.E2E.Tests
 if [[ ! -d $e2e/node_modules || $e2e/package-lock.json -nt $e2e/node_modules/.package-lock.json ]]; then
   run npm ci --ignore-scripts --prefix "$e2e"
 fi
-# A given APK needs no Debug build, unless an upgrade run must sign this build with the previous APK's debug key.
-if [[ -z "${E2E_APP_APK:-}" || -n "${E2E_PREVIOUS_APK:-}" ]]; then
+# A given APK needs no Debug build.
+if [[ -z "${E2E_APP_APK:-}" ]]; then
   run dotnet build src/WorkoutLog.App -f net10.0-android
 fi
 run dotnet build "$e2e"

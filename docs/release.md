@@ -3,7 +3,7 @@ Cutting a release, installing it, and the signing keystore. CI is in [Dev setup 
 
 Run Actions → Release → **Run workflow** on `main`, then approve the `release` environment. `release.yml`:
 1. Works out the version from the highest `semver:*` label among the PRs merged since the last `vX.Y.Z` tag (`1.0.0` for the first). No PRs ends it green with nothing released.
-2. Runs the dev pipeline, the QA pipeline, the Release E2E (an x64 Release APK starts cleanly on an emulator, then the `@release` and `@backup` scenarios run on it) and the Upgrade E2E (this commit's build installs over the last release's and keeps its workouts). See [E2E tests](e2e-tests.md#other-builds).
+2. Runs the dev pipeline, the QA pipeline, the Release E2E (an x64 Release APK starts cleanly on an emulator and the `@release` and `@backup` scenarios run on it, and it installs over the last release's Release APK and keeps its workouts) and the Upgrade E2E (the same upgrade check for the Debug build). See [E2E tests](e2e-tests.md#other-builds).
 3. After approval, builds the arm64 Release APK signed with the release keystore, checks it (`check-apk.sh`, `check-backup.sh`) and creates the release `vX.Y.Z`: the APK, its `.sha256`, and notes listing the merged PRs.
 
 A failed run creates no tag or release: fix the cause and run it again.

@@ -30,7 +30,7 @@ Running the E2E suite on a phone or an emulator, and where the results go. Set u
 Run settings choose the build under test. The Debug app is the default.
 - `AppPackage` and `AppApk`: the app's package and its APK. A package other than `uk.martinshields.workoutlog.debug` runs only on an emulator (`emulator-*`), so the app on a phone is never touched. The run fails before it installs anything when `AppApk` or `PreviousApk` holds another package than `AppPackage` (`aapt2 dump packagename`, from the newest build-tools in `ANDROID_HOME`), so the rule covers the app that is really installed. The Release app has no run-as, so the tests read its files as root, which emulator images allow. They seed it by importing an export file instead of copying a database in, so a seeded workout can't be in the future.
 - The Release app keeps WebView debugging off (`AddBlazorWebViewDeveloperTools` is Debug only), and the tests drive its screens through the WebView's DevTools socket. Only a `userdebug` or `eng` image opens that socket for every app, so a Release run needs one, such as the AOSP image `emulator-start.sh` installs. On another image the run fails at the start. If the app shows a WebView with no DevTools socket (a new image or WebView that stopped doing this), the launch fails with that reason and so does every later launch in the run, without waiting.
-- `PreviousApk`: the last release's APK of the same app, for `@upgrade`. `.github/scripts/previous-apk.sh <out apk>` builds the Debug one from the latest `v*` tag. Build it on the machine that builds the App: one APK installs over another only when the same debug key signs both. With it set, the run installs nothing at the start: `upgrade-e2e.sh` has installed this APK with its workouts ([Upgrade](#the-upgrade-check)).
+- `PreviousApk`: the last release's APK of the same app, for `@upgrade`. `.github/scripts/previous-apk.sh <out apk> [Debug|Release]` builds it from the latest `v*` tag: the Debug app by default, or the x64 Release app signed with the debug key. Build it on the machine that builds the App, or with the same debug keystore: one APK installs over another only when the same key signs both. With it set, the run installs nothing at the start: `upgrade-e2e.sh` has installed this APK with its workouts ([Upgrade](#the-upgrade-check)).
 
 `e2e-run.sh` (and so `e2e-local.sh`) passes these from `E2E_APP_PACKAGE`, `E2E_APP_APK` and `E2E_PREVIOUS_APK`. With `E2E_PREVIOUS_APK` set, `e2e-local.sh` runs `upgrade-e2e.sh` instead, and the filter must be `Category=upgrade`:
 ```
@@ -41,11 +41,15 @@ E2E_APP_PACKAGE=uk.martinshields.workoutlog E2E_APP_APK=<folder>/uk.martinshield
 
 .github/scripts/previous-apk.sh <file>
 E2E_PREVIOUS_APK=<file> .github/scripts/e2e-local.sh "Category=upgrade"
+
+.github/scripts/previous-apk.sh <release file> Release
+E2E_APP_PACKAGE=uk.martinshields.workoutlog E2E_APP_APK=<folder>/uk.martinshields.workoutlog-Signed.apk \
+  E2E_PREVIOUS_APK=<release file> .github/scripts/e2e-local.sh "Category=upgrade"
 ```
 
 The scenarios that need them:
-- **Release build** (`release-e2e.yml`): the x64 Release APK, signed with the debug key and never published, starts cleanly (`release-smoke.sh`), then the `@release` and `@backup` scenarios run on it.
-- **Upgrade** (`@upgrade`, `upgrade-e2e.yml`): see [The upgrade check](#the-upgrade-check).
+- **Release build** (`release-e2e.yml`): one job builds the x64 Release APK, signed with the debug key and never published. On one emulator it starts cleanly (`release-smoke.sh`), then the `@release` and `@backup` scenarios run on it. On another, the upgrade check installs it over the last release's x64 Release APK, which `previous-apk.sh` builds with the same debug keystore, passed from the build job.
+- **Upgrade** (`@upgrade`): the Debug app in `upgrade-e2e.yml` and the Release app in `release-e2e.yml`. See [The upgrade check](#the-upgrade-check).
 - **Backup and restore** (`@backup`, Release app only): saves workouts, backs the app up with `bmgr backupnow` on Android's local transport, then uninstalls and installs it again (Android's "Test backup and restore" steps). No `bmgr restore` runs: Android restores the backup when it installs the app, as on a new phone. The scenario checks that the install restored the database, the workouts came back and no log line did. It leaves the emulator on the local transport.
 
 ## The upgrade check
