@@ -22,7 +22,7 @@ jobs:
         with:
           persist-credentials: false
 
-      # next-version.sh, e2e-shard-plan.sh and e2e-trx.sh against stubs and sample files.
+      # next-version.sh, e2e-shard-plan.sh, e2e-trx.sh and upgrade-seed-ref.sh against stubs, sample files and throwaway repos.
       - name: Test the CI scripts
         run: .github/scripts/tests/run.sh
 

@@ -14,7 +14,8 @@ namespace WorkoutLog.E2E.Tests;
 
 /// <summary>
 /// Starts the Appium server from this project's node_modules and opens one session for the run,
-/// installing the tested APK and locking the screen in portrait. At the end it closes the app, leaving it installed,
+/// installing the tested APK and locking the screen in portrait. An upgrade run (<c>PreviousApk</c> set) finds the last
+/// release installed with its workouts, and its scenario installs the tested APK over it. At the end it closes the app, leaving it installed,
 /// puts back the rotation settings and removes Appium's helper apps from the device.
 /// Writes the server log to <c>TestResults/E2E/&lt;run&gt;/appium.log</c>.
 /// Run settings: optional <c>DeviceUdid</c>; without it the first device adb lists is used.
@@ -125,7 +126,11 @@ public class AppiumSetup
             service.Start();
 
             driver = new AndroidDriver(service, options, TimeSpan.FromMinutes(3));
-            driver.InstallApp(tested.Apk, timeout: (int)TimeSpan.FromMinutes(3).TotalMilliseconds, replace: true, checkVersion: false);
+            if (tested.PreviousApk is null)
+            {
+                driver.InstallApp(tested.Apk, timeout: (int)TimeSpan.FromMinutes(3).TotalMilliseconds, replace: true, checkVersion: false);
+            }
+
             LockPortrait();
         }
         catch

@@ -6,8 +6,9 @@ namespace WorkoutLog.E2E.Tests.Hooks;
 
 /// <summary>
 /// Before each scenario: fails if the device is locked and clears the app's data, so each scenario starts as a fresh
-/// install. <c>@today</c> scenarios first fail if local midnight is close. Before the first step, launches the app and
-/// switches to its WebView, unless that step launches it itself (it may seed workouts first).
+/// install. An <c>@upgrade</c> scenario keeps the data instead: it starts from the workouts the last release saved.
+/// <c>@today</c> scenarios first fail if local midnight is close. Before the first step, launches the app and switches to
+/// its WebView, unless that step launches it itself (it may seed workouts first).
 /// A failed scenario saves its files to <c>&lt;run&gt;/&lt;nn&gt;-&lt;scenario&gt;/</c> and attaches them.
 /// </summary>
 [Binding]
@@ -20,7 +21,7 @@ public sealed class AppHooks(ScenarioContext scenario, DeviceClock clock, Native
     private static readonly string[] LaunchingSteps =
     [
         nameof(SeedSteps.GivenTheseSavedWorkouts), nameof(SeedSteps.GivenWorkoutsOnDifferentDays), nameof(AppSteps.GivenIAmOn),
-        nameof(InstallSteps.GivenTheLastReleaseIsInstalled),
+        nameof(InstallSteps.GivenTheLastReleaseIsInstalledWithItsWorkouts),
     ];
 
     private static int scenarioCount;
@@ -49,7 +50,10 @@ public sealed class AppHooks(ScenarioContext scenario, DeviceClock clock, Native
             RequireAwayFromMidnight(clock.LocalNow());
         }
 
-        app.ExecuteScript("mobile: clearApp", new Dictionary<string, object> { ["appId"] = AppiumSetup.App.Package });
+        if (!scenario.ScenarioInfo.CombinedTags.Contains("upgrade"))
+        {
+            app.ExecuteScript("mobile: clearApp", new Dictionary<string, object> { ["appId"] = AppiumSetup.App.Package });
+        }
     }
 
     [BeforeStep]

@@ -2,7 +2,7 @@ namespace WorkoutLog.E2E.Tests.Device;
 
 /// <summary>
 /// The build a run tests, from the run settings: <c>AppPackage</c> (the Debug app by default) and <c>AppApk</c>, plus
-/// <c>PreviousApk</c>, the last release's build of the same app for <c>@upgrade</c>. A package other than the Debug app's runs
+/// <c>PreviousApk</c>, the last release's build of the same app for <c>@upgrade</c>, which upgrade-e2e.sh installs first. A package other than the Debug app's runs
 /// only on an emulator, so the app on a phone is never touched.
 /// </summary>
 internal sealed record TestedApp(string Package, string Apk, string? PreviousApk)

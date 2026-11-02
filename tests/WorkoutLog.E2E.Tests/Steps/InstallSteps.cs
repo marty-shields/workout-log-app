@@ -1,3 +1,4 @@
+using System.Security.Cryptography;
 using Reqnroll;
 using WorkoutLog.E2E.Tests.Device;
 using WorkoutLog.E2E.Tests.Support;
@@ -17,15 +18,20 @@ public sealed class InstallSteps(Native native, AppLog log, ScenarioState state)
 
     private static TestedApp App => AppiumSetup.App;
 
-    [Given(@"^the last release is installed$")]
-    public void GivenTheLastReleaseIsInstalled()
+    /// <summary>
+    /// The upgrade handoff: upgrade-e2e.sh has installed <see cref="TestedApp.PreviousApk"/> and saved the workouts in
+    /// UpgradeSeed.feature with the last release's own E2E project. Checks that build is the one installed.
+    /// </summary>
+    [Given(@"^the last release is installed with the workouts it saved$")]
+    public void GivenTheLastReleaseIsInstalledWithItsWorkouts()
     {
         var previous = App.PreviousApk
-            ?? throw new InvalidOperationException("PreviousApk is not set: pass the last release's build (.github/scripts/previous-apk.sh, docs/e2e-tests.md).");
+            ?? throw new InvalidOperationException("PreviousApk is not set: run @upgrade through .github/scripts/upgrade-e2e.sh (docs/e2e-tests.md).");
         state.TestedAppReplaced = true;
-        Adb.Run("uninstall", App.Package);
-        Adb.Run("install", previous);
-        native.Launch();
+        Assert.That(Adb.TryRun(out var path, "shell", "pm", "path", App.Package), Is.True, $"{App.Package} is installed: upgrade-e2e.sh installs the last release first");
+        var installed = Adb.Shell("sha256sum", path.Split('\n')[0]["package:".Length..]).Split(' ')[0];
+        Assert.That(installed, Is.EqualTo(Convert.ToHexStringLower(SHA256.HashData(File.ReadAllBytes(previous)))),
+            "the installed build is PreviousApk, with the workouts upgrade-e2e.sh saved in it");
     }
 
     [When(@"^I install this build over it$")]

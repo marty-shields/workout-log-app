@@ -10,7 +10,8 @@
 # on a lock. A run takes a boot, a build and the tests (10+ minutes) plus any wait: run it in the background.
 # Output: tests/WorkoutLog.E2E.Tests/TestResults/E2E-emulator/ (results, logcat, emulator log) and, for a failed
 # scenario's screen, page source and Appium log, TestResults/E2E/<yyyyMMdd-HHmmss>/. E2E_TRIES is the total number of
-# tries (1 = no retry) when none is passed.
+# tries (1 = no retry) when none is passed. With E2E_PREVIOUS_APK set the filter must be Category=upgrade, and
+# upgrade-e2e.sh runs the upgrade check.
 set -euo pipefail
 
 usage() {
@@ -21,6 +22,10 @@ script=$(readlink -f "$0")
 filter="${1:-}"
 tries="${2:-${E2E_TRIES:-1}}"
 [[ -n "$filter" && "$tries" =~ ^[1-9][0-9]*$ ]] || usage
+if [[ -n "${E2E_PREVIOUS_APK:-}" && "$filter" != "Category=upgrade" ]]; then
+  echo "With E2E_PREVIOUS_APK set the filter is Category=upgrade: upgrade-e2e.sh runs the upgrade check's two halves." >&2
+  exit 64
+fi
 cd "$(git rev-parse --show-toplevel)"
 
 AVD="${AVD:-WorkoutLog_Local_API36}"
@@ -231,4 +236,8 @@ CHROMEDRIVER=$(.github/scripts/chromedriver.sh "${XDG_CACHE_HOME:-$HOME/.cache}/
 
 export RESULTS="$results"
 export CHROMEDRIVER
-run .github/scripts/e2e-run.sh "$filter" "$tries" || exit 1
+if [[ -n "${E2E_PREVIOUS_APK:-}" ]]; then
+  run .github/scripts/upgrade-e2e.sh "$E2E_PREVIOUS_APK" "$tries" || exit 1
+else
+  run .github/scripts/e2e-run.sh "$filter" "$tries" || exit 1
+fi
