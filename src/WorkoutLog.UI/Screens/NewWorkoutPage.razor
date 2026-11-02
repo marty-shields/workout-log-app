@@ -61,7 +61,6 @@
     [Parameter]
     public EventCallback<int> OnSaved { get; set; }
 
-    /// <summary>Time since the start, by <see cref="IWorkoutService.Elapsed"/>.</summary>
     private TimeSpan Elapsed => Workouts.Elapsed(draft);
 
     protected override void OnInitialized()
@@ -74,12 +73,6 @@
 
     public void Dispose() => timer?.Dispose();
 
-    /// <summary>
-    /// Picks the exercise (<see cref="WorkoutEditor.Pick"/>). An exercise just added then loads its last time
-    /// (<see cref="LastTimeLoader.LoadAsync"/>) and its last note; a failed load shows none. A strength exercise also loads its last and best weights
-    /// through <see cref="IWeightHistoryService.GetAsync"/>; a failed load shows none. Where 0 kg shows as no weight
-    /// (<see cref="FieldSpec.HideZero"/>), a weight of 0 is none.
-    /// </summary>
     private async Task PickAsync(ExerciseListItem item)
     {
         var added = Editor.Exercises.All(e => e.ExerciseId != item.Id);
@@ -102,10 +95,6 @@
         exercise.BestKg = hideZero && history.BestKg == 0m ? null : history.BestKg;
     }
 
-    /// <summary>
-    /// Logs the exercise count only and raises <see cref="OnDiscarded"/>, once. While a save runs or after one
-    /// succeeds, closes the prompt and does nothing else.
-    /// </summary>
     private async Task DiscardAsync()
     {
         if (!Editor.ConfirmDiscard())
@@ -117,7 +106,6 @@
         await OnDiscarded.InvokeAsync();
     }
 
-    /// <summary>Saves through <see cref="IWorkoutService.SaveNewAsync"/> (<see cref="WorkoutEditor.SaveAsync"/>) and raises <see cref="OnSaved"/> with the new id.</summary>
     private async Task SaveAsync()
     {
         int? savedId = null;
@@ -131,7 +119,7 @@
         }
     }
 
-    /// <summary>Re-renders every tick until the timer is disposed. A render error goes to the error boundary.</summary>
+    /// <summary>A render error goes to the error boundary.</summary>
     private async Task TickAsync(PeriodicTimer ticks)
     {
         while (await ticks.WaitForNextTickAsync())

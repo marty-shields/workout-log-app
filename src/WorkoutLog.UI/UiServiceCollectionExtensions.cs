@@ -6,11 +6,9 @@ using WorkoutLog.UI.Navigation;
 
 namespace WorkoutLog.UI;
 
-/// <summary>Registers the UI's services.</summary>
 public static class UiServiceCollectionExtensions
 {
     /// <summary>Registers the UI's services. The host must register Core's services, logging and an <see cref="IImportFilePicker"/>.</summary>
-    /// <param name="services">Service collection.</param>
     public static IServiceCollection AddUi(this IServiceCollection services) =>
         services
             .AddSingleton<ImportSession>()

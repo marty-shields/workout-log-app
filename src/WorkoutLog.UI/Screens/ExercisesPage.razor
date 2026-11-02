@@ -35,10 +35,7 @@
 
     protected override Task OnInitializedAsync() => LoadAsync();
 
-    /// <summary>
-    /// Loads the logged exercises through <see cref="ILoggedExercisesService.GetAsync"/>, each with its last session in the phone's
-    /// time zone. Shows the spinner until it finishes. Ids not in the catalog are already left out by Core.
-    /// </summary>
+    /// <summary>Ids not in the catalog are already left out by Core.</summary>
     private async Task LoadAsync()
     {
         if (loading)

@@ -1,6 +1,5 @@
 namespace WorkoutLog.UI.Components.Actions;
 
-/// <summary>Colour of an <see cref="Icon"/>.</summary>
 public enum IconTone
 {
     /// <summary>The text colour.</summary>

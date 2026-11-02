@@ -63,7 +63,6 @@ public sealed class WorkoutEditor(
     /// <summary>The Discard prompt is open.</summary>
     public bool DiscardOpen { get; private set; }
 
-    /// <summary>Discard was confirmed.</summary>
     public bool Discarded { get; private set; }
 
     /// <summary>
@@ -103,7 +102,6 @@ public sealed class WorkoutEditor(
         }
     }
 
-    /// <summary>Closes the Discard prompt.</summary>
     public void CloseDiscard() => DiscardOpen = false;
 
     /// <summary>
@@ -170,7 +168,6 @@ public sealed class WorkoutEditor(
         Find();
     }
 
-    /// <summary>Closes the add-exercise list.</summary>
     public void CloseList() => ListOpen = false;
 
     /// <summary>
@@ -191,7 +188,6 @@ public sealed class WorkoutEditor(
         ListOpen = false;
     }
 
-    /// <summary>Removes the exercise.</summary>
     public void Remove(ExerciseState exercise)
     {
         exercises.Remove(exercise);

@@ -98,10 +98,7 @@ else
 
     protected override Task OnInitializedAsync() => FetchAsync();
 
-    /// <summary>
-    /// Loads the workout and each exercise's last note, with the start in the phone's time zone. An exercise missing from the catalog or saved as the
-    /// wrong type is logged and shows the load failure. A second call while one runs is ignored.
-    /// </summary>
+    /// <summary>A second call while one runs is ignored.</summary>
     private async Task LoadAsync()
     {
         if (phase is EditPhase.Loading)
@@ -154,10 +151,6 @@ else
         phase = EditPhase.Editing;
     }
 
-    /// <summary>
-    /// Picks the exercise (<see cref="WorkoutEditor.Pick"/>). An exercise just added then loads its last time before this workout
-    /// (<see cref="LastTimeLoader.LoadAsync"/>) and the note it had in the last saved workout that started before this one; a failed load shows none.
-    /// </summary>
     private async Task PickAsync(ExerciseListItem item)
     {
         var added = Editor.Exercises.All(e => e.ExerciseId != item.Id);
@@ -169,11 +162,6 @@ else
         }
     }
 
-    /// <summary>
-    /// With changes, asks Discard / Cancel; without, raises <see cref="OnBack"/>. Ignored while a save runs, after one
-    /// succeeds and after a discard, and while a delete runs and after one succeeds. The add-exercise list takes back first
-    /// while it is open.
-    /// </summary>
     private async Task BackAsync()
     {
         if (Editor.SaveState != SavePhase.Idle || Editor.Discarded || phase == EditPhase.Deleting)
@@ -190,10 +178,6 @@ else
         await OnBack.InvokeAsync();
     }
 
-    /// <summary>
-    /// Logs the workout id only and raises <see cref="OnBack"/>, once. While a save or delete runs or after one succeeds,
-    /// closes the prompt and does nothing else.
-    /// </summary>
     private async Task DiscardAsync()
     {
         if (phase == EditPhase.Deleting)
@@ -211,7 +195,6 @@ else
         await OnBack.InvokeAsync();
     }
 
-    /// <summary>Asks Delete / Cancel. Ignored while a save or delete runs, after one succeeds and after a discard.</summary>
     private void OpenDelete()
     {
         if (Editor.SaveState != SavePhase.Idle || phase == EditPhase.Deleting || Editor.Discarded)
@@ -222,7 +205,6 @@ else
         phase = EditPhase.ConfirmingDelete;
     }
 
-    /// <summary>Closes the prompt. Ignored while a delete runs and after one succeeds.</summary>
     private void CloseDelete()
     {
         if (phase == EditPhase.ConfirmingDelete)
@@ -231,11 +213,6 @@ else
         }
     }
 
-    /// <summary>
-    /// Deletes the workout under the id it was loaded with and raises <see cref="OnDeleted"/>, once. If nothing was deleted,
-    /// closes the prompt, shows DeleteFailed and focuses Delete. While a save runs or after one succeeds, closes the prompt and
-    /// does nothing else; after a discard, does nothing.
-    /// </summary>
     private async Task DeleteAsync()
     {
         if (Editor.SaveState != SavePhase.Idle)
@@ -260,10 +237,6 @@ else
         await OnDeleted.InvokeAsync();
     }
 
-    /// <summary>
-    /// Saves under the id it was loaded with through <see cref="WorkoutEditor.SaveAsync"/> and raises <see cref="OnSaved"/>.
-    /// Ignored while a delete runs and after one succeeds.
-    /// </summary>
     private async Task SaveAsync()
     {
         if (phase == EditPhase.Deleting)

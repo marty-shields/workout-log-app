@@ -9,7 +9,6 @@ internal sealed class WorkoutExerciseRow
     [PrimaryKey, AutoIncrement]
     public int Id { get; set; }
 
-    /// <summary>Id of the workout.</summary>
     [Indexed]
     [Indexed(Name = "WorkoutExercise_WorkoutId_ExerciseId", Order = 1, Unique = true)]
     public int WorkoutId { get; set; }

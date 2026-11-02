@@ -8,7 +8,6 @@ namespace WorkoutLog.Core.Domain.Exercises.Progress;
 /// </summary>
 internal sealed class HoldRecordsRule
 {
-    /// <summary>The records of <paramref name="sessions"/>.</summary>
     public HoldRecords Records(IReadOnlyList<HoldSessionProgress> sessions) => new(
         Highest(sessions, s => s.Session.StartedAt, s => s.Longest),
         First(sessions, s => s.Session.StartedAt, s => s.Heaviest, r => r.OrderByDescending(x => x.Value.WeightKg).ThenByDescending(x => x.Value.Duration)));

@@ -22,13 +22,17 @@ jobs:
         with:
           persist-credentials: false
 
-      # next-version.sh, e2e-shard-plan.sh, e2e-trx.sh and upgrade-seed-ref.sh against stubs, sample files and throwaway repos.
+      # next-version.sh, e2e-shard-plan.sh, e2e-trx.sh, upgrade-seed-ref.sh and check-filler-comments.py against stubs, sample files and throwaway repos.
       - name: Test the CI scripts
         run: .github/scripts/tests/run.sh
 
       # Fails on an E2E step with no step definition or more than one.
       - name: Check the E2E step bindings
         run: python3 -I .github/scripts/e2e-step-check.py tests/WorkoutLog.E2E.Tests
+
+      # Fails on an XML doc comment that only restates the name of its member.
+      - name: Check for filler doc comments
+        run: python3 -I .github/scripts/check-filler-comments.py
 
       - uses: ./.github/actions/setup-maui
 

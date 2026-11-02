@@ -10,7 +10,6 @@ namespace WorkoutLog.UI.Models.Exercises;
 public static class ExerciseListItems
 {
     /// <summary>A row for the exercise, with its last session's date and best when it has one.</summary>
-    /// <param name="exercise">The exercise.</param>
     /// <param name="logged">Its last session; null when not logged or not loaded.</param>
     /// <param name="zone">The phone's time zone.</param>
     /// <param name="now">The current time.</param>

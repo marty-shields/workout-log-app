@@ -21,7 +21,6 @@ public interface IWorkoutService
     /// <summary>Checks one strength set. The result holds that set only.</summary>
     ExerciseErrors ValidateSet(int exerciseId, StrengthSet set);
 
-    /// <summary>Checks a cardio entry.</summary>
     ExerciseErrors ValidateEntry(int exerciseId, CardioEntry entry);
 
     /// <summary>

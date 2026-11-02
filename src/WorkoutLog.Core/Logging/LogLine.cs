@@ -18,7 +18,6 @@ public static class LogLine
     }
 
     /// <summary>Splits <paramref name="text"/> into pieces of at most <paramref name="maxLength"/> characters, in order. Empty text gives no pieces.</summary>
-    /// <param name="text">Text to split.</param>
     /// <param name="maxLength">Longest piece.</param>
     public static IEnumerable<string> Split(string text, int maxLength)
     {

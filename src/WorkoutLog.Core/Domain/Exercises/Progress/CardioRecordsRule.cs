@@ -8,7 +8,6 @@ namespace WorkoutLog.Core.Domain.Exercises.Progress;
 /// </summary>
 internal sealed class CardioRecordsRule
 {
-    /// <summary>The records of <paramref name="sessions"/>.</summary>
     public CardioRecords Records(IReadOnlyList<CardioSessionProgress> sessions) => new(
         Highest(sessions, s => s.Session.StartedAt, s => s.Best.Distance),
         Highest(sessions, s => s.Session.StartedAt, s => s.Best.Duration),

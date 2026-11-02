@@ -5,7 +5,6 @@ namespace WorkoutLog.Core.Import;
 /// <summary>An exercise read from the file: sets for strength, an entry for cardio.</summary>
 /// <param name="Exercise">The exercise. Required.</param>
 /// <param name="Sets">Sets in the order added.</param>
-/// <param name="Entry">The entry.</param>
 /// <param name="Note">The exercise's note.</param>
 internal sealed record ImportExercise(ImportExerciseInfo Exercise, IReadOnlyList<ImportSet>? Sets = null, ImportEntry? Entry = null, string? Note = null)
 {
