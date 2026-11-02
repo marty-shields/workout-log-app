@@ -164,6 +164,30 @@ internal sealed class WorkoutRepository(SQLiteAsyncConnection connection, Workou
     }
 
     /// <inheritdoc />
+    public async Task<LastSession?> GetLastSessionOfAsync(int exerciseId, DateTimeOffset? before)
+    {
+        const string sql = """
+            SELECT e.Id, e.WorkoutId, e.ExerciseId, w.StartedAt
+            FROM WorkoutExercise e
+            JOIN Workout w ON w.Id = e.WorkoutId
+            WHERE e.ExerciseId = ? AND w.StartedAt < ?
+            ORDER BY w.StartedAt DESC
+            LIMIT 1
+            """;
+        var row = (await connection.QueryAsync<ExerciseStartRow>(sql, exerciseId, before?.UtcTicks ?? long.MaxValue)).SingleOrDefault();
+        if (row is null)
+        {
+            return null;
+        }
+
+        var sets = (await connection.Table<StrengthSetRow>().Where(s => s.WorkoutExerciseId == row.Id).OrderBy(s => s.Position).ToListAsync())
+            .ToLookup(s => s.WorkoutExerciseId);
+        var entries = (await connection.Table<CardioEntryRow>().Where(c => c.WorkoutExerciseId == row.Id).ToListAsync())
+            .ToDictionary(c => c.WorkoutExerciseId);
+        return new LastSession(row.ExerciseId, new DateTimeOffset(row.StartedAt, TimeSpan.Zero), ToExercise(row.Id, row.ExerciseId, sets, entries));
+    }
+
+    /// <inheritdoc />
     public async Task<IReadOnlyList<WorkoutSession>> GetSessionsAsync(int exerciseId)
     {
         const string exercisesSql = """

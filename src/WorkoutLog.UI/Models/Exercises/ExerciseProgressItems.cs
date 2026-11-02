@@ -110,7 +110,8 @@ public static class ExerciseProgressItems
         : session.Session.Sets.Max(s => s.Reps) is { } reps ? $"{reps} reps"
         : "—";
 
-    private static string SetText(StrengthSet set) => set switch
+    /// <summary>A set as the Exercise page lists it, e.g. 60×8, 60kg or 8 reps; — when it has neither.</summary>
+    internal static string SetText(StrengthSet set) => set switch
     {
         { WeightKg: { } kg, Reps: { } reps } => $"{Number(kg)}×{reps}",
         { WeightKg: { } kg } => DisplayFormat.Weight(kg),

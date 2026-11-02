@@ -98,7 +98,8 @@ public static class BodyweightProgressItems
                 now))
             .ToList();
 
-    private static string SetText(StrengthSet set) => set switch
+    /// <summary>A set as the Exercise page lists it, e.g. 60×8, 60kg or 8; — when it has neither.</summary>
+    internal static string SetText(StrengthSet set) => set switch
     {
         { WeightKg: { } kg, Reps: { } reps } when kg > 0m => $"{ExerciseProgressItems.Number(kg)}×{reps}",
         { WeightKg: { } kg } when kg > 0m => DisplayFormat.Weight(kg),

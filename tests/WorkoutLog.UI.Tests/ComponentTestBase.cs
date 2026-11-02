@@ -10,7 +10,7 @@ namespace WorkoutLog.UI.Tests;
 
 /// <summary>
 /// Creates a fresh bUnit context for each test with the UI's services (<see cref="UiServiceCollectionExtensions.AddUi"/>),
-/// a <see cref="BackButton"/>, the exercise catalog, a <see cref="SampleWorkoutService"/>, a <see cref="SampleWeightHistoryService"/> and a <see cref="FakeLoggedExercisesService"/>.
+/// a <see cref="BackButton"/>, the exercise catalog, a <see cref="SampleWorkoutService"/>, a <see cref="SampleWeightHistoryService"/>, a <see cref="FakeLoggedExercisesService"/> and a <see cref="FakeLastSessionService"/>.
 /// Tests may register their own workout and weight history services.
 /// </summary>
 public abstract class ComponentTestBase
@@ -26,18 +26,23 @@ public abstract class ComponentTestBase
     /// <summary>The logged exercises service the rendered components read; nothing logged unless a test sets its result.</summary>
     protected FakeLoggedExercisesService LoggedExercises { get; private set; } = null!;
 
+    /// <summary>The last session service the rendered components read; no earlier workout unless a test sets one.</summary>
+    protected FakeLastSessionService LastSessions { get; private set; } = null!;
+
     [SetUp]
     public void CreateContext()
     {
         Context = new BunitContext();
         BackButton = new BackButton(NullLogger<BackButton>.Instance);
         LoggedExercises = new FakeLoggedExercisesService();
+        LastSessions = new FakeLastSessionService();
         Context.Services.AddUi();
         Context.Services.AddSingleton<IBackButton>(BackButton);
         Context.Services.AddSingleton(Catalog);
         Context.Services.AddSingleton<IWorkoutService>(new SampleWorkoutService(new FakeTimeProvider(), Catalog));
         Context.Services.AddSingleton<IWeightHistoryService>(new SampleWeightHistoryService());
         Context.Services.AddSingleton<ILoggedExercisesService>(LoggedExercises);
+        Context.Services.AddSingleton<ILastSessionService>(LastSessions);
     }
 
     [TearDown]

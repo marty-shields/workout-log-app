@@ -28,6 +28,12 @@
         </Template>
     </Story>
 
+    <Story Name="Last time">
+        <Template>
+            <WorkoutView Mode="WorkoutMode.Edit" StartedAt="SampleData.Started" Time="new TimeSpan(1, 4, 37)" Exercises="SampleData.MarkDone(SampleData.LastTimeWorkout(Catalog), 1, 2, 3, 4, 6)" OnBack="() => { }" OnDelete="() => { }" />
+        </Template>
+    </Story>
+
     <Story Name="Save errors">
         <Template>
             <WorkoutView Mode="WorkoutMode.Edit" StartedAt="SampleData.Started" Time="new TimeSpan(0, 52, 10)" Exercises="SampleData.EditWorkoutWithErrors(Catalog, Checker)" OnBack="() => { }" OnDelete="() => { }" />

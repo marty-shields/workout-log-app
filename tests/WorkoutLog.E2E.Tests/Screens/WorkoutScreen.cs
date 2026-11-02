@@ -93,6 +93,19 @@ public sealed partial class WorkoutScreen(WebView web, Native native)
     public string? Weights(string name) =>
         web.Exists($"{Card(name)}-weights") ? web.Find($"{Card(name)}-weights").GetDomProperty("textContent")?.Trim() : null;
 
+    /// <summary>
+    /// The text of last time's set (<paramref name="set"/> given) or cardio entry without the "Last time" label, e.g. 60×8; null when it shows none.
+    /// </summary>
+    public string? LastTime(string name, int? set)
+    {
+        var testId = set is { } number ? $"{Card(name)}-set-{number}-last" : $"{Card(name)}-last";
+        var text = web.Exists(testId) ? web.Find(testId).GetDomProperty("textContent")?.Trim() : null;
+        return text is not null && text.StartsWith("Last time ", StringComparison.Ordinal) ? text["Last time ".Length..] : text;
+    }
+
+    /// <summary>Whether the card shows last time's text on any set or above its entry.</summary>
+    public bool HasLastTime(string name) => web.FindAll($"[data-testid^=\"{Card(name)}-\"][data-testid$=\"-last\"]").Count > 0;
+
     /// <summary>The cardio entry's worked-out pace or speed line, e.g. Pace 5:46/km; null when the card has none.</summary>
     public string? WorkedOut(string name) => web.Exists($"{Card(name)}-worked-out") ? web.Text($"{Card(name)}-worked-out") : null;
 

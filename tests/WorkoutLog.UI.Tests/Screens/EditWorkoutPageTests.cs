@@ -3,6 +3,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Testing;
 using Microsoft.Extensions.Time.Testing;
+using WorkoutLog.Core.Domain.Exercises;
+using WorkoutLog.Core.Domain.Exercises.Progress;
 using WorkoutLog.Core.Domain.Workouts;
 using WorkoutLog.Core.Domain.Workouts.Validation;
 using WorkoutLog.Core.Services;
@@ -1147,6 +1149,101 @@ public class EditWorkoutPageTests : ComponentTestBase
         await WaitForRendererAsync();
 
         Assert.That(cut.FindAll("[data-testid$=-weights]"), Is.Empty);
+    }
+
+    [Test]
+    public async Task Loaded_AsksForEachExercisesLastWorkoutStartedBeforeThisOne()
+    {
+        await RenderLoadedAsync();
+
+        Assert.That(LastSessions.Requests, Is.EqualTo(new (int, DateTimeOffset?)[] { (6, Start), (187, Start), (300, Start) }));
+    }
+
+    [Test]
+    public async Task Loaded_ExercisesStartDone_ShowingNoLastTime()
+    {
+        LastSessions.Set(new StrengthExercise(6, [new StrengthSet(8, 55m, null, null)]));
+        var cut = await RenderLoadedAsync();
+
+        Assert.That(cut.FindAll("[data-testid$=-last]"), Is.Empty);
+    }
+
+    [Test]
+    public async Task Edit_ReopeningAStrengthExercise_ShowsEachSetsLastTimeBySetNumber()
+    {
+        LastSessions.Set(new StrengthExercise(6, [new StrengthSet(8, 55m, null, null)]));
+        var cut = await RenderLoadedAsync();
+
+        cut.Find("[data-testid=exercise-3-edit]").Click();
+
+        Assert.That(
+            new[] { "exercise-3-set-1-last", "exercise-3-set-2-last" }.Select(id => cut.Find($"[data-testid={id}]").TextContent),
+            Is.EqualTo(new[] { "Last time 55×8", "Last time —" }));
+    }
+
+    [Test]
+    public async Task Edit_ReopeningACardioExercise_ShowsLastTimesEntry()
+    {
+        var entry = new CardioEntry(new TimeSpan(0, 18, 0), 2.5m, null, null, 1m, null, null);
+        LastSessions.Set(new CardioExercise(300, entry), new CardioBest(2.5m, entry.Duration, WorkedOut.Pace(entry.Duration, entry.Distance), WorkedOut.Speed(entry.Duration, entry.Distance), null, null));
+        var cut = await RenderLoadedAsync();
+
+        cut.Find("[data-testid=exercise-1-edit]").Click();
+
+        Assert.That(cut.Find("[data-testid=exercise-1-last]").TextContent, Is.EqualTo("Last time 2.5km · 18:00 · 8.33 km/h · 1%"));
+    }
+
+    [Test]
+    public async Task Edit_ReopeningAnExerciseWithNoEarlierWorkout_ShowsNothing()
+    {
+        var cut = await RenderOpenedAsync();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.FindAll("[data-testid$=-last]"), Is.Empty);
+            Assert.That(cut.FindAll(".set-header span").Select(h => h.TextContent), Does.Not.Contain("Last"));
+        });
+    }
+
+    [Test]
+    public async Task Edit_LastTimeLoadFails_ShowsNoLastValuesAndEditingStillWorks()
+    {
+        LastSessions.Failing = true;
+        var cut = await RenderLoadedAsync();
+        cut.Find("[data-testid=exercise-3-edit]").Click();
+
+        cut.Find("[data-testid=exercise-3-set-1-reps]").Input("9");
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.FindAll("[data-testid$=-last]"), Is.Empty);
+            Assert.That(Value(cut, "exercise-3-set-1-reps"), Is.EqualTo("9"));
+        });
+    }
+
+    [Test]
+    public async Task Pick_NewExercise_LoadsItsLastTimeBeforeThisWorkout()
+    {
+        LastSessions.Set(new StrengthExercise(132, [new StrengthSet(12, 10m, null, null)]));
+        var cut = await RenderLoadedAsync();
+
+        Add(cut, 132);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(LastSessions.Requests.Last(), Is.EqualTo((132, (DateTimeOffset?)Start)));
+            Assert.That(cut.Find("[data-testid=exercise-1-set-1-last]").TextContent, Is.EqualTo("Last time 10×12"));
+        });
+    }
+
+    [Test]
+    public async Task PickAgain_DoesNotReloadLastTime()
+    {
+        var cut = await RenderLoadedAsync();
+
+        Add(cut, 6);
+
+        Assert.That(LastSessions.Requests.Count(r => r.ExerciseId == 6), Is.EqualTo(1));
     }
 
     [Test]

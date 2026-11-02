@@ -103,7 +103,7 @@ public static class SampleData
     [
         WithLastTime(Exercise(catalog, 6, ["60", "8"], ["60", "8"], ["62.5", "6"]), "60×8", "60×8", "62.5×6"),
         WithLastTime(Exercise(catalog, 132, ["10", "12"], ["10", "10"], ["12", "8"]), "10×12", "10×10"),
-        WithLastTime(Exercise(catalog, 218, ["25", "10"]), "25×10", "25×8"),
+        WithLastTime(Exercise(catalog, 218, ["25", "10"]), "25kg×10", "25kg×8"),
         WithLastTime(Exercise(catalog, 258, ["0:01:00", null]), "1:30"),
         WithLastTime(Exercise(catalog, 187, ["40", "32", "0:00:45"], ["40", "32", "0:00:50"], ["30", "32", null]), "32kg · 40m · 0:45", "32kg · 40m · 0:50"),
         WithLastTime(Exercise(catalog, 300, ["0:20:00", "3.2", "1.5", "210"]), "3km · 20:00 · 9 km/h · 190 calories · 1.5%"),

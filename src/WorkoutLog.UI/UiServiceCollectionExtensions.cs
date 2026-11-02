@@ -21,5 +21,6 @@ public static class UiServiceCollectionExtensions
             .AddSingleton<IAppLifecycle>(s => s.GetRequiredService<AppLifecycle>())
             .AddSingleton<ISetChecker, SetChecker>()
             .AddSingleton<IWorkoutChecker, WorkoutChecker>()
+            .AddSingleton<LastTimeLoader>()
             .AddTransient<WorkoutEditor>();
 }
