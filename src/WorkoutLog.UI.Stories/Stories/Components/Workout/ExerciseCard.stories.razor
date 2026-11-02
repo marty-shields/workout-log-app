@@ -89,6 +89,67 @@
         </Template>
     </Story>
 
+    <Story Name="Last note">
+        <Template>
+            <ExerciseCard Exercise="@SampleData.WithNotes(SampleData.WithWeights(SampleData.NewExercise(Catalog, 6), 62.5m, 70m), null, SampleData.LastNote)" />
+        </Template>
+    </Story>
+
+    <Story Name="Last note - no weights line">
+        <Template>
+            <ExerciseCard Exercise="@SampleData.WithNotes(SampleData.NewExercise(Catalog, 6), null, SampleData.LastNote)" />
+        </Template>
+    </Story>
+
+    <Story Name="Note">
+        <Template>
+            <ExerciseCard Exercise="@SampleData.WithNotes(SampleData.Exercise(Catalog, 6, ["8", "60"], ["8", "60"], ["6", "62.5"]), SampleData.Note, null)" />
+        </Template>
+    </Story>
+
+    <Story Name="Both notes">
+        <Template>
+            <ExerciseCard Exercise="@SampleData.WithNotes(SampleData.WithWeights(SampleData.Exercise(Catalog, 6, ["8", "60"], ["8", "60"], ["6", "62.5"]), 62.5m, 70m), SampleData.Note, SampleData.LastNote)" />
+        </Template>
+    </Story>
+
+    <Story Name="Long notes">
+        <Template>
+            <ExerciseCard Exercise="@SampleData.WithNotes(SampleData.WithWeights(SampleData.Exercise(Catalog, 6, ["8", "60"], ["8", "60"], ["6", "62.5"]), 62.5m, 70m), SampleData.LongNote, SampleData.LongNote)" />
+        </Template>
+    </Story>
+
+    <Story Name="Note over the limit">
+        <Template>
+            @{ var exercise = SampleData.WithNotes(SampleData.Exercise(Catalog, 6, ["8", "60"]), SampleData.NoteTooLong, null); exercise.NoteError = SampleData.NoteTooLongError; }
+            <ExerciseCard Exercise="exercise" />
+        </Template>
+    </Story>
+
+    <Story Name="Busiest">
+        <Template>
+            <ExerciseCard Exercise="@SampleData.WithNotes(SampleData.WithWeights(SampleData.FullSets(Catalog, 6), 62.5m, 70m), SampleData.LongNote, SampleData.LongNote)" />
+        </Template>
+    </Story>
+
+    <Story Name="Carry notes">
+        <Template>
+            <ExerciseCard Exercise="@SampleData.WithNotes(SampleData.Exercise(Catalog, 187, ["40", "32", "0:00:45"], ["40", "0", "0:00:50"], ["30", "40", null]), SampleData.Note, SampleData.LastNote)" />
+        </Template>
+    </Story>
+
+    <Story Name="Cardio last note">
+        <Template>
+            <ExerciseCard Exercise="@SampleData.WithNotes(SampleData.Exercise(Catalog, 300, ["0:20:00", "3.2", "1.5", "210"]), null, SampleData.LastNote)" />
+        </Template>
+    </Story>
+
+    <Story Name="Cardio notes">
+        <Template>
+            <ExerciseCard Exercise="@SampleData.WithNotes(SampleData.Exercise(Catalog, 300, ["0:20:00", "3.2", "1.5", "210"]), SampleData.Note, SampleData.LastNote)" />
+        </Template>
+    </Story>
+
     <Story Name="Strength errors">
         <Template>
             <ExerciseCard Exercise="@SampleData.WorkoutWithErrors(Catalog, Checker)[0]" />

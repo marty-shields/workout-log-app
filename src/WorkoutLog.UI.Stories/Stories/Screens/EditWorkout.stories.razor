@@ -22,6 +22,18 @@
         </Template>
     </Story>
 
+    <Story Name="Notes">
+        <Template>
+            <WorkoutView Mode="WorkoutMode.Edit" StartedAt="SampleData.Started" Time="new TimeSpan(1, 4, 37)" Exercises="SampleData.Opened(SampleData.WithSampleNotes(SampleData.StrengthWorkout(Catalog)))" Note="@SampleData.Note" OnBack="() => { }" OnDelete="() => { }" />
+        </Template>
+    </Story>
+
+    <Story Name="Note over the limit">
+        <Template>
+            <WorkoutView Mode="WorkoutMode.Edit" StartedAt="SampleData.Started" Time="new TimeSpan(1, 4, 37)" Exercises="SampleData.WithNoteTooLong(SampleData.Opened(SampleData.StrengthWorkout(Catalog)))" Note="@SampleData.NoteTooLong" NoteError="@SampleData.NoteTooLongError" OnBack="() => { }" OnDelete="() => { }" />
+        </Template>
+    </Story>
+
     <Story Name="Save errors">
         <Template>
             <WorkoutView Mode="WorkoutMode.Edit" StartedAt="SampleData.Started" Time="new TimeSpan(0, 52, 10)" Exercises="SampleData.EditWorkoutWithErrors(Catalog, Checker)" OnBack="() => { }" OnDelete="() => { }" />
