@@ -9,12 +9,12 @@ class=WorkoutLog.E2E.Tests.Features.AFeature
 check "failed_tests: the failed tests only, unescaped" "$class.Lt<T>'s
 $class.Outline(1,\"a & b\")
 $class.Outline(2,\"c\")
-$class.Plain" "$(failed_tests "$here/fixtures/sample.trx" | sort)"
+$class.Plain" "$(failed_tests "$here/fixtures/sample-trx.xml" | sort)"
 
-check "filter_for: Class.Method for an outline, the exact name otherwise, no parenthesis" "FullyQualifiedName=$class.Lt<T>'s|FullyQualifiedName=$class.Plain|FullyQualifiedName~$class.Outline" "$(failed_tests "$here/fixtures/sample.trx" | filter_for)"
+check "filter_for: Class.Method for an outline, the exact name otherwise, no parenthesis" "FullyQualifiedName=$class.Lt<T>'s|FullyQualifiedName=$class.Plain|FullyQualifiedName~$class.Outline" "$(failed_tests "$here/fixtures/sample-trx.xml" | filter_for)"
 
 check "filter_for: an outline's rows make one entry" "FullyQualifiedName~$class.Outline" "$(printf '%s\n' "$class.Outline(1)" "$class.Outline(2)" | filter_for)"
 
-check "failed_tests: a trx with no failure prints nothing" "" "$(grep -v 'outcome="Failed"' "$here/fixtures/sample.trx" | failed_tests /dev/stdin)"
+check "failed_tests: a trx with no failure prints nothing" "" "$(grep -v 'outcome="Failed"' "$here/fixtures/sample-trx.xml" | failed_tests /dev/stdin)"
 
 finish

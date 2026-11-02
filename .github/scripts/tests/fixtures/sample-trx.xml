@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TestRun id="1" xmlns="http://microsoft.com/schemas/VisualStudio/TeamTest/2010">
+  <Results>
+    <UnitTestResult executionId="e1" testId="id-pass" testName="Passing" outcome="Passed" />
+    <UnitTestResult executionId="e2" testId="id-plain" testName="Plain" outcome="Failed" />
+    <UnitTestResult executionId="e3" testId="id-row1" testName="Outline(1,&quot;a &amp; b&quot;)" outcome="Failed" />
+    <UnitTestResult executionId="e4" testId="id-row2" testName="Outline(2,&quot;c&quot;)" outcome="Failed" />
+    <UnitTestResult executionId="e5" testId="id-row3" testName="Outline(3,&quot;d&quot;)" outcome="Passed" />
+    <UnitTestResult executionId="e6" testId="id-lt" testName="Lt&lt;T&gt;&apos;s" outcome="Failed" />
+  </Results>
+  <TestDefinitions>
+    <UnitTest name="Passing" id="id-pass"><Execution id="e1" /><TestMethod className="WorkoutLog.E2E.Tests.Features.AFeature" name="Passing" /></UnitTest>
+    <UnitTest name="Plain" id="id-plain"><Execution id="e2" /><TestMethod className="WorkoutLog.E2E.Tests.Features.AFeature" name="Plain" /></UnitTest>
+    <UnitTest name="Outline(1)" id="id-row1"><Execution id="e3" /><TestMethod className="WorkoutLog.E2E.Tests.Features.AFeature" name="Outline(1,&quot;a &amp; b&quot;)" /></UnitTest>
+    <UnitTest name="Outline(2)" id="id-row2"><Execution id="e4" /><TestMethod className="WorkoutLog.E2E.Tests.Features.AFeature" name="Outline(2,&quot;c&quot;)" /></UnitTest>
+    <UnitTest name="Outline(3)" id="id-row3"><Execution id="e5" /><TestMethod className="WorkoutLog.E2E.Tests.Features.AFeature" name="Outline(3,&quot;d&quot;)" /></UnitTest>
+    <UnitTest name="Lt" id="id-lt"><Execution id="e6" /><TestMethod className="WorkoutLog.E2E.Tests.Features.AFeature" name="Lt&lt;T&gt;&apos;s" /></UnitTest>
+  </TestDefinitions>
+</TestRun>
