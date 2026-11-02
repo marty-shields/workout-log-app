@@ -688,6 +688,175 @@ public class WorkoutViewTests : ComponentTestBase
     }
 
     [Test]
+    public void WorkoutNote_Empty_ShowsAddNoteAboveTheCards()
+    {
+        var cut = Context.Render<WorkoutView>(p => p
+            .Add(x => x.StartedAt, Started)
+            .Add(x => x.Exercises, [Curl()]));
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.Find("[data-testid=workout-note-add]").TextContent.Trim(), Is.EqualTo("Add note"));
+            Assert.That(cut.FindAll(".exercises > [data-testid=workout-note] + [data-testid=exercise-1]"), Has.Count.EqualTo(1));
+        });
+    }
+
+    [Test]
+    public void WorkoutNote_NoExercises_ShowsAddNoteAboveTheEmptyState()
+    {
+        var cut = Context.Render<WorkoutView>(p => p
+            .Add(x => x.StartedAt, Started)
+            .Add(x => x.Exercises, []));
+
+        Assert.That(cut.FindAll(".exercises > [data-testid=workout-note] + [data-testid=no-exercises]"), Has.Count.EqualTo(1));
+    }
+
+    [Test]
+    public void WorkoutNote_Set_ShowsOneLine()
+    {
+        var cut = Context.Render<WorkoutView>(p => p
+            .Add(x => x.StartedAt, Started)
+            .Add(x => x.Exercises, [Curl()])
+            .Add(x => x.Note, "Slept badly, kept it light"));
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.Find("[data-testid=workout-note-open] .text").TextContent, Is.EqualTo("Slept badly, kept it light"));
+            Assert.That(cut.FindAll("[data-testid=workout-note-add]"), Is.Empty);
+        });
+    }
+
+    [Test]
+    public void WorkoutNote_AddNote_OpensTheFieldAndTypingRaisesNoteChanged()
+    {
+        string? note = null;
+        var cut = Context.Render<WorkoutView>(p => p
+            .Add(x => x.StartedAt, Started)
+            .Add(x => x.Exercises, [Curl()])
+            .Add(x => x.NoteChanged, (string? n) => note = n));
+
+        cut.Find("[data-testid=workout-note-add]").Click();
+        cut.Find("[data-testid=workout-note-input]").Input("Slept badly");
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(note, Is.EqualTo("Slept badly"));
+            Assert.That(cut.Find("[data-testid=workout-note-count]").TextContent, Is.EqualTo("11/500"));
+        });
+    }
+
+    [Test]
+    public void WorkoutNote_LeavingTheField_RaisesNoteChangedWithTheTrimmedNote()
+    {
+        var notes = new List<string?>();
+        var cut = Context.Render<WorkoutView>(p => p
+            .Add(x => x.StartedAt, Started)
+            .Add(x => x.Exercises, [Curl()])
+            .Add(x => x.NoteChanged, (string? n) => notes.Add(n)));
+        cut.Find("[data-testid=workout-note-add]").Click();
+        cut.Find("[data-testid=workout-note-input]").Input(" Slept badly ");
+
+        cut.Find("[data-testid=workout-note-input]").Blur();
+
+        Assert.That(notes, Is.EqualTo(new[] { " Slept badly ", "Slept badly" }));
+    }
+
+    [Test]
+    public void WorkoutNote_Error_ShowsInTheField()
+    {
+        var cut = Context.Render<WorkoutView>(p => p
+            .Add(x => x.StartedAt, Started)
+            .Add(x => x.Exercises, [Curl()])
+            .Add(x => x.Note, new string('a', 501))
+            .Add(x => x.NoteError, "Note must be 500 characters or less"));
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.Find("[data-testid=workout-note-error]").TextContent, Is.EqualTo("Note must be 500 characters or less"));
+            Assert.That(cut.Find("[data-testid=workout-note-open]").ClassList, Does.Contain("invalid"));
+            Assert.That(cut.FindAll("[data-testid=workout-error]"), Is.Empty);
+        });
+    }
+
+    [Test]
+    public void ErrorFocus_WorkoutNoteError_FocusesTheWorkoutNote()
+    {
+        var cut = Context.Render<WorkoutView>(p => p
+            .Add(x => x.StartedAt, Started)
+            .Add(x => x.Exercises, [Curl()])
+            .Add(x => x.Note, new string('a', 501))
+            .Add(x => x.NoteError, "Note must be 500 characters or less")
+            .Add(x => x.ErrorFocus, new ErrorFocus()));
+
+        cut.WaitForAssertion(() => Context.JSInterop.VerifyFocusAsyncInvoke().Arguments[0].ShouldBeElementReferenceTo(cut.Find("[data-testid=workout-note-input]")));
+    }
+
+    [Test]
+    public void ErrorFocus_WorkoutNoteErrorAndExerciseError_FocusesTheWorkoutNoteFirst()
+    {
+        var unknown = Curl();
+        unknown.Error = "Exercise not found";
+
+        var cut = Context.Render<WorkoutView>(p => p
+            .Add(x => x.StartedAt, Started)
+            .Add(x => x.Exercises, [unknown])
+            .Add(x => x.Note, new string('a', 501))
+            .Add(x => x.NoteError, "Note must be 500 characters or less")
+            .Add(x => x.ErrorFocus, new ErrorFocus()));
+
+        cut.WaitForAssertion(() => Context.JSInterop.VerifyFocusAsyncInvoke().Arguments[0].ShouldBeElementReferenceTo(cut.Find("[data-testid=workout-note-input]")));
+    }
+
+    [Test]
+    public void ErrorFocus_ExerciseNoteError_FocusesThatExercisesNote()
+    {
+        var fine = Curl();
+        var noted = Curl();
+        noted.Note = new string('a', 501);
+        noted.NoteError = "Note must be 500 characters or less";
+
+        var cut = Context.Render<WorkoutView>(p => p
+            .Add(x => x.StartedAt, Started)
+            .Add(x => x.Exercises, [fine, noted])
+            .Add(x => x.ErrorFocus, new ErrorFocus()));
+
+        cut.WaitForAssertion(() => Context.JSInterop.VerifyFocusAsyncInvoke().Arguments[0].ShouldBeElementReferenceTo(cut.Find("[data-testid=exercise-2-note-input]")));
+    }
+
+    [Test]
+    public void ExerciseNote_TypingRaisesOnChanged()
+    {
+        var changed = 0;
+        var exercise = Curl();
+        var cut = Context.Render<WorkoutView>(p => p
+            .Add(x => x.StartedAt, Started)
+            .Add(x => x.Exercises, [exercise])
+            .Add(x => x.OnChanged, () => changed++));
+
+        cut.Find("[data-testid=exercise-1-add-note]").Click();
+        cut.Find("[data-testid=exercise-1-note-input]").Input("Slow tempo");
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(exercise.Note, Is.EqualTo("Slow tempo"));
+            Assert.That(changed, Is.EqualTo(1));
+        });
+    }
+
+    [Test]
+    public void LastNote_ShowsOnTheExercisesCardInEditToo()
+    {
+        var exercise = Curl();
+        exercise.LastNote = "Belt on from set 3";
+
+        var cut = Context.Render<WorkoutView>(p => p
+            .Add(x => x.Mode, WorkoutMode.Edit)
+            .Add(x => x.StartedAt, Started)
+            .Add(x => x.Exercises, [exercise]));
+
+        Assert.That(cut.Find("[data-testid=exercise-1-last-note] .text").TextContent, Is.EqualTo("Belt on from set 3"));
+    }
+    [Test]
     public void Overlay_IsRendered()
     {
         var cut = Context.Render<WorkoutView>(p => p

@@ -11,7 +11,7 @@ Log a workout as you go. View: `WorkoutView` with `Mode` New; page: `NewWorkoutP
 | Part | Content |
 |---|---|
 | Top bar | Back arrow; date and day; "Elapsed h:mm:ss". |
-| Content | Workout error, if any; `EmptyState` "No exercises yet" or one `ExerciseCard` per exercise, newest first. Sets in a card are in the order added. At 10 exercises, a muted centred note "At most 10 exercises" under the cards. |
+| Content | Workout error, if any; the workout note (`NoteField`); `EmptyState` "No exercises yet" or one `ExerciseCard` per exercise, newest first. Sets in a card are in the order added. At 10 exercises, a muted centred note "At most 10 exercises" under the cards. |
 | Bottom bar | Add exercise (secondary) and Save (primary), side by side. Add exercise is off at 10 exercises. |
 | Overlays | `AddExerciseView` ([Add Exercise](./?path=/custom/screens-add-exercise-overview)); `ConfirmDialog` "Discard this workout?" on back; "Delete {exercise name}?" on an exercise's trash. |
 
@@ -32,6 +32,14 @@ While logging, mark an exercise done so it shrinks to one line and is hard to to
 - Done doesn't reorder: cards stay newest first. Picking an exercise that is done from Add exercise opens it, moves it to the top and adds a set.
 - Done is only how the screen shows an exercise. It isn't saved, isn't a change for Edit's "Discard changes?", and records no time. A done exercise saves as it stands.
 
+## Notes
+Written like the margin notes of a paper notebook: one on the workout and one on each exercise. Parts: [Inputs](./?path=/custom/components-inputs-overview) and [Workout components](./?path=/custom/components-workout-overview).
+- Workout note: a field at the top of the content, under the top bar and above the cards. **Add note** shows while it is empty. It opens a text box with a counter, e.g. *120/500*. Leaving the text box shows the note as one line, cut with …; tap to edit. Cleared or blank means no note.
+- Exercise note: one per exercise, on its card. **Add note** is a link beside Add set (cardio: alone under the entry). It opens a text box at the bottom of the card, with the same counter and the same one line when you leave it.
+- Last time's note: an exercise just added shows the note it had in the last saved workout with it, as one muted line with the note icon under its last and PB line, or under its name when there is no weights line. Cut with … when long; tap to show the whole note, tap again to cut it. It cannot be edited and does not change while logging.
+- A done card hides its notes and last time's note. They show again when the card is opened.
+- Limit: 500 characters each, trimmed; blank is no note. Over 500 shows "Note must be 500 characters or less" under the field, which gets a red border, and the counter turns red. Save checks the notes with the sets.
+
 ## Adding an exercise
 Add exercise opens [Add Exercise](./?path=/custom/screens-add-exercise-overview), which loads the last sessions through `ILoggedExercisesService.GetAsync` each time it opens. A picked exercise goes on top, and focus moves to its first field, scrolling it into view. Picking an exercise already in the workout moves its card to the top: strength adds a set as Add set does, unless it has 10 sets, and cardio focuses its entry.
 
@@ -40,7 +48,7 @@ A strength exercise just added loads its last and PB weights through `IWeightHis
 ## Save
 Save runs `IWorkoutChecker.Check`: every set and entry, then the workout and each exercise through `IWorkoutService.Validate`.
 - Errors show on the exercise, set or entry at fault: each faulty field is outlined, with one message per problem under its set or entry.
-- Focus moves to the first error in screen order: Add exercise for the workout error, an exercise's Add set or Remove, the first field at fault, or a closed set's summary line.
+- Focus moves to the first error in screen order: Add exercise for the workout error, the workout note when it has an error, an exercise's Add set or Remove, the first field at fault, or a closed set's summary line, then an exercise's note.
 - Once a set or entry fails a check, every change re-checks it until it passes Add set or opening another set, or the whole workout passes Save. Adding a set clears "Add at least one set"; adding an exercise clears the workout error. Cardio entries are first checked on Save.
 
 A valid Save calls `IWorkoutService.SaveNewAsync` with `ISetChecker.Read`'s records, oldest first, then raises `OnSaved`; the App goes to the Dashboard. If nothing was saved, the workout error shows "Couldn't save the workout. Try again", the workout stays and focus moves to Save. Taps on Save while a save runs are ignored.
@@ -50,6 +58,6 @@ Back (arrow or Android) opens `ConfirmDialog` "Discard this workout?", even with
 
 With the soft keyboard open, Android back only hides the keyboard.
 
-States: [Empty](./?path=/story/screens-new-workout--empty) · [Strength](./?path=/story/screens-new-workout--strength) · [Done](./?path=/story/screens-new-workout--done) · [Carry](./?path=/story/screens-new-workout--carry) · [Cardio](./?path=/story/screens-new-workout--cardio) · [Records](./?path=/story/screens-new-workout--records) · [Exercises full](./?path=/story/screens-new-workout--exercises-full) · [Save errors](./?path=/story/screens-new-workout--save-errors) · [No exercises error](./?path=/story/screens-new-workout--no-exercises-error) · [Save failed](./?path=/story/screens-new-workout--save-failed) · [Delete exercise prompt](./?path=/story/screens-new-workout--delete-exercise-prompt) · [Discard prompt](./?path=/story/screens-new-workout--discard-prompt)
+States: [Empty](./?path=/story/screens-new-workout--empty) · [Strength](./?path=/story/screens-new-workout--strength) · [Done](./?path=/story/screens-new-workout--done) · [Carry](./?path=/story/screens-new-workout--carry) · [Cardio](./?path=/story/screens-new-workout--cardio) · [Records](./?path=/story/screens-new-workout--records) · [Notes](./?path=/story/screens-new-workout--notes) · [Note over the limit](./?path=/story/screens-new-workout--note-over-the-limit) · [Exercises full](./?path=/story/screens-new-workout--exercises-full) · [Save errors](./?path=/story/screens-new-workout--save-errors) · [No exercises error](./?path=/story/screens-new-workout--no-exercises-error) · [Save failed](./?path=/story/screens-new-workout--save-failed) · [Delete exercise prompt](./?path=/story/screens-new-workout--delete-exercise-prompt) · [Discard prompt](./?path=/story/screens-new-workout--discard-prompt)
 
-`data-testid`: `back`, `screen-title`, `screen-subtitle`, `workout-error`, `no-exercises`, `exercises-full`, `exercise-{n}` (and its parts, see [Workout](./?path=/custom/components-workout-overview)), `add-exercise`, `save-workout`, `confirm-dialog`.
+`data-testid`: `back`, `screen-title`, `screen-subtitle`, `workout-error`, `workout-note` (and `workout-note-add`, `workout-note-input`, `workout-note-count`, `workout-note-open`, `workout-note-error`), `no-exercises`, `exercises-full`, `exercise-{n}` (and its parts, see [Workout](./?path=/custom/components-workout-overview)), `add-exercise`, `save-workout`, `confirm-dialog`.

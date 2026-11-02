@@ -23,6 +23,10 @@
     {
         <p class="weights" data-testid="@($"{TestId}-weights")"><span>Last @DisplayFormat.Weight(Exercise.LastKg)</span> <span aria-hidden="true">·</span> <span>PB @DisplayFormat.Weight(best)</span></p>
     }
+    @if (!Exercise.IsDone && !string.IsNullOrWhiteSpace(Exercise.LastNote))
+    {
+        <LastNote Text="@Exercise.LastNote" TestId="@($"{TestId}-last-note")" />
+    }
     @if (Exercise.Error is not null)
     {
         <p class="error" role="alert" data-testid="@($"{TestId}-error")">@Exercise.Error</p>
@@ -94,7 +98,15 @@
                     }
                 }
             </div>
-            <AppButton @ref="addSet" Variant="ButtonVariant.Secondary" FullWidth Disabled="Exercise.SetsFull" TestId="@($"{TestId}-add-set")" OnClick="AddSet">Add set</AppButton>
+            <div class="add-row">
+                <div class="add-set">
+                    <AppButton @ref="addSet" Variant="ButtonVariant.Secondary" FullWidth Disabled="Exercise.SetsFull" TestId="@($"{TestId}-add-set")" OnClick="AddSet">Add set</AppButton>
+                </div>
+                @if (AddNoteShown)
+                {
+                    <AppButton Variant="ButtonVariant.Link" TestId="@($"{TestId}-add-note")" OnClick="OpenNote">Add note</AppButton>
+                }
+            </div>
             @if (Exercise.SetsFull)
             {
                 <p class="note" data-testid="@($"{TestId}-sets-full")">At most @WorkoutLimits.MaxSets sets</p>
@@ -119,6 +131,20 @@
             }
             <EntryErrors Fields="Exercise.Fields" Entry="entry" TestId="@($"{TestId}-entry-error")" />
         }
+        @if (Exercise.Kind == ExerciseKind.Cardio && AddNoteShown)
+        {
+            <div class="add-row start">
+                <AppButton Variant="ButtonVariant.Link" TestId="@($"{TestId}-add-note")" OnClick="OpenNote">Add note</AppButton>
+            </div>
+        }
+        <NoteField @ref="noteField"
+                   Label="Note"
+                   Value="@Exercise.Note"
+                   ValueChanged="NoteChanged"
+                   @bind-Editing="editingNote"
+                   Error="@Exercise.NoteError"
+                   ShowAddButton="false"
+                   TestId="@($"{TestId}-note")" />
     }
 </section>
 
@@ -159,6 +185,8 @@
     private SetPanel? openPanel;
     private IconButton? remove;
     private AppButton? addSet;
+    private NoteField? noteField;
+    private bool editingNote;
 
     /// <summary>What the next render moves focus to: the set at fault when Add set or opening another set was blocked, the first error when Done was blocked, or the set just added.</summary>
     private enum FocusTarget
@@ -192,6 +220,7 @@
     /// <summary>
     /// Moves focus to the card's first error. An exercise error: Add set for <see cref="ExerciseError.NoSets"/>, otherwise Remove.
     /// Otherwise the first set or entry with errors: its first field at fault, or the summary line of a closed set.
+    /// With none, the note field when it has an error.
     /// </summary>
     public ValueTask FocusFirstErrorAsync()
     {
@@ -207,7 +236,7 @@
 
         if (Exercise.Entries.FirstOrDefault(e => e.Errors.Count > 0) is not { } entry)
         {
-            return ValueTask.CompletedTask;
+            return Exercise.NoteError is not null && noteField is not null ? new ValueTask(noteField.FocusAsync()) : ValueTask.CompletedTask;
         }
 
         if (Exercise.Kind == ExerciseKind.Cardio)
@@ -315,6 +344,16 @@
         shown = Exercise;
         var last = Exercise.Entries.LastOrDefault();
         open = last is not null && (OpenLastSet || last.Values.Values.All(string.IsNullOrEmpty)) ? last : null;
+    }
+
+    private bool AddNoteShown => string.IsNullOrWhiteSpace(Exercise.Note) && !editingNote;
+
+    private void OpenNote() => editingNote = true;
+
+    private Task NoteChanged(string? note)
+    {
+        Exercise.Note = note;
+        return OnChanged.InvokeAsync();
     }
 
     private bool CanLeave(EntryState? entry)

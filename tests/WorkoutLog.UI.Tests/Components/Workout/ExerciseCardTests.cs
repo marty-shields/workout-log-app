@@ -1002,6 +1002,402 @@ public class ExerciseCardTests : ComponentTestBase
         });
     }
 
+    [Test]
+    public void NoNote_StrengthShowsAddNoteBesideAddSet()
+    {
+        var cut = Context.Render<ExerciseCard>(p => p
+            .Add(x => x.Exercise, Strength(1))
+            .Add(x => x.TestId, "exercise-1"));
+
+        var actions = cut.Find(".add-row");
+        Assert.Multiple(() =>
+        {
+            Assert.That(actions.QuerySelectorAll("button").Select(b => b.GetAttribute("data-testid")), Is.EqualTo(new[] { "exercise-1-add-set", "exercise-1-add-note" }));
+            Assert.That(actions.QuerySelector("[data-testid=exercise-1-add-note]")!.TextContent.Trim(), Is.EqualTo("Add note"));
+            Assert.That(cut.FindAll("textarea, [data-testid=exercise-1-note-open]"), Is.Empty);
+        });
+    }
+
+    [Test]
+    public void NoNote_CarryShowsAddNoteBesideAddSet()
+    {
+        var cut = Context.Render<ExerciseCard>(p => p
+            .Add(x => x.Exercise, Carry(2))
+            .Add(x => x.TestId, "exercise-1"));
+
+        Assert.That(cut.Find(".add-row").QuerySelectorAll("button").Select(b => b.GetAttribute("data-testid")),
+            Is.EqualTo(new[] { "exercise-1-add-set", "exercise-1-add-note" }));
+    }
+
+    [Test]
+    public void NoNote_CardioShowsAddNoteAloneBelowTheFields()
+    {
+        var cut = Context.Render<ExerciseCard>(p => p
+            .Add(x => x.Exercise, Cardio())
+            .Add(x => x.TestId, "exercise-1"));
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.Find(".add-row").QuerySelectorAll("button").Select(b => b.GetAttribute("data-testid")), Is.EqualTo(new[] { "exercise-1-add-note" }));
+            Assert.That(cut.FindAll(".cardio ~ .add-row"), Has.Count.EqualTo(1));
+            Assert.That(cut.FindAll("[data-testid=exercise-1-add-set]"), Is.Empty);
+        });
+    }
+
+    [Test]
+    public void AddNote_OpensTheNoteFieldWithFocusAndHidesAddNote()
+    {
+        var cut = Context.Render<ExerciseCard>(p => p
+            .Add(x => x.Exercise, Strength(1))
+            .Add(x => x.TestId, "exercise-1"));
+
+        cut.Find("[data-testid=exercise-1-add-note]").Click();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.FindAll("[data-testid=exercise-1-add-note]"), Is.Empty);
+            Assert.That(cut.Find(".card > [data-testid=exercise-1-note]").QuerySelector("textarea")!.GetAttribute("data-testid"), Is.EqualTo("exercise-1-note-input"));
+            Assert.That(cut.Find("[data-testid=exercise-1-note-count]").TextContent, Is.EqualTo("0/500"));
+            Context.JSInterop.VerifyFocusAsyncInvoke().Arguments[0].ShouldBeElementReferenceTo(cut.Find("textarea"));
+        });
+    }
+
+    [Test]
+    public void AddNote_CardioOpensTheNoteField()
+    {
+        var cut = Context.Render<ExerciseCard>(p => p
+            .Add(x => x.Exercise, Cardio())
+            .Add(x => x.TestId, "exercise-1"));
+
+        cut.Find("[data-testid=exercise-1-add-note]").Click();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.FindAll("[data-testid=exercise-1-add-note]"), Is.Empty);
+            Assert.That(cut.FindAll("textarea"), Has.Count.EqualTo(1));
+        });
+    }
+
+    [Test]
+    public void TypingANote_SetsItAndRaisesOnChanged()
+    {
+        var exercise = Strength(1);
+        var changed = 0;
+        var cut = Context.Render<ExerciseCard>(p => p
+            .Add(x => x.Exercise, exercise)
+            .Add(x => x.OnChanged, () => changed++)
+            .Add(x => x.TestId, "exercise-1"));
+        cut.Find("[data-testid=exercise-1-add-note]").Click();
+
+        cut.Find("textarea").Input("Left knee twinge");
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(exercise.Note, Is.EqualTo("Left knee twinge"));
+            Assert.That(changed, Is.EqualTo(1));
+            Assert.That(cut.Find("[data-testid=exercise-1-note-count]").TextContent, Is.EqualTo("16/500"));
+        });
+    }
+
+    [Test]
+    public void LeavingTheNote_TrimsItRaisesOnChangedAndShowsOneLine()
+    {
+        var exercise = Strength(1);
+        var changed = 0;
+        var cut = Context.Render<ExerciseCard>(p => p
+            .Add(x => x.Exercise, exercise)
+            .Add(x => x.OnChanged, () => changed++)
+            .Add(x => x.TestId, "exercise-1"));
+        cut.Find("[data-testid=exercise-1-add-note]").Click();
+        cut.Find("textarea").Input("  Left knee twinge  ");
+
+        cut.Find("textarea").Blur();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(exercise.Note, Is.EqualTo("Left knee twinge"));
+            Assert.That(changed, Is.EqualTo(2));
+            Assert.That(cut.Find("[data-testid=exercise-1-note-open] .text").TextContent, Is.EqualTo("Left knee twinge"));
+            Assert.That(cut.FindAll("[data-testid=exercise-1-add-note]"), Is.Empty);
+        });
+    }
+
+    [Test]
+    public void ClearingTheNote_MakesItNullAndShowsAddNoteAgain()
+    {
+        var exercise = Strength(1);
+        exercise.Note = "Left knee twinge";
+        var cut = Context.Render<ExerciseCard>(p => p
+            .Add(x => x.Exercise, exercise)
+            .Add(x => x.TestId, "exercise-1"));
+        cut.Find("[data-testid=exercise-1-note-open]").Click();
+
+        cut.Find("textarea").Input("   ");
+        cut.Find("textarea").Blur();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(exercise.Note, Is.Null);
+            Assert.That(cut.FindAll("[data-testid=exercise-1-add-note]"), Has.Count.EqualTo(1));
+            Assert.That(cut.FindAll("textarea, [data-testid=exercise-1-note-open]"), Is.Empty);
+        });
+    }
+
+    [Test]
+    public void Note_ShowsOneLineAndAddSetFillsTheRow()
+    {
+        var exercise = Strength(1);
+        exercise.Note = "Left knee twinge";
+
+        var cut = Context.Render<ExerciseCard>(p => p
+            .Add(x => x.Exercise, exercise)
+            .Add(x => x.TestId, "exercise-1"));
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.Find("[data-testid=exercise-1-note-open] .text").TextContent, Is.EqualTo("Left knee twinge"));
+            Assert.That(cut.Find(".add-row").QuerySelectorAll("button").Select(b => b.GetAttribute("data-testid")), Is.EqualTo(new[] { "exercise-1-add-set" }));
+            Assert.That(cut.FindAll(".card > .add-row + [data-testid=exercise-1-note]"), Has.Count.EqualTo(1));
+        });
+    }
+
+    [Test]
+    public void Note_CardioShowsOneLineWithoutAddNote()
+    {
+        var exercise = Cardio();
+        exercise.Note = "Felt flat";
+
+        var cut = Context.Render<ExerciseCard>(p => p
+            .Add(x => x.Exercise, exercise)
+            .Add(x => x.TestId, "exercise-1"));
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.Find("[data-testid=exercise-1-note-open] .text").TextContent, Is.EqualTo("Felt flat"));
+            Assert.That(cut.FindAll(".add-row, [data-testid=exercise-1-add-note]"), Is.Empty);
+        });
+    }
+
+    [Test]
+    public void LastNote_ShowsUnderTheLastAndPbLine()
+    {
+        var exercise = Strength(1);
+        exercise.LastKg = 60m;
+        exercise.BestKg = 70m;
+        exercise.LastNote = "Belt on from set 3";
+
+        var cut = Context.Render<ExerciseCard>(p => p
+            .Add(x => x.Exercise, exercise)
+            .Add(x => x.TestId, "exercise-1"));
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.Find("[data-testid=exercise-1-last-note] .text").TextContent, Is.EqualTo("Belt on from set 3"));
+            Assert.That(cut.FindAll(".card-header + .weights + [data-testid=exercise-1-last-note] + .sets"), Has.Count.EqualTo(1));
+        });
+    }
+
+    [Test]
+    public void LastNote_WithoutWeights_ShowsUnderTheName()
+    {
+        var exercise = Strength(1);
+        exercise.LastNote = "Belt on from set 3";
+
+        var cut = Context.Render<ExerciseCard>(p => p
+            .Add(x => x.Exercise, exercise)
+            .Add(x => x.TestId, "exercise-1"));
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.FindAll("[data-testid=exercise-1-weights]"), Is.Empty);
+            Assert.That(cut.FindAll(".card-header + [data-testid=exercise-1-last-note] + .sets"), Has.Count.EqualTo(1));
+        });
+    }
+
+    [Test]
+    public void LastNote_CardioShowsUnderTheName()
+    {
+        var exercise = Cardio();
+        exercise.LastNote = "Felt flat";
+
+        var cut = Context.Render<ExerciseCard>(p => p
+            .Add(x => x.Exercise, exercise)
+            .Add(x => x.TestId, "exercise-1"));
+
+        Assert.That(cut.FindAll(".card-header + [data-testid=exercise-1-last-note] + .cardio"), Has.Count.EqualTo(1));
+    }
+
+    [TestCase(null)]
+    [TestCase("")]
+    [TestCase("  ")]
+    public void LastNote_BlankShowsNoLine(string? lastNote)
+    {
+        var exercise = Strength(1);
+        exercise.LastNote = lastNote;
+
+        var cut = Context.Render<ExerciseCard>(p => p
+            .Add(x => x.Exercise, exercise)
+            .Add(x => x.TestId, "exercise-1"));
+
+        Assert.That(cut.FindAll("[data-testid=exercise-1-last-note]"), Is.Empty);
+    }
+
+    [Test]
+    public void LastNote_TapShowsTheWholeNote()
+    {
+        var exercise = Strength(1);
+        exercise.LastNote = SampleLongNote;
+        var cut = Context.Render<ExerciseCard>(p => p
+            .Add(x => x.Exercise, exercise)
+            .Add(x => x.TestId, "exercise-1"));
+
+        cut.Find("[data-testid=exercise-1-last-note]").Click();
+
+        Assert.That(cut.Find("[data-testid=exercise-1-last-note]").ClassList, Does.Contain("open"));
+    }
+
+    [Test]
+    public void LastNote_IsReadOnly()
+    {
+        var exercise = Strength(1);
+        exercise.LastNote = "Belt on from set 3";
+
+        var cut = Context.Render<ExerciseCard>(p => p
+            .Add(x => x.Exercise, exercise)
+            .Add(x => x.TestId, "exercise-1"));
+
+        Assert.That(cut.FindAll("[data-testid=exercise-1-last-note] textarea, [data-testid=exercise-1-last-note] input"), Is.Empty);
+    }
+
+    [Test]
+    public void Done_HidesTheNotesAndAddNote()
+    {
+        var exercise = Strength(1);
+        exercise.Note = "Left knee twinge";
+        exercise.LastNote = "Belt on from set 3";
+        exercise.IsDone = true;
+
+        var cut = Context.Render<ExerciseCard>(p => p
+            .Add(x => x.Exercise, exercise)
+            .Add(x => x.TestId, "exercise-1"));
+
+        Assert.That(cut.FindAll("[data-testid=exercise-1-note], [data-testid=exercise-1-last-note], [data-testid=exercise-1-add-note]"), Is.Empty);
+    }
+
+    [Test]
+    public void Done_ThenOpened_ShowsTheNoteAsLeft()
+    {
+        var exercise = Strength(1);
+        exercise.Note = "Left knee twinge";
+        exercise.IsDone = true;
+        var cut = Context.Render<ExerciseCard>(p => p
+            .Add(x => x.Exercise, exercise)
+            .Add(x => x.TestId, "exercise-1"));
+
+        cut.Find("[data-testid=exercise-1-edit]").Click();
+
+        Assert.That(cut.Find("[data-testid=exercise-1-note-open] .text").TextContent, Is.EqualTo("Left knee twinge"));
+    }
+
+    [Test]
+    public void Done_WhileTheNoteIsOpen_KeepsTheTextAndOpensAgainWithIt()
+    {
+        var exercise = Strength(1);
+        var cut = Context.Render<ExerciseCard>(p => p
+            .Add(x => x.Exercise, exercise)
+            .Add(x => x.TestId, "exercise-1"));
+        cut.Find("[data-testid=exercise-1-add-note]").Click();
+        cut.Find("textarea").Input("Left knee twinge");
+
+        cut.Find("[data-testid=exercise-1-done]").Click();
+        cut.Find("[data-testid=exercise-1-edit]").Click();
+
+        Assert.That(cut.Find("[data-testid=exercise-1-note-input]").GetAttribute("value"), Is.EqualTo("Left knee twinge"));
+    }
+    [Test]
+    public void NoteError_ShowsInTheNoteFieldNotTheCardError()
+    {
+        var exercise = Strength(1);
+        exercise.Note = new string('a', 501);
+        exercise.NoteError = "Note must be 500 characters or less";
+
+        var cut = Context.Render<ExerciseCard>(p => p
+            .Add(x => x.Exercise, exercise)
+            .Add(x => x.TestId, "exercise-1"));
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.Find("[data-testid=exercise-1-note-error]").TextContent, Is.EqualTo("Note must be 500 characters or less"));
+            Assert.That(cut.Find("[data-testid=exercise-1-note-open]").ClassList, Does.Contain("invalid"));
+            Assert.That(cut.FindAll("[data-testid=exercise-1-error]"), Is.Empty);
+            Assert.That(cut.Find(".card").ClassList, Does.Not.Contain("has-error"));
+        });
+    }
+
+    [Test]
+    public void NoteError_EditingShowsAnInvalidTextBoxAndAnOverLimitCounter()
+    {
+        var exercise = Strength(1);
+        exercise.Note = new string('a', 501);
+        exercise.NoteError = "Note must be 500 characters or less";
+        var cut = Context.Render<ExerciseCard>(p => p
+            .Add(x => x.Exercise, exercise)
+            .Add(x => x.TestId, "exercise-1"));
+
+        cut.Find("[data-testid=exercise-1-note-open]").Click();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.Find("textarea").ClassList, Does.Contain("invalid"));
+            Assert.That(cut.Find("[data-testid=exercise-1-note-count]").TextContent, Is.EqualTo("501/500"));
+            Assert.That(cut.Find("[data-testid=exercise-1-note-count]").ClassList, Does.Contain("over"));
+        });
+    }
+
+    [Test]
+    public async Task FocusFirstError_OnlyANoteError_FocusesTheNoteTextBox()
+    {
+        var exercise = Strength(1);
+        exercise.Note = new string('a', 501);
+        exercise.NoteError = "Note must be 500 characters or less";
+        var cut = Context.Render<ExerciseCard>(p => p
+            .Add(x => x.Exercise, exercise)
+            .Add(x => x.TestId, "exercise-1"));
+
+        await cut.InvokeAsync(() => cut.Instance.FocusFirstErrorAsync().AsTask());
+
+        Context.JSInterop.VerifyFocusAsyncInvoke().Arguments[0].ShouldBeElementReferenceTo(cut.Find("[data-testid=exercise-1-note-input]"));
+    }
+
+    [Test]
+    public async Task FocusFirstError_SetErrorAndNoteError_FocusesTheSetFirst()
+    {
+        var exercise = Strength(1);
+        exercise.Entries[0].Errors["reps"] = "Enter reps";
+        exercise.Note = new string('a', 501);
+        exercise.NoteError = "Note must be 500 characters or less";
+        var cut = Context.Render<ExerciseCard>(p => p
+            .Add(x => x.Exercise, exercise)
+            .Add(x => x.TestId, "exercise-1"));
+
+        await cut.InvokeAsync(() => cut.Instance.FocusFirstErrorAsync().AsTask());
+
+        Context.JSInterop.VerifyFocusAsyncInvoke().Arguments[0].ShouldBeElementReferenceTo(cut.Find("[data-testid=exercise-1-set-1-reps]"));
+    }
+
+    [Test]
+    public async Task FocusFirstError_NoErrors_FocusesNothing()
+    {
+        var cut = Context.Render<ExerciseCard>(p => p
+            .Add(x => x.Exercise, Strength(1))
+            .Add(x => x.TestId, "exercise-1"));
+
+        await cut.InvokeAsync(() => cut.Instance.FocusFirstErrorAsync().AsTask());
+
+        Assert.That(Context.JSInterop.Invocations, Is.Empty);
+    }
+
+    private const string SampleLongNote = "Slow tempo, three seconds down and a pause at the bottom. Grip gave out before the legs did, so try straps next time.";
     private static bool RequireReps(ExerciseState exercise, EntryState entry)
     {
         entry.Errors.Clear();

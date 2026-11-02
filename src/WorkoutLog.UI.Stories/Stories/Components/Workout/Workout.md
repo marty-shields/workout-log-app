@@ -13,6 +13,7 @@ One exercise in a workout: name, Done, Remove, and its sets (strength) or entry 
 - With `BestKg` set, a muted line under the name: *Last 62.5kg · PB 70kg*, — for no `LastKg`. Not tappable.
 - With `LastNote` set, a `LastNote` line directly under that line, or under the name when `BestKg` is not set. Strength and cardio.
 - Add note: a link (`AppButton` Link) while there is no note. Strength: beside Add set, which shrinks to fill the rest of the row. Cardio: alone under the entry, left-aligned. Tapping it opens the note text box at the bottom of the card; leaving the text box with a note shows it as one line (`NoteField`), with no Add note. A cleared note shows Add note again.
+- A done card shows neither note nor Add note. They show again when the card is opened, with the text as left.
 - `Note` is raised through `OnChanged`. `NoteError` shows in the note field, not as the card error; the card's red outline is for `Error`.
 - `FocusFirstErrorAsync` ends at the note field when only `NoteError` is set.
 - At 10 sets Add set is off, with a muted note "At most 10 sets" under it.
