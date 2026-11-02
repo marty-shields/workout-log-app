@@ -102,7 +102,7 @@ public static class SampleData
     public static readonly string NoteTooLong = string.Concat(Enumerable.Repeat("Felt heavy today. ", 28))[..(WorkoutLimits.MaxNoteLength + 1)];
 
     /// <summary>The note field's error for a note over <see cref="WorkoutLimits.MaxNoteLength"/> characters.</summary>
-    public static readonly string NoteTooLongError =WorkoutChecker.NoteTooLong;
+    public static readonly string NoteTooLongError = WorkoutChecker.NoteTooLong;
 
     /// <summary>Sets the exercise's note and last note, as New Workout does after a pick, and returns it.</summary>
     public static ExerciseState WithNotes(ExerciseState exercise, string? note, string? lastNote)

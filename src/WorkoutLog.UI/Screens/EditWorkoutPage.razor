@@ -98,7 +98,7 @@ else
     protected override Task OnInitializedAsync() => FetchAsync();
 
     /// <summary>
-    /// Loads the workout, with the start in the phone's time zone. An exercise missing from the catalog or saved as the
+    /// Loads the workout and each exercise's last note, with the start in the phone's time zone. An exercise missing from the catalog or saved as the
     /// wrong type is logged and shows the load failure. A second call while one runs is ignored.
     /// </summary>
     private async Task LoadAsync()

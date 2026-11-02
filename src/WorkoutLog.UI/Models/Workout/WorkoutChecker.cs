@@ -14,7 +14,7 @@ namespace WorkoutLog.UI.Models.Workout;
 public sealed partial class WorkoutChecker(ISetChecker sets, IWorkoutService workouts, ILogger<WorkoutChecker> logger) : IWorkoutChecker
 {
     /// <summary>Message for a note over <see cref="WorkoutLimits.MaxNoteLength"/> characters.</summary>
-    public static readonly string NoteTooLong =$"Note must be {WorkoutLimits.MaxNoteLength} characters or less";
+    public static readonly string NoteTooLong = $"Note must be {WorkoutLimits.MaxNoteLength} characters or less";
 
     /// <inheritdoc />
     public WorkoutCheck Check(IReadOnlyList<ExerciseState> exercises, string? note = null)
