@@ -5,6 +5,7 @@
 @inject ILogger<WorkoutView> Logger
 <AppScreen Title="@DisplayFormat.Date(StartedAt)" Subtitle="@TimeText" OnBack="OnBack">
     <Actions>
+        <IconButton Icon="IconName.Note" AriaLabel="@(HasNote ? "Edit note" : "Add note")" TestId="workout-note-add" OnClick="OpenNote" />
         @if (Mode == WorkoutMode.Edit)
         {
             <IconButton @ref="delete" Icon="IconName.Delete" AriaLabel="Delete" TestId="delete-workout" OnClick="OnDelete" />
@@ -16,7 +17,7 @@
             {
                 <p class="error" role="alert" data-testid="workout-error">@Error</p>
             }
-            <NoteField @ref="noteField" Label="Workout note" Value="@Note" ValueChanged="NoteChanged" Error="@NoteError" TestId="workout-note" />
+            <NoteField @ref="noteField" Label="Workout note" Value="@Note" ValueChanged="NoteChanged" @bind-Editing="editingNote" Error="@NoteError" TestId="workout-note" />
             @if (Exercises.Count == 0)
             {
                 <EmptyState Message="No exercises yet" TestId="no-exercises" />
@@ -135,6 +136,7 @@
     private ExerciseFocus? handled;
     private ErrorFocus? handledError;
     private NoteField? noteField;
+    private bool editingNote;
     private AppButton? addExercise;
     private AppButton? save;
     private IconButton? delete;
@@ -211,6 +213,10 @@
             Log.ErrorFocusFailed(Logger, exception);
         }
     }
+
+    private bool HasNote => !string.IsNullOrWhiteSpace(Note);
+
+    private void OpenNote() => editingNote = true;
 
     private string TimeText => Mode == WorkoutMode.New
         ? $"Elapsed {DisplayFormat.Duration(Time)}"
