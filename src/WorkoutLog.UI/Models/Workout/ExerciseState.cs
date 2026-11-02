@@ -53,4 +53,7 @@ public sealed class ExerciseState(int exerciseId, string name, ExerciseKind kind
 
     /// <summary>New Workout, strength: best weight in any saved workout (PB), in kg. Null hides the last and PB line.</summary>
     public decimal? BestKg { get; set; }
+
+    /// <summary>New Workout: the exercise's last saved workout, shown beside each set or above the entry. Null when there is none: the exercise's first time.</summary>
+    public LastTime? LastTime { get; set; }
 }

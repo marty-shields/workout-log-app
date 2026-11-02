@@ -18,6 +18,20 @@
         </Template>
     </Story>
 
+    <Story Name="Last time">
+        <Template>
+            @{ var exercise = SampleData.Exercise(Catalog, 187, ["40", "32", null]); }
+            <SetPanel Number="3" Fields="exercise.Fields" Entry="exercise.Entries[0]" Last="32kg · 40m · 0:45" />
+        </Template>
+    </Story>
+
+    <Story Name="Last time - none">
+        <Template>
+            @{ var exercise = SampleData.Exercise(Catalog, 187, ["40", "32", null]); }
+            <SetPanel Number="4" Fields="exercise.Fields" Entry="exercise.Entries[0]" Last="—" />
+        </Template>
+    </Story>
+
     <Story Name="Errors">
         <Template>
             @{ var exercise = SampleData.Exercise(Catalog, 187, [null, "32", "0:00:75"]); Checker.Check([exercise]); }

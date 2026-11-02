@@ -11,6 +11,10 @@
         </div>
         <IconButton Icon="IconName.Close" AriaLabel="@RemoveLabel" TestId="@($"{TestId}-remove")" Muted Size="IconSize.Small" OnClick="OnRemove" />
     </header>
+    @if (Last is not null)
+    {
+        <p class="last" data-testid="@($"{TestId}-last")">Last time @Last</p>
+    }
     <div class="fields">
         @foreach (var field in Fields)
         {
@@ -38,6 +42,10 @@
     /// <summary>Values of the set.</summary>
     [Parameter, EditorRequired]
     public EntryState Entry { get; set; } = null!;
+
+    /// <summary>Last time's text for this set (<see cref="LastTime.Entry"/>), in a small line under the title. Null leaves it out.</summary>
+    [Parameter]
+    public string? Last { get; set; }
 
     /// <summary>Shows the Record badge next to the title.</summary>
     [Parameter]

@@ -227,4 +227,34 @@ public class SetSummaryTests : ComponentTestBase
 
         Assert.That(cut.FindAll("[data-testid=set-1-record]"), Is.Empty);
     }
+
+    [Test]
+    public void Last_Unset_ShowsNoLastTimeLine()
+    {
+        var cut = Context.Render<SetSummary>(p => p
+            .Add(x => x.Number, 1)
+            .Add(x => x.Fields, Carry)
+            .Add(x => x.Entry, Entry(("distance", "40"))));
+
+        Assert.That(cut.FindAll(".last"), Is.Empty);
+    }
+
+    [TestCase("32kg · 40m · 0:45", "Last time 32kg · 40m · 0:45")]
+    [TestCase("—", "Last time —")]
+    public void Last_ShowsALastTimeLineUnderTheSummary(string last, string text)
+    {
+        var cut = Context.Render<SetSummary>(p => p
+            .Add(x => x.Number, 1)
+            .Add(x => x.Fields, Carry)
+            .Add(x => x.Entry, Entry(("distance", "40"), ("weight", "32"), ("duration", "0:00:45")))
+            .Add(x => x.Last, last)
+            .Add(x => x.TestId, "set-1"));
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.Find("[data-testid=set-1-last]").TextContent, Is.EqualTo(text));
+            Assert.That(cut.FindAll(".open .content > .text + .last"), Has.Count.EqualTo(1));
+            Assert.That(cut.Find(".text").TextContent, Is.EqualTo("40m · 32kg · 0:00:45"));
+        });
+    }
 }

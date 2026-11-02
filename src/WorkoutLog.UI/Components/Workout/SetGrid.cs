@@ -9,14 +9,15 @@ internal static class SetGrid
     public static bool Collapses(IReadOnlyList<FieldSpec> fields) =>
         fields.Count > 2 && fields.Any(f => f.Kind == FieldKind.Duration);
 
-    /// <summary>CSS grid-template-columns: set number, one column per field, remove button.</summary>
-    public static string Columns(IReadOnlyList<FieldSpec> fields)
+    /// <summary>CSS grid-template-columns: set number, the Last column when <paramref name="hasLast"/>, one column per field, remove button.</summary>
+    public static string Columns(IReadOnlyList<FieldSpec> fields, bool hasLast)
     {
         var fieldColumns = fields.Select(field => field.Kind switch
         {
             FieldKind.Duration => "minmax(0, 2fr)",
             _ => "minmax(0, 1fr)",
         });
-        return $"var(--set-number-width) {string.Join(' ', fieldColumns)} var(--touch-target)";
+        var last = hasLast ? "minmax(0, 0.7fr) " : null;
+        return $"var(--set-number-width) {last}{string.Join(' ', fieldColumns)} var(--touch-target)";
     }
 }
