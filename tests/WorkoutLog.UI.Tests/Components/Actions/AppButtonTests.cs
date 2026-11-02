@@ -79,6 +79,7 @@ public class AppButtonTests : ComponentTestBase
     [TestCase(ButtonVariant.Primary, "primary")]
     [TestCase(ButtonVariant.Secondary, "secondary")]
     [TestCase(ButtonVariant.Danger, "danger")]
+    [TestCase(ButtonVariant.Link, "link")]
     public void Variant_SetsClass(ButtonVariant variant, string cssClass)
     {
         var cut = Context.Render<AppButton>(p => p.Add(x => x.Variant, variant));

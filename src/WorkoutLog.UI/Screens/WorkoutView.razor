@@ -1,5 +1,6 @@
 @using Microsoft.Extensions.Logging
 @using WorkoutLog.Core.Domain.Workouts
+@using WorkoutLog.UI.Components.Inputs
 @using WorkoutLog.UI.Components.Workout
 @inject ILogger<WorkoutView> Logger
 <AppScreen Title="@DisplayFormat.Date(StartedAt)" Subtitle="@TimeText" OnBack="OnBack">
@@ -15,6 +16,7 @@
             {
                 <p class="error" role="alert" data-testid="workout-error">@Error</p>
             }
+            <NoteField @ref="noteField" Label="Workout note" Value="@Note" ValueChanged="NoteChanged" Error="@NoteError" TestId="workout-note" />
             @if (Exercises.Count == 0)
             {
                 <EmptyState Message="No exercises yet" TestId="no-exercises" />
@@ -66,6 +68,18 @@
     /// <summary>Workout-level validation message, e.g. when there are no exercises.</summary>
     [Parameter]
     public string? Error { get; set; }
+
+    /// <summary>Note on the workout. Null when there is none.</summary>
+    [Parameter]
+    public string? Note { get; set; }
+
+    /// <summary>Raised when the workout note changes, with the new note or null when blank.</summary>
+    [Parameter]
+    public EventCallback<string?> NoteChanged { get; set; }
+
+    /// <summary>Validation message for <see cref="Note"/>, shown in the note field.</summary>
+    [Parameter]
+    public string? NoteError { get; set; }
 
     /// <summary>Raised after a value, set or entry changes.</summary>
     [Parameter]
@@ -120,6 +134,7 @@
     private bool ExercisesFull => Exercises.Count >= WorkoutLimits.MaxExercises;
     private ExerciseFocus? handled;
     private ErrorFocus? handledError;
+    private NoteField? noteField;
     private AppButton? addExercise;
     private AppButton? save;
     private IconButton? delete;
@@ -159,7 +174,7 @@
         }
     }
 
-    /// <summary>Handles <see cref="ErrorFocus"/>: Save or Delete when asked, Add exercise for a workout error, otherwise the first card with an error.</summary>
+    /// <summary>Handles <see cref="ErrorFocus"/>: Save or Delete when asked, Add exercise for a workout error, the workout note for a note error, otherwise the first card with an error.</summary>
     private async Task FocusFirstErrorAsync()
     {
         if (ErrorFocus is null || ReferenceEquals(ErrorFocus, handledError))
@@ -181,6 +196,10 @@
             else if (Error is not null && addExercise is not null)
             {
                 await addExercise.FocusAsync();
+            }
+            else if (NoteError is not null && noteField is not null)
+            {
+                await noteField.FocusAsync();
             }
             else if (Exercises.FirstOrDefault(e => e.HasError) is { } exercise && cards.TryGetValue(exercise, out var card))
             {

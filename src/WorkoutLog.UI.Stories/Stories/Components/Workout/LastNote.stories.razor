@@ -1,0 +1,23 @@
+@attribute [Stories("Components/Workout/LastNote")]
+
+<Stories TComponent="LastNote" Layout="typeof(ThemeLayout)">
+
+    <Story Name="Short">
+        <Template>
+            <LastNote Text="@SampleData.LastNote" TestId="last-note" />
+        </Template>
+    </Story>
+
+    <Story Name="Long">
+        <Template>
+            <LastNote Text="@SampleData.LongNote" TestId="last-note" />
+        </Template>
+    </Story>
+
+    <Story Name="Expanded">
+        <Template>
+            <LastNote Text="@SampleData.LongNote" Expanded TestId="last-note" />
+        </Template>
+    </Story>
+
+</Stories>

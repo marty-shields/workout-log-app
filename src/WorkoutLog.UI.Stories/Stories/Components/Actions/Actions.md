@@ -12,6 +12,7 @@ A button with a 48px touch target.
 | Primary | The main action on a screen: New Workout, Save. One per screen. |
 | Secondary | Other actions in the bottom bar or a card: Add exercise, Add set, Cancel in a confirm dialog. |
 | Danger | Confirming a destructive action: Discard, Delete. Filled red. |
+| Link | A quiet action next to a main one: Add note. Underlined text in `--color-text` on no fill. |
 
 - `FullWidth` fills the row; bottom-bar buttons use it.
 - `Disabled` dims the button with `--opacity-disabled`.
@@ -29,6 +30,7 @@ A Material Symbols Outlined icon (weight 400), drawn as an SVG and hidden from s
 - Up and Down: an increase (`Success`) or decrease (`Error`) in `WeekComparison`.
 - Edit (pencil) and Check (tick): used by `IconButton`.
 - Record: a trophy (`emoji_events`), `Success`, in `RecordBadge` and beside each record on the Workout Summary.
+- Note: before a last note on an exercise card, `Muted`, `Small`.
 
 ## `IconButton`
 A button that shows an `Icon`, with a 48px touch target.

@@ -52,6 +52,8 @@ public static class ScreenStates
         new("Screens/New Workout", "Carry", c => Workout(c, WorkoutMode.New, SampleData.CarryWorkout(Catalog(c)))),
         new("Screens/New Workout", "Cardio", c => Workout(c, WorkoutMode.New, SampleData.CardioWorkout(Catalog(c)))),
         new("Screens/New Workout", "Records", c => Workout(c, WorkoutMode.New, SampleData.RecordsWorkout(Catalog(c)))),
+        new("Screens/New Workout", "Notes", c => Workout(c, WorkoutMode.New, SampleData.WithSampleNotes(SampleData.StrengthWorkoutWithWeights(Catalog(c))), note: SampleData.Note)),
+        new("Screens/New Workout", "Note over the limit", c => Workout(c, WorkoutMode.New, SampleData.WithNoteTooLong(SampleData.StrengthWorkoutWithWeights(Catalog(c))), note: SampleData.NoteTooLong, noteError: SampleData.NoteTooLongError)),
         new("Screens/New Workout", "Exercises full", c => Workout(c, WorkoutMode.New, SampleData.FullWorkout(Catalog(c)))),
         new("Screens/New Workout", "Save errors", c => Workout(c, WorkoutMode.New, SampleData.WorkoutWithErrors(Catalog(c), WorkoutChecker(c)))),
         new("Screens/New Workout", "No exercises error", c => Workout(c, WorkoutMode.New, [], error: WorkoutChecker(c).Check([]).Error)),
@@ -63,6 +65,8 @@ public static class ScreenStates
         new("Screens/Edit Workout", "Strength", c => Workout(c, WorkoutMode.Edit, SampleData.Opened(SampleData.StrengthWorkout(Catalog(c))))),
         new("Screens/Edit Workout", "Carry", c => Workout(c, WorkoutMode.Edit, SampleData.Opened(SampleData.CarryWorkout(Catalog(c))))),
         new("Screens/Edit Workout", "Cardio", c => Workout(c, WorkoutMode.Edit, SampleData.Opened(SampleData.CardioWorkout(Catalog(c))))),
+        new("Screens/Edit Workout", "Notes", c => Workout(c, WorkoutMode.Edit, SampleData.Opened(SampleData.WithSampleNotes(SampleData.StrengthWorkout(Catalog(c)))), note: SampleData.Note)),
+        new("Screens/Edit Workout", "Note over the limit", c => Workout(c, WorkoutMode.Edit, SampleData.WithNoteTooLong(SampleData.Opened(SampleData.StrengthWorkout(Catalog(c)))), note: SampleData.NoteTooLong, noteError: SampleData.NoteTooLongError)),
         new("Screens/Edit Workout", "Save errors", c => Workout(c, WorkoutMode.Edit, SampleData.EditWorkoutWithErrors(Catalog(c), WorkoutChecker(c)))),
         new("Screens/Edit Workout", "Save failed", c => Workout(c, WorkoutMode.Edit, SampleData.Opened(SampleData.StrengthWorkout(Catalog(c))), error: WorkoutChecker(c).SaveFailed)),
         new("Screens/Edit Workout", "Delete exercise prompt", c => Workout(c, WorkoutMode.Edit, SampleData.Loaded(SampleData.StrengthWorkout(Catalog(c))), dialog: ("Delete Farmer's Walk?", "Delete"))),
@@ -237,7 +241,9 @@ public static class ScreenStates
         WorkoutMode mode,
         List<ExerciseState> exercises,
         string? error = null,
-        (string Title, string ConfirmText)? dialog = null) =>
+        (string Title, string ConfirmText)? dialog = null,
+        string? note = null,
+        string? noteError = null) =>
         context.Render<WorkoutView>(p =>
         {
             p.Add(x => x.Mode, mode)
@@ -245,6 +251,9 @@ public static class ScreenStates
                 .Add(x => x.Time, new TimeSpan(0, 34, 12))
                 .Add(x => x.Exercises, exercises)
                 .Add(x => x.Error, error)
+                .Add(x => x.Note, note)
+                .Add(x => x.NoteError, noteError)
+                .Add(x => x.NoteChanged, (string? _) => { })
                 .Add(x => x.ValidateSet, Checker(context).Check)
                 .Add(x => x.OnAddExercise, () => { })
                 .Add(x => x.OnRemoveExercise, (ExerciseState _) => { })
