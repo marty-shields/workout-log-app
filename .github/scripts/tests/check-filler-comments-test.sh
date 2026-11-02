@@ -12,7 +12,7 @@ trap 'rm -rf "$work"' EXIT
 run() {
   local name="$1" expected="$2" out
   printf '%s\n' "$3" > "$work/Sample.cs"
-  out=$(python3 -I "$script" "$work/Sample.cs" 2>/dev/null; echo "exit=$?")
+  out=$(GITHUB_ACTIONS= python3 -I "$script" "$work/Sample.cs" 2>/dev/null; echo "exit=$?")
   check "$name" "$expected" "$(sed "s#$work/##" <<<"$out")"
 }
 
