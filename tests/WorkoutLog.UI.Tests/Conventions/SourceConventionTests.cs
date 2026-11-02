@@ -17,8 +17,8 @@ public partial class SourceConventionTests
     [GeneratedRegex(@"\bSqlite\w*", RegexOptions.IgnoreCase)]
     private static partial Regex SqliteType();
 
-    [GeneratedRegex("""\b(Execute\w*|Query\w*|CreateCommand|FindWithQuery\w*)\s*(<[^>]*>)?\s*\([^;]*?(\$+@?|@\$+)"{1,3}""")]
-    private static partial Regex InterpolatedSqlCall();
+    [GeneratedRegex(@"\b(Execute\w*|Query\w*|CreateCommand|FindWithQuery\w*)\s*(<[^>]*>)?\s*\(")]
+    private static partial Regex SqlCall();
 
     [GeneratedRegex(@"\bglobal\s+using\b[^;]*sqlite", RegexOptions.IgnoreCase)]
     private static partial Regex GlobalSqliteUsing();
@@ -53,7 +53,7 @@ public partial class SourceConventionTests
     private static IEnumerable<string> SqlReaches(string code, bool inDataFolder) =>
         inDataFolder
             ? GlobalSqliteUsing().Matches(code).Select(m => m.Value)
-            : SqliteType().Matches(code).Concat(InterpolatedSqlCall().Matches(code)).Concat(GlobalSqliteUsing().Matches(code)).Select(m => m.Value);
+            : SqliteType().Matches(code).Concat(SqlCall().Matches(code)).Concat(GlobalSqliteUsing().Matches(code)).Select(m => m.Value);
 
     private static IEnumerable<TestCaseData> Cases(IEnumerable<string> files) =>
         files.Select(f => new TestCaseData(f).SetArgDisplayNames(Path.GetRelativePath(RepoFiles.Root, f)));
@@ -83,12 +83,12 @@ public partial class SourceConventionTests
     [TestCaseSource(nameof(AllSourceFiles))]
     public void Source_ReachesSqlOnlyThroughTheDataFolder(string file) =>
         Assert.That(SqlReaches(Scrub(file, File.ReadAllText(file), SqliteRegistration), IsData(file)), Is.Empty,
-            "SQL runs only under src/WorkoutLog.Core/Data/. The one other SQLite lines are the using and the connection in CoreServiceCollectionExtensions.cs. Add a repository method there.");
+            "SQL runs only under src/WorkoutLog.Core/Data/. The only other SQLite lines are the using and the connection in CoreServiceCollectionExtensions.cs. Add a repository method there.");
 
     [TestCaseSource(nameof(BuildFiles))]
     public void Build_DeclaresNoSqliteUsing(string file) =>
         Assert.That(SqliteUsingItem().Matches(File.ReadAllText(file)).Select(m => m.Value), Is.Empty,
-            "A <Using> item for a SQLite type reaches every file in the project, including those outside the Data folder.");
+            "Drop the <Using> item for a SQLite type: it reaches every file in the project. SQL belongs in src/WorkoutLog.Core/Data/.");
 
     [TestCase("var t = DateTime.Now;")]
     [TestCase("var t = DateTime.UtcNow;")]
@@ -156,13 +156,17 @@ public partial class SourceConventionTests
     [TestCase("db.Execute(@$\"DELETE FROM A WHERE Id = {id}\");")]
     [TestCase("db.ExecuteScalar<int>($\"\"\"SELECT {x}\"\"\");")]
     [TestCase("db.QueryAsync<A>($\"SELECT * FROM {table}\");")]
+    [TestCase("db.Execute(\"DELETE FROM A WHERE Id = ?\", id);")]
+    [TestCase("connection.ExecuteAsync(\"PRAGMA journal_mode=WAL\").GetAwaiter().GetResult();")]
+    [TestCase(".AddSingleton<Func<int, Task<int>>>(_ => id => connection.ExecuteAsync(\"DELETE FROM WorkoutRow WHERE Id = \" + id))")]
+    [TestCase(".AddSingleton<Func<string, Task<int>>>(_ => sql => connection.ExecuteAsync(sql))")]
+    [TestCase("command.Execute (x);")]
     public void Sql_CatchesEveryWayToReachTheDatabaseOutsideData(string source) =>
         Assert.That(SqlReaches(Code(source), inDataFolder: false), Is.Not.Empty);
 
     [TestCase("repository.SaveAsync(workout);")]
     [TestCase("var sql = $\"Hello {name}\";")]
-    [TestCase("db.Execute(\"DELETE FROM A WHERE Id = ?\", id);")]
-    [TestCase("var x = Execute(a);\nvar s = $\"Hello {name}\";")]
+    [TestCase("var s = $\"Hello {name}\";")]
     [TestCase("/// Full path of the SQLite database file.")]
     [TestCase("    // SQLiteAsyncConnection is registered by Core\nvar x = 1;")]
     [TestCase("global using System.Linq;")]
@@ -179,6 +183,14 @@ public partial class SourceConventionTests
         Assert.That(SqlReaches(Scrub(registrar, registration + "\nvar other = new SQLiteAsyncConnection(path);", SqliteRegistration), false), Is.Not.Empty);
         Assert.That(SqlReaches(Scrub(registrar, registration + "\n" + registration, SqliteRegistration), false), Is.Not.Empty);
         Assert.That(SqlReaches(Scrub(RepoFiles.PathOf("src", "WorkoutLog.Core", "Services", "X.cs"), registration, SqliteRegistration), false), Is.Not.Empty);
+    }
+
+    [Test]
+    public void Sql_TheRealRegistrarPasses()
+    {
+        var registrar = RepoFiles.PathOf(Registrar);
+        Assert.That(SqlReaches(Scrub(registrar, File.ReadAllText(registrar), SqliteRegistration), false), Is.Empty);
+        Assert.That(SqlReaches(Scrub(registrar, File.ReadAllText(registrar) + "\nconnection.ExecuteAsync(\"PRAGMA journal_mode=WAL\");", SqliteRegistration), false), Is.Not.Empty);
     }
 
     [TestCase("global using Db = SQLite.SQLiteConnection;", true)]
