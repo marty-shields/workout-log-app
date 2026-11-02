@@ -1,4 +1,3 @@
-@US-19
 Feature: Delete a workout
   Delete asks first, then the workout is gone for good.
 
@@ -20,7 +19,7 @@ Feature: Delete a workout
     Then I am still on Edit Workout
     And Workouts still lists 2 workouts
 
-  @smoke @US-08
+  @smoke
   Scenario: Confirming removes the workout
     Given I have tapped Delete
     When I tap Delete on the prompt
@@ -45,7 +44,6 @@ Feature: Delete a workout
     Then Workouts shows "No workouts yet"
     And on the Dashboard the last workout shows "No workouts yet" and this week shows 0 workouts
 
-  @US-28
   Scenario: Android back on the prompt cancels it
     Given I have tapped Delete
     When I press Android back

@@ -1,4 +1,3 @@
-@US-12
 Feature: Carry sets
   Carries have more fields, so one set is open and the others are summary lines.
 

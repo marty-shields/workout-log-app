@@ -1,4 +1,3 @@
-@US-09 @US-13 @US-14
 Feature: Save checks
   Save only keeps a complete workout and shows what's wrong.
 

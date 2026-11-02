@@ -1,14 +1,13 @@
 Feature: App lifecycle
   Saved data stays; an unsaved workout doesn't.
 
-  @smoke @release @today @US-08
+  @smoke @release @today
   Scenario: Saved workouts survive closing and reopening the app
     Given I have saved a workout with Barbell Back Squat: 5 reps 60 kg
     When I close the app and open it again
     Then the last workout shows today's date and day
     And reopening the latest workout shows Barbell Back Squat set 1 at 5 reps, 60 kg
 
-  @US-08 @US-15
   Scenario: A new workout is lost when the app is killed
     Given I have started a new workout
     And I have added "Barbell Back Squat"
@@ -17,14 +16,12 @@ Feature: App lifecycle
     Then I am on the Dashboard
     And the last workout shows "No workouts yet"
 
-  @US-20
   Scenario: The Dashboard reloads when the app comes back
     Given I am on the Dashboard
     When I send the app to the background and bring it back
     Then the log shows "Activity started" once more
     And the log shows "Last workout loaded" once more
 
-  @US-20
   Scenario: The Dashboard reloads each time it is shown
     Given I am on the Dashboard
     When I open Workouts and go back

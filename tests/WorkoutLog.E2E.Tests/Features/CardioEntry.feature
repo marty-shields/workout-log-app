@@ -1,4 +1,3 @@
-@US-13
 Feature: Cardio entry
   A cardio exercise has one entry: duration plus the machine's own fields.
 

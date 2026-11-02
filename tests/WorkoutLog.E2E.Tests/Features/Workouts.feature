@@ -1,4 +1,3 @@
-@US-16
 Feature: Workouts
   My saved workouts, newest first.
 
@@ -32,7 +31,6 @@ Feature: Workouts
     And I tap the row for yesterday 18:05
     Then I am on Edit Workout titled with yesterday's date and day
 
-  @US-28
   Scenario Outline: Back returns to the Dashboard
     Given I have opened Workouts
     When I go back with <how>

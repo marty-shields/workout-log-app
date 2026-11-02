@@ -62,7 +62,6 @@ Feature: Exercises
     Then the add-exercise row for "Barbell Back Squat" reads Last 3 days ago · 70kg × 3
     And the add-exercise row for "Dumbbell Curl" has no last session
 
-  @US-28
   Scenario Outline: Back returns to the Dashboard
     Given I have opened Exercises
     When I go back with <how>

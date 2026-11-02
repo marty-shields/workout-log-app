@@ -2,8 +2,8 @@
 # Usage: e2e-local.sh <dotnet test filter> [tries]
 # Boots the CI emulator (emulator-start.sh's image and flags), builds the App and the tests, runs the E2E tests in the
 # filter through e2e-run.sh, then stops the emulator, whatever the result. For an agent or a developer in a worktree.
-#   e2e-local.sh "Category=US-17"
-#   e2e-local.sh "FullyQualifiedName~EditWorkoutFeature" 2
+#   e2e-local.sh "Category=smoke"
+#   e2e-local.sh "FullyQualifiedName~.EditAWorkoutFeature." 2
 # Exit: 0 passed, 1 failed, 2 skipped (this machine can't host the emulator, or stayed too busy), 64 bad usage.
 # Skips at once when a prerequisite is missing. Otherwise waits for the emulator slot and for free CPU, memory and disk,
 # and skips after MAX_WAIT_SECONDS (default 3600) in all. One emulator runs per machine: runs from other worktrees queue

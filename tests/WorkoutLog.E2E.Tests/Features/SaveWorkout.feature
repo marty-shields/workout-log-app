@@ -1,4 +1,3 @@
-@US-14 @US-08 @US-09
 Feature: Save a workout
   Saving keeps the workout, records the finish time and returns to the Dashboard.
 

@@ -1,4 +1,3 @@
-@US-12
 Feature: Strength sets
   A strength exercise shows only its own fields, and Add set waits for a valid set.
 
@@ -76,7 +75,6 @@ Feature: Strength sets
     When I remove Barbell Back Squat set 2
     Then Barbell Back Squat sets are: 5 reps 60 kg; 5 reps 65 kg
 
-  @US-11
   Scenario: Remove exercise asks first, then removes it
     Given I have added "Barbell Back Squat"
     And I have added "Dumbbell Curl"

@@ -1,4 +1,3 @@
-@US-10
 Feature: New workout
   Opening New Workout starts the workout and its timer.
 

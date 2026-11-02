@@ -1,4 +1,3 @@
-@US-11
 Feature: Add exercise
   I find exercises in the Exercises list over the workout and add them.
 
@@ -9,7 +8,6 @@ Feature: Add exercise
     When I open the add-exercise list
     Then the search box is empty and focused
 
-  @US-07
   Scenario: With no search text every exercise shows, Strength then Cardio, A–Z, each with its kind
     When I open the add-exercise list
     Then every exercise shows, Strength then Cardio, A–Z in each

@@ -1,4 +1,3 @@
-@US-18
 Feature: Discard edits
   Back asks only when I have changed something.
 
@@ -8,7 +7,6 @@ Feature: Discard edits
       | yesterday 18:05 | Barbell Back Squat: 5 reps 60 kg / Rowing Machine: 0:10:00 2000 m |
     And I have opened workout 1 from Workouts
 
-  @US-28
   Scenario Outline: Back with no changes goes straight to Workouts
     When I go back with <how>
     Then I am on Workouts with no prompt
@@ -52,7 +50,6 @@ Feature: Discard edits
     Then I am on Workouts
     And reopening workout 1 shows Barbell Back Squat set 1 at 60 kg
 
-  @US-28
   Scenario: Android back on the prompt cancels it
     Given I have entered "62.5" in Barbell Back Squat set 1 weight
     And I have gone back with the back arrow

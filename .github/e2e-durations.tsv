@@ -29,7 +29,7 @@
 21	WorkoutLog.E2E.Tests.Features.CardioEntryFeature.ATreadmillShowsItsSpeedWorkedOutFromDistanceAndDuration
 33	WorkoutLog.E2E.Tests.Features.CardioEntryFeature.AfterAFailedSaveEachChangeRe_ChecksTheEntry
 21	WorkoutLog.E2E.Tests.Features.CardioEntryFeature.AnOutdoorRunShowsItsPaceWorkedOutFromDistanceAndDuration
-118	WorkoutLog.E2E.Tests.Features.CardioEntryFeature.CardioValuesAreCheckedOnSave
+30	WorkoutLog.E2E.Tests.Features.CardioEntryFeature.CardioValuesAreCheckedOnSave
 55	WorkoutLog.E2E.Tests.Features.CardioEntryFeature.EachCardioMachineShowsDurationAndItsOwnFields
 29	WorkoutLog.E2E.Tests.Features.CardioEntryFeature.SaveShowsEveryProblemOnAnEntryAndFocusesTheFirstFieldAtFault
 22	WorkoutLog.E2E.Tests.Features.CardioEntryFeature.StairClimberSavesWithDurationOnly
@@ -190,7 +190,7 @@
 17	WorkoutLog.E2E.Tests.Features.StrengthSetsFeature.RemoveExerciseAsksFirstThenRemovesIt
 28	WorkoutLog.E2E.Tests.Features.StrengthSetsFeature.RemoveSetIsNeverBlocked
 38	WorkoutLog.E2E.Tests.Features.StrengthSetsFeature.RemovingAMiddleSetKeepsTheOthersInOrder
-123	WorkoutLog.E2E.Tests.Features.StrengthSetsFeature.StrengthValuesAreChecked
+25	WorkoutLog.E2E.Tests.Features.StrengthSetsFeature.StrengthValuesAreChecked
 7	WorkoutLog.E2E.Tests.Features.WorkoutLimitsFeature.At10ExercisesAddExerciseIsOffWithANote
 6	WorkoutLog.E2E.Tests.Features.WorkoutLimitsFeature.At10SetsAddSetIsOffWithANote
 12	WorkoutLog.E2E.Tests.Features.WorkoutsFeature.BackReturnsToTheDashboard

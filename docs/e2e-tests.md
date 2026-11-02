@@ -4,20 +4,47 @@ Running the E2E suite on a phone or an emulator, and where the results go. Set u
 ## Each run
 1. Connect the device and unlock it; keep it unlocked (Developer options → **Stay awake** helps). A locked device fails each test.
 2. Build the App: `dotnet build src/WorkoutLog.App -f net10.0-android`. The tests install this APK; they don't build it. Build and test from the same commit.
-3. Run the tests: every scenario, the smoke scenarios, one story's or one feature's:
+3. Run the tests: every scenario the Debug app runs (all but `@upgrade` and `@backup`, see [Tags](#tags)), the smoke scenarios, one feature's:
    ```
-   dotnet test tests/WorkoutLog.E2E.Tests --filter "FullyQualifiedName~WorkoutLog.E2E.Tests"
+   dotnet test tests/WorkoutLog.E2E.Tests --filter "Category!=upgrade&Category!=backup"
    dotnet test tests/WorkoutLog.E2E.Tests --filter "Category=smoke"
-   dotnet test tests/WorkoutLog.E2E.Tests --filter "Category=US-17"
-   dotnet test tests/WorkoutLog.E2E.Tests --filter "FullyQualifiedName~EditWorkoutFeature"
+   dotnet test tests/WorkoutLog.E2E.Tests --filter "FullyQualifiedName~.EditAWorkoutFeature."
    ```
-   Every `dotnet test` command above also needs `-- 'TestRunParameters.Parameter(name="ChromedriverExecutable", value="<path>")'` (combine it with `DeviceUdid` in the same `--`). Without it the run fails: Appium's own Chromedriver download is not allowed, because it fetches an unpinned binary. Download the Chromedriver at `CHROMEDRIVER_VERSION` in `.github/workflows/qa-pipeline.yml` from [Chrome for Testing](https://googlechromelabs.github.io/chrome-for-testing/), check it against `CHROMEDRIVER_SHA256` there, and pass its path. It must match the device's WebView major version. `e2e-local.sh` does all of this for you.
+   A feature's class is its `Feature:` title in PascalCase plus `Feature`: `Feature: Edit a workout` is `EditAWorkoutFeature`. Keep the dots around it: `~` matches any part of the name, and `EditWorkoutFeature` would match `MarkAnExerciseDoneOnEditWorkoutFeature` instead.
+   Every `dotnet test` command above also needs `-- 'TestRunParameters.Parameter(name="ChromedriverExecutable", value="<path>")'` (combine it with the other run settings in the same `--`). Without it the run fails: Appium's own Chromedriver download is not allowed, because it fetches an unpinned binary. Download the Chromedriver at `CHROMEDRIVER_VERSION` in `.github/workflows/qa-pipeline.yml` from [Chrome for Testing](https://googlechromelabs.github.io/chrome-for-testing/), check it against `CHROMEDRIVER_SHA256` there, and pass its path. It must match the device's WebView major version. `e2e-local.sh` does all of this for you.
    With more than one device connected, add `-- 'TestRunParameters.Parameter(name="DeviceUdid", value="<id from adb devices>")'`.
 
-- Every scenario deletes the workouts in "Workout Log (Dev)"; the Release app is never touched.
+- Every scenario deletes the workouts of the app under test, "Workout Log (Dev)" by default. Another build runs only on an emulator, so the app on a phone is never touched.
 - A `@today` scenario fails within 5 minutes of midnight on the device; run it again after midnight.
 - A plain `dotnet test` skips the E2E tests (`[Explicit]`).
 - After a killed run: stop the `node` process running Appium (`node_modules/appium/index.js`), turn auto-rotate back on (`adb shell settings put system accelerometer_rotation 1`), and remove Appium's helper apps (`adb uninstall` `io.appium.uiautomator2.server`, `io.appium.uiautomator2.server.test`, `io.appium.settings`).
+
+## Tags
+- `@smoke`: a quick check of the main paths.
+- `@today`: checks today's date (see above).
+- `@release`: also runs on the Release build. These are the `@smoke` scenarios that don't seed, plus Export and Import, the code a trimmed build is most likely to break.
+- `@upgrade` and `@backup`: install other builds, so the shards leave them out and they run in their own workflows (below).
+
+## Other builds
+Run settings choose the build under test. The Debug app is the default.
+- `AppPackage` and `AppApk`: the app's package and its APK. A package other than `uk.martinshields.workoutlog.debug` runs only on an emulator (`emulator-*`), so the app on a phone is never touched. The Release app has no run-as, so the tests read its files as root, which emulator images allow. They seed it by importing an export file instead of copying a database in, so a seeded workout can't be in the future.
+- `PreviousApk`: the last release's Debug APK, for `@upgrade`. `.github/scripts/previous-apk.sh <out apk>` builds it from the latest `v*` tag. Build it on the machine that builds the App: one APK installs over another only when the same debug key signs both.
+
+`e2e-run.sh` (and so `e2e-local.sh`) passes these from `E2E_APP_PACKAGE`, `E2E_APP_APK` and `E2E_PREVIOUS_APK`:
+```
+dotnet restore src/WorkoutLog.App
+dotnet publish src/WorkoutLog.App -c Release -f net10.0-android -p:AndroidPackageFormat=apk -r android-x64 --no-restore -o <folder>
+E2E_APP_PACKAGE=uk.martinshields.workoutlog E2E_APP_APK=<folder>/uk.martinshields.workoutlog-Signed.apk \
+  .github/scripts/e2e-local.sh "Category=release|Category=backup"
+
+.github/scripts/previous-apk.sh <file>
+E2E_PREVIOUS_APK=<file> .github/scripts/e2e-local.sh "Category=upgrade"
+```
+
+The scenarios that need them:
+- **Release build** (`release-e2e.yml`): the x64 Release APK, signed with the debug key and never published, starts cleanly (`release-smoke.sh`), then the `@release` and `@backup` scenarios run on it.
+- **Upgrade** (`@upgrade`, `upgrade-e2e.yml`): installs the last release's build, saves workouts through its screens, installs this build over it with `adb install -r`, then checks the workouts, an edit and save, and the Exercise page.
+- **Backup and restore** (`@backup`, Release app only): saves workouts, backs the app up with `bmgr backupnow` on Android's local transport, uninstalls, installs and restores it (Android's "Test backup and restore" steps), then checks the workouts came back and no log line did. It leaves the emulator on the local transport.
 
 ## Results
 - `tests/WorkoutLog.E2E.Tests/TestResults/E2E/<yyyyMMdd-HHmmss>/` per run. A failed scenario saves its screen, page source, app log and Appium log in its own folder there.
