@@ -51,7 +51,7 @@ Pick the phone as the target in Visual Studio or VS Code, or run `dotnet build s
 ## CI
 Every PR to `main` runs these; the four checks must pass before it can merge:
 - **PR build** (`pr-build.yml`): the dev pipeline (`dev-pipeline.yml`) checks the E2E step bindings, builds, runs the Core and UI tests with coverage, tests the CI scripts and checks `allowBackup` and `dataExtractionRules` in the Debug and Release APKs (`dev / build-and-test`, `dev / backup-manifest`). `dev / build-and-test` also keeps the Debug APK and the E2E test output as the `e2e-build` artifact. Then the QA pipeline (`qa-pipeline.yml`) runs the E2E tests on emulators in 8 shards, each downloading `e2e-build` and restoring the E2E project instead of building, retrying failed scenarios up to 3 tries (`qa / emulator-e2e-tests`). The release workflow runs the same two pipelines, the QA pipeline after the dev pipeline.
-- **PR checks** (`pr-checks.yml`): a Conventional Commit title and exactly one `semver:major`, `semver:minor` or `semver:patch` label (`pr-checks`).
+- **PR checks** (`pr-checks.yml`): a Conventional Commit title, exactly one `semver:major`, `semver:minor` or `semver:patch` label and no new dependency with a known vulnerability (`actions/dependency-review-action`; it reads the dependency graph, so it can't run locally). Inside the one `pr-checks` check.
 
 Two more run on a PR only when it changes the paths they test, and aren't required checks. The release workflow runs both on every release ([E2E tests](e2e-tests.md#other-builds)):
 - **Release E2E** (`release-e2e.yml`, for `tests/WorkoutLog.E2E.Tests`, `src/WorkoutLog.Core/Export`, `src/WorkoutLog.Core/Import` and `src/WorkoutLog.Core/Data`): `build` builds the x64 Release APK once and keeps it with its debug keystore as the `release-apk` artifact. Then two jobs run on emulators. `release-e2e` checks that it starts cleanly (`release-smoke.sh`), then runs the `@release` and `@backup` scenarios on it. `release-upgrade-e2e` builds the latest `v*` tag's x64 Release APK with that keystore and runs the upgrade check from it.
@@ -82,6 +82,10 @@ E2E shards and step bindings:
   .github/scripts/e2e-durations.sh $(find <folder> -name "*.trx") > .github/e2e-durations.tsv
   ```
 - `.github/scripts/e2e-step-check.py` matches every step in the feature files to the step definitions, as Reqnroll does when a scenario runs, and fails on a step with no definition or more than one. Run it locally with `python3 -I .github/scripts/e2e-step-check.py tests/WorkoutLog.E2E.Tests` (`py -I` on Windows).
+
+Security scanning:
+- CodeQL runs through the repo's default setup (Settings → Advanced Security: C#, Actions, JavaScript/TypeScript; no workflow file). Check it with `gh api repos/marty-shields/workout-log-app/code-scanning/default-setup`. Turn it on with `gh api -X PATCH repos/marty-shields/workout-log-app/code-scanning/default-setup -f state=configured -f query_suite=default -F languages[]=csharp -F languages[]=actions` and off with `-f state=not-configured`. Its results are alerts, not a required check.
+- `NuGetAuditMode=all` in `Directory.Build.props` audits transitive packages too. A vulnerable package fails the build (NU1901-NU1904). Locally: `dotnet restore WorkoutLog.slnx --force-evaluate`.
 
 Also: Dependabot opens weekly update PRs (`chore(deps): …`, `semver:patch`); every push to `main` publishes the stories to GitHub Pages (`stories-pages.yml`). Actions are GitHub-owned only, pinned by commit SHA.
 
