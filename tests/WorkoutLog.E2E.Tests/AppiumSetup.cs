@@ -67,6 +67,12 @@ public class AppiumSetup
         Require(File.Exists(tested.Apk), $"{tested.Apk} is missing: {buildHint}.");
         Require(HasAssemblies(tested.Apk), $"{tested.Apk} has no assemblies (Fast Deployment): {buildHint}.");
         Require(tested.PreviousApk is null || File.Exists(tested.PreviousApk), $"PreviousApk {tested.PreviousApk} is missing.");
+        RequirePackage("AppApk", tested.Apk, tested.Package);
+        if (tested.PreviousApk is not null)
+        {
+            RequirePackage("PreviousApk", tested.PreviousApk, tested.Package);
+        }
+
         var node = NodePath();
 
         RunFolder = Path.Combine(project, "TestResults", "E2E", DateTime.Now.ToString("yyyyMMdd-HHmmss"));
@@ -235,6 +241,37 @@ public class AppiumSetup
         {
             throw new InvalidOperationException(message, e);
         }
+    }
+
+    /// <summary>
+    /// Fails unless <paramref name="apk"/> holds <paramref name="package"/>, so the emulator-only rule for a package other
+    /// than the Debug app's covers the app that is really installed.
+    /// </summary>
+    private static void RequirePackage(string setting, string apk, string package)
+    {
+        var held = ApkPackage(apk);
+        Require(held == package, $"{setting} {apk} holds {held}, not AppPackage {package}: set AppPackage to the APK's package (docs/e2e-tests.md).");
+    }
+
+    /// <summary>The package an APK holds, from <c>aapt2 dump packagename</c> in the newest build-tools under <c>ANDROID_HOME</c>.</summary>
+    private static string ApkPackage(string apk)
+    {
+        var buildTools = Path.Combine(Environment.GetEnvironmentVariable("ANDROID_HOME")!, "build-tools");
+        var newest = (Directory.Exists(buildTools) ? Directory.GetDirectories(buildTools) : [])
+            .MaxBy(dir => Version.TryParse(Path.GetFileName(dir), out var version) ? version : new Version())
+            ?? throw new InvalidOperationException($"{buildTools} has no build-tools: install them (docs/dev-setup-windows.md, docs/dev-setup-linux.md).");
+        var start = new ProcessStartInfo(Path.Combine(newest, "aapt2"))
+        {
+            ArgumentList = { "dump", "packagename", apk },
+            RedirectStandardOutput = true,
+            RedirectStandardError = true,
+        };
+        using var aapt2 = Process.Start(start)!;
+        var error = aapt2.StandardError.ReadToEndAsync();
+        var package = aapt2.StandardOutput.ReadToEnd().Trim();
+        aapt2.WaitForExit();
+        Require(aapt2.ExitCode == 0, $"aapt2 can't read the package of {apk}: {error.Result.Trim()}");
+        return package;
     }
 
     private static bool HasAssemblies(string apk)
