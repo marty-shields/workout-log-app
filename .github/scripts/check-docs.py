@@ -11,12 +11,12 @@ import subprocess
 import sys
 import urllib.parse
 
-INLINE_LINK = re.compile(r'\]\(\s*<?([^)\s>]+)>?(?:\s+"[^"]*")?\s*\)')
+INLINE_LINK = re.compile(r"\]\(\s*<?([^)\s>]+)>?(?:\s+(?:\"[^\"]*\"|'[^']*'))?\s*\)")
 REFERENCE_LINK = re.compile(r'^\s{0,3}\[[^\]]+\]:\s*<?(\S+?)>?(?:\s+.*)?$')
 HTML_LINK = re.compile(r'\b(?:href|src|srcset)\s*=\s*"\s*([^"\s,]+)')
 HEADING = re.compile(r'^\s{0,3}#{1,6}\s+(.*?)\s*#*\s*$')
 HTML_ANCHOR = re.compile(r'\b(?:id|name)\s*=\s*"([^"]+)"')
-FENCE = re.compile(r'^\s*(```|~~~)')
+FENCE = re.compile(r'^ {0,3}(`{3,}(?=[^`]*$)|~{3,})(.*)$')
 INLINE_CODE = re.compile(r'`+[^`\n]*`+')
 SCHEME = re.compile(r'^[A-Za-z][A-Za-z0-9+.-]*:')
 SCREENSHOT_ROW = re.compile(r'^\| `([a-z-]+)` \| `[^`]+` \|\s*$')
@@ -28,10 +28,11 @@ def prose_lines(text):
     fence = None
     for number, line in enumerate(text.splitlines(), 1):
         match = FENCE.match(line)
-        if match:
-            fence = None if fence == match.group(1) else fence or match.group(1)
-            continue
-        if fence is None:
+        if fence is None and match:
+            fence = match.group(1)
+        elif fence and match and match.group(1)[0] == fence[0] and len(match.group(1)) >= len(fence) and not match.group(2).strip():
+            fence = None
+        elif fence is None:
             yield number, line
 
 

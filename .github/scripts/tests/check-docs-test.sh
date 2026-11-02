@@ -49,6 +49,25 @@ repo escape '[out](../outside.md)'
 run "a link out of the repository" 'README.md:1: link to a missing path: ../outside.md
 exit=1' escape
 
+repo title "[gone](docs/nope.md 'a title') and [fine](docs/guide.md \"a title\")"
+run "a single-quoted link title" 'README.md:1: link to a missing path: docs/nope.md
+exit=1' title
+
+repo fence '```foo``` and [one](docs/nope.md)
+
+    ```
+[two](docs/nope.md)
+
+~~~
+```
+[hidden](docs/nope.md)
+~~~
+[three](docs/nope.md)'
+run "a fence opens and closes as in GFM" 'README.md:1: link to a missing path: docs/nope.md
+README.md:4: link to a missing path: docs/nope.md
+README.md:10: link to a missing path: docs/nope.md
+exit=1' fence
+
 repo shot 'x'
 touch "$work/shot/docs/images/readme/extra-light.png"
 printf '| `home` | `a` |\n| `gone` | `b` |\n' >> "$work/shot/docs/dev-setup-build.md"

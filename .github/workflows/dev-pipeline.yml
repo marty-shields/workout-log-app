@@ -1,4 +1,4 @@
-# Builds the solution and runs the UI and Core tests with coverage, tests the CI scripts, checks the E2E step bindings and the backup rules in the Debug and
+# Builds the solution and runs the UI and Core tests with coverage, tests the CI scripts, checks the E2E step bindings, the docs and the backup rules in the Debug and
 # Release APKs, and keeps the Debug APK and E2E tests for the QA pipeline, for the PR build (pr-build.yml) and the release
 # workflow.
 name: Dev pipeline
@@ -22,7 +22,7 @@ jobs:
         with:
           persist-credentials: false
 
-      # next-version.sh, e2e-shard-plan.sh, e2e-trx.sh, upgrade-seed-ref.sh, check-filler-comments.py and coverage-summary.py against stubs, sample files and throwaway repos.
+      # next-version.sh, e2e-shard-plan.sh, e2e-trx.sh, upgrade-seed-ref.sh, check-filler-comments.py, check-docs.py and coverage-summary.py against stubs, sample files and throwaway repos.
       - name: Test the CI scripts
         run: .github/scripts/tests/run.sh
 
@@ -38,6 +38,7 @@ jobs:
       - name: Check for filler doc comments
         run: python3 -I .github/scripts/check-filler-comments.py
 
+      # Fails on a broken relative link or #anchor in a tracked Markdown file, or a README screenshot and its table row that don't match.
       - name: Check the docs
         run: python3 -I .github/scripts/check-docs.py
 
