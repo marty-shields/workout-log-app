@@ -1,0 +1,4 @@
+2026-11-03T07:52:29.0961251Z -> error: Timed out: the prompt didn't show. (10.2s)
+2026-11-03T07:52:29.0962097Z Then I am on the Dashboard
+2026-11-03T07:52:29.0978707Z    Timed out: the prompt didn't show.
+2026-11-03T07:52:29.1002246Z ##[error]Timed out: the prompt didn't show.

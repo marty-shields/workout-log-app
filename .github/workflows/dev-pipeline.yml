@@ -47,15 +47,19 @@ jobs:
       - name: Check code style
         run: dotnet format WorkoutLog.slnx --verify-no-changes --no-restore
 
-      # Failed tests are reported as annotations and in the job summary. A test host that hangs for 5 minutes is killed and fails the step.
+      # Failed tests are reported as annotations and in the job summary. A test that hangs for 5 minutes is dumped and its host killed, and
+      # fails the step. The blame timer only runs once a test has started (inferred, see #180), so a run that hangs before the first test
+      # still needs the step timeout (a run takes under 4 minutes).
       - name: Core tests
         if: ${{ !cancelled() && steps.build.outcome == 'success' }}
-        run: dotnet test tests/WorkoutLog.Core.Tests --no-build --logger GitHubActions --blame-hang-timeout 5m --collect "Code Coverage;Format=cobertura" --results-directory "$RUNNER_TEMP/coverage/core" -- RunConfiguration.CollectSourceInformation=true
+        timeout-minutes: 10
+        run: dotnet test tests/WorkoutLog.Core.Tests --no-build --logger GitHubActions --blame-hang-timeout 5m --blame-hang-dump-type mini --collect "Code Coverage;Format=cobertura" --results-directory "$RUNNER_TEMP/coverage/core" -- RunConfiguration.CollectSourceInformation=true
 
       # Runs even when the Core tests fail.
       - name: UI tests
         if: ${{ !cancelled() && steps.build.outcome == 'success' }}
-        run: dotnet test tests/WorkoutLog.UI.Tests --no-build --logger GitHubActions --blame-hang-timeout 5m --collect "Code Coverage;Format=cobertura" --results-directory "$RUNNER_TEMP/coverage/ui" -- RunConfiguration.CollectSourceInformation=true
+        timeout-minutes: 10
+        run: dotnet test tests/WorkoutLog.UI.Tests --no-build --logger GitHubActions --blame-hang-timeout 5m --blame-hang-dump-type mini --collect "Code Coverage;Format=cobertura" --results-directory "$RUNNER_TEMP/coverage/ui" -- RunConfiguration.CollectSourceInformation=true
 
       # Line and branch coverage of Core (from the Core tests) and UI (from the UI tests) in the job summary. Fails when either line coverage is more than 1 point
       # below .github/coverage-baseline.tsv. The Cobertura XML is the coverage artifact.
@@ -73,6 +77,17 @@ jobs:
           path: ${{ runner.temp }}/coverage/**/*.cobertura.xml
           retention-days: 14
           if-no-files-found: warn
+
+      # What --blame-hang-timeout wrote when a test hung.
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        if: ${{ failure() }}
+        with:
+          name: hang-dumps
+          path: |
+            ${{ runner.temp }}/coverage/**/*.dmp
+            ${{ runner.temp }}/coverage/**/Sequence_*.xml
+          retention-days: 7
+          if-no-files-found: ignore
 
       # Nothing is backed up or transferred from the Debug APK.
       - name: Check the Debug APK
