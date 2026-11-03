@@ -9,6 +9,8 @@ Personal Android app (.NET 10 MAUI Blazor Hybrid). Setup: [docs/dev-setup-build.
 - E2E (needs a device; a plain `dotnet test` skips them): build the App, then `dotnet test tests/WorkoutLog.E2E.Tests --filter "Category=smoke"`
 - E2E without a device (Linux): `.github/scripts/e2e-local.sh "<filter for what you changed>"` boots an emulator, runs the filter, tears it down; exit 2 means skipped, so say the tests did not run ([details](docs/dev-setup-linux.md#throwaway-emulator-for-agents)). The full suite is CI-only (8 shards); one emulator takes an hour. The script refuses a broad filter, more than 15 scenarios or a run over 10 minutes; `E2E_ALLOW_BROAD=1` is the deliberate opt-in.
 - Story layout (needs Chrome and the stories running): `node .github/scripts/check-story-layout.mjs http://localhost:5056 <chrome>` fails on clipped, overflowing or wrapping story content at the narrowest card; CI runs it as `story-layout`, and `data-wrap-ok` marks text allowed to wrap.
+- CI lint (needs `shellcheck`): `.github/scripts/lint-ci.sh` runs shellcheck over the scripts and actionlint over the workflows; CI runs it in `dev / build-and-test`.
+- Docs: `python3 -I .github/scripts/check-docs.py` fails on a relative link or `#anchor` in a tracked `*.md` that doesn't resolve, or a README screenshot and its table row that don't match; CI runs it in `dev / build-and-test`.
 - Design system: `dotnet run --project src/WorkoutLog.UI.Stories` → http://localhost:5056
 
 ## How the code fits
@@ -24,7 +26,8 @@ Personal Android app (.NET 10 MAUI Blazor Hybrid). Setup: [docs/dev-setup-build.
 ## Rules
 - Ask about any ambiguity.
 - No new packages without approval.
-- XML comments only where they say more than the name and type do (a unit, a range, what null means, an order, a why); never restate the name. Build warnings no longer ask for them, and CI's `check-filler-comments.py` fails a `<summary>` or `<param>` that only restates the name (a real exception gets `/// <!-- filler-ok: why -->`).
+- XML comments only when they add something the name and type don't (a unit, a range, what null means, an order, a why). Component parameters are the exception. Never restate the name. Build warnings no longer ask for them, and CI's `check-filler-comments.py` fails a `<summary>` or `<param>` that only restates the name (a real exception gets `/// <!-- filler-ok: why -->`).
+- Interfaces only where something else implements them, such as a test fake or the stories site. No interface for a single implementation nothing swaps.
 - Commit on a branch, push it and open a DRAFT PR when the work is done. Review happens on the draft PR, not before the commit. Merge only when the user says to, or in an autopilot run (below).
 - PR titles are Conventional Commits with exactly one `semver:major|minor|patch` label (CI checks both).
 - A PR that changes the UI includes screenshots of the changed screens, posted as a PR comment or in the body, before it is marked ready.
@@ -36,6 +39,7 @@ Applies to the issues the user hands to `/pstack:poteto-mode autopilot-full`. Th
 3. **Gate.** Before merging, stop for the user's explicit approval in the session when:
    - the diff touches `*.razor`, `*.css`, `src/WorkoutLog.UI.Stories/**` or `wwwroot/**`
    - the diff touches EF migrations, the `DbContext` or model configuration
+   - the diff lowers or removes a value in `.github/coverage-baseline.tsv` (a PR could otherwise refresh its own floor with no human stop)
    - the verifier's verdict isn't clean, or the change departs from the issue's acceptance criteria
 
    For a UI change, first screenshot every changed story and every screen that uses a changed component, before (`origin/main`) and after, in light and dark, at phone width. Look at each one. Push them to a `pr-screenshots/<issue>-<slug>` branch (tracked in step 1) and put them in the PR body as a table: story, before, after. Then send a push notification and stop with the PR link, the reasons and the table. Requested changes go back to step 2, and the gate runs again with new screenshots.
