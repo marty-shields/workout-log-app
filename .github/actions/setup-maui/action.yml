@@ -2,6 +2,7 @@
 # stories. This is the only place the workload set is pinned: bump it with the SDK in global.json
 # (`dotnet workload search version`). It also decides the WebAssembly SDK pack the Stories lock file records, so a job
 # without it fails the locked restore. e2e-local.sh reads the pin from here.
+# check-maui-pin.sh fails the job when the pin's feature band differs from global.json's SDK.
 name: Set up .NET for MAUI Android
 description: Installs the .NET SDK in global.json and the pinned maui-android workload set.
 
@@ -11,6 +12,10 @@ runs:
     - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
       with:
         global-json-file: global.json
+
+    - name: Check the workload set matches the SDK's feature band
+      shell: bash
+      run: "$GITHUB_ACTION_PATH/../../scripts/check-maui-pin.sh"
 
     - name: Install the MAUI Android workload
       shell: bash
