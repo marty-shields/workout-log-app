@@ -64,6 +64,18 @@ The device state between the halves is the contract. The tag's project defines w
 
 A failed try starts both halves again from an uninstalled app. The tag `v1.3.0` and any older one have no `UpgradeSeed.feature`. For such a tag, the first half runs the E2E project of the commit that added the feature instead (`upgrade-seed-ref.sh` picks it). That commit's CI ran it against that release's build, and the commit never changes. `upgrade-seed-ref.sh` fails if a tag that contains that commit has no seed scenario.
 
+## A red emulator shard
+A failed shard's job summary says `infra` or `test`. `classify-shard-failure.sh <log>` decides it from the shard's output (`e2e-output.log` in the results artifact):
+- `infra`: the log shows the emulator or its UiAutomator2 server failing, and no assertion failing. The signatures are `Could not find a connected Android device`, `adb: device offline`, `instrumentation process is not running`, `adb shell date +%s failed (255)`, `WEBVIEW_<package> didn't appear`, and `The emulator did not recover`.
+- `test`: anything else. A log with an assertion failure (an NUnit `Expected:` line) is `test` even when it also shows a signature, so a real failure is never called infrastructure. A UI timeout alone is `test`.
+
+The rule:
+1. On `infra`, rerun the failed job once. GitHub keeps the first attempt's logs and summary in the run's attempt list.
+2. If the rerun fails, or the verdict was `test`, the failure is real. Don't rerun again: find the cause. A second `infra` verdict does not license a third run, and a signature that keeps coming back is a bug in the emulator setup or the app to fix.
+3. The `infra` verdict is a heuristic. `WEBVIEW didn't appear` can also come from an app that fails to start, so one rerun is the limit.
+
+Between tries, `e2e-run.sh` also checks the emulator (`emulator-recover.sh`). A device that doesn't answer gets `adb reconnect`, then a restart of the emulator with the job's flags. Before a retry, the UiAutomator2 server is stopped and uninstalled, so Appium installs a fresh one. If the device still doesn't answer, the job fails with an `Emulator` error instead of running the retry on a dead device.
+
 ## Results
 - `tests/WorkoutLog.E2E.Tests/TestResults/E2E/<yyyyMMdd-HHmmss>/` per run. A failed scenario saves its screen, page source, app log and Appium log in its own folder there.
 - A phone run's files can show notifications, the phone's serial number and what the tests typed. Keep them local; turn on Do Not Disturb during a run.

@@ -1,0 +1,9 @@
+2026-11-02T18:50:00.6693753Z [0s] adb: device, sys.boot_completed: 1, bootanim: ?, emulator.log: 1263 lines
+2026-11-02T18:50:00.6758312Z     | DEBUG   | Enable overlay packages with name ending in pixel_7
+2026-11-02T18:50:00.6784783Z     | WARNING      | adb command '/usr/local/lib/android/sdk/platform-tools/adb -s emulator-5554 shell settings put system screen_off_timeout 2147483647 ' failed: '* daemon not running; starting now at tcp:5037
+2026-11-02T18:50:00.6792957Z     | * daemon started successfully
+2026-11-02T18:50:00.6793361Z     | adb: device offline'
+2026-11-02T18:50:00.6793998Z     | DEBUG   | ColorBuffer 31, 1080x63, VK_FORMAT_R8G8B8A8_UNORM, Memory [size: 276480, type: 0, props: 15 / 1]
+2026-11-02T18:50:00.6794628Z Booted in 0s.
+2026-11-03T07:52:29.0961251Z -> error: Timed out: the prompt didn't show. (10.2s)
+2026-11-03T07:52:29.1002246Z ##[error]Timed out: the prompt didn't show.

@@ -1,8 +1,10 @@
 #!/usr/bin/env bash
 # Usage: e2e-run.sh <filter> <tries>
 # Runs the E2E tests in the filter on emulator-5554 with the Chromedriver in $CHROMEDRIVER, then re-runs the failed
-# scenarios (all rows of a failed Scenario Outline) until they pass or <tries> runs are done. Fails if a scenario fails
-# on its last try; each scenario that passed on a retry gets a warning. Writes e2e-<try>.trx to $RESULTS/trx.
+# scenarios (all rows of a failed Scenario Outline) until they pass or <tries> runs are done. Before each try the
+# device must answer (emulator-recover.sh), and before a retry the UiAutomator2 server starts clean, so a dead emulator
+# fails the job at once instead of failing every retry. Fails if a scenario fails on its last try; each scenario that
+# passed on a retry gets a warning. Writes e2e-<try>.trx to $RESULTS/trx.
 # E2E_APP_PACKAGE, E2E_APP_APK and E2E_PREVIOUS_APK, when set, pass the run settings AppPackage, AppApk and PreviousApk
 # (docs/e2e-tests.md).
 set -euo pipefail
@@ -25,6 +27,9 @@ done
 
 retried=""
 for try in $(seq "$tries"); do
+  recover=()
+  (( try > 1 )) && recover=(reset-server)
+  "$(dirname "$0")/emulator-recover.sh" "$RESULTS" "${recover[@]}" || exit 1
   # Failed scenarios become annotations and each run writes a results table to the job summary.
   if dotnet test tests/WorkoutLog.E2E.Tests --no-build --filter "$filter" --logger "console;verbosity=detailed" \
     --logger GitHubActions --logger "trx;LogFileName=e2e-$try.trx" --results-directory "$RESULTS/trx" \

@@ -1,6 +1,7 @@
 # The end of every emulator E2E job (qa-pipeline.yml's shards, release-e2e.yml, upgrade-e2e.yml): installs Appium, waits
 # for the emulator, gets the pinned Chromedriver, runs the tests, then keeps the emulator log and uploads the results, also
-# after a failure or a timeout. Before it, the job checks out the repo, starts the emulator (emulator-start.sh) so it boots
+# after a failure or a timeout. A failed run says in the job summary whether it looks like infrastructure
+# (classify-shard-failure.sh). Before it, the job checks out the repo, starts the emulator (emulator-start.sh) so it boots
 # while the job builds, and gets the App and the E2E tests ready.
 name: Emulator E2E
 description: Runs E2E tests on the emulator emulator-start.sh started and uploads the results.
@@ -51,10 +52,23 @@ runs:
         COMMANDS: ${{ inputs.run }}
         MINUTES: ${{ inputs.timeout-minutes }}
       run: |
-        status=0
-        timeout --kill-after=1m "${MINUTES}m" bash -euo pipefail -c "$COMMANDS" || status=$?
+        mkdir -p "$RESULTS"
+        set +e
+        timeout --kill-after=1m "${MINUTES}m" bash -euo pipefail -c "$COMMANDS" 2>&1 | tee "$RESULTS/e2e-output.log"
+        status=${PIPESTATUS[0]}
+        set -e
         if (( status == 124 || status == 137 )); then
           echo "::error title=E2E::The tests didn't finish in $MINUTES minutes."
+        fi
+        if (( status != 0 )); then
+          verdict=$(.github/scripts/classify-shard-failure.sh "$RESULTS/e2e-output.log")
+          if [[ "$verdict" == infra ]]; then
+            note="The log shows the emulator or its UiAutomator2 server failing, and no assertion failing. Rerun this job once. If it fails again, treat it as a real failure."
+          else
+            note="No emulator failure signature, or an assertion failed. Do not rerun: find the cause."
+          fi
+          echo "::notice title=Shard failure::$verdict. $note"
+          printf "### Shard failure: \`%s\`\n\n%s\n" "$verdict" "$note" >> "$GITHUB_STEP_SUMMARY"
         fi
         exit "$status"
 
@@ -66,7 +80,7 @@ runs:
         RESULTS: ${{ inputs.results }}
       run: |
         mkdir -p "$RESULTS"
-        cp "$RUNNER_TEMP/emulator.log" "$RESULTS/" || true
+        cp "$RUNNER_TEMP"/emulator*.log "$RESULTS/" || true
         timeout 30 adb shell dumpsys activity activities > "$RESULTS/activities.txt" 2>&1 || true
         timeout 30 adb exec-out screencap -p > "$RESULTS/final-screen.png" 2>/dev/null || true
         echo "::group::Health (last 20)"; tail -n 20 "$RESULTS/health.log" 2>/dev/null || true; echo "::endgroup::"
