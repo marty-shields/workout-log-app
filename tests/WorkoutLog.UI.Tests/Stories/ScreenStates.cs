@@ -5,7 +5,6 @@ using WorkoutLog.Core.Domain.Exercises.Progress;
 using WorkoutLog.Core.Services;
 using WorkoutLog.UI.Components.Dashboard;
 using WorkoutLog.UI.Components.Overlays;
-using WorkoutLog.UI.Components.Workout;
 using WorkoutLog.UI.Models.Exercises;
 using WorkoutLog.UI.Models.Muscles;
 using WorkoutLog.UI.Models.Settings;

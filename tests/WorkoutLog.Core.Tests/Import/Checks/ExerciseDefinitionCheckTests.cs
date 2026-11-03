@@ -1,7 +1,4 @@
-using Moq;
 using WorkoutLog.Core.Domain.Exercises;
-using WorkoutLog.Core.Domain.Workouts;
-using WorkoutLog.Core.Domain.Workouts.Validation;
 using WorkoutLog.Core.Import;
 using WorkoutLog.Core.Import.Checks;
 using static WorkoutLog.Core.Tests.Import.ImportWorkouts;

@@ -262,7 +262,11 @@ public class ExerciseFieldsTests
             new CardioExercise(309, new CardioEntry(new TimeSpan(1, 0, 0), null, 60, 8, null, 150, 72.25m))))[0],
             Is.EqualTo(new Dictionary<string, string?>
             {
-                ["duration"] = "1:00:00", ["floors"] = "60", ["level"] = "8", ["calories"] = "150", ["rate"] = "72.25",
+                ["duration"] = "1:00:00",
+                ["floors"] = "60",
+                ["level"] = "8",
+                ["calories"] = "150",
+                ["rate"] = "72.25",
             }));
 
 

@@ -4,6 +4,7 @@ Personal Android app (.NET 10 MAUI Blazor Hybrid). Setup: [docs/dev-setup-build.
 
 ## Commands
 - Build: `dotnet build WorkoutLog.slnx` (warnings fail the build)
+- Code style: `dotnet format WorkoutLog.slnx --verify-no-changes` (CI runs it; drop `--verify-no-changes` to apply the fixes)
 - Test: `dotnet test tests/WorkoutLog.Core.Tests` and `dotnet test tests/WorkoutLog.UI.Tests`
 - E2E (needs a device; a plain `dotnet test` skips them): build the App, then `dotnet test tests/WorkoutLog.E2E.Tests --filter "Category=smoke"`
 - E2E without a device (Linux): `.github/scripts/e2e-local.sh "<filter for what you changed>"` boots an emulator, runs the filter, tears it down; exit 2 means skipped, so say the tests did not run ([details](docs/dev-setup-linux.md#throwaway-emulator-for-agents)). The full suite is CI-only (8 shards); one emulator takes an hour. The script refuses a broad filter, more than 15 scenarios or a run over 10 minutes; `E2E_ALLOW_BROAD=1` is the deliberate opt-in.

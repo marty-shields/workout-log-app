@@ -1,3 +1,4 @@
+using System.Globalization;
 using SQLite;
 
 namespace WorkoutLog.Core.Data;
@@ -94,7 +95,7 @@ internal static class WorkoutTables
             db.Execute(table.CreateSql(table.Name, ifNotExists: true));
             foreach (var index in table.Indexes)
             {
-                db.Execute(string.Format(index, "IF NOT EXISTS"));
+                db.Execute(string.Format(CultureInfo.InvariantCulture, index, "IF NOT EXISTS"));
             }
         }
     }

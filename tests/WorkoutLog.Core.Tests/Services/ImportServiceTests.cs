@@ -437,7 +437,7 @@ public class ImportServiceTests
 
     private Task<ImportReview> ReadAsync(string json) => service.ReadAsync(Stream(json), FileName);
 
-    /// <summary>Adds a Bench workout an hour long at each hour after <see cref="ImportJson.Start"/>. Returns them as saved.</summary>
+    /// <summary>Adds a Bench workout an hour long at each hour after <c>ImportJson.Start</c>. Returns them as saved.</summary>
     private async Task<List<Workout>> AddToPhoneAsync(params int[] hours)
     {
         var saved = new List<Workout>();

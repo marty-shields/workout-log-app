@@ -26,11 +26,13 @@ public partial class Chart
     // Smallest tick step: the 0.1 a weight shows; time steps start at 1 second.
     private const decimal MinStep = 0.1m;
 
+    private static readonly decimal[] NiceSteps = [1m, 2m, 5m, 10m];
+
     // Tick steps for time, in seconds.
     private static readonly decimal[] TimeSteps = [1, 2, 5, 10, 15, 30, 60, 120, 300, 600, 900, 1800, 3600];
 
     private IReadOnlyList<(string Y, string Text)> ticks = [];
-    private IReadOnlyList<Plotted> plotted = [];
+    private List<Plotted> plotted = [];
     private IReadOnlyList<(string X, string Text, string Anchor)> dates = [];
     private string? line;
 
@@ -132,7 +134,7 @@ public partial class Chart
     private static decimal NiceStep(decimal rough)
     {
         var power = (decimal)Math.Pow(10, Math.Floor(Math.Log10((double)rough)));
-        return new[] { 1m, 2m, 5m, 10m }.First(m => m * power >= rough) * power;
+        return NiceSteps.First(m => m * power >= rough) * power;
     }
 
     private static decimal TimeStep(decimal rough) =>

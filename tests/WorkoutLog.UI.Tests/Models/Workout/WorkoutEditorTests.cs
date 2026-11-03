@@ -1,8 +1,8 @@
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Time.Testing;
 using WorkoutLog.Core.Domain.Exercises;
-using WorkoutLog.Core.Domain.Workouts;
 using WorkoutLog.Core.Domain.Exercises.Bests;
+using WorkoutLog.Core.Domain.Workouts;
 using WorkoutLog.Core.Services;
 using WorkoutLog.UI.Models.Exercises;
 using WorkoutLog.UI.Models.Workout;

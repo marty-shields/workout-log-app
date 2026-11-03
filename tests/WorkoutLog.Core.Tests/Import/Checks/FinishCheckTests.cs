@@ -1,4 +1,3 @@
-using WorkoutLog.Core.Import;
 using WorkoutLog.Core.Import.Checks;
 using static WorkoutLog.Core.Tests.Import.ImportJson;
 using static WorkoutLog.Core.Tests.Import.ImportWorkouts;
