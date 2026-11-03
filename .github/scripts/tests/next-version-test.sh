@@ -10,10 +10,14 @@ trap 'rm -rf "$work"' EXIT
 mkdir "$work/bin" "$work/prs"
 cat > "$work/bin/gh" <<'STUB'
 #!/usr/bin/env bash
-# gh api repos/<repo>/commits/<sha>/pulls --jq <filter>
-sha=$(sed 's#.*/commits/\(.*\)/pulls#\1#' <<<"$2")
-file="$PRS/$sha.json"
-[[ -f "$file" ]] || file="$PRS/none.json"
+# gh api repos/<repo>/commits/<sha>/pulls --jq <filter>, or gh api repos/<repo>/pulls/<number> --jq <filter>
+if [[ "$2" == */pulls/* ]]; then
+  file="$PRS/pull-${2##*/}.json"
+else
+  sha=$(sed 's#.*/commits/\(.*\)/pulls#\1#' <<<"$2")
+  file="$PRS/$sha.json"
+  [[ -f "$file" ]] || file="$PRS/none.json"
+fi
 jq -r "$4" "$file"
 STUB
 chmod +x "$work/bin/gh"
@@ -29,12 +33,13 @@ pr() {
 # run <name> <expected output file contents>: runs the script in $work/repo for target HEAD.
 run() {
   local name="$1" expected="$2" out
-  out=$(cd "$work/repo" && PATH="$work/bin:$PATH" PRS="$work/prs" GITHUB_REPOSITORY=o/r GITHUB_OUTPUT="$work/out" bash "$script" v "$(git -C "$work/repo" rev-parse HEAD)" 2> "$work/err"; echo "exit=$?")
+  out=$(cd "$work/repo" && PATH="$work/bin:$PATH" PRS="$work/prs" REWRITTEN_COMMITS="$work/rewritten" GITHUB_REPOSITORY=o/r GITHUB_OUTPUT="$work/out" bash "$script" v "$(git -C "$work/repo" rev-parse HEAD)" 2> "$work/err"; echo "exit=$?")
   check "$name" "$expected" "$(cat "$work/out" 2>/dev/null; echo "$out" | grep '^exit=')"
   rm -f "$work/out"
 }
 
 fresh() {
+  : > "$work/rewritten"
   rm -rf "$work/repo" "$work/prs"/*.json; echo '[]' > "$work/prs/none.json"
   git init -q -b main "$work/repo"
   git -C "$work/repo" config user.email t@t; git -C "$work/repo" config user.name t
@@ -101,5 +106,24 @@ run "an unmerged PR does not count" "exit=1"
 fresh; git -C "$work/repo" tag v1.2.3
 sha=$(commit a); pr "$sha" 10 "semver:patch"; jq '.[0].base.ref = "dev"' "$work/prs/$sha.json" > "$work/x" && mv "$work/x" "$work/prs/$sha.json"
 run "a PR into another branch does not count" "exit=1"
+
+# A force-push to main leaves commits whose PR GitHub no longer links to them.
+fresh; git -C "$work/repo" tag v1.2.3
+sha=$(commit a); echo "$sha 10" > "$work/rewritten"
+jq -n '{number: 10, merged_at: "2026-01-01T00:00:00Z", base: {ref: "main"}, labels: [{name: "semver:minor"}]}' > "$work/prs/pull-10.json"
+run "a commit rewritten after its merge resolves through the rewritten-commits list" "release=true
+version=1.3.0
+code=2
+exit=0"
+
+fresh; git -C "$work/repo" tag v1.2.3
+sha=$(commit a); echo "$sha 10" > "$work/rewritten"
+jq -n '{number: 10, merged_at: null, base: {ref: "main"}, labels: [{name: "semver:minor"}]}' > "$work/prs/pull-10.json"
+run "a listed commit whose PR never merged still fails" "exit=1"
+
+fresh; git -C "$work/repo" tag v1.2.3
+sha=$(commit a); commit b > /dev/null; echo "$sha 10" > "$work/rewritten"
+jq -n '{number: 10, merged_at: "2026-01-01T00:00:00Z", base: {ref: "main"}, labels: [{name: "semver:minor"}]}' > "$work/prs/pull-10.json"
+run "an unlisted commit with no PR still fails" "exit=1"
 
 finish

@@ -5,6 +5,9 @@ set -euo pipefail
 prefix="$1"
 target="$2"
 out="${GITHUB_OUTPUT:-/dev/stdout}"
+# GitHub links a commit to its PR by the SHA of the merge. A force-push to main rewrites those SHAs and the link is
+# lost, so rewritten-commits.txt (<sha> <PR number>, one per line) names the PR of each such commit.
+rewritten_commits="${REWRITTEN_COMMITS:-$(dirname "$0")/rewritten-commits.txt}"
 
 # Release tags only: <prefix>X.Y.Z.
 semver="^${prefix}[0-9]+\.[0-9]+\.[0-9]+$"
@@ -19,6 +22,12 @@ else
   bump=0
   for sha in $(git rev-list "$last..$target"); do
     prs=$(gh api "repos/$GITHUB_REPOSITORY/commits/$sha/pulls" --jq '[.[] | select(.merged_at != null and .base.ref == "main")]')
+    if [[ $(jq length <<<"$prs") -eq 0 ]]; then
+      rewritten=$(awk -v sha="$sha" '$1 == sha { print $2 }' "$rewritten_commits")
+      if [[ -n "$rewritten" ]]; then
+        prs=$(gh api "repos/$GITHUB_REPOSITORY/pulls/$rewritten" --jq '[select(.merged_at != null and .base.ref == "main")]')
+      fi
+    fi
     if [[ $(jq length <<<"$prs") -ne 1 ]]; then
       echo "::error title=Version::Commit $sha isn't the merge of exactly one PR into main."
       exit 1

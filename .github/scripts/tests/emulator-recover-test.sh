@@ -53,10 +53,10 @@ FAKE
 chmod +x "$work/bin/"* "$work/sdk/emulator/emulator"
 
 export WORK="$work" FIXTURES="$here/fixtures" PATH="$work/bin:$PATH" ANDROID_HOME="$work/sdk" RUNNER_TEMP="$work/tmp"
-export GITHUB_ACTIONS=true RESULTS="$work/results" CHROMEDRIVER=/none
+export GITHUB_ACTIONS=true RESULTS="$work/results" CHROMEDRIVER=/none GITHUB_STEP_SUMMARY="$work/summary.md"
 sleep 30 &
 echo $! > "$work/tmp/emulator.pid"
-reset() { echo "$1" > "$work/state"; : > "$work/adb.log"; : > "$work/emulator.args"; : > "$work/dotnet.log"; rm -f "$work/reconnect" "$work/emulator-broken"; rm -rf "$work/results"; }
+reset() { echo "$1" > "$work/state"; : > "$work/adb.log"; : > "$work/emulator.args"; : > "$work/dotnet.log"; rm -f "$work/reconnect" "$work/emulator-broken" "$work/summary.md"; rm -rf "$work/results"; }
 recover() { bash "$scripts/emulator-recover.sh" "$RESULTS" "$@" 2>&1; }
 
 reset device
@@ -98,6 +98,8 @@ reset device
 out=$(retry); status=$?
 check "e2e-run: a retry on a healthy device passes, and the server is reset before it only" "0 2 2" \
   "$status $(wc -l < "$work/dotnet.log") $(grep -c 'adb uninstall' "$work/adb.log")"
+check "e2e-run: the first run's failed scenarios are annotated and tabled in the job summary" "yes yes" \
+  "$(grep -q '^::error title=E2E%3A Plain::' <<<"$out" && echo yes) $(grep -q '^| E2E | 2 | 4 | 0 |$' "$work/summary.md" && echo yes)"
 
 reset device
 # Kills the device between the tries by wrapping the first dotnet run.
