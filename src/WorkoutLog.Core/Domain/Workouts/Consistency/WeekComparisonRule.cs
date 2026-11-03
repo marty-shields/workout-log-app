@@ -1,27 +1,28 @@
 namespace WorkoutLog.Core.Domain.Workouts.Consistency;
 
-/// <summary>Last week's window ends at the same local day and time as now, whatever the offset was then.</summary>
+/// <summary>This week so far against the whole of last week, with weeks bucketed as <see cref="WeekBarsRule"/> does.</summary>
 internal sealed class WeekComparisonRule
 {
     /// <summary>
-    /// Totals of the <paramref name="workouts"/> started from Monday 00:00 to <paramref name="now"/>, and from last Monday 00:00 to
-    /// the same day and time last week, both inclusive, in <paramref name="zone"/>.
+    /// Totals of the <paramref name="workouts"/> started from this week's Monday 00:00 to <paramref name="now"/> inclusive, and in
+    /// the whole week before it, in <paramref name="zone"/>.
     /// </summary>
     public WeekTallies Compare(IReadOnlyList<WorkoutTally> workouts, DateTimeOffset now, TimeZoneInfo zone)
     {
         var monday = LocalWeek.Monday(now, zone);
-        var sameTimeLastWeek = LocalWeek.Last(TimeZoneInfo.ConvertTime(now, zone).DateTime.AddDays(-7), zone);
+        var lastMonday = monday.AddDays(-7);
+        var thisWeekStart = LocalWeek.Start(monday, zone);
         return new WeekTallies(
-            Tally(workouts, LocalWeek.Start(monday, zone), now),
-            Tally(workouts, LocalWeek.Start(monday.AddDays(-7), zone), sameTimeLastWeek));
+            Tally(workouts.Where(w => w.StartedAt >= thisWeekStart && w.StartedAt <= now)),
+            Tally(workouts.Where(w => LocalWeek.Monday(w.StartedAt, zone) == lastMonday)));
     }
 
-    private static WeekTally Tally(IReadOnlyList<WorkoutTally> workouts, DateTimeOffset from, DateTimeOffset to)
+    private static WeekTally Tally(IEnumerable<WorkoutTally> inWindow)
     {
-        var inWindow = workouts.Where(w => w.StartedAt >= from && w.StartedAt <= to).ToList();
+        var workouts = inWindow.ToList();
         return new WeekTally(
-            inWindow.Count,
-            inWindow.Aggregate(TimeSpan.Zero, (sum, w) => sum + (w.FinishedAt - w.StartedAt)),
-            inWindow.Sum(w => w.Sets));
+            workouts.Count,
+            workouts.Aggregate(TimeSpan.Zero, (sum, w) => sum + (w.FinishedAt - w.StartedAt)),
+            workouts.Sum(w => w.Sets));
     }
 }

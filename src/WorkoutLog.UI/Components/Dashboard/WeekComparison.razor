@@ -24,7 +24,7 @@
             }
         </tbody>
     </table>
-    <p class="note">Last week up to the same day and time</p>
+    <p class="note">This week so far against the whole of last week.</p>
 </div>
 
 @code {
@@ -39,7 +39,7 @@
     [Parameter, EditorRequired]
     public WeekTotals ThisWeek { get; set; } = null!;
 
-    /// <summary>Last week's totals up to the same day and time.</summary>
+    /// <summary>Last week's totals, Monday to Sunday.</summary>
     [Parameter, EditorRequired]
     public WeekTotals LastWeek { get; set; } = null!;
 

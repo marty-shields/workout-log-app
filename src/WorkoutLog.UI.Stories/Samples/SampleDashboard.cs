@@ -18,7 +18,7 @@ public static class SampleDashboard
     /// <summary>This week so far: 3 workouts, 3h 05m, 42 sets.</summary>
     public static WeekTotals ThisWeek { get; } = new(3, new TimeSpan(3, 5, 0), 42);
 
-    /// <summary>Last week up to the same point: 2 workouts, 2h 40m, 45 sets.</summary>
+    /// <summary>Last week, all of it: 2 workouts, 2h 40m, 45 sets.</summary>
     public static WeekTotals LastWeek { get; } = new(2, new TimeSpan(2, 40, 0), 45);
 
     /// <summary>A week with nothing in it.</summary>
