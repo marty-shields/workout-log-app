@@ -31,20 +31,37 @@ runs:
       run: |
         mkdir -p "$RESULTS"
         echo "${{ inputs.name }}"
-    - run: echo "$HOME"
+    - shell: bash
+      run: echo "$HOME"
 Y
 check "a clean action passes" "exit=0" "$(lint "$work/sample/action.yml")"
 
-check "a block is named for its line in the action" "sample-12.sh sample-14.sh" "$(cd "$work/out" && echo *)"
-check "a block keeps its line number and \${{ }} becomes a placeholder" "$(printf 'mkdir -p "$RESULTS"\necho "__EXPR__"')" "$(sed -n 12,13p "$work/out/sample-12.sh")"
+check "a block is named for its line in the action" "sample-action.yml-12.sh sample-action.yml-15.sh" "$(cd "$work/out" && echo *)"
+check "a block keeps its line number and \${{ }} becomes a placeholder" "$(printf 'mkdir -p "$RESULTS"\necho "__EXPR__"')" "$(sed -n 12,13p "$work/out/sample-action.yml-12.sh")"
 
 sed 's|mkdir -p "$RESULTS"|mkdir -p $RESULTS|' "$work/sample/action.yml" > "$work/other/action.yml"
 check "an unquoted \$RESULTS fails" "exit=1" "$(lint "$work/other/action.yml")"
 
-printf 'run: |\n  echo hi\nother: x\n' > "$work/other/action.yml"
-check "a block ends at the next key" "echo hi" "$(lint "$work/other/action.yml" > /dev/null; sed -n 2p "$work/out/other-2.sh")"
+printf 'shell: bash\nrun: |\n  echo hi\nother: x\n' > "$work/other/action.yml"
+check "a block ends at the next key" "echo hi" "$(lint "$work/other/action.yml" > /dev/null; sed -n 3p "$work/out/other-action.yml-3.sh")"
 
 printf 'name: no steps\n' > "$work/other/action.yml"
 check "an action with no run block fails" "exit=extract" "$(lint "$work/other/action.yml")"
+
+{ cat "$work/sample/action.yml"; echo "    - {shell: bash, run: 'echo \$X'}"; } > "$work/other/action.yml"
+check "a flow-mapping step fails the count" "exit=extract" "$(lint "$work/other/action.yml")"
+
+{ cat "$work/sample/action.yml"; printf '    - shell: bash\n      run: echo one\n        two\n'; } > "$work/other/action.yml"
+check "a multi-line plain scalar fails" "exit=extract" "$(lint "$work/other/action.yml")"
+
+{ cat "$work/sample/action.yml"; printf '    - shell: bash\n      run: "echo one\n        two"\n'; } > "$work/other/action.yml"
+check "a multi-line quoted scalar fails" "exit=extract" "$(lint "$work/other/action.yml")"
+
+{ cat "$work/sample/action.yml"; printf '    - run: echo no shell\n'; } > "$work/other/action.yml"
+check "a run step with no shell fails" "exit=extract" "$(lint "$work/other/action.yml")"
+
+for action in "$here"/../../actions/*/action.yml; do
+  check "$(basename "$(dirname "$action")") passes" "exit=0" "$(lint "$action")"
+done
 
 finish

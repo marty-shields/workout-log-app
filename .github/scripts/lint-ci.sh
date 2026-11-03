@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 # Usage: lint-ci.sh [folder]
 # Runs shellcheck over the shell scripts in .github/scripts and over the run steps of the composite actions (which neither
-# tool reads; action-run-blocks.py extracts them), and actionlint (which also shellchecks each
-# workflow's run steps) over .github/workflows. Needs shellcheck on the PATH (apt install shellcheck). Downloads the pinned actionlint into <folder>
-# (default: the temp dir), checks its SHA-256 first, unless an earlier run left it there.
+# tool reads; action-run-blocks.py extracts them), and actionlint (which also shellchecks each workflow's
+# run steps) over .github/workflows. Needs shellcheck on the PATH (apt install shellcheck). Downloads the pinned
+# actionlint into <folder> (default: the temp dir), checks its SHA-256 first, unless an earlier run left it there.
 set -euo pipefail
 version=1.7.12
 sha=8aca8db96f1b94770f1b0d72b6dddcb1ebb8123cb3712530b08cc387b349a3d8
@@ -28,6 +28,8 @@ cd "$root"
 shellcheck .github/scripts/*.sh .github/scripts/tests/*.sh
 blocks=$(mktemp -d)
 trap 'rm -rf "$blocks"' EXIT
-python3 -I .github/scripts/action-run-blocks.py "$blocks" .github/actions/*/action.yml
+mapfile -t actions < <(find .github/actions \( -name action.yml -o -name action.yaml \) | sort)
+(( ${#actions[@]} > 0 )) || { echo "::error title=Lint::No composite action found in .github/actions." >&2; exit 1; }
+python3 -I .github/scripts/action-run-blocks.py "$blocks" "${actions[@]}"
 shellcheck -s bash "$blocks"/*.sh
 "$dir/actionlint"

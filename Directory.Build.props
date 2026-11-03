@@ -8,6 +8,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <IsPackable>false</IsPackable>
     <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+    <!-- Pinned so an SDK bump cannot switch on new rules; move it in a deliberate PR (for example with a .NET 11 bump). -->
     <AnalysisLevel>10.0-recommended</AnalysisLevel>
     <!-- IDE0005 (unused usings) only runs in the build when XML documentation is generated. -->
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
