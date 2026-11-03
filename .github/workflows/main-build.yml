@@ -1,0 +1,14 @@
+# Runs the dev pipeline on every push to main, so a commit that breaks the build or its tests is flagged within minutes. It reports after the merge and
+# does not stop it. The QA shards (about an hour) run on the PR only.
+name: Main build
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  dev:
+    uses: ./.github/workflows/dev-pipeline.yml
