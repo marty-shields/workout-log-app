@@ -1,5 +1,5 @@
 Feature: Carry sets
-  Carries have more fields, so one set is open and the others are summary lines.
+  Carries have more fields, so their open set is a labelled panel; like every exercise, one set is open and the others are summary lines.
 
   Background:
     Given I have started a new workout

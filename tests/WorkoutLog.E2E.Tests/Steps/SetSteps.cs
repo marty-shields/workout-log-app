@@ -68,6 +68,9 @@ public sealed partial class SetSteps(WebView web, Native native, WorkoutScreen w
         native.HideKeyboard();
     }
 
+    [When(@"^I tap the trash on (.+) set (\d+)$")]
+    public void WhenITapTheSetTrash(string name, int set) => workout.AskRemoveSet(name, set);
+
     [When(@"^I tap the summary of (.+) set (\d+)$")]
     public void WhenITapTheSummary(string name, int set) => workout.OpenSummary(name, set);
 

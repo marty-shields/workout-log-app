@@ -4,53 +4,30 @@
     gap: var(--space-1);
 }
 
-.open {
-    display: grid;
-    grid-template-columns: var(--set-number-width) minmax(0, 1fr) var(--touch-target);
+.line {
+    display: flex;
+    min-height: var(--touch-target-compact);
     align-items: center;
+    justify-content: space-between;
     gap: var(--space-2);
-    width: 100%;
-    min-height: var(--touch-target);
-    padding: 0;
-    border: none;
-    border-bottom: var(--border-width) solid var(--color-border);
-    background: transparent;
-    text-align: left;
-    cursor: pointer;
 }
 
-.invalid {
-    border: var(--border-width-error) solid var(--color-error);
-    border-radius: var(--radius-sm);
+.heading {
+    min-width: 0;
+    margin: 0;
+    font-size: var(--font-size-md);
+    font-weight: var(--font-weight-regular);
+    font-variant-numeric: tabular-nums;
 }
 
 .number {
+    display: inline-block;
+    width: var(--set-number-width);
     color: var(--color-text-muted);
-    font-variant-numeric: tabular-nums;
     text-align: center;
 }
 
-.content {
+.actions {
     display: flex;
-    flex-direction: column;
-    padding: var(--space-2) 0;
-}
-
-.text {
-    font-variant-numeric: tabular-nums;
-}
-
-.last {
-    color: var(--color-text-muted);
-    font-size: var(--font-size-sm);
-    font-variant-numeric: tabular-nums;
-}
-
-.chevron {
-    display: flex;
-    justify-content: center;
-}
-
-.indent {
-    margin-left: calc(var(--set-number-width) + var(--space-2));
+    align-items: center;
 }

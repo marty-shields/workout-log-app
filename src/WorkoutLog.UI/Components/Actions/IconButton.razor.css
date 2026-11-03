@@ -11,6 +11,11 @@
     cursor: pointer;
 }
 
+.compact {
+    min-width: var(--touch-target-compact);
+    min-height: var(--touch-target-compact);
+}
+
 .active {
     border-radius: var(--radius-round);
     background: var(--color-selected);

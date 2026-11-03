@@ -34,6 +34,7 @@
                               ValidateDone="ValidateDone"
                               OnChanged="OnChanged"
                               OnRemove="() => OnRemoveExercise.InvokeAsync(exercise)"
+                              OnAskRemoveSet="entry => OnRemoveSet.InvokeAsync(new SetRef(exercise, entry))"
                               TestId="@($"exercise-{number}")" />
             }
             @if (ExercisesFull)
@@ -101,6 +102,10 @@
     /// <summary>Raised by an exercise's Remove.</summary>
     [Parameter]
     public EventCallback<ExerciseState> OnRemoveExercise { get; set; }
+
+    /// <summary>Raised by the trash on a closed set.</summary>
+    [Parameter]
+    public EventCallback<SetRef> OnRemoveSet { get; set; }
 
     /// <summary>Raised by Save.</summary>
     [Parameter]

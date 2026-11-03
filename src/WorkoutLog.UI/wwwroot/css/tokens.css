@@ -50,6 +50,7 @@
     --radius-round: 50%;
 
     --touch-target: 48px;
+    --touch-target-compact: 40px;
     --border-width: 1px;
     --border-width-error: 2px;
     --chart-stroke-width: 2px;

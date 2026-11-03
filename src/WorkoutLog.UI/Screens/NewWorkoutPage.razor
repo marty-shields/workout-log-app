@@ -30,6 +30,7 @@
              OnSave="SaveAsync"
              OnAddExercise="Editor.OpenListAsync"
              OnRemoveExercise="Editor.AskRemove"
+             OnRemoveSet="Editor.AskRemoveSet"
              OnBack="Editor.AskDiscard">
     <Overlay>
         @if (Editor.ListOpen)
@@ -40,6 +41,10 @@
         @if (Editor.Removing is { } removing)
         {
             <ConfirmDialog Title="@($"Delete {removing.Name}?")" ConfirmText="Delete" Danger OnConfirm="Editor.ConfirmRemove" OnCancel="Editor.CancelRemove" />
+        }
+        @if (Editor.RemovingSet is { } removingSet)
+        {
+            <ConfirmDialog Title="@($"Delete set {removingSet.Number}?")" ConfirmText="Delete" Danger OnConfirm="Editor.ConfirmRemoveSet" OnCancel="Editor.CancelRemoveSet" />
         }
         @if (Editor.DiscardOpen)
         {

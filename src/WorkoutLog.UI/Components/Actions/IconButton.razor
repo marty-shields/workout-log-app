@@ -1,6 +1,6 @@
 <button @ref="button"
         type="button"
-        class="icon-btn @(Active ? "active" : null)"
+        class="icon-btn @(Compact ? "compact" : null) @(Active ? "active" : null)"
         aria-label="@AriaLabel"
         data-testid="@TestId"
         @onclick="OnClick">
@@ -27,6 +27,10 @@
     /// <summary>Marks the button as on, with a filled round background.</summary>
     [Parameter]
     public bool Active { get; set; }
+
+    /// <summary>Shrinks the tap area to <c>--touch-target-compact</c> for dense rows.</summary>
+    [Parameter]
+    public bool Compact { get; set; }
 
     /// <summary>Size of the icon.</summary>
     [Parameter]

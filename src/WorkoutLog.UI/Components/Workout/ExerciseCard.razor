@@ -36,43 +36,37 @@
         @if (Exercise.Kind == ExerciseKind.Strength)
         {
             <div class="sets">
-                @if (SetGrid.Collapses(Exercise.Fields))
+                @for (var i = 0; i < Exercise.Entries.Count; i++)
                 {
-                    @for (var i = 0; i < Exercise.Entries.Count; i++)
+                    var entry = Exercise.Entries[i];
+                    var number = i + 1;
+                    if (entry != open)
                     {
-                        var entry = Exercise.Entries[i];
-                        var number = i + 1;
-                        if (entry == open)
-                        {
-                            <SetPanel @key="entry"
-                                      @ref="openPanel"
-                                      Number="number"
-                                      ExerciseName="@Exercise.Name"
-                                      Fields="Exercise.Fields"
-                                      Entry="entry"
-                                      Last="@(Exercise.LastTime?.EntryOrNull(number))"
-                                      IsRecord="entry == Exercise.RecordEntry"
-                                      OnChanged="() => EntryChanged(entry)"
-                                      OnRemove="() => RemoveSet(entry)"
-                                      TestId="@($"{TestId}-set-{number}")" />
-                        }
-                        else
-                        {
-                            <SetSummary @key="entry"
-                                        @ref="summaries[entry]"
-                                        Number="number"
-                                        Fields="Exercise.Fields"
-                                        Entry="entry"
-                                        Last="@(Exercise.LastTime?.EntryOrNull(number))"
-                                        IsRecord="entry == Exercise.RecordEntry"
-                                        OnOpen="() => OpenSet(entry)"
-                                        TestId="@($"{TestId}-set-{number}")" />
-                        }
+                        <SetSummary @key="entry"
+                                    Number="number"
+                                    ExerciseName="@Exercise.Name"
+                                    Fields="Exercise.Fields"
+                                    Entry="entry"
+                                    IsRecord="entry == Exercise.RecordEntry"
+                                    OnOpen="() => OpenSet(entry)"
+                                    OnRemove="() => OnAskRemoveSet.InvokeAsync(entry)"
+                                    TestId="@($"{TestId}-set-{number}")" />
                     }
-                }
-                else
-                {
-                    @if (Exercise.Entries.Count > 0)
+                    else if (SetGrid.OpensAsPanel(Exercise.Fields))
+                    {
+                        <SetPanel @key="entry"
+                                  @ref="openPanel"
+                                  Number="number"
+                                  ExerciseName="@Exercise.Name"
+                                  Fields="Exercise.Fields"
+                                  Entry="entry"
+                                  Last="@(Exercise.LastTime?.EntryOrNull(number))"
+                                  IsRecord="entry == Exercise.RecordEntry"
+                                  OnChanged="() => EntryChanged(entry)"
+                                  OnRemove="() => RemoveSet(entry)"
+                                  TestId="@($"{TestId}-set-{number}")" />
+                    }
+                    else
                     {
                         <div class="set-header" style="grid-template-columns: @SetGrid.Columns(Exercise.Fields, Exercise.LastTime is not null)" aria-hidden="true">
                             <span data-wrap-ok>Set</span>
@@ -86,13 +80,8 @@
                             }
                             <span></span>
                         </div>
-                    }
-                    @for (var i = 0; i < Exercise.Entries.Count; i++)
-                    {
-                        var entry = Exercise.Entries[i];
-                        var number = i + 1;
                         <SetRow @key="entry"
-                                @ref="rows[entry]"
+                                @ref="openRow"
                                 Number="number"
                                 ExerciseName="@Exercise.Name"
                                 Fields="Exercise.Fields"
@@ -171,11 +160,15 @@
     [Parameter]
     public string? TestId { get; set; }
 
-    /// <summary>For sets that collapse: opens the last set when the card is given an exercise. An empty last set opens either way.</summary>
+    /// <summary>Raised by the trash on a closed set; the host confirms and removes it. The open set's close button removes at once.</summary>
+    [Parameter]
+    public EventCallback<EntryState> OnAskRemoveSet { get; set; }
+
+    /// <summary>Opens the last set when the card is given an exercise. An empty last set opens either way.</summary>
     [Parameter]
     public bool OpenLastSet { get; set; } = true;
 
-    /// <summary>Checks the open set, or the last row, before Add set or opening another set, after filling its blanks (<see cref="ExerciseFields.FillBlanks"/>). Sets the set's errors and returns false to block. Also re-checks a set or entry on each change while it has errors or <see cref="EntryState.CheckOnChange"/> is set. Unset: nothing is blocked or re-checked.</summary>
+    /// <summary>Checks the open set before Add set or opening another set, after filling its blanks (<see cref="ExerciseFields.FillBlanks"/>). Sets the set's errors and returns false to block. Also re-checks a set or entry on each change while it has errors or <see cref="EntryState.CheckOnChange"/> is set. Unset: nothing is blocked or re-checked.</summary>
     [Parameter]
     public Func<ExerciseState, EntryState, bool>? ValidateSet { get; set; }
 
@@ -185,8 +178,7 @@
 
     private ExerciseState? shown;
     private EntryState? open;
-    private readonly Dictionary<EntryState, SetRow> rows = new();
-    private readonly Dictionary<EntryState, SetSummary> summaries = new();
+    private SetRow? openRow;
     private readonly Dictionary<string, FieldInput> cardioFields = new();
     private SetPanel? openPanel;
     private IconButton? remove;
@@ -207,7 +199,7 @@
 
     private FocusRequest? pending;
 
-    /// <summary>Moves focus to the open set or the last set row (its first field with an error, or its first field), or the cardio entry.</summary>
+    /// <summary>Moves focus to the open set (its first field with an error, or its first field), or the cardio entry.</summary>
     public ValueTask FocusAsync()
     {
         if (Exercise.Kind == ExerciseKind.Cardio)
@@ -215,17 +207,15 @@
             return Exercise.Fields.Count > 0 && cardioFields.TryGetValue(Exercise.Fields[0].Key, out var first) ? first.FocusAsync() : ValueTask.CompletedTask;
         }
 
-        if (SetGrid.Collapses(Exercise.Fields))
-        {
-            return open is not null && openPanel is not null ? openPanel.FocusAsync() : ValueTask.CompletedTask;
-        }
-
-        return Exercise.Entries.LastOrDefault() is { } last && rows.TryGetValue(last, out var row) ? row.FocusAsync() : ValueTask.CompletedTask;
+        return FocusOpenSet();
     }
+
+    private ValueTask FocusOpenSet() =>
+        SetGrid.OpensAsPanel(Exercise.Fields) ? openPanel?.FocusAsync() ?? ValueTask.CompletedTask : openRow?.FocusAsync() ?? ValueTask.CompletedTask;
 
     /// <summary>
     /// Moves focus to the card's first error. An exercise error: Add set for <see cref="ExerciseError.NoSets"/>, otherwise Remove.
-    /// Otherwise the first set or entry with errors: its first field at fault, or the summary line of a closed set.
+    /// Otherwise the first set or entry with errors: its first field at fault.
     /// With none, the note field when it has an error.
     /// </summary>
     public ValueTask FocusFirstErrorAsync()
@@ -252,17 +242,7 @@
                 : ValueTask.CompletedTask;
         }
 
-        if (SetGrid.Collapses(Exercise.Fields))
-        {
-            if (entry == open)
-            {
-                return openPanel?.FocusAsync() ?? ValueTask.CompletedTask;
-            }
-
-            return summaries.TryGetValue(entry, out var summary) ? summary.FocusAsync() : ValueTask.CompletedTask;
-        }
-
-        return rows.TryGetValue(entry, out var row) ? row.FocusAsync() : ValueTask.CompletedTask;
+        return entry == open ? FocusOpenSet() : ValueTask.CompletedTask;
     }
 
     /// <summary>
@@ -332,24 +312,27 @@
             return Exercise.Fields.Count == 0 || cardioFields.ContainsKey(Exercise.Fields[0].Key);
         }
 
-        if (SetGrid.Collapses(Exercise.Fields))
-        {
-            return open is null || openPanel?.Entry == open;
-        }
-
-        return Exercise.Entries.LastOrDefault() is not { } last || rows.ContainsKey(last);
+        return open is null || (SetGrid.OpensAsPanel(Exercise.Fields) ? openPanel?.Entry : openRow?.Entry) == open;
     }
 
     protected override void OnParametersSet()
     {
-        if (Exercise == shown)
+        if (Exercise != shown)
         {
-            return;
+            shown = Exercise;
+            var last = Exercise.Entries.LastOrDefault();
+            open = last is not null && (OpenLastSet || last.Values.Values.All(string.IsNullOrEmpty)) ? last : null;
         }
 
-        shown = Exercise;
-        var last = Exercise.Entries.LastOrDefault();
-        open = last is not null && (OpenLastSet || last.Values.Values.All(string.IsNullOrEmpty)) ? last : null;
+        OpenFirstFailingSetUnlessOpenFails();
+    }
+
+    private void OpenFirstFailingSetUnlessOpenFails()
+    {
+        if ((open is null || open.Errors.Count == 0) && Exercise.Entries.FirstOrDefault(e => e.Errors.Count > 0) is { } failing)
+        {
+            open = failing;
+        }
     }
 
     private string? LastText(int number) =>
@@ -386,18 +369,23 @@
         if (ValidateDone is null || ValidateDone(Exercise))
         {
             Exercise.IsDone = true;
-            rows.Clear();
-            summaries.Clear();
+            openRow = null;
             cardioFields.Clear();
             openPanel = null;
             addSet = null;
             return;
         }
 
+        OpenFirstFailingSetUnlessOpenFails();
         Request(new FocusRequest(FocusTarget.FirstError));
     }
 
-    private void Reopen() => Exercise.IsDone = false;
+    private void Reopen()
+    {
+        Exercise.IsDone = false;
+        open = null;
+        OpenFirstFailingSetUnlessOpenFails();
+    }
 
     private void OpenSet(EntryState entry)
     {
@@ -425,7 +413,6 @@
         return Task.CompletedTask;
     }
 
-    /// <summary>Adds an empty set and opens it, unless the sets are full or the open set or the last row fails the check.</summary>
     private bool TryAddSet()
     {
         if (Exercise.SetsFull)
@@ -433,8 +420,7 @@
             return false;
         }
 
-        var current = SetGrid.Collapses(Exercise.Fields) ? open : Exercise.Entries.LastOrDefault();
-        if (!CanLeave(current))
+        if (!CanLeave(open))
         {
             return false;
         }
@@ -460,8 +446,6 @@
     private Task RemoveSet(EntryState entry)
     {
         Exercise.Entries.Remove(entry);
-        rows.Remove(entry);
-        summaries.Remove(entry);
         if (entry == open)
         {
             open = null;

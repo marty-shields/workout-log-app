@@ -13,22 +13,22 @@ Log a workout as you go. View: `WorkoutView` with `Mode` New; page: `NewWorkoutP
 | Top bar | Back arrow; date and day; "Elapsed h:mm:ss"; the note icon button. |
 | Content | Workout error, if any; the workout note (`NoteField`), once there is one; `EmptyState` "No exercises yet" or one `ExerciseCard` per exercise, newest first. Sets in a card are in the order added. At 10 exercises, a muted centred note "At most 10 exercises" under the cards. |
 | Bottom bar | Add exercise (secondary) and Save (primary), side by side. Add exercise is off at 10 exercises. |
-| Overlays | `AddExerciseView` ([Add Exercise](./?path=/custom/screens-add-exercise-overview)); `ConfirmDialog` "Discard this workout?" on back; "Delete {exercise name}?" on an exercise's trash. |
+| Overlays | `AddExerciseView` ([Add Exercise](./?path=/custom/screens-add-exercise-overview)); `ConfirmDialog` "Discard this workout?" on back; "Delete {exercise name}?" on an exercise's trash; "Delete set {n}?" on a closed set's trash. |
 
 ## Exercises
 Each card shows the fields its definition declares ([exercise list](https://github.com/marty-shields/workout-log-app/blob/main/docs/exercise-list.md)), with the exercise's label where it has one (e.g. Assist (kg), Resistance, Damper). Card parts: [Workout components](./?path=/custom/components-workout-overview).
-- Strength: rows of sets (e.g. weight and reps, duration for Plank), Add set, remove set. Starts with one empty set. Add set does nothing while the last set (or the open set) is empty or has errors; the errors show on that set and focus moves to its first field at fault. At 10 sets Add set is off, with a muted note "At most 10 sets" under it.
+- Strength: rows of sets (e.g. weight and reps, duration for Plank), Add set, remove set. Starts with one empty set. One set is open at a time and the others show as a summary line (see below). Add set does nothing while the open set is empty or has errors; the errors show on that set and focus moves to its first field at fault. Otherwise it closes the open set and opens the new one. At 10 sets Add set is off, with a muted note "At most 10 sets" under it.
 - Weight is required (`*`). On a bodyweight move, assisted machine, hold or carry, a blank weight becomes 0 before every check: Add set, opening another set and Save. A lift's blank weight shows "Enter weight".
-- Carries (more than two fields, one a duration): one set is open, with every field labelled; the others show as a summary line, e.g. *40m · 32kg · 0:00:45*. Tap a summary to open it, once the open set is valid; Add set opens the new set. The last set is open. Errors on a closed set show under its summary, which gets a red outline.
+- A closed set is a summary line, e.g. *1  8 reps · 60kg* or *1  40m · 32kg · 0:00:45*, with a pencil and a trash. The pencil opens it, once the open set is valid; an open set with errors stays open and shows them. The trash opens `ConfirmDialog` "Delete set {n}?" with a red **Delete** and Cancel. The close button on the open set removes it at once and leaves every set closed. Carries (more than two fields, one a duration) open as a panel with every field labelled; other exercises open as one row. A set with errors is never closed, so a closed set shows none.
 - Cardio: one entry, duration and the exercise's other metrics, with units. Starts empty; not removable on its own. Outdoor Run and Walk show their pace, and Treadmill and Outdoor Cycle their speed, worked out from distance and duration, as a muted line under the fields: *Pace 5:46/km*, *Speed 10.4 km/h*, or *Pace —* / *Speed —* until both are filled and more than 0. They are never typed.
 - A partly filled duration fills in when focus leaves it: empty boxes become 0, minutes and seconds two digits (e.g. *1:00:00*, *0:00:22*). Format errors are checked by [`SetChecker`](https://github.com/marty-shields/workout-log-app/blob/main/src/WorkoutLog.UI/Models/Workout/SetChecker.cs), then Core's rules.
-- The trash opens `ConfirmDialog` "Delete {exercise name}?" with a red **Delete** and Cancel, on an open or a done card. Delete takes the exercise out, and is a change in Edit. Cancel, or Android back, closes it. Removing one set stays instant.
+- The trash opens `ConfirmDialog` "Delete {exercise name}?" with a red **Delete** and Cancel, on an open or a done card. Delete takes the exercise out, and is a change in Edit. Cancel, or Android back, closes it. Removing the open set stays instant; a closed set asks first (see Exercises).
 
 ## Done
 While logging, mark an exercise done so it shrinks to one line and is hard to touch by accident. An open card has a tick beside its name and the trash.
 - The tick runs the exercise's Save checks through `IWorkoutChecker.CheckExercise`: every set and entry (cardio too), its note, and "Add at least one set". The workout rules, a repeated exercise and the 10-set limit, stay with Save.
 - If a check fails, the card stays open and shows the errors; focus moves to the first one, as Add set does. A new strength exercise with its blank set fails "Enter reps" and stays open.
-- A done card is one line: the name, a pencil (edit) and the trash. The pencil opens the full card as it was left, with all its sets and entries and, for a carry, the same open set. Any number of cards can be open.
+- A done card is one line: the name, a pencil (edit) and the trash. The pencil opens the full card with all its sets and entries, every set closed (a set with errors opens, as does an empty last set). Any number of cards can be open.
 - Done doesn't reorder: cards stay newest first. Picking an exercise that is done from Add exercise opens it, moves it to the top and adds a set.
 - Done is only how the screen shows an exercise. It isn't saved, isn't a change for Edit's "Discard changes?", and records no time. A done exercise saves as it stands.
 
@@ -53,14 +53,14 @@ An exercise just added, strength or cardio, loads its last time through `ILastSe
 - Sets match by number: set 1 shows last time's set 1, set 2 its set 2. A set number last time didn't have, such as set 4 after 3 sets, shows *—* in the Last column and no line anywhere else. Last time's extra sets show nowhere.
 - Lift, assisted and bodyweight rows: a muted **Last** column after Set, as wide as a field, with last time's set as the Exercise page writes it: *60×8* (weight × reps), *1:30*, *20kg · 1:30*. Read out as "Last time 60×8".
 - Holds (duration with an optional weight): no Last column, so the duration boxes keep their width. A muted full-width line under each row, e.g. *Last time 1:30*, or *Last time 20kg · 1:30* when a weight was logged. No line for a set number last time didn't have.
-- Carries (set panel): a muted *Last time 32kg · 40m · 0:45* line at the top of the open panel and under each closed set's summary; no line for a set number last time didn't have. A weight of 0 isn't shown in holds or carries.
+- Carries (set panel): a muted *Last time 32kg · 40m · 0:45* line at the top of the open panel; closed sets show none, and no line for a set number last time didn't have. A weight of 0 isn't shown in holds or carries.
 - Cardio: a muted line above the fields with the entry's values, e.g. *Last time 5.2km · 30:00 · 5:46/km*; none when last time had no entry.
-- A done card is one line, so its Last column and lines are hidden with its sets and entry. The pencil brings them back.
+- A done card is one line, so its Last column and lines are hidden with its sets and entry. The pencil shows the card again, but closed sets show no last time; it shows on a set once its own pencil opens it.
 
 ## Save
 Save runs `IWorkoutChecker.Check`: every set and entry, then the workout, its note and each exercise and its note through `IWorkoutService.Validate`.
 - Errors show on the exercise, set or entry at fault: each faulty field is outlined, with one message per problem under its set or entry. A note over the limit shows its message in its field.
-- Focus moves to the first error in screen order: Add exercise for the workout error, otherwise the workout note when it has an error, otherwise the first exercise with an error, which takes it to its Add set or Remove, the first field at fault, a closed set's summary line, or its note.
+- Focus moves to the first error in screen order: Add exercise for the workout error, otherwise the workout note when it has an error, otherwise the first exercise with an error, which takes it to its Add set or Remove, the first field at fault, or its note.
 - Once a set or entry fails a check, every change re-checks it until it passes Add set or opening another set, or the whole workout passes Save. Adding a set clears "Add at least one set"; adding an exercise clears the workout error. Cardio entries are first checked on Save.
 
 A valid Save calls `IWorkoutService.SaveNewAsync` with the workout note and `ISetChecker.Read`'s records, oldest first, each with its note, then raises `OnSaved`; the App goes to the Dashboard. If nothing was saved, the workout error shows "Couldn't save the workout. Try again", the workout and its notes stay and focus moves to Save. Taps on Save while a save runs are ignored.

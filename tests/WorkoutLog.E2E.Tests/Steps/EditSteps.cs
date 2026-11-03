@@ -143,9 +143,8 @@ public sealed class EditSteps(WebView web, Journeys journeys, WorkoutScreen work
     private static Dictionary<string, string> Filled(IEnumerable<string> keys, EntryValues entry) =>
         keys.ToDictionary(k => k, k => entry.Values.GetValueOrDefault(k, ""));
 
-    /// <summary>A closed set's summary line, e.g. 40m · 32kg · 0:00:45; a carry's 0 kg is left out.</summary>
     private static string Summary(ExerciseDefinition definition, EntryValues entry) =>
-        string.Join(" · ", Exercises.Keys(definition).Where(entry.Values.ContainsKey).Where(key => !(key == "weight" && entry.Values[key] == "0")).Select(key =>
+        string.Join(" · ", Exercises.Keys(definition).Where(entry.Values.ContainsKey).Where(key => !(key == "weight" && entry.Values[key] == "0" && HidesZeroWeight(definition))).Select(key =>
         {
             var value = entry.Values[key];
             return key switch
@@ -156,6 +155,8 @@ public sealed class EditSteps(WebView web, Journeys journeys, WorkoutScreen work
                 _ => $"{value} {key}",
             };
         }));
+
+    private static bool HidesZeroWeight(ExerciseDefinition definition) => definition.Category != ExerciseCategory.Lift && !definition.IsAssisted;
 
     private static string DistanceUnit(ExerciseDefinition definition) => definition.DistanceUnit switch
     {

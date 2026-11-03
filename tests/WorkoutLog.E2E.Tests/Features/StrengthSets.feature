@@ -1,5 +1,5 @@
 Feature: Strength sets
-  A strength exercise shows only its own fields, and Add set waits for a valid set.
+  A strength exercise shows only its own fields, Add set waits for a valid set, and one set is open at a time.
 
   Background:
     Given I have started a new workout
@@ -19,7 +19,8 @@ Feature: Strength sets
     And I have logged Barbell Back Squat set 1: 8 reps, 60 kg
     When I tap Add set on Barbell Back Squat
     Then Barbell Back Squat has 2 sets
-    And set 1 still shows 8 reps, 60 kg
+    And Barbell Back Squat set 1 is a summary "60kg · 8 reps"
+    And Barbell Back Squat set 2 is open
 
   Scenario: Add set on an empty set is blocked and shows why
     Given I have added "Barbell Back Squat"
@@ -74,6 +75,22 @@ Feature: Strength sets
     And I have logged Barbell Back Squat sets: 5 reps 60 kg; 5 reps 62.5 kg; 5 reps 65 kg
     When I remove Barbell Back Squat set 2
     Then Barbell Back Squat sets are: 5 reps 60 kg; 5 reps 65 kg
+
+  Scenario: The trash on a closed set asks first, then removes it
+    Given I have added "Barbell Back Squat"
+    And I have logged Barbell Back Squat sets: 5 reps 60 kg; 5 reps 62.5 kg
+    When I tap the trash on Barbell Back Squat set 1
+    Then the prompt "Delete set 1?" shows Delete and Cancel
+    When I tap Delete on the prompt
+    Then no prompt is shown
+    And Barbell Back Squat has 1 set
+
+  Scenario: Cancelling the set prompt keeps the set
+    Given I have added "Barbell Back Squat"
+    And I have logged Barbell Back Squat sets: 5 reps 60 kg; 5 reps 62.5 kg
+    When I tap the trash on Barbell Back Squat set 1
+    And I tap Cancel
+    Then Barbell Back Squat has 2 sets
 
   Scenario: Remove exercise asks first, then removes it
     Given I have added "Barbell Back Squat"

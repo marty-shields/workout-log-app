@@ -72,4 +72,25 @@ public class IconButtonTests : ComponentTestBase
 
         Assert.That(cut.Find("button").ClassList, Is.EquivalentTo(new[] { "icon-btn", "active" }));
     }
+
+    [Test]
+    public void Compact_SetsClass()
+    {
+        var cut = Context.Render<IconButton>(p => p
+            .Add(x => x.Icon, IconName.Edit)
+            .Add(x => x.AriaLabel, "Edit set 1")
+            .Add(x => x.Compact, true));
+
+        Assert.That(cut.Find("button").ClassList, Is.EquivalentTo(new[] { "icon-btn", "compact" }));
+    }
+
+    [Test]
+    public void NotCompact_HasNoCompactClass()
+    {
+        var cut = Context.Render<IconButton>(p => p
+            .Add(x => x.Icon, IconName.Edit)
+            .Add(x => x.AriaLabel, "Edit"));
+
+        Assert.That(cut.Find("button").ClassList, Does.Not.Contain("compact"));
+    }
 }
