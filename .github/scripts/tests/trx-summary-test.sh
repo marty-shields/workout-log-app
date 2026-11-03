@@ -51,6 +51,7 @@ check "annotations escape newlines, colons, commas and percents" '::error title=
 exit=0' "$(python3 -I "$script" --annotations Core="$work/core"; echo "exit=$?")"
 
 check "a run with no failures prints no annotations" "exit=0" "$(python3 -I "$script" --annotations UI="$work/ui"; echo "exit=$?")"
+check "a single trx file works as well as a folder" "::error title=Core%3A NoFrame::Failed" "$(python3 -I "$script" --annotations Core="$work/core/results.trx" | tail -1)"
 check "a folder with no trx fails and says so" "Core has no trx report in $work/empty
 exit=1" "$(python3 -I "$script" Core="$work/empty" 2>&1; echo "exit=$?")"
 check "a missing folder fails" "exit=1" "$(python3 -I "$script" Core="$work/none" > /dev/null 2>&1; echo "exit=$?")"

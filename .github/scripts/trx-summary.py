@@ -1,4 +1,4 @@
-"""Usage: python3 -I trx-summary.py [--annotations] <label>=<folder with trx files>...
+"""Usage: python3 -I trx-summary.py [--annotations] <label>=<trx file or folder with trx files>...
 Prints a Markdown table of the passed, failed and skipped tests of each label, then the failed tests with their messages.
 With --annotations it prints one GitHub ::error line per failed test instead. Exits 1 when a folder has no readable trx."""
 import sys
@@ -9,7 +9,8 @@ NS = {"t": "http://microsoft.com/schemas/VisualStudio/TeamTest/2010"}
 
 
 def read_results(label, folder):
-    files = sorted(Path(folder).rglob("*.trx"))
+    path = Path(folder)
+    files = [path] if path.is_file() else sorted(path.rglob("*.trx"))
     if not files:
         sys.exit(f"{label} has no trx report in {folder}")
     try:
