@@ -1,8 +1,9 @@
-# Runs on every PR to main: the dev pipeline, then the QA pipeline once the build and its tests pass.
+# Runs on every PR to main that is not a draft (marking it ready starts the run): the dev pipeline, then the QA pipeline once the build and its tests pass.
 name: PR build
 
 on:
   pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
     branches: [main]
 
 permissions:
@@ -14,10 +15,12 @@ concurrency:
 
 jobs:
   dev:
+    if: github.event.pull_request.draft == false
     uses: ./.github/workflows/dev-pipeline.yml
 
   # Fails when a story clips, overflows or wraps at the narrowest card.
   story-layout:
+    if: github.event.pull_request.draft == false
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -49,5 +52,6 @@ jobs:
           node .github/scripts/check-story-layout.mjs http://localhost:5056 "$(command -v google-chrome)" || { cat "$RUNNER_TEMP/stories.log"; exit 1; }
 
   qa:
+    if: github.event.pull_request.draft == false
     needs: dev
     uses: ./.github/workflows/qa-pipeline.yml
