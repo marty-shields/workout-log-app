@@ -13,6 +13,8 @@
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <!-- MSBuild task warnings (including the Android XA ones) fail the build. -->
     <MSBuildTreatWarningsAsErrors>true</MSBuildTreatWarningsAsErrors>
+    <!-- NuGet audit covers transitive packages too; NU1901-NU1904 are warnings, so a vulnerable package fails the build. -->
+    <NuGetAuditMode>all</NuGetAuditMode>
     <!-- Each project commits a packages.lock.json; CI fails a restore that would change it. -->
     <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
     <RestoreLockedMode Condition="'$(CI)' != ''">true</RestoreLockedMode>

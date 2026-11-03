@@ -10,6 +10,7 @@
     <MauiXamlInflator>SourceGen</MauiXamlInflator>
     <SupportedOSPlatformVersion>36.0</SupportedOSPlatformVersion>
     <RuntimeIdentifiers>android-arm64;android-x64</RuntimeIdentifiers>
+    <RuntimeIdentifiers Condition="'$(RuntimeIdentifier)' != ''">$(RuntimeIdentifier)</RuntimeIdentifiers>
 
     <ApplicationTitle>Workout Log</ApplicationTitle>
     <ApplicationId>uk.martinshields.workoutlog</ApplicationId>

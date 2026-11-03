@@ -1,4 +1,4 @@
-# Builds the solution and runs the UI and Core tests with coverage, tests the CI scripts, checks the E2E step bindings and the backup rules in the Debug and
+# Builds the solution and runs the UI and Core tests with coverage, tests the CI scripts, checks the E2E step bindings, the docs and the backup rules in the Debug and
 # Release APKs, and keeps the Debug APK and E2E tests for the QA pipeline, for the PR build (pr-build.yml) and the release
 # workflow.
 name: Dev pipeline
@@ -22,7 +22,7 @@ jobs:
         with:
           persist-credentials: false
 
-      # next-version.sh, e2e-shard-plan.sh, e2e-trx.sh, upgrade-seed-ref.sh, check-filler-comments.py and coverage-summary.py against stubs, sample files and throwaway repos.
+      # next-version.sh, e2e-shard-plan.sh, e2e-trx.sh, upgrade-seed-ref.sh, check-filler-comments.py, check-docs.py and coverage-summary.py against stubs, sample files and throwaway repos.
       - name: Test the CI scripts
         run: .github/scripts/tests/run.sh
 
@@ -37,6 +37,10 @@ jobs:
       # Fails on an XML doc comment that only restates the name of its member.
       - name: Check for filler doc comments
         run: python3 -I .github/scripts/check-filler-comments.py
+
+      # Fails on a broken relative link or #anchor in a tracked Markdown file, or a README screenshot and its table row that don't match.
+      - name: Check the docs
+        run: python3 -I .github/scripts/check-docs.py
 
       - uses: ./.github/actions/setup-maui
 
@@ -86,7 +90,8 @@ jobs:
           retention-days: 1
           if-no-files-found: error
 
-  # Only the database is backed up and transferred from the Release APK (x64, debug key, never published).
+  # Only the database is backed up and transferred from the Release APK (x64, debug key, never published). The arm64 Release
+  # APK, built as the release builds it, must hold arm64-v8a only.
   backup-manifest:
     runs-on: ubuntu-latest
     timeout-minutes: 30
@@ -105,3 +110,11 @@ jobs:
 
       - name: Check the Release APK
         run: .github/scripts/check-backup.sh "$RUNNER_TEMP/backup/uk.martinshields.workoutlog-Signed.apk" true backup_rules
+
+      - name: Build the Release APK (arm64, debug key)
+        run: |
+          dotnet publish src/WorkoutLog.App -c Release -f net10.0-android -p:AndroidPackageFormat=apk \
+            -r android-arm64 --no-restore -o "$RUNNER_TEMP/arm64"
+
+      - name: Check the arm64 Release APK holds arm64 only
+        run: .github/scripts/check-abi.sh "$RUNNER_TEMP/arm64/uk.martinshields.workoutlog-Signed.apk"

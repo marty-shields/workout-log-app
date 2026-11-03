@@ -1,4 +1,4 @@
-# Checks every PR to main: the title is a Conventional Commit and the PR has exactly one semver label.
+# Checks every PR to main: the title is a Conventional Commit, the PR has exactly one semver label and it adds no vulnerable dependency.
 name: PR checks
 
 on:
@@ -40,3 +40,10 @@ jobs:
             echo "::error title=Semver label::The PR needs exactly one of the labels semver:major, semver:minor, semver:patch; it has $count."
             exit 1
           fi
+
+      # Runs even when an earlier check fails.
+      - name: No vulnerable new dependency
+        if: ${{ !cancelled() }}
+        uses: actions/dependency-review-action@a1d282b36b6f3519aa1f3fc636f609c47dddb294 # v5.0.0
+        with:
+          fail-on-scopes: runtime, development, unknown
