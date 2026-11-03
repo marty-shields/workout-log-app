@@ -561,11 +561,30 @@ public class NewWorkoutPageTests : ComponentTestBase
         Add(cut, 6);
 
         cut.Find("[data-testid=exercise-2-edit]").Click();
+        cut.Find("[data-testid=exercise-2-set-1-edit]").Click();
 
         Assert.Multiple(() =>
         {
             Assert.That(Names(cut), Is.EqualTo(new[] { "Barbell Back Squat", "Dumbbell Curl" }));
             Assert.That(cut.Find("[data-testid=exercise-2-set-1-reps]").GetAttribute("value"), Is.EqualTo("10"));
+        });
+    }
+
+    [Test]
+    public void Done_ThenEdit_LeavesEverySetCollapsed()
+    {
+        var cut = RenderPage();
+        Add(cut, 132);
+        cut.Find("[data-testid=exercise-1-set-1-reps]").Input("10");
+        cut.Find("[data-testid=exercise-1-set-1-weight]").Input("20");
+        cut.Find("[data-testid=exercise-1-done]").Click();
+
+        cut.Find("[data-testid=exercise-1-edit]").Click();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.FindAll("[data-testid=exercise-1-set-1-reps]"), Is.Empty);
+            Assert.That(cut.FindAll("[data-testid=exercise-1-set-1-edit]"), Has.Count.EqualTo(1));
         });
     }
 
@@ -884,7 +903,7 @@ public class NewWorkoutPageTests : ComponentTestBase
     }
 
     [Test]
-    public void Pick_WithAnEarlierWorkout_ShowsEachSetsLastTimeBySetNumber()
+    public void Pick_WithAnEarlierWorkout_ShowsTheOpenSetsLastTimeBySetNumber()
     {
         LastSessions.Set(new StrengthExercise(6, [new StrengthSet(8, 60m, null, null), new StrengthSet(8, 60m, null, null), new StrengthSet(6, 62.5m, null, null)]));
         var cut = RenderPage();
@@ -892,11 +911,11 @@ public class NewWorkoutPageTests : ComponentTestBase
         Add(cut, 6);
         AddSets(cut, 1, 3);
 
-        Assert.That(Lasts(cut, 1, 3), Is.EqualTo(new[] { "Last time 60×8", "Last time 60×8", "Last time 62.5×6" }));
+        Assert.That(Lasts(cut, 1), Is.EqualTo(new[] { "Last time 62.5×6" }));
     }
 
     [Test]
-    public void Pick_MoreSetsThanLastTime_ShowsADashForTheExtraSets()
+    public void Pick_MoreSetsThanLastTime_ShowsADashOnAnExtraOpenSet()
     {
         LastSessions.Set(new StrengthExercise(6, [new StrengthSet(8, 60m, null, null)]));
         var cut = RenderPage();
@@ -904,7 +923,45 @@ public class NewWorkoutPageTests : ComponentTestBase
         Add(cut, 6);
         AddSets(cut, 1, 3);
 
-        Assert.That(Lasts(cut, 1, 3), Is.EqualTo(new[] { "Last time 60×8", "Last time —", "Last time —" }));
+        Assert.That(Lasts(cut, 1), Is.EqualTo(new[] { "Last time —" }));
+    }
+
+    [Test]
+    public void TrashOnAClosedSet_AsksFirstThenRemovesIt()
+    {
+        var cut = RenderPage();
+        Add(cut, 6);
+        AddSets(cut, 1, 2);
+
+        cut.Find("[data-testid=exercise-1-set-1-remove]").Click();
+        var title = cut.Find("[data-testid=confirm-dialog]").TextContent;
+        var before = cut.FindAll("[data-testid^=exercise-1-set-][data-testid$=-remove]").Count;
+        cut.Find("[data-testid=confirm-dialog-confirm]").Click();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(title, Does.Contain("Delete set 1?"));
+            Assert.That(before, Is.EqualTo(2));
+            Assert.That(cut.FindAll("[data-testid=confirm-dialog]"), Is.Empty);
+            Assert.That(cut.FindAll("[data-testid^=exercise-1-set-][data-testid$=-remove]"), Has.Count.EqualTo(1));
+        });
+    }
+
+    [Test]
+    public void TrashOnAClosedSet_Cancel_KeepsIt()
+    {
+        var cut = RenderPage();
+        Add(cut, 6);
+        AddSets(cut, 1, 2);
+
+        cut.Find("[data-testid=exercise-1-set-1-remove]").Click();
+        cut.Find("[data-testid=confirm-dialog-cancel]").Click();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.FindAll("[data-testid=confirm-dialog]"), Is.Empty);
+            Assert.That(cut.FindAll("[data-testid^=exercise-1-set-][data-testid$=-remove]"), Has.Count.EqualTo(2));
+        });
     }
 
     [Test]
@@ -1016,7 +1073,7 @@ public class NewWorkoutPageTests : ComponentTestBase
         Assert.Multiple(() =>
         {
             Assert.That(cut.FindAll("[data-testid$=-last]"), Is.Empty);
-            Assert.That(cut.Find("[data-testid=exercise-1-set-1-reps]").GetAttribute("value"), Is.EqualTo("8"));
+            Assert.That(cut.Find("[data-testid=exercise-1-set-1] .text").TextContent, Does.Contain("8 reps"));
             Assert.That(cut.FindAll("[data-testid=exercise-1-set-2-reps]"), Has.Count.EqualTo(1));
         });
     }
@@ -1525,9 +1582,8 @@ public class NewWorkoutPageTests : ComponentTestBase
         }
     }
 
-    /// <summary>The Last time text of the first <paramref name="sets"/> sets of exercise <paramref name="number"/>.</summary>
-    private static List<string> Lasts(IRenderedComponent<NewWorkoutPage> cut, int number, int sets) =>
-        [.. Enumerable.Range(1, sets).Select(set => cut.Find($"[data-testid=exercise-{number}-set-{set}-last]").TextContent)];
+    private static List<string> Lasts(IRenderedComponent<NewWorkoutPage> cut, int number) =>
+        [.. cut.FindAll($"[data-testid^=exercise-{number}-set-][data-testid$=-last]").Select(l => l.TextContent)];
 
     private static string Subtitle(IRenderedComponent<NewWorkoutPage> cut) => cut.Find("[data-testid=screen-subtitle]").TextContent;
 

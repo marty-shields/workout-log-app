@@ -1,28 +1,18 @@
+@using WorkoutLog.UI.Components.Inputs
 @using WorkoutLog.UI.Models.Fields
 <div class="summary" data-testid="@TestId">
-    <button @ref="button" type="button" class="open @(Entry.Errors.Count > 0 ? "invalid" : null)" data-testid="@($"{TestId}-open")" @onclick="OnOpen">
-        <span class="visually-hidden">Set </span>
-        <span class="number">@Number</span>
-        <span class="content">
-            <span class="text" data-wrap-ok>@Text</span>
-            @if (Last is not null)
-            {
-                <span class="last" data-wrap-ok data-testid="@($"{TestId}-last")">Last time @Last</span>
-            }
-        </span>
-        <span class="chevron"><Icon Name="IconName.Chevron" Tone="IconTone.Muted" Size="IconSize.Small" /></span>
-    </button>
+    <div class="line">
+        <h3 class="heading" data-wrap-ok>
+            <span class="number">@Number</span> <span class="text">@Text</span>
+        </h3>
+        <div class="actions">
+            <IconButton Icon="IconName.Edit" AriaLabel="@(Label("Edit"))" TestId="@($"{TestId}-edit")" Muted Compact OnClick="OnOpen" />
+            <IconButton Icon="IconName.Delete" AriaLabel="@(Label("Delete"))" TestId="@($"{TestId}-remove")" Muted Compact OnClick="OnRemove" />
+        </div>
+    </div>
     @if (IsRecord)
     {
-        <div class="indent">
-            <RecordBadge TestId="@($"{TestId}-record")" />
-        </div>
-    }
-    @if (Entry.Errors.Count > 0)
-    {
-        <div class="indent">
-            <EntryErrors Fields="Fields" Entry="Entry" TestId="@($"{TestId}-error")" />
-        </div>
+        <RecordBadge TestId="@($"{TestId}-record")" />
     }
 </div>
 
@@ -39,26 +29,27 @@
     [Parameter, EditorRequired]
     public EntryState Entry { get; set; } = null!;
 
-    /// <summary>Last time's text for this set (<see cref="LastTime.Entry"/>), in a muted line under the summary. Null leaves it out.</summary>
+    /// <summary>Name of the exercise, read out by the buttons, e.g. Edit Squat set 2.</summary>
     [Parameter]
-    public string? Last { get; set; }
+    public string? ExerciseName { get; set; }
 
     /// <summary>Shows the Record badge under the line.</summary>
     [Parameter]
     public bool IsRecord { get; set; }
 
-    /// <summary>Raised when the summary is tapped.</summary>
+    /// <summary>Raised by the pencil.</summary>
     [Parameter]
     public EventCallback OnOpen { get; set; }
+
+    /// <summary>Raised by the trash.</summary>
+    [Parameter]
+    public EventCallback OnRemove { get; set; }
 
     /// <summary>Value of the data-testid attribute.</summary>
     [Parameter]
     public string? TestId { get; set; }
 
-    private ElementReference button;
-
-    /// <summary>Moves focus to the summary line.</summary>
-    public ValueTask FocusAsync() => button.FocusAsync();
+    private string Label(string verb) => ExerciseName is null ? $"{verb} set {Number}" : $"{verb} {ExerciseName} set {Number}";
 
     private string Text
     {

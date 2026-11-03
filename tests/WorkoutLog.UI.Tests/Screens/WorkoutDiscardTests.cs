@@ -248,6 +248,11 @@ public class WorkoutDiscardTests(WorkoutMode mode) : ComponentTestBase
 
     private static void Type(IRenderedComponent<AppErrorBoundary> cut, string reps)
     {
+        if (cut.FindAll("[data-testid=exercise-1-set-1-edit]").Count > 0)
+        {
+            cut.Find("[data-testid=exercise-1-set-1-edit]").Click();
+        }
+
         cut.Find("[data-testid=exercise-1-set-1-reps]").Input(reps);
         cut.Find("[data-testid=exercise-1-set-1-weight]").Input("20");
     }

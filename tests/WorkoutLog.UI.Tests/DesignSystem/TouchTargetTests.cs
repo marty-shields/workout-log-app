@@ -32,6 +32,24 @@ public partial class TouchTargetTests
         });
     }
 
+    [Test]
+    public void CompactIconButton_IsTheCompactTouchTargetAndNoSmaller()
+    {
+        var root = RepoFiles.Find("*.razor", "src", "WorkoutLog.UI").Single(f => f.EndsWith("IconButton.razor"));
+        var declarations = Rules(File.ReadAllText(root + ".css"))
+            .Where(r => r.Selectors.Contains(".compact"))
+            .SelectMany(r => r.Declarations)
+            .ToList();
+        var tokens = File.ReadAllText(RepoFiles.Find("tokens.css", "src", "WorkoutLog.UI").Single());
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(declarations, Has.Member("min-width: var(--touch-target-compact)"));
+            Assert.That(declarations, Has.Member("min-height: var(--touch-target-compact)"));
+            Assert.That(tokens, Does.Contain("--touch-target-compact: 40px;"));
+        });
+    }
+
     private static string? FirstClass(string attributes) =>
         Class().Match(attributes) is { Success: true } m
             ? m.Groups[1].Value.Split(' ', StringSplitOptions.RemoveEmptyEntries).FirstOrDefault(c => !c.StartsWith('@'))

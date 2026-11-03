@@ -48,6 +48,9 @@ public sealed class WorkoutEditor(
     /// <summary>The exercise whose delete is being confirmed, or null.</summary>
     public ExerciseState? Removing { get; private set; }
 
+    /// <summary>The closed set whose delete is being confirmed, or null.</summary>
+    public SetRef? RemovingSet { get; private set; }
+
     /// <summary>Message on the workout itself.</summary>
     public string? Error { get; private set; }
 
@@ -86,6 +89,7 @@ public sealed class WorkoutEditor(
         Focus = null;
         ErrorFocus = null;
         Removing = null;
+        RemovingSet = null;
         Error = null;
         SaveState = SavePhase.Idle;
         DiscardOpen = false;
@@ -209,6 +213,21 @@ public sealed class WorkoutEditor(
         }
 
         Removing = null;
+    }
+
+    public void AskRemoveSet(SetRef set) => RemovingSet = set;
+
+    public void CancelRemoveSet() => RemovingSet = null;
+
+    public void ConfirmRemoveSet()
+    {
+        if (RemovingSet is { } set)
+        {
+            set.Exercise.Entries.Remove(set.Entry);
+            Changed = true;
+        }
+
+        RemovingSet = null;
     }
 
     /// <summary>Records a value, note, set or entry change.</summary>

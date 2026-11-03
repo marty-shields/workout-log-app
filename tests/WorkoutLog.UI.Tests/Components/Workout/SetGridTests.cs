@@ -11,15 +11,15 @@ public class SetGridTests
     private static readonly FieldSpec Time = new("time", Metric.Duration, "Time", FieldKind.Duration);
 
     [Test]
-    public void Collapses_NeedsMoreThanTwoFieldsAndADuration()
+    public void OpensAsPanel_NeedsMoreThanTwoFieldsAndADuration()
     {
         Assert.Multiple(() =>
         {
-            Assert.That(SetGrid.Collapses([Reps, Weight]), Is.False);
-            Assert.That(SetGrid.Collapses([Reps, Time]), Is.False);
-            Assert.That(SetGrid.Collapses([Reps, Weight, Reps]), Is.False);
-            Assert.That(SetGrid.Collapses([Reps, Weight, Time]), Is.True);
-            Assert.That(SetGrid.Collapses([Time, Time, Time, Time]), Is.True);
+            Assert.That(SetGrid.OpensAsPanel([Reps, Weight]), Is.False);
+            Assert.That(SetGrid.OpensAsPanel([Reps, Time]), Is.False);
+            Assert.That(SetGrid.OpensAsPanel([Reps, Weight, Reps]), Is.False);
+            Assert.That(SetGrid.OpensAsPanel([Reps, Weight, Time]), Is.True);
+            Assert.That(SetGrid.OpensAsPanel([Time, Time, Time, Time]), Is.True);
         });
     }
 

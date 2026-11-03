@@ -130,6 +130,58 @@ public class EditWorkoutPageTests : ComponentTestBase
     }
 
     [Test]
+    public async Task Edit_AfterOpeningASetAndDone_ReopensWithEverySetCollapsed()
+    {
+        var cut = await RenderLoadedAsync();
+        cut.Find("[data-testid=exercise-3-edit]").Click();
+        cut.Find("[data-testid=exercise-3-set-1-edit]").Click();
+        cut.Find("[data-testid=exercise-3-done]").Click();
+
+        cut.Find("[data-testid=exercise-3-edit]").Click();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.FindAll("[data-testid^=exercise-3-set-][data-testid$=-reps]"), Is.Empty);
+            Assert.That(cut.FindAll("[data-testid=exercise-3-set-1-edit]"), Has.Count.EqualTo(1));
+            Assert.That(cut.FindAll("[data-testid=exercise-3-set-2-edit]"), Has.Count.EqualTo(1));
+        });
+    }
+
+    [Test]
+    public async Task TrashOnAClosedSet_AsksThenRemovesItAndRenumbers()
+    {
+        var cut = await RenderLoadedAsync();
+        cut.Find("[data-testid=exercise-3-edit]").Click();
+
+        cut.Find("[data-testid=exercise-3-set-1-remove]").Click();
+        var title = cut.Find("[data-testid=confirm-dialog]").TextContent;
+        cut.Find("[data-testid=confirm-dialog-confirm]").Click();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(title, Does.Contain("Delete set 1?"));
+            Assert.That(cut.FindAll("[data-testid=exercise-3-set-1-remove]"), Has.Count.EqualTo(1));
+            Assert.That(cut.FindAll("[data-testid=exercise-3-set-2-remove]"), Is.Empty);
+        });
+    }
+
+    [Test]
+    public async Task TrashOnAClosedSet_Cancel_KeepsBothSets()
+    {
+        var cut = await RenderLoadedAsync();
+        cut.Find("[data-testid=exercise-3-edit]").Click();
+
+        cut.Find("[data-testid=exercise-3-set-1-remove]").Click();
+        cut.Find("[data-testid=confirm-dialog-cancel]").Click();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.FindAll("[data-testid=confirm-dialog]"), Is.Empty);
+            Assert.That(cut.FindAll("[data-testid=exercise-3-set-2-remove]"), Has.Count.EqualTo(1));
+        });
+    }
+
+    [Test]
     public async Task Edit_ManyCardsCanBeOpenAtOnce()
     {
         var cut = await RenderLoadedAsync();
@@ -162,7 +214,7 @@ public class EditWorkoutPageTests : ComponentTestBase
     {
         var cut = await RenderLoadedAsync();
         cut.Find("[data-testid=exercise-3-edit]").Click();
-        cut.Find("[data-testid=exercise-3-set-1-reps]").Input("9");
+        Field(cut, "exercise-3-set-1-reps").Input("9");
         cut.Find("[data-testid=exercise-3-done]").Click();
 
         await cut.InvokeAsync(BackButton.HandleAsync);
@@ -175,7 +227,7 @@ public class EditWorkoutPageTests : ComponentTestBase
     {
         var cut = await RenderLoadedAsync();
         cut.Find("[data-testid=exercise-3-edit]").Click();
-        cut.Find("[data-testid=exercise-3-set-1-reps]").Input("");
+        Field(cut, "exercise-3-set-1-reps").Input("");
 
         cut.Find("[data-testid=exercise-3-done]").Click();
 
@@ -192,8 +244,8 @@ public class EditWorkoutPageTests : ComponentTestBase
     {
         var cut = await RenderLoadedAsync();
         cut.Find("[data-testid=exercise-3-edit]").Click();
-        var reps = cut.Find("[data-testid=exercise-3-set-1-reps]").GetAttribute("blazor:elementreference");
-        cut.Find("[data-testid=exercise-3-set-1-reps]").Input("");
+        var reps = Field(cut, "exercise-3-set-1-reps").GetAttribute("blazor:elementreference");
+        Field(cut, "exercise-3-set-1-reps").Input("");
 
         cut.Find("[data-testid=save-workout]").Click();
 
@@ -253,8 +305,8 @@ public class EditWorkoutPageTests : ComponentTestBase
 
         Assert.Multiple(() =>
         {
-            Assert.That(cut.FindAll("[data-testid=exercise-2-set-1-open]"), Has.Count.EqualTo(1));
-            Assert.That(cut.FindAll("[data-testid=exercise-2-set-2-open]"), Has.Count.EqualTo(1));
+            Assert.That(cut.FindAll("[data-testid=exercise-2-set-1-edit]"), Has.Count.EqualTo(1));
+            Assert.That(cut.FindAll("[data-testid=exercise-2-set-2-edit]"), Has.Count.EqualTo(1));
             Assert.That(cut.FindAll(".panel"), Is.Empty);
         });
     }
@@ -383,8 +435,8 @@ public class EditWorkoutPageTests : ComponentTestBase
     {
         var backs = 0;
         var cut = await RenderOpenedAsync(onBack: () => backs++);
-        cut.Find("[data-testid=exercise-3-set-1-reps]").Input("9");
-        cut.Find("[data-testid=exercise-3-set-1-weight]").Input("20");
+        Field(cut, "exercise-3-set-1-reps").Input("9");
+        Field(cut, "exercise-3-set-1-weight").Input("20");
 
         cut.Find("[data-testid=back]").Click();
 
@@ -421,6 +473,7 @@ public class EditWorkoutPageTests : ComponentTestBase
                 break;
             case "set removed":
                 cut.Find("[data-testid=exercise-3-set-2-remove]").Click();
+                cut.Find("[data-testid=confirm-dialog-confirm]").Click();
                 break;
             case "exercise added":
                 Add(cut, 132);
@@ -435,10 +488,10 @@ public class EditWorkoutPageTests : ComponentTestBase
                 Add(cut, 300);
                 break;
             case "value typed back":
-                cut.Find("[data-testid=exercise-3-set-1-reps]").Input("9");
-                cut.Find("[data-testid=exercise-3-set-1-weight]").Input("20");
-                cut.Find("[data-testid=exercise-3-set-1-reps]").Input("8");
-                cut.Find("[data-testid=exercise-3-set-1-weight]").Input("20");
+                Field(cut, "exercise-3-set-1-reps").Input("9");
+                Field(cut, "exercise-3-set-1-weight").Input("20");
+                Field(cut, "exercise-3-set-1-reps").Input("8");
+                Field(cut, "exercise-3-set-1-weight").Input("20");
                 break;
         }
 
@@ -484,8 +537,8 @@ public class EditWorkoutPageTests : ComponentTestBase
     {
         var backs = 0;
         var cut = await RenderOpenedAsync(onBack: () => backs++);
-        cut.Find("[data-testid=exercise-3-set-1-reps]").Input("9");
-        cut.Find("[data-testid=exercise-3-set-1-weight]").Input("20");
+        Field(cut, "exercise-3-set-1-reps").Input("9");
+        Field(cut, "exercise-3-set-1-weight").Input("20");
         cut.Find("[data-testid=back]").Click();
         var cancel = cut.Find("[data-testid=confirm-dialog-cancel]").GetAttribute("blazor:elementreference");
         cut.WaitForAssertion(() => Assert.That(((ElementReference)LastFocus().Arguments[0]!).Id, Is.EqualTo(cancel)));
@@ -508,8 +561,8 @@ public class EditWorkoutPageTests : ComponentTestBase
     {
         var backs = 0;
         var cut = await RenderOpenedAsync(onBack: () => backs++);
-        cut.Find("[data-testid=exercise-3-set-1-reps]").Input("9");
-        cut.Find("[data-testid=exercise-3-set-1-weight]").Input("20");
+        Field(cut, "exercise-3-set-1-reps").Input("9");
+        Field(cut, "exercise-3-set-1-weight").Input("20");
         cut.Find("[data-testid=back]").Click();
 
         cut.Find("[data-testid=confirm-dialog-confirm]").Click();
@@ -530,8 +583,8 @@ public class EditWorkoutPageTests : ComponentTestBase
         var cut = await RenderOpenedAsync(onBack: () => backs++);
         if (edited)
         {
-            cut.Find("[data-testid=exercise-3-set-1-reps]").Input("9");
-            cut.Find("[data-testid=exercise-3-set-1-weight]").Input("20");
+            Field(cut, "exercise-3-set-1-reps").Input("9");
+            Field(cut, "exercise-3-set-1-weight").Input("20");
         }
 
         cut.Find("[data-testid=save-workout]").Click();
@@ -552,8 +605,8 @@ public class EditWorkoutPageTests : ComponentTestBase
         var backs = 0;
         var cut = await RenderOpenedAsync(onBack: () => backs++);
         workouts.Save = () => Task.FromResult(new SaveResult(null, new WorkoutErrors([WorkoutError.SaveFailed], [])));
-        cut.Find("[data-testid=exercise-3-set-1-reps]").Input("9");
-        cut.Find("[data-testid=exercise-3-set-1-weight]").Input("20");
+        Field(cut, "exercise-3-set-1-reps").Input("9");
+        Field(cut, "exercise-3-set-1-weight").Input("20");
         cut.Find("[data-testid=save-workout]").Click();
 
         cut.Find("[data-testid=back]").Click();
@@ -618,8 +671,8 @@ public class EditWorkoutPageTests : ComponentTestBase
         var backs = 0;
         var deleted = 0;
         var cut = await RenderOpenedAsync(onBack: () => backs++, onDeleted: () => deleted++);
-        cut.Find("[data-testid=exercise-3-set-1-reps]").Input("9");
-        cut.Find("[data-testid=exercise-3-set-1-weight]").Input("20");
+        Field(cut, "exercise-3-set-1-reps").Input("9");
+        Field(cut, "exercise-3-set-1-weight").Input("20");
         cut.Find("[data-testid=delete-workout]").Click();
 
         if (androidBack)
@@ -680,8 +733,8 @@ public class EditWorkoutPageTests : ComponentTestBase
     {
         var deleted = 0;
         var cut = await RenderOpenedAsync(onDeleted: () => deleted++);
-        cut.Find("[data-testid=exercise-3-set-1-reps]").Input("9");
-        cut.Find("[data-testid=exercise-3-set-1-weight]").Input("20");
+        Field(cut, "exercise-3-set-1-reps").Input("9");
+        Field(cut, "exercise-3-set-1-weight").Input("20");
         cut.Find("[data-testid=delete-workout]").Click();
         var title = cut.Find("[data-testid=confirm-dialog] h2").TextContent;
 
@@ -704,8 +757,8 @@ public class EditWorkoutPageTests : ComponentTestBase
         var cut = await RenderOpenedAsync(onDeleted: () => deleted++);
         var delete = cut.Find("[data-testid=delete-workout]").GetAttribute("blazor:elementreference");
         workouts.Delete = () => Task.FromResult(WorkoutDelete.Failed);
-        cut.Find("[data-testid=exercise-3-set-1-reps]").Input("9");
-        cut.Find("[data-testid=exercise-3-set-1-weight]").Input("20");
+        Field(cut, "exercise-3-set-1-reps").Input("9");
+        Field(cut, "exercise-3-set-1-weight").Input("20");
         cut.Find("[data-testid=delete-workout]").Click();
 
         cut.Find("[data-testid=confirm-dialog-confirm]").Click();
@@ -729,8 +782,8 @@ public class EditWorkoutPageTests : ComponentTestBase
         var deleted = 0;
         var cut = await RenderOpenedAsync(onBack: () => backs++, onDeleted: () => deleted++);
         workouts.Delete = () => Task.FromResult(WorkoutDelete.Failed);
-        cut.Find("[data-testid=exercise-3-set-1-reps]").Input("9");
-        cut.Find("[data-testid=exercise-3-set-1-weight]").Input("20");
+        Field(cut, "exercise-3-set-1-reps").Input("9");
+        Field(cut, "exercise-3-set-1-weight").Input("20");
         cut.Find("[data-testid=delete-workout]").Click();
         cut.Find("[data-testid=confirm-dialog-confirm]").Click();
 
@@ -802,8 +855,8 @@ public class EditWorkoutPageTests : ComponentTestBase
             workouts.Delete = () => new TaskCompletionSource<WorkoutDelete>().Task;
         }
 
-        cut.Find("[data-testid=exercise-3-set-1-reps]").Input("9");
-        cut.Find("[data-testid=exercise-3-set-1-weight]").Input("20");
+        Field(cut, "exercise-3-set-1-reps").Input("9");
+        Field(cut, "exercise-3-set-1-weight").Input("20");
         cut.Find("[data-testid=delete-workout]").Click();
         cut.Find("[data-testid=confirm-dialog-confirm]").Click();
 
@@ -886,8 +939,8 @@ public class EditWorkoutPageTests : ComponentTestBase
     public async Task Delete_AfterADiscard_IsIgnored()
     {
         var cut = await RenderOpenedAsync();
-        cut.Find("[data-testid=exercise-3-set-1-reps]").Input("9");
-        cut.Find("[data-testid=exercise-3-set-1-weight]").Input("20");
+        Field(cut, "exercise-3-set-1-reps").Input("9");
+        Field(cut, "exercise-3-set-1-weight").Input("20");
         cut.Find("[data-testid=back]").Click();
         cut.Find("[data-testid=confirm-dialog-confirm]").Click();
 
@@ -929,8 +982,8 @@ public class EditWorkoutPageTests : ComponentTestBase
     {
         var deleted = 0;
         var cut = await RenderOpenedAsync(onDeleted: () => deleted++);
-        cut.Find("[data-testid=exercise-3-set-1-reps]").Input("9");
-        cut.Find("[data-testid=exercise-3-set-1-weight]").Input("20");
+        Field(cut, "exercise-3-set-1-reps").Input("9");
+        Field(cut, "exercise-3-set-1-weight").Input("20");
         cut.Find("[data-testid=back]").Click();
         cut.Find("[data-testid=delete-workout]").Click();
 
@@ -955,8 +1008,8 @@ public class EditWorkoutPageTests : ComponentTestBase
             workouts.Delete = () => new TaskCompletionSource<WorkoutDelete>().Task;
         }
 
-        cut.Find("[data-testid=exercise-3-set-1-reps]").Input("9");
-        cut.Find("[data-testid=exercise-3-set-1-weight]").Input("20");
+        Field(cut, "exercise-3-set-1-reps").Input("9");
+        Field(cut, "exercise-3-set-1-weight").Input("20");
         cut.Find("[data-testid=back]").Click();
         cut.Find("[data-testid=delete-workout]").Click();
         cut.FindAll("[data-testid=confirm-dialog-confirm]")[1].Click();
@@ -1020,10 +1073,10 @@ public class EditWorkoutPageTests : ComponentTestBase
     public async Task Save_Edited_SavesTheChanges()
     {
         var cut = await RenderOpenedAsync();
-        cut.Find("[data-testid=exercise-3-set-2-weight]").Input("65");
+        Field(cut, "exercise-3-set-2-weight").Input("65");
         cut.Find("[data-testid=exercise-3-add-set]").Click();
-        cut.Find("[data-testid=exercise-3-set-3-reps]").Input("5");
-        cut.Find("[data-testid=exercise-3-set-3-weight]").Input("20");
+        Field(cut, "exercise-3-set-3-reps").Input("5");
+        Field(cut, "exercise-3-set-3-weight").Input("20");
         Remove(cut, 2);
 
         cut.Find("[data-testid=save-workout]").Click();
@@ -1045,7 +1098,7 @@ public class EditWorkoutPageTests : ComponentTestBase
         var cut = await RenderLoadedAsync();
         Add(cut, 6);
         cut.WaitForElement("[data-testid=exercise-1-set-3-reps]").Input("5");
-        cut.Find("[data-testid=exercise-1-set-3-weight]").Input("20");
+        Field(cut, "exercise-1-set-3-weight").Input("20");
 
         cut.Find("[data-testid=save-workout]").Click();
 
@@ -1057,7 +1110,7 @@ public class EditWorkoutPageTests : ComponentTestBase
     {
         var saved = 0;
         var cut = await RenderOpenedAsync(onSaved: () => saved++);
-        cut.Find("[data-testid=exercise-3-set-1-reps]").Input("");
+        Field(cut, "exercise-3-set-1-reps").Input("");
 
         cut.Find("[data-testid=save-workout]").Click();
 
@@ -1185,10 +1238,12 @@ public class EditWorkoutPageTests : ComponentTestBase
         var cut = await RenderLoadedAsync();
 
         cut.Find("[data-testid=exercise-3-edit]").Click();
+        cut.Find("[data-testid=exercise-3-set-1-edit]").Click();
+        var first = cut.Find("[data-testid=exercise-3-set-1-last]").TextContent;
+        cut.Find("[data-testid=exercise-3-set-2-edit]").Click();
+        var second = cut.Find("[data-testid=exercise-3-set-2-last]").TextContent;
 
-        Assert.That(
-            new[] { "exercise-3-set-1-last", "exercise-3-set-2-last" }.Select(id => cut.Find($"[data-testid={id}]").TextContent),
-            Is.EqualTo(new[] { "Last time 55×8", "Last time —" }));
+        Assert.That(new[] { first, second }, Is.EqualTo(new[] { "Last time 55×8", "Last time —" }));
     }
 
     [Test]
@@ -1222,7 +1277,7 @@ public class EditWorkoutPageTests : ComponentTestBase
         var cut = await RenderLoadedAsync();
         cut.Find("[data-testid=exercise-3-edit]").Click();
 
-        cut.Find("[data-testid=exercise-3-set-1-reps]").Input("9");
+        Field(cut, "exercise-3-set-1-reps").Input("9");
 
         Assert.Multiple(() =>
         {
@@ -1410,7 +1465,7 @@ public class EditWorkoutPageTests : ComponentTestBase
     public async Task Save_ChangingAValueOnly_KeepsEveryNote()
     {
         var cut = await RenderOpenedAsync(saved: SavedWithNotes);
-        cut.Find("[data-testid=exercise-3-set-1-reps]").Input("9");
+        Field(cut, "exercise-3-set-1-reps").Input("9");
 
         cut.Find("[data-testid=save-workout]").Click();
 
@@ -1597,7 +1652,18 @@ public class EditWorkoutPageTests : ComponentTestBase
     }
 
     private static string? Value(IRenderedComponent<EditWorkoutPage> cut, string testId) =>
-        cut.Find($"[data-testid={testId}]").GetAttribute("value");
+        Field(cut, testId).GetAttribute("value");
+
+    private static AngleSharp.Dom.IElement Field(IRenderedComponent<EditWorkoutPage> cut, string testId)
+    {
+        var edit = cut.FindAll($"[data-testid={testId[..testId.LastIndexOf('-')]}-edit]");
+        if (edit.Count > 0)
+        {
+            edit[0].Click();
+        }
+
+        return cut.Find($"[data-testid={testId}]");
+    }
 
     /// <summary>Same type, exercise id and sets or entry; the records hold their sets in a list, which compares by reference.</summary>
     private static bool SameExercise(WorkoutExercise x, WorkoutExercise y) => (x, y) switch

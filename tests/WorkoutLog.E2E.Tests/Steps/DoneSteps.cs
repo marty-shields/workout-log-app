@@ -20,7 +20,7 @@ public sealed class DoneSteps(WebView web, WorkoutScreen workout)
     [When(@"^I tap the pencil on (.+)$")]
     public void WhenITapThePencil(string name) => workout.Edit(name);
 
-    [When(@"^I tap the trash on (.+)$")]
+    [When(@"^I tap the trash on (?!.* set \d+$)(.+)$")]
     public void WhenITapTheTrash(string name) => workout.AskRemove(name);
 
     [Then(@"^(.+) is shown as one line with its name, the pencil and the trash$")]

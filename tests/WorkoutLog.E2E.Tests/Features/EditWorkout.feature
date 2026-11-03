@@ -13,10 +13,12 @@ Feature: Edit a workout
     And Delete is shown
     And it holds exactly what was saved, newest first
 
-  Scenario: Every exercise starts as one line, and its carry sets are closed when opened
+  Scenario: Every exercise starts as one line, and its sets are closed when opened
     Then every exercise is shown as one line
     When I tap the pencil on Farmer's Walk
     Then every Farmer's Walk set is a summary
+    When I tap the pencil on Barbell Back Squat
+    Then every Barbell Back Squat set is a summary
 
   Scenario: Change a set and save
     When I enter "70" in Barbell Back Squat set 3 weight

@@ -546,13 +546,29 @@ public class WorkoutViewTests : ComponentTestBase
     }
 
     [Test]
-    public void ErrorFocus_SetRow_FocusesTheFirstSetWithErrors()
+    public void ErrorFocus_SetWithErrorsBehindACleanOpenSet_OpensItAndFocusesItsFirstField()
+    {
+        var curl = Curl();
+        curl.Entries[0].Errors["reps"] = "Enter reps";
+        curl.Entries.Add(new EntryState());
+
+        var cut = Context.Render<WorkoutView>(p => p
+            .Add(x => x.Mode, WorkoutMode.New)
+            .Add(x => x.StartedAt, Started)
+            .Add(x => x.Exercises, [curl])
+            .Add(x => x.ErrorFocus, new ErrorFocus()));
+
+        Context.JSInterop.VerifyFocusAsyncInvoke().Arguments[0].ShouldBeElementReferenceTo(cut.Find("[data-testid=exercise-1-set-1-reps]"));
+    }
+
+    [Test]
+    public void ErrorFocus_OpenSetWithErrors_FocusesItsFirstField()
     {
         var curl = Curl();
         curl.Entries.Add(new EntryState { Errors = { ["reps"] = "Enter reps" } });
-        curl.Entries.Add(new EntryState { Errors = { ["reps"] = "Enter reps" } });
 
         var cut = Context.Render<WorkoutView>(p => p
+            .Add(x => x.Mode, WorkoutMode.New)
             .Add(x => x.StartedAt, Started)
             .Add(x => x.Exercises, [curl])
             .Add(x => x.ErrorFocus, new ErrorFocus()));
@@ -576,10 +592,11 @@ public class WorkoutViewTests : ComponentTestBase
     }
 
     [Test]
-    public void ErrorFocus_ClosedCarrySet_FocusesItsSummaryAndLeavesItClosed()
+    public void ErrorFocus_CarrySetWithErrorsAmongClosedSets_OpensItAndFocusesItsFirstFieldAtFault()
     {
         var carry = Carry();
         carry.Entries.Add(new EntryState { Values = { ["distance"] = "40" } });
+        carry.Entries[0].Values["distance"] = "30";
         carry.Entries[1].Errors["weight"] = "Weight must be a number";
 
         var cut = Context.Render<WorkoutView>(p => p
@@ -590,8 +607,8 @@ public class WorkoutViewTests : ComponentTestBase
 
         Assert.Multiple(() =>
         {
-            Context.JSInterop.VerifyFocusAsyncInvoke().Arguments[0].ShouldBeElementReferenceTo(cut.Find("[data-testid=exercise-1-set-2-open]"));
-            Assert.That(cut.FindAll(".panel"), Is.Empty);
+            Context.JSInterop.VerifyFocusAsyncInvoke().Arguments[0].ShouldBeElementReferenceTo(cut.Find("[data-testid=exercise-1-set-2-weight]"));
+            Assert.That(cut.FindAll(".panel").Select(p => p.GetAttribute("data-testid")), Is.EqualTo(new[] { "exercise-1-set-2" }));
         });
     }
 

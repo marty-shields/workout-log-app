@@ -396,6 +396,156 @@ public class WorkoutEditorTests
     }
 
     [Test]
+    public void AskRemoveSet_OnlyAsks()
+    {
+        editor.Start([SampleData.Exercise(Catalog, Squat, ["8", "60"])], null);
+        var set = new SetRef(editor.Exercises[0], editor.Exercises[0].Entries[0]);
+
+        editor.AskRemoveSet(set);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(editor.RemovingSet, Is.SameAs(set));
+            Assert.That(editor.Exercises[0].Entries, Has.Count.EqualTo(1));
+            Assert.That(editor.Changed, Is.False);
+        });
+    }
+
+    [Test]
+    public void CancelRemoveSet_KeepsTheSet()
+    {
+        editor.Start([SampleData.Exercise(Catalog, Squat, ["8", "60"])], null);
+        editor.AskRemoveSet(new SetRef(editor.Exercises[0], editor.Exercises[0].Entries[0]));
+
+        editor.CancelRemoveSet();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(editor.RemovingSet, Is.Null);
+            Assert.That(editor.Exercises[0].Entries, Has.Count.EqualTo(1));
+            Assert.That(editor.Changed, Is.False);
+        });
+    }
+
+    [Test]
+    public void ConfirmRemoveSet_RemovesTheAskedSetAndIsAChange()
+    {
+        var squat = SampleData.Exercise(Catalog, Squat, ["8", "60"]);
+        var second = new EntryState();
+        squat.Entries.Add(second);
+        editor.Start([squat], null);
+        var set = new SetRef(squat, squat.Entries[0]);
+        editor.AskRemoveSet(set);
+
+        editor.ConfirmRemoveSet();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(editor.RemovingSet, Is.Null);
+            Assert.That(squat.Entries, Is.EqualTo(new[] { second }));
+            Assert.That(editor.Changed, Is.True);
+        });
+    }
+
+    [Test]
+    public void ConfirmRemoveSet_TheOnlySet_LeavesTheExerciseWithNoSets()
+    {
+        var squat = SampleData.Exercise(Catalog, Squat, ["8", "60"]);
+        editor.Start([squat], null);
+        editor.AskRemoveSet(new SetRef(squat, squat.Entries[0]));
+
+        editor.ConfirmRemoveSet();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(squat.Entries, Is.Empty);
+            Assert.That(editor.Exercises, Has.Count.EqualTo(1));
+            Assert.That(editor.Changed, Is.True);
+        });
+    }
+
+    [Test]
+    public void ConfirmRemoveSet_TheLastOfTwo_KeepsTheFirst()
+    {
+        var squat = SampleData.Exercise(Catalog, Squat, ["8", "60"]);
+        var first = squat.Entries[0];
+        squat.Entries.Add(new EntryState());
+        editor.Start([squat], null);
+        editor.AskRemoveSet(new SetRef(squat, squat.Entries[1]));
+
+        editor.ConfirmRemoveSet();
+
+        Assert.That(squat.Entries, Is.EqualTo(new[] { first }));
+    }
+
+    [Test]
+    public void ConfirmRemoveSet_ASetAlreadyRemoved_RemovesNothingAndClosesTheConfirm()
+    {
+        var squat = SampleData.Exercise(Catalog, Squat, ["8", "60"]);
+        var gone = squat.Entries[0];
+        squat.Entries.Add(new EntryState());
+        editor.Start([squat], null);
+        editor.AskRemoveSet(new SetRef(squat, gone));
+        squat.Entries.Remove(gone);
+
+        editor.ConfirmRemoveSet();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(editor.RemovingSet, Is.Null);
+            Assert.That(squat.Entries, Has.Count.EqualTo(1));
+        });
+    }
+
+    [Test]
+    public void ConfirmRemoveSet_NothingAsked_IsNotAChange()
+    {
+        editor.Start([SampleData.Exercise(Catalog, Squat, ["8", "60"])], null);
+
+        editor.ConfirmRemoveSet();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(editor.Exercises[0].Entries, Has.Count.EqualTo(1));
+            Assert.That(editor.Changed, Is.False);
+        });
+    }
+
+    [Test]
+    public void AskRemoveSet_AgainWhileAsking_ReplacesTheAskedSet()
+    {
+        var squat = SampleData.Exercise(Catalog, Squat, ["8", "60"]);
+        squat.Entries.Add(new EntryState());
+        editor.Start([squat], null);
+        editor.AskRemoveSet(new SetRef(squat, squat.Entries[0]));
+        var second = new SetRef(squat, squat.Entries[1]);
+
+        editor.AskRemoveSet(second);
+
+        Assert.That(editor.RemovingSet, Is.SameAs(second));
+    }
+
+    [Test]
+    public void SetRef_NumberIsItsPositionFromOne()
+    {
+        var squat = SampleData.Exercise(Catalog, Squat, ["8", "60"]);
+        squat.Entries.Add(new EntryState());
+
+        Assert.That(new SetRef(squat, squat.Entries[1]).Number, Is.EqualTo(2));
+    }
+
+    [Test]
+    public void Start_ClosesAnOpenSetDeleteConfirm()
+    {
+        editor.Start([SampleData.Exercise(Catalog, Squat, ["8", "60"])], null);
+        editor.AskRemoveSet(new SetRef(editor.Exercises[0], editor.Exercises[0].Entries[0]));
+
+        editor.Start([], null);
+
+        Assert.That(editor.RemovingSet, Is.Null);
+    }
+
+    [Test]
     public void Start_ClosesAnOpenDeleteConfirm()
     {
         editor.Start([SampleData.Exercise(Catalog, Squat, ["8", "60"])], null);

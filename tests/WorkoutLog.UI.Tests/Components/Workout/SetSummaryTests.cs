@@ -27,20 +27,6 @@ public class SetSummaryTests : ComponentTestBase
     }
 
     [Test]
-    public async Task Focus_FocusesTheSummaryLine()
-    {
-        var cut = Context.Render<SetSummary>(p => p
-            .Add(x => x.Number, 1)
-            .Add(x => x.Fields, Carry)
-            .Add(x => x.Entry, Entry())
-            .Add(x => x.TestId, "set-1"));
-
-        await cut.InvokeAsync(() => cut.Instance.FocusAsync().AsTask());
-
-        Context.JSInterop.VerifyFocusAsyncInvoke().Arguments[0].ShouldBeElementReferenceTo(cut.Find("[data-testid=set-1-open]"));
-    }
-
-    [Test]
     public void FilledSet_ShowsValuesWithUnitsAndDuration()
     {
         var cut = Context.Render<SetSummary>(p => p
@@ -81,33 +67,6 @@ public class SetSummaryTests : ComponentTestBase
     }
 
     [Test]
-    public void Errors_OutlineTheSummary()
-    {
-        var entry = Entry(("weight", "32"));
-        entry.Errors["distance"] = "Enter distance";
-
-        var cut = Context.Render<SetSummary>(p => p
-            .Add(x => x.Number, 1)
-            .Add(x => x.Fields, Carry)
-            .Add(x => x.Entry, entry)
-            .Add(x => x.TestId, "set"));
-
-        Assert.That(cut.Find("[data-testid=set-open]").ClassList, Does.Contain("invalid"));
-    }
-
-    [Test]
-    public void NoErrors_LeaveTheSummaryUnmarked()
-    {
-        var cut = Context.Render<SetSummary>(p => p
-            .Add(x => x.Number, 1)
-            .Add(x => x.Fields, Carry)
-            .Add(x => x.Entry, Entry(("distance", "40")))
-            .Add(x => x.TestId, "set"));
-
-        Assert.That(cut.Find("[data-testid=set-open]").ClassList, Does.Not.Contain("invalid"));
-    }
-
-    [Test]
     public void EmptyFields_AreLeftOut()
     {
         var cut = Context.Render<SetSummary>(p => p
@@ -142,48 +101,57 @@ public class SetSummaryTests : ComponentTestBase
     }
 
     [Test]
-    public void Errors_ShowUnderSummaryInFieldOrder()
+    public void Errors_AreNotShown()
     {
-        var entry = new EntryState { Errors = { ["duration"] = "Duration error", ["distance"] = "Enter distance" } };
+        var entry = Entry(("weight", "32"));
+        entry.Errors["distance"] = "Enter distance";
+
         var cut = Context.Render<SetSummary>(p => p
             .Add(x => x.Number, 1)
             .Add(x => x.Fields, Carry)
             .Add(x => x.Entry, entry)
             .Add(x => x.TestId, "set-1"));
 
-        var lines = cut.FindAll("[data-testid=set-1-error] .error").Select(e => e.TextContent);
-
-        Assert.That(lines, Is.EqualTo(new[] { "Enter distance", "Duration error" }));
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.FindAll("[data-testid=set-1-error]"), Is.Empty);
+            Assert.That(cut.Find(".line").ClassList, Does.Not.Contain("invalid"));
+        });
     }
 
     [Test]
-    public void Button_ReadsAsSetNumberAndValues()
+    public void Heading_ReadsAsJustTheNumberAndValues()
     {
         var cut = Context.Render<SetSummary>(p => p
             .Add(x => x.Number, 2)
             .Add(x => x.Fields, Carry)
-            .Add(x => x.Entry, Entry(("distance", "40")))
-            .Add(x => x.TestId, "set-2"));
+            .Add(x => x.Entry, Entry(("distance", "40"))));
 
-        Assert.That(TestText.Normalise(cut.Find("[data-testid=set-2-open]").TextContent), Is.EqualTo("Set 2 40m"));
+        Assert.That(TestText.Normalise(cut.Find(".heading").TextContent), Is.EqualTo("2 40m"));
     }
 
     [Test]
-    public void Line_EndsInASmallMutedChevron()
+    public void Buttons_ArePencilAndTrashNamedForTheExerciseAndSet()
     {
         var cut = Context.Render<SetSummary>(p => p
             .Add(x => x.Number, 2)
+            .Add(x => x.ExerciseName, "Squat")
             .Add(x => x.Fields, Carry)
-            .Add(x => x.Entry, Entry(("distance", "40")))
+            .Add(x => x.Entry, new EntryState())
             .Add(x => x.TestId, "set-2"));
 
-        var chevron = cut.FindComponent<Icon>().Instance;
+        var icons = cut.FindComponents<Icon>().Select(i => i.Instance.Name);
 
-        Assert.That((chevron.Name, chevron.Tone, chevron.Size), Is.EqualTo((IconName.Chevron, IconTone.Muted, IconSize.Small)));
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.Find("[data-testid=set-2-edit]").GetAttribute("aria-label"), Is.EqualTo("Edit Squat set 2"));
+            Assert.That(cut.Find("[data-testid=set-2-remove]").GetAttribute("aria-label"), Is.EqualTo("Delete Squat set 2"));
+            Assert.That(icons, Is.EqualTo(new[] { IconName.Edit, IconName.Delete }));
+        });
     }
 
     [Test]
-    public void Tap_RaisesOnOpen()
+    public void Pencil_RaisesOnOpen()
     {
         var opened = false;
         var cut = Context.Render<SetSummary>(p => p
@@ -193,9 +161,25 @@ public class SetSummaryTests : ComponentTestBase
             .Add(x => x.OnOpen, () => opened = true)
             .Add(x => x.TestId, "set-1"));
 
-        cut.Find("[data-testid=set-1-open]").Click();
+        cut.Find("[data-testid=set-1-edit]").Click();
 
         Assert.That(opened, Is.True);
+    }
+
+    [Test]
+    public void Trash_RaisesOnRemove()
+    {
+        var removed = false;
+        var cut = Context.Render<SetSummary>(p => p
+            .Add(x => x.Number, 1)
+            .Add(x => x.Fields, Carry)
+            .Add(x => x.Entry, new EntryState())
+            .Add(x => x.OnRemove, () => removed = true)
+            .Add(x => x.TestId, "set-1"));
+
+        cut.Find("[data-testid=set-1-remove]").Click();
+
+        Assert.That(removed, Is.True);
     }
 
     [Test]
@@ -211,8 +195,7 @@ public class SetSummaryTests : ComponentTestBase
         Assert.Multiple(() =>
         {
             Assert.That(cut.Find("[data-testid=set-1-record]").TextContent.Trim(), Is.EqualTo("Record"));
-            Assert.That(cut.Find("[data-testid=set-1-record]").ParentElement!.ClassList, Does.Contain("indent"));
-            Assert.That(cut.Find("[data-testid=set-1-open]").QuerySelector("[data-testid=set-1-record]"), Is.Null);
+            Assert.That(cut.Find(".line").QuerySelector("[data-testid=set-1-record]"), Is.Null);
         });
     }
 
@@ -226,35 +209,5 @@ public class SetSummaryTests : ComponentTestBase
             .Add(x => x.TestId, "set-1"));
 
         Assert.That(cut.FindAll("[data-testid=set-1-record]"), Is.Empty);
-    }
-
-    [Test]
-    public void Last_Unset_ShowsNoLastTimeLine()
-    {
-        var cut = Context.Render<SetSummary>(p => p
-            .Add(x => x.Number, 1)
-            .Add(x => x.Fields, Carry)
-            .Add(x => x.Entry, Entry(("distance", "40"))));
-
-        Assert.That(cut.FindAll(".last"), Is.Empty);
-    }
-
-    [Test]
-    public void Last_ShowsALastTimeLineUnderTheSummary()
-    {
-        const string last = "32kg · 40m · 0:45";
-        var cut = Context.Render<SetSummary>(p => p
-            .Add(x => x.Number, 1)
-            .Add(x => x.Fields, Carry)
-            .Add(x => x.Entry, Entry(("distance", "40"), ("weight", "32"), ("duration", "0:00:45")))
-            .Add(x => x.Last, last)
-            .Add(x => x.TestId, "set-1"));
-
-        Assert.Multiple(() =>
-        {
-            Assert.That(cut.Find("[data-testid=set-1-last]").TextContent, Is.EqualTo($"Last time {last}"));
-            Assert.That(cut.FindAll(".open .content > .text + .last"), Has.Count.EqualTo(1));
-            Assert.That(cut.Find(".text").TextContent, Is.EqualTo("40m · 32kg · 0:00:45"));
-        });
     }
 }

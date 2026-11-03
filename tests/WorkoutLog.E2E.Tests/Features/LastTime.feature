@@ -18,10 +18,10 @@ Feature: Last time's values
     And I have added "Barbell Back Squat"
     And I have logged Barbell Back Squat set 1: 8 reps, 60 kg
     And I have tapped Add set on Barbell Back Squat
-    And I have logged Barbell Back Squat set 2: 8 reps, 60 kg
-    And I have tapped Add set on Barbell Back Squat
     Then Barbell Back Squat set 2 last time is "62.5×6"
-    And Barbell Back Squat set 3 last time is "—"
+    When I log Barbell Back Squat set 2: 8 reps, 60 kg
+    And I tap Add set on Barbell Back Squat
+    Then Barbell Back Squat set 3 last time is "—"
 
   Scenario: Last time is never copied into a field
     Given these saved workouts:
@@ -66,4 +66,5 @@ Feature: Last time's values
     And I have opened workout 2 from Workouts
     Then Barbell Back Squat has no last time
     When I tap the pencil on Barbell Back Squat
+    And I tap the summary of Barbell Back Squat set 1
     Then Barbell Back Squat set 1 last time is "50×5"

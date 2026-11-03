@@ -47,11 +47,11 @@ public sealed partial class WorkoutScreen(WebView web, Native native)
     public bool IsSummary(string name, int set)
     {
         Open(name);
-        return web.Exists($"{Card(name)}-set-{set}-open");
+        return web.Exists($"{Card(name)}-set-{set}-edit");
     }
 
     public string SummaryText(string name, int set) =>
-        web.Find($"{Card(name)}-set-{set}-open").FindElement(OpenQA.Selenium.By.CssSelector(".text")).Text.Trim();
+        web.Find($"{Card(name)}-set-{set}").FindElement(OpenQA.Selenium.By.CssSelector(".text")).Text.Trim();
 
     /// <summary>Whether the card is the one-line done row: it has the pencil and no tick.</summary>
     public bool IsDone(string name) => web.Exists($"{Card(name)}-edit");
@@ -166,6 +166,7 @@ public sealed partial class WorkoutScreen(WebView web, Native native)
     public IReadOnlyList<string> Labels(string name, int? set)
     {
         Open(name);
+        OpenSet(name, set);
         var root = set is { } number ? $"{Card(name)}-set-{number}" : Card(name);
         var script = $$"""
             const root = document.querySelector('[data-testid="{{root}}"]');
@@ -179,6 +180,7 @@ public sealed partial class WorkoutScreen(WebView web, Native native)
     public string Read(string name, int? set, string key)
     {
         Open(name);
+        OpenSet(name, set);
         var field = Field(name, set, key);
         if (key == "duration")
         {
@@ -199,6 +201,7 @@ public sealed partial class WorkoutScreen(WebView web, Native native)
     public void Enter(string name, int? set, string key, string text)
     {
         Open(name);
+        OpenSet(name, set);
         var field = Field(name, set, key);
         if (key == "duration")
         {
@@ -247,16 +250,36 @@ public sealed partial class WorkoutScreen(WebView web, Native native)
 
     public bool HasAddSet(string name) => web.Exists($"{Card(name)}-add-set");
 
-    public void RemoveSet(string name, int set)
+    public void AskRemoveSet(string name, int set)
     {
         Open(name);
         TapButton($"{Card(name)}-set-{set}-remove");
     }
 
+    public void RemoveSet(string name, int set)
+    {
+        Open(name);
+        var closed = IsSummary(name, set);
+        TapButton($"{Card(name)}-set-{set}-remove");
+        if (closed)
+        {
+            web.WaitUntil(() => web.Exists("confirm-dialog-confirm"), $"The delete prompt for {name} set {set} didn't show");
+            web.Tap("confirm-dialog-confirm");
+        }
+    }
+
     public void OpenSummary(string name, int set)
     {
         Open(name);
-        TapButton($"{Card(name)}-set-{set}-open");
+        TapButton($"{Card(name)}-set-{set}-edit");
+    }
+
+    private void OpenSet(string name, int? set)
+    {
+        if (set is { } number && web.Exists($"{Card(name)}-set-{number}-edit"))
+        {
+            TapButton($"{Card(name)}-set-{number}-edit");
+        }
     }
 
     /// <summary>Taps the trash, open or done; the "Delete {name}?" prompt opens.</summary>
