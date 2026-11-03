@@ -7,9 +7,8 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <IsPackable>false</IsPackable>
-    <!-- Code style (.editorconfig) and the latest recommended analyzer rules run in the build. -->
     <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
-    <AnalysisLevel>latest-recommended</AnalysisLevel>
+    <AnalysisLevel>10.0-recommended</AnalysisLevel>
     <!-- IDE0005 (unused usings) only runs in the build when XML documentation is generated. -->
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <!-- A public member needs no XML comment (CS1591), nor a param tag for each parameter (CS1573); a comment is written only where it says more than the name. -->

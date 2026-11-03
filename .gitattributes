@@ -1,0 +1,3 @@
+* text=auto eol=lf
+# A real "dotnet test --list-tests" listing from Windows; e2e-shard-plan.sh strips its CR, and the test needs it kept.
+.github/scripts/tests/fixtures/list-tests.txt -text

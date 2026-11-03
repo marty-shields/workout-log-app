@@ -14,7 +14,7 @@ runs:
 
     - name: Check the workload set matches the SDK's feature band
       shell: bash
-      run: "$GITHUB_ACTION_PATH/../../scripts/check-maui-pin.sh"
+      run: '"$GITHUB_ACTION_PATH"/../../scripts/check-maui-pin.sh'
 
     - name: Install the MAUI Android workload
       shell: bash
