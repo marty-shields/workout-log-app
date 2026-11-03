@@ -1,6 +1,5 @@
-# Builds the solution and runs the UI and Core tests with coverage, tests the CI scripts, checks the E2E step bindings, the docs and the backup rules in the Debug and
-# Release APKs, and keeps the Debug APK and E2E tests for the QA pipeline, for the PR build (pr-build.yml) and the release
-# workflow.
+# Builds the solution, runs the checks and the Core and UI tests with coverage, and keeps the Debug APK and E2E tests for the QA
+# pipeline, for the PR build (pr-build.yml) and the release workflow. Each step is named for what it checks.
 name: Dev pipeline
 
 on:
@@ -22,11 +21,11 @@ jobs:
         with:
           persist-credentials: false
 
-      # next-version.sh, e2e-shard-plan.sh, e2e-trx.sh, upgrade-seed-ref.sh, check-filler-comments.py, check-docs.py and coverage-summary.py against stubs, sample files and throwaway repos.
+      # Every *-test.sh in .github/scripts/tests.
       - name: Test the CI scripts
         run: .github/scripts/tests/run.sh
 
-      # shellcheck over .github/scripts and the pinned, SHA-256-checked actionlint over the workflows (and their run steps).
+      # shellcheck over the scripts and the composite actions' run steps, and the pinned, SHA-256-checked actionlint over the workflows.
       - name: Lint the CI scripts and workflows
         run: .github/scripts/lint-ci.sh
 

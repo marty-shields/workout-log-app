@@ -54,6 +54,15 @@ check "an assembly missing from the baseline fails" '| Assembly | Lines | Branch
 **WorkoutLog.Core has no row in the coverage baseline.**
 exit=1' "$(python3 -I "$script" --baseline "$work/baseline.tsv" WorkoutLog.Core="$work/core.xml" 2>/dev/null; echo "exit=$?")"
 
+for bad in NaN "" abc; do
+  report core.xml "$bad"
+  baseline 90.0
+  check "a line-rate of '$bad' fails" "exit=1" "$(python3 -I "$script" --baseline "$work/baseline.tsv" WorkoutLog.Core="$work/core.xml" 2>/dev/null; echo "exit=$?")"
+done
+report core.xml NaN
+check "a NaN line-rate says why" "WorkoutLog.Core has a line-rate of NaN in $work/core.xml, not a number" "$(python3 -I "$script" --baseline "$work/baseline.tsv" WorkoutLog.Core="$work/core.xml" 2>&1)"
+report core.xml 0.9
+
 check "no option prints the table without a gate" '| Assembly | Lines | Branches |
 | --- | ---: | ---: |
 | WorkoutLog.Core | 90.0% | 50.0% |

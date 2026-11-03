@@ -7,9 +7,14 @@ here="$(cd "$(dirname "$0")" && pwd)"
 global="${1:-$here/../../global.json}"
 action="${2:-$here/../actions/setup-maui/action.yml}"
 
-pin=$(sed -n 's/.*maui-android --version \([0-9][0-9.]*\).*/\1/p' "$action")
+pins=$(sed -n 's/.*workload install maui-android --version \([^ ]*\).*/\1/p' "$action")
 sdk=$(jq -r '.sdk.version' "$global")
-[[ -n "$pin" ]] || { echo "::error::No 'maui-android --version' pin found in $action."; exit 1; }
+shape='^[0-9]+\.[0-9]+\.[0-9]{3}'
+[[ -n "$pins" ]] || { echo "::error::No 'workload install maui-android --version' line found in $action."; exit 1; }
+(( $(wc -l <<<"$pins") == 1 )) || { echo "::error::$action has more than one 'workload install maui-android --version' line, so the pin is ambiguous."; exit 1; }
+pin=$pins
+[[ "$pin" =~ $shape ]] || { echo "::error::The maui-android pin '$pin' in $action is not a version like 10.0.402.1."; exit 1; }
+[[ "$sdk" =~ $shape ]] || { echo "::error::The SDK version '$sdk' in $global is not a version like 10.0.403."; exit 1; }
 
 band() {
   local major minor patch

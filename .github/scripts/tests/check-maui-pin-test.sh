@@ -23,4 +23,16 @@ run "a new feature band fails" 10.0.500 "$install 10.0.402.1" exit=1
 run "a new major fails" 11.0.403 "$install 10.0.402.1" exit=1
 run "a preview SDK is read by its band" 10.0.100-rc.2.25502.107 "$install 10.0.100-rc.2.25502.107" exit=0
 run "a missing pin fails" 10.0.403 "run: dotnet workload install maui-android" exit=1
+run "a malformed pin fails" 10.0.403 "$install 10.0.08" exit=1
+run "a pin of one number fails" 10.0.403 "$install 10" exit=1
+run "a malformed SDK fails" 10.0.08 "$install 10.0.08" exit=1
+run "an SDK of one number fails" 10 "$install 10" exit=1
+run "a null SDK fails" null "$install 10.0.402.1" exit=1
+run "an empty SDK fails" "" "$install 10.0.402.1" exit=1
+
+printf '# dotnet workload install maui-android --version 10.0.402.1\n%s 10.0.402.1\n' "$install" > "$work/action.yml"
+echo '{"sdk": {"version": "10.0.403"}}' > "$work/global.json"
+bash "$script" "$work/global.json" "$work/action.yml" > /dev/null 2>&1
+check "two matching lines fail" exit=1 "exit=$?"
+
 finish
