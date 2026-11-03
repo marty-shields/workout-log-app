@@ -35,9 +35,11 @@ for try in $(seq "$tries"); do
     --logger "trx;LogFileName=e2e-$try.trx" --results-directory "$RESULTS/trx" \
     -- "${parameters[@]}" RunConfiguration.CollectSourceInformation=true && passed=true
   # Failed scenarios become annotations and each try writes a results table to the job summary, when there is one.
-  python3 -I "$(dirname "$0")/trx-summary.py" --annotations "Try $try=$RESULTS/trx/e2e-$try.trx" || true
+  label="E2E"
+  (( try > 1 )) && label="E2E retry $((try - 1))"
+  python3 -I "$(dirname "$0")/trx-summary.py" --annotations "$label=$RESULTS/trx/e2e-$try.trx" || true
   if [[ -n "${GITHUB_STEP_SUMMARY:-}" ]]; then
-    python3 -I "$(dirname "$0")/trx-summary.py" "Try $try=$RESULTS/trx/e2e-$try.trx" >> "$GITHUB_STEP_SUMMARY" || true
+    python3 -I "$(dirname "$0")/trx-summary.py" "$label=$RESULTS/trx/e2e-$try.trx" >> "$GITHUB_STEP_SUMMARY" || true
   fi
   if $passed; then
     while IFS= read -r name; do

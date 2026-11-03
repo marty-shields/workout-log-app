@@ -98,8 +98,8 @@ reset device
 out=$(retry); status=$?
 check "e2e-run: a retry on a healthy device passes, and the server is reset before it only" "0 2 2" \
   "$status $(wc -l < "$work/dotnet.log") $(grep -c 'adb uninstall' "$work/adb.log")"
-check "e2e-run: try 1's failed scenarios are annotated and tabled in the job summary" "yes yes" \
-  "$(grep -q '^::error title=Try 1%3A Plain::' <<<"$out" && echo yes) $(grep -q '^| Try 1 | 2 | 4 | 0 |$' "$work/summary.md" && echo yes)"
+check "e2e-run: the first run's failed scenarios are annotated and tabled in the job summary" "yes yes" \
+  "$(grep -q '^::error title=E2E%3A Plain::' <<<"$out" && echo yes) $(grep -q '^| E2E | 2 | 4 | 0 |$' "$work/summary.md" && echo yes)"
 
 reset device
 # Kills the device between the tries by wrapping the first dotnet run.
