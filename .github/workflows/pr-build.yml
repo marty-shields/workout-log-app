@@ -1,12 +1,9 @@
-# Runs on every PR to main: the dev pipeline, then the QA pipeline once the build and its tests pass. In the merge queue (merge_group) it runs the dev
-# pipeline only, on the PR merged with main and the PRs ahead of it; the QA shards (about an hour) stay on the PR.
+# Runs on every PR to main: the dev pipeline, then the QA pipeline once the build and its tests pass.
 name: PR build
 
 on:
   pull_request:
     branches: [main]
-  merge_group:
-    types: [checks_requested]
 
 permissions:
   contents: read
@@ -21,7 +18,6 @@ jobs:
 
   # Fails when a story clips, overflows or wraps at the narrowest card.
   story-layout:
-    if: ${{ github.event_name == 'pull_request' }}
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -53,17 +49,5 @@ jobs:
           node .github/scripts/check-story-layout.mjs http://localhost:5056 "$(command -v google-chrome)" || { cat "$RUNNER_TEMP/stories.log"; exit 1; }
 
   qa:
-    if: ${{ github.event_name == 'pull_request' }}
     needs: dev
     uses: ./.github/workflows/qa-pipeline.yml
-
-  # The ruleset requires "qa / emulator-e2e-tests", which the skipped qa job above does not report in the merge queue. This reports it there.
-  qa-in-queue:
-    name: qa / emulator-e2e-tests
-    if: ${{ github.event_name == 'merge_group' }}
-    needs: dev
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-    steps:
-      - run: echo "The QA shards ran on the PR; the merge queue runs the dev pipeline only."
-
