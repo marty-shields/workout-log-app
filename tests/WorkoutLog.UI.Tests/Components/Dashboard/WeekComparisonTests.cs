@@ -18,7 +18,7 @@ public class WeekComparisonTests : ComponentTestBase
         {
             Assert.That(cut.Find("caption").TextContent, Is.EqualTo("This week vs last week"));
             Assert.That(cut.FindAll("thead th").Select(th => th.TextContent), Is.EqualTo(new[] { "This week", "Last week", "Change" }));
-            Assert.That(cut.Find(".note").TextContent, Is.EqualTo("Last week up to the same day and time"));
+            Assert.That(cut.Find(".note").TextContent, Is.EqualTo("This week so far against the whole of last week."));
         });
     }
 

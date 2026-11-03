@@ -14,15 +14,7 @@ internal static class LocalWeek
         Monday(DateOnly.FromDateTime(TimeZoneInfo.ConvertTime(instant, zone).DateTime));
 
     /// <summary>The first instant <paramref name="local"/> reads in <paramref name="zone"/>; the end of the gap if it is skipped.</summary>
-    public static DateTimeOffset First(DateTime local, TimeZoneInfo zone) => Instant(local, zone, offsets => offsets.Max());
-
-    /// <summary>The last instant <paramref name="local"/> reads in <paramref name="zone"/>; the end of the gap if it is skipped.</summary>
-    public static DateTimeOffset Last(DateTime local, TimeZoneInfo zone) => Instant(local, zone, offsets => offsets.Min());
-
-    /// <summary>The first instant of <paramref name="day"/> in <paramref name="zone"/>.</summary>
-    public static DateTimeOffset Start(DateOnly day, TimeZoneInfo zone) => First(day.ToDateTime(TimeOnly.MinValue), zone);
-
-    private static DateTimeOffset Instant(DateTime local, TimeZoneInfo zone, Func<TimeSpan[], TimeSpan> pickOffset)
+    public static DateTimeOffset First(DateTime local, TimeZoneInfo zone)
     {
         if (zone.IsInvalidTime(local))
         {
@@ -33,7 +25,10 @@ internal static class LocalWeek
             }
         }
 
-        var offset = zone.IsAmbiguousTime(local) ? pickOffset(zone.GetAmbiguousTimeOffsets(local)) : zone.GetUtcOffset(local);
+        var offset = zone.IsAmbiguousTime(local) ? zone.GetAmbiguousTimeOffsets(local).Max() : zone.GetUtcOffset(local);
         return new DateTimeOffset(local, offset);
     }
+
+    /// <summary>The first instant of <paramref name="day"/> in <paramref name="zone"/>.</summary>
+    public static DateTimeOffset Start(DateOnly day, TimeZoneInfo zone) => First(day.ToDateTime(TimeOnly.MinValue), zone);
 }

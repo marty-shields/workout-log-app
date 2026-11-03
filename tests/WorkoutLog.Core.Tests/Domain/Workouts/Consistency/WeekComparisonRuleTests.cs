@@ -21,23 +21,52 @@ public class WeekComparisonRuleTests
     }
 
     [Test]
-    public void Compare_LastWeekIsLastMondayToTheSameDayAndTime()
+    public void Compare_LastWeekIsTheWholeOfLastMondayToSunday()
     {
         var lastMonday = new DateTimeOffset(2026, 10, 19, 0, 0, 0, TimeSpan.Zero);
-        var sameTime = new DateTimeOffset(2026, 10, 21, 18, 0, 0, TimeSpan.Zero);
+        var thisMonday = lastMonday.AddDays(7);
 
         var comparison = rule.Compare(
-            [
-                Workout(lastMonday.AddTicks(-1)), Workout(lastMonday), Workout(sameTime), Workout(sameTime.AddTicks(1)),
-                Workout(new DateTimeOffset(2026, 10, 25, 9, 0, 0, TimeSpan.Zero)),
-            ],
+            [Workout(lastMonday.AddTicks(-1)), Workout(lastMonday), Workout(Now.AddDays(-7).AddHours(1)), Workout(thisMonday.AddTicks(-1)), Workout(thisMonday)],
             Now, TimeZoneInfo.Utc);
 
-        Assert.That(comparison.LastWeek.Workouts, Is.EqualTo(2));
+        Assert.That(comparison.LastWeek.Workouts, Is.EqualTo(3));
     }
 
     [Test]
-    public void Compare_AtMonday0000_EachWeekIsItsFirstInstant()
+    public void Compare_SaturdayWorkoutOnTuesdayMorning_IsInLastWeekAndOnTheBars()
+    {
+        var london = TimeZoneInfo.FindSystemTimeZoneById("Europe/London");
+        var now = new DateTimeOffset(2026, 11, 3, 5, 12, 0, TimeSpan.Zero);
+        var saturday = new DateTimeOffset(2026, 10, 31, 10, 0, 0, TimeSpan.Zero);
+
+        var comparison = rule.Compare([Workout(saturday)], now, london);
+        var bars = new WeekBarsRule().Count([Workout(saturday)], now, london);
+
+        Assert.That((comparison.LastWeek.Workouts, bars[^2]), Is.EqualTo((1, 1)));
+    }
+
+    [Test]
+    public void Compare_LastWeekAlwaysEqualsTheSecondLastBar()
+    {
+        var zones = new[] { TimeZoneInfo.Utc, ConsistencyZones.Plus10, ConsistencyZones.ForwardOn25Oct, ConsistencyZones.BackOn25Oct, ConsistencyZones.MidnightSkippedOn5Oct, ConsistencyZones.MidnightTwiceOn26Oct };
+        var bars = new WeekBarsRule();
+        var start = new DateTimeOffset(2026, 9, 28, 0, 0, 0, TimeSpan.Zero);
+        var workouts = Enumerable.Range(0, 24 * 40).Select(hours => Workout(start.AddHours(hours * 1.7))).ToList();
+
+        foreach (var zone in zones)
+        {
+            for (var step = 0; step < 24 * 21; step++)
+            {
+                var now = start.AddDays(14).AddMinutes(step * 53);
+
+                Assert.That(rule.Compare(workouts, now, zone).LastWeek.Workouts, Is.EqualTo(bars.Count(workouts, now, zone)[^2]), $"{zone.Id} at {now:u}");
+            }
+        }
+    }
+
+    [Test]
+    public void Compare_AtMonday0000_ThisWeekIsJustThatInstantAndLastWeekIsAllOfLastWeek()
     {
         var now = new DateTimeOffset(2026, 10, 26, 0, 0, 0, TimeSpan.Zero);
         var lastMonday = now.AddDays(-7);
@@ -46,7 +75,7 @@ public class WeekComparisonRuleTests
             [Workout(lastMonday.AddTicks(-1)), Workout(lastMonday), Workout(lastMonday.AddTicks(1)), Workout(now.AddTicks(-1)), Workout(now)],
             now, TimeZoneInfo.Utc);
 
-        Assert.That((comparison.ThisWeek.Workouts, comparison.LastWeek.Workouts), Is.EqualTo((1, 1)));
+        Assert.That((comparison.ThisWeek.Workouts, comparison.LastWeek.Workouts), Is.EqualTo((1, 3)));
     }
 
     [Test]
@@ -56,61 +85,7 @@ public class WeekComparisonRuleTests
 
         var comparison = rule.Compare([Workout(now.AddTicks(-1)), Workout(now)], now, ConsistencyZones.Plus10);
 
-        Assert.That((comparison.ThisWeek.Workouts, comparison.LastWeek.Workouts), Is.EqualTo((1, 0)));
-    }
-
-    [Test]
-    public void Compare_ClocksChangedSinceLastWeek_LastWeekEndsAtTheSameLocalTime()
-    {
-        var now = new DateTimeOffset(2026, 10, 28, 12, 0, 0, TimeSpan.FromHours(2));
-        var sameTime = new DateTimeOffset(2026, 10, 21, 12, 0, 0, TimeSpan.FromHours(1));
-        var thisMonday = new DateTimeOffset(2026, 10, 26, 0, 0, 0, TimeSpan.FromHours(2));
-        var lastMonday = new DateTimeOffset(2026, 10, 19, 0, 0, 0, TimeSpan.FromHours(1));
-
-        var comparison = rule.Compare(
-            [
-                Workout(lastMonday.AddTicks(-1)), Workout(lastMonday), Workout(sameTime.AddMinutes(-30)), Workout(sameTime), Workout(sameTime.AddTicks(1)),
-                Workout(thisMonday.AddTicks(-1)), Workout(thisMonday),
-            ],
-            now, ConsistencyZones.ForwardOn25Oct);
-
-        Assert.That((comparison.ThisWeek.Workouts, comparison.LastWeek.Workouts), Is.EqualTo((1, 3)));
-    }
-
-    [Test]
-    public void Compare_SameTimeLastWeekWasSkipped_LastWeekEndsWhenTheClocksWentForward()
-    {
-        var now = new DateTimeOffset(2026, 11, 1, 2, 30, 0, TimeSpan.FromHours(2));
-        var forward = new DateTimeOffset(2026, 10, 25, 3, 0, 0, TimeSpan.FromHours(2));
-
-        var comparison = rule.Compare([Workout(forward), Workout(forward.AddTicks(1))], now, ConsistencyZones.ForwardOn25Oct);
-
-        Assert.That(comparison.LastWeek.Workouts, Is.EqualTo(1));
-    }
-
-    [Test]
-    public void Compare_SameTimeLastWeekWasSkippedWithSeconds_LastWeekEndsWhenTheClocksWentForward()
-    {
-        var now = new DateTimeOffset(2026, 11, 1, 2, 30, 30, TimeSpan.FromHours(2));
-        var forward = new DateTimeOffset(2026, 10, 25, 3, 0, 0, TimeSpan.FromHours(2));
-
-        var comparison = rule.Compare([Workout(forward), Workout(forward.AddSeconds(10))], now, ConsistencyZones.ForwardOn25Oct);
-
-        Assert.That(comparison.LastWeek.Workouts, Is.EqualTo(1));
-    }
-
-    [Test]
-    public void Compare_SameTimeLastWeekWasRepeated_LastWeekEndsAtTheSecondPass()
-    {
-        var now = new DateTimeOffset(2026, 11, 1, 1, 30, 0, TimeSpan.Zero);
-        var firstPass = new DateTimeOffset(2026, 10, 25, 1, 30, 0, TimeSpan.FromHours(1));
-        var secondPass = new DateTimeOffset(2026, 10, 25, 1, 30, 0, TimeSpan.Zero);
-
-        var comparison = rule.Compare(
-            [Workout(firstPass), Workout(new DateTimeOffset(2026, 10, 25, 1, 10, 0, TimeSpan.Zero)), Workout(secondPass), Workout(secondPass.AddTicks(1))],
-            now, ConsistencyZones.BackOn25Oct);
-
-        Assert.That(comparison.LastWeek.Workouts, Is.EqualTo(3));
+        Assert.That((comparison.ThisWeek.Workouts, comparison.LastWeek.Workouts), Is.EqualTo((1, 1)));
     }
 
     [Test]

@@ -11,7 +11,7 @@ A card labelled "Last workout": the date and day in bold (e.g. *Tue 27 Oct 2026*
 - `data-testid`: `TestId`, and as a prefix: `{TestId}-date`, `{TestId}-when`, `{TestId}-exercises`, `{TestId}-empty`.
 
 ## `WeekComparison`
-A table titled "This week vs last week" with This week and Last week columns and the rows Workouts, Time (e.g. *3h 05m*, *25m*) and Sets. Each row ends in its change: an increase is the Up `Icon` and the difference in `--color-success`, a decrease the Down `Icon` and the difference in `--color-error`, no change a muted "—". Screen readers hear "up 25m", "down 1" or "no change". Time is compared in whole minutes. Under it, muted: "Last week up to the same day and time".
+A table titled "This week vs last week" with This week and Last week columns and the rows Workouts, Time (e.g. *3h 05m*, *25m*) and Sets. Each row ends in its change: an increase is the Up `Icon` and the difference in `--color-success`, a decrease the Down `Icon` and the difference in `--color-error`, no change a muted "—". Screen readers hear "up 25m", "down 1" or "no change". Time is compared in whole minutes. Under it, muted: "This week so far against the whole of last week.".
 - `data-testid`: `TestId`, and as a prefix: `{TestId}-workouts`, `{TestId}-time`, `{TestId}-sets`.
 
 ## `WeekBars`
