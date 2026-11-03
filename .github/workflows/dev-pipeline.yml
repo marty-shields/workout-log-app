@@ -7,8 +7,8 @@ permissions:
   contents: read
 
 concurrency:
-  group: dev-pipeline-${{ github.ref }}
-  cancel-in-progress: true
+  group: dev-pipeline-${{ github.event_name == 'pull_request' && github.ref || github.sha }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   build-and-test:
