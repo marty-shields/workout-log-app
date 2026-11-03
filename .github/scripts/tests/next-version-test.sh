@@ -26,7 +26,7 @@ echo '[]' > "$work/prs/none.json"
 # pr <sha> <number> <label...>: the one merged PR the commit is the merge of.
 pr() {
   local sha="$1" number="$2"; shift 2
-  jq -n --argjson number "$number" '$ARGS.positional | map({name: .}) | [{number: $number, merged_at: "2026-01-01T00:00:00Z", base: {ref: "main"}, labels: .}]' \
+  jq -n --argjson number "$number" '$ARGS.positional | map({name: .}) | [{number: $number, merged_at: "2099-01-01T00:00:00Z", base: {ref: "main"}, labels: .}]' \
     --args "$@" > "$work/prs/$sha.json"
 }
 
@@ -110,7 +110,7 @@ run "a PR into another branch does not count" "exit=1"
 # A force-push to main leaves commits whose PR GitHub no longer links to them.
 fresh; git -C "$work/repo" tag v1.2.3
 sha=$(commit a); echo "$sha 10" > "$work/rewritten"
-jq -n '{number: 10, merged_at: "2026-01-01T00:00:00Z", base: {ref: "main"}, labels: [{name: "semver:minor"}]}' > "$work/prs/pull-10.json"
+jq -n '{number: 10, merged_at: "2099-01-01T00:00:00Z", base: {ref: "main"}, labels: [{name: "semver:minor"}]}' > "$work/prs/pull-10.json"
 run "a commit rewritten after its merge resolves through the rewritten-commits list" "release=true
 version=1.3.0
 code=2
@@ -123,7 +123,35 @@ run "a listed commit whose PR never merged still fails" "exit=1"
 
 fresh; git -C "$work/repo" tag v1.2.3
 sha=$(commit a); commit b > /dev/null; echo "$sha 10" > "$work/rewritten"
-jq -n '{number: 10, merged_at: "2026-01-01T00:00:00Z", base: {ref: "main"}, labels: [{name: "semver:minor"}]}' > "$work/prs/pull-10.json"
+jq -n '{number: 10, merged_at: "2099-01-01T00:00:00Z", base: {ref: "main"}, labels: [{name: "semver:minor"}]}' > "$work/prs/pull-10.json"
 run "an unlisted commit with no PR still fails" "exit=1"
+
+# A force-push can leave the last release tag off main. The PRs merged before that release's commit are already in it.
+# rewritten_release <date>: tags v1.2.3 on a commit dated <date> that is not an ancestor of main.
+rewritten_release() {
+  git -C "$work/repo" checkout -q -b old
+  GIT_COMMITTER_DATE="$1" git -C "$work/repo" commit -q --allow-empty -m released
+  git -C "$work/repo" tag v1.2.3
+  git -C "$work/repo" checkout -q main
+}
+pr_merged() {
+  local sha="$1" number="$2" merged_at="$3"; shift 3
+  pr "$sha" "$number" "$@"
+  jq --arg at "$merged_at" '.[0].merged_at = $at' "$work/prs/$sha.json" > "$work/x" && mv "$work/x" "$work/prs/$sha.json"
+}
+
+fresh; rewritten_release "2026-01-02T00:00:00Z"
+a=$(commit a); pr_merged "$a" 10 "2026-01-01T00:00:00Z"
+b=$(commit b); pr_merged "$b" 11 "2026-01-03T00:00:00Z" "semver:minor"
+run "a release tag off main: only the PRs merged after its commit count" "release=true
+version=1.3.0
+code=2
+exit=0"
+
+fresh; rewritten_release "2026-01-02T00:00:00Z"
+a=$(commit a); pr_merged "$a" 10 "2026-01-01T00:00:00Z"
+b=$(commit b); pr_merged "$b" 11 "2026-01-02T00:00:00Z"
+run "a release tag off main: PRs merged by its commit, even with no label, are already released" "release=false
+exit=0"
 
 finish

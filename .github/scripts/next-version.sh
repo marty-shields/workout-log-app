@@ -13,14 +13,16 @@ rewritten_commits="${REWRITTEN_COMMITS:-$(dirname "$0")/rewritten-commits.txt}"
 semver="^${prefix}[0-9]+\.[0-9]+\.[0-9]+$"
 tags=$(git tag --list "${prefix}*" | grep -E "$semver" || true)
 code=$(( $(grep -c . <<<"$tags" || true) + 1 ))
-last=$(git tag --list "${prefix}*" --merged "$target" --sort=-v:refname | { grep -E "$semver" || true; } | head -n 1)
+# The highest release tag, even when a force-push left its commit off the target branch.
+last=$(git tag --list "${prefix}*" --sort=-v:refname | { grep -E "$semver" || true; } | head -n 1)
 
 if [[ -z "$last" ]]; then
   version=1.0.0
   echo "No ${prefix} tag yet: first release."
 else
   bump=0
-  for sha in $(git rev-list "$last..$target"); do
+  released_at=$(git log -1 --format=%ct "$last")
+  for sha in $(git rev-list "$(git merge-base "$last" "$target")..$target"); do
     prs=$(gh api "repos/$GITHUB_REPOSITORY/commits/$sha/pulls" --jq '[.[] | select(.merged_at != null and .base.ref == "main")]')
     if [[ $(jq length <<<"$prs") -eq 0 ]]; then
       rewritten=$(awk -v sha="$sha" '$1 == sha { print $2 }' "$rewritten_commits")
@@ -32,6 +34,8 @@ else
       echo "::error title=Version::Commit $sha isn't the merge of exactly one PR into main."
       exit 1
     fi
+    # A PR merged by the release commit is in the release already, which matters when the tag is off the target branch.
+    if jq -e --argjson at "$released_at" '.[0].merged_at | fromdateiso8601 <= $at' <<<"$prs" > /dev/null; then continue; fi
     number=$(jq -r '.[0].number' <<<"$prs")
     labels=$(jq -r '[.[0].labels[].name | select(test("^semver:(major|minor|patch)$"))] | join(" ")' <<<"$prs")
     case "$labels" in
