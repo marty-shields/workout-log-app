@@ -26,8 +26,9 @@ public partial class Chart
     // Smallest tick step: the 0.1 a weight shows; time steps start at 1 second.
     private const decimal MinStep = 0.1m;
 
-    // Tick steps for time, in seconds.
     private static readonly decimal[] NiceSteps = [1m, 2m, 5m, 10m];
+
+    // Tick steps for time, in seconds.
     private static readonly decimal[] TimeSteps = [1, 2, 5, 10, 15, 30, 60, 120, 300, 600, 900, 1800, 3600];
 
     private IReadOnlyList<(string Y, string Text)> ticks = [];

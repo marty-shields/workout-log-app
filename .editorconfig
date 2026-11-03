@@ -7,7 +7,7 @@ indent_style = space
 indent_size = 4
 trim_trailing_whitespace = true
 
-[*.{yml,yaml,json,props,targets,csproj,slnx,xml,razor,css,js}]
+[*.{yml,yaml,json,props,targets,csproj,slnx}]
 indent_size = 2
 
 [*.md]
@@ -16,6 +16,7 @@ trim_trailing_whitespace = false
 [*.cs]
 csharp_style_namespace_declarations = file_scoped:warning
 csharp_prefer_braces = true:warning
+# var is a suggestion only: the code mixes both forms and the 9 explicit-type sites are left.
 csharp_style_var_for_built_in_types = true:suggestion
 csharp_style_var_when_type_is_apparent = true:suggestion
 csharp_style_var_elsewhere = true:suggestion
@@ -26,6 +27,7 @@ dotnet_style_qualification_for_property = false:warning
 dotnet_style_qualification_for_method = false:warning
 dotnet_style_qualification_for_event = false:warning
 dotnet_diagnostic.IDE0005.severity = warning
+dotnet_diagnostic.IDE1006.severity = warning
 
 dotnet_naming_rule.private_static_fields_pascal_case.symbols = private_static_fields
 dotnet_naming_rule.private_static_fields_pascal_case.style = pascal_case
@@ -49,7 +51,7 @@ dotnet_naming_symbols.private_fields.applicable_kinds = field
 dotnet_naming_symbols.private_fields.applicable_accessibilities = private
 dotnet_naming_style.camel_case.capitalization = camel_case
 
-# CA1822: stateless rule classes keep instance methods so they stay swappable behind their interface and through DI.
+# CA1822: rule classes such as TopSetRule and NoteLengthRule are concrete classes injected through DI as instances, so a static method would not fit the pattern.
 dotnet_diagnostic.CA1822.severity = none
 # CA1716: a parameter named set reads naturally in a domain about sets of reps.
 dotnet_diagnostic.CA1716.severity = none

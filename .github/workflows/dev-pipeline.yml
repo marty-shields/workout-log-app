@@ -54,6 +54,7 @@ jobs:
 
       # Failed tests are reported as annotations and in the job summary. A test host that hangs for 5 minutes is killed and fails the step.
       - name: Core tests
+        if: ${{ !cancelled() && steps.build.outcome == 'success' }}
         run: dotnet test tests/WorkoutLog.Core.Tests --no-build --logger GitHubActions --blame-hang-timeout 5m --collect "Code Coverage;Format=cobertura" --results-directory "$RUNNER_TEMP/coverage/core" -- RunConfiguration.CollectSourceInformation=true
 
       # Runs even when the Core tests fail.
