@@ -856,6 +856,53 @@ public class ExerciseCardTests : ComponentTestBase
     }
 
     [Test]
+    public void Done_Blocked_OpensAClosedSetThatFails()
+    {
+        var exercise = Strength(2);
+        exercise.Entries[0].Values["reps"] = "8";
+        exercise.Entries[1].Values["reps"] = "6";
+        var cut = Context.Render<ExerciseCard>(p => p
+            .Add(x => x.Exercise, exercise)
+            .Add(x => x.ValidateDone, e =>
+            {
+                e.Entries[0].Errors["reps"] = "Reps must be a number";
+                return false;
+            })
+            .Add(x => x.TestId, "exercise-1"));
+        Assert.That(cut.FindAll("[data-testid=exercise-1-set-1-reps]"), Is.Empty);
+
+        cut.Find("[data-testid=exercise-1-done]").Click();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(exercise.IsDone, Is.False);
+            Assert.That(cut.FindAll("[data-testid=exercise-1-set-1-reps]"), Has.Count.EqualTo(1));
+            Assert.That(cut.Find("[data-testid=exercise-1-set-1-error]").TextContent, Does.Contain("Reps must be a number"));
+        });
+    }
+
+    [Test]
+    public void Edit_OpensAClosedSetThatFails()
+    {
+        var exercise = Strength(2);
+        exercise.Entries[0].Values["reps"] = "8";
+        exercise.Entries[1].Values["reps"] = "6";
+        var cut = Context.Render<ExerciseCard>(p => p
+            .Add(x => x.Exercise, exercise)
+            .Add(x => x.TestId, "exercise-1"));
+        cut.Find("[data-testid=exercise-1-done]").Click();
+        exercise.Entries[0].Errors["reps"] = "Reps must be a number";
+
+        cut.Find("[data-testid=exercise-1-edit]").Click();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.FindAll("[data-testid=exercise-1-set-1-reps]"), Has.Count.EqualTo(1));
+            Assert.That(cut.Find("[data-testid=exercise-1-set-1-error]").TextContent, Does.Contain("Reps must be a number"));
+        });
+    }
+
+    [Test]
     public void Done_BlockedForNoSets_FocusesAddSet()
     {
         var exercise = Strength(0);

@@ -6,7 +6,7 @@ $attribute: CustomPage("Components/Workout/Overview")
 
 ## `ExerciseCard`
 One exercise in a workout: name, Done, Remove, and its sets (strength) or entry (cardio). Done is a tick `IconButton` (Check) and Remove a muted trash `IconButton` (Delete), both on the right of the name.
-- `ExerciseState.IsDone` shows the card as one line: the name, a muted pencil `IconButton` (Edit) and the trash. The sets, entry, last and PB line, last time values and Add set are hidden, but the card stays rendered, so the open set of a carry and a pending focus survive. The pencil sets `IsDone` false. An exercise error still shows. `IsDone` is not saved and `OnChanged` isn't raised for it.
+- `ExerciseState.IsDone` shows the card as one line: the name, a muted pencil `IconButton` (Edit) and the trash. The sets, entry, last and PB line, last time values and Add set are hidden. The pencil sets `IsDone` false and shows the card with every set closed (the last stays open only when it is empty), except a set with errors, which opens. An exercise error still shows. `IsDone` is not saved and `OnChanged` isn't raised for it.
 - Strength: one set open at a time, the others closed as `SetSummary` lines, then Add set. The open set is a `SetRow` under a header, or a `SetPanel` for more than two fields with a duration (carries). A new exercise opens its last set; an exercise opened from a saved workout starts with every set closed unless the last is empty. With `LastTime`, the header gains a muted **Last** column after Set, and the open row shows last time's set in it. A row with a duration and one more field (a hold) has no Last column: last time shows on a muted line under the row instead (see `SetRow`). The open panel of a carry shows a muted *Last time* line. Closed sets show none. Both leave a set number last time didn't have as *—* (row) or nothing (line).
 - A set with errors is never closed. Add set, a pencil on a closed set and Done all check the open set first, as Save does, and when it fails they keep it open, show its errors and focus the field at fault. Only a valid set closes, so a closed set never shows errors. A set that already has errors when the card is given its exercise opens.
 - Add set then closes the open set and opens the new one. The close button on the open set removes it at once and leaves every set closed. The trash on a closed set raises `OnAskRemoveSet`; the screen confirms with "Delete set {n}?" and removes it.
@@ -24,7 +24,7 @@ One exercise in a workout: name, Done, Remove, and its sets (strength) or entry 
 - `ValidateDone` is `IWorkoutChecker.CheckExercise` in the App: the Save checks for this exercise only. Done is blocked while it returns false; the card stays open and focus moves to the first error as `FocusFirstErrorAsync` does. Unset: Done is never blocked.
 - `FocusFirstErrorAsync` (after a failed Save or Done): Add set for an exercise with no sets, Remove for another exercise error, else the first field at fault in the first set or entry with errors.
 - With `RecordEntry` set, that set or the cardio entry shows a `RecordBadge`.
-- `data-testid`: `TestId`, `{TestId}-done` (open card), `{TestId}-edit` (done card), `{TestId}-remove`, `{TestId}-weights`, `{TestId}-last` (cardio), `{TestId}-error`, `{TestId}-add-set`, `{TestId}-sets-full`, `{TestId}-set-{n}` (and `-edit`, `-remove` on a closed set), `{TestId}-{field}` (cardio), `{TestId}-worked-out`, `{TestId}-last-note`, `{TestId}-add-note`, `{TestId}-note` (and its parts, see [Inputs](./?path=/custom/components-inputs-overview)).
+- `data-testid`: `TestId`, `{TestId}-done` (open card), `{TestId}-edit` (done card), `{TestId}-remove`, `{TestId}-weights`, `{TestId}-last` (cardio), `{TestId}-error`, `{TestId}-add-set`, `{TestId}-sets-full`, `{TestId}-set-{n}` (and `-edit` on a closed set, `-remove` on any set), `{TestId}-{field}` (cardio), `{TestId}-worked-out`, `{TestId}-last-note`, `{TestId}-add-note`, `{TestId}-note` (and its parts, see [Inputs](./?path=/custom/components-inputs-overview)).
 
 ## `LastNote`
 The note an exercise had in the last saved workout with it: one muted line, the note `Icon` (`Muted`, `Small`) and the text. Cut with … when long; tap to show the whole note, tap again to cut it. Read-only. Screen readers hear "Last note:" before the text.
@@ -42,9 +42,9 @@ The open set of a carry: number, remove (`IconButton` Close, muted, small), ever
 - `data-testid`: `TestId`, `{TestId}-last`, `{TestId}-{field}`, `{TestId}-remove`, `{TestId}-record`, `{TestId}-error`.
 
 ## `SetSummary`
-A closed set, one compact line about 40px tall: its number in the set-number column, then the values as typed with units, e.g. *1  8 reps · 60kg*, and on the right a muted, compact (`--touch-target-compact`) pencil `IconButton` (Edit, "Edit {exercise} set {n}") and trash (Delete, "Delete {exercise} set {n}"). A field with `HideZero` (weight on a bodyweight move, hold or carry) leaves out 0, e.g. *1  40m · 0:00:45*. A set with nothing typed reads *Empty*. The pencil raises `OnOpen`, the trash `OnRemove`. 
-- With `IsRecord`, a `RecordBadge` shows under the line, in line with the text.
-- `data-testid`: `TestId`, `{TestId}-edit`, `{TestId}-remove`, `{TestId}-record`, `{TestId}-error`.
+A closed set, one compact line about 40px tall: its number in the set-number column, then the values as typed with units, e.g. *1  8 reps · 60kg*, and on the right a muted, compact (`--touch-target-compact`) pencil `IconButton` (Edit, "Edit {exercise} set {n}") and trash (Delete, "Delete {exercise} set {n}"). A field with `HideZero` (weight on a bodyweight move, hold or carry) leaves out 0, e.g. *1  40m · 0:00:45*. A set with nothing typed reads *Empty*. The pencil raises `OnOpen`, the trash `OnRemove`.
+- With `IsRecord`, a `RecordBadge` shows under the line, at its left edge under the set number.
+- `data-testid`: `TestId`, `{TestId}-edit`, `{TestId}-remove`, `{TestId}-record`.
 
 ## `RecordBadge`
 The Record `Icon` (`Success`, small) and "Record" in bold small text, in `--color-success`. Marks the set or cardio entry that beats the exercise's best. Not tappable.

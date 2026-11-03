@@ -28,7 +28,7 @@ Each card shows the fields its definition declares ([exercise list](https://gith
 While logging, mark an exercise done so it shrinks to one line and is hard to touch by accident. An open card has a tick beside its name and the trash.
 - The tick runs the exercise's Save checks through `IWorkoutChecker.CheckExercise`: every set and entry (cardio too), its note, and "Add at least one set". The workout rules, a repeated exercise and the 10-set limit, stay with Save.
 - If a check fails, the card stays open and shows the errors; focus moves to the first one, as Add set does. A new strength exercise with its blank set fails "Enter reps" and stays open.
-- A done card is one line: the name, a pencil (edit) and the trash. The pencil opens the full card as it was left, with all its sets and entries and, for a carry, the same open set. Any number of cards can be open.
+- A done card is one line: the name, a pencil (edit) and the trash. The pencil opens the full card with all its sets and entries, every set closed (a set with errors opens, as does an empty last set). Any number of cards can be open.
 - Done doesn't reorder: cards stay newest first. Picking an exercise that is done from Add exercise opens it, moves it to the top and adds a set.
 - Done is only how the screen shows an exercise. It isn't saved, isn't a change for Edit's "Discard changes?", and records no time. A done exercise saves as it stands.
 
@@ -53,9 +53,9 @@ An exercise just added, strength or cardio, loads its last time through `ILastSe
 - Sets match by number: set 1 shows last time's set 1, set 2 its set 2. A set number last time didn't have, such as set 4 after 3 sets, shows *—* in the Last column and no line anywhere else. Last time's extra sets show nowhere.
 - Lift, assisted and bodyweight rows: a muted **Last** column after Set, as wide as a field, with last time's set as the Exercise page writes it: *60×8* (weight × reps), *1:30*, *20kg · 1:30*. Read out as "Last time 60×8".
 - Holds (duration with an optional weight): no Last column, so the duration boxes keep their width. A muted full-width line under each row, e.g. *Last time 1:30*, or *Last time 20kg · 1:30* when a weight was logged. No line for a set number last time didn't have.
-- Carries (set panel): a muted *Last time 32kg · 40m · 0:45* line at the top of the open panel and under each closed set's summary; no line for a set number last time didn't have. A weight of 0 isn't shown in holds or carries.
+- Carries (set panel): a muted *Last time 32kg · 40m · 0:45* line at the top of the open panel; closed sets show none, and no line for a set number last time didn't have. A weight of 0 isn't shown in holds or carries.
 - Cardio: a muted line above the fields with the entry's values, e.g. *Last time 5.2km · 30:00 · 5:46/km*; none when last time had no entry.
-- A done card is one line, so its Last column and lines are hidden with its sets and entry. The pencil brings them back.
+- A done card is one line, so its Last column and lines are hidden with its sets and entry. The pencil shows the card again, but closed sets show no last time; it shows on a set once its own pencil opens it.
 
 ## Save
 Save runs `IWorkoutChecker.Check`: every set and entry, then the workout, its note and each exercise and its note through `IWorkoutService.Validate`.
