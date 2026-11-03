@@ -2,7 +2,9 @@
 Prints a Markdown table of line and branch coverage for each named assembly, read from the report of the test run that
 targets it. Other assemblies in the report (what the run pulls in, such as Core in the UI run) are left out.
 --baseline adds the committed line coverage (.github/coverage-baseline.tsv) to the table and exits 1 when an assembly's line
-coverage is more than 1 point below it, or is missing from the file. --tsv prints the baseline file instead of the table."""
+coverage is more than 1 point below it, or is missing from the file. --tsv prints the baseline file instead of the table.
+Exits 1 on a line or branch rate, or a baseline value, that is missing, unparseable, NaN or infinite."""
+import math
 import sys
 import xml.etree.ElementTree as ET
 
@@ -14,12 +16,31 @@ def package_rates(assembly, path):
     package = next((p for p in ET.parse(path).getroot().iter("package") if p.get("name") == assembly), None)
     if package is None:
         sys.exit(f"{assembly} is not in {path}")
-    return float(package.get("line-rate")) * 100, float(package.get("branch-rate")) * 100
+    return rate(assembly, path, package, "line-rate"), rate(assembly, path, package, "branch-rate")
+
+
+def rate(assembly, path, package, name):
+    try:
+        value = float(package.get(name)) * 100
+    except (TypeError, ValueError):
+        sys.exit(f"{assembly} has no readable {name} in {path}")
+    if not math.isfinite(value):
+        sys.exit(f"{assembly} has a {name} of {package.get(name)} in {path}, not a number")
+    return value
 
 
 def read_baseline(path):
     rows = (line.split("\t") for line in open(path).read().splitlines() if line and not line.startswith("#"))
-    return {assembly: float(lines) for assembly, lines in rows}
+    baseline = {}
+    for assembly, lines in rows:
+        try:
+            value = float(lines)
+        except ValueError:
+            value = math.nan
+        if not math.isfinite(value):
+            sys.exit(f"{assembly} has a baseline of {lines!r} in {path}, not a number")
+        baseline[assembly] = value
+    return baseline
 
 
 args = sys.argv[1:]

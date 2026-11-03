@@ -8,9 +8,9 @@ script="$here/../coverage-summary.py"
 work=$(mktemp -d)
 trap 'rm -rf "$work"' EXIT
 
-# report <file> <line-rate>
+# report <file> <line-rate> [branch-rate]
 report() {
-  printf '<coverage><packages><package name="WorkoutLog.Core" line-rate="%s" branch-rate="0.5"/><package name="Other" line-rate="0.1" branch-rate="0.1"/></packages></coverage>\n' "$2" > "$work/$1"
+  printf '<coverage><packages><package name="WorkoutLog.Core" line-rate="%s" branch-rate="%s"/><package name="Other" line-rate="0.1" branch-rate="0.1"/></packages></coverage>\n' "$2" "${3-0.5}" > "$work/$1"
 }
 
 # baseline <line %>
@@ -53,6 +53,26 @@ check "an assembly missing from the baseline fails" '| Assembly | Lines | Branch
 
 **WorkoutLog.Core has no row in the coverage baseline.**
 exit=1' "$(python3 -I "$script" --baseline "$work/baseline.tsv" WorkoutLog.Core="$work/core.xml" 2>/dev/null; echo "exit=$?")"
+
+for bad in NaN inf -inf "" abc; do
+  report core.xml "$bad"
+  baseline 90.0
+  check "a line-rate of '$bad' fails" "exit=1" "$(python3 -I "$script" --baseline "$work/baseline.tsv" WorkoutLog.Core="$work/core.xml" 2>/dev/null; echo "exit=$?")"
+done
+for bad in NaN inf "" abc; do
+  report core.xml 0.9 "$bad"
+  baseline 90.0
+  check "a branch-rate of '$bad' fails" "exit=1" "$(python3 -I "$script" --baseline "$work/baseline.tsv" WorkoutLog.Core="$work/core.xml" 2>/dev/null; echo "exit=$?")"
+done
+report core.xml 0.9
+for bad in nan inf -inf abc; do
+  baseline "$bad"
+  check "a baseline of '$bad' fails" "exit=1" "$(python3 -I "$script" --baseline "$work/baseline.tsv" WorkoutLog.Core="$work/core.xml" 2>/dev/null; echo "exit=$?")"
+done
+baseline 90.0
+report core.xml NaN
+check "a NaN line-rate says why" "WorkoutLog.Core has a line-rate of NaN in $work/core.xml, not a number" "$(python3 -I "$script" --baseline "$work/baseline.tsv" WorkoutLog.Core="$work/core.xml" 2>&1)"
+report core.xml 0.9
 
 check "no option prints the table without a gate" '| Assembly | Lines | Branches |
 | --- | ---: | ---: |
