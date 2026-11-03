@@ -48,18 +48,19 @@ jobs:
         run: dotnet format WorkoutLog.slnx --verify-no-changes --no-restore
 
       # Failed tests are reported as annotations and in the job summary. A test that hangs for 5 minutes is dumped and its host killed, and
-      # fails the step. The blame timer only runs once a test has started (inferred, see #180), so a run that hangs before the first test
-      # still needs the step timeout (a run takes under 4 minutes).
+      # fails the step. Blame only watches the testhost, so a stall in the coverage collector or the vstest layer (the suspected Core hang,
+      # see #180) never trips it. The step timeout ends such a hang, and --diag keeps the vstest, testhost and data collector logs in
+      # $RUNNER_TEMP/diag for the dotnet-diag artifact. A healthy Core run takes about 12 s.
       - name: Core tests
         if: ${{ !cancelled() && steps.build.outcome == 'success' }}
-        timeout-minutes: 10
-        run: dotnet test tests/WorkoutLog.Core.Tests --no-build --logger GitHubActions --blame-hang-timeout 5m --blame-hang-dump-type mini --collect "Code Coverage;Format=cobertura" --results-directory "$RUNNER_TEMP/coverage/core" -- RunConfiguration.CollectSourceInformation=true
+        timeout-minutes: 5
+        run: dotnet test tests/WorkoutLog.Core.Tests --no-build --diag "$RUNNER_TEMP/diag/core/log.txt;tracelevel=verbose" --logger GitHubActions --blame-hang-timeout 5m --blame-hang-dump-type mini --collect "Code Coverage;Format=cobertura" --results-directory "$RUNNER_TEMP/coverage/core" -- RunConfiguration.CollectSourceInformation=true
 
       # Runs even when the Core tests fail.
       - name: UI tests
         if: ${{ !cancelled() && steps.build.outcome == 'success' }}
         timeout-minutes: 10
-        run: dotnet test tests/WorkoutLog.UI.Tests --no-build --logger GitHubActions --blame-hang-timeout 5m --blame-hang-dump-type mini --collect "Code Coverage;Format=cobertura" --results-directory "$RUNNER_TEMP/coverage/ui" -- RunConfiguration.CollectSourceInformation=true
+        run: dotnet test tests/WorkoutLog.UI.Tests --no-build --diag "$RUNNER_TEMP/diag/ui/log.txt;tracelevel=verbose" --logger GitHubActions --blame-hang-timeout 5m --blame-hang-dump-type mini --collect "Code Coverage;Format=cobertura" --results-directory "$RUNNER_TEMP/coverage/ui" -- RunConfiguration.CollectSourceInformation=true
 
       # Line and branch coverage of Core (from the Core tests) and UI (from the UI tests) in the job summary. Fails when either line coverage is more than 1 point
       # below .github/coverage-baseline.tsv. The Cobertura XML is the coverage artifact.
@@ -86,6 +87,15 @@ jobs:
           path: |
             ${{ runner.temp }}/coverage/**/*.dmp
             ${{ runner.temp }}/coverage/**/Sequence_*.xml
+          retention-days: 7
+          if-no-files-found: ignore
+
+      # The vstest diagnostic logs of a failed, timed-out or cancelled test step.
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        if: ${{ failure() || cancelled() }}
+        with:
+          name: dotnet-diag
+          path: ${{ runner.temp }}/diag/**
           retention-days: 7
           if-no-files-found: ignore
 
