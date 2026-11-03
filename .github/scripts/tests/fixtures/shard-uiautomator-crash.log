@@ -1,0 +1,4 @@
+2026-11-03T08:43:08.7635914Z Couldn't save page source: 'GET /session/b5a7c033-93ff-4fd6-9311-d0b68e973a3c/source' cannot be proxied to UiAutomator2 server because the instrumentation process is not running (probably crashed). Check the server log and/or the logcat output for more details
+2026-11-03T08:43:08.7675649Z Couldn't save screen.png: 'GET /screenshot' cannot be proxied to UiAutomator2 server because the instrumentation process is not running (probably crashed). Check the server log and/or the logcat output for more details
+2026-11-03T08:43:08.7773621Z -> error: adb shell date +%s failed (255):  (41.4s)
+2026-11-03T08:43:08.7880812Z    System.InvalidOperationException : adb shell date +%s failed (255): 

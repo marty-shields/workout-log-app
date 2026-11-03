@@ -1,0 +1,3 @@
+2026-11-03T08:43:08.9574839Z Couldn't restore accelerometer_rotation: adb: device offline
+2026-11-03T08:43:08.9598626Z Couldn't restore user_rotation: adb: device offline
+2026-11-03T08:43:09.0440409Z    OpenQA.Selenium.UnknownErrorException : Error executing adbExec. Original error: 'Command '/usr/local/lib/android/sdk/platform-tools/adb -P 5037 -s emulator-5554 shell dumpsys window' exited with code 1'; Command output: adb: device offline

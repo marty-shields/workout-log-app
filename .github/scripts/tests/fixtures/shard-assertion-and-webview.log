@@ -1,0 +1,7 @@
+2026-11-03T07:55:13.6018081Z -> error: Timed out: WEBVIEW_uk.martinshields.workoutlog.debug didn't appear. (0.0s)
+2026-11-03T07:49:26.3561291Z   Failed LeavingWithBackAndComingBackShowsTheDashboard [17 s]
+2026-11-03T07:49:26.3561994Z   Error Message:
+2026-11-03T07:49:26.3562509Z      app state
+2026-11-03T07:49:26.3563136Z Assert.That(actual, constraint)
+2026-11-03T07:49:26.3563811Z   Expected: not equal to RunningInForeground
+2026-11-03T07:49:26.3564433Z   But was:  RunningInForeground

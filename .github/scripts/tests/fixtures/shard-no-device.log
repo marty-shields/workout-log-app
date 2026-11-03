@@ -1,0 +1,6 @@
+2026-11-03T08:43:32.3407293Z Setup failed for test fixture WorkoutLog.E2E.Tests.AppiumSetup
+2026-11-03T08:43:32.3409187Z SetUp : OpenQA.Selenium.UnknownErrorException : Could not find a connected Android device in 20000ms
+2026-11-03T08:43:32.3410495Z StackTrace: --SetUp
+2026-11-03T08:43:32.3411737Z    at OpenQA.Selenium.WebDriver.UnpackAndThrowOnError(Response errorResponse, String commandToExecute)
+2026-11-03T08:43:32.3412930Z    at OpenQA.Selenium.WebDriver.ExecuteAsync(String driverCommandToExecute, Dictionary`2 parameters)
+2026-11-03T08:43:32.4638298Z ##[error]OneTimeSetUp: SetUp : OpenQA.Selenium.UnknownErrorException : Could not find a connected Android device in 20000ms
