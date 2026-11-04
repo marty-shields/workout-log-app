@@ -15,7 +15,9 @@ public abstract record PendingUndo(string Message)
 /// <param name="Index">Its position in screen order, from 0.</param>
 public sealed record RemovedExercise(ExerciseState Exercise, int Index) : PendingUndo($"{Exercise.Name} deleted")
 {
-    public override bool Fits(IReadOnlyCollection<ExerciseState> exercises) => exercises.Count < WorkoutLimits.MaxExercises;
+    /// <summary>Also needs the exercise to be out of the workout: picked again, it would be in it twice.</summary>
+    public override bool Fits(IReadOnlyCollection<ExerciseState> exercises) =>
+        exercises.Count < WorkoutLimits.MaxExercises && exercises.All(e => e.ExerciseId != Exercise.ExerciseId);
 }
 
 /// <summary>A closed set taken out of its exercise.</summary>

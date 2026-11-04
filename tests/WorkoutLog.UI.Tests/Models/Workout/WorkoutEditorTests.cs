@@ -638,6 +638,24 @@ public class WorkoutEditorTests
     }
 
     [Test]
+    public void Pick_TheDeletedExerciseAgain_EndsTheUndo()
+    {
+        var squat = SampleData.Exercise(Catalog, Squat, ["8", "60"]);
+        var treadmill = SampleData.Exercise(Catalog, Treadmill, ["0:20:00", "3"]);
+        editor.Start([squat, treadmill], null);
+        editor.Remove(squat);
+
+        editor.Pick(Item(Squat));
+        editor.Undo();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(editor.PendingUndo, Is.Null);
+            Assert.That(editor.Exercises.Select(e => e.ExerciseId), Is.EqualTo(new[] { Squat, Treadmill }));
+        });
+    }
+
+    [Test]
     public async Task SaveAsync_Saving_EndsTheUndo()
     {
         editor.Start([SampleData.Exercise(Catalog, Squat, ["8", "60"]), SampleData.Exercise(Catalog, Treadmill, ["0:20:00", "3"])], null);
