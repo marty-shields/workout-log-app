@@ -3,7 +3,7 @@
 
 <div class="snackbar" data-testid="@TestId">
     <p class="message" data-testid="@($"{TestId}-message")">@Message</p>
-    <button type="button" class="action" data-testid="@($"{TestId}-undo")" @onclick="OnUndo">Undo</button>
+    <button @ref="undo" type="button" class="action" data-testid="@($"{TestId}-undo")" @onclick="OnUndo" @onfocus="StopTimer" @onblur="StartTimer">Undo</button>
 </div>
 
 @code {
@@ -13,7 +13,9 @@
     /// </summary>
     public static readonly TimeSpan Duration = TimeSpan.FromSeconds(6);
 
-    private readonly CancellationTokenSource shown = new();
+    private ElementReference undo;
+    private CancellationTokenSource? timer;
+    private bool timedOut;
 
     /// <summary>What just happened, e.g. Set 2 deleted.</summary>
     [Parameter, EditorRequired]
@@ -23,28 +25,55 @@
     [Parameter]
     public EventCallback OnUndo { get; set; }
 
-    /// <summary>Raised once, <see cref="Duration"/> after the snackbar first shows, unless it is removed first.</summary>
+    /// <summary>
+    /// Raised once, <see cref="Duration"/> after the snackbar first shows, unless it is removed first. Undo holding focus stops
+    /// the timer, and focus leaving it starts a full <see cref="Duration"/> again.
+    /// </summary>
     [Parameter]
     public EventCallback OnTimeout { get; set; }
+
+    /// <summary>Moves focus to Undo when the snackbar first shows, for when what had focus, such as a trash, has just gone.</summary>
+    [Parameter]
+    public bool TakeFocus { get; set; }
 
     /// <summary>Value of the data-testid attribute; also the prefix for <c>{TestId}-message</c> and <c>{TestId}-undo</c>.</summary>
     [Parameter]
     public string TestId { get; set; } = "snackbar";
 
-    protected override void OnInitialized() => _ = TimeOutAsync();
+    protected override void OnInitialized() => StartTimer();
 
-    public void Dispose()
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        shown.Cancel();
-        shown.Dispose();
+        if (firstRender && TakeFocus)
+        {
+            await undo.FocusAsync();
+        }
+    }
+
+    public void Dispose() => StopTimer();
+
+    private void StartTimer()
+    {
+        if (timer is null && !timedOut)
+        {
+            timer = new CancellationTokenSource();
+            _ = TimeOutAsync(timer.Token);
+        }
+    }
+
+    private void StopTimer()
+    {
+        timer?.Cancel();
+        timer?.Dispose();
+        timer = null;
     }
 
     // Not awaited by anyone, so a failure goes to the nearest error boundary, as an exception from a button click would.
-    private async Task TimeOutAsync()
+    private async Task TimeOutAsync(CancellationToken stopped)
     {
         try
         {
-            await Task.Delay(Duration, Clock, shown.Token);
+            await Task.Delay(Duration, Clock, stopped);
         }
         catch (OperationCanceledException)
         {
@@ -53,6 +82,12 @@
 
         await InvokeAsync(async () =>
         {
+            if (stopped.IsCancellationRequested)
+            {
+                return;
+            }
+
+            timedOut = true;
             try
             {
                 await OnTimeout.InvokeAsync();

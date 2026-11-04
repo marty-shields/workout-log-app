@@ -51,7 +51,7 @@
     <Status>
         @if (Undo is { } undo)
         {
-            <Snackbar @key="undo" Message="@undo.Message" OnUndo="OnUndo" OnTimeout="() => OnUndoTimeout.InvokeAsync(undo)" />
+            <Snackbar @key="undo" Message="@undo.Message" TakeFocus OnUndo="OnUndo" OnTimeout="() => OnUndoTimeout.InvokeAsync(undo)" />
         }
     </Status>
 </AppScreen>

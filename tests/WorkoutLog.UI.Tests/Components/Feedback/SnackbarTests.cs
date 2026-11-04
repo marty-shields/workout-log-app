@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Web;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Testing;
@@ -107,6 +108,82 @@ public class SnackbarTests : ComponentTestBase
             Assert.That(cut.FindAll("[data-testid=error-message]"), Has.Count.EqualTo(1));
             Assert.That(LoggedEvents.Of(logger), Is.EqualTo(new[] { (UiEvent.ScreenError, LogLevel.Error, "Unhandled error in a screen") }));
         });
+    }
+
+    [Test]
+    public void TakeFocus_FocusesUndoWhenShown()
+    {
+        var cut = Context.Render<Snackbar>(p => p
+            .Add(x => x.Message, "Set 2 deleted")
+            .Add(x => x.TakeFocus, true));
+
+        Context.JSInterop.VerifyFocusAsyncInvoke().Arguments[0].ShouldBeElementReferenceTo(cut.Find("[data-testid=snackbar-undo]"));
+    }
+
+    [Test]
+    public void NoTakeFocus_LeavesFocusAlone()
+    {
+        Context.Render<Snackbar>(p => p.Add(x => x.Message, "Set 2 deleted"));
+
+        Context.JSInterop.VerifyNotInvoke("Blazor._internal.domWrapper.focus");
+    }
+
+    [Test]
+    public async Task UndoFocused_NeverTimesOut()
+    {
+        var timedOut = 0;
+        var cut = Context.Render<Snackbar>(p => p
+            .Add(x => x.Message, "Set 2 deleted")
+            .Add(x => x.OnTimeout, () => timedOut++));
+
+        await cut.Find("[data-testid=snackbar-undo]").FocusAsync(new FocusEventArgs());
+        clock.Advance(Snackbar.Duration * 3);
+        await WaitForRendererAsync();
+
+        Assert.That(timedOut, Is.Zero);
+    }
+
+    [Test]
+    public async Task UndoLosesFocus_TimesOutAFullDurationLater()
+    {
+        var timedOut = 0;
+        var cut = Context.Render<Snackbar>(p => p
+            .Add(x => x.Message, "Set 2 deleted")
+            .Add(x => x.OnTimeout, () => timedOut++));
+        clock.Advance(Snackbar.Duration / 2);
+        await cut.Find("[data-testid=snackbar-undo]").FocusAsync(new FocusEventArgs());
+        clock.Advance(Snackbar.Duration);
+
+        await cut.Find("[data-testid=snackbar-undo]").BlurAsync(new FocusEventArgs());
+        clock.Advance(Snackbar.Duration - TimeSpan.FromMilliseconds(1));
+        await WaitForRendererAsync();
+        var early = timedOut;
+        clock.Advance(TimeSpan.FromMilliseconds(1));
+        await WaitForRendererAsync();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(early, Is.Zero);
+            Assert.That(timedOut, Is.EqualTo(1));
+        });
+    }
+
+    [Test]
+    public async Task FocusedAndLeftAfterTimingOut_DoesNotTimeOutAgain()
+    {
+        var timedOut = 0;
+        var cut = Context.Render<Snackbar>(p => p
+            .Add(x => x.Message, "Set 2 deleted")
+            .Add(x => x.OnTimeout, () => timedOut++));
+        clock.Advance(Snackbar.Duration);
+        await WaitForRendererAsync();
+
+        await cut.Find("[data-testid=snackbar-undo]").FocusAsync(new FocusEventArgs());
+        await cut.Find("[data-testid=snackbar-undo]").BlurAsync(new FocusEventArgs());
+        clock.Advance(Snackbar.Duration);
+        await WaitForRendererAsync();
+
+        Assert.That(timedOut, Is.EqualTo(1));
     }
 
     [Test]

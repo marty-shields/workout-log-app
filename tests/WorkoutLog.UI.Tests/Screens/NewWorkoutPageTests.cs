@@ -1061,6 +1061,29 @@ public class NewWorkoutPageTests : ComponentTestBase
     }
 
     [Test]
+    public void TrashOnAClosedSet_MovesFocusToUndo()
+    {
+        var cut = RenderPage();
+        Add(cut, 6);
+        AddSets(cut, 1, 2);
+
+        cut.Find("[data-testid=exercise-1-set-1-remove]").Click();
+
+        LastFocus().Arguments[0].ShouldBeElementReferenceTo(cut.Find("[data-testid=snackbar-undo]"));
+    }
+
+    [Test]
+    public void TrashOnAnExercise_MovesFocusToUndo()
+    {
+        var cut = RenderPage();
+        Add(cut, 132);
+
+        Remove(cut, 1);
+
+        LastFocus().Arguments[0].ShouldBeElementReferenceTo(cut.Find("[data-testid=snackbar-undo]"));
+    }
+
+    [Test]
     public void Undo_PutsTheClosedSetBackInItsPlaceWithItsValues()
     {
         var cut = RenderPage();
