@@ -30,3 +30,7 @@
     place-items: center;
     height: 100%;
 }
+
+.section + .section {
+    margin-top: var(--space-6);
+}

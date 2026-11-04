@@ -20,7 +20,7 @@ Tokens, components, screens and their behaviour for the Workout Log app.
 - **Screens**: one folder per screen, with an Overview page (parts, behaviour, `data-testid`s) and one story per state, in the phone frame.
 
 ## Rules
-- Light and dark themes. The app follows the phone's setting (`prefers-color-scheme`).
+- Light and dark themes. The app follows the phone's setting (`prefers-color-scheme`) until Settings, Theme sets Light or Dark.
 - Components use tokens only; no hard-coded colours or sizes. Story-only chrome (phone frame, theme switch) is exempt.
 - Components take their data as parameters. Pages call services.
 - Numbers use the phone's numeric keyboard: `inputmode="numeric"` for whole numbers, `inputmode="decimal"` for decimals. Duration is three boxes: h, mm, ss.

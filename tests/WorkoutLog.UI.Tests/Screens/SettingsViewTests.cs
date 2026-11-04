@@ -21,6 +21,32 @@ public class SettingsViewTests : ComponentTestBase
     }
 
     [Test]
+    public void Theme_ShowsTheChoiceSelected()
+    {
+        var cut = Context.Render<SettingsView>(p => p.Add(x => x.Theme, ThemePreference.Dark).Add(x => x.OnBack, () => { }));
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.Find("[data-testid=theme-dark]").HasAttribute("checked"), Is.True);
+            Assert.That(cut.Find("[data-testid=theme-system]").HasAttribute("checked"), Is.False);
+            Assert.That(cut.Find("[data-testid=theme-light]").HasAttribute("checked"), Is.False);
+        });
+    }
+
+    [Test]
+    public void Theme_Tapped_RaisesOnThemeChanged()
+    {
+        ThemePreference? chosen = null;
+        var cut = Context.Render<SettingsView>(p => p
+            .Add(x => x.OnThemeChanged, t => chosen = t)
+            .Add(x => x.OnBack, () => { }));
+
+        cut.Find("[data-testid=theme-dark]").Change(true);
+
+        Assert.That(chosen, Is.EqualTo(ThemePreference.Dark));
+    }
+
+    [Test]
     public void Back_RaisesOnBack()
     {
         var back = false;
@@ -39,7 +65,7 @@ public class SettingsViewTests : ComponentTestBase
         var export = cut.Find("[data-testid=export]");
         Assert.Multiple(() =>
         {
-            Assert.That(cut.Find(".heading").TextContent, Is.EqualTo("Your data"));
+            Assert.That(cut.FindAll(".heading").Select(h => h.TextContent), Is.EqualTo(new[] { "Appearance", "Your data" }));
             Assert.That(cut.Find("[data-testid=export-text]").TextContent, Is.EqualTo("Export all 42 workouts to a JSON file"));
             Assert.That(export.TextContent.Trim(), Is.EqualTo("Export"));
             Assert.That(export.HasAttribute("disabled"), Is.False);

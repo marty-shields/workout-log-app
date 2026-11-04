@@ -4,17 +4,20 @@
 @using WorkoutLog.UI.Lifecycle
 @using WorkoutLog.UI.Models.Settings
 @using WorkoutLog.UI.Sharing
+@using WorkoutLog.UI.Theme
 @implements IDisposable
 @inject IExportService Export
 @inject IFileShare FileShare
 @inject IImportFileOpener Opener
 @inject ImportSession Session
 @inject IAppStart AppStart
+@inject ThemeService Themes
 @inject ILogger<SettingsPage> Logger
 
 <SettingsView Loading="phase == SettingsPhase.Loading" Failed="phase == SettingsPhase.LoadFailed" Count="count"
               Exporting="phase == SettingsPhase.Exporting" ExportMessage="message"
               Reading="phase == SettingsPhase.Reading" ImportFailed="phase == SettingsPhase.ImportFailed" Imported="imported"
+              Theme="theme" OnThemeChanged="SetThemeAsync"
               OnRetry="LoadAsync" OnExport="ExportAsync" OnImport="ImportAsync" OnBack="OnBack" />
 
 @code {
@@ -30,6 +33,7 @@
 
     private SettingsPhase phase;
     private int count;
+    private ThemePreference theme;
     private ExportMessage message;
     private ImportResult? imported;
     private bool Busy => phase is SettingsPhase.Loading or SettingsPhase.Exporting or SettingsPhase.Reading;
@@ -50,6 +54,7 @@
     {
         registration = AppStart.Register(() => InvokeAsync(ReloadAsync));
         var done = Session.TakeDone();
+        theme = await Themes.GetAsync();
         await LoadAsync();
         imported = done;
     }
@@ -182,6 +187,12 @@
 
         Session.Review = review;
         await OnImportReview.InvokeAsync();
+    }
+
+    private async Task SetThemeAsync(ThemePreference preference)
+    {
+        theme = preference;
+        await Themes.SetAsync(preference);
     }
 
     private void ClearMessages()

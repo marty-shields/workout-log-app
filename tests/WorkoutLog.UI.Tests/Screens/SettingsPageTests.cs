@@ -22,6 +22,7 @@ public class SettingsPageTests : ComponentTestBase
     private AppLifecycle lifecycle = null!;
     private FakeImportFileOpener opener = null!;
     private ImportSession session = null!;
+    private string savedTheme = null!;
 
     [SetUp]
     public void SetUp()
@@ -38,6 +39,50 @@ public class SettingsPageTests : ComponentTestBase
         Context.Services.AddSingleton<IImportFileOpener>(opener);
         session = new ImportSession();
         Context.Services.AddSingleton(session);
+        savedTheme = "system";
+        Context.JSInterop.Setup<string>("workoutLogTheme.get", _ => true).SetResult(savedTheme);
+        Context.JSInterop.SetupVoid("workoutLogTheme.set", _ => true).SetVoidResult();
+    }
+
+    [Test]
+    public async Task Theme_DefaultsToSystem()
+    {
+        var cut = Context.Render<SettingsPage>();
+        export.CompleteCount(new ExportCount(0, false));
+        await WaitForRendererAsync();
+
+        Assert.That(cut.Find("[data-testid=theme-system]").HasAttribute("checked"), Is.True);
+    }
+
+    [Test]
+    public async Task Theme_ShowsTheSavedChoice()
+    {
+        Context.JSInterop.Setup<string>("workoutLogTheme.get", _ => true).SetResult("dark");
+        var cut = Context.Render<SettingsPage>();
+        export.CompleteCount(new ExportCount(0, false));
+        await WaitForRendererAsync();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.Find("[data-testid=theme-dark]").HasAttribute("checked"), Is.True);
+            Assert.That(cut.Find("[data-testid=theme-system]").HasAttribute("checked"), Is.False);
+        });
+    }
+
+    [Test]
+    public async Task Theme_Tapped_SavesAndShowsTheChoice()
+    {
+        var cut = Context.Render<SettingsPage>();
+        export.CompleteCount(new ExportCount(0, false));
+        await WaitForRendererAsync();
+
+        cut.Find("[data-testid=theme-light]").Change(true);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(Context.JSInterop.Invocations["workoutLogTheme.set"].Single().Arguments, Is.EqualTo(new object[] { "light" }));
+            Assert.That(cut.Find("[data-testid=theme-light]").HasAttribute("checked"), Is.True);
+        });
     }
 
     [Test]

@@ -2,6 +2,7 @@
 @using Microsoft.Extensions.Logging
 @using WorkoutLog.Core.Services
 @using WorkoutLog.UI.Components.Feedback
+@using WorkoutLog.UI.Components.Inputs
 @using WorkoutLog.UI.Models.Settings
 @inject ILogger<SettingsView> Logger
 <AppScreen Title="Settings" OnBack="OnBack">
@@ -17,6 +18,10 @@
     }
     else
     {
+        <section class="section">
+            <h2 class="heading">Appearance</h2>
+            <SegmentedControl TValue="ThemePreference" Label="Theme" Options="Themes" Value="Theme" ValueChanged="OnThemeChanged" TestId="theme" />
+        </section>
         <section class="section">
             <h2 class="heading">Your data</h2>
             <p class="text" data-testid="export-text">@ExportText</p>
@@ -76,6 +81,14 @@
     [Parameter]
     public ImportResult? Imported { get; set; }
 
+    /// <summary>The chosen theme, shown selected in Appearance. System follows the phone.</summary>
+    [Parameter]
+    public ThemePreference Theme { get; set; }
+
+    /// <summary>Raised with the theme tapped in Appearance.</summary>
+    [Parameter]
+    public EventCallback<ThemePreference> OnThemeChanged { get; set; }
+
     /// <summary>Raised by Try again.</summary>
     [Parameter]
     public EventCallback OnRetry { get; set; }
@@ -91,6 +104,13 @@
     /// <summary>Raised by the back arrow and the Android back button.</summary>
     [Parameter]
     public EventCallback OnBack { get; set; }
+
+    private static readonly IReadOnlyList<RadioOption<ThemePreference>> Themes =
+    [
+        new(ThemePreference.System, "System", "theme-system"),
+        new(ThemePreference.Light, "Light", "theme-light"),
+        new(ThemePreference.Dark, "Dark", "theme-dark"),
+    ];
 
     private AppButton? export;
     private AppButton? import;

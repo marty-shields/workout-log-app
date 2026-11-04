@@ -9,8 +9,9 @@ Opened from the Dashboard gear. View: `SettingsView`; page: `SettingsPage`.
 | Part | Content |
 |---|---|
 | Top bar | Back arrow; title "Settings". |
-| Content | Heading "Your data", the export text, and a Secondary full-width **Export**; then "Import workouts from a JSON file exported by Workout Log" and a Secondary full-width **Import**, enabled with or without workouts. |
+| Content | Heading "Appearance" and a **Theme** segmented control, System, Light and Dark (System selected by default); then heading "Your data", the export text, and a Secondary full-width **Export**; then "Import workouts from a JSON file exported by Workout Log" and a Secondary full-width **Import**, enabled with or without workouts. |
 | Export text | "Export all 42 workouts to a JSON file", grouped from 1,000 ("Export all 1,042 workouts…"); "Export 1 workout to a JSON file"; "No workouts to export", with Export disabled. |
+| Theme | Tapping a segment applies it at once and saves it on the phone. **System** follows the phone's light or dark setting and is the default. **Light** and **Dark** override it, and are kept across app starts. The saved choice is applied before the first screen shows, so the app never flashes the wrong theme. The control shows after the count loads. |
 | Loading | `Spinner` "Loading…", centred on the screen, until the count loads. The heading, text and Export show after it. |
 | Load failed | Error "Couldn't load your workouts" and a Secondary **Try again** that reloads. Focus moves to Try again. |
 | Exporting | Export is busy: a spinner beside "Exporting…". Taps are ignored. |
@@ -30,6 +31,6 @@ The messages under Export and Import clear on the next Export or Import tap and 
 
 Back: Dashboard. Import: Import Review.
 
-States: [With workouts](./?path=/story/screens-settings--with-workouts) · [One workout](./?path=/story/screens-settings--one-workout) · [No workouts](./?path=/story/screens-settings--no-workouts) · [Loading](./?path=/story/screens-settings--loading) · [Load failed](./?path=/story/screens-settings--load-failed) · [Exporting](./?path=/story/screens-settings--exporting) · [Export failed](./?path=/story/screens-settings--export-failed) · [Too many workouts](./?path=/story/screens-settings--too-many-workouts) · [Reading](./?path=/story/screens-settings--reading) · [Import failed](./?path=/story/screens-settings--import-failed) · [Imported](./?path=/story/screens-settings--imported)
+States: [With workouts](./?path=/story/screens-settings--with-workouts) · [Dark theme](./?path=/story/screens-settings--dark-theme) · [One workout](./?path=/story/screens-settings--one-workout) · [No workouts](./?path=/story/screens-settings--no-workouts) · [Loading](./?path=/story/screens-settings--loading) · [Load failed](./?path=/story/screens-settings--load-failed) · [Exporting](./?path=/story/screens-settings--exporting) · [Export failed](./?path=/story/screens-settings--export-failed) · [Too many workouts](./?path=/story/screens-settings--too-many-workouts) · [Reading](./?path=/story/screens-settings--reading) · [Import failed](./?path=/story/screens-settings--import-failed) · [Imported](./?path=/story/screens-settings--imported)
 
-`data-testid`: `back`, `export-text`, `export`, `export-error`, `import-text`, `import`, `import-error`, `import-done`, `settings-loading`, `settings-error`, `settings-retry`.
+`data-testid`: `back`, `theme`, `theme-system`, `theme-light`, `theme-dark`, `export-text`, `export`, `export-error`, `import-text`, `import`, `import-error`, `import-done`, `settings-loading`, `settings-error`, `settings-retry`.
