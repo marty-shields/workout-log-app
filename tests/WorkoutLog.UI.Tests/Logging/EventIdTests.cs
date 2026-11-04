@@ -88,6 +88,7 @@ public partial class EventIdTests
             ["UrlBlocked"] = 5041,
             ["UnhandledException"] = 5031,
             ["UnobservedTaskException"] = 5033,
+            ["HapticFailed"] = 5051,
         }));
 
     [TestCaseSource(nameof(SourceFiles))]

@@ -33,4 +33,7 @@ internal enum AppEvent
     UnhandledException = 5031,
 
     UnobservedTaskException = 5033,
+
+    /// <summary>Touch feedback for a haptic cue failed; nothing else happens.</summary>
+    HapticFailed = 5051,
 }
