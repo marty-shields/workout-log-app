@@ -13,7 +13,19 @@ namespace WorkoutLog.App.Haptics;
 internal sealed partial class AndroidHaptics(ILogger<AndroidHaptics> logger) : IHaptics
 {
     /// <inheritdoc />
-    public void Play(HapticCue cue) => MainThread.BeginInvokeOnMainThread(() =>
+    public void Play(HapticCue cue)
+    {
+        if (MainThread.IsMainThread)
+        {
+            Perform(cue);
+        }
+        else
+        {
+            MainThread.BeginInvokeOnMainThread(() => Perform(cue));
+        }
+    }
+
+    private void Perform(HapticCue cue)
     {
         try
         {
@@ -23,7 +35,7 @@ internal sealed partial class AndroidHaptics(ILogger<AndroidHaptics> logger) : I
         {
             Log.HapticFailed(logger, exception, cue);
         }
-    });
+    }
 
     /// <summary>
     /// SetLogged is the most frequent cue, so it is the light tick; Done and Save complete something, so they confirm;
