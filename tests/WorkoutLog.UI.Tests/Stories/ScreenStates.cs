@@ -33,7 +33,7 @@ public static class ScreenStates
         new("Screens/Startup", "Loading", c => c.Render<StartupView>().FindAll("*")),
         new("Screens/Startup", "Load failed", c => c.Render<StartupView>(p => p.Add(x => x.Failed, true)).FindAll("*")),
 
-        new("Screens/Dashboard", "With workouts", c => Dashboard(c, SampleDashboard.LastWorkout, SampleDashboard.ThisWeek, SampleDashboard.LastWeek, SampleDashboard.WeekCounts, 6, SampleDashboard.Records)),
+        new("Screens/Dashboard", "With workouts", c => Dashboard(c, SampleDashboard.LastWorkout, SampleDashboard.ThisWeek, SampleDashboard.LastWeekToDate, SampleDashboard.WeekCounts, 6, SampleDashboard.Records)),
         new("Screens/Dashboard", "First workout", c => Dashboard(c, SampleDashboard.Workout(0, 2), SampleDashboard.FirstWeek, SampleDashboard.NoWeek, SampleDashboard.FirstWeekCounts, 1, [])),
         new("Screens/Dashboard", "No workouts", c => Dashboard(c, null, SampleDashboard.NoWeek, SampleDashboard.NoWeek, SampleDashboard.EmptyWeeks, 0, [])),
         new("Screens/Dashboard", "Loading", c => DashboardLoad(c, loading: true)),
@@ -190,7 +190,7 @@ public static class ScreenStates
         BunitContext context,
         LastWorkout? lastWorkout,
         WeekTotals thisWeek,
-        WeekTotals lastWeek,
+        WeekTotals lastWeekToDate,
         IReadOnlyList<int> weekCounts,
         int streak,
         IReadOnlyList<RecentRecord> records) =>
@@ -203,7 +203,7 @@ public static class ScreenStates
                     .Add(x => x.TestId, "last-workout"))
                 .Add<ConsistencyCard>(x => x.Consistency, card => card
                     .Add(x => x.ThisWeek, thisWeek)
-                    .Add(x => x.LastWeek, lastWeek)
+                    .Add(x => x.LastWeekToDate, lastWeekToDate)
                     .Add(x => x.WeekCounts, weekCounts)
                     .Add(x => x.Streak, streak)
                     .Add(x => x.OnMuscles, () => { })

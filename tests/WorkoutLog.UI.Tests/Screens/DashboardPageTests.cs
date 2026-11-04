@@ -77,7 +77,7 @@ public class DashboardPageTests : ComponentTestBase
             Assert.That(cut.Find("[data-testid=last-workout-when]").TextContent, Is.EqualTo("2 days ago · 1:12:04"));
             Assert.That(cut.Find("[data-testid=last-workout-exercises]").TextContent, Is.EqualTo($"Farmer's Walk, {Name(300)} +1"));
             Assert.That(card.ThisWeek, Is.EqualTo(new WeekTotals(3, new TimeSpan(3, 5, 0), 42)));
-            Assert.That(card.LastWeek, Is.EqualTo(new WeekTotals(2, new TimeSpan(2, 40, 0), 45)));
+            Assert.That(card.LastWeekToDate, Is.EqualTo(new WeekTotals(2, new TimeSpan(2, 40, 0), 45)));
             Assert.That(card.WeekCounts, Is.EqualTo(new[] { 2, 3, 1, 2, 3, 0, 3, 4, 2, 3, 2, 3 }));
             Assert.That(cut.Find("[data-testid=consistency-streak]").TextContent, Is.EqualTo("6-week streak"));
             Assert.That(cut.Find("[data-testid=consistency-comparison-time]").TextContent, Does.Contain("3h 05m"));

@@ -1,5 +1,5 @@
 <section class="card" data-testid="@TestId">
-    <WeekComparison ThisWeek="ThisWeek" LastWeek="LastWeek" TestId="@($"{TestId}-comparison")" />
+    <WeekComparison ThisWeek="ThisWeek" LastWeekToDate="LastWeekToDate" TestId="@($"{TestId}-comparison")" />
     <div class="weeks">
         <div class="weeks-header">
             <h2 class="title">Last 12 weeks</h2>
@@ -22,9 +22,9 @@
     [Parameter, EditorRequired]
     public WeekTotals ThisWeek { get; set; } = null!;
 
-    /// <summary>Last week's totals, Monday to Sunday.</summary>
+    /// <summary>Last week's totals from Monday to the same weekday and time of day as now.</summary>
     [Parameter, EditorRequired]
-    public WeekTotals LastWeek { get; set; } = null!;
+    public WeekTotals LastWeekToDate { get; set; } = null!;
 
     /// <summary>Workouts per week for the last 12 weeks, oldest first; the last is this week.</summary>
     [Parameter, EditorRequired]
