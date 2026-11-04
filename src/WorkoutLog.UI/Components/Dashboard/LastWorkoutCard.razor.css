@@ -31,10 +31,8 @@ section.card {
 
 .label {
     margin: 0;
-    color: var(--color-text-muted);
-    font-size: var(--font-size-sm);
+    font-size: var(--font-size-md);
     font-weight: var(--font-weight-bold);
-    text-transform: uppercase;
 }
 
 .date {
