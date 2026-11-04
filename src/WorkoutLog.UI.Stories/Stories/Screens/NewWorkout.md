@@ -75,6 +75,14 @@ Save runs `IWorkoutChecker.Check`: every set and entry, then the workout, its no
 
 A valid Save calls `IWorkoutService.SaveNewAsync` with the workout note and `ISetChecker.Read`'s records, oldest first, each with its note, then raises `OnSaved`; the App goes to the Dashboard. If nothing was saved, the workout error shows "Couldn't save the workout. Try again", the workout and its notes stay and focus moves to Save. Taps on Save while a save runs are ignored.
 
+## Haptics
+With the phone on a bench, a short buzz confirms the moments that matter (see [Haptics](./?path=/custom/foundations-haptics)):
+- Add set that closes a valid open set: a light tick (`SetLogged`).
+- The tick marking an exercise done (`ExerciseDone`), and Save saving the workout, once (`WorkoutSaved`).
+- Add set, the tick or Save blocked by errors: the reject pattern (`Rejected`).
+
+Nothing else buzzes: not typing, opening another set, adding or deleting an exercise or set, Undo, a failed write or Discard. Nothing buzzes when the phone's touch feedback is off.
+
 ## Back
 Back (arrow or Android) opens `ConfirmDialog` "Discard this workout?", even with no exercises. Cancel, or Android back, closes it and the workout stays. Discard logs Information 2701 "New workout discarded with {ExerciseCount} exercises" and raises `OnDiscarded`; the App goes to the Dashboard. Back is ignored while a save runs, after one succeeds and after a discard. Discard runs once; while a save runs or after one succeeds it closes the prompt and does nothing else.
 

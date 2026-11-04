@@ -20,6 +20,8 @@ Same layout and behaviour as [New Workout](./?path=/custom/screens-new-workout-o
 
 Save calls `IWorkoutService.SaveAsync` with the workout note and every exercise with its note, whether or not its card was opened, then the App goes to the Dashboard. Save is also ignored while a delete runs and after one succeeds.
 
+Haptics are as on [New Workout](./?path=/custom/screens-new-workout-overview#haptics): Add set, the tick and Save confirm, and a block by errors rejects. Delete, Discard and Undo don't buzz.
+
 ## Back
 While loading, after a failed load and when not found: Workouts. On a loaded workout with no changes: Workouts, no prompt. Opened from the Dashboard's last workout, back goes to the Dashboard instead.
 

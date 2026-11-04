@@ -15,7 +15,7 @@ Tokens, components, screens and their behaviour for the Workout Log app.
 | Stories and these pages | `src/WorkoutLog.UI.Stories/Stories/`: `Foundations/`, `Components/<Group>/`, `Screens/` |
 
 ## Sections
-- **Foundations**: this page, [Tokens](./?path=/story/foundations-tokens--all-tokens), [Navigation](./?path=/custom/foundations-navigation) and the [App Icon](./?path=/custom/foundations-app-icon-overview).
+- **Foundations**: this page, [Tokens](./?path=/story/foundations-tokens--all-tokens), [Navigation](./?path=/custom/foundations-navigation), [Haptics](./?path=/custom/foundations-haptics) and the [App Icon](./?path=/custom/foundations-app-icon-overview).
 - **Components**: one folder per group, with an Overview page and one stories file per component. Each story is one visual state.
 - **Screens**: one folder per screen, with an Overview page (parts, behaviour, `data-testid`s) and one story per state, in the phone frame.
 
