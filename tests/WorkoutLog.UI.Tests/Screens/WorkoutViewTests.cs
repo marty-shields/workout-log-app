@@ -150,7 +150,11 @@ public class WorkoutViewTests : ComponentTestBase
             .Add(x => x.StartedAt, Started)
             .Add(x => x.Exercises, []));
 
-        Assert.That(cut.Find("[data-testid=no-exercises]").TextContent, Does.Contain("No exercises yet"));
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.Find("[data-testid=no-exercises]").TextContent, Does.Contain("No exercises yet"));
+            Assert.That(cut.Find("[data-testid=no-exercises-hint]").TextContent, Is.EqualTo("Tap Add exercise to start logging"));
+        });
     }
 
     [Test]

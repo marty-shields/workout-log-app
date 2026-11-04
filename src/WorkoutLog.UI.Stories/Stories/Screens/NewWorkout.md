@@ -11,7 +11,7 @@ Log a workout as you go. View: `WorkoutView` with `Mode` New; page: `NewWorkoutP
 | Part | Content |
 |---|---|
 | Top bar | Back arrow; date and day; "Elapsed h:mm:ss"; the note icon button. |
-| Content | Workout error, if any; the workout note (`NoteField`), once there is one; `EmptyState` "No exercises yet" or one `ExerciseCard` per exercise, newest first. Sets in a card are in the order added. At 10 exercises, a muted centred note "At most 10 exercises" under the cards. |
+| Content | Workout error, if any; the workout note (`NoteField`), once there is one; `EmptyState` "No exercises yet", hint "Tap Add exercise to start logging", or one `ExerciseCard` per exercise, newest first. Sets in a card are in the order added. At 10 exercises, a muted centred note "At most 10 exercises" under the cards. |
 | Bottom bar | Add exercise (secondary) and Save (primary), side by side. Add exercise is off at 10 exercises. |
 | Overlays | `AddExerciseView` ([Add Exercise](./?path=/custom/screens-add-exercise-overview)); `ConfirmDialog` "Discard this workout?" on back; "Delete {exercise name}?" on an exercise's trash; "Delete set {n}?" on a closed set's trash. |
 

@@ -9,7 +9,7 @@ Saved workouts, newest first. View: `WorkoutsView`; page: `WorkoutsPage`.
 | Part | Content |
 |---|---|
 | Top bar | Back arrow; title "Workouts". |
-| Content | One `ListRow` per workout: date, day and start time, e.g. *Tue 20 Oct 2026 · 18:05*. `EmptyState` "No workouts yet" when there are none. |
+| Content | One `ListRow` per workout: date, day and start time, e.g. *Tue 20 Oct 2026 · 18:05*. `EmptyState` "No workouts yet", hint "Tap New Workout on the Dashboard to log one", when there are none. |
 | Loading | `Spinner` "Loading…" centred until the workouts load. |
 | Load failed | Error "Couldn't load your workouts" and a Secondary **Try again** that reloads. Focus moves to Try again. |
 

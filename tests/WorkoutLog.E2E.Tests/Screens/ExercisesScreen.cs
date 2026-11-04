@@ -44,7 +44,7 @@ public sealed class ExercisesScreen(WebView web)
     /// <summary>Taps the row of the exercise.</summary>
     public void Open(int exerciseId) => web.Tap($"exercises-row-{exerciseId}");
 
-    public string? EmptyText() => web.Exists("exercises-empty") ? web.Text("exercises-empty") : null;
+    public string? EmptyText() => web.Exists("exercises-empty") ? web.Text("exercises-empty-message") : null;
 
     public string? NoMatchText() => web.Exists("exercises-none") ? web.Text("exercises-none") : null;
 

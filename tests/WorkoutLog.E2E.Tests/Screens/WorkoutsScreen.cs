@@ -19,7 +19,7 @@ public sealed class WorkoutsScreen(WebView web)
         return web.FindAll(RowSelector).Select(e => int.Parse(e.GetDomAttribute("data-testid")!["workouts-row-".Length..])).ToList();
     }
 
-    public string? EmptyText() => web.Exists("workouts-empty") ? web.Text("workouts-empty") : null;
+    public string? EmptyText() => web.Exists("workouts-empty") ? web.Text("workouts-empty-message") : null;
 
     public void Open(int workoutId) => web.Tap($"workouts-row-{workoutId}");
 

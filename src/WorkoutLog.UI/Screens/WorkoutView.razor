@@ -20,7 +20,7 @@
             <NoteField @ref="noteField" Label="Workout note" Value="@Note" ValueChanged="NoteChanged" @bind-Editing="editingNote" Error="@NoteError" TestId="workout-note" />
             @if (Exercises.Count == 0)
             {
-                <EmptyState Message="No exercises yet" TestId="no-exercises" />
+                <EmptyState Message="No exercises yet" Hint="Tap Add exercise to start logging" TestId="no-exercises" />
             }
             @for (var i = 0; i < Exercises.Count; i++)
             {

@@ -1,5 +1,9 @@
 <div class="empty" data-testid="@TestId">
-    <p class="message">@Message</p>
+    <p class="message" data-testid="@($"{TestId}-message")">@Message</p>
+    @if (Hint is not null)
+    {
+        <p class="hint" data-testid="@($"{TestId}-hint")" data-wrap-ok>@Hint</p>
+    }
     @ChildContent
 </div>
 
@@ -7,6 +11,10 @@
     /// <summary>Text shown when there is nothing to list.</summary>
     [Parameter, EditorRequired]
     public string Message { get; set; } = "";
+
+    /// <summary>What to do to fill the list, shown smaller under the message. Null shows no hint.</summary>
+    [Parameter]
+    public string? Hint { get; set; }
 
     /// <summary>Optional action under the message.</summary>
     [Parameter]

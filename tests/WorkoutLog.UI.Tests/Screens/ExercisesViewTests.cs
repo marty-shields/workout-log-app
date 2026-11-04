@@ -116,7 +116,8 @@ public class ExercisesViewTests : ComponentTestBase
 
         Assert.Multiple(() =>
         {
-            Assert.That(TestText.Normalise(cut.Find("[data-testid=exercises-empty]").TextContent), Is.EqualTo("No exercises logged yet"));
+            Assert.That(TestText.Normalise(cut.Find("[data-testid=exercises-empty-message]").TextContent), Is.EqualTo("No exercises logged yet"));
+            Assert.That(cut.Find("[data-testid=exercises-empty-hint]").TextContent, Is.EqualTo("Exercises show here once you log them in a workout"));
             Assert.That(cut.FindAll("[data-testid=exercises-search]"), Is.Empty);
             Assert.That(cut.FindAll("[data-testid=exercises-filter]"), Is.Empty);
             Assert.That(cut.FindAll("[data-testid=exercises-none]"), Is.Empty);

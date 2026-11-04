@@ -25,7 +25,11 @@ public class WorkoutsViewTests : ComponentTestBase
     {
         var cut = Context.Render<WorkoutsView>(p => p.Add(x => x.Rows, []));
 
-        Assert.That(cut.Find("[data-testid=workouts-empty]").TextContent, Does.Contain("No workouts yet"));
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.Find("[data-testid=workouts-empty]").TextContent, Does.Contain("No workouts yet"));
+            Assert.That(cut.Find("[data-testid=workouts-empty-hint]").TextContent, Is.EqualTo("Tap New Workout on the Dashboard to log one"));
+        });
     }
 
     [Test]

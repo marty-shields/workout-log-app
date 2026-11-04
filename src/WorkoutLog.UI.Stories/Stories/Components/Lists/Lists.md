@@ -13,8 +13,8 @@ A number with a label, on a card. The number uses `--color-accent` at `--font-si
 - `data-testid`: `TestId`.
 
 ## `EmptyState`
-A message in a dashed box, for a list or section with nothing in it.
-- `data-testid`: `TestId`.
+A message in a dashed box, for a list or section with nothing in it. An optional `Hint` under it, smaller, says how to fill it.
+- `data-testid`: `TestId`; the message `{TestId}-message`, the hint `{TestId}-hint`.
 
 ## `RecordsCard`
 A card titled "Records · " and the range, e.g. *Records · last 3 months*. One row per `RecordRow`: label, value in bold and date, muted. A record with no value shows "—" and no date.

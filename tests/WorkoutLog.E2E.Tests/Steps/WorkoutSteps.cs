@@ -246,5 +246,5 @@ public sealed class WorkoutSteps(WebView web, Native native, Journeys journeys, 
 
     /// <summary>The workout error, or the "No exercises yet" message when that is what's asked for.</summary>
     private string? WorkoutMessage(string expected) =>
-        expected == "No exercises yet" ? (workout.ShowsNoExercises() ? web.Text("no-exercises") : null) : workout.Error();
+        expected == "No exercises yet" ? (workout.ShowsNoExercises() ? web.Text("no-exercises-message") : null) : workout.Error();
 }
