@@ -68,3 +68,8 @@
     bottom: 100%;
     left: 0;
 }
+
+/* The snackbar floats over the content: room for one of up to two lines lets the last controls scroll clear of it. */
+.screen:has(.snackbar-slot > *) .content {
+    padding-bottom: calc(var(--space-4) + 2 * var(--touch-target));
+}
