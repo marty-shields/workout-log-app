@@ -540,6 +540,44 @@ public class NewWorkoutPageTests : ComponentTestBase
     }
 
     [Test]
+    public void Undo_TheOnlyExerciseAfterSave_RemovesAddAtLeastOneExercise()
+    {
+        var cut = RenderPage();
+        Add(cut, 132);
+        Remove(cut, 1);
+        cut.Find("[data-testid=save-workout]").Click();
+        var shown = cut.Find("[data-testid=workout-error]").TextContent;
+
+        cut.Find("[data-testid=snackbar-undo]").Click();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(shown, Is.EqualTo("Add at least one exercise"));
+            Assert.That(cut.FindAll("[data-testid=workout-error]"), Is.Empty);
+        });
+    }
+
+    [Test]
+    public void Undo_TheOnlySetAfterSave_RemovesAddAtLeastOneSet()
+    {
+        var cut = RenderPage();
+        Add(cut, 6);
+        AddSets(cut, 1, 2);
+        cut.Find("[data-testid=exercise-1-set-2-remove]").Click();
+        cut.Find("[data-testid=exercise-1-set-1-remove]").Click();
+        cut.Find("[data-testid=save-workout]").Click();
+        var shown = cut.Find("[data-testid=exercise-1-error]").TextContent;
+
+        cut.Find("[data-testid=snackbar-undo]").Click();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(shown, Is.EqualTo("Add at least one set"));
+            Assert.That(cut.FindAll("[data-testid=exercise-1-error]"), Is.Empty);
+        });
+    }
+
+    [Test]
     public void Remove_Again_ReplacesTheSnackbarAndKeepsTheFirstDeleted()
     {
         var cut = RenderPage();

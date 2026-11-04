@@ -403,6 +403,42 @@ public class WorkoutEditorTests
     }
 
     [Test]
+    public async Task Undo_TheOnlyExerciseAfterSaveSaidAddOne_ClearsTheWorkoutError()
+    {
+        editor.Start([SampleData.Exercise(Catalog, Squat, ["8", "60"])], null);
+        editor.Remove(editor.Exercises[0]);
+        await editor.SaveAsync((_, _) => Task.FromResult(true));
+        var shown = editor.Error;
+
+        editor.Undo();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(shown, Is.EqualTo("Add at least one exercise"));
+            Assert.That(editor.Error, Is.Null);
+        });
+    }
+
+    [Test]
+    public async Task Undo_TheOnlySetAfterSaveSaidAddOne_ClearsTheExerciseError()
+    {
+        var squat = SampleData.Exercise(Catalog, Squat, ["8", "60"]);
+        editor.Start([squat], null);
+        editor.RemoveSet(new SetRef(squat, squat.Entries[0]));
+        await editor.SaveAsync((_, _) => Task.FromResult(true));
+        var shown = squat.Error;
+
+        editor.Undo();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(shown, Is.EqualTo("Add at least one set"));
+            Assert.That(squat.Error, Is.Null);
+            Assert.That(squat.HasError, Is.False);
+        });
+    }
+
+    [Test]
     public void RemoveSet_TakesTheSetOutAtOnceAndOffersUndoNamedForIt()
     {
         var squat = SampleData.Exercise(Catalog, Squat, ["8", "60"]);

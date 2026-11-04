@@ -1,5 +1,6 @@
 using WorkoutLog.Core.Domain.Exercises;
 using WorkoutLog.Core.Domain.Workouts;
+using WorkoutLog.Core.Domain.Workouts.Validation;
 using WorkoutLog.Core.Services;
 using WorkoutLog.UI.Haptics;
 using WorkoutLog.UI.Models.Exercises;
@@ -224,7 +225,9 @@ public sealed class WorkoutEditor(
     /// Puts the <see cref="PendingUndo"/> deletion back at its position (an exercise at its place in the screen order, or at the
     /// end when fewer are left; a set under the sets that were above it), with its values and
     /// done state, and clears it; ignored when it no longer <see cref="PendingUndo.Fits"/>, and while a save runs, which has read
-    /// the workout without it. Asks to focus what it put back. Not a change undone: <see cref="Changed"/> stays set.
+    /// the workout without it. Asks to focus what it put back. Clears the errors the deletion caused: an exercise clears the
+    /// workout's error, as <see cref="Pick"/> does, and a set clears its exercise's <see cref="ExerciseError.NoSets"/>.
+    /// Not a change undone: <see cref="Changed"/> stays set.
     /// </summary>
     public void Undo()
     {
@@ -239,10 +242,17 @@ public sealed class WorkoutEditor(
             case RemovedExercise removed:
                 exercises.Insert(Math.Min(removed.Index, exercises.Count), removed.Exercise);
                 Focus = new ExerciseFocus(removed.Exercise, ExerciseFocusTarget.Restored);
+                Error = null;
                 break;
             case RemovedSet removed:
                 removed.Exercise.Entries.Insert(removed.Index, removed.Entry);
                 Focus = new ExerciseFocus(removed.Exercise, ExerciseFocusTarget.Restored, removed.Entry);
+                if (removed.Exercise.ErrorCode == ExerciseError.NoSets)
+                {
+                    removed.Exercise.Error = null;
+                    removed.Exercise.ErrorCode = null;
+                }
+
                 break;
         }
 
