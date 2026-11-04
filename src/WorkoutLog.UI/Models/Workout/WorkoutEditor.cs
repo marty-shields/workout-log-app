@@ -222,11 +222,16 @@ public sealed class WorkoutEditor(
 
     /// <summary>
     /// Puts the <see cref="PendingUndo"/> deletion back at its position, or at the end when fewer are left, with its values and
-    /// done state, and clears it; ignored when it no longer <see cref="PendingUndo.Fits"/>. Not a change undone: <see cref="Changed"/>
-    /// stays set.
+    /// done state, and clears it; ignored when it no longer <see cref="PendingUndo.Fits"/>, and while a save runs, which has read
+    /// the workout without it. Not a change undone: <see cref="Changed"/> stays set.
     /// </summary>
     public void Undo()
     {
+        if (SaveState != SavePhase.Idle)
+        {
+            return;
+        }
+
         EndUndoThatNoLongerFits();
         switch (PendingUndo)
         {
@@ -270,8 +275,8 @@ public sealed class WorkoutEditor(
 
     /// <summary>
     /// Checks the workout and asks to focus the first error. A valid workout goes to <paramref name="save"/> with its note and
-    /// the records, oldest first, and the <see cref="PendingUndo"/> ends; returns true when it was saved. If not, shows SaveFailed and
-    /// asks to focus Save. Ignored while a save runs and after one succeeds. Plays <see cref="HapticCue.Rejected"/> for an invalid
+    /// the records, oldest first; returns true when it was saved, and the <see cref="PendingUndo"/> ends. If not, shows SaveFailed,
+    /// asks to focus Save and keeps the Undo. Ignored while a save runs and after one succeeds. Plays <see cref="HapticCue.Rejected"/> for an invalid
     /// workout and <see cref="HapticCue.WorkoutSaved"/> once saved; a failed save plays nothing, its message says why.
     /// </summary>
     /// <param name="save">Saves the note and the records; true when saved.</param>
@@ -298,11 +303,11 @@ public sealed class WorkoutEditor(
         }
 
         SaveState = SavePhase.Running;
-        PendingUndo = null;
         var saved = await save(Note, exercises.Select(setChecker.Read).Reverse().ToList());
         SaveState = saved ? SavePhase.Succeeded : SavePhase.Idle;
         if (saved)
         {
+            PendingUndo = null;
             haptics.Play(HapticCue.WorkoutSaved);
         }
         else

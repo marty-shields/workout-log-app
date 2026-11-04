@@ -656,14 +656,49 @@ public class WorkoutEditorTests
     }
 
     [Test]
-    public async Task SaveAsync_Saving_EndsTheUndo()
+    public async Task SaveAsync_Saved_EndsTheUndo()
     {
         editor.Start([SampleData.Exercise(Catalog, Squat, ["8", "60"]), SampleData.Exercise(Catalog, Treadmill, ["0:20:00", "3"])], null);
         editor.Remove(editor.Exercises[0]);
 
-        await editor.SaveAsync((_, _) => Task.FromResult(false));
+        await editor.SaveAsync((_, _) => Task.FromResult(true));
 
         Assert.That(editor.PendingUndo, Is.Null);
+    }
+
+    [Test]
+    public async Task SaveAsync_Fails_KeepsTheUndo()
+    {
+        var squat = SampleData.Exercise(Catalog, Squat, ["8", "60"]);
+        var treadmill = SampleData.Exercise(Catalog, Treadmill, ["0:20:00", "3"]);
+        editor.Start([squat, treadmill], null);
+        editor.Remove(treadmill);
+
+        await editor.SaveAsync((_, _) => Task.FromResult(false));
+        editor.Undo();
+
+        Assert.That(editor.Exercises, Is.EqualTo(new[] { treadmill, squat }));
+    }
+
+    [Test]
+    public async Task Undo_WhileSaving_IsIgnored()
+    {
+        var squat = SampleData.Exercise(Catalog, Squat, ["8", "60"]);
+        var treadmill = SampleData.Exercise(Catalog, Treadmill, ["0:20:00", "3"]);
+        editor.Start([squat, treadmill], null);
+        editor.Remove(treadmill);
+        var saving = new TaskCompletionSource<bool>();
+        var save = editor.SaveAsync((_, _) => saving.Task);
+
+        editor.Undo();
+        saving.SetResult(false);
+        await save;
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(editor.Exercises, Is.EqualTo(new[] { squat }));
+            Assert.That(editor.PendingUndo, Is.Not.Null);
+        });
     }
 
     [Test]
