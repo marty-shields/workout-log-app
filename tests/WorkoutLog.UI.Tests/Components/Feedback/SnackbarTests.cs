@@ -80,7 +80,7 @@ public class SnackbarTests : ComponentTestBase
             .Add(x => x.Message, "Set 2 deleted")
             .Add(x => x.OnTimeout, () => timedOut++));
 
-        cut.Instance.Dispose();
+        await cut.Instance.DisposeAsync();
         clock.Advance(Snackbar.Duration);
         await WaitForRendererAsync();
 
@@ -267,6 +267,39 @@ public class SnackbarTests : ComponentTestBase
     }
 
     [Test]
+    public async Task FocusedTwice_ImportsTheModuleOnce()
+    {
+        KeyboardFocus(false);
+        var cut = Context.Render<Snackbar>(p => p.Add(x => x.Message, "Set 2 deleted"));
+        var undo = cut.Find("[data-testid=snackbar-undo]");
+        await undo.FocusAsync(new FocusEventArgs());
+        await undo.BlurAsync(new FocusEventArgs());
+
+        await cut.Find("[data-testid=snackbar-undo]").FocusAsync(new FocusEventArgs());
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(Context.JSInterop.Invocations["import"], Has.Count.EqualTo(1));
+            Assert.That(Context.JSInterop.Invocations["isFocusVisible"], Has.Count.EqualTo(2));
+        });
+    }
+
+    [Test]
+    public async Task ImportFails_TriesAgainOnTheNextFocus()
+    {
+        var js = new FailingImports();
+        Context.Services.AddSingleton<IJSRuntime>(js);
+        var cut = Context.Render<Snackbar>(p => p.Add(x => x.Message, "Set 2 deleted"));
+        var undo = cut.Find("[data-testid=snackbar-undo]");
+        await undo.FocusAsync(new FocusEventArgs());
+        await undo.BlurAsync(new FocusEventArgs());
+
+        await cut.Find("[data-testid=snackbar-undo]").FocusAsync(new FocusEventArgs());
+
+        Assert.That(js.Imports, Is.EqualTo(2));
+    }
+
+    [Test]
     public void Duration_IsWithinMaterialsFourToTenSeconds()
     {
         Assert.That(Snackbar.Duration, Is.InRange(TimeSpan.FromSeconds(4), TimeSpan.FromSeconds(10)));
@@ -275,4 +308,17 @@ public class SnackbarTests : ComponentTestBase
     /// <summary>Undo answers whether it has keyboard focus (<c>:focus-visible</c>) with <paramref name="visible"/>.</summary>
     private void KeyboardFocus(bool visible) =>
         Context.JSInterop.SetupModule(SnackbarModule).Setup<bool>("isFocusVisible", _ => true).SetResult(visible);
+
+    private sealed class FailingImports : IJSRuntime
+    {
+        public int Imports { get; private set; }
+
+        public ValueTask<TValue> InvokeAsync<TValue>(string identifier, object?[]? args) => InvokeAsync<TValue>(identifier, CancellationToken.None, args);
+
+        public ValueTask<TValue> InvokeAsync<TValue>(string identifier, CancellationToken cancellationToken, object?[]? args)
+        {
+            Imports += identifier == "import" ? 1 : 0;
+            return ValueTask.FromException<TValue>(new JSException("Import failed"));
+        }
+    }
 }
