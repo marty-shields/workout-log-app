@@ -159,7 +159,7 @@ public class EditWorkoutPageTests : ComponentTestBase
         Assert.Multiple(() =>
         {
             Assert.That(DialogTitles(cut), Is.Empty);
-            Assert.That(cut.Find("[data-testid=snackbar-message]").TextContent, Is.EqualTo("Set 1 deleted"));
+            Assert.That(cut.Find("[data-testid=snackbar-message]").TextContent, Is.EqualTo("Barbell Back Squat set 1 deleted"));
             Assert.That(cut.FindAll("[data-testid=exercise-3-set-1-remove]"), Has.Count.EqualTo(1));
             Assert.That(cut.FindAll("[data-testid=exercise-3-set-2-remove]"), Is.Empty);
         });

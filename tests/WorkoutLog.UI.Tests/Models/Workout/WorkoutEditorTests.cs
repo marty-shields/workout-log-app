@@ -415,7 +415,7 @@ public class WorkoutEditorTests
         {
             Assert.That(squat.Entries, Has.Count.EqualTo(1));
             Assert.That(editor.PendingUndo, Is.EqualTo(new RemovedSet(squat, second, 1)));
-            Assert.That(editor.PendingUndo!.Message, Is.EqualTo("Set 2 deleted"));
+            Assert.That(editor.PendingUndo!.Message, Is.EqualTo("Barbell Back Squat set 2 deleted"));
             Assert.That(editor.Changed, Is.True);
         });
     }

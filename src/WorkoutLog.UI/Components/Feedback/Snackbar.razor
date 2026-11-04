@@ -2,7 +2,7 @@
 @inject TimeProvider Clock
 
 <div class="snackbar" data-testid="@TestId">
-    <p class="message" data-testid="@($"{TestId}-message")">@Message</p>
+    <p class="message" data-testid="@($"{TestId}-message")" data-wrap-ok>@Message</p>
     <button @ref="undo" type="button" class="action" data-testid="@($"{TestId}-undo")" @onclick="OnUndo" @onfocus="StopTimer" @onblur="StartTimer">Undo</button>
 </div>
 
@@ -17,7 +17,7 @@
     private CancellationTokenSource? timer;
     private bool timedOut;
 
-    /// <summary>What just happened, e.g. Set 2 deleted.</summary>
+    /// <summary>What just happened, e.g. Barbell Back Squat set 2 deleted.</summary>
     [Parameter, EditorRequired]
     public string Message { get; set; } = "";
 

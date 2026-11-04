@@ -1056,7 +1056,7 @@ public class NewWorkoutPageTests : ComponentTestBase
         {
             Assert.That(cut.FindAll("[data-testid=confirm-dialog]"), Is.Empty);
             Assert.That(cut.FindAll("[data-testid^=exercise-1-set-][data-testid$=-remove]"), Has.Count.EqualTo(1));
-            Assert.That(cut.Find("[data-testid=snackbar-message]").TextContent, Is.EqualTo("Set 1 deleted"));
+            Assert.That(cut.Find("[data-testid=snackbar-message]").TextContent, Is.EqualTo("Barbell Back Squat set 1 deleted"));
         });
     }
 
