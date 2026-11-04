@@ -7,7 +7,7 @@ namespace WorkoutLog.E2E.Tests.Steps;
 
 /// <summary>Back, prompts and which screen shows.</summary>
 [Binding]
-public sealed class BackSteps(WebView web, Native native, Journeys journeys, WorkoutScreen workout, ConfirmDialog dialog)
+public sealed class BackSteps(WebView web, Native native, Journeys journeys, WorkoutScreen workout, ConfirmDialog dialog, NavigationBar navigation)
 {
     private const string Way = "(the back arrow|Android back)";
 
@@ -17,6 +17,9 @@ public sealed class BackSteps(WebView web, Native native, Journeys journeys, Wor
 
     [When(@"^I press Android back$")]
     public void WhenIPressAndroidBack() => native.BackKey();
+
+    [When(@"^I tap (Dashboard|Workouts|Exercises) in the navigation bar$")]
+    public void WhenITapInTheNavigationBar(string destination) => navigation.Open(destination);
 
     [Then(@"^the prompt ""(.*)"" shows (Discard|Delete) and Cancel$")]
     public void ThenThePromptShows(string title, string confirm)

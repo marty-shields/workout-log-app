@@ -4,7 +4,7 @@
 
     <Story Name="With workouts">
         <Template>
-            <DashboardView OnNewWorkout="() => { }" OnWorkouts="() => { }" OnExercises="() => { }" OnSettings="() => { }">
+            <DashboardView OnNewWorkout="() => { }" OnSettings="() => { }">
                 <LastWorkout>
                     <LastWorkoutCard Workout="SampleDashboard.LastWorkout" OnOpen="() => { }" TestId="last-workout" />
                 </LastWorkout>
@@ -20,7 +20,7 @@
 
     <Story Name="First workout">
         <Template>
-            <DashboardView OnNewWorkout="() => { }" OnWorkouts="() => { }" OnExercises="() => { }" OnSettings="() => { }">
+            <DashboardView OnNewWorkout="() => { }" OnSettings="() => { }">
                 <LastWorkout>
                     <LastWorkoutCard Workout="SampleDashboard.Workout(0, 2)" OnOpen="() => { }" TestId="last-workout" />
                 </LastWorkout>
@@ -36,7 +36,7 @@
 
     <Story Name="No workouts">
         <Template>
-            <DashboardView OnNewWorkout="() => { }" OnWorkouts="() => { }" OnExercises="() => { }" OnSettings="() => { }">
+            <DashboardView OnNewWorkout="() => { }" OnSettings="() => { }">
                 <LastWorkout>
                     <LastWorkoutCard Workout="null" TestId="last-workout" />
                 </LastWorkout>
@@ -52,13 +52,13 @@
 
     <Story Name="Loading">
         <Template>
-            <DashboardView Loading OnNewWorkout="() => { }" OnWorkouts="() => { }" OnExercises="() => { }" OnSettings="() => { }" />
+            <DashboardView Loading OnNewWorkout="() => { }" OnSettings="() => { }" />
         </Template>
     </Story>
 
     <Story Name="Load failed">
         <Template>
-            <DashboardView Failed OnRetry="() => { }" OnNewWorkout="() => { }" OnWorkouts="() => { }" OnExercises="() => { }" OnSettings="() => { }" />
+            <DashboardView Failed OnRetry="() => { }" OnNewWorkout="() => { }" OnSettings="() => { }" />
         </Template>
     </Story>
 

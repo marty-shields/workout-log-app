@@ -7,6 +7,7 @@ using WorkoutLog.Core.Domain.Workouts.Consistency;
 using WorkoutLog.Core.Services;
 using WorkoutLog.UI.Components.Dashboard;
 using WorkoutLog.UI.Lifecycle;
+using WorkoutLog.UI.Navigation;
 using WorkoutLog.UI.Screens;
 
 namespace WorkoutLog.UI.Tests.Screens;
@@ -353,13 +354,11 @@ public class DashboardPageTests : ComponentTestBase
     public void Buttons_RaiseTheirCallbacks()
     {
         var newWorkout = 0;
-        var workouts = 0;
-        var exercises = 0;
+        var navigated = new List<NavDestination>();
         var settings = 0;
         var cut = Context.Render<DashboardPage>(p => p
             .Add(x => x.OnNewWorkout, () => newWorkout++)
-            .Add(x => x.OnWorkouts, () => workouts++)
-            .Add(x => x.OnExercises, () => exercises++)
+            .Add(x => x.OnNavigate, navigated.Add)
             .Add(x => x.OnSettings, () => settings++));
 
         cut.Find("[data-testid=new-workout]").Click();
@@ -370,8 +369,7 @@ public class DashboardPageTests : ComponentTestBase
         Assert.Multiple(() =>
         {
             Assert.That(newWorkout, Is.EqualTo(1));
-            Assert.That(workouts, Is.EqualTo(1));
-            Assert.That(exercises, Is.EqualTo(1));
+            Assert.That(navigated, Is.EqualTo(new[] { NavDestination.Workouts, NavDestination.Exercises }));
             Assert.That(settings, Is.EqualTo(1));
         });
     }

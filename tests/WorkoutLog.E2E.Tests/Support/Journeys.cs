@@ -7,7 +7,7 @@ namespace WorkoutLog.E2E.Tests.Support;
 public sealed class Journeys(
     WebView web, Native native, DeviceClock clock, ScenarioState state,
     DashboardScreen dashboard, WorkoutScreen workout, AddExerciseScreen addExercise, WorkoutsScreen workouts, ExercisesScreen exercises, MusclesScreen muscles,
-    ConfirmDialog dialog, SummaryScreen summary)
+    ConfirmDialog dialog, SummaryScreen summary, NavigationBar navigation)
 {
     private static readonly TimeSpan SaveGrace = TimeSpan.FromSeconds(3);
 
@@ -146,13 +146,13 @@ public sealed class Journeys(
         SaveAndWait();
     }
 
-    /// <summary>Goes to Workouts from the Dashboard, Workouts or an unchanged workout.</summary>
+    /// <summary>Goes to Workouts from the Dashboard, Workouts, Exercises or an unchanged workout.</summary>
     public void GoToWorkouts()
     {
         switch (Current())
         {
-            case Screen.Dashboard:
-                dashboard.OpenWorkouts();
+            case Screen.Dashboard or Screen.Exercises:
+                navigation.Open("Workouts");
                 break;
             case Screen.Workout:
                 workout.Back();
@@ -167,7 +167,7 @@ public sealed class Journeys(
     public void GoToExercises()
     {
         WaitFor(Screen.Dashboard);
-        dashboard.OpenExercises();
+        navigation.Open("Exercises");
         WaitFor(Screen.Exercises);
         exercises.WaitUntilLoaded();
     }
@@ -194,14 +194,9 @@ public sealed class Journeys(
             GoToWorkouts();
         }
 
-        if (Current() == Screen.Workouts)
+        if (Current() is Screen.Workouts or Screen.Exercises)
         {
-            workouts.Back();
-        }
-
-        if (Current() == Screen.Exercises)
-        {
-            exercises.Back();
+            navigation.Open("Dashboard");
         }
 
         WaitFor(Screen.Dashboard);

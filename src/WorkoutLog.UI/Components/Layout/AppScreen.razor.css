@@ -46,10 +46,17 @@
     padding-bottom: calc(var(--space-4) + var(--inset-bottom));
 }
 
+.bottom {
+    border-top: var(--border-width) solid var(--color-border);
+    background: var(--color-bg);
+}
+
 .bottom-bar {
     display: flex;
     gap: var(--space-3);
-    padding: var(--space-3) var(--space-4) calc(var(--space-3) + var(--inset-bottom));
-    border-top: var(--border-width) solid var(--color-border);
-    background: var(--color-bg);
+    padding: var(--space-3) var(--space-4) 0;
+}
+
+.bottom-bar:last-child {
+    padding-bottom: calc(var(--space-3) + var(--inset-bottom));
 }

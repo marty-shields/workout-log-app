@@ -1,0 +1,24 @@
+@using WorkoutLog.UI.Components.Layout
+@attribute [Stories("Components/Layout/BottomNav")]
+
+<Stories TComponent="BottomNav" Layout="typeof(ThemeLayout)">
+
+    <Story Name="Dashboard">
+        <Template>
+            <BottomNav Current="NavDestination.Dashboard" OnNavigate="(NavDestination _) => { }" />
+        </Template>
+    </Story>
+
+    <Story Name="Workouts">
+        <Template>
+            <BottomNav Current="NavDestination.Workouts" OnNavigate="(NavDestination _) => { }" />
+        </Template>
+    </Story>
+
+    <Story Name="Exercises">
+        <Template>
+            <BottomNav Current="NavDestination.Exercises" OnNavigate="(NavDestination _) => { }" />
+        </Template>
+    </Story>
+
+</Stories>

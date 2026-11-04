@@ -1,4 +1,5 @@
 using WorkoutLog.UI.Components.Actions;
+using WorkoutLog.UI.Navigation;
 using WorkoutLog.UI.Screens;
 
 namespace WorkoutLog.UI.Tests.Screens;
@@ -8,34 +9,37 @@ public class DashboardViewTests : ComponentTestBase
     private const string Cards = "[data-testid=last], [data-testid=consistency], [data-testid=records]";
 
     [Test]
-    public void Slots_ShowTheCardsInOrderAboveTheRows()
+    public void Slots_ShowTheCardsInOrder()
     {
         var cut = RenderWithCards();
 
-        var shown = cut.FindAll(Cards + ", [data-testid=workouts-link]").Select(e => e.GetAttribute("data-testid"));
+        var shown = cut.FindAll(Cards).Select(e => e.GetAttribute("data-testid"));
 
-        Assert.That(shown, Is.EqualTo(new[] { "last", "consistency", "records", "workouts-link" }));
+        Assert.That(shown, Is.EqualTo(new[] { "last", "consistency", "records" }));
     }
 
     [Test]
-    public void Rows_AreWorkoutsThenExercises()
+    public void NavigationBar_ShowsTheDashboardAsCurrentUnderNewWorkout()
     {
         var cut = Context.Render<DashboardView>();
 
-        Assert.That(cut.FindAll("[data-testid=workouts-link], [data-testid=exercises-link]").Select(r => (r.GetAttribute("data-testid"), r.QuerySelector(".text")!.TextContent)),
-            Is.EqualTo(new[] { ("workouts-link", "Workouts"), ("exercises-link", "Exercises") }));
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.FindAll("[data-testid=new-workout], [data-testid=bottom-nav]").Select(e => e.GetAttribute("data-testid")),
+                Is.EqualTo(new[] { "new-workout", "bottom-nav" }));
+            Assert.That(cut.Find("[aria-current=page]").GetAttribute("data-testid"), Is.EqualTo("dashboard-link"));
+            Assert.That(cut.FindAll("[data-testid=back]"), Is.Empty);
+        });
     }
 
     [Test]
     public void Buttons_RaiseTheirCallbacks()
     {
         var newWorkout = false;
-        var workouts = false;
-        var exercises = false;
+        var navigated = new List<NavDestination>();
         var cut = Context.Render<DashboardView>(p => p
             .Add(x => x.OnNewWorkout, () => newWorkout = true)
-            .Add(x => x.OnWorkouts, () => workouts = true)
-            .Add(x => x.OnExercises, () => exercises = true));
+            .Add(x => x.OnNavigate, navigated.Add));
 
         cut.Find("[data-testid=new-workout]").Click();
         cut.Find("[data-testid=workouts-link]").Click();
@@ -44,8 +48,7 @@ public class DashboardViewTests : ComponentTestBase
         Assert.Multiple(() =>
         {
             Assert.That(newWorkout, Is.True);
-            Assert.That(workouts, Is.True);
-            Assert.That(exercises, Is.True);
+            Assert.That(navigated, Is.EqualTo(new[] { NavDestination.Workouts, NavDestination.Exercises }));
         });
     }
 

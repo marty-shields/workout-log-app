@@ -23,7 +23,5 @@ public sealed class WorkoutsScreen(WebView web)
 
     public void Open(int workoutId) => web.Tap($"workouts-row-{workoutId}");
 
-    public void Back() => web.Tap("back");
-
     private const string RowSelector = "[data-testid^=\"workouts-row-\"]";
 }

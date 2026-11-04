@@ -16,6 +16,27 @@
         </Template>
     </Story>
 
+    <Story Name="Top-level with bottom bar">
+        <Template>
+            <AppScreen Title="Screen title" Destination="NavDestination.Dashboard" OnNavigate="(NavDestination _) => { }">
+                <ChildContent>
+                    <p>Scrolling content.</p>
+                </ChildContent>
+                <BottomBar>
+                    <AppButton FullWidth>Main action</AppButton>
+                </BottomBar>
+            </AppScreen>
+        </Template>
+    </Story>
+
+    <Story Name="Top-level">
+        <Template>
+            <AppScreen Title="Screen title" Destination="NavDestination.Workouts" OnNavigate="(NavDestination _) => { }">
+                <p>Scrolling content.</p>
+            </AppScreen>
+        </Template>
+    </Story>
+
     <Story Name="Title only">
         <Template>
             <AppScreen Title="Screen title">

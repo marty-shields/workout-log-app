@@ -15,7 +15,7 @@
                Failed="failed"
                OnRetry="LoadAsync"
                OnOpen="item => OnOpen.InvokeAsync(item.Id)"
-               OnBack="OnBack" />
+               OnNavigate="OnNavigate" />
 
 @code {
     private IReadOnlyList<ExerciseListItem> logged = [];
@@ -29,9 +29,9 @@
     [Parameter]
     public EventCallback<int> OnOpen { get; set; }
 
-    /// <summary>Raised by the back arrow and the Android back button.</summary>
+    /// <summary>Raised with the destination tapped in the bottom navigation bar, and with the Dashboard on Android back.</summary>
     [Parameter]
-    public EventCallback OnBack { get; set; }
+    public EventCallback<NavDestination> OnNavigate { get; set; }
 
     protected override Task OnInitializedAsync() => LoadAsync();
 

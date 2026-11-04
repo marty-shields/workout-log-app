@@ -1,7 +1,5 @@
-@using WorkoutLog.UI.Navigation
-
 <div class="screen">
-    <BackHandler OnBack="OnBack" />
+    <BackHandler OnBack="Back" />
     <header class="top-bar">
         @if (OnBack.HasDelegate)
         {
@@ -19,10 +17,19 @@
     <main class="content">
         @ChildContent
     </main>
-    @if (BottomBar is not null)
+    @if (BottomBar is not null || Destination is not null)
     {
-        <footer class="bottom-bar" data-testid="bottom-bar">
-            @BottomBar
+        <footer class="bottom">
+            @if (BottomBar is not null)
+            {
+                <div class="bottom-bar" data-testid="bottom-bar">
+                    @BottomBar
+                </div>
+            }
+            @if (Destination is { } current)
+            {
+                <BottomNav Current="current" OnNavigate="OnNavigate" />
+            }
         </footer>
     }
 </div>
@@ -36,9 +43,17 @@
     [Parameter]
     public string? Subtitle { get; set; }
 
-    /// <summary>Raised by the back arrow and the Android back button. No arrow shows when unset, and Android back leaves the app.</summary>
+    /// <summary>Raised by the back arrow and the Android back button. No arrow shows when unset, and Android back leaves the app. Unset on a top-level screen.</summary>
     [Parameter]
     public EventCallback OnBack { get; set; }
+
+    /// <summary>Makes this a top-level screen: shows the bottom navigation bar with this item current. Android back then goes to <see cref="NavDestinations.Start"/>, or leaves the app from there.</summary>
+    [Parameter]
+    public NavDestination? Destination { get; set; }
+
+    /// <summary>Raised with the destination tapped in the bottom navigation bar, or with <see cref="NavDestinations.Start"/> on Android back.</summary>
+    [Parameter]
+    public EventCallback<NavDestination> OnNavigate { get; set; }
 
     /// <summary>Actions at the right of the top bar.</summary>
     [Parameter]
@@ -51,4 +66,9 @@
     /// <summary>Actions fixed at the bottom, in thumb reach.</summary>
     [Parameter]
     public RenderFragment? BottomBar { get; set; }
+
+    private EventCallback Back =>
+        Destination is { } current && current != NavDestinations.Start
+            ? EventCallback.Factory.Create(this, () => OnNavigate.InvokeAsync(NavDestinations.Start))
+            : OnBack;
 }

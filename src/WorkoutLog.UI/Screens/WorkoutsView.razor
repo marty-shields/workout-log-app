@@ -1,6 +1,6 @@
 @using WorkoutLog.UI.Components.Feedback
 @using WorkoutLog.UI.Models.Workouts
-<AppScreen Title="Workouts" OnBack="OnBack">
+<AppScreen Title="Workouts" Destination="NavDestination.Workouts" OnNavigate="OnNavigate">
     @if (Loading)
     {
         <div class="centre">
@@ -49,7 +49,7 @@
     [Parameter, EditorRequired]
     public EventCallback<WorkoutsRow> OnOpen { get; set; }
 
-    /// <summary>Raised by the back arrow and the Android back button.</summary>
+    /// <summary>Raised with the destination tapped in the bottom navigation bar, and with the Dashboard on Android back.</summary>
     [Parameter]
-    public EventCallback OnBack { get; set; }
+    public EventCallback<NavDestination> OnNavigate { get; set; }
 }

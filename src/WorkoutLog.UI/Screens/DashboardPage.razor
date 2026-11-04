@@ -13,7 +13,7 @@
 @inject TimeProvider Clock
 @inject IAppStart AppStart
 
-<DashboardView Loading="loading" Failed="failed" OnRetry="LoadAsync" OnNewWorkout="OnNewWorkout" OnWorkouts="OnWorkouts" OnExercises="OnExercises" OnSettings="OnSettings">
+<DashboardView Loading="loading" Failed="failed" OnRetry="LoadAsync" OnNewWorkout="OnNewWorkout" OnNavigate="OnNavigate" OnSettings="OnSettings">
     <LastWorkout>
         <LastWorkoutCard Workout="last?.Card" OnOpen="OpenLastWorkoutAsync" TestId="last-workout" />
     </LastWorkout>
@@ -46,13 +46,9 @@
     [Parameter]
     public EventCallback OnNewWorkout { get; set; }
 
-    /// <summary>Raised by the Workouts link.</summary>
+    /// <summary>Raised with the destination tapped in the bottom navigation bar.</summary>
     [Parameter]
-    public EventCallback OnWorkouts { get; set; }
-
-    /// <summary>Raised by the Exercises link.</summary>
-    [Parameter]
-    public EventCallback OnExercises { get; set; }
+    public EventCallback<NavDestination> OnNavigate { get; set; }
 
     /// <summary>Raised with the exercise id when a recent record is tapped.</summary>
     [Parameter]

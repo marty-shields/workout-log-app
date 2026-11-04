@@ -1,5 +1,6 @@
 using WorkoutLog.Core.Domain.Exercises;
 using WorkoutLog.UI.Models.Exercises;
+using WorkoutLog.UI.Navigation;
 using WorkoutLog.UI.Screens;
 using WorkoutLog.UI.Stories.Samples;
 
@@ -127,14 +128,14 @@ public class ExercisesViewTests : ComponentTestBase
     [Test]
     public void Loading_ShowsTheSpinnerOnly()
     {
-        var cut = Context.Render<ExercisesView>(p => p.Add(x => x.Items, SampleExercises.All).Add(x => x.Loading, true).Add(x => x.OnBack, () => { }));
+        var cut = Context.Render<ExercisesView>(p => p.Add(x => x.Items, SampleExercises.All).Add(x => x.Loading, true));
 
         Assert.Multiple(() =>
         {
             Assert.That(cut.Find("[data-testid=exercises-loading]").TextContent, Does.Contain("Loading…"));
             Assert.That(cut.FindAll("[data-testid=exercises-search]"), Is.Empty);
             Assert.That(cut.FindAll("[data-testid^=exercises-row-]"), Is.Empty);
-            Assert.That(cut.FindAll("[data-testid=back]"), Has.Count.EqualTo(1));
+            Assert.That(cut.FindAll("[data-testid=bottom-nav]"), Has.Count.EqualTo(1));
         });
     }
 
@@ -173,13 +174,36 @@ public class ExercisesViewTests : ComponentTestBase
     }
 
     [Test]
-    public void Back_RaisesOnBack()
+    public void IsTopLevel_WithNoBackArrowAndItsNavigationItemCurrent()
     {
-        var back = false;
-        var cut = Context.Render<ExercisesView>(p => p.Add(x => x.Items, SampleExercises.All).Add(x => x.OnBack, () => back = true));
+        var cut = Context.Render<ExercisesView>(p => p.Add(x => x.Items, SampleExercises.All));
 
-        cut.Find("[data-testid=back]").Click();
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.FindAll("[data-testid=back]"), Is.Empty);
+            Assert.That(cut.Find("[aria-current=page]").GetAttribute("data-testid"), Is.EqualTo("exercises-link"));
+        });
+    }
 
-        Assert.That(back, Is.True);
+    [Test]
+    public async Task AndroidBack_NavigatesToTheDashboard()
+    {
+        var navigated = new List<NavDestination>();
+        var cut = Context.Render<ExercisesView>(p => p.Add(x => x.Items, SampleExercises.All).Add(x => x.OnNavigate, navigated.Add));
+
+        await cut.InvokeAsync(BackButton.HandleAsync);
+
+        Assert.That(navigated, Is.EqualTo(new[] { NavDestination.Dashboard }));
+    }
+
+    [Test]
+    public void NavigationBar_RaisesOnNavigate()
+    {
+        var navigated = new List<NavDestination>();
+        var cut = Context.Render<ExercisesView>(p => p.Add(x => x.Items, SampleExercises.All).Add(x => x.OnNavigate, navigated.Add));
+
+        cut.Find("[data-testid=workouts-link]").Click();
+
+        Assert.That(navigated, Is.EqualTo(new[] { NavDestination.Workouts }));
     }
 }

@@ -68,6 +68,8 @@
     --spinner-duration: 1s;
     --radio-size: 1.5rem;
     --radio-dot-size: 0.75rem;
+    --nav-indicator-width: 4rem;
+    --nav-indicator-height: 2rem;
 }
 
 /* Forces a theme on an element and its children. */

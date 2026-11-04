@@ -11,6 +11,7 @@ using WorkoutLog.UI.Models.Settings;
 using WorkoutLog.UI.Models.Summary;
 using WorkoutLog.UI.Models.Workout;
 using WorkoutLog.UI.Models.Workouts;
+using WorkoutLog.UI.Navigation;
 using WorkoutLog.UI.Screens;
 using WorkoutLog.UI.Stories.Samples;
 
@@ -225,8 +226,7 @@ public static class ScreenStates
         parameters
             .Add(x => x.OnRetry, () => { })
             .Add(x => x.OnNewWorkout, () => { })
-            .Add(x => x.OnWorkouts, () => { })
-            .Add(x => x.OnExercises, () => { })
+            .Add(x => x.OnNavigate, (NavDestination _) => { })
             .Add(x => x.OnSettings, () => { });
 
     private static IReadOnlyList<IElement> Muscles(
@@ -303,7 +303,7 @@ public static class ScreenStates
                 .Add(x => x.Loading, loading)
                 .Add(x => x.Failed, failed)
                 .Add(x => x.OnRetry, () => { })
-                .Add(x => x.OnBack, () => { });
+                .Add(x => x.OnNavigate, (NavDestination _) => { });
             if (tappable)
             {
                 p.Add(x => x.OnOpen, (WorkoutsRow _) => { });
@@ -355,7 +355,7 @@ public static class ScreenStates
             .Add(x => x.QueryChanged, (string _) => { })
             .Add(x => x.FilterChanged, (ExerciseFilter _) => { })
             .Add(x => x.OnRetry, () => { })
-            .Add(x => x.OnBack, () => { }))
+            .Add(x => x.OnNavigate, (NavDestination _) => { }))
             .FindAll("*");
 
     private static IReadOnlyList<IElement> AddExercise(

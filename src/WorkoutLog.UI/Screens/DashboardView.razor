@@ -1,5 +1,5 @@
 @using WorkoutLog.UI.Components.Feedback
-<AppScreen Title="Workout Log">
+<AppScreen Title="Workout Log" Destination="NavDestination.Dashboard" OnNavigate="OnNavigate">
     <Actions>
         <IconButton Icon="IconName.Settings" AriaLabel="Settings" TestId="settings" OnClick="OnSettings" />
     </Actions>
@@ -12,9 +12,7 @@
         }
         else if (Failed)
         {
-            <div class="load-failed">
-                <LoadFailed Message="Couldn't load the Dashboard" OnRetry="OnRetry" TestId="dashboard" />
-            </div>
+            <LoadFailed Message="Couldn't load the Dashboard" OnRetry="OnRetry" TestId="dashboard" />
         }
         else
         {
@@ -24,8 +22,6 @@
                 @RecentRecords
             </div>
         }
-        <ListRow Text="Workouts" OnClick="OnWorkouts" TestId="workouts-link" />
-        <ListRow Text="Exercises" OnClick="OnExercises" TestId="exercises-link" />
     </ChildContent>
     <BottomBar>
         <AppButton FullWidth TestId="new-workout" OnClick="OnNewWorkout">New Workout</AppButton>
@@ -61,13 +57,9 @@
     [Parameter]
     public EventCallback OnNewWorkout { get; set; }
 
-    /// <summary>Raised by the Workouts link.</summary>
+    /// <summary>Raised with the destination tapped in the bottom navigation bar.</summary>
     [Parameter]
-    public EventCallback OnWorkouts { get; set; }
-
-    /// <summary>Raised by the Exercises link.</summary>
-    [Parameter]
-    public EventCallback OnExercises { get; set; }
+    public EventCallback<NavDestination> OnNavigate { get; set; }
 
     /// <summary>Raised by the Settings gear.</summary>
     [Parameter]

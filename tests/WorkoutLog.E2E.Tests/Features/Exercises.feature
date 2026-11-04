@@ -62,11 +62,18 @@ Feature: Exercises
     Then the add-exercise row for "Barbell Back Squat" reads Last 3 days ago · 70kg × 3
     And the add-exercise row for "Dumbbell Curl" has no last session
 
-  Scenario Outline: Back returns to the Dashboard
+  Scenario Outline: Android back, or Dashboard in the navigation bar, returns to the Dashboard
     Given I have opened Exercises
-    When I go back with <how>
+    When I <leave>
     Then I am on the Dashboard
     Examples:
-      | how            |
-      | the back arrow |
-      | Android back   |
+      | leave                               |
+      | press Android back                  |
+      | tap Dashboard in the navigation bar |
+
+  Scenario: Workouts in the navigation bar opens Workouts, and Android back then returns to the Dashboard
+    Given I have opened Exercises
+    When I tap Workouts in the navigation bar
+    Then I am on Workouts
+    When I press Android back
+    Then I am on the Dashboard

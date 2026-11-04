@@ -6,11 +6,13 @@ $attribute: CustomPage("Foundations/Navigation")
 
 The app opens on [Startup](./?path=/custom/screens-startup-overview), then the Dashboard. Add Exercise is an overlay on the workout screen, not a route.
 
+Dashboard, Workouts and Exercises are the top-level screens: each shows the navigation bar ([`BottomNav`](./?path=/custom/components-layout-overview)) and has no back arrow. Android back from Workouts or Exercises goes to the Dashboard, and from the Dashboard leaves the app.
+
 | From | Action | To |
 |---|---|---|
 | Dashboard | New Workout | New Workout |
-| Dashboard | Workouts | Workouts |
-| Dashboard | Exercises | Exercises |
+| Dashboard | Workouts in the navigation bar | Workouts |
+| Dashboard | Exercises in the navigation bar | Exercises |
 | Dashboard | Tap a recent record | Exercise |
 | Dashboard | Settings gear | Settings |
 | Dashboard | Last workout | Edit Workout |
@@ -18,9 +20,11 @@ The app opens on [Startup](./?path=/custom/screens-startup-overview), then the D
 | Dashboard | Back | Leaves the app |
 | Sets per muscle group | Back | Dashboard |
 | Workouts | Tap a row | Edit Workout |
-| Workouts | Back | Dashboard |
+| Workouts | Back, or Dashboard in the navigation bar | Dashboard |
+| Workouts | Exercises in the navigation bar | Exercises |
 | Exercises | Tap a row | Exercise |
-| Exercises | Back | Dashboard |
+| Exercises | Back, or Dashboard in the navigation bar | Dashboard |
+| Exercises | Workouts in the navigation bar | Workouts |
 | Exercise | Back | Exercises, or the Dashboard when opened from it |
 | Settings | Back | Dashboard |
 | Settings | Import, then pick a file | Import Review |

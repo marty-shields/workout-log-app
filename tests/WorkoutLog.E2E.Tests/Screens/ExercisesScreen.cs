@@ -52,6 +52,4 @@ public sealed class ExercisesScreen(WebView web)
 
     /// <summary>Taps a chip's label: the radio inside it is hidden.</summary>
     public void Filter(string kind) => web.Find($"exercises-filter-{kind.ToLowerInvariant()}").FindElement(By.XPath("..")).Click();
-
-    public void Back() => web.Tap("back");
 }
