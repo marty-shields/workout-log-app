@@ -85,6 +85,10 @@ public sealed partial class SetSteps(WebView web, Native native, WorkoutScreen w
         Assert.That(workout.UndoText(), Is.EqualTo("Undo"));
     }
 
+    [Then(@"^the snackbar goes on its own within (\d+) seconds$")]
+    public void ThenTheSnackbarGoesOnItsOwn(int seconds) =>
+        web.WaitUntil(() => workout.Snackbar() is null, "the snackbar didn't go on its own", TimeSpan.FromSeconds(seconds));
+
     [Then(@"^no snackbar is shown$")]
     public void ThenNoSnackbarIsShown() => web.Eventually(workout.Snackbar, Is.Null, "snackbar");
 

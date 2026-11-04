@@ -1,23 +1,26 @@
 @using Microsoft.Extensions.Logging
+@using Microsoft.JSInterop
 @implements IDisposable
 @inject TimeProvider Clock
 @inject ILogger<Snackbar> Logger
+@inject IJSRuntime JS
 
 <div class="snackbar" data-testid="@TestId">
     <p class="message" data-testid="@($"{TestId}-message")" data-wrap-ok>@Message</p>
-    <button @ref="undo" type="button" class="action" data-testid="@($"{TestId}-undo")" @onclick="OnUndo" @onfocus="StopTimer" @onblur="StartTimer">Undo</button>
+    <button @ref="undo" type="button" class="action" data-testid="@($"{TestId}-undo")" @onclick="OnUndo" @onfocus="OnFocusAsync" @onblur="OnBlur">Undo</button>
 </div>
 
 @code {
     /// <summary>
-    /// How long the snackbar shows before <see cref="OnTimeout"/>. Material asks for 4 to 10 seconds; 6 leaves time to read the
-    /// message and reach Undo between sets.
+    /// How long the snackbar shows before <see cref="OnTimeout"/>. Material asks for 4 to 10 seconds; 10, its upper bound, gives a
+    /// TalkBack user, who reaches Undo by swiping and doesn't stop the timer, time to read the message and get there.
     /// </summary>
-    public static readonly TimeSpan Duration = TimeSpan.FromSeconds(6);
+    public static readonly TimeSpan Duration = TimeSpan.FromSeconds(10);
 
     private ElementReference undo;
     private CancellationTokenSource? timer;
     private bool timedOut;
+    private bool focused;
 
     /// <summary>What just happened, e.g. Barbell Back Squat set 2 deleted.</summary>
     [Parameter, EditorRequired]
@@ -28,8 +31,9 @@
     public EventCallback OnUndo { get; set; }
 
     /// <summary>
-    /// Raised once, <see cref="Duration"/> after the snackbar first shows, unless it is removed first. Undo holding focus stops
-    /// the timer, and focus leaving it starts a full <see cref="Duration"/> again.
+    /// Raised once, <see cref="Duration"/> after the snackbar first shows, unless it is removed first. Undo holding keyboard focus
+    /// (<c>:focus-visible</c>) stops the timer, and focus leaving it starts a full <see cref="Duration"/> again. Focus moved there
+    /// by <see cref="TakeFocus"/> after a tap doesn't stop it.
     /// </summary>
     [Parameter]
     public EventCallback OnTimeout { get; set; }
@@ -62,6 +66,36 @@
     }
 
     public void Dispose() => StopTimer();
+
+    private async Task OnFocusAsync()
+    {
+        focused = true;
+        if (await KeyboardFocusedAsync() && focused)
+        {
+            StopTimer();
+        }
+    }
+
+    private void OnBlur()
+    {
+        focused = false;
+        StartTimer();
+    }
+
+    /// <summary>Whether Undo shows the keyboard focus ring. False when that can't be read, so the snackbar still times out.</summary>
+    private async Task<bool> KeyboardFocusedAsync()
+    {
+        try
+        {
+            await using var module = await JS.InvokeAsync<IJSObjectReference>("import", "./_content/WorkoutLog.UI/Components/Feedback/Snackbar.razor.js");
+            return await module.InvokeAsync<bool>("isFocusVisible", undo);
+        }
+        catch (Exception exception)
+        {
+            Log.FocusCheckFailed(Logger, exception);
+            return false;
+        }
+    }
 
     private void StartTimer()
     {

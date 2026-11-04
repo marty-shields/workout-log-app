@@ -84,6 +84,14 @@ Feature: Strength sets
     And the snackbar "Barbell Back Squat set 1 deleted" shows Undo
     And Barbell Back Squat has 1 set
 
+  Scenario: The snackbar goes on its own after the trash is tapped, though Undo took focus
+    Given I have added "Barbell Back Squat"
+    And I have logged Barbell Back Squat sets: 5 reps 60 kg; 5 reps 62.5 kg
+    When I tap the trash on Barbell Back Squat set 1
+    Then the snackbar "Barbell Back Squat set 1 deleted" shows Undo
+    And the snackbar goes on its own within 15 seconds
+    And Barbell Back Squat has 1 set
+
   Scenario: Undo puts a deleted set back in its place
     Given I have added "Barbell Back Squat"
     And I have logged Barbell Back Squat sets: 5 reps 60 kg; 5 reps 62.5 kg; 5 reps 65 kg

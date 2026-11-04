@@ -13,6 +13,8 @@ namespace WorkoutLog.UI.Tests.Components.Feedback;
 
 public class SnackbarTests : ComponentTestBase
 {
+    private const string SnackbarModule = "./_content/WorkoutLog.UI/Components/Feedback/Snackbar.razor.js";
+
     private FakeTimeProvider clock = null!;
 
     [SetUp]
@@ -145,8 +147,9 @@ public class SnackbarTests : ComponentTestBase
     }
 
     [Test]
-    public async Task UndoFocused_NeverTimesOut()
+    public async Task UndoKeyboardFocused_NeverTimesOut()
     {
+        KeyboardFocus(true);
         var timedOut = 0;
         var cut = Context.Render<Snackbar>(p => p
             .Add(x => x.Message, "Set 2 deleted")
@@ -160,8 +163,68 @@ public class SnackbarTests : ComponentTestBase
     }
 
     [Test]
-    public async Task UndoLosesFocus_TimesOutAFullDurationLater()
+    public async Task TakeFocusAfterATap_StillTimesOutOnTime()
     {
+        KeyboardFocus(false);
+        var timedOut = 0;
+        var cut = Context.Render<Snackbar>(p => p
+            .Add(x => x.Message, "Set 2 deleted")
+            .Add(x => x.TakeFocus, true)
+            .Add(x => x.OnTimeout, () => timedOut++));
+
+        await cut.Find("[data-testid=snackbar-undo]").FocusAsync(new FocusEventArgs());
+        clock.Advance(Snackbar.Duration);
+        await WaitForRendererAsync();
+
+        Assert.That(timedOut, Is.EqualTo(1));
+    }
+
+    [Test]
+    public async Task FocusLeavesBeforeTheKeyboardCheckAnswers_KeepsTheTimer()
+    {
+        var check = Context.JSInterop.SetupModule(SnackbarModule).Setup<bool>("isFocusVisible", _ => true);
+        var timedOut = 0;
+        var cut = Context.Render<Snackbar>(p => p
+            .Add(x => x.Message, "Set 2 deleted")
+            .Add(x => x.OnTimeout, () => timedOut++));
+        var undo = cut.Find("[data-testid=snackbar-undo]");
+
+        var focusing = undo.FocusAsync(new FocusEventArgs());
+        await undo.BlurAsync(new FocusEventArgs());
+        check.SetResult(true);
+        await focusing;
+        clock.Advance(Snackbar.Duration);
+        await WaitForRendererAsync();
+
+        Assert.That(timedOut, Is.EqualTo(1));
+    }
+
+    [Test]
+    public async Task KeyboardCheckFails_LogsAWarningAndStillTimesOut()
+    {
+        var logger = new FakeLogger<Snackbar>();
+        Context.Services.AddSingleton<ILogger<Snackbar>>(logger);
+        Context.JSInterop.SetupModule(SnackbarModule).Setup<bool>("isFocusVisible", _ => true).SetException(new JSException("Check failed"));
+        var timedOut = 0;
+        var cut = Context.Render<Snackbar>(p => p
+            .Add(x => x.Message, "Set 2 deleted")
+            .Add(x => x.OnTimeout, () => timedOut++));
+
+        await cut.Find("[data-testid=snackbar-undo]").FocusAsync(new FocusEventArgs());
+        clock.Advance(Snackbar.Duration);
+        await WaitForRendererAsync();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(LoggedEvents.Of(logger), Is.EqualTo(new[] { (UiEvent.UndoFocusCheckFailed, LogLevel.Warning, "Checking Undo for keyboard focus failed") }));
+            Assert.That(timedOut, Is.EqualTo(1));
+        });
+    }
+
+    [Test]
+    public async Task UndoLosesKeyboardFocus_TimesOutAFullDurationLater()
+    {
+        KeyboardFocus(true);
         var timedOut = 0;
         var cut = Context.Render<Snackbar>(p => p
             .Add(x => x.Message, "Set 2 deleted")
@@ -187,6 +250,7 @@ public class SnackbarTests : ComponentTestBase
     [Test]
     public async Task FocusedAndLeftAfterTimingOut_DoesNotTimeOutAgain()
     {
+        KeyboardFocus(true);
         var timedOut = 0;
         var cut = Context.Render<Snackbar>(p => p
             .Add(x => x.Message, "Set 2 deleted")
@@ -207,4 +271,8 @@ public class SnackbarTests : ComponentTestBase
     {
         Assert.That(Snackbar.Duration, Is.InRange(TimeSpan.FromSeconds(4), TimeSpan.FromSeconds(10)));
     }
+
+    /// <summary>Undo answers whether it has keyboard focus (<c>:focus-visible</c>) with <paramref name="visible"/>.</summary>
+    private void KeyboardFocus(bool visible) =>
+        Context.JSInterop.SetupModule(SnackbarModule).Setup<bool>("isFocusVisible", _ => true).SetResult(visible);
 }
