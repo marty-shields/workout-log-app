@@ -2,53 +2,60 @@
 @using Microsoft.Extensions.Logging
 @using WorkoutLog.Core.Services
 @using WorkoutLog.UI.Components.Feedback
+@using WorkoutLog.UI.Components.Inputs
 @using WorkoutLog.UI.Models.Settings
 @inject ILogger<SettingsView> Logger
 <AppScreen Title="Settings" OnBack="OnBack">
-    @if (Loading)
-    {
-        <div class="centre">
-            <Spinner Label="Loading…" TestId="settings-loading" />
-        </div>
-    }
-    else if (Failed)
-    {
-        <LoadFailed Message="Couldn't load your workouts" OnRetry="OnRetry" TestId="settings" />
-    }
-    else
-    {
+    <div class="body">
         <section class="section">
-            <h2 class="heading">Your data</h2>
-            <p class="text" data-testid="export-text">@ExportText</p>
-            <AppButton @ref="export" Variant="ButtonVariant.Secondary" FullWidth Disabled="Count == 0 || Reading" Busy="Exporting" TestId="export" OnClick="OnExport">
-                @(Exporting ? "Exporting…" : "Export")
-            </AppButton>
-            @if (MessageText is { } message)
-            {
-                <p class="error" role="alert" data-testid="export-error">@message</p>
-            }
-            <p class="text" data-testid="import-text">Import workouts from a JSON file exported by Workout Log</p>
-            <AppButton @ref="import" Variant="ButtonVariant.Secondary" FullWidth Disabled="Exporting" Busy="Reading" TestId="import" OnClick="OnImport">
-                @(Reading ? "Reading…" : "Import")
-            </AppButton>
-            @if (ImportFailed)
-            {
-                <p class="error" role="alert" data-testid="import-error">Couldn't import your workouts. Try again</p>
-            }
-            else if (Imported is { } imported)
-            {
-                <p class="text" role="status" data-testid="import-done">@DoneText(imported)</p>
-            }
+            <h2 class="heading">Appearance</h2>
+            <SegmentedControl TValue="ThemePreference" Label="Theme" Options="Themes" Value="Theme" ValueChanged="OnThemeChanged" TestId="theme" />
         </section>
-    }
+        @if (Loading)
+        {
+            <div class="centre">
+                <Spinner Label="Loading…" TestId="settings-loading" />
+            </div>
+        }
+        else if (Failed)
+        {
+            <LoadFailed Message="Couldn't load your workouts" OnRetry="OnRetry" TestId="settings" />
+        }
+        else
+        {
+            <section class="section">
+                <h2 class="heading">Your data</h2>
+                <p class="text" data-testid="export-text">@ExportText</p>
+                <AppButton @ref="export" Variant="ButtonVariant.Secondary" FullWidth Disabled="Count == 0 || Reading" Busy="Exporting" TestId="export" OnClick="OnExport">
+                    @(Exporting ? "Exporting…" : "Export")
+                </AppButton>
+                @if (MessageText is { } message)
+                {
+                    <p class="error" role="alert" data-testid="export-error">@message</p>
+                }
+                <p class="text" data-testid="import-text">Import workouts from a JSON file exported by Workout Log</p>
+                <AppButton @ref="import" Variant="ButtonVariant.Secondary" FullWidth Disabled="Exporting" Busy="Reading" TestId="import" OnClick="OnImport">
+                    @(Reading ? "Reading…" : "Import")
+                </AppButton>
+                @if (ImportFailed)
+                {
+                    <p class="error" role="alert" data-testid="import-error">Couldn't import your workouts. Try again</p>
+                }
+                else if (Imported is { } imported)
+                {
+                    <p class="text" role="status" data-testid="import-done">@DoneText(imported)</p>
+                }
+            </section>
+        }
+    </div>
 </AppScreen>
 
 @code {
-    /// <summary>Shows a full-screen spinner instead of the content while the count loads.</summary>
+    /// <summary>Shows a spinner instead of Your data while the count loads. Appearance stays.</summary>
     [Parameter]
     public bool Loading { get; set; }
 
-    /// <summary>Shows the load error and Try again instead of the content, and moves focus to Try again.</summary>
+    /// <summary>Shows the load error and Try again instead of Your data, and moves focus to Try again.</summary>
     [Parameter]
     public bool Failed { get; set; }
 
@@ -76,6 +83,14 @@
     [Parameter]
     public ImportResult? Imported { get; set; }
 
+    /// <summary>The chosen theme, shown selected in Appearance. System follows the phone.</summary>
+    [Parameter]
+    public ThemePreference Theme { get; set; }
+
+    /// <summary>Raised with the theme tapped in Appearance.</summary>
+    [Parameter]
+    public EventCallback<ThemePreference> OnThemeChanged { get; set; }
+
     /// <summary>Raised by Try again.</summary>
     [Parameter]
     public EventCallback OnRetry { get; set; }
@@ -91,6 +106,13 @@
     /// <summary>Raised by the back arrow and the Android back button.</summary>
     [Parameter]
     public EventCallback OnBack { get; set; }
+
+    private static readonly IReadOnlyList<RadioOption<ThemePreference>> Themes =
+    [
+        new(ThemePreference.System, "System", "settings-theme-system"),
+        new(ThemePreference.Light, "Light", "settings-theme-light"),
+        new(ThemePreference.Dark, "Dark", "settings-theme-dark"),
+    ];
 
     private AppButton? export;
     private AppButton? import;

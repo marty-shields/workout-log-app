@@ -100,6 +100,7 @@ public static class ScreenStates
         new("Screens/Workouts", "Load failed", c => Workouts(c, [], tappable: false, failed: true)),
 
         new("Screens/Settings", "With workouts", c => Settings(c, 42)),
+        new("Screens/Settings", "Dark chosen", c => Settings(c, 42, theme: ThemePreference.Dark)),
         new("Screens/Settings", "One workout", c => Settings(c, 1)),
         new("Screens/Settings", "No workouts", c => Settings(c, 0)),
         new("Screens/Settings", "Loading", c => Settings(c, 0, loading: true)),
@@ -318,8 +319,10 @@ public static class ScreenStates
         ExportMessage message = ExportMessage.None,
         bool reading = false,
         bool importFailed = false,
-        ImportResult? imported = null) =>
+        ImportResult? imported = null,
+        ThemePreference theme = ThemePreference.System) =>
         context.Render<SettingsView>(p => p
+            .Add(x => x.Theme, theme)
             .Add(x => x.Count, count)
             .Add(x => x.Loading, loading)
             .Add(x => x.Failed, failed)

@@ -3,6 +3,7 @@ using WorkoutLog.UI.Import;
 using WorkoutLog.UI.Lifecycle;
 using WorkoutLog.UI.Models.Workout;
 using WorkoutLog.UI.Navigation;
+using WorkoutLog.UI.Theme;
 
 namespace WorkoutLog.UI;
 
@@ -20,5 +21,6 @@ public static class UiServiceCollectionExtensions
             .AddSingleton<ISetChecker, SetChecker>()
             .AddSingleton<IWorkoutChecker, WorkoutChecker>()
             .AddSingleton<LastTimeLoader>()
+            .AddScoped<ThemeService>()
             .AddTransient<WorkoutEditor>();
 }

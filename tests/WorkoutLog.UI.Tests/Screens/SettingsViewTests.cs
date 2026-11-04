@@ -21,6 +21,32 @@ public class SettingsViewTests : ComponentTestBase
     }
 
     [Test]
+    public void Theme_ShowsTheChoiceSelected()
+    {
+        var cut = Context.Render<SettingsView>(p => p.Add(x => x.Theme, ThemePreference.Dark).Add(x => x.OnBack, () => { }));
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.Find("[data-testid=settings-theme-dark]").HasAttribute("checked"), Is.True);
+            Assert.That(cut.Find("[data-testid=settings-theme-system]").HasAttribute("checked"), Is.False);
+            Assert.That(cut.Find("[data-testid=settings-theme-light]").HasAttribute("checked"), Is.False);
+        });
+    }
+
+    [Test]
+    public void Theme_Tapped_RaisesOnThemeChanged()
+    {
+        ThemePreference? chosen = null;
+        var cut = Context.Render<SettingsView>(p => p
+            .Add(x => x.OnThemeChanged, t => chosen = t)
+            .Add(x => x.OnBack, () => { }));
+
+        cut.Find("[data-testid=settings-theme-dark]").Change(true);
+
+        Assert.That(chosen, Is.EqualTo(ThemePreference.Dark));
+    }
+
+    [Test]
     public void Back_RaisesOnBack()
     {
         var back = false;
@@ -39,7 +65,7 @@ public class SettingsViewTests : ComponentTestBase
         var export = cut.Find("[data-testid=export]");
         Assert.Multiple(() =>
         {
-            Assert.That(cut.Find(".heading").TextContent, Is.EqualTo("Your data"));
+            Assert.That(cut.FindAll(".heading").Select(h => h.TextContent), Is.EqualTo(new[] { "Appearance", "Your data" }));
             Assert.That(cut.Find("[data-testid=export-text]").TextContent, Is.EqualTo("Export all 42 workouts to a JSON file"));
             Assert.That(export.TextContent.Trim(), Is.EqualTo("Export"));
             Assert.That(export.HasAttribute("disabled"), Is.False);
@@ -76,10 +102,21 @@ public class SettingsViewTests : ComponentTestBase
         Assert.Multiple(() =>
         {
             Assert.That(cut.Find("[data-testid=settings-loading]").TextContent, Does.Contain("Loading…"));
-            Assert.That(cut.FindAll(".heading"), Is.Empty);
+            Assert.That(cut.FindAll(".heading").Select(h => h.TextContent), Is.EqualTo(new[] { "Appearance" }));
             Assert.That(cut.FindAll("[data-testid=export-text]"), Is.Empty);
             Assert.That(cut.FindAll("[data-testid=export]"), Is.Empty);
         });
+    }
+
+    [Test]
+    public void Loading_KeepsTheThemeChangeable()
+    {
+        ThemePreference? chosen = null;
+        var cut = Context.Render<SettingsView>(p => p.Add(x => x.Loading, true).Add(x => x.OnThemeChanged, t => chosen = t));
+
+        cut.Find("[data-testid=settings-theme-light]").Change(true);
+
+        Assert.That(chosen, Is.EqualTo(ThemePreference.Light));
     }
 
     [Test]
@@ -93,6 +130,17 @@ public class SettingsViewTests : ComponentTestBase
             Assert.That(cut.Find("[data-testid=settings-error]").TextContent, Is.EqualTo("Couldn't load your workouts"));
             Assert.That(cut.FindAll("[data-testid=export]"), Is.Empty);
         });
+    }
+
+    [Test]
+    public void Failed_KeepsTheThemeChangeable()
+    {
+        ThemePreference? chosen = null;
+        var cut = Context.Render<SettingsView>(p => p.Add(x => x.Failed, true).Add(x => x.OnThemeChanged, t => chosen = t));
+
+        cut.Find("[data-testid=settings-theme-dark]").Change(true);
+
+        Assert.That(chosen, Is.EqualTo(ThemePreference.Dark));
     }
 
     [Test]

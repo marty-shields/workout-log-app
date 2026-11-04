@@ -5,6 +5,7 @@ using WorkoutLog.UI.Import;
 using WorkoutLog.UI.Lifecycle;
 using WorkoutLog.UI.Models.Workout;
 using WorkoutLog.UI.Navigation;
+using WorkoutLog.UI.Theme;
 
 namespace WorkoutLog.UI.Tests;
 
@@ -26,6 +27,7 @@ public class UiServiceCollectionExtensionsTests
             (typeof(ISetChecker), typeof(SetChecker), ServiceLifetime.Singleton),
             (typeof(IWorkoutChecker), typeof(WorkoutChecker), ServiceLifetime.Singleton),
             (typeof(LastTimeLoader), typeof(LastTimeLoader), ServiceLifetime.Singleton),
+            (typeof(ThemeService), typeof(ThemeService), ServiceLifetime.Scoped),
             (typeof(WorkoutEditor), typeof(WorkoutEditor), ServiceLifetime.Transient),
         }));
     }

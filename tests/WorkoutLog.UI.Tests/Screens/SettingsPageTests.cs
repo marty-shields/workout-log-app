@@ -2,10 +2,13 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Testing;
+using Microsoft.JSInterop;
 using WorkoutLog.Core.Services;
+using WorkoutLog.UI.Components.Inputs;
 using WorkoutLog.UI.Import;
 using WorkoutLog.UI.Lifecycle;
 using WorkoutLog.UI.Logging;
+using WorkoutLog.UI.Models.Settings;
 using WorkoutLog.UI.Screens;
 using WorkoutLog.UI.Sharing;
 
@@ -22,6 +25,7 @@ public class SettingsPageTests : ComponentTestBase
     private AppLifecycle lifecycle = null!;
     private FakeImportFileOpener opener = null!;
     private ImportSession session = null!;
+    private string savedTheme = null!;
 
     [SetUp]
     public void SetUp()
@@ -38,6 +42,141 @@ public class SettingsPageTests : ComponentTestBase
         Context.Services.AddSingleton<IImportFileOpener>(opener);
         session = new ImportSession();
         Context.Services.AddSingleton(session);
+        savedTheme = "system";
+        Context.JSInterop.Setup<string>("workoutLogTheme.get", _ => true).SetResult(savedTheme);
+        Context.JSInterop.Setup<bool>("workoutLogTheme.set", _ => true).SetResult(true);
+    }
+
+    [Test]
+    public async Task Theme_DefaultsToSystem()
+    {
+        var cut = Context.Render<SettingsPage>();
+        export.CompleteCount(new ExportCount(0, false));
+        await WaitForRendererAsync();
+
+        Assert.That(cut.Find("[data-testid=settings-theme-system]").HasAttribute("checked"), Is.True);
+    }
+
+    [Test]
+    public async Task Theme_ShowsTheSavedChoice()
+    {
+        Context.JSInterop.Setup<string>("workoutLogTheme.get", _ => true).SetResult("dark");
+        var cut = Context.Render<SettingsPage>();
+        export.CompleteCount(new ExportCount(0, false));
+        await WaitForRendererAsync();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.Find("[data-testid=settings-theme-dark]").HasAttribute("checked"), Is.True);
+            Assert.That(cut.Find("[data-testid=settings-theme-system]").HasAttribute("checked"), Is.False);
+        });
+    }
+
+    [Test]
+    public async Task Theme_Tapped_SavesAndShowsTheChoice()
+    {
+        var cut = Context.Render<SettingsPage>();
+        export.CompleteCount(new ExportCount(0, false));
+        await WaitForRendererAsync();
+
+        cut.Find("[data-testid=settings-theme-light]").Change(true);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(Context.JSInterop.Invocations["workoutLogTheme.set"].Single().Arguments, Is.EqualTo(new object[] { "light" }));
+            Assert.That(cut.Find("[data-testid=settings-theme-light]").HasAttribute("checked"), Is.True);
+        });
+    }
+
+    [Test]
+    public async Task Theme_SlowToRead_StillShowsTheSpinnerAndLoadsTheCount()
+    {
+        var get = Context.JSInterop.Setup<string>("workoutLogTheme.get", _ => true);
+        var cut = Context.Render<SettingsPage>();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.FindAll("[data-testid=settings-loading]"), Has.Count.EqualTo(1));
+            Assert.That(export.CountCalls, Is.EqualTo(1));
+        });
+
+        get.SetResult("dark");
+        export.CompleteCount(new ExportCount(5, false));
+        await WaitForRendererAsync();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.FindAll("[data-testid=settings-loading]"), Is.Empty);
+            Assert.That(cut.Find("[data-testid=settings-theme-dark]").HasAttribute("checked"), Is.True);
+            Assert.That(cut.Find("[data-testid=export-text]").TextContent, Is.EqualTo("Export all 5 workouts to a JSON file"));
+        });
+    }
+
+    [Test]
+    public async Task Theme_ReadFails_ShowsSystemAndLogsTheWarning()
+    {
+        var exception = new JSException("no storage");
+        Context.JSInterop.Setup<string>("workoutLogTheme.get", _ => true).SetException(exception);
+        var cut = Context.Render<SettingsPage>();
+        export.CompleteCount(new ExportCount(2, false));
+        await WaitForRendererAsync();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.Find("[data-testid=settings-theme-system]").HasAttribute("checked"), Is.True);
+            Assert.That(cut.FindAll("[data-testid=settings-loading]"), Is.Empty);
+            Assert.That(LoggedEvents.Of(logger), Is.EqualTo(new[] { (UiEvent.ThemeLoadFailed, LogLevel.Warning, "Reading the saved theme failed") }));
+            Assert.That(logger.LatestRecord.Exception, Is.SameAs(exception));
+        });
+    }
+
+    [Test]
+    public async Task Theme_SaveFails_KeepsThePreviousChoiceAndLogsTheWarning()
+    {
+        var exception = new JSException("no storage");
+        Context.JSInterop.Setup<bool>("workoutLogTheme.set", _ => true).SetException(exception);
+        var cut = Context.Render<SettingsPage>();
+        export.CompleteCount(new ExportCount(0, false));
+        await WaitForRendererAsync();
+
+        var control = cut.FindComponent<SegmentedControl<ThemePreference>>();
+        var renders = control.RenderCount;
+        cut.Find("[data-testid=settings-theme-light]").Change(true);
+
+        cut.WaitForAssertion(() => Assert.That(LoggedEvents.Of(logger), Is.EqualTo(new[] { (UiEvent.ThemeSaveFailed, LogLevel.Warning, "Saving the theme failed") })));
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.Find("[data-testid=settings-theme-system]").HasAttribute("checked"), Is.True);
+            Assert.That(cut.Find("[data-testid=settings-theme-light]").HasAttribute("checked"), Is.False);
+            Assert.That(control.RenderCount - renders, Is.EqualTo(2));
+            Assert.That(logger.LatestRecord.Exception, Is.SameAs(exception));
+        });
+    }
+
+    [Test]
+    public async Task Theme_StorageRefusesTheSave_KeepsTheChoiceAndLogsTheWarning()
+    {
+        Context.JSInterop.Setup<bool>("workoutLogTheme.set", _ => true).SetResult(false);
+        var cut = Context.Render<SettingsPage>();
+        export.CompleteCount(new ExportCount(0, false));
+        await WaitForRendererAsync();
+
+        cut.Find("[data-testid=settings-theme-light]").Change(true);
+
+        cut.WaitForAssertion(() => Assert.That(LoggedEvents.Of(logger), Is.EqualTo(new[] { (UiEvent.ThemeNotSaved, LogLevel.Warning, "Storage refused the saved theme; it applies until the app closes") })));
+        Assert.That(cut.Find("[data-testid=settings-theme-light]").HasAttribute("checked"), Is.True);
+    }
+
+    [Test]
+    public async Task Theme_CountFailed_StaysChangeable()
+    {
+        var cut = Context.Render<SettingsPage>();
+        export.CompleteCount(new ExportCount(0, true));
+        await WaitForRendererAsync();
+
+        cut.Find("[data-testid=settings-theme-dark]").Change(true);
+
+        Assert.That(Context.JSInterop.Invocations["workoutLogTheme.set"].Single().Arguments, Is.EqualTo(new object[] { "dark" }));
     }
 
     [Test]

@@ -64,6 +64,38 @@ public class SegmentedControlTests : ComponentTestBase
         Assert.That(changed, Is.EqualTo(new[] { 3 }));
     }
 
+    [Test]
+    public void TappingASegment_TheParentDoesNotTake_RedrawsTheRadiosOnce()
+    {
+        var cut = Render(value: 1);
+        var renders = cut.RenderCount;
+
+        cut.Find("[data-testid=three]").Change(true);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.RenderCount - renders, Is.EqualTo(2));
+            Assert.That(cut.FindAll("input").Select(i => i.HasAttribute("checked")), Is.EqualTo(new[] { true, false, false }));
+        });
+    }
+
+    [Test]
+    public void TappingASegment_TheParentTakes_DoesNotRedrawTheRadios()
+    {
+        var value = 1;
+        var cut = Context.Render<SegmentedControl<int>>(p => p
+            .Add(x => x.Label, "Choose")
+            .Add(x => x.Options, Options)
+            .Add(x => x.Value, value)
+            .Add(x => x.ValueChanged, (int v) => value = v));
+        cut.Render(p => p.Add(x => x.Value, 3));
+        var renders = cut.RenderCount;
+
+        cut.Find("[data-testid=three]").Change(true);
+
+        Assert.That(cut.RenderCount - renders, Is.LessThanOrEqualTo(1));
+    }
+
     private IRenderedComponent<SegmentedControl<int>> Render(int value) =>
         Context.Render<SegmentedControl<int>>(p => p
             .Add(x => x.Label, "Choose")

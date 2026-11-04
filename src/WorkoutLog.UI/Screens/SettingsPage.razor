@@ -4,17 +4,20 @@
 @using WorkoutLog.UI.Lifecycle
 @using WorkoutLog.UI.Models.Settings
 @using WorkoutLog.UI.Sharing
+@using WorkoutLog.UI.Theme
 @implements IDisposable
 @inject IExportService Export
 @inject IFileShare FileShare
 @inject IImportFileOpener Opener
 @inject ImportSession Session
 @inject IAppStart AppStart
+@inject ThemeService Themes
 @inject ILogger<SettingsPage> Logger
 
 <SettingsView Loading="phase == SettingsPhase.Loading" Failed="phase == SettingsPhase.LoadFailed" Count="count"
               Exporting="phase == SettingsPhase.Exporting" ExportMessage="message"
               Reading="phase == SettingsPhase.Reading" ImportFailed="phase == SettingsPhase.ImportFailed" Imported="imported"
+              Theme="theme" OnThemeChanged="SetThemeAsync"
               OnRetry="LoadAsync" OnExport="ExportAsync" OnImport="ImportAsync" OnBack="OnBack" />
 
 @code {
@@ -30,6 +33,7 @@
 
     private SettingsPhase phase;
     private int count;
+    private ThemePreference theme;
     private ExportMessage message;
     private ImportResult? imported;
     private bool Busy => phase is SettingsPhase.Loading or SettingsPhase.Exporting or SettingsPhase.Reading;
@@ -50,7 +54,9 @@
     {
         registration = AppStart.Register(() => InvokeAsync(ReloadAsync));
         var done = Session.TakeDone();
-        await LoadAsync();
+        var loading = LoadAsync();
+        theme = await LoadThemeAsync();
+        await loading;
         imported = done;
     }
 
@@ -182,6 +188,38 @@
 
         Session.Review = review;
         await OnImportReview.InvokeAsync();
+    }
+
+    /// <summary>The saved theme, or System when it can't be read.</summary>
+    private async Task<ThemePreference> LoadThemeAsync()
+    {
+        try
+        {
+            return await Themes.GetAsync();
+        }
+        catch (Exception exception)
+        {
+            Log.ThemeLoadFailed(Logger, exception);
+            return ThemePreference.System;
+        }
+    }
+
+    /// <summary>Applies and saves the choice. A failed interop call keeps the previous choice selected; a refused save keeps the new one, which applies until the app closes.</summary>
+    private async Task SetThemeAsync(ThemePreference preference)
+    {
+        try
+        {
+            var saved = await Themes.SetAsync(preference);
+            theme = preference;
+            if (!saved)
+            {
+                Log.ThemeNotSaved(Logger);
+            }
+        }
+        catch (Exception exception)
+        {
+            Log.ThemeSaveFailed(Logger, exception);
+        }
     }
 
     private void ClearMessages()
