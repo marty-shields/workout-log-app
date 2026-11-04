@@ -6,9 +6,6 @@ namespace WorkoutLog.UI.Components.Charts;
 /// <summary>Works out where the ticks, line, points and dates go.</summary>
 public partial class Chart
 {
-    /// <summary>Most points that all show their <see cref="ChartPoint.Label"/>; above it, and for points without one, only the best and the latest are labelled.</summary>
-    internal const int MaxLabelledPoints = 8;
-
     // Drawing area in viewBox units.
     private const double Width = 400;
     private const double Height = 200;
@@ -19,9 +16,15 @@ public partial class Chart
     private const double Bottom = 168;
     private const double TickX = 40;
     private const double DateY = 194;
-    private const double LabelGap = 12;
+    private const double LabelGap = 14;
+    private const double LabelBelow = 24;
     private const double Radius = 4.5;
-    private const double BestRadius = 7;
+    private const double LatestRadius = 6;
+    private const double RingRadius = 9;
+
+    // Label size estimate at --font-size-sm (14 units), bold: measured in Chrome, "79.2kg" is 54 units wide and "5.2km" 49.
+    private const double CharWidth = 10;
+    private const double LineHeight = 14;
 
     // Smallest tick step: the 0.1 a weight shows; time steps start at 1 second.
     private const decimal MinStep = 0.1m;
@@ -33,6 +36,7 @@ public partial class Chart
 
     private IReadOnlyList<(string Y, string Text)> ticks = [];
     private List<Plotted> plotted = [];
+    private IReadOnlyList<Label> labels = [];
     private IReadOnlyList<(string X, string Text, string Anchor)> dates = [];
     private string? line;
 
@@ -69,12 +73,12 @@ public partial class Chart
         var valued = Points.Select((point, index) => (Point: point, Index: index)).Where(p => p.Point.Value is not null).ToList();
         if (valued.Count == 0)
         {
-            (ticks, plotted, dates, line) = ([], [], [], null);
+            (ticks, plotted, labels, dates, line) = ([], [], [], [], null);
             return;
         }
 
         var (low, high, step) = Scale(valued.Min(p => p.Point.Value!.Value), valued.Max(p => p.Point.Value!.Value), TimeScale);
-        var best = Best(valued.Select(p => p.Point.Value!.Value).ToList(), Flipped);
+        var (best, latest) = LabelledPoints(valued.Select(p => p.Point.Value!.Value).ToList(), Flipped);
 
         ticks = Enumerable.Range(0, (int)((high - low) / step) + 1)
             .Select(i => low + (i * step))
@@ -82,14 +86,10 @@ public partial class Chart
             .ToList();
 
         plotted = valued
-            .Select((p, i) => new Plotted(
-                X(p.Index, Points.Count),
-                Y(p.Point.Value!.Value, low, high),
-                i == best || i == valued.Count - 1 ? p.Point.Label ?? Format(p.Point.Value!.Value)
-                : valued.Count <= MaxLabelledPoints ? p.Point.Label
-                : null,
-                i == best))
+            .Select((p, i) => new Plotted(X(p.Index, Points.Count), Y(p.Point.Value!.Value, low, high), i == best, i == latest))
             .ToList();
+
+        labels = Labels(plotted[best], plotted[latest], LabelText(valued[best].Point), LabelText(valued[latest].Point));
 
         line = plotted.Count > 1 ? "M" + string.Join(" L", plotted.Select(p => $"{Number(p.X)} {Number(p.Y)}")) : null;
 
@@ -116,20 +116,56 @@ public partial class Chart
         return (min >= 0 ? Math.Max(low, 0) : low, high, step);
     }
 
-    /// <summary>Index of the best value: the highest, or the lowest when flipped; the earliest of a tie.</summary>
-    internal static int Best(IReadOnlyList<decimal> values, bool flipped)
+    /// <summary>
+    /// Indexes of the points that get a label: the best (the highest value, or the lowest when flipped; the latest of a tie) and the latest.
+    /// They are the same index when the latest point is the best.
+    /// </summary>
+    internal static (int Best, int Latest) LabelledPoints(IReadOnlyList<decimal> values, bool flipped)
     {
         var best = 0;
         for (var i = 1; i < values.Count; i++)
         {
-            if (flipped ? values[i] < values[best] : values[i] > values[best])
+            if (flipped ? values[i] <= values[best] : values[i] >= values[best])
             {
                 best = i;
             }
         }
 
-        return best;
+        return (best, values.Count - 1);
     }
+
+    /// <summary>
+    /// Labels over the best and latest points, kept inside the plot: a label near an edge is anchored to start or end at its point so it
+    /// clears the y-axis ticks and the right edge. When the latest label would overlap the best label or ring, it goes under its point;
+    /// the best is the highest point, so the latest is below it.
+    /// </summary>
+    private static IReadOnlyList<Label> Labels(Plotted best, Plotted latest, string bestText, string latestText)
+    {
+        var latestLabel = Place(latest, latestText, latest.Y - LabelGap);
+        if (best == latest)
+        {
+            return [latestLabel];
+        }
+
+        var bestLabel = Place(best, bestText, best.Y - LabelGap);
+        var ring = new Box(best.X - RingRadius, best.X + RingRadius, best.Y - RingRadius, best.Y + RingRadius);
+        if (latestLabel.Box().Overlaps(bestLabel.Box()) || latestLabel.Box().Overlaps(ring))
+        {
+            latestLabel = Place(latest, latestText, latest.Y + LabelBelow);
+        }
+
+        return [bestLabel, latestLabel];
+    }
+
+    private static Label Place(Plotted point, string text, double y)
+    {
+        var half = text.Length * CharWidth / 2;
+        return point.X - half < Left ? new(point.X - LatestRadius, y, "start", text)
+            : point.X + half > Width ? new(point.X + LatestRadius, y, "end", text)
+            : new(point.X, y, "middle", text);
+    }
+
+    private string LabelText(ChartPoint point) => point.Label ?? Format(point.Value!.Value);
 
     private static decimal NiceStep(decimal rough)
     {
@@ -153,6 +189,28 @@ public partial class Chart
 
     private static string Number(double value) => value.ToString("0.#", CultureInfo.InvariantCulture);
 
-    /// <summary>A point as drawn: position, label (none when hidden) and whether it is the best.</summary>
-    private sealed record Plotted(double X, double Y, string? Text, bool Best);
+    /// <summary>A point as drawn: position, and whether it is the best and the latest.</summary>
+    private sealed record Plotted(double X, double Y, bool Best, bool Latest);
+
+    /// <summary>A point's label as drawn: <see cref="Anchor"/> is the SVG text-anchor of <see cref="X"/>, and <see cref="Y"/> its baseline.</summary>
+    private sealed record Label(double X, double Y, string Anchor, string Text)
+    {
+        /// <summary>Estimated extent, from <see cref="CharWidth"/> and <see cref="LineHeight"/>.</summary>
+        public Box Box()
+        {
+            var width = Text.Length * CharWidth;
+            var (start, end) = Anchor switch
+            {
+                "start" => (X, X + width),
+                "end" => (X - width, X),
+                _ => (X - (width / 2), X + (width / 2)),
+            };
+            return new(start, end, Y - LineHeight, Y);
+        }
+    }
+
+    private sealed record Box(double Left, double Right, double Top, double Bottom)
+    {
+        public bool Overlaps(Box other) => Left < other.Right && other.Left < Right && Top < other.Bottom && other.Top < Bottom;
+    }
 }

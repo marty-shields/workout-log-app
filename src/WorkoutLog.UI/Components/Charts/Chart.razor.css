@@ -29,8 +29,14 @@
     stroke-width: var(--chart-stroke-width);
 }
 
-.best {
+.latest {
     fill: var(--color-accent);
+}
+
+.best {
+    fill: none;
+    stroke: var(--color-accent);
+    stroke-width: var(--border-width);
 }
 
 .tick,

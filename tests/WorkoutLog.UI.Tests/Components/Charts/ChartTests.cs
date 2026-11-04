@@ -13,7 +13,7 @@ public class ChartTests : ComponentTestBase
     {
         var cut = Render([new("1 Sep", 10), new("8 Sep", 12), new("15 Sep", 11)]);
 
-        Assert.That(cut.FindAll("circle"), Has.Count.EqualTo(3));
+        Assert.That(cut.FindAll(".point"), Has.Count.EqualTo(3));
     }
 
     [Test]
@@ -21,7 +21,7 @@ public class ChartTests : ComponentTestBase
     {
         var cut = Render([new("1 Sep", 10), new("8 Sep", null), new("15 Sep", 12)]);
 
-        var circles = cut.FindAll("circle");
+        var circles = cut.FindAll(".point");
         Assert.Multiple(() =>
         {
             Assert.That(circles, Has.Count.EqualTo(2));
@@ -37,8 +37,9 @@ public class ChartTests : ComponentTestBase
 
         Assert.Multiple(() =>
         {
-            Assert.That(cut.FindAll("circle"), Has.Count.EqualTo(1));
+            Assert.That(cut.FindAll(".point"), Has.Count.EqualTo(1));
             Assert.That(cut.FindAll("path"), Is.Empty);
+            Assert.That(Labels(cut), Is.EqualTo(new[] { "×10" }));
             Assert.That(cut.FindAll(".date").Select(d => d.TextContent), Is.EqualTo(new[] { "5 Oct" }));
             Assert.That(Ticks(cut), Is.EqualTo(new[] { "13", "14", "15" }));
         });
@@ -65,7 +66,7 @@ public class ChartTests : ComponentTestBase
     {
         var cut = Render([new("1 Sep", 340), new("8 Sep", 330), new("15 Sep", 352)], flipped: true);
 
-        var ys = cut.FindAll("circle").Select(c => Number(c, "cy")).ToList();
+        var ys = cut.FindAll(".point").Select(c => Number(c, "cy")).ToList();
         Assert.Multiple(() =>
         {
             Assert.That(BestIndex(cut), Is.EqualTo(1));
@@ -79,15 +80,22 @@ public class ChartTests : ComponentTestBase
     {
         var cut = Render([new("1 Sep", 10), new("8 Sep", 14)]);
 
-        var ys = cut.FindAll("circle").Select(c => Number(c, "cy")).ToList();
+        var ys = cut.FindAll(".point").Select(c => Number(c, "cy")).ToList();
         Assert.That(ys[1], Is.LessThan(ys[0]));
     }
 
-    [TestCase(new[] { 5, 7, 7, 3 }, false, 1)]
-    [TestCase(new[] { 5, 3, 3, 7 }, true, 1)]
-    public void Best_TiedValues_IsTheEarliest(int[] values, bool flipped, int expected)
+    [TestCase(new[] { 5 }, false, 0, 0)]
+    [TestCase(new[] { 5, 7, 6 }, false, 1, 2)]
+    [TestCase(new[] { 5, 6, 7 }, false, 2, 2)]
+    [TestCase(new[] { 5, 7, 7, 3 }, false, 2, 3)]
+    [TestCase(new[] { 7, 5, 7 }, false, 2, 2)]
+    [TestCase(new[] { 340, 330, 352 }, true, 1, 2)]
+    [TestCase(new[] { 5, 3, 3, 7 }, true, 2, 3)]
+    [TestCase(new[] { 4, 4, 4 }, false, 2, 2)]
+    [TestCase(new[] { 4, 4, 4 }, true, 2, 2)]
+    public void LabelledPoints_AreTheBestLatestOfATieAndTheLatest(int[] values, bool flipped, int best, int latest)
     {
-        Assert.That(Chart.Best(values.Select(v => (decimal)v).ToList(), flipped), Is.EqualTo(expected));
+        Assert.That(Chart.LabelledPoints(values.Select(v => (decimal)v).ToList(), flipped), Is.EqualTo((best, latest)));
     }
 
     [TestCase(59, 72, false, 55, 75, 5)]
@@ -131,56 +139,100 @@ public class ChartTests : ComponentTestBase
     }
 
     [Test]
-    public void Points_ShowTheirLabelElseTheirFormattedValue()
+    public void OnlyTheBestAndLatest_ShowTheirLabelElseTheirFormattedValue()
     {
-        var cut = Render([new("1 Sep", 60, "×6"), new("8 Sep", 62.5m)]);
+        var cut = Render([new("1 Sep", 60, "×6"), new("8 Sep", 65, "×5"), new("15 Sep", 60, "×8"), new("22 Sep", 62.5m)]);
 
-        Assert.That(cut.FindAll(".label").Select(l => l.TextContent), Is.EqualTo(new[] { "×6", "62.5kg" }));
+        Assert.That(Labels(cut), Is.EqualTo(new[] { "×5", "62.5kg" }));
     }
 
     [Test]
-    public void UpToEightPoints_WithLabels_AllAreLabelled()
+    public void LatestIsTheBest_HasOneLabel()
     {
-        var cut = Render(Enumerable.Range(1, Chart.MaxLabelledPoints).Select(i => new ChartPoint($"{i} Sep", i, $"×{i}")).ToList());
-
-        Assert.That(cut.FindAll(".label"), Has.Count.EqualTo(Chart.MaxLabelledPoints));
-    }
-
-    [Test]
-    public void PointsWithoutLabels_OnlyTheBestAndLatestShowTheirValue()
-    {
-        var cut = Render([new("1 Sep", 10), new("8 Sep", 20), new("15 Sep", 15)]);
-
-        Assert.That(cut.FindAll(".label").Select(l => l.TextContent), Is.EqualTo(new[] { "20kg", "15kg" }));
-    }
-
-    [Test]
-    public void MoreThanEightPoints_OnlyTheBestAndLatestAreLabelled()
-    {
-        var values = new[] { 10, 11, 12, 20, 13, 14, 15, 16, 17 };
-        var cut = Render(values.Select((v, i) => new ChartPoint($"{i + 1} Sep", v)).ToList());
-
-        Assert.That(cut.FindAll(".label").Select(l => l.TextContent), Is.EqualTo(new[] { "20kg", "17kg" }));
-    }
-
-    [Test]
-    public void MoreThanEightPoints_BestIsTheLatest_OnlyItIsLabelled()
-    {
-        var cut = Render(Enumerable.Range(1, 9).Select(i => new ChartPoint($"{i} Sep", i)).ToList());
-
-        Assert.That(cut.FindAll(".label").Select(l => l.TextContent), Is.EqualTo(new[] { "9kg" }));
-    }
-
-    [Test]
-    public void MoreThanEightPoints_TiedBest_TheEarlierIsBestAndLabelled()
-    {
-        var values = new[] { 10, 20, 11, 20, 12, 13, 14, 15, 16 };
-        var cut = Render(values.Select((v, i) => new ChartPoint($"{i + 1} Sep", v)).ToList());
+        var cut = Render([new("1 Sep", 10, "×6"), new("8 Sep", 12, "×5"), new("15 Sep", 12, "×3")]);
 
         Assert.Multiple(() =>
         {
+            Assert.That(Labels(cut), Is.EqualTo(new[] { "×3" }));
+            Assert.That(BestIndex(cut), Is.EqualTo(2));
+        });
+    }
+
+    [Test]
+    public void Latest_IsTheFilledLargerPoint_AndBestHasARing()
+    {
+        var cut = Render([new("1 Sep", 10), new("8 Sep", 20), new("15 Sep", 15)]);
+
+        var points = cut.FindAll(".point");
+        Assert.Multiple(() =>
+        {
+            Assert.That(points.Select(p => p.ClassList.Contains("latest")), Is.EqualTo(new[] { false, false, true }));
+            Assert.That(Number(points[2], "r"), Is.GreaterThan(Number(points[0], "r")));
             Assert.That(BestIndex(cut), Is.EqualTo(1));
-            Assert.That(cut.FindAll(".label").Select(l => l.TextContent), Is.EqualTo(new[] { "20kg", "16kg" }));
+        });
+    }
+
+    [Test]
+    public void FirstPointLabel_StartsAtThePointClearOfTheTicks()
+    {
+        var cut = Render([new("1 Sep", 2000), new("8 Sep", 1000), new("15 Sep", 1500)]);
+
+        var label = cut.FindAll(".label")[0];
+        Assert.Multiple(() =>
+        {
+            Assert.That(label.GetAttribute("text-anchor"), Is.EqualTo("start"));
+            Assert.That(Number(label, "x"), Is.GreaterThan(cut.FindAll(".tick").Max(t => Number(t, "x"))));
+        });
+    }
+
+    [Test]
+    public void LastPointLabel_EndsAtThePoint()
+    {
+        var cut = Render([new("1 Sep", 20000), new("8 Sep", 10000)]);
+
+        Assert.That(cut.FindAll(".label").Select(l => l.GetAttribute("text-anchor")), Is.EqualTo(new[] { "start", "end" }));
+    }
+
+    [Test]
+    public void BestNextToTheLatestAndAtTheSameHeight_LatestLabelGoesUnderItsPoint()
+    {
+        var values = new[] { 10, 20, 30, 40, 50, 60, 70, 80, 100, 99 };
+        var cut = Render(values.Select((v, i) => new ChartPoint($"{i + 1} Sep", v)).ToList());
+
+        var labels = cut.FindAll(".label");
+        var points = cut.FindAll(".point");
+        Assert.Multiple(() =>
+        {
+            Assert.That(Number(labels[0], "y"), Is.LessThan(Number(points[8], "cy")));
+            Assert.That(Number(labels[1], "y"), Is.GreaterThan(Number(points[9], "cy")));
+        });
+    }
+
+    [Test]
+    public void LatestLabelWouldCrossTheBestRing_GoesUnderItsPoint()
+    {
+        var values = new[] { 72.8m, 76, 76, 79.2m, 79.2m, 79.2m, 82.3m, 79.2m };
+        var cut = Render(values.Select((v, i) => new ChartPoint($"{i + 1} Sep", v)).ToList());
+
+        var labels = cut.FindAll(".label");
+        Assert.Multiple(() =>
+        {
+            Assert.That(labels.Select(l => l.TextContent), Is.EqualTo(new[] { "82.3kg", "79.2kg" }));
+            Assert.That(Number(labels[1], "y"), Is.GreaterThan(Number(cut.FindAll(".point")[7], "cy")));
+        });
+    }
+
+    [Test]
+    public void BestFarAboveTheLatest_BothLabelsAreOverTheirPoints()
+    {
+        var cut = Render([new("1 Sep", 10), new("8 Sep", 100), new("15 Sep", 20)]);
+
+        var labels = cut.FindAll(".label");
+        var points = cut.FindAll(".point");
+        Assert.Multiple(() =>
+        {
+            Assert.That(Number(labels[0], "y"), Is.LessThan(Number(points[1], "cy")));
+            Assert.That(Number(labels[1], "y"), Is.LessThan(Number(points[2], "cy")));
         });
     }
 
@@ -215,8 +267,14 @@ public class ChartTests : ComponentTestBase
             .Add(x => x.Name, "Top set, last 3 months")
             .Add(x => x.TestId, "chart"));
 
-    private static int BestIndex(IRenderedComponent<Chart> cut) =>
-        cut.FindAll("circle").Select((c, i) => (c, i)).Single(x => x.c.ClassList.Contains("best")).i;
+    private static IEnumerable<string> Labels(IRenderedComponent<Chart> cut) => cut.FindAll(".label").Select(l => l.TextContent);
+
+    /// <summary>Index of the point the best ring is drawn round.</summary>
+    private static int BestIndex(IRenderedComponent<Chart> cut)
+    {
+        var ring = cut.Find("circle.best");
+        return cut.FindAll(".point").Select((c, i) => (c, i)).Single(x => x.c.GetAttribute("cx") == ring.GetAttribute("cx")).i;
+    }
 
     /// <summary>Tick texts from the bottom of the chart up.</summary>
     private static IEnumerable<string> Ticks(IRenderedComponent<Chart> cut) =>

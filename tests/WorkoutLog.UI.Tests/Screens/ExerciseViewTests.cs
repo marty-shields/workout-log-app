@@ -178,7 +178,7 @@ public class ExerciseViewTests : ComponentTestBase
 
         Assert.Multiple(() =>
         {
-            Assert.That(cut.FindAll("[data-testid=exercise-chart] circle"), Has.Count.EqualTo(1));
+            Assert.That(cut.FindAll("[data-testid=exercise-chart] .point"), Has.Count.EqualTo(1));
             Assert.That(cut.FindAll("[data-testid^=exercise-session-]"), Has.Count.EqualTo(1));
         });
     }
