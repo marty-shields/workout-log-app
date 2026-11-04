@@ -6,46 +6,48 @@
 @using WorkoutLog.UI.Models.Settings
 @inject ILogger<SettingsView> Logger
 <AppScreen Title="Settings" OnBack="OnBack">
-    <section class="section">
-        <h2 class="heading">Appearance</h2>
-        <SegmentedControl TValue="ThemePreference" Label="Theme" Options="Themes" Value="Theme" ValueChanged="OnThemeChanged" TestId="theme" />
-    </section>
-    @if (Loading)
-    {
-        <div class="centre">
-            <Spinner Label="Loading…" TestId="settings-loading" />
-        </div>
-    }
-    else if (Failed)
-    {
-        <LoadFailed Message="Couldn't load your workouts" OnRetry="OnRetry" TestId="settings" />
-    }
-    else
-    {
+    <div class="body">
         <section class="section">
-            <h2 class="heading">Your data</h2>
-            <p class="text" data-testid="export-text">@ExportText</p>
-            <AppButton @ref="export" Variant="ButtonVariant.Secondary" FullWidth Disabled="Count == 0 || Reading" Busy="Exporting" TestId="export" OnClick="OnExport">
-                @(Exporting ? "Exporting…" : "Export")
-            </AppButton>
-            @if (MessageText is { } message)
-            {
-                <p class="error" role="alert" data-testid="export-error">@message</p>
-            }
-            <p class="text" data-testid="import-text">Import workouts from a JSON file exported by Workout Log</p>
-            <AppButton @ref="import" Variant="ButtonVariant.Secondary" FullWidth Disabled="Exporting" Busy="Reading" TestId="import" OnClick="OnImport">
-                @(Reading ? "Reading…" : "Import")
-            </AppButton>
-            @if (ImportFailed)
-            {
-                <p class="error" role="alert" data-testid="import-error">Couldn't import your workouts. Try again</p>
-            }
-            else if (Imported is { } imported)
-            {
-                <p class="text" role="status" data-testid="import-done">@DoneText(imported)</p>
-            }
+            <h2 class="heading">Appearance</h2>
+            <SegmentedControl TValue="ThemePreference" Label="Theme" Options="Themes" Value="Theme" ValueChanged="OnThemeChanged" TestId="theme" />
         </section>
-    }
+        @if (Loading)
+        {
+            <div class="centre">
+                <Spinner Label="Loading…" TestId="settings-loading" />
+            </div>
+        }
+        else if (Failed)
+        {
+            <LoadFailed Message="Couldn't load your workouts" OnRetry="OnRetry" TestId="settings" />
+        }
+        else
+        {
+            <section class="section">
+                <h2 class="heading">Your data</h2>
+                <p class="text" data-testid="export-text">@ExportText</p>
+                <AppButton @ref="export" Variant="ButtonVariant.Secondary" FullWidth Disabled="Count == 0 || Reading" Busy="Exporting" TestId="export" OnClick="OnExport">
+                    @(Exporting ? "Exporting…" : "Export")
+                </AppButton>
+                @if (MessageText is { } message)
+                {
+                    <p class="error" role="alert" data-testid="export-error">@message</p>
+                }
+                <p class="text" data-testid="import-text">Import workouts from a JSON file exported by Workout Log</p>
+                <AppButton @ref="import" Variant="ButtonVariant.Secondary" FullWidth Disabled="Exporting" Busy="Reading" TestId="import" OnClick="OnImport">
+                    @(Reading ? "Reading…" : "Import")
+                </AppButton>
+                @if (ImportFailed)
+                {
+                    <p class="error" role="alert" data-testid="import-error">Couldn't import your workouts. Try again</p>
+                }
+                else if (Imported is { } imported)
+                {
+                    <p class="text" role="status" data-testid="import-done">@DoneText(imported)</p>
+                }
+            </section>
+        }
+    </div>
 </AppScreen>
 
 @code {

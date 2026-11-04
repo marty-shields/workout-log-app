@@ -1,5 +1,5 @@
 @typeparam TValue
-<fieldset class="segments" data-testid="@TestId">
+<fieldset class="segments" data-testid="@TestId" @key="generation">
     <legend class="visually-hidden">@Label</legend>
     @foreach (var option in Options)
     {
@@ -10,7 +10,7 @@
                    name="@name"
                    checked="@selected"
                    data-testid="@option.TestId"
-                   @onchange="() => ValueChanged.InvokeAsync(option.Value)" />
+                   @onchange="() => Pick(option.Value)" />
             <span class="text">@option.Label</span>
         </label>
     }
@@ -18,6 +18,32 @@
 
 @code {
     private readonly string name = $"segment-{Guid.NewGuid():N}";
+    private int generation;
+    private bool picked;
+    private TValue? pickedValue;
+
+    private async Task Pick(TValue value)
+    {
+        pickedValue = value;
+        picked = true;
+        await ValueChanged.InvokeAsync(value);
+    }
+
+    /// <summary>Redraws the radios when the parent didn't take the tapped value, so the browser shows the chosen one.</summary>
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (!picked)
+        {
+            return;
+        }
+
+        picked = false;
+        if (!EqualityComparer<TValue>.Default.Equals(pickedValue, Value))
+        {
+            generation++;
+            StateHasChanged();
+        }
+    }
 
     /// <summary>What the choices pick, e.g. Range. Read by screen readers only.</summary>
     [Parameter, EditorRequired]

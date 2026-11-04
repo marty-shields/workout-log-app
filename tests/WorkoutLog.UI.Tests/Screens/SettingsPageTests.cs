@@ -4,9 +4,11 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Testing;
 using Microsoft.JSInterop;
 using WorkoutLog.Core.Services;
+using WorkoutLog.UI.Components.Inputs;
 using WorkoutLog.UI.Import;
 using WorkoutLog.UI.Lifecycle;
 using WorkoutLog.UI.Logging;
+using WorkoutLog.UI.Models.Settings;
 using WorkoutLog.UI.Screens;
 using WorkoutLog.UI.Sharing;
 
@@ -137,6 +139,8 @@ public class SettingsPageTests : ComponentTestBase
         export.CompleteCount(new ExportCount(0, false));
         await WaitForRendererAsync();
 
+        var control = cut.FindComponent<SegmentedControl<ThemePreference>>();
+        var renders = control.RenderCount;
         cut.Find("[data-testid=settings-theme-light]").Change(true);
 
         cut.WaitForAssertion(() => Assert.That(LoggedEvents.Of(logger), Is.EqualTo(new[] { (UiEvent.ThemeSaveFailed, LogLevel.Warning, "Saving the theme failed") })));
@@ -144,6 +148,7 @@ public class SettingsPageTests : ComponentTestBase
         {
             Assert.That(cut.Find("[data-testid=settings-theme-system]").HasAttribute("checked"), Is.True);
             Assert.That(cut.Find("[data-testid=settings-theme-light]").HasAttribute("checked"), Is.False);
+            Assert.That(control.RenderCount - renders, Is.EqualTo(2));
             Assert.That(logger.LatestRecord.Exception, Is.SameAs(exception));
         });
     }
