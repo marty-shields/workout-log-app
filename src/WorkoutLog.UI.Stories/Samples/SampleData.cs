@@ -160,6 +160,23 @@ public static class SampleData
     /// <summary>A saved workout's exercises, given oldest first, as Edit Workout loads them: newest first, each one done.</summary>
     public static List<ExerciseState> Loaded(List<ExerciseState> saved) => MarkDone(Opened(saved), [.. Enumerable.Range(0, saved.Count)]);
 
+    /// <summary>Deletes the set (from 0) of the exercise at this position of the screen order, as its trash does, and returns the deletion Undo puts back.</summary>
+    public static PendingUndo DeleteSet(List<ExerciseState> exercises, int position, int set)
+    {
+        var exercise = exercises[position];
+        var entry = exercise.Entries[set];
+        exercise.Entries.RemoveAt(set);
+        return new RemovedSet(exercise, entry, set);
+    }
+
+    /// <summary>Deletes the exercise at this position of the screen order, as its trash does, and returns the deletion Undo puts back.</summary>
+    public static PendingUndo DeleteExercise(List<ExerciseState> exercises, int position)
+    {
+        var exercise = exercises[position];
+        exercises.RemoveAt(position);
+        return new RemovedExercise(exercise, position);
+    }
+
     /// <summary>Marks the exercises at these positions of the screen order done, and returns the list.</summary>
     public static List<ExerciseState> MarkDone(List<ExerciseState> exercises, params int[] positions)
     {

@@ -10,8 +10,8 @@ namespace WorkoutLog.UI.Tests;
 
 /// <summary>
 /// Creates a fresh bUnit context for each test with the UI's services (<see cref="UiServiceCollectionExtensions.AddUi"/>),
-/// a <see cref="BackButton"/>, the exercise catalog, a <see cref="SampleWorkoutService"/>, a <see cref="SampleWeightHistoryService"/>, a <see cref="FakeLoggedExercisesService"/> and a <see cref="FakeLastSessionService"/>.
-/// Tests may register their own workout and weight history services.
+/// a <see cref="BackButton"/>, a <see cref="FakeTimeProvider"/> that never moves, the exercise catalog, a <see cref="SampleWorkoutService"/>, a <see cref="SampleWeightHistoryService"/>, a <see cref="FakeLoggedExercisesService"/> and a <see cref="FakeLastSessionService"/>.
+/// Tests may register their own clock, workout and weight history services.
 /// </summary>
 public abstract class ComponentTestBase
 {
@@ -38,6 +38,7 @@ public abstract class ComponentTestBase
         LastSessions = new FakeLastSessionService();
         Context.Services.AddUi();
         Context.Services.AddSingleton<IBackButton>(BackButton);
+        Context.Services.AddSingleton<TimeProvider>(new FakeTimeProvider());
         Context.Services.AddSingleton(Catalog);
         Context.Services.AddSingleton<IWorkoutService>(new SampleWorkoutService(new FakeTimeProvider(), Catalog));
         Context.Services.AddSingleton<IWeightHistoryService>(new SampleWeightHistoryService());

@@ -490,12 +490,12 @@ public class NewWorkoutPageTests : ComponentTestBase
 
         cut.Find("[data-testid=snackbar-undo]").Click();
 
-        Assert.Multiple(() =>
+        cut.WaitForAssertion(() => Assert.Multiple(() =>
         {
             Assert.That(Names(cut), Is.EqualTo(new[] { "Barbell Back Squat", "Dumbbell Curl" }));
             Assert.That(cut.Find("[data-testid=exercise-2]").ClassList, Does.Contain("done"));
             Assert.That(cut.FindAll("[data-testid=snackbar]"), Is.Empty);
-        });
+        }));
     }
 
     [Test]
@@ -509,11 +509,11 @@ public class NewWorkoutPageTests : ComponentTestBase
         Remove(cut, 1);
         cut.Find("[data-testid=snackbar-undo]").Click();
 
-        Assert.Multiple(() =>
+        cut.WaitForAssertion(() => Assert.Multiple(() =>
         {
             Assert.That(Names(cut), Is.EqualTo(new[] { "Dumbbell Curl" }));
             Assert.That(cut.FindAll("[data-testid=snackbar]"), Is.Empty);
-        });
+        }));
     }
 
     [Test]
