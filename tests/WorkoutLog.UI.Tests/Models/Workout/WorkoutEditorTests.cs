@@ -414,7 +414,7 @@ public class WorkoutEditorTests
         Assert.Multiple(() =>
         {
             Assert.That(squat.Entries, Has.Count.EqualTo(1));
-            Assert.That(editor.PendingUndo, Is.EqualTo(new RemovedSet(squat, second, 1)));
+            Assert.That(editor.PendingUndo, Is.TypeOf<RemovedSet>().With.Property(nameof(RemovedSet.Entry)).SameAs(second));
             Assert.That(editor.PendingUndo!.Message, Is.EqualTo("Barbell Back Squat set 2 deleted"));
             Assert.That(editor.Changed, Is.True);
         });
@@ -487,6 +487,39 @@ public class WorkoutEditorTests
         editor.Undo();
 
         Assert.That(squat.Entries, Is.EqualTo(new[] { last }));
+    }
+
+    [Test]
+    public void Undo_ASetAboveRemovedMeanwhile_PutsTheSetBackUnderItsNeighbour()
+    {
+        var squat = SampleData.Exercise(Catalog, Squat, ["8", "60"]);
+        squat.Entries.AddRange([new EntryState(), new EntryState(), new EntryState()]);
+        var (a, b, c, d) = (squat.Entries[0], squat.Entries[1], squat.Entries[2], squat.Entries[3]);
+        editor.Start([squat], null);
+        editor.RemoveSet(new SetRef(squat, c));
+        squat.Entries.Remove(a);
+        editor.MarkChanged();
+
+        editor.Undo();
+
+        Assert.That(squat.Entries, Is.EqualTo(new[] { b, c, d }));
+    }
+
+    [Test]
+    public void Undo_ASetAddedMeanwhile_PutsTheSetBackInItsPlace()
+    {
+        var squat = SampleData.Exercise(Catalog, Squat, ["8", "60"]);
+        squat.Entries.Add(new EntryState());
+        var (a, b) = (squat.Entries[0], squat.Entries[1]);
+        editor.Start([squat], null);
+        editor.RemoveSet(new SetRef(squat, a));
+        var added = new EntryState();
+        squat.Entries.Add(added);
+        editor.MarkChanged();
+
+        editor.Undo();
+
+        Assert.That(squat.Entries, Is.EqualTo(new[] { a, b, added }));
     }
 
     [Test]

@@ -164,9 +164,9 @@ public static class SampleData
     public static PendingUndo DeleteSet(List<ExerciseState> exercises, int position, int set)
     {
         var exercise = exercises[position];
-        var entry = exercise.Entries[set];
+        var removed = new RemovedSet(exercise, exercise.Entries[set], exercise.Entries[..set]);
         exercise.Entries.RemoveAt(set);
-        return new RemovedSet(exercise, entry, set);
+        return removed;
     }
 
     /// <summary>Deletes the exercise at this position of the screen order, as its trash does, and returns the deletion Undo puts back.</summary>

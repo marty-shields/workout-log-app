@@ -215,13 +215,14 @@ public sealed class WorkoutEditor(
             return;
         }
 
+        PendingUndo = new RemovedSet(set.Exercise, set.Entry, set.Exercise.Entries[..index]);
         set.Exercise.Entries.RemoveAt(index);
-        PendingUndo = new RemovedSet(set.Exercise, set.Entry, index);
         Changed = true;
     }
 
     /// <summary>
-    /// Puts the <see cref="PendingUndo"/> deletion back at its position, or at the end when fewer are left, with its values and
+    /// Puts the <see cref="PendingUndo"/> deletion back at its position (an exercise at its place in the screen order, or at the
+    /// end when fewer are left; a set under the sets that were above it), with its values and
     /// done state, and clears it; ignored when it no longer <see cref="PendingUndo.Fits"/>, and while a save runs, which has read
     /// the workout without it. Not a change undone: <see cref="Changed"/> stays set.
     /// </summary>
@@ -239,7 +240,7 @@ public sealed class WorkoutEditor(
                 exercises.Insert(Math.Min(removed.Index, exercises.Count), removed.Exercise);
                 break;
             case RemovedSet removed:
-                removed.Exercise.Entries.Insert(Math.Min(removed.Index, removed.Exercise.Entries.Count), removed.Entry);
+                removed.Exercise.Entries.Insert(removed.Index, removed.Entry);
                 break;
         }
 

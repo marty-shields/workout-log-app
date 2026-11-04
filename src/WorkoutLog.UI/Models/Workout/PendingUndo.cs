@@ -21,8 +21,11 @@ public sealed record RemovedExercise(ExerciseState Exercise, int Index) : Pendin
 }
 
 /// <summary>A closed set taken out of its exercise.</summary>
-/// <param name="Index">Its position in the exercise's sets, from 0.</param>
-public sealed record RemovedSet(ExerciseState Exercise, EntryState Entry, int Index) : PendingUndo($"{Exercise.Name} set {Index + 1} deleted")
+/// <param name="Above">The sets above it when it was deleted, top first. Undo puts it back by these, not by number, so a set removed or added meanwhile doesn't move it.</param>
+public sealed record RemovedSet(ExerciseState Exercise, EntryState Entry, IReadOnlyList<EntryState> Above) : PendingUndo($"{Exercise.Name} set {Above.Count + 1} deleted")
 {
+    /// <summary>Where Undo puts it back, from 0: just under the lowest of <see cref="Above"/> still in the exercise, or first when none is.</summary>
+    public int Index => Exercise.Entries.FindLastIndex(Above.Contains) + 1;
+
     public override bool Fits(IReadOnlyCollection<ExerciseState> exercises) => !Exercise.SetsFull;
 }
