@@ -18,6 +18,7 @@ public partial class Chart
     private const double DateY = 194;
     private const double LabelGap = 14;
     private const double LabelBelow = 24;
+    private const double LabelRow = 18;
     private const double Radius = 4.5;
     private const double LatestRadius = 6;
     private const double RingRadius = 9;
@@ -137,21 +138,30 @@ public partial class Chart
     }
 
     /// <summary>
-    /// Labels over the best and latest points, two different points, kept inside the plot: a label near an edge is anchored to start or end at its point so it
-    /// clears the y-axis ticks and the right edge. When the latest label would overlap the best label or ring, it goes under its point;
-    /// the best is the highest point, so the latest is below it.
+    /// Labels over the best and latest points, two different points, kept inside the plot: a label near an edge is anchored to start or
+    /// end at its point so it clears the y-axis ticks and the right edge. When the latest label would overlap the best label or ring,
+    /// it goes under its point, if that leaves a <see cref="LabelRow"/> above the dates; the best is the topmost point, so nothing of
+    /// it is down there. Otherwise both stack over the best point, the latest's label nearest it. That happens only with the latest in
+    /// the plot's bottom rows and the best within a label and a ring of it, so the stack stays well clear of the top.
     /// </summary>
     private static IReadOnlyList<Label> Labels(Plotted best, Plotted latest, string bestText, string latestText)
     {
         var latestLabel = Place(latest, latestText, latest.Y - LabelGap);
         var bestLabel = Place(best, bestText, best.Y - LabelGap);
         var ring = new Box(best.X - RingRadius, best.X + RingRadius, best.Y - RingRadius, best.Y + RingRadius);
-        if (latestLabel.Box().Overlaps(bestLabel.Box()) || latestLabel.Box().Overlaps(ring))
+        if (!latestLabel.Box().Overlaps(bestLabel.Box()) && !latestLabel.Box().Overlaps(ring))
         {
-            latestLabel = Place(latest, latestText, latest.Y + LabelBelow);
+            return [bestLabel, latestLabel];
         }
 
-        return [bestLabel, latestLabel];
+        var below = latest.Y + LabelBelow;
+        if (below + LabelRow <= DateY)
+        {
+            return [bestLabel, Place(latest, latestText, below)];
+        }
+
+        var stacked = best.Y - LabelGap;
+        return [Place(best, bestText, stacked - LabelRow), Place(latest, latestText, stacked)];
     }
 
     private static Label Place(Plotted point, string text, double y)

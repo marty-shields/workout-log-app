@@ -223,6 +223,25 @@ public class ChartTests : ComponentTestBase
     }
 
     [Test]
+    public void BestBesideTheLatestAtTheBottom_StacksBothLabelsOverTheBestClearOfTheDates()
+    {
+        decimal[] values = [.. Enumerable.Repeat(80m, 14), 80.02m, 80m];
+        var cut = Render(values.Select((v, i) => new ChartPoint($"{i + 1} Sep", v)).ToList());
+
+        var labels = cut.FindAll(".label");
+        var latest = cut.FindAll(".point")[^1];
+        var ring = cut.Find("circle.best");
+        Assert.Multiple(() =>
+        {
+            Assert.That(labels.Select(l => l.TextContent), Is.EqualTo(new[] { "80.02kg", "80kg" }));
+            Assert.That(Number(labels[1], "y"), Is.LessThan(Number(ring, "cy") - Number(ring, "r")), "latest label over the best ring");
+            Assert.That(Number(labels[0], "y"), Is.LessThanOrEqualTo(Number(labels[1], "y") - 14), "best label a row over the latest");
+            Assert.That(Number(labels[1], "y"), Is.LessThan(Number(latest, "cy")), "latest label over its point");
+            Assert.That(Number(labels[0], "y") - 14, Is.GreaterThan(0), "inside the top");
+        });
+    }
+
+    [Test]
     public void BestFarAboveTheLatest_BothLabelsAreOverTheirPoints()
     {
         var cut = Render([new("1 Sep", 10), new("8 Sep", 100), new("15 Sep", 20)]);
