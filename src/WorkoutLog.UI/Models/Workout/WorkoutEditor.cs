@@ -132,12 +132,10 @@ public sealed class WorkoutEditor(
     /// Opens the add-exercise list with no search text and the All chip, loading while it reads the last sessions through
     /// <see cref="ILoggedExercisesService.GetAsync"/>. Then lists the whole catalog, Strength then Cardio A–Z, each logged exercise
     /// with its last session. A failed read lists the catalog with no last sessions. A read finished after the list closed or
-    /// reopened is ignored. Ends the <see cref="PendingUndo"/>, so Undo can't bring back an exercise past
-    /// <see cref="WorkoutLimits.MaxExercises"/>.
+    /// reopened is ignored.
     /// </summary>
     public async Task OpenListAsync()
     {
-        PendingUndo = null;
         var open = ++listOpens;
         ListOpen = true;
         ListLoading = true;
@@ -178,7 +176,7 @@ public sealed class WorkoutEditor(
     /// <summary>
     /// Moves the exercise already in the workout to the top, opens it if it is done and focuses it, adding a set to a strength one with fewer than
     /// <see cref="WorkoutLimits.MaxSets"/>; otherwise adds it at the top, unless the workout has <see cref="WorkoutLimits.MaxExercises"/>.
-    /// Either is a change. Clears the workout's error and closes the add-exercise list.
+    /// Either is a change. Clears the workout's error, closes the add-exercise list and ends an Undo that no longer fits.
     /// </summary>
     public void Pick(ExerciseListItem item)
     {
@@ -191,6 +189,7 @@ public sealed class WorkoutEditor(
         Focus = Show(item.Id);
         Error = null;
         ListOpen = false;
+        EndUndoThatNoLongerFits();
     }
 
     /// <summary>Takes the exercise out at once, a change, and offers Undo for it in place of any earlier deletion.</summary>
@@ -223,10 +222,12 @@ public sealed class WorkoutEditor(
 
     /// <summary>
     /// Puts the <see cref="PendingUndo"/> deletion back at its position, or at the end when fewer are left, with its values and
-    /// done state, and clears it. Not a change undone: <see cref="Changed"/> stays set.
+    /// done state, and clears it; ignored when it no longer <see cref="PendingUndo.Fits"/>. Not a change undone: <see cref="Changed"/>
+    /// stays set.
     /// </summary>
     public void Undo()
     {
+        EndUndoThatNoLongerFits();
         switch (PendingUndo)
         {
             case RemovedExercise removed:
@@ -249,8 +250,15 @@ public sealed class WorkoutEditor(
         }
     }
 
-    /// <summary>Records a value, note, set or entry change.</summary>
-    public void MarkChanged() => Changed = true;
+    /// <summary>
+    /// Records a value, note, set or entry change, and ends an Undo it leaves no room for, such as a set added to an exercise
+    /// whose deleted set Undo would put back past <see cref="WorkoutLimits.MaxSets"/>.
+    /// </summary>
+    public void MarkChanged()
+    {
+        Changed = true;
+        EndUndoThatNoLongerFits();
+    }
 
     /// <summary>Sets the workout's note, a change, and clears its error.</summary>
     public void SetNote(string? note)
@@ -311,6 +319,14 @@ public sealed class WorkoutEditor(
     {
         Error = workoutChecker.DeleteFailed;
         ErrorFocus = new ErrorFocus(ErrorFocusTarget.Delete);
+    }
+
+    private void EndUndoThatNoLongerFits()
+    {
+        if (PendingUndo?.Fits(exercises) == false)
+        {
+            PendingUndo = null;
+        }
     }
 
     private void Find() => ListItems = ExerciseListItems.Find(listItems, catalog, Query, Filter);

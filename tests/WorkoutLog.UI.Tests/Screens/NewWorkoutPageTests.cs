@@ -587,15 +587,37 @@ public class NewWorkoutPageTests : ComponentTestBase
     }
 
     [Test]
-    public void AddExercise_HidesTheSnackbar()
+    public void AddExerciseClosedWithoutAPick_KeepsTheSnackbarAndItsUndo()
     {
         var cut = RenderPage();
         Add(cut, 132);
         Remove(cut, 1);
 
         cut.Find("[data-testid=add-exercise]").Click();
+        cut.Find("[data-testid=exercises-back]").Click();
+        cut.Find("[data-testid=snackbar-undo]").Click();
 
-        Assert.That(cut.FindAll("[data-testid=snackbar]"), Is.Empty);
+        Assert.That(Names(cut), Is.EqualTo(new[] { "Dumbbell Curl" }));
+    }
+
+    [Test]
+    public void AddSet_FillsTheExerciseWhoseDeletedSetUndoWouldPutBack_HidesTheSnackbar()
+    {
+        var cut = RenderPage();
+        Add(cut, 6);
+        AddSets(cut, 1, WorkoutLimits.MaxSets);
+        cut.Find("[data-testid=exercise-1-set-1-remove]").Click();
+        var shown = cut.FindAll("[data-testid=snackbar]").Count;
+
+        cut.Find($"[data-testid=exercise-1-set-{WorkoutLimits.MaxSets - 1}-weight]").Input("50");
+        cut.Find($"[data-testid=exercise-1-set-{WorkoutLimits.MaxSets - 1}-reps]").Input("5");
+        cut.Find("[data-testid=exercise-1-add-set]").Click();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(shown, Is.EqualTo(1));
+            Assert.That(cut.FindAll("[data-testid=snackbar]"), Is.Empty);
+        });
     }
 
     [Test]

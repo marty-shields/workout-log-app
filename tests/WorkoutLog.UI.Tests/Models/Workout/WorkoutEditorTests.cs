@@ -554,14 +554,87 @@ public class WorkoutEditorTests
     }
 
     [Test]
-    public async Task OpenListAsync_EndsTheUndo()
+    public async Task OpenListAsyncThenCloseList_KeepsTheUndo()
     {
         editor.Start([SampleData.Exercise(Catalog, Squat, ["8", "60"])], null);
         editor.Remove(editor.Exercises[0]);
+        var undo = editor.PendingUndo;
 
         await editor.OpenListAsync();
+        editor.CloseList();
+        editor.Undo();
 
-        Assert.That(editor.PendingUndo, Is.Null);
+        Assert.Multiple(() =>
+        {
+            Assert.That(undo, Is.Not.Null);
+            Assert.That(editor.Exercises, Has.Count.EqualTo(1));
+        });
+    }
+
+    [Test]
+    public void MarkChanged_ASetAddedFillsTheExerciseWhoseSetUndoWouldPutBack_EndsTheUndo()
+    {
+        var squat = SampleData.FullSets(Catalog, Squat);
+        editor.Start([squat], null);
+        editor.RemoveSet(new SetRef(squat, squat.Entries[0]));
+        squat.Entries.Add(new EntryState());
+
+        editor.MarkChanged();
+        editor.Undo();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(editor.PendingUndo, Is.Null);
+            Assert.That(squat.Entries, Has.Count.EqualTo(WorkoutLimits.MaxSets));
+        });
+    }
+
+    [Test]
+    public void MarkChanged_ASetAddedToAnotherExercise_KeepsTheUndo()
+    {
+        var squat = SampleData.FullSets(Catalog, Squat);
+        var curl = SampleData.Exercise(Catalog, Curl, ["10", "12"]);
+        editor.Start([squat, curl], null);
+        editor.RemoveSet(new SetRef(squat, squat.Entries[0]));
+        curl.Entries.Add(new EntryState());
+
+        editor.MarkChanged();
+
+        Assert.That(editor.PendingUndo, Is.Not.Null);
+    }
+
+    [Test]
+    public void Undo_TheExerciseFilledUpWithoutAChangeReported_LeavesItAtMaxSets()
+    {
+        var squat = SampleData.FullSets(Catalog, Squat);
+        editor.Start([squat], null);
+        editor.RemoveSet(new SetRef(squat, squat.Entries[0]));
+        squat.Entries.Add(new EntryState());
+
+        editor.Undo();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(editor.PendingUndo, Is.Null);
+            Assert.That(squat.Entries, Has.Count.EqualTo(WorkoutLimits.MaxSets));
+        });
+    }
+
+    [Test]
+    public void Pick_ANewExerciseFillsTheWorkoutWhoseExerciseUndoWouldPutBack_EndsTheUndo()
+    {
+        editor.Start(Catalog.All.Where(e => e.Id != Curl).Take(WorkoutLimits.MaxExercises).Select(ExerciseFields.New), null);
+        editor.Remove(editor.Exercises[0]);
+
+        editor.Pick(Item(Curl));
+        editor.Undo();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(editor.PendingUndo, Is.Null);
+            Assert.That(editor.Exercises, Has.Count.EqualTo(WorkoutLimits.MaxExercises));
+            Assert.That(editor.Exercises[0].ExerciseId, Is.EqualTo(Curl));
+        });
     }
 
     [Test]
