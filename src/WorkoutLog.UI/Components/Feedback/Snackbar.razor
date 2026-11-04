@@ -1,5 +1,7 @@
+@using Microsoft.Extensions.Logging
 @implements IDisposable
 @inject TimeProvider Clock
+@inject ILogger<Snackbar> Logger
 
 <div class="snackbar" data-testid="@TestId">
     <p class="message" data-testid="@($"{TestId}-message")" data-wrap-ok>@Message</p>
@@ -44,9 +46,18 @@
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (firstRender && TakeFocus)
+        if (!firstRender || !TakeFocus)
+        {
+            return;
+        }
+
+        try
         {
             await undo.FocusAsync();
+        }
+        catch (Exception exception)
+        {
+            Log.UndoFocusFailed(Logger, exception);
         }
     }
 

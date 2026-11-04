@@ -53,6 +53,7 @@ public partial class EventIdTests
             [UiEvent.ReviewImportFocusFailed] = 3601,
             [UiEvent.ReviewPickFailed] = 3701,
             [UiEvent.ImportFileTooLarge] = 3801,
+            [UiEvent.UndoFocusFailed] = 3901,
         }));
 
     [Test]

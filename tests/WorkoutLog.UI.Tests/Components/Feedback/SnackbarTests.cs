@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Testing;
 using Microsoft.Extensions.Time.Testing;
+using Microsoft.JSInterop;
 using WorkoutLog.UI.Components.Feedback;
 using WorkoutLog.UI.Components.Layout;
 using WorkoutLog.UI.Logging;
@@ -118,6 +119,21 @@ public class SnackbarTests : ComponentTestBase
             .Add(x => x.TakeFocus, true));
 
         Context.JSInterop.VerifyFocusAsyncInvoke().Arguments[0].ShouldBeElementReferenceTo(cut.Find("[data-testid=snackbar-undo]"));
+    }
+
+    [Test]
+    public void TakeFocusFails_LogsAWarningAndKeepsTheSnackbar()
+    {
+        var logger = new FakeLogger<Snackbar>();
+        Context.Services.AddSingleton<ILogger<Snackbar>>(logger);
+        Context.JSInterop.SetupVoid("Blazor._internal.domWrapper.focus", _ => true).SetException(new JSException("Focus failed"));
+
+        var cut = Context.Render<Snackbar>(p => p
+            .Add(x => x.Message, "Set 2 deleted")
+            .Add(x => x.TakeFocus, true));
+
+        cut.WaitForAssertion(() => Assert.That(LoggedEvents.Of(logger), Is.EqualTo(new[] { (UiEvent.UndoFocusFailed, LogLevel.Warning, "Focusing Undo failed") })));
+        Assert.That(cut.FindAll("[data-testid=snackbar-undo]"), Has.Count.EqualTo(1));
     }
 
     [Test]
