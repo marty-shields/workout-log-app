@@ -76,7 +76,7 @@
                             }
                             @foreach (var field in Exercise.Fields)
                             {
-                                <span data-wrap-ok>@field.DisplayLabel@(field.Required ? " *" : null)</span>
+                                <span data-wrap-ok>@field.DisplayLabel@(field.Required ? "\u00a0*" : null)</span>
                             }
                             <span></span>
                         </div>
