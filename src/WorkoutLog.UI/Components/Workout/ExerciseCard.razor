@@ -231,7 +231,7 @@
                 return FocusOpenSet();
             }
 
-            if (summaries.TryGetValue(set, out var summary))
+            if (ShowsSummary(set) && summaries.TryGetValue(set, out var summary))
             {
                 return summary.FocusEditAsync();
             }
@@ -307,6 +307,11 @@
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
+        foreach (var gone in summaries.Keys.Where(e => !ShowsSummary(e)).ToList())
+        {
+            summaries.Remove(gone);
+        }
+
         if (pending is not { } request || (request.Target == FocusTarget.AddedSet && !FocusTargetRendered()))
         {
             return;
@@ -330,6 +335,10 @@
             }
         }
     }
+
+    /// <summary>Whether the set shows as a summary line, so its entry in <c>summaries</c> is the rendered one.</summary>
+    private bool ShowsSummary(EntryState entry) =>
+        !Exercise.IsDone && Exercise.Kind == ExerciseKind.Strength && entry != open && Exercise.Entries.Contains(entry);
 
     /// <summary>Whether the set or entry <see cref="FocusAsync"/> moves to has been rendered.</summary>
     private bool FocusTargetRendered()
