@@ -68,19 +68,19 @@ section + section {
 }
 
 .light-wallpaper {
-    background: #b7d5d4;
+    background-color: #b7d5d4;
 }
 
 .light-wallpaper .silhouette {
-    background: #305252;
+    background-color: #305252;
 }
 
 .dark-wallpaper {
-    background: #373e40;
+    background-color: #373e40;
 }
 
 .dark-wallpaper .silhouette {
-    background: #b7d5d4;
+    background-color: #b7d5d4;
 }
 
 /* The splash canvas at about the size Android 12+ shows it. */
@@ -89,7 +89,7 @@ section + section {
     inset: 0;
     display: grid;
     place-items: center;
-    background: #305252;
+    background-color: #305252;
 }
 
 .splash-image {

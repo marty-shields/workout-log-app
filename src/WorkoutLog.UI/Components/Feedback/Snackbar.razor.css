@@ -5,7 +5,7 @@
     margin: 0 var(--space-4) var(--space-2);
     padding: var(--space-1) var(--space-2) var(--space-1) var(--space-4);
     border-radius: var(--radius-sm);
-    background: var(--color-inverse-surface);
+    background-color: var(--color-inverse-surface);
     color: var(--color-on-inverse-surface);
     animation: rise var(--snackbar-enter-duration) ease-out;
 }
@@ -24,7 +24,7 @@
     padding: 0 var(--space-3);
     border: none;
     border-radius: var(--radius-sm);
-    background: transparent;
+    background-color: transparent;
     color: var(--color-inverse-primary);
     font-size: var(--font-size-md);
     font-weight: var(--font-weight-bold);

@@ -4,7 +4,7 @@
     z-index: 10;
     display: flex;
     flex-direction: column;
-    background: var(--color-bg);
+    background-color: var(--color-bg);
 }
 
 .top-bar {
@@ -15,7 +15,7 @@
     align-items: center;
     gap: var(--space-2);
     padding: calc(var(--inset-top) + var(--space-2)) var(--space-4) var(--space-2);
-    background: var(--color-bar);
+    background-color: var(--color-bar);
     color: var(--color-text);
 }
 

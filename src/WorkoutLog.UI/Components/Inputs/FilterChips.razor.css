@@ -21,7 +21,7 @@
 
 .chip:has(.radio:checked) {
     border-color: var(--color-selected);
-    background: var(--color-selected);
+    background-color: var(--color-selected);
     font-weight: var(--font-weight-bold);
 }
 

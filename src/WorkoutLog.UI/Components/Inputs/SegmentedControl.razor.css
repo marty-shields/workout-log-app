@@ -24,7 +24,7 @@
 }
 
 .segment:has(.radio:checked) {
-    background: var(--color-selected);
+    background-color: var(--color-selected);
     font-weight: var(--font-weight-bold);
 }
 

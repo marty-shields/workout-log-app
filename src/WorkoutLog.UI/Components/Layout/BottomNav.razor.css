@@ -13,7 +13,7 @@
     min-height: var(--touch-target);
     padding: var(--space-3) var(--space-1) var(--space-4);
     border: none;
-    background: transparent;
+    background-color: transparent;
     color: var(--color-text-muted);
     font-size: var(--font-size-sm);
     cursor: pointer;
@@ -34,5 +34,5 @@
 }
 
 .current .indicator {
-    background: var(--color-selected);
+    background-color: var(--color-selected);
 }

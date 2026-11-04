@@ -55,7 +55,20 @@ public partial class TokensOnlyCssTests
         Assert.That(unknown, Is.Empty);
     }
 
+    [TestCaseSource(nameof(StyleFiles))]
+    public void Css_FillsWithBackgroundColor_SoThePressedLayerShows(string file)
+    {
+        var shorthands = StripComments(File.ReadAllText(file)).Split('\n')
+            .Select(line => line.Trim())
+            .Where(line => BackgroundShorthand().IsMatch(line));
+
+        Assert.That(shorthands, Is.Empty, "base.css's pressed layer is a background-image, which the background shorthand resets");
+    }
+
     private static string StripComments(string css) => Comment().Replace(css, "");
+
+    [GeneratedRegex(@"(?<![-\w])background\s*:")]
+    private static partial Regex BackgroundShorthand();
 
     // Hex, colour functions, named colours in a value, sizes with units, and percentages other than 100%.
     [GeneratedRegex(@"#[0-9a-fA-F]{3,8}\b|\b(rgba?|hsla?|hwb|lab|lch|oklab|oklch|color|color-mix)\(|(?<=:[^;{}]*)\b(" + NamedColours + @")\b|\d(px|rem|em|vh|vw|vmin|vmax|pt)\b|(?<![\d.])(?!100%)\d+(\.\d+)?%", RegexOptions.IgnoreCase)]
