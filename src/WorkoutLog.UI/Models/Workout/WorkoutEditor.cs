@@ -224,7 +224,7 @@ public sealed class WorkoutEditor(
     /// Puts the <see cref="PendingUndo"/> deletion back at its position (an exercise at its place in the screen order, or at the
     /// end when fewer are left; a set under the sets that were above it), with its values and
     /// done state, and clears it; ignored when it no longer <see cref="PendingUndo.Fits"/>, and while a save runs, which has read
-    /// the workout without it. Not a change undone: <see cref="Changed"/> stays set.
+    /// the workout without it. Asks to focus what it put back. Not a change undone: <see cref="Changed"/> stays set.
     /// </summary>
     public void Undo()
     {
@@ -238,9 +238,11 @@ public sealed class WorkoutEditor(
         {
             case RemovedExercise removed:
                 exercises.Insert(Math.Min(removed.Index, exercises.Count), removed.Exercise);
+                Focus = new ExerciseFocus(removed.Exercise, ExerciseFocusTarget.Restored);
                 break;
             case RemovedSet removed:
                 removed.Exercise.Entries.Insert(removed.Index, removed.Entry);
+                Focus = new ExerciseFocus(removed.Exercise, ExerciseFocusTarget.Restored, removed.Entry);
                 break;
         }
 
@@ -345,7 +347,7 @@ public sealed class WorkoutEditor(
             exercises.Insert(0, existing);
             existing.IsDone = false;
             Changed = true;
-            return new ExerciseFocus(existing, addSet: existing.Kind == ExerciseKind.Strength && !existing.SetsFull);
+            return new ExerciseFocus(existing, existing.Kind == ExerciseKind.Strength && !existing.SetsFull ? ExerciseFocusTarget.AddedSet : ExerciseFocusTarget.OpenSet);
         }
 
         var added = ExerciseFields.New(catalog.All.Single(e => e.Id == exerciseId));

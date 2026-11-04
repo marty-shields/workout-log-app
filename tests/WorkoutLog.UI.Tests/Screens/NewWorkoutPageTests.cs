@@ -1104,6 +1104,48 @@ public class NewWorkoutPageTests : ComponentTestBase
     }
 
     [Test]
+    public void Undo_ASet_FocusesItsPencil()
+    {
+        var cut = RenderPage();
+        Add(cut, 6);
+        AddSets(cut, 1, 3);
+        cut.Find("[data-testid=exercise-1-set-2-remove]").Click();
+
+        cut.Find("[data-testid=snackbar-undo]").Click();
+
+        cut.WaitForAssertion(() => LastFocus().Arguments[0].ShouldBeElementReferenceTo(cut.Find("[data-testid=exercise-1-set-2-edit]")));
+    }
+
+    [Test]
+    public void Undo_AnExercise_FocusesItsFirstButton()
+    {
+        var cut = RenderPage();
+        Add(cut, 132);
+        Add(cut, 6);
+        Remove(cut, 2);
+
+        cut.Find("[data-testid=snackbar-undo]").Click();
+
+        cut.WaitForAssertion(() => LastFocus().Arguments[0].ShouldBeElementReferenceTo(cut.Find("[data-testid=exercise-2-done]")));
+    }
+
+    [Test]
+    public void Undo_ASetOfAnExerciseMarkedDoneSince_FocusesItsEdit()
+    {
+        var cut = RenderPage();
+        Add(cut, 132);
+        AddSets(cut, 1, 2);
+        cut.Find("[data-testid=exercise-1-set-1-remove]").Click();
+        cut.Find("[data-testid=exercise-1-set-1-weight]").Input("50");
+        cut.Find("[data-testid=exercise-1-set-1-reps]").Input("5");
+        cut.Find("[data-testid=exercise-1-done]").Click();
+
+        cut.Find("[data-testid=snackbar-undo]").Click();
+
+        cut.WaitForAssertion(() => LastFocus().Arguments[0].ShouldBeElementReferenceTo(cut.Find("[data-testid=exercise-1-edit]")));
+    }
+
+    [Test]
     public void Pick_FewerSetsThanLastTime_ShowsOnlyTheSetsBeingLogged()
     {
         LastSessions.Set(new StrengthExercise(6, [new StrengthSet(8, 60m, null, null), new StrengthSet(8, 60m, null, null), new StrengthSet(6, 62.5m, null, null)]));

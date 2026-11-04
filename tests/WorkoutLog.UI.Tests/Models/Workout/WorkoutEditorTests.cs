@@ -219,7 +219,7 @@ public class WorkoutEditorTests
             Assert.That(editor.Exercises.Select(e => e.ExerciseId), Is.EqualTo(new[] { Squat, Treadmill }));
             Assert.That(squat.Entries, Has.Count.EqualTo(1));
             Assert.That(editor.Focus!.Exercise, Is.SameAs(squat));
-            Assert.That(editor.Focus.AddSet, Is.False);
+            Assert.That(editor.Focus.Target, Is.EqualTo(ExerciseFocusTarget.OpenSet));
             Assert.That(editor.ListOpen, Is.False);
             Assert.That(editor.Error, Is.Null);
             Assert.That(editor.Changed, Is.True);
@@ -239,7 +239,7 @@ public class WorkoutEditorTests
             Assert.That(editor.Exercises.Select(e => e.ExerciseId), Is.EqualTo(new[] { Squat, Treadmill }));
             Assert.That(editor.Exercises[0], Is.SameAs(squat));
             Assert.That(editor.Focus!.Exercise, Is.SameAs(squat));
-            Assert.That(editor.Focus.AddSet, Is.True);
+            Assert.That(editor.Focus.Target, Is.EqualTo(ExerciseFocusTarget.AddedSet));
             Assert.That(editor.Changed, Is.True);
         });
     }
@@ -256,7 +256,7 @@ public class WorkoutEditorTests
         {
             Assert.That(editor.Exercises[0], Is.SameAs(squat));
             Assert.That(editor.Focus!.Exercise, Is.SameAs(squat));
-            Assert.That(editor.Focus.AddSet, Is.False);
+            Assert.That(editor.Focus.Target, Is.EqualTo(ExerciseFocusTarget.OpenSet));
             Assert.That(squat.Entries, Has.Count.EqualTo(10));
         });
     }
@@ -301,7 +301,7 @@ public class WorkoutEditorTests
             Assert.That(editor.Exercises.Select(e => e.ExerciseId), Is.EqualTo(new[] { Treadmill, Squat }));
             Assert.That(treadmill.Entries, Has.Count.EqualTo(1));
             Assert.That(editor.Focus!.Exercise, Is.SameAs(treadmill));
-            Assert.That(editor.Focus.AddSet, Is.False);
+            Assert.That(editor.Focus.Target, Is.EqualTo(ExerciseFocusTarget.OpenSet));
             Assert.That(editor.Changed, Is.True);
         });
     }
@@ -348,7 +348,7 @@ public class WorkoutEditorTests
             Assert.That(editor.Exercises[0], Is.SameAs(squat));
             Assert.That(squat.IsDone, Is.False);
             Assert.That(squat.Entries, Has.Count.EqualTo(1));
-            Assert.That(editor.Focus!.AddSet, Is.True);
+            Assert.That(editor.Focus!.Target, Is.EqualTo(ExerciseFocusTarget.AddedSet));
         });
     }
 
@@ -396,6 +396,7 @@ public class WorkoutEditorTests
         {
             Assert.That(editor.Exercises, Is.EqualTo(new[] { curl, treadmill, squat }));
             Assert.That(treadmill.IsDone, Is.True);
+            Assert.That((editor.Focus!.Exercise, editor.Focus.Target, editor.Focus.Set), Is.EqualTo((treadmill, ExerciseFocusTarget.Restored, (EntryState?)null)));
             Assert.That(editor.PendingUndo, Is.Null);
             Assert.That(editor.Changed, Is.True);
         });
@@ -468,6 +469,7 @@ public class WorkoutEditorTests
         Assert.Multiple(() =>
         {
             Assert.That(squat.Entries[1], Is.SameAs(first));
+            Assert.That((editor.Focus!.Exercise, editor.Focus.Target, editor.Focus.Set), Is.EqualTo((squat, ExerciseFocusTarget.Restored, first)));
             Assert.That(squat.Entries, Has.Count.EqualTo(3));
             Assert.That(first.Values.Values, Is.EqualTo(new[] { "8", "60" }));
             Assert.That(editor.PendingUndo, Is.Null);

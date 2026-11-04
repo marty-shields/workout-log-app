@@ -279,7 +279,7 @@ public class WorkoutViewTests : ComponentTestBase
         var cut = Context.Render<WorkoutView>(p => p
             .Add(x => x.StartedAt, Started)
             .Add(x => x.Exercises, [curl])
-            .Add(x => x.Focus, new ExerciseFocus(curl, addSet: true)));
+            .Add(x => x.Focus, new ExerciseFocus(curl, ExerciseFocusTarget.AddedSet)));
 
         cut.WaitForAssertion(() => Context.JSInterop.VerifyFocusAsyncInvoke().Arguments[0]
             .ShouldBeElementReferenceTo(cut.Find("[data-testid=exercise-1-set-2-reps]")));
@@ -294,7 +294,7 @@ public class WorkoutViewTests : ComponentTestBase
             .Add(x => x.StartedAt, Started)
             .Add(x => x.Exercises, [curl])
             .Add(x => x.ValidateSet, (_, _) => false)
-            .Add(x => x.Focus, new ExerciseFocus(curl, addSet: true)));
+            .Add(x => x.Focus, new ExerciseFocus(curl, ExerciseFocusTarget.AddedSet)));
 
         cut.WaitForAssertion(() => Context.JSInterop.VerifyFocusAsyncInvoke().Arguments[0]
             .ShouldBeElementReferenceTo(cut.Find("[data-testid=exercise-1-set-1-reps]")));
@@ -309,7 +309,7 @@ public class WorkoutViewTests : ComponentTestBase
             .Add(x => x.Mode, WorkoutMode.New)
             .Add(x => x.StartedAt, Started)
             .Add(x => x.Exercises, [carry])
-            .Add(x => x.Focus, new ExerciseFocus(carry, addSet: true)));
+            .Add(x => x.Focus, new ExerciseFocus(carry, ExerciseFocusTarget.AddedSet)));
 
         cut.WaitForAssertion(() => Context.JSInterop.VerifyFocusAsyncInvoke().Arguments[0]
             .ShouldBeElementReferenceTo(cut.Find("[data-testid=exercise-1-set-2-distance]")));
@@ -328,7 +328,7 @@ public class WorkoutViewTests : ComponentTestBase
 
         cut.Render(p => p
             .Add(x => x.ValidateSet, (_, s) => { s.Errors["weight"] = "Weight must be a number"; return false; })
-            .Add(x => x.Focus, new ExerciseFocus(carry, addSet: true)));
+            .Add(x => x.Focus, new ExerciseFocus(carry, ExerciseFocusTarget.AddedSet)));
 
         cut.WaitForAssertion(() => Assert.That(
             ((ElementReference)Context.JSInterop.VerifyFocusAsyncInvoke().Arguments[0]!).Id, Is.EqualTo(weight)));
@@ -342,7 +342,7 @@ public class WorkoutViewTests : ComponentTestBase
         var cut = Context.Render<WorkoutView>(p => p
             .Add(x => x.StartedAt, Started)
             .Add(x => x.Exercises, [rower])
-            .Add(x => x.Focus, new ExerciseFocus(rower, addSet: true)));
+            .Add(x => x.Focus, new ExerciseFocus(rower, ExerciseFocusTarget.AddedSet)));
 
         cut.WaitForAssertion(() => Context.JSInterop.VerifyFocusAsyncInvoke().Arguments[0]
             .ShouldBeElementReferenceTo(cut.Find("[data-testid=exercise-1-duration-h]")));
@@ -361,7 +361,7 @@ public class WorkoutViewTests : ComponentTestBase
         var cut = Context.Render<WorkoutView>(p => p
             .Add(x => x.StartedAt, Started)
             .Add(x => x.Exercises, [curl])
-            .Add(x => x.Focus, new ExerciseFocus(curl, addSet)));
+            .Add(x => x.Focus, new ExerciseFocus(curl, addSet ? ExerciseFocusTarget.AddedSet : ExerciseFocusTarget.OpenSet)));
 
         cut.WaitForAssertion(() => Assert.That(LoggedEvents.Of(logger), Is.EqualTo(new[] { (UiEvent.ExerciseFocusFailed, LogLevel.Warning, "Focusing an exercise failed") })));
         Assert.Multiple(() =>

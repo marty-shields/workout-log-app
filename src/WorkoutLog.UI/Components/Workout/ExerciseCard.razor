@@ -12,11 +12,11 @@
         <div class="actions">
             @if (Exercise.IsDone)
             {
-                <IconButton Icon="IconName.Edit" AriaLabel="@($"Edit {Exercise.Name}")" TestId="@($"{TestId}-edit")" Muted OnClick="Reopen" />
+                <IconButton @ref="first" Icon="IconName.Edit" AriaLabel="@($"Edit {Exercise.Name}")" TestId="@($"{TestId}-edit")" Muted OnClick="Reopen" />
             }
             else
             {
-                <IconButton Icon="IconName.Check" AriaLabel="@($"Mark {Exercise.Name} done")" TestId="@($"{TestId}-done")" OnClick="Done" />
+                <IconButton @ref="first" Icon="IconName.Check" AriaLabel="@($"Mark {Exercise.Name} done")" TestId="@($"{TestId}-done")" OnClick="Done" />
             }
             <IconButton @ref="remove" Icon="IconName.Delete" AriaLabel="@($"Delete {Exercise.Name}")" TestId="@($"{TestId}-remove")" Muted OnClick="OnRemove" />
         </div>
@@ -45,6 +45,7 @@
                     if (entry != open)
                     {
                         <SetSummary @key="entry"
+                                    @ref="summaries[entry]"
                                     Number="number"
                                     ExerciseName="@Exercise.Name"
                                     Fields="Exercise.Fields"
@@ -183,7 +184,9 @@
     private SetRow? openRow;
     private readonly Dictionary<string, FieldInput> cardioFields = new();
     private SetPanel? openPanel;
+    private IconButton? first;
     private IconButton? remove;
+    private readonly Dictionary<EntryState, SetSummary> summaries = new();
     private AppButton? addSet;
     private NoteField? noteField;
     private bool editingNote;
@@ -214,6 +217,28 @@
 
     private ValueTask FocusOpenSet() =>
         SetGrid.OpensAsPanel(Exercise.Fields) ? openPanel?.FocusAsync() ?? ValueTask.CompletedTask : openRow?.FocusAsync() ?? ValueTask.CompletedTask;
+
+    /// <summary>
+    /// Moves focus to what Undo put back: the set's pencil, or the open set when it is that one. With no set, or one a done card
+    /// doesn't show, to the card's first button, Mark done or Edit.
+    /// </summary>
+    public ValueTask FocusRestoredAsync(EntryState? set)
+    {
+        if (set is not null && !Exercise.IsDone)
+        {
+            if (set == open)
+            {
+                return FocusOpenSet();
+            }
+
+            if (summaries.TryGetValue(set, out var summary))
+            {
+                return summary.FocusEditAsync();
+            }
+        }
+
+        return first?.FocusAsync() ?? ValueTask.CompletedTask;
+    }
 
     /// <summary>
     /// Moves focus to the card's first error. An exercise error: Add set for <see cref="ExerciseError.NoSets"/>, otherwise Remove.

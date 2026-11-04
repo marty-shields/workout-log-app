@@ -138,7 +138,7 @@
     [Parameter]
     public EventCallback OnDelete { get; set; }
 
-    /// <summary>Moves focus to an exercise once it is shown, e.g. one just added or picked again. Each request is handled once.</summary>
+    /// <summary>Moves focus to an exercise once it is shown, e.g. one just added, picked again or put back by Undo. Each request is handled once.</summary>
     [Parameter]
     public ExerciseFocus? Focus { get; set; }
 
@@ -181,13 +181,17 @@
         handled = Focus;
         try
         {
-            if (Focus.AddSet)
+            switch (Focus.Target)
             {
-                await card.AddSetAndFocusAsync();
-            }
-            else
-            {
-                await card.FocusAsync();
+                case ExerciseFocusTarget.AddedSet:
+                    await card.AddSetAndFocusAsync();
+                    break;
+                case ExerciseFocusTarget.Restored:
+                    await card.FocusRestoredAsync(Focus.Set);
+                    break;
+                default:
+                    await card.FocusAsync();
+                    break;
             }
         }
         catch (OperationCanceledException)

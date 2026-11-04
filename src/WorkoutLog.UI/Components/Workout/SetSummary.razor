@@ -6,7 +6,7 @@
             <span class="number">@Number</span> <span class="text">@Text</span>
         </h3>
         <div class="actions">
-            <IconButton Icon="IconName.Edit" AriaLabel="@(Label("Edit"))" TestId="@($"{TestId}-edit")" Muted Compact OnClick="OnOpen" />
+            <IconButton @ref="edit" Icon="IconName.Edit" AriaLabel="@(Label("Edit"))" TestId="@($"{TestId}-edit")" Muted Compact OnClick="OnOpen" />
             <IconButton Icon="IconName.Delete" AriaLabel="@(Label("Delete"))" TestId="@($"{TestId}-remove")" Muted Compact OnClick="OnRemove" />
         </div>
     </div>
@@ -48,6 +48,11 @@
     /// <summary>Value of the data-testid attribute.</summary>
     [Parameter]
     public string? TestId { get; set; }
+
+    private IconButton? edit;
+
+    /// <summary>Moves focus to the pencil.</summary>
+    public ValueTask FocusEditAsync() => edit?.FocusAsync() ?? ValueTask.CompletedTask;
 
     private string Label(string verb) => ExerciseName is null ? $"{verb} set {Number}" : $"{verb} {ExerciseName} set {Number}";
 
