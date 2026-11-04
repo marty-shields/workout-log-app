@@ -89,7 +89,9 @@ public partial class Chart
             .Select((p, i) => new Plotted(X(p.Index, Points.Count), Y(p.Point.Value!.Value, low, high), i == best, i == latest))
             .ToList();
 
-        labels = Labels(plotted[best], plotted[latest], LabelText(valued[best].Point), LabelText(valued[latest].Point));
+        labels = best == latest
+            ? [Place(plotted[latest], LabelText(valued[latest].Point), plotted[latest].Y - LabelGap)]
+            : Labels(plotted[best], plotted[latest], LabelText(valued[best].Point), LabelText(valued[latest].Point));
 
         line = plotted.Count > 1 ? "M" + string.Join(" L", plotted.Select(p => $"{Number(p.X)} {Number(p.Y)}")) : null;
 
@@ -135,18 +137,13 @@ public partial class Chart
     }
 
     /// <summary>
-    /// Labels over the best and latest points, kept inside the plot: a label near an edge is anchored to start or end at its point so it
+    /// Labels over the best and latest points, two different points, kept inside the plot: a label near an edge is anchored to start or end at its point so it
     /// clears the y-axis ticks and the right edge. When the latest label would overlap the best label or ring, it goes under its point;
     /// the best is the highest point, so the latest is below it.
     /// </summary>
     private static IReadOnlyList<Label> Labels(Plotted best, Plotted latest, string bestText, string latestText)
     {
         var latestLabel = Place(latest, latestText, latest.Y - LabelGap);
-        if (best == latest)
-        {
-            return [latestLabel];
-        }
-
         var bestLabel = Place(best, bestText, best.Y - LabelGap);
         var ring = new Box(best.X - RingRadius, best.X + RingRadius, best.Y - RingRadius, best.Y + RingRadius);
         if (latestLabel.Box().Overlaps(bestLabel.Box()) || latestLabel.Box().Overlaps(ring))
