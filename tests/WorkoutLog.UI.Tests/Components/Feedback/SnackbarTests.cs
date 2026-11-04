@@ -1,6 +1,11 @@
+using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Testing;
 using Microsoft.Extensions.Time.Testing;
 using WorkoutLog.UI.Components.Feedback;
+using WorkoutLog.UI.Components.Layout;
+using WorkoutLog.UI.Logging;
 
 namespace WorkoutLog.UI.Tests.Components.Feedback;
 
@@ -76,6 +81,32 @@ public class SnackbarTests : ComponentTestBase
         await WaitForRendererAsync();
 
         Assert.That(timedOut, Is.Zero);
+    }
+
+    [Test]
+    public async Task OnTimeoutThrows_ReachesTheErrorBoundary()
+    {
+        var logger = new FakeLogger<AppErrorBoundary>();
+        Context.Services.AddSingleton<ILogger<AppErrorBoundary>>(logger);
+        RenderFragment snackbar = b =>
+        {
+            b.OpenComponent<Snackbar>(0);
+            b.AddComponentParameter(1, nameof(Snackbar.Message), "Set 2 deleted");
+            b.AddComponentParameter(2, nameof(Snackbar.OnTimeout), EventCallback.Factory.Create(this, () => throw new InvalidOperationException()));
+            b.CloseComponent();
+        };
+        var cut = Context.Render<AppErrorBoundary>(p => p
+            .Add(x => x.OnRestart, () => { })
+            .AddChildContent(snackbar));
+
+        clock.Advance(Snackbar.Duration);
+        await WaitForRendererAsync();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.FindAll("[data-testid=error-message]"), Has.Count.EqualTo(1));
+            Assert.That(LoggedEvents.Of(logger), Is.EqualTo(new[] { (UiEvent.ScreenError, LogLevel.Error, "Unhandled error in a screen") }));
+        });
     }
 
     [Test]

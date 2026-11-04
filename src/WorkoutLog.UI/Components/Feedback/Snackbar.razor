@@ -39,6 +39,7 @@
         shown.Dispose();
     }
 
+    // Not awaited by anyone, so a failure goes to the nearest error boundary, as an exception from a button click would.
     private async Task TimeOutAsync()
     {
         try
@@ -50,6 +51,16 @@
             return;
         }
 
-        await InvokeAsync(() => OnTimeout.InvokeAsync());
+        await InvokeAsync(async () =>
+        {
+            try
+            {
+                await OnTimeout.InvokeAsync();
+            }
+            catch (Exception exception)
+            {
+                await DispatchExceptionAsync(exception);
+            }
+        });
     }
 }
