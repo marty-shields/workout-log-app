@@ -45,11 +45,8 @@ public sealed class WorkoutEditor(
     /// <summary>The latest request to move focus after a failed Save or Delete.</summary>
     public ErrorFocus? ErrorFocus { get; private set; }
 
-    /// <summary>The exercise whose delete is being confirmed, or null.</summary>
-    public ExerciseState? Removing { get; private set; }
-
-    /// <summary>The closed set whose delete is being confirmed, or null.</summary>
-    public SetRef? RemovingSet { get; private set; }
+    /// <summary>The latest deletion Undo can put back, shown in the snackbar. Null when there is none.</summary>
+    public PendingUndo? PendingUndo { get; private set; }
 
     /// <summary>Message on the workout itself.</summary>
     public string? Error { get; private set; }
@@ -88,8 +85,7 @@ public sealed class WorkoutEditor(
         ListItems = [];
         Focus = null;
         ErrorFocus = null;
-        Removing = null;
-        RemovingSet = null;
+        PendingUndo = null;
         Error = null;
         SaveState = SavePhase.Idle;
         DiscardOpen = false;
@@ -133,10 +129,12 @@ public sealed class WorkoutEditor(
     /// Opens the add-exercise list with no search text and the All chip, loading while it reads the last sessions through
     /// <see cref="ILoggedExercisesService.GetAsync"/>. Then lists the whole catalog, Strength then Cardio A–Z, each logged exercise
     /// with its last session. A failed read lists the catalog with no last sessions. A read finished after the list closed or
-    /// reopened is ignored.
+    /// reopened is ignored. Ends the <see cref="PendingUndo"/>, so Undo can't bring back an exercise past
+    /// <see cref="WorkoutLimits.MaxExercises"/>.
     /// </summary>
     public async Task OpenListAsync()
     {
+        PendingUndo = null;
         var open = ++listOpens;
         ListOpen = true;
         ListLoading = true;
@@ -192,42 +190,60 @@ public sealed class WorkoutEditor(
         ListOpen = false;
     }
 
+    /// <summary>Takes the exercise out at once, a change, and offers Undo for it in place of any earlier deletion.</summary>
     public void Remove(ExerciseState exercise)
     {
-        exercises.Remove(exercise);
+        var index = exercises.IndexOf(exercise);
+        if (index < 0)
+        {
+            return;
+        }
+
+        exercises.RemoveAt(index);
+        PendingUndo = new RemovedExercise(exercise, index);
         Changed = true;
     }
 
-    /// <summary>Asks to confirm removing the exercise: sets <see cref="Removing"/>.</summary>
-    public void AskRemove(ExerciseState exercise) => Removing = exercise;
-
-    /// <summary>Closes the confirm and keeps the exercise.</summary>
-    public void CancelRemove() => Removing = null;
-
-    /// <summary>Closes the confirm and removes the exercise.</summary>
-    public void ConfirmRemove()
+    /// <summary>Takes the closed set out at once, a change, and offers Undo for it in place of any earlier deletion.</summary>
+    public void RemoveSet(SetRef set)
     {
-        if (Removing is { } exercise)
+        var index = set.Exercise.Entries.IndexOf(set.Entry);
+        if (index < 0)
         {
-            Remove(exercise);
+            return;
         }
 
-        Removing = null;
+        set.Exercise.Entries.RemoveAt(index);
+        PendingUndo = new RemovedSet(set.Exercise, set.Entry, index);
+        Changed = true;
     }
 
-    public void AskRemoveSet(SetRef set) => RemovingSet = set;
-
-    public void CancelRemoveSet() => RemovingSet = null;
-
-    public void ConfirmRemoveSet()
+    /// <summary>
+    /// Puts the <see cref="PendingUndo"/> deletion back at its position, or at the end when fewer are left, with its values and
+    /// done state, and clears it. Not a change undone: <see cref="Changed"/> stays set.
+    /// </summary>
+    public void Undo()
     {
-        if (RemovingSet is { } set)
+        switch (PendingUndo)
         {
-            set.Exercise.Entries.Remove(set.Entry);
-            Changed = true;
+            case RemovedExercise removed:
+                exercises.Insert(Math.Min(removed.Index, exercises.Count), removed.Exercise);
+                break;
+            case RemovedSet removed:
+                removed.Exercise.Entries.Insert(Math.Min(removed.Index, removed.Exercise.Entries.Count), removed.Entry);
+                break;
         }
 
-        RemovingSet = null;
+        PendingUndo = null;
+    }
+
+    /// <summary>Keeps the deletion deleted and hides its snackbar, unless a later deletion has replaced it.</summary>
+    public void DismissUndo(PendingUndo undo)
+    {
+        if (ReferenceEquals(PendingUndo, undo))
+        {
+            PendingUndo = null;
+        }
     }
 
     /// <summary>Records a value, note, set or entry change.</summary>
@@ -243,8 +259,8 @@ public sealed class WorkoutEditor(
 
     /// <summary>
     /// Checks the workout and asks to focus the first error. A valid workout goes to <paramref name="save"/> with its note and
-    /// the records, oldest first; returns true when it was saved. If not, shows SaveFailed and asks to focus Save. Ignored while a save
-    /// runs and after one succeeds.
+    /// the records, oldest first, and the <see cref="PendingUndo"/> ends; returns true when it was saved. If not, shows SaveFailed and
+    /// asks to focus Save. Ignored while a save runs and after one succeeds.
     /// </summary>
     /// <param name="save">Saves the note and the records; true when saved.</param>
     public async Task<bool> SaveAsync(Func<string?, IReadOnlyList<WorkoutExercise>, Task<bool>> save)
@@ -269,6 +285,7 @@ public sealed class WorkoutEditor(
         }
 
         SaveState = SavePhase.Running;
+        PendingUndo = null;
         var saved = await save(Note, exercises.Select(setChecker.Read).Reverse().ToList());
         SaveState = saved ? SavePhase.Succeeded : SavePhase.Idle;
         if (!saved)

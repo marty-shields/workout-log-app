@@ -1,3 +1,4 @@
+@using WorkoutLog.UI.Components.Feedback
 @using WorkoutLog.UI.Components.Layout
 @attribute [Stories("Components/Layout/AppScreen")]
 
@@ -33,6 +34,22 @@
         <Template>
             <AppScreen Title="Screen title" Destination="NavDestination.Workouts" OnNavigate="(NavDestination _) => { }">
                 <p>Scrolling content.</p>
+            </AppScreen>
+        </Template>
+    </Story>
+
+    <Story Name="Snackbar">
+        <Template>
+            <AppScreen Title="Screen title" OnBack="() => { }">
+                <ChildContent>
+                    <p>Scrolling content.</p>
+                </ChildContent>
+                <BottomBar>
+                    <AppButton FullWidth>Main action</AppButton>
+                </BottomBar>
+                <Status>
+                    <Snackbar Message="Set 2 deleted" />
+                </Status>
             </AppScreen>
         </Template>
     </Story>

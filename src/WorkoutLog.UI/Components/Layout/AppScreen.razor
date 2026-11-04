@@ -20,6 +20,12 @@
     @if (BottomBar is not null || Destination is not null)
     {
         <footer class="bottom">
+            @if (Status is not null)
+            {
+                <div class="snackbar-slot" role="status" aria-live="polite">
+                    @Status
+                </div>
+            }
             @if (BottomBar is not null)
             {
                 <div class="bottom-bar" data-testid="bottom-bar">
@@ -66,6 +72,13 @@
     /// <summary>Actions fixed at the bottom, in thumb reach.</summary>
     [Parameter]
     public RenderFragment? BottomBar { get; set; }
+
+    /// <summary>
+    /// A snackbar just above the bottom bar, over the content. Its slot is a polite live region, there whenever this is set,
+    /// so a snackbar shown later is read out. Needs <see cref="BottomBar"/> or <see cref="Destination"/>.
+    /// </summary>
+    [Parameter]
+    public RenderFragment? Status { get; set; }
 
     private EventCallback Back =>
         Destination is { } current && current != NavDestinations.Start

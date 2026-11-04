@@ -23,6 +23,10 @@
     --color-error: light-dark(#a8231c, #f2b8b5);
     --color-success: light-dark(#2e7d32, #a5d6a7);
     --color-bar-past: light-dark(#77878b, #7d8a8c);
+    /* The snackbar: dark on a light screen, light on a dark one, so it stands out from the cards under it. */
+    --color-inverse-surface: light-dark(#373e40, #e4ecec);
+    --color-on-inverse-surface: light-dark(#f4f8f8, #141819);
+    --color-inverse-primary: light-dark(#b7d5d4, #305252);
     --color-scrim: light-dark(rgb(0 0 0 / 0.45), rgb(0 0 0 / 0.6));
     --state-pressed: color-mix(in srgb, currentColor 12%, transparent);
 
@@ -66,6 +70,7 @@
     --spinner-size-small: 1.125rem;
     --spinner-width-small: 2px;
     --spinner-duration: 1s;
+    --snackbar-enter-duration: 150ms;
     --radio-size: 1.5rem;
     --radio-dot-size: 0.75rem;
     --nav-indicator-width: 4rem;

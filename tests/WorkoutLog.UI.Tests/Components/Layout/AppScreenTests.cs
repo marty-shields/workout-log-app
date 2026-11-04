@@ -156,4 +156,31 @@ public class AppScreenTests : ComponentTestBase
 
         Assert.That(BackButton.HasHandler, Is.False);
     }
+
+    [Test]
+    public void Status_SitsInAPoliteLiveRegionAboveTheBottomBar()
+    {
+        var cut = Context.Render<AppScreen>(p => p
+            .Add(x => x.Title, "Workouts")
+            .Add(x => x.BottomBar, "<button>Save</button>")
+            .Add(x => x.Status, "<p data-testid=\"shown\">Set 2 deleted</p>"));
+
+        var slot = cut.Find("footer > [role=status]");
+        Assert.Multiple(() =>
+        {
+            Assert.That(slot.GetAttribute("aria-live"), Is.EqualTo("polite"));
+            Assert.That(slot.QuerySelector("[data-testid=shown]"), Is.Not.Null);
+            Assert.That(slot.NextElementSibling!.GetAttribute("data-testid"), Is.EqualTo("bottom-bar"));
+        });
+    }
+
+    [Test]
+    public void NoStatus_HasNoLiveRegion()
+    {
+        var cut = Context.Render<AppScreen>(p => p
+            .Add(x => x.Title, "Workouts")
+            .Add(x => x.BottomBar, "<button>Save</button>"));
+
+        Assert.That(cut.FindAll("[role=status]"), Is.Empty);
+    }
 }

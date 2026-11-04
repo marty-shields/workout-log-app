@@ -8,6 +8,7 @@ using WorkoutLog.Core.Domain.Exercises.Progress;
 using WorkoutLog.Core.Domain.Workouts;
 using WorkoutLog.Core.Domain.Workouts.Validation;
 using WorkoutLog.Core.Services;
+using WorkoutLog.UI.Components.Feedback;
 using WorkoutLog.UI.Components.Layout;
 using WorkoutLog.UI.Logging;
 using WorkoutLog.UI.Screens;
@@ -461,7 +462,7 @@ public class NewWorkoutPageTests : ComponentTestBase
     }
 
     [Test]
-    public void Remove_AsksFirstAndKeepsTheExerciseUntilConfirmed()
+    public void Remove_TakesTheExerciseOutAtOnceAndOffersUndo()
     {
         var cut = RenderPage();
         Add(cut, 132);
@@ -470,53 +471,106 @@ public class NewWorkoutPageTests : ComponentTestBase
 
         Assert.Multiple(() =>
         {
-            Assert.That(cut.Find("[data-testid=confirm-dialog] h2").TextContent, Is.EqualTo("Delete Dumbbell Curl?"));
-            Assert.That(cut.Find("[data-testid=confirm-dialog-confirm]").TextContent, Is.EqualTo("Delete"));
-            Assert.That(Names(cut), Is.EqualTo(new[] { "Dumbbell Curl" }));
-        });
-    }
-
-    [Test]
-    public void Remove_Cancel_KeepsTheExercise()
-    {
-        var cut = RenderPage();
-        Add(cut, 132);
-        cut.Find("[data-testid=exercise-1-remove]").Click();
-
-        cut.Find("[data-testid=confirm-dialog-cancel]").Click();
-
-        Assert.Multiple(() =>
-        {
+            Assert.That(Names(cut), Is.Empty);
             Assert.That(cut.FindAll("[data-testid=confirm-dialog]"), Is.Empty);
-            Assert.That(Names(cut), Is.EqualTo(new[] { "Dumbbell Curl" }));
+            Assert.That(cut.Find("[data-testid=snackbar-message]").TextContent, Is.EqualTo("Dumbbell Curl deleted"));
         });
     }
 
     [Test]
-    public void Remove_OnADoneExercise_AsksTooAndNamesIt()
+    public void Undo_PutsADoneExerciseBackDoneInItsPlace()
     {
         var cut = RenderPage();
         Add(cut, 132);
         cut.Find("[data-testid=exercise-1-set-1-reps]").Input("10");
         cut.Find("[data-testid=exercise-1-set-1-weight]").Input("20");
         cut.Find("[data-testid=exercise-1-done]").Click();
+        Add(cut, 6);
+        cut.Find("[data-testid=exercise-2-remove]").Click();
 
-        cut.Find("[data-testid=exercise-1-remove]").Click();
+        cut.Find("[data-testid=snackbar-undo]").Click();
 
-        Assert.That(cut.Find("[data-testid=confirm-dialog] h2").TextContent, Is.EqualTo("Delete Dumbbell Curl?"));
-        cut.Find("[data-testid=confirm-dialog-confirm]").Click();
-        Assert.That(Names(cut), Is.Empty);
+        Assert.Multiple(() =>
+        {
+            Assert.That(Names(cut), Is.EqualTo(new[] { "Barbell Back Squat", "Dumbbell Curl" }));
+            Assert.That(cut.Find("[data-testid=exercise-2]").ClassList, Does.Contain("done"));
+            Assert.That(cut.FindAll("[data-testid=snackbar]"), Is.Empty);
+        });
     }
 
     [Test]
-    public void RemoveSet_StaysInstant()
+    public void Remove_Again_ReplacesTheSnackbarAndKeepsTheFirstDeleted()
+    {
+        var cut = RenderPage();
+        Add(cut, 132);
+        Add(cut, 6);
+        Remove(cut, 1);
+
+        Remove(cut, 1);
+        cut.Find("[data-testid=snackbar-undo]").Click();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(Names(cut), Is.EqualTo(new[] { "Dumbbell Curl" }));
+            Assert.That(cut.FindAll("[data-testid=snackbar]"), Is.Empty);
+        });
+    }
+
+    [Test]
+    public async Task Snackbar_TimesOut_AndTheExerciseStaysDeleted()
+    {
+        var cut = RenderPage();
+        Add(cut, 132);
+        Remove(cut, 1);
+
+        clock.Advance(Snackbar.Duration);
+        await WaitForRendererAsync();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.FindAll("[data-testid=snackbar]"), Is.Empty);
+            Assert.That(Names(cut), Is.Empty);
+        });
+    }
+
+    [Test]
+    public async Task AndroidBack_WithASnackbar_StillAsksToDiscard()
+    {
+        var cut = RenderPage();
+        Add(cut, 132);
+        Remove(cut, 1);
+
+        await cut.InvokeAsync(BackButton.HandleAsync);
+
+        Assert.That(cut.Find("[data-testid=confirm-dialog] h2").TextContent, Is.EqualTo("Discard this workout?"));
+    }
+
+    [Test]
+    public void AddExercise_HidesTheSnackbar()
+    {
+        var cut = RenderPage();
+        Add(cut, 132);
+        Remove(cut, 1);
+
+        cut.Find("[data-testid=add-exercise]").Click();
+
+        Assert.That(cut.FindAll("[data-testid=snackbar]"), Is.Empty);
+    }
+
+    [Test]
+    public void RemoveOpenSet_IsInstantWithNoUndo()
     {
         var cut = RenderPage();
         Add(cut, 132);
 
         cut.Find("[data-testid=exercise-1-set-1-remove]").Click();
 
-        Assert.That(cut.FindAll("[data-testid=confirm-dialog]"), Is.Empty);
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.FindAll("[data-testid^=exercise-1-set-1]"), Is.Empty);
+            Assert.That(cut.FindAll("[data-testid=confirm-dialog]"), Is.Empty);
+            Assert.That(cut.FindAll("[data-testid=snackbar]"), Is.Empty);
+        });
     }
 
     [Test]
@@ -927,40 +981,39 @@ public class NewWorkoutPageTests : ComponentTestBase
     }
 
     [Test]
-    public void TrashOnAClosedSet_AsksFirstThenRemovesIt()
+    public void TrashOnAClosedSet_RemovesItAtOnceAndOffersUndo()
     {
         var cut = RenderPage();
         Add(cut, 6);
         AddSets(cut, 1, 2);
 
         cut.Find("[data-testid=exercise-1-set-1-remove]").Click();
-        var title = cut.Find("[data-testid=confirm-dialog]").TextContent;
-        var before = cut.FindAll("[data-testid^=exercise-1-set-][data-testid$=-remove]").Count;
-        cut.Find("[data-testid=confirm-dialog-confirm]").Click();
 
         Assert.Multiple(() =>
         {
-            Assert.That(title, Does.Contain("Delete set 1?"));
-            Assert.That(before, Is.EqualTo(2));
             Assert.That(cut.FindAll("[data-testid=confirm-dialog]"), Is.Empty);
             Assert.That(cut.FindAll("[data-testid^=exercise-1-set-][data-testid$=-remove]"), Has.Count.EqualTo(1));
+            Assert.That(cut.Find("[data-testid=snackbar-message]").TextContent, Is.EqualTo("Set 1 deleted"));
         });
     }
 
     [Test]
-    public void TrashOnAClosedSet_Cancel_KeepsIt()
+    public void Undo_PutsTheClosedSetBackInItsPlaceWithItsValues()
     {
         var cut = RenderPage();
         Add(cut, 6);
-        AddSets(cut, 1, 2);
-
+        AddSets(cut, 1, 3);
+        var before = cut.Find("[data-testid=exercise-1-set-1] .text").TextContent;
         cut.Find("[data-testid=exercise-1-set-1-remove]").Click();
-        cut.Find("[data-testid=confirm-dialog-cancel]").Click();
+
+        cut.Find("[data-testid=snackbar-undo]").Click();
 
         Assert.Multiple(() =>
         {
-            Assert.That(cut.FindAll("[data-testid=confirm-dialog]"), Is.Empty);
-            Assert.That(cut.FindAll("[data-testid^=exercise-1-set-][data-testid$=-remove]"), Has.Count.EqualTo(2));
+            Assert.That(cut.Find("[data-testid=exercise-1-set-1] .text").TextContent, Is.EqualTo(before));
+            Assert.That(cut.FindAll("[data-testid^=exercise-1-set-][data-testid$=-remove]"), Has.Count.EqualTo(3));
+            Assert.That(cut.FindAll("[data-testid=exercise-1-set-3-reps]"), Has.Count.EqualTo(1));
+            Assert.That(cut.FindAll("[data-testid=snackbar]"), Is.Empty);
         });
     }
 
@@ -1600,12 +1653,8 @@ public class NewWorkoutPageTests : ComponentTestBase
             .Add(x => x.OnSaved, onSaved ?? (_ => { })));
     }
 
-    /// <summary>Taps the exercise's trash and confirms the delete.</summary>
-    private static void Remove(IRenderedComponent<NewWorkoutPage> cut, int number)
-    {
-        cut.Find($"[data-testid=exercise-{number}-remove]").Click();
-        cut.Find("[data-testid=confirm-dialog-confirm]").Click();
-    }
+    /// <summary>Taps the exercise's trash.</summary>
+    private static void Remove(IRenderedComponent<NewWorkoutPage> cut, int number) => cut.Find($"[data-testid=exercise-{number}-remove]").Click();
 
     /// <summary>Taps Add note on the workout (<paramref name="number"/> null) or the numbered exercise, types the text and leaves the field, so it shows as one line.</summary>
     private static void TypeNote(IRenderedComponent<NewWorkoutPage> cut, int? number, string text)

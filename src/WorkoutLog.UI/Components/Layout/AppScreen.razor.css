@@ -47,6 +47,7 @@
 }
 
 .bottom {
+    position: relative;
     border-top: var(--border-width) solid var(--color-border);
     background: var(--color-bg);
 }
@@ -59,4 +60,11 @@
 
 .bottom-bar:last-child {
     padding-bottom: calc(var(--space-3) + var(--inset-bottom));
+}
+
+.snackbar-slot {
+    position: absolute;
+    right: 0;
+    bottom: 100%;
+    left: 0;
 }

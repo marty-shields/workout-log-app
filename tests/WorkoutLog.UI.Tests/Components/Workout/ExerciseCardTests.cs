@@ -625,7 +625,7 @@ public class ExerciseCardTests : ComponentTestBase
         EntryState? asked = null;
         var cut = Context.Render<ExerciseCard>(p => p
             .Add(x => x.Exercise, exercise)
-            .Add(x => x.OnAskRemoveSet, e => asked = e)
+            .Add(x => x.OnRemoveClosedSet, e => asked = e)
             .Add(x => x.TestId, "exercise-1"));
 
         cut.Find("[data-testid=exercise-1-set-1-remove]").Click();

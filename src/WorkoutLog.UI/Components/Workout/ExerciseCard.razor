@@ -49,7 +49,7 @@
                                     Entry="entry"
                                     IsRecord="entry == Exercise.RecordEntry"
                                     OnOpen="() => OpenSet(entry)"
-                                    OnRemove="() => OnAskRemoveSet.InvokeAsync(entry)"
+                                    OnRemove="() => OnRemoveClosedSet.InvokeAsync(entry)"
                                     TestId="@($"{TestId}-set-{number}")" />
                     }
                     else if (SetGrid.OpensAsPanel(Exercise.Fields))
@@ -160,9 +160,9 @@
     [Parameter]
     public string? TestId { get; set; }
 
-    /// <summary>Raised by the trash on a closed set; the host confirms and removes it. The open set's close button removes at once.</summary>
+    /// <summary>Raised by the trash on a closed set; the host removes it. The open set's close button removes it here, at once.</summary>
     [Parameter]
-    public EventCallback<EntryState> OnAskRemoveSet { get; set; }
+    public EventCallback<EntryState> OnRemoveClosedSet { get; set; }
 
     /// <summary>Opens the last set when the card is given an exercise. An empty last set opens either way.</summary>
     [Parameter]

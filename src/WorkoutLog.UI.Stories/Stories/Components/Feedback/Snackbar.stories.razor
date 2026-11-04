@@ -1,0 +1,18 @@
+@using WorkoutLog.UI.Components.Feedback
+@attribute [Stories("Components/Feedback/Snackbar")]
+
+<Stories TComponent="Snackbar" Layout="typeof(ThemeLayout)">
+
+    <Story Name="Set deleted">
+        <Template>
+            <Snackbar Message="Set 2 deleted" />
+        </Template>
+    </Story>
+
+    <Story Name="Long message">
+        <Template>
+            <Snackbar Message="Single-Arm Dumbbell Romanian Deadlift deleted" />
+        </Template>
+    </Story>
+
+</Stories>

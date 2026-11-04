@@ -148,36 +148,37 @@ public class EditWorkoutPageTests : ComponentTestBase
     }
 
     [Test]
-    public async Task TrashOnAClosedSet_AsksThenRemovesItAndRenumbers()
+    public async Task TrashOnAClosedSet_RemovesItAtOnceAndRenumbers()
     {
         var cut = await RenderLoadedAsync();
         cut.Find("[data-testid=exercise-3-edit]").Click();
 
         cut.Find("[data-testid=exercise-3-set-1-remove]").Click();
-        var title = cut.Find("[data-testid=confirm-dialog]").TextContent;
-        cut.Find("[data-testid=confirm-dialog-confirm]").Click();
 
         Assert.Multiple(() =>
         {
-            Assert.That(title, Does.Contain("Delete set 1?"));
+            Assert.That(DialogTitles(cut), Is.Empty);
+            Assert.That(cut.Find("[data-testid=snackbar-message]").TextContent, Is.EqualTo("Set 1 deleted"));
             Assert.That(cut.FindAll("[data-testid=exercise-3-set-1-remove]"), Has.Count.EqualTo(1));
             Assert.That(cut.FindAll("[data-testid=exercise-3-set-2-remove]"), Is.Empty);
         });
     }
 
     [Test]
-    public async Task TrashOnAClosedSet_Cancel_KeepsBothSets()
+    public async Task TrashOnAClosedSet_Undo_PutsItBackAsItWas()
     {
         var cut = await RenderLoadedAsync();
         cut.Find("[data-testid=exercise-3-edit]").Click();
-
+        var before = cut.Find("[data-testid=exercise-3-set-1] .text").TextContent;
         cut.Find("[data-testid=exercise-3-set-1-remove]").Click();
-        cut.Find("[data-testid=confirm-dialog-cancel]").Click();
+
+        cut.Find("[data-testid=snackbar-undo]").Click();
 
         Assert.Multiple(() =>
         {
-            Assert.That(cut.FindAll("[data-testid=confirm-dialog]"), Is.Empty);
+            Assert.That(cut.Find("[data-testid=exercise-3-set-1] .text").TextContent, Is.EqualTo(before));
             Assert.That(cut.FindAll("[data-testid=exercise-3-set-2-remove]"), Has.Count.EqualTo(1));
+            Assert.That(cut.FindAll("[data-testid=snackbar]"), Is.Empty);
         });
     }
 
@@ -254,32 +255,50 @@ public class EditWorkoutPageTests : ComponentTestBase
     }
 
     [Test]
-    public async Task Remove_ACollapsedExercise_AsksByNameAndRemovesOnConfirm()
+    public async Task Remove_ACollapsedExercise_RemovesItAtOnceAndNamesItInTheSnackbar()
     {
         var cut = await RenderLoadedAsync();
 
         cut.Find("[data-testid=exercise-2-remove]").Click();
 
-        Assert.That(DialogTitles(cut), Is.EqualTo(new[] { "Delete Farmer's Walk?" }));
-        Assert.That(Names(cut), Has.Count.EqualTo(3));
-        cut.Find("[data-testid=confirm-dialog-confirm]").Click();
-        Assert.That(Names(cut), Is.EqualTo(new[] { "Treadmill", "Barbell Back Squat" }));
+        Assert.Multiple(() =>
+        {
+            Assert.That(DialogTitles(cut), Is.Empty);
+            Assert.That(Names(cut), Is.EqualTo(new[] { "Treadmill", "Barbell Back Squat" }));
+            Assert.That(cut.Find("[data-testid=snackbar-message]").TextContent, Is.EqualTo("Farmer's Walk deleted"));
+        });
     }
 
     [Test]
-    public async Task Remove_Cancel_KeepsTheExerciseAndIsNotAChange()
+    public async Task Remove_Undo_PutsTheExerciseBackCollapsedInItsPlace()
+    {
+        var cut = await RenderLoadedAsync();
+        cut.Find("[data-testid=exercise-2-remove]").Click();
+
+        cut.Find("[data-testid=snackbar-undo]").Click();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(Names(cut), Is.EqualTo(new[] { "Treadmill", "Farmer's Walk", "Barbell Back Squat" }));
+            Assert.That(cut.Find("[data-testid=exercise-2]").ClassList, Does.Contain("done"));
+            Assert.That(cut.FindAll("[data-testid=snackbar]"), Is.Empty);
+        });
+    }
+
+    [Test]
+    public async Task Remove_Undo_IsStillAChange()
     {
         var backs = 0;
         var cut = await RenderLoadedAsync(onBack: () => backs++);
         cut.Find("[data-testid=exercise-2-remove]").Click();
+        cut.Find("[data-testid=snackbar-undo]").Click();
 
-        cut.Find("[data-testid=confirm-dialog-cancel]").Click();
         await cut.InvokeAsync(BackButton.HandleAsync);
 
         Assert.Multiple(() =>
         {
-            Assert.That(Names(cut), Has.Count.EqualTo(3));
-            Assert.That(backs, Is.EqualTo(1));
+            Assert.That(DialogTitles(cut), Is.EqualTo(new[] { "Discard changes?" }));
+            Assert.That(backs, Is.Zero);
         });
     }
 
@@ -473,7 +492,6 @@ public class EditWorkoutPageTests : ComponentTestBase
                 break;
             case "set removed":
                 cut.Find("[data-testid=exercise-3-set-2-remove]").Click();
-                cut.Find("[data-testid=confirm-dialog-confirm]").Click();
                 break;
             case "exercise added":
                 Add(cut, 132);
@@ -1710,11 +1728,7 @@ public class EditWorkoutPageTests : ComponentTestBase
     }
 
     /// <summary>Taps the exercise's trash and confirms the delete.</summary>
-    private static void Remove(IRenderedComponent<EditWorkoutPage> cut, int number)
-    {
-        cut.Find($"[data-testid=exercise-{number}-remove]").Click();
-        cut.Find("[data-testid=confirm-dialog-confirm]").Click();
-    }
+    private static void Remove(IRenderedComponent<EditWorkoutPage> cut, int number) => cut.Find($"[data-testid=exercise-{number}-remove]").Click();
 
     /// <summary>Opens the add-exercise list, searches for the exercise by name and picks it.</summary>
     private static void Add(IRenderedComponent<EditWorkoutPage> cut, int exerciseId)
