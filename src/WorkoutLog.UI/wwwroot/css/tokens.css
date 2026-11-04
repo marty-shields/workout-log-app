@@ -24,6 +24,7 @@
     --color-success: light-dark(#2e7d32, #a5d6a7);
     --color-bar-past: light-dark(#77878b, #7d8a8c);
     --color-scrim: light-dark(rgb(0 0 0 / 0.45), rgb(0 0 0 / 0.6));
+    --state-pressed: color-mix(in srgb, currentColor 12%, transparent);
 
     --font-family: system-ui, Roboto, sans-serif;
     --font-size-sm: 0.875rem;

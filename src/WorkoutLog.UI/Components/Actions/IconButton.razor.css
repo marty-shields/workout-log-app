@@ -6,6 +6,7 @@
     min-height: var(--touch-target);
     padding: 0;
     border: none;
+    border-radius: var(--radius-round);
     background: transparent;
     color: var(--color-text);
     cursor: pointer;
@@ -17,6 +18,5 @@
 }
 
 .active {
-    border-radius: var(--radius-round);
     background: var(--color-selected);
 }
