@@ -12,9 +12,13 @@ public abstract record PendingUndo(string Message)
 }
 
 /// <summary>An exercise taken out of the workout.</summary>
-/// <param name="Index">Its position in screen order, from 0.</param>
-public sealed record RemovedExercise(ExerciseState Exercise, int Index) : PendingUndo($"{Exercise.Name} deleted")
+/// <param name="Above">The exercises above it when it was deleted, top first. Undo puts it back by these, as <see cref="RemovedSet"/> does, so an exercise picked meanwhile doesn't move it.</param>
+public sealed record RemovedExercise(ExerciseState Exercise, IReadOnlyList<ExerciseState> Above) : PendingUndo($"{Exercise.Name} deleted")
 {
+    /// <summary>Where Undo puts it back in screen order, from 0: just under the lowest of <see cref="Above"/> still in the workout, or first when none is.</summary>
+    /// <param name="exercises">The workout's exercises now, in screen order.</param>
+    public int Index(IReadOnlyList<ExerciseState> exercises) => exercises.ToList().FindLastIndex(Above.Contains) + 1;
+
     /// <summary>Also needs the exercise to be out of the workout: picked again, it would be in it twice.</summary>
     public override bool Fits(IReadOnlyCollection<ExerciseState> exercises) =>
         exercises.Count < WorkoutLimits.MaxExercises && exercises.All(e => e.ExerciseId != Exercise.ExerciseId);

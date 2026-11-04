@@ -206,8 +206,8 @@ public sealed class WorkoutEditor(
             return;
         }
 
+        pendingUndo = new RemovedExercise(exercise, exercises[..index]);
         exercises.RemoveAt(index);
-        pendingUndo = new RemovedExercise(exercise, index);
         Changed = true;
     }
 
@@ -226,10 +226,9 @@ public sealed class WorkoutEditor(
     }
 
     /// <summary>
-    /// Puts the <see cref="PendingUndo"/> deletion back at its position (an exercise at its place in the screen order, or at the
-    /// end when fewer are left; a set under the sets that were above it), with its values and
-    /// done state, and clears it; ignored when it no longer <see cref="PendingUndo.Fits"/>, and while a save runs, which has read
-    /// the workout without it. Asks to focus what it put back. Clears the errors the deletion caused: an exercise clears the
+    /// Puts the <see cref="PendingUndo"/> deletion back under what was above it (<see cref="RemovedExercise.Index"/>,
+    /// <see cref="RemovedSet.Index"/>), with its values and done state, and clears it; ignored when it no longer
+    /// <see cref="PendingUndo.Fits"/>, and while a save runs, which has read the workout without it. Asks to focus what it put back. Clears the errors the deletion caused: an exercise clears the
     /// workout's error, as <see cref="Pick"/> does, and a set clears its exercise's <see cref="ExerciseError.NoSets"/>.
     /// Not a change undone: <see cref="Changed"/> stays set.
     /// </summary>
@@ -244,7 +243,7 @@ public sealed class WorkoutEditor(
         switch (pendingUndo)
         {
             case RemovedExercise removed:
-                exercises.Insert(Math.Min(removed.Index, exercises.Count), removed.Exercise);
+                exercises.Insert(removed.Index(exercises), removed.Exercise);
                 Focus = new ExerciseFocus(removed.Exercise, ExerciseFocusTarget.Restored);
                 Error = null;
                 break;

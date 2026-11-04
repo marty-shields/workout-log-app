@@ -360,7 +360,7 @@ public class WorkoutEditorTests
 
         editor.Remove(squat);
 
-        Assert.That(editor.PendingUndo, Is.EqualTo(new RemovedExercise(squat, 0)));
+        Assert.That(editor.PendingUndo, Is.TypeOf<RemovedExercise>().With.Property(nameof(RemovedExercise.Exercise)).SameAs(squat));
         Assert.That(editor.PendingUndo!.Message, Is.EqualTo("Barbell Back Squat deleted"));
     }
 
@@ -400,6 +400,21 @@ public class WorkoutEditorTests
             Assert.That(editor.PendingUndo, Is.Null);
             Assert.That(editor.Changed, Is.True);
         });
+    }
+
+    [Test]
+    public void Undo_AnExercisePickedAboveMeanwhile_PutsItBackUnderItsNeighbour()
+    {
+        var (a, b, c, d) = (SampleData.Exercise(Catalog, Squat, ["8", "60"]), SampleData.Exercise(Catalog, Treadmill, ["0:20:00", "3"]),
+            SampleData.Exercise(Catalog, Curl, ["10", "12"]), SampleData.Exercise(Catalog, 5, ["8", "60"]));
+        editor.Start([d, c, b, a], null);
+        editor.Remove(c);
+        editor.Pick(Item(305));
+        var e = editor.Exercises[0];
+
+        editor.Undo();
+
+        Assert.That(editor.Exercises, Is.EqualTo(new[] { e, a, b, c, d }));
     }
 
     [Test]

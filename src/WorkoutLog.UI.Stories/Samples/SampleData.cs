@@ -172,9 +172,9 @@ public static class SampleData
     /// <summary>Deletes the exercise at this position of the screen order, as its trash does, and returns the deletion Undo puts back.</summary>
     public static PendingUndo DeleteExercise(List<ExerciseState> exercises, int position)
     {
-        var exercise = exercises[position];
+        var removed = new RemovedExercise(exercises[position], exercises[..position]);
         exercises.RemoveAt(position);
-        return new RemovedExercise(exercise, position);
+        return removed;
     }
 
     /// <summary>Marks the exercises at these positions of the screen order done, and returns the list.</summary>
