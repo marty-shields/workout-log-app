@@ -773,6 +773,28 @@ public class WorkoutEditorTests
     }
 
     [Test]
+    public async Task PendingUndo_WhileSaving_IsHiddenAndAFailedSaveShowsItAgain()
+    {
+        var squat = SampleData.Exercise(Catalog, Squat, ["8", "60"]);
+        var treadmill = SampleData.Exercise(Catalog, Treadmill, ["0:20:00", "3"]);
+        editor.Start([squat, treadmill], null);
+        editor.Remove(treadmill);
+        var deleted = editor.PendingUndo;
+        var saving = new TaskCompletionSource<bool>();
+        var save = editor.SaveAsync((_, _) => saving.Task);
+        var whileSaving = editor.PendingUndo;
+
+        saving.SetResult(false);
+        await save;
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(whileSaving, Is.Null);
+            Assert.That(editor.PendingUndo, Is.SameAs(deleted));
+        });
+    }
+
+    [Test]
     public async Task SaveAsync_Invalid_KeepsTheUndo()
     {
         editor.Start([SampleData.Exercise(Catalog, Squat, ["8", "60"])], null);

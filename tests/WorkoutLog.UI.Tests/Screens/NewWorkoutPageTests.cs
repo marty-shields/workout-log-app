@@ -1639,6 +1639,32 @@ public class NewWorkoutPageTests : ComponentTestBase
     }
 
     [Test]
+    public async Task Save_WhileSaving_HidesTheSnackbarAndAFailureShowsItAgainWithFocusOnSave()
+    {
+        var cut = RenderPage();
+        var save = ReferenceId(cut, "save-workout");
+        var pending = new TaskCompletionSource<SaveResult>();
+        workouts.SaveNew = () => pending.Task;
+        Add(cut, 132);
+        cut.Find("[data-testid=exercise-1-set-1-reps]").Input("8");
+        cut.Find("[data-testid=exercise-1-set-1-weight]").Input("20");
+        Add(cut, 6);
+        Remove(cut, 1);
+
+        cut.Find("[data-testid=save-workout]").Click();
+        var whileSaving = cut.FindAll("[data-testid=snackbar]").Count;
+        await cut.InvokeAsync(() => pending.SetResult(new SaveResult(null, new WorkoutErrors([WorkoutError.SaveFailed], []))));
+        await WaitForRendererAsync();
+
+        cut.WaitForAssertion(() => Assert.Multiple(() =>
+        {
+            Assert.That(whileSaving, Is.Zero);
+            Assert.That(cut.Find("[data-testid=snackbar-message]").TextContent, Is.EqualTo("Barbell Back Squat deleted"));
+            Assert.That(((ElementReference)LastFocus().Arguments[0]!).Id, Is.EqualTo(save));
+        }));
+    }
+
+    [Test]
     public void Save_AfterASuccessfulSave_IsIgnored()
     {
         var saved = 0;

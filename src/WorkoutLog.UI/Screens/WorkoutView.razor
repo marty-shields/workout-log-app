@@ -51,7 +51,7 @@
     <Status>
         @if (Undo is { } undo)
         {
-            <Snackbar @key="undo" Message="@undo.Message" TakeFocus OnUndo="OnUndo" OnTimeout="() => OnUndoTimeout.InvokeAsync(undo)" />
+            <Snackbar @key="undo" Message="@undo.Message" TakeFocus="@(!ReferenceEquals(undo, announced))" OnUndo="OnUndo" OnTimeout="() => OnUndoTimeout.InvokeAsync(undo)" />
         }
     </Status>
 </AppScreen>
@@ -114,7 +114,7 @@
     [Parameter]
     public EventCallback<SetRef> OnRemoveSet { get; set; }
 
-    /// <summary>The latest deletion, shown in a snackbar with Undo above the bottom bar. Null shows none.</summary>
+    /// <summary>The latest deletion, shown in a snackbar with Undo above the bottom bar. Null shows none. Shown again after null, it doesn't take focus.</summary>
     [Parameter]
     public PendingUndo? Undo { get; set; }
 
@@ -158,6 +158,9 @@
     /// <summary>The workout has <see cref="WorkoutLimits.MaxExercises"/> exercises, so Add exercise is off.</summary>
     private bool ExercisesFull => Exercises.Count >= WorkoutLimits.MaxExercises;
     private ExerciseFocus? handled;
+
+    /// <summary>The <see cref="Undo"/> whose snackbar has shown. Shown again after a failed save, it leaves focus on Save.</summary>
+    private PendingUndo? announced;
     private ErrorFocus? handledError;
     private NoteField? noteField;
     private bool editingNote;
@@ -167,6 +170,7 @@
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
+        announced = Undo ?? announced;
         foreach (var removed in cards.Keys.Where(e => !Exercises.Contains(e)).ToList())
         {
             cards.Remove(removed);

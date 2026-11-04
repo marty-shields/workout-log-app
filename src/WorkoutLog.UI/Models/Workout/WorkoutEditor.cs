@@ -24,6 +24,7 @@ public sealed class WorkoutEditor(
     private List<ExerciseState> exercises = [];
     private IReadOnlyList<ExerciseListItem> listItems = [];
     private int listOpens;
+    private PendingUndo? pendingUndo;
 
     /// <summary>Exercises in screen order, newest first.</summary>
     public IReadOnlyList<ExerciseState> Exercises => exercises;
@@ -49,8 +50,11 @@ public sealed class WorkoutEditor(
     /// <summary>The latest request to move focus after a failed Save or Delete.</summary>
     public ErrorFocus? ErrorFocus { get; private set; }
 
-    /// <summary>The latest deletion Undo can put back, shown in the snackbar. Null when there is none.</summary>
-    public PendingUndo? PendingUndo { get; private set; }
+    /// <summary>
+    /// The latest deletion Undo can put back, shown in the snackbar. Null when there is none, and while a save runs, which has
+    /// read the workout without it; a failed save shows it again.
+    /// </summary>
+    public PendingUndo? PendingUndo => SaveState == SavePhase.Running ? null : pendingUndo;
 
     /// <summary>Message on the workout itself.</summary>
     public string? Error { get; private set; }
@@ -89,7 +93,7 @@ public sealed class WorkoutEditor(
         ListItems = [];
         Focus = null;
         ErrorFocus = null;
-        PendingUndo = null;
+        pendingUndo = null;
         Error = null;
         SaveState = SavePhase.Idle;
         DiscardOpen = false;
@@ -203,7 +207,7 @@ public sealed class WorkoutEditor(
         }
 
         exercises.RemoveAt(index);
-        PendingUndo = new RemovedExercise(exercise, index);
+        pendingUndo = new RemovedExercise(exercise, index);
         Changed = true;
     }
 
@@ -216,7 +220,7 @@ public sealed class WorkoutEditor(
             return;
         }
 
-        PendingUndo = new RemovedSet(set.Exercise, set.Entry, set.Exercise.Entries[..index]);
+        pendingUndo = new RemovedSet(set.Exercise, set.Entry, set.Exercise.Entries[..index]);
         set.Exercise.Entries.RemoveAt(index);
         Changed = true;
     }
@@ -237,7 +241,7 @@ public sealed class WorkoutEditor(
         }
 
         EndUndoThatNoLongerFits();
-        switch (PendingUndo)
+        switch (pendingUndo)
         {
             case RemovedExercise removed:
                 exercises.Insert(Math.Min(removed.Index, exercises.Count), removed.Exercise);
@@ -256,15 +260,15 @@ public sealed class WorkoutEditor(
                 break;
         }
 
-        PendingUndo = null;
+        pendingUndo = null;
     }
 
     /// <summary>Keeps the deletion deleted and hides its snackbar, unless a later deletion has replaced it.</summary>
     public void DismissUndo(PendingUndo undo)
     {
-        if (ReferenceEquals(PendingUndo, undo))
+        if (ReferenceEquals(pendingUndo, undo))
         {
-            PendingUndo = null;
+            pendingUndo = null;
         }
     }
 
@@ -320,7 +324,7 @@ public sealed class WorkoutEditor(
         SaveState = saved ? SavePhase.Succeeded : SavePhase.Idle;
         if (saved)
         {
-            PendingUndo = null;
+            pendingUndo = null;
             haptics.Play(HapticCue.WorkoutSaved);
         }
         else
@@ -341,9 +345,9 @@ public sealed class WorkoutEditor(
 
     private void EndUndoThatNoLongerFits()
     {
-        if (PendingUndo?.Fits(exercises) == false)
+        if (pendingUndo?.Fits(exercises) == false)
         {
-            PendingUndo = null;
+            pendingUndo = null;
         }
     }
 
