@@ -20,6 +20,12 @@
         </Template>
     </Story>
 
+    <Story Name="Best beside latest">
+        <Template>
+            <Chart Points="BestBesideLatest" Format="SampleExercises.Kg" Name="e1RM, last 3 months" TestId="exercise-chart" />
+        </Template>
+    </Story>
+
     <Story Name="Gaps">
         <Template>
             <Chart Points="Gaps" Format="SampleExercises.Kg" Name="Top set, last 3 months" TestId="exercise-chart" />
@@ -48,6 +54,12 @@
 
 @code {
     private static readonly IReadOnlyList<ChartPoint> AllZero = [new("13 Oct", 0, "×4"), new("20 Oct", 0, "×5")];
+
+    private static readonly IReadOnlyList<ChartPoint> BestBesideLatest =
+    [
+        new("18 Aug", 70), new("25 Aug", 71.5m), new("1 Sep", 72), new("8 Sep", 73), new("15 Sep", 72.5m),
+        new("22 Sep", 74), new("29 Sep", 73.5m), new("6 Oct", 74.5m), new("13 Oct", 75), new("20 Oct", 74.8m),
+    ];
 
     private static readonly IReadOnlyList<ChartPoint> Gaps =
     [
