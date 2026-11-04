@@ -3,7 +3,7 @@
     padding: 0 var(--space-4);
     border: var(--border-width) solid transparent;
     border-radius: var(--radius-md);
-    background: var(--color-secondary);
+    background-color: var(--color-secondary);
     color: var(--color-on-secondary);
     font-size: var(--font-size-md);
     font-weight: var(--font-weight-bold);
@@ -15,12 +15,12 @@
 }
 
 .primary {
-    background: var(--color-primary);
+    background-color: var(--color-primary);
     color: var(--color-on-primary);
 }
 
 .danger {
-    background: var(--color-danger);
+    background-color: var(--color-danger);
     color: var(--color-on-danger);
 }
 

@@ -16,7 +16,7 @@
     padding: 0 var(--space-2);
     border: var(--border-width) solid var(--color-border-strong);
     border-radius: var(--radius-sm);
-    background: var(--color-bg);
+    background-color: var(--color-bg);
     color: var(--color-text);
     font-size: var(--font-size-input);
     font-variant-numeric: tabular-nums;

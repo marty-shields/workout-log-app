@@ -55,7 +55,7 @@ public class ConsistencyServiceTests
     }
 
     [Test]
-    public async Task GetAsync_SaturdayWorkoutOnTuesdayMorning_IsInLastWeekOnTheCardAndTheBars()
+    public async Task GetAsync_SaturdayWorkoutOnTuesdayMorning_IsOnTheBarsButNotYetInLastWeekToDate()
     {
         var london = TimeZoneInfo.FindSystemTimeZoneById("Europe/London");
         var now = new DateTimeOffset(2026, 11, 3, 5, 12, 0, TimeSpan.Zero);
@@ -64,7 +64,7 @@ public class ConsistencyServiceTests
 
         var result = await service.GetAsync();
 
-        Assert.That((result.Comparison.LastWeek.Workouts, result.WeekCounts[^2]), Is.EqualTo((1, 1)));
+        Assert.That((result.Comparison.LastWeekToDate.Workouts, result.WeekCounts[^2]), Is.EqualTo((0, 1)));
     }
 
     [Test]

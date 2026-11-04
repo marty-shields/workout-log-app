@@ -88,13 +88,17 @@
         </Template>
     </Story>
 
-    <Story Name="Delete exercise prompt">
+    <Story Name="Set deleted">
         <Template>
-            <WorkoutView Mode="WorkoutMode.New" StartedAt="SampleData.Started" Time="new TimeSpan(0, 34, 12)" Exercises="SampleData.StrengthWorkout(Catalog)" OnBack="() => { }">
-                <Overlay>
-                    <ConfirmDialog Title="Delete Barbell Back Squat?" ConfirmText="Delete" Danger />
-                </Overlay>
-            </WorkoutView>
+            @{ var exercises = SampleData.StrengthWorkoutWithWeights(Catalog); var undo = SampleData.DeleteSet(exercises, 0, 1); }
+            <WorkoutView Mode="WorkoutMode.New" StartedAt="SampleData.Started" Time="new TimeSpan(0, 34, 12)" Exercises="exercises" Undo="undo" OnBack="() => { }" />
+        </Template>
+    </Story>
+
+    <Story Name="Exercise deleted">
+        <Template>
+            @{ var exercises = SampleData.StrengthWorkoutWithWeights(Catalog); var undo = SampleData.DeleteExercise(exercises, 0); }
+            <WorkoutView Mode="WorkoutMode.New" StartedAt="SampleData.Started" Time="new TimeSpan(0, 34, 12)" Exercises="exercises" Undo="undo" OnBack="() => { }" />
         </Template>
     </Story>
 

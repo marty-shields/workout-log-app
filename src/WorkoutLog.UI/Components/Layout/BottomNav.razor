@@ -1,0 +1,27 @@
+<nav class="bottom-nav" aria-label="Main" data-testid="bottom-nav">
+    @foreach (var item in NavDestinations.All)
+    {
+        var current = item.Destination == Current;
+        <button type="button"
+                class="item @(current ? "current" : null)"
+                aria-current="@(current ? "page" : null)"
+                data-testid="@item.TestId"
+                @onclick="() => Navigate(item.Destination)">
+            <span class="indicator"><Icon Name="item.Icon" /></span>
+            <span class="label">@item.Label</span>
+        </button>
+    }
+</nav>
+
+@code {
+    /// <summary>The screen showing; its item is marked as the current page.</summary>
+    [Parameter, EditorRequired]
+    public NavDestination Current { get; set; }
+
+    /// <summary>Raised with the tapped item's destination. Not raised for the current one.</summary>
+    [Parameter]
+    public EventCallback<NavDestination> OnNavigate { get; set; }
+
+    private Task Navigate(NavDestination destination) =>
+        destination == Current ? Task.CompletedTask : OnNavigate.InvokeAsync(destination);
+}

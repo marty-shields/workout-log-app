@@ -4,6 +4,7 @@ using WorkoutLog.Core.Domain.Exercises;
 using WorkoutLog.Core.Domain.Exercises.Bests;
 using WorkoutLog.Core.Domain.Workouts;
 using WorkoutLog.Core.Services;
+using WorkoutLog.UI.Haptics;
 using WorkoutLog.UI.Models.Exercises;
 using WorkoutLog.UI.Models.Workout;
 using WorkoutLog.UI.Stories.Samples;
@@ -16,12 +17,14 @@ public class WorkoutEditorTests
 
     private const int Squat = 6;
     private const int Treadmill = 300;
+    private const int Curl = 132;
 
     /// <summary>Wed 28 Oct 2026 12:00 UTC.</summary>
     private static readonly DateTimeOffset Now = new(2026, 10, 28, 12, 0, 0, TimeSpan.Zero);
 
     private WorkoutChecker workoutChecker = null!;
     private FakeLoggedExercisesService loggedExercises = null!;
+    private FakeHaptics haptics = null!;
     private WorkoutEditor editor = null!;
 
     [SetUp]
@@ -31,7 +34,8 @@ public class WorkoutEditorTests
         var setChecker = new SetChecker(workouts, Catalog, NullLogger<SetChecker>.Instance);
         workoutChecker = new WorkoutChecker(setChecker, workouts, NullLogger<WorkoutChecker>.Instance);
         loggedExercises = new FakeLoggedExercisesService();
-        editor = new WorkoutEditor(Catalog, setChecker, workoutChecker, loggedExercises, new FakeTimeProvider(Now));
+        haptics = new FakeHaptics();
+        editor = new WorkoutEditor(Catalog, setChecker, workoutChecker, loggedExercises, new FakeTimeProvider(Now), haptics);
     }
 
     [Test]
@@ -215,7 +219,7 @@ public class WorkoutEditorTests
             Assert.That(editor.Exercises.Select(e => e.ExerciseId), Is.EqualTo(new[] { Squat, Treadmill }));
             Assert.That(squat.Entries, Has.Count.EqualTo(1));
             Assert.That(editor.Focus!.Exercise, Is.SameAs(squat));
-            Assert.That(editor.Focus.AddSet, Is.False);
+            Assert.That(editor.Focus.Target, Is.EqualTo(ExerciseFocusTarget.OpenSet));
             Assert.That(editor.ListOpen, Is.False);
             Assert.That(editor.Error, Is.Null);
             Assert.That(editor.Changed, Is.True);
@@ -235,7 +239,7 @@ public class WorkoutEditorTests
             Assert.That(editor.Exercises.Select(e => e.ExerciseId), Is.EqualTo(new[] { Squat, Treadmill }));
             Assert.That(editor.Exercises[0], Is.SameAs(squat));
             Assert.That(editor.Focus!.Exercise, Is.SameAs(squat));
-            Assert.That(editor.Focus.AddSet, Is.True);
+            Assert.That(editor.Focus.Target, Is.EqualTo(ExerciseFocusTarget.AddedSet));
             Assert.That(editor.Changed, Is.True);
         });
     }
@@ -252,7 +256,7 @@ public class WorkoutEditorTests
         {
             Assert.That(editor.Exercises[0], Is.SameAs(squat));
             Assert.That(editor.Focus!.Exercise, Is.SameAs(squat));
-            Assert.That(editor.Focus.AddSet, Is.False);
+            Assert.That(editor.Focus.Target, Is.EqualTo(ExerciseFocusTarget.OpenSet));
             Assert.That(squat.Entries, Has.Count.EqualTo(10));
         });
     }
@@ -297,7 +301,7 @@ public class WorkoutEditorTests
             Assert.That(editor.Exercises.Select(e => e.ExerciseId), Is.EqualTo(new[] { Treadmill, Squat }));
             Assert.That(treadmill.Entries, Has.Count.EqualTo(1));
             Assert.That(editor.Focus!.Exercise, Is.SameAs(treadmill));
-            Assert.That(editor.Focus.AddSet, Is.False);
+            Assert.That(editor.Focus.Target, Is.EqualTo(ExerciseFocusTarget.OpenSet));
             Assert.That(editor.Changed, Is.True);
         });
     }
@@ -344,216 +348,487 @@ public class WorkoutEditorTests
             Assert.That(editor.Exercises[0], Is.SameAs(squat));
             Assert.That(squat.IsDone, Is.False);
             Assert.That(squat.Entries, Has.Count.EqualTo(1));
-            Assert.That(editor.Focus!.AddSet, Is.True);
+            Assert.That(editor.Focus!.Target, Is.EqualTo(ExerciseFocusTarget.AddedSet));
         });
     }
 
     [Test]
-    public void AskRemove_OnlyAsks()
+    public void Remove_OffersUndoNamedForTheExercise()
     {
         editor.Start([SampleData.Exercise(Catalog, Squat, ["8", "60"])], null);
+        var squat = editor.Exercises[0];
 
-        editor.AskRemove(editor.Exercises[0]);
+        editor.Remove(squat);
+
+        Assert.That(editor.PendingUndo, Is.TypeOf<RemovedExercise>().With.Property(nameof(RemovedExercise.Exercise)).SameAs(squat));
+        Assert.That(editor.PendingUndo!.Message, Is.EqualTo("Barbell Back Squat deleted"));
+    }
+
+    [Test]
+    public void Remove_AnExerciseNotInTheWorkout_ChangesNothing()
+    {
+        var gone = SampleData.Exercise(Catalog, Squat, ["8", "60"]);
+        editor.Start([SampleData.Exercise(Catalog, Treadmill, ["0:20:00", "3"])], null);
+
+        editor.Remove(gone);
 
         Assert.Multiple(() =>
         {
-            Assert.That(editor.Removing, Is.SameAs(editor.Exercises[0]));
             Assert.That(editor.Exercises, Has.Count.EqualTo(1));
+            Assert.That(editor.PendingUndo, Is.Null);
             Assert.That(editor.Changed, Is.False);
         });
     }
 
     [Test]
-    public void CancelRemove_KeepsTheExercise()
+    public void Undo_PutsTheExerciseBackInItsPlaceDoneAsBefore()
     {
-        editor.Start([SampleData.Exercise(Catalog, Squat, ["8", "60"])], null);
-        editor.AskRemove(editor.Exercises[0]);
+        var squat = SampleData.Exercise(Catalog, Squat, ["8", "60"]);
+        var treadmill = SampleData.Exercise(Catalog, Treadmill, ["0:20:00", "3"]);
+        var curl = SampleData.Exercise(Catalog, Curl, ["10", "12"]);
+        editor.Start([squat, treadmill, curl], null);
+        treadmill.IsDone = true;
+        editor.Remove(treadmill);
 
-        editor.CancelRemove();
+        editor.Undo();
 
         Assert.Multiple(() =>
         {
-            Assert.That(editor.Removing, Is.Null);
-            Assert.That(editor.Exercises, Has.Count.EqualTo(1));
-            Assert.That(editor.Changed, Is.False);
-        });
-    }
-
-    [Test]
-    public void ConfirmRemove_RemovesTheAskedExerciseAndIsAChange()
-    {
-        editor.Start([SampleData.Exercise(Catalog, Squat, ["8", "60"]), SampleData.Exercise(Catalog, Treadmill, ["0:20:00", "3"])], null);
-        editor.AskRemove(editor.Exercises[1]);
-
-        editor.ConfirmRemove();
-
-        Assert.Multiple(() =>
-        {
-            Assert.That(editor.Removing, Is.Null);
-            Assert.That(editor.Exercises.Select(e => e.ExerciseId), Is.EqualTo(new[] { Treadmill }));
+            Assert.That(editor.Exercises, Is.EqualTo(new[] { curl, treadmill, squat }));
+            Assert.That(treadmill.IsDone, Is.True);
+            Assert.That((editor.Focus!.Exercise, editor.Focus.Target, editor.Focus.Set), Is.EqualTo((treadmill, ExerciseFocusTarget.Restored, (EntryState?)null)));
+            Assert.That(editor.PendingUndo, Is.Null);
             Assert.That(editor.Changed, Is.True);
         });
     }
 
     [Test]
-    public void AskRemoveSet_OnlyAsks()
+    public void Undo_AnExercisePickedAboveMeanwhile_PutsItBackUnderItsNeighbour()
+    {
+        var (a, b, c, d) = (SampleData.Exercise(Catalog, Squat, ["8", "60"]), SampleData.Exercise(Catalog, Treadmill, ["0:20:00", "3"]),
+            SampleData.Exercise(Catalog, Curl, ["10", "12"]), SampleData.Exercise(Catalog, 5, ["8", "60"]));
+        editor.Start([d, c, b, a], null);
+        editor.Remove(c);
+        editor.Pick(Item(305));
+        var e = editor.Exercises[0];
+
+        editor.Undo();
+
+        Assert.That(editor.Exercises, Is.EqualTo(new[] { e, a, b, c, d }));
+    }
+
+    [Test]
+    public async Task Undo_TheOnlyExerciseAfterSaveSaidAddOne_ClearsTheWorkoutError()
     {
         editor.Start([SampleData.Exercise(Catalog, Squat, ["8", "60"])], null);
-        var set = new SetRef(editor.Exercises[0], editor.Exercises[0].Entries[0]);
+        editor.Remove(editor.Exercises[0]);
+        await editor.SaveAsync((_, _) => Task.FromResult(true));
+        var shown = editor.Error;
 
-        editor.AskRemoveSet(set);
+        editor.Undo();
 
         Assert.Multiple(() =>
         {
-            Assert.That(editor.RemovingSet, Is.SameAs(set));
-            Assert.That(editor.Exercises[0].Entries, Has.Count.EqualTo(1));
-            Assert.That(editor.Changed, Is.False);
+            Assert.That(shown, Is.EqualTo("Add at least one exercise"));
+            Assert.That(editor.Error, Is.Null);
         });
     }
 
     [Test]
-    public void CancelRemoveSet_KeepsTheSet()
+    public async Task Undo_TheOnlySetAfterSaveSaidAddOne_ClearsTheExerciseError()
     {
-        editor.Start([SampleData.Exercise(Catalog, Squat, ["8", "60"])], null);
-        editor.AskRemoveSet(new SetRef(editor.Exercises[0], editor.Exercises[0].Entries[0]));
+        var squat = SampleData.Exercise(Catalog, Squat, ["8", "60"]);
+        editor.Start([squat], null);
+        editor.RemoveSet(new SetRef(squat, squat.Entries[0]));
+        await editor.SaveAsync((_, _) => Task.FromResult(true));
+        var shown = squat.Error;
 
-        editor.CancelRemoveSet();
+        editor.Undo();
 
         Assert.Multiple(() =>
         {
-            Assert.That(editor.RemovingSet, Is.Null);
-            Assert.That(editor.Exercises[0].Entries, Has.Count.EqualTo(1));
-            Assert.That(editor.Changed, Is.False);
+            Assert.That(shown, Is.EqualTo("Add at least one set"));
+            Assert.That(squat.Error, Is.Null);
+            Assert.That(squat.HasError, Is.False);
         });
     }
 
     [Test]
-    public void ConfirmRemoveSet_RemovesTheAskedSetAndIsAChange()
+    public void RemoveSet_TakesTheSetOutAtOnceAndOffersUndoNamedForIt()
     {
         var squat = SampleData.Exercise(Catalog, Squat, ["8", "60"]);
         var second = new EntryState();
         squat.Entries.Add(second);
         editor.Start([squat], null);
-        var set = new SetRef(squat, squat.Entries[0]);
-        editor.AskRemoveSet(set);
 
-        editor.ConfirmRemoveSet();
+        editor.RemoveSet(new SetRef(squat, second));
 
         Assert.Multiple(() =>
         {
-            Assert.That(editor.RemovingSet, Is.Null);
-            Assert.That(squat.Entries, Is.EqualTo(new[] { second }));
+            Assert.That(squat.Entries, Has.Count.EqualTo(1));
+            Assert.That(editor.PendingUndo, Is.TypeOf<RemovedSet>().With.Property(nameof(RemovedSet.Entry)).SameAs(second));
+            Assert.That(editor.PendingUndo!.Message, Is.EqualTo("Barbell Back Squat set 2 deleted"));
             Assert.That(editor.Changed, Is.True);
         });
     }
 
     [Test]
-    public void ConfirmRemoveSet_TheOnlySet_LeavesTheExerciseWithNoSets()
+    public void RemoveSet_TheOnlySet_LeavesTheExerciseWithNoSets()
     {
         var squat = SampleData.Exercise(Catalog, Squat, ["8", "60"]);
         editor.Start([squat], null);
-        editor.AskRemoveSet(new SetRef(squat, squat.Entries[0]));
 
-        editor.ConfirmRemoveSet();
+        editor.RemoveSet(new SetRef(squat, squat.Entries[0]));
 
         Assert.Multiple(() =>
         {
             Assert.That(squat.Entries, Is.Empty);
             Assert.That(editor.Exercises, Has.Count.EqualTo(1));
-            Assert.That(editor.Changed, Is.True);
         });
     }
 
     [Test]
-    public void ConfirmRemoveSet_TheLastOfTwo_KeepsTheFirst()
+    public void RemoveSet_ASetAlreadyRemoved_ChangesNothing()
     {
         var squat = SampleData.Exercise(Catalog, Squat, ["8", "60"]);
-        var first = squat.Entries[0];
-        squat.Entries.Add(new EntryState());
+        var gone = new EntryState();
         editor.Start([squat], null);
-        editor.AskRemoveSet(new SetRef(squat, squat.Entries[1]));
 
-        editor.ConfirmRemoveSet();
-
-        Assert.That(squat.Entries, Is.EqualTo(new[] { first }));
-    }
-
-    [Test]
-    public void ConfirmRemoveSet_ASetAlreadyRemoved_RemovesNothingAndClosesTheConfirm()
-    {
-        var squat = SampleData.Exercise(Catalog, Squat, ["8", "60"]);
-        var gone = squat.Entries[0];
-        squat.Entries.Add(new EntryState());
-        editor.Start([squat], null);
-        editor.AskRemoveSet(new SetRef(squat, gone));
-        squat.Entries.Remove(gone);
-
-        editor.ConfirmRemoveSet();
+        editor.RemoveSet(new SetRef(squat, gone));
 
         Assert.Multiple(() =>
         {
-            Assert.That(editor.RemovingSet, Is.Null);
             Assert.That(squat.Entries, Has.Count.EqualTo(1));
-        });
-    }
-
-    [Test]
-    public void ConfirmRemoveSet_NothingAsked_IsNotAChange()
-    {
-        editor.Start([SampleData.Exercise(Catalog, Squat, ["8", "60"])], null);
-
-        editor.ConfirmRemoveSet();
-
-        Assert.Multiple(() =>
-        {
-            Assert.That(editor.Exercises[0].Entries, Has.Count.EqualTo(1));
+            Assert.That(editor.PendingUndo, Is.Null);
             Assert.That(editor.Changed, Is.False);
         });
     }
 
     [Test]
-    public void AskRemoveSet_AgainWhileAsking_ReplacesTheAskedSet()
+    public void Undo_PutsTheSetBackInItsPlaceWithItsValues()
     {
         var squat = SampleData.Exercise(Catalog, Squat, ["8", "60"]);
-        squat.Entries.Add(new EntryState());
+        var first = squat.Entries[0];
+        var third = new EntryState();
+        squat.Entries.Add(third);
+        squat.Entries.Insert(0, new EntryState());
         editor.Start([squat], null);
-        editor.AskRemoveSet(new SetRef(squat, squat.Entries[0]));
-        var second = new SetRef(squat, squat.Entries[1]);
+        editor.RemoveSet(new SetRef(squat, first));
 
-        editor.AskRemoveSet(second);
+        editor.Undo();
 
-        Assert.That(editor.RemovingSet, Is.SameAs(second));
+        Assert.Multiple(() =>
+        {
+            Assert.That(squat.Entries[1], Is.SameAs(first));
+            Assert.That((editor.Focus!.Exercise, editor.Focus.Target, editor.Focus.Set), Is.EqualTo((squat, ExerciseFocusTarget.Restored, first)));
+            Assert.That(squat.Entries, Has.Count.EqualTo(3));
+            Assert.That(first.Values.Values, Is.EqualTo(new[] { "8", "60" }));
+            Assert.That(editor.PendingUndo, Is.Null);
+        });
     }
 
     [Test]
-    public void SetRef_NumberIsItsPositionFromOne()
+    public void Undo_FewerSetsLeft_PutsTheSetAtTheEnd()
     {
         var squat = SampleData.Exercise(Catalog, Squat, ["8", "60"]);
         squat.Entries.Add(new EntryState());
+        var last = squat.Entries[1];
+        editor.Start([squat], null);
+        editor.RemoveSet(new SetRef(squat, last));
+        squat.Entries.RemoveAt(0);
 
-        Assert.That(new SetRef(squat, squat.Entries[1]).Number, Is.EqualTo(2));
+        editor.Undo();
+
+        Assert.That(squat.Entries, Is.EqualTo(new[] { last }));
     }
 
     [Test]
-    public void Start_ClosesAnOpenSetDeleteConfirm()
+    public void Undo_ASetAboveRemovedMeanwhile_PutsTheSetBackUnderItsNeighbour()
     {
-        editor.Start([SampleData.Exercise(Catalog, Squat, ["8", "60"])], null);
-        editor.AskRemoveSet(new SetRef(editor.Exercises[0], editor.Exercises[0].Entries[0]));
+        var squat = SampleData.Exercise(Catalog, Squat, ["8", "60"]);
+        squat.Entries.AddRange([new EntryState(), new EntryState(), new EntryState()]);
+        var (a, b, c, d) = (squat.Entries[0], squat.Entries[1], squat.Entries[2], squat.Entries[3]);
+        editor.Start([squat], null);
+        editor.RemoveSet(new SetRef(squat, c));
+        squat.Entries.Remove(a);
+        editor.MarkChanged();
 
-        editor.Start([], null);
+        editor.Undo();
 
-        Assert.That(editor.RemovingSet, Is.Null);
+        Assert.That(squat.Entries, Is.EqualTo(new[] { b, c, d }));
     }
 
     [Test]
-    public void Start_ClosesAnOpenDeleteConfirm()
+    public void Undo_ASetAddedMeanwhile_PutsTheSetBackInItsPlace()
+    {
+        var squat = SampleData.Exercise(Catalog, Squat, ["8", "60"]);
+        squat.Entries.Add(new EntryState());
+        var (a, b) = (squat.Entries[0], squat.Entries[1]);
+        editor.Start([squat], null);
+        editor.RemoveSet(new SetRef(squat, a));
+        var added = new EntryState();
+        squat.Entries.Add(added);
+        editor.MarkChanged();
+
+        editor.Undo();
+
+        Assert.That(squat.Entries, Is.EqualTo(new[] { a, b, added }));
+    }
+
+    [Test]
+    public void RemoveSet_AfterAnotherDeletion_KeepsTheEarlierOneDeletedAndOffersOnlyTheLatest()
+    {
+        var squat = SampleData.Exercise(Catalog, Squat, ["8", "60"]);
+        var treadmill = SampleData.Exercise(Catalog, Treadmill, ["0:20:00", "3"]);
+        squat.Entries.Add(new EntryState());
+        editor.Start([squat, treadmill], null);
+        editor.Remove(treadmill);
+        var second = squat.Entries[1];
+
+        editor.RemoveSet(new SetRef(squat, second));
+        editor.Undo();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(editor.Exercises, Is.EqualTo(new[] { squat }));
+            Assert.That(squat.Entries, Has.Count.EqualTo(2));
+        });
+    }
+
+    [Test]
+    public void Undo_NothingPending_ChangesNothing()
     {
         editor.Start([SampleData.Exercise(Catalog, Squat, ["8", "60"])], null);
-        editor.AskRemove(editor.Exercises[0]);
+
+        editor.Undo();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(editor.Exercises, Has.Count.EqualTo(1));
+            Assert.That(editor.Changed, Is.False);
+        });
+    }
+
+    [Test]
+    public void DismissUndo_KeepsTheDeletionAndEndsTheUndo()
+    {
+        editor.Start([SampleData.Exercise(Catalog, Squat, ["8", "60"])], null);
+        editor.Remove(editor.Exercises[0]);
+
+        editor.DismissUndo(editor.PendingUndo!);
+        editor.Undo();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(editor.PendingUndo, Is.Null);
+            Assert.That(editor.Exercises, Is.Empty);
+        });
+    }
+
+    [Test]
+    public void DismissUndo_ALaterDeletionReplacedIt_KeepsTheLaterUndo()
+    {
+        editor.Start([SampleData.Exercise(Catalog, Squat, ["8", "60"]), SampleData.Exercise(Catalog, Treadmill, ["0:20:00", "3"])], null);
+        editor.Remove(editor.Exercises[0]);
+        var earlier = editor.PendingUndo!;
+        editor.Remove(editor.Exercises[0]);
+        var later = editor.PendingUndo;
+
+        editor.DismissUndo(earlier);
+
+        Assert.That(editor.PendingUndo, Is.SameAs(later));
+    }
+
+    [Test]
+    public async Task OpenListAsyncThenCloseList_KeepsTheUndo()
+    {
+        editor.Start([SampleData.Exercise(Catalog, Squat, ["8", "60"])], null);
+        editor.Remove(editor.Exercises[0]);
+        var undo = editor.PendingUndo;
+
+        await editor.OpenListAsync();
+        editor.CloseList();
+        editor.Undo();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(undo, Is.Not.Null);
+            Assert.That(editor.Exercises, Has.Count.EqualTo(1));
+        });
+    }
+
+    [Test]
+    public void MarkChanged_ASetAddedFillsTheExerciseWhoseSetUndoWouldPutBack_EndsTheUndo()
+    {
+        var squat = SampleData.FullSets(Catalog, Squat);
+        editor.Start([squat], null);
+        editor.RemoveSet(new SetRef(squat, squat.Entries[0]));
+        squat.Entries.Add(new EntryState());
+
+        editor.MarkChanged();
+        editor.Undo();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(editor.PendingUndo, Is.Null);
+            Assert.That(squat.Entries, Has.Count.EqualTo(WorkoutLimits.MaxSets));
+        });
+    }
+
+    [Test]
+    public void MarkChanged_ASetAddedToAnotherExercise_KeepsTheUndo()
+    {
+        var squat = SampleData.FullSets(Catalog, Squat);
+        var curl = SampleData.Exercise(Catalog, Curl, ["10", "12"]);
+        editor.Start([squat, curl], null);
+        editor.RemoveSet(new SetRef(squat, squat.Entries[0]));
+        curl.Entries.Add(new EntryState());
+
+        editor.MarkChanged();
+
+        Assert.That(editor.PendingUndo, Is.Not.Null);
+    }
+
+    [Test]
+    public void Undo_TheExerciseFilledUpWithoutAChangeReported_LeavesItAtMaxSets()
+    {
+        var squat = SampleData.FullSets(Catalog, Squat);
+        editor.Start([squat], null);
+        editor.RemoveSet(new SetRef(squat, squat.Entries[0]));
+        squat.Entries.Add(new EntryState());
+
+        editor.Undo();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(editor.PendingUndo, Is.Null);
+            Assert.That(squat.Entries, Has.Count.EqualTo(WorkoutLimits.MaxSets));
+        });
+    }
+
+    [Test]
+    public void Pick_ANewExerciseFillsTheWorkoutWhoseExerciseUndoWouldPutBack_EndsTheUndo()
+    {
+        editor.Start(Catalog.All.Where(e => e.Id != Curl).Take(WorkoutLimits.MaxExercises).Select(ExerciseFields.New), null);
+        editor.Remove(editor.Exercises[0]);
+
+        editor.Pick(Item(Curl));
+        editor.Undo();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(editor.PendingUndo, Is.Null);
+            Assert.That(editor.Exercises, Has.Count.EqualTo(WorkoutLimits.MaxExercises));
+            Assert.That(editor.Exercises[0].ExerciseId, Is.EqualTo(Curl));
+        });
+    }
+
+    [Test]
+    public void Pick_TheDeletedExerciseAgain_EndsTheUndo()
+    {
+        var squat = SampleData.Exercise(Catalog, Squat, ["8", "60"]);
+        var treadmill = SampleData.Exercise(Catalog, Treadmill, ["0:20:00", "3"]);
+        editor.Start([squat, treadmill], null);
+        editor.Remove(squat);
+
+        editor.Pick(Item(Squat));
+        editor.Undo();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(editor.PendingUndo, Is.Null);
+            Assert.That(editor.Exercises.Select(e => e.ExerciseId), Is.EqualTo(new[] { Squat, Treadmill }));
+        });
+    }
+
+    [Test]
+    public async Task SaveAsync_Saved_EndsTheUndo()
+    {
+        editor.Start([SampleData.Exercise(Catalog, Squat, ["8", "60"]), SampleData.Exercise(Catalog, Treadmill, ["0:20:00", "3"])], null);
+        editor.Remove(editor.Exercises[0]);
+
+        await editor.SaveAsync((_, _) => Task.FromResult(true));
+
+        Assert.That(editor.PendingUndo, Is.Null);
+    }
+
+    [Test]
+    public async Task SaveAsync_Fails_KeepsTheUndo()
+    {
+        var squat = SampleData.Exercise(Catalog, Squat, ["8", "60"]);
+        var treadmill = SampleData.Exercise(Catalog, Treadmill, ["0:20:00", "3"]);
+        editor.Start([squat, treadmill], null);
+        editor.Remove(treadmill);
+
+        await editor.SaveAsync((_, _) => Task.FromResult(false));
+        editor.Undo();
+
+        Assert.That(editor.Exercises, Is.EqualTo(new[] { treadmill, squat }));
+    }
+
+    [Test]
+    public async Task Undo_WhileSaving_IsIgnored()
+    {
+        var squat = SampleData.Exercise(Catalog, Squat, ["8", "60"]);
+        var treadmill = SampleData.Exercise(Catalog, Treadmill, ["0:20:00", "3"]);
+        editor.Start([squat, treadmill], null);
+        editor.Remove(treadmill);
+        var saving = new TaskCompletionSource<bool>();
+        var save = editor.SaveAsync((_, _) => saving.Task);
+
+        editor.Undo();
+        saving.SetResult(false);
+        await save;
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(editor.Exercises, Is.EqualTo(new[] { squat }));
+            Assert.That(editor.PendingUndo, Is.Not.Null);
+        });
+    }
+
+    [Test]
+    public async Task PendingUndo_WhileSaving_IsHiddenAndAFailedSaveShowsItAgain()
+    {
+        var squat = SampleData.Exercise(Catalog, Squat, ["8", "60"]);
+        var treadmill = SampleData.Exercise(Catalog, Treadmill, ["0:20:00", "3"]);
+        editor.Start([squat, treadmill], null);
+        editor.Remove(treadmill);
+        var deleted = editor.PendingUndo;
+        var saving = new TaskCompletionSource<bool>();
+        var save = editor.SaveAsync((_, _) => saving.Task);
+        var whileSaving = editor.PendingUndo;
+
+        saving.SetResult(false);
+        await save;
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(whileSaving, Is.Null);
+            Assert.That(editor.PendingUndo, Is.SameAs(deleted));
+        });
+    }
+
+    [Test]
+    public async Task SaveAsync_Invalid_KeepsTheUndo()
+    {
+        editor.Start([SampleData.Exercise(Catalog, Squat, ["8", "60"])], null);
+        editor.Remove(editor.Exercises[0]);
+
+        await editor.SaveAsync((_, _) => Task.FromResult(true));
+
+        Assert.That(editor.PendingUndo, Is.Not.Null);
+    }
+
+    [Test]
+    public void Start_EndsTheUndo()
+    {
+        editor.Start([SampleData.Exercise(Catalog, Squat, ["8", "60"])], null);
+        editor.Remove(editor.Exercises[0]);
 
         editor.Start([], null);
 
-        Assert.That(editor.Removing, Is.Null);
+        Assert.That(editor.PendingUndo, Is.Null);
     }
 
     [Test]
@@ -763,6 +1038,35 @@ public class WorkoutEditorTests
             Assert.That(editor.ErrorFocus!.Target, Is.EqualTo(ErrorFocusTarget.FirstError));
             Assert.That(editor.SaveState, Is.EqualTo(SavePhase.Idle));
         });
+    }
+
+    [Test]
+    public async Task SaveAsync_Saved_PlaysWorkoutSavedOnceAndNothingWhenCalledAgain()
+    {
+        editor.Start([SampleData.Exercise(Catalog, Squat, ["60", "8"])], null);
+
+        await editor.SaveAsync((_, _) => Task.FromResult(true));
+        await editor.SaveAsync((_, _) => Task.FromResult(true));
+
+        Assert.That(haptics.Played, Is.EqualTo(new[] { HapticCue.WorkoutSaved }));
+    }
+
+    [Test]
+    public async Task SaveAsync_Invalid_PlaysRejected()
+    {
+        await editor.SaveAsync((_, _) => Task.FromResult(true));
+
+        Assert.That(haptics.Played, Is.EqualTo(new[] { HapticCue.Rejected }));
+    }
+
+    [Test]
+    public async Task SaveAsync_Fails_PlaysNothing()
+    {
+        editor.Start([SampleData.Exercise(Catalog, Squat, ["60", "8"])], null);
+
+        await editor.SaveAsync((_, _) => Task.FromResult(false));
+
+        Assert.That(haptics.Played, Is.Empty);
     }
 
     [Test]

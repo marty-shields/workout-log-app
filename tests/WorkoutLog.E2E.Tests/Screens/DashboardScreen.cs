@@ -37,17 +37,9 @@ public sealed partial class DashboardScreen(WebView web)
     /// <summary>The streak, e.g. "6-week streak", or null when hidden.</summary>
     public string? Streak() => Read("consistency-streak");
 
-    public bool HasWorkoutsLink() => web.Exists("workouts-link");
-
-    public bool HasExercisesLink() => web.Exists("exercises-link");
-
     public bool HasNewWorkout() => web.Exists("new-workout");
 
     public bool HasStartupError() => web.Exists("startup-error");
-
-    public void OpenWorkouts() => web.Tap("workouts-link");
-
-    public void OpenExercises() => web.Tap("exercises-link");
 
     public void OpenSettings() => web.Tap("settings");
 

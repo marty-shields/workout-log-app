@@ -37,4 +37,13 @@ public enum IconName
     Record,
     /// <summary>Sticky note (<c>sticky_note_2</c>).</summary>
     Note,
+
+    /// <summary>House (<c>home</c>).</summary>
+    Home,
+
+    /// <summary>Clock with a backward arrow (<c>history</c>).</summary>
+    History,
+
+    /// <summary>Dumbbell (<c>fitness_center</c>).</summary>
+    Exercise,
 }

@@ -9,7 +9,7 @@
     gap: var(--space-3);
     padding: var(--space-3);
     border-radius: var(--radius-md);
-    background: var(--color-selected);
+    background-color: var(--color-selected);
 }
 
 .panel-header {

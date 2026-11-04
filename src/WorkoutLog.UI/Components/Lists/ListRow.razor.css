@@ -7,7 +7,7 @@
     padding: 0 var(--space-1);
     border: none;
     border-bottom: var(--border-width) solid var(--color-border);
-    background: transparent;
+    background-color: transparent;
     text-align: left;
 }
 

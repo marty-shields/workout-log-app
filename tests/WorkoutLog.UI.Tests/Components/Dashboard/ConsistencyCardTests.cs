@@ -66,7 +66,7 @@ public class ConsistencyCardTests : ComponentTestBase
         Context.Render<ConsistencyCard>(p =>
         {
             p.Add(x => x.ThisWeek, SampleDashboard.ThisWeek)
-                .Add(x => x.LastWeek, SampleDashboard.LastWeek)
+                .Add(x => x.LastWeekToDate, SampleDashboard.LastWeekToDate)
                 .Add(x => x.WeekCounts, SampleDashboard.WeekCounts)
                 .Add(x => x.Streak, streak)
                 .Add(x => x.TestId, "consistency");

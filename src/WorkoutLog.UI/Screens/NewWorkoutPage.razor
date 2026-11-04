@@ -27,24 +27,20 @@
              ErrorFocus="Editor.ErrorFocus"
              ValidateSet="Checker.Check"
              ValidateDone="WorkoutChecker.CheckExercise"
+             OnChanged="Editor.MarkChanged"
              OnSave="SaveAsync"
              OnAddExercise="Editor.OpenListAsync"
-             OnRemoveExercise="Editor.AskRemove"
-             OnRemoveSet="Editor.AskRemoveSet"
+             OnRemoveExercise="Editor.Remove"
+             OnRemoveSet="Editor.RemoveSet"
+             Undo="Editor.PendingUndo"
+             OnUndo="Editor.Undo"
+             OnUndoTimeout="Editor.DismissUndo"
              OnBack="Editor.AskDiscard">
     <Overlay>
         @if (Editor.ListOpen)
         {
             <AddExerciseView Items="Editor.ListItems" Query="@Editor.Query" QueryChanged="Editor.Search" Filter="Editor.Filter" FilterChanged="Editor.FilterBy"
                              Loading="Editor.ListLoading" OnPick="PickAsync" OnClose="Editor.CloseList" />
-        }
-        @if (Editor.Removing is { } removing)
-        {
-            <ConfirmDialog Title="@($"Delete {removing.Name}?")" ConfirmText="Delete" Danger OnConfirm="Editor.ConfirmRemove" OnCancel="Editor.CancelRemove" />
-        }
-        @if (Editor.RemovingSet is { } removingSet)
-        {
-            <ConfirmDialog Title="@($"Delete set {removingSet.Number}?")" ConfirmText="Delete" Danger OnConfirm="Editor.ConfirmRemoveSet" OnCancel="Editor.CancelRemoveSet" />
         }
         @if (Editor.DiscardOpen)
         {

@@ -1,6 +1,8 @@
 using WorkoutLog.Core.Domain.Exercises;
 using WorkoutLog.Core.Domain.Workouts;
+using WorkoutLog.Core.Domain.Workouts.Validation;
 using WorkoutLog.Core.Services;
+using WorkoutLog.UI.Haptics;
 using WorkoutLog.UI.Models.Exercises;
 
 namespace WorkoutLog.UI.Models.Workout;
@@ -14,12 +16,15 @@ namespace WorkoutLog.UI.Models.Workout;
 /// <param name="workoutChecker">Checks the workout on Save and words a failed save or delete.</param>
 /// <param name="loggedExercises">Reads the last sessions for the add-exercise list.</param>
 /// <param name="clock">Time zone and current time for the last sessions' dates.</param>
+/// <param name="haptics">Plays <see cref="HapticCue.WorkoutSaved"/> or <see cref="HapticCue.Rejected"/> on Save.</param>
 public sealed class WorkoutEditor(
-    IExerciseCatalog catalog, ISetChecker setChecker, IWorkoutChecker workoutChecker, ILoggedExercisesService loggedExercises, TimeProvider clock)
+    IExerciseCatalog catalog, ISetChecker setChecker, IWorkoutChecker workoutChecker, ILoggedExercisesService loggedExercises, TimeProvider clock,
+    IHaptics haptics)
 {
     private List<ExerciseState> exercises = [];
     private IReadOnlyList<ExerciseListItem> listItems = [];
     private int listOpens;
+    private PendingUndo? pendingUndo;
 
     /// <summary>Exercises in screen order, newest first.</summary>
     public IReadOnlyList<ExerciseState> Exercises => exercises;
@@ -45,11 +50,11 @@ public sealed class WorkoutEditor(
     /// <summary>The latest request to move focus after a failed Save or Delete.</summary>
     public ErrorFocus? ErrorFocus { get; private set; }
 
-    /// <summary>The exercise whose delete is being confirmed, or null.</summary>
-    public ExerciseState? Removing { get; private set; }
-
-    /// <summary>The closed set whose delete is being confirmed, or null.</summary>
-    public SetRef? RemovingSet { get; private set; }
+    /// <summary>
+    /// The latest deletion Undo can put back, shown in the snackbar. Null when there is none, and while a save runs, which has
+    /// read the workout without it; a failed save shows it again.
+    /// </summary>
+    public PendingUndo? PendingUndo => SaveState == SavePhase.Running ? null : pendingUndo;
 
     /// <summary>Message on the workout itself.</summary>
     public string? Error { get; private set; }
@@ -88,8 +93,7 @@ public sealed class WorkoutEditor(
         ListItems = [];
         Focus = null;
         ErrorFocus = null;
-        Removing = null;
-        RemovingSet = null;
+        pendingUndo = null;
         Error = null;
         SaveState = SavePhase.Idle;
         DiscardOpen = false;
@@ -177,7 +181,7 @@ public sealed class WorkoutEditor(
     /// <summary>
     /// Moves the exercise already in the workout to the top, opens it if it is done and focuses it, adding a set to a strength one with fewer than
     /// <see cref="WorkoutLimits.MaxSets"/>; otherwise adds it at the top, unless the workout has <see cref="WorkoutLimits.MaxExercises"/>.
-    /// Either is a change. Clears the workout's error and closes the add-exercise list.
+    /// Either is a change. Clears the workout's error, closes the add-exercise list and ends an Undo that no longer fits.
     /// </summary>
     public void Pick(ExerciseListItem item)
     {
@@ -190,48 +194,92 @@ public sealed class WorkoutEditor(
         Focus = Show(item.Id);
         Error = null;
         ListOpen = false;
+        EndUndoThatNoLongerFits();
     }
 
+    /// <summary>Takes the exercise out at once, a change, and offers Undo for it in place of any earlier deletion.</summary>
     public void Remove(ExerciseState exercise)
     {
-        exercises.Remove(exercise);
+        var index = exercises.IndexOf(exercise);
+        if (index < 0)
+        {
+            return;
+        }
+
+        pendingUndo = new RemovedExercise(exercise, exercises[..index]);
+        exercises.RemoveAt(index);
         Changed = true;
     }
 
-    /// <summary>Asks to confirm removing the exercise: sets <see cref="Removing"/>.</summary>
-    public void AskRemove(ExerciseState exercise) => Removing = exercise;
-
-    /// <summary>Closes the confirm and keeps the exercise.</summary>
-    public void CancelRemove() => Removing = null;
-
-    /// <summary>Closes the confirm and removes the exercise.</summary>
-    public void ConfirmRemove()
+    /// <summary>Takes the closed set out at once, a change, and offers Undo for it in place of any earlier deletion.</summary>
+    public void RemoveSet(SetRef set)
     {
-        if (Removing is { } exercise)
+        var index = set.Exercise.Entries.IndexOf(set.Entry);
+        if (index < 0)
         {
-            Remove(exercise);
+            return;
         }
 
-        Removing = null;
+        pendingUndo = new RemovedSet(set.Exercise, set.Entry, set.Exercise.Entries[..index]);
+        set.Exercise.Entries.RemoveAt(index);
+        Changed = true;
     }
 
-    public void AskRemoveSet(SetRef set) => RemovingSet = set;
-
-    public void CancelRemoveSet() => RemovingSet = null;
-
-    public void ConfirmRemoveSet()
+    /// <summary>
+    /// Puts the <see cref="PendingUndo"/> deletion back under what was above it (<see cref="RemovedExercise.Index"/>,
+    /// <see cref="RemovedSet.Index"/>), with its values and done state, and clears it; ignored when it no longer
+    /// <see cref="PendingUndo.Fits"/>, and while a save runs, which has read the workout without it. Asks to focus what it put back. Clears the errors the deletion caused: an exercise clears the
+    /// workout's error, as <see cref="Pick"/> does, and a set clears its exercise's <see cref="ExerciseError.NoSets"/>.
+    /// Not a change undone: <see cref="Changed"/> stays set.
+    /// </summary>
+    public void Undo()
     {
-        if (RemovingSet is { } set)
+        if (SaveState != SavePhase.Idle)
         {
-            set.Exercise.Entries.Remove(set.Entry);
-            Changed = true;
+            return;
         }
 
-        RemovingSet = null;
+        EndUndoThatNoLongerFits();
+        switch (pendingUndo)
+        {
+            case RemovedExercise removed:
+                exercises.Insert(removed.Index(exercises), removed.Exercise);
+                Focus = new ExerciseFocus(removed.Exercise, ExerciseFocusTarget.Restored);
+                Error = null;
+                break;
+            case RemovedSet removed:
+                removed.Exercise.Entries.Insert(removed.Index, removed.Entry);
+                Focus = new ExerciseFocus(removed.Exercise, ExerciseFocusTarget.Restored, removed.Entry);
+                if (removed.Exercise.ErrorCode == ExerciseError.NoSets)
+                {
+                    removed.Exercise.Error = null;
+                    removed.Exercise.ErrorCode = null;
+                }
+
+                break;
+        }
+
+        pendingUndo = null;
     }
 
-    /// <summary>Records a value, note, set or entry change.</summary>
-    public void MarkChanged() => Changed = true;
+    /// <summary>Keeps the deletion deleted and hides its snackbar, unless a later deletion has replaced it.</summary>
+    public void DismissUndo(PendingUndo undo)
+    {
+        if (ReferenceEquals(pendingUndo, undo))
+        {
+            pendingUndo = null;
+        }
+    }
+
+    /// <summary>
+    /// Records a value, note, set or entry change, and ends an Undo it leaves no room for, such as a set added to an exercise
+    /// whose deleted set Undo would put back past <see cref="WorkoutLimits.MaxSets"/>.
+    /// </summary>
+    public void MarkChanged()
+    {
+        Changed = true;
+        EndUndoThatNoLongerFits();
+    }
 
     /// <summary>Sets the workout's note, a change, and clears its error.</summary>
     public void SetNote(string? note)
@@ -243,8 +291,9 @@ public sealed class WorkoutEditor(
 
     /// <summary>
     /// Checks the workout and asks to focus the first error. A valid workout goes to <paramref name="save"/> with its note and
-    /// the records, oldest first; returns true when it was saved. If not, shows SaveFailed and asks to focus Save. Ignored while a save
-    /// runs and after one succeeds.
+    /// the records, oldest first; returns true when it was saved, and the <see cref="PendingUndo"/> ends. If not, shows SaveFailed,
+    /// asks to focus Save and keeps the Undo. Ignored while a save runs and after one succeeds. Plays <see cref="HapticCue.Rejected"/> for an invalid
+    /// workout and <see cref="HapticCue.WorkoutSaved"/> once saved; a failed save plays nothing, its message says why.
     /// </summary>
     /// <param name="save">Saves the note and the records; true when saved.</param>
     public async Task<bool> SaveAsync(Func<string?, IReadOnlyList<WorkoutExercise>, Task<bool>> save)
@@ -265,13 +314,19 @@ public sealed class WorkoutEditor(
             }
 
             ErrorFocus = new ErrorFocus();
+            haptics.Play(HapticCue.Rejected);
             return false;
         }
 
         SaveState = SavePhase.Running;
         var saved = await save(Note, exercises.Select(setChecker.Read).Reverse().ToList());
         SaveState = saved ? SavePhase.Succeeded : SavePhase.Idle;
-        if (!saved)
+        if (saved)
+        {
+            pendingUndo = null;
+            haptics.Play(HapticCue.WorkoutSaved);
+        }
+        else
         {
             Error = workoutChecker.SaveFailed;
             ErrorFocus = new ErrorFocus(ErrorFocusTarget.Save);
@@ -287,6 +342,14 @@ public sealed class WorkoutEditor(
         ErrorFocus = new ErrorFocus(ErrorFocusTarget.Delete);
     }
 
+    private void EndUndoThatNoLongerFits()
+    {
+        if (pendingUndo?.Fits(exercises) == false)
+        {
+            pendingUndo = null;
+        }
+    }
+
     private void Find() => ListItems = ExerciseListItems.Find(listItems, catalog, Query, Filter);
 
     private ExerciseFocus Show(int exerciseId)
@@ -297,7 +360,7 @@ public sealed class WorkoutEditor(
             exercises.Insert(0, existing);
             existing.IsDone = false;
             Changed = true;
-            return new ExerciseFocus(existing, addSet: existing.Kind == ExerciseKind.Strength && !existing.SetsFull);
+            return new ExerciseFocus(existing, existing.Kind == ExerciseKind.Strength && !existing.SetsFull ? ExerciseFocusTarget.AddedSet : ExerciseFocusTarget.OpenSet);
         }
 
         var added = ExerciseFields.New(catalog.All.Single(e => e.Id == exerciseId));

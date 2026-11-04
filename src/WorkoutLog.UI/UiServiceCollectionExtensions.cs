@@ -9,7 +9,7 @@ namespace WorkoutLog.UI;
 
 public static class UiServiceCollectionExtensions
 {
-    /// <summary>Registers the UI's services. The host must register Core's services, logging and an <see cref="IImportFilePicker"/>.</summary>
+    /// <summary>Registers the UI's services. The host must register Core's services, logging, an <see cref="IImportFilePicker"/> and an <see cref="Haptics.IHaptics"/>.</summary>
     public static IServiceCollection AddUi(this IServiceCollection services) =>
         services
             .AddSingleton<ImportSession>()

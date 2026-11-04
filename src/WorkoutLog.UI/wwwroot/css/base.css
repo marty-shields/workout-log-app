@@ -16,8 +16,12 @@ body {
     margin: 0;
 }
 
+html {
+    -webkit-tap-highlight-color: transparent;
+}
+
 body {
-    background: var(--color-bg);
+    background-color: var(--color-bg);
     color: var(--color-text);
     font-family: var(--font-family);
     font-size: var(--font-size-md);
@@ -28,6 +32,13 @@ button,
 input {
     font: inherit;
     color: inherit;
+}
+
+/* Pressed state layer over any fill. Fills set background-color, never the
+   background shorthand, which would reset this layer. */
+button:not(:disabled):active,
+label:has(input[type="radio"]:not(:disabled)):active {
+    background-image: linear-gradient(var(--state-pressed), var(--state-pressed));
 }
 
 ::placeholder {

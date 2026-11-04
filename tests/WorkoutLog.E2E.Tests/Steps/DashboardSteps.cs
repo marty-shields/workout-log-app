@@ -8,7 +8,7 @@ using WorkoutLog.E2E.Tests.Support;
 namespace WorkoutLog.E2E.Tests.Steps;
 
 [Binding]
-public sealed class DashboardSteps(WebView web, DashboardScreen dashboard, Journeys journeys, DeviceClock clock, ScenarioState state)
+public sealed class DashboardSteps(WebView web, DashboardScreen dashboard, NavigationBar navigation, Journeys journeys, DeviceClock clock, ScenarioState state)
 {
     [Then(@"^I am on the Dashboard titled ""(.*)""$")]
     public void ThenOnTheDashboardTitled(string title) => web.Eventually(() => web.Text("screen-title"), Is.EqualTo(title));
@@ -111,8 +111,8 @@ public sealed class DashboardSteps(WebView web, DashboardScreen dashboard, Journ
     [Then(@"^I can open Workouts and Exercises and start a New Workout$")]
     public void ThenWorkoutsExercisesAndNewWorkoutShow() => Assert.Multiple(() =>
     {
-        Assert.That(dashboard.HasWorkoutsLink(), Is.True, "Workouts");
-        Assert.That(dashboard.HasExercisesLink(), Is.True, "Exercises");
+        Assert.That(navigation.Has("Workouts"), Is.True, "Workouts");
+        Assert.That(navigation.Has("Exercises"), Is.True, "Exercises");
         Assert.That(dashboard.HasNewWorkout(), Is.True, "New Workout");
     });
 
@@ -125,7 +125,7 @@ public sealed class DashboardSteps(WebView web, DashboardScreen dashboard, Journ
         journeys.WaitFor(Journeys.Screen.Dashboard);
         if (link == "Workouts")
         {
-            dashboard.OpenWorkouts();
+            navigation.Open("Workouts");
         }
         else
         {

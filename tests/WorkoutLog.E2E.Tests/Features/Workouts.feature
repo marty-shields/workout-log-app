@@ -31,11 +31,18 @@ Feature: Workouts
     And I tap the row for yesterday 18:05
     Then I am on Edit Workout titled with yesterday's date and day
 
-  Scenario Outline: Back returns to the Dashboard
+  Scenario Outline: Android back, or Dashboard in the navigation bar, returns to the Dashboard
     Given I have opened Workouts
-    When I go back with <how>
+    When I <leave>
     Then I am on the Dashboard
     Examples:
-      | how            |
-      | the back arrow |
-      | Android back   |
+      | leave                               |
+      | press Android back                  |
+      | tap Dashboard in the navigation bar |
+
+  Scenario: Exercises in the navigation bar opens Exercises, and Android back then returns to the Dashboard
+    Given I have opened Workouts
+    When I tap Exercises in the navigation bar
+    Then I am on Exercises
+    When I press Android back
+    Then I am on the Dashboard

@@ -3,6 +3,7 @@
 @using WorkoutLog.UI.Components.Inputs
 @using WorkoutLog.UI.Components.Workout
 @inject ILogger<WorkoutView> Logger
+@using WorkoutLog.UI.Components.Feedback
 <AppScreen Title="@DisplayFormat.Date(StartedAt)" Subtitle="@TimeText" OnBack="OnBack">
     <Actions>
         <IconButton Icon="IconName.Note" AriaLabel="@(HasNote ? "Edit note" : "Add note")" TestId="workout-note-add" OnClick="OpenNote" />
@@ -20,7 +21,7 @@
             <NoteField @ref="noteField" Label="Workout note" Value="@Note" ValueChanged="NoteChanged" @bind-Editing="editingNote" Error="@NoteError" TestId="workout-note" />
             @if (Exercises.Count == 0)
             {
-                <EmptyState Message="No exercises yet" TestId="no-exercises" />
+                <EmptyState Message="No exercises yet" Hint="Tap Add exercise to start logging" TestId="no-exercises" />
             }
             @for (var i = 0; i < Exercises.Count; i++)
             {
@@ -34,7 +35,7 @@
                               ValidateDone="ValidateDone"
                               OnChanged="OnChanged"
                               OnRemove="() => OnRemoveExercise.InvokeAsync(exercise)"
-                              OnAskRemoveSet="entry => OnRemoveSet.InvokeAsync(new SetRef(exercise, entry))"
+                              OnRemoveClosedSet="entry => OnRemoveSet.InvokeAsync(new SetRef(exercise, entry))"
                               TestId="@($"exercise-{number}")" />
             }
             @if (ExercisesFull)
@@ -47,6 +48,12 @@
         <AppButton @ref="addExercise" Variant="ButtonVariant.Secondary" FullWidth Disabled="ExercisesFull" TestId="add-exercise" OnClick="OnAddExercise">Add exercise</AppButton>
         <AppButton @ref="save" FullWidth TestId="save-workout" OnClick="OnSave">Save</AppButton>
     </BottomBar>
+    <Status>
+        @if (Undo is { } undo)
+        {
+            <Snackbar @key="undo" Message="@undo.Message" TakeFocus="@(!ReferenceEquals(undo, announced))" OnUndo="OnUndo" OnTimeout="() => OnUndoTimeout.InvokeAsync(undo)" />
+        }
+    </Status>
 </AppScreen>
 @Overlay
 
@@ -99,13 +106,25 @@
     [Parameter]
     public EventCallback OnAddExercise { get; set; }
 
-    /// <summary>Raised by an exercise's Remove.</summary>
+    /// <summary>Raised by an exercise's trash; the host removes it at once and offers Undo.</summary>
     [Parameter]
     public EventCallback<ExerciseState> OnRemoveExercise { get; set; }
 
-    /// <summary>Raised by the trash on a closed set.</summary>
+    /// <summary>Raised by the trash on a closed set; the host removes it at once and offers Undo.</summary>
     [Parameter]
     public EventCallback<SetRef> OnRemoveSet { get; set; }
+
+    /// <summary>The latest deletion, shown in a snackbar with Undo above the bottom bar. Null shows none. Shown again after null, it doesn't take focus.</summary>
+    [Parameter]
+    public PendingUndo? Undo { get; set; }
+
+    /// <summary>Raised by the snackbar's Undo.</summary>
+    [Parameter]
+    public EventCallback OnUndo { get; set; }
+
+    /// <summary>Raised with the shown deletion when its snackbar times out.</summary>
+    [Parameter]
+    public EventCallback<PendingUndo> OnUndoTimeout { get; set; }
 
     /// <summary>Raised by Save.</summary>
     [Parameter]
@@ -119,7 +138,7 @@
     [Parameter]
     public EventCallback OnDelete { get; set; }
 
-    /// <summary>Moves focus to an exercise once it is shown, e.g. one just added or picked again. Each request is handled once.</summary>
+    /// <summary>Moves focus to an exercise once it is shown, e.g. one just added, picked again or put back by Undo. Each request is handled once.</summary>
     [Parameter]
     public ExerciseFocus? Focus { get; set; }
 
@@ -139,6 +158,9 @@
     /// <summary>The workout has <see cref="WorkoutLimits.MaxExercises"/> exercises, so Add exercise is off.</summary>
     private bool ExercisesFull => Exercises.Count >= WorkoutLimits.MaxExercises;
     private ExerciseFocus? handled;
+
+    /// <summary>The <see cref="Undo"/> whose snackbar has shown. Shown again after a failed save, it leaves focus on Save.</summary>
+    private PendingUndo? announced;
     private ErrorFocus? handledError;
     private NoteField? noteField;
     private bool editingNote;
@@ -148,6 +170,7 @@
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
+        announced = Undo ?? announced;
         foreach (var removed in cards.Keys.Where(e => !Exercises.Contains(e)).ToList())
         {
             cards.Remove(removed);
@@ -162,13 +185,17 @@
         handled = Focus;
         try
         {
-            if (Focus.AddSet)
+            switch (Focus.Target)
             {
-                await card.AddSetAndFocusAsync();
-            }
-            else
-            {
-                await card.FocusAsync();
+                case ExerciseFocusTarget.AddedSet:
+                    await card.AddSetAndFocusAsync();
+                    break;
+                case ExerciseFocusTarget.Restored:
+                    await card.FocusRestoredAsync(Focus.Set);
+                    break;
+                default:
+                    await card.FocusAsync();
+                    break;
             }
         }
         catch (OperationCanceledException)

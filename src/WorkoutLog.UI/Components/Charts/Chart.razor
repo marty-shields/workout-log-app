@@ -14,12 +14,16 @@
         }
         @foreach (var point in plotted)
         {
-            <circle class="@(point.Best ? "point best" : "point")" cx="@Number(point.X)" cy="@Number(point.Y)" r="@Number(point.Best ? BestRadius : Radius)" />
+            <circle class="@(point.Latest ? "point latest" : "point")" cx="@Number(point.X)" cy="@Number(point.Y)" r="@Number(point.Latest ? LatestRadius : Radius)" />
+            @if (point.Best)
+            {
+                <circle class="best" cx="@Number(point.X)" cy="@Number(point.Y)" r="@Number(RingRadius)" />
+            }
         }
-        @foreach (var point in plotted.Where(p => p.Text is not null))
+        @foreach (var label in labels)
         {
             <g>
-                <text class="label" x="@Number(point.X)" y="@Number(point.Y - LabelGap)" text-anchor="middle">@point.Text</text>
+                <text class="label" x="@Number(label.X)" y="@Number(label.Y)" text-anchor="@label.Anchor">@label.Text</text>
             </g>
         }
         @foreach (var date in dates)

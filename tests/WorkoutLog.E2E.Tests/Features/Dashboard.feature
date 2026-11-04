@@ -65,7 +65,7 @@ Feature: Dashboard
     And this week shows 0 workouts
 
   @today
-  Scenario: This week so far is compared with the whole of last week
+  Scenario: This week so far is compared with last week up to the same day and time
     Given these saved workouts:
       | started          | finished         | exercises                                                       |
       | today 00:00      | today 00:50      | Push-up: 10 reps 0 kg; 12 reps 0 kg / Treadmill: 0:20:00, 3.2 km |
@@ -74,9 +74,9 @@ Feature: Dashboard
       | 7 days ago 23:59 | 6 days ago 00:20 | Push-up: 10 reps 0 kg                                           |
     Then This week vs last week shows:
       | row      | this week | last week | change    |
-      | Workouts | 1         | 3         | down 2    |
-      | Time     | 50m       | 1h 16m    | down 26m  |
-      | Sets     | 2         | 3         | down 1    |
+      | Workouts | 1         | 2         | down 1    |
+      | Time     | 50m       | 55m       | down 5m   |
+      | Sets     | 2         | 2         | no change |
 
   @today
   Scenario: The last 12 weeks and the streak, seeded across three weeks

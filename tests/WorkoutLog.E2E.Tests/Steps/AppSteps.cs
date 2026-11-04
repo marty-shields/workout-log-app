@@ -10,7 +10,7 @@ namespace WorkoutLog.E2E.Tests.Steps;
 [Binding]
 public sealed class AppSteps(
     WebView web, Native native, AppLog log, Journeys journeys, SeedSteps seed, ScenarioState state, DashboardScreen dashboard,
-    WorkoutScreen workout, AddExerciseScreen addExercise, WorkoutsScreen workouts)
+    WorkoutScreen workout, AddExerciseScreen addExercise)
 {
     [Given(@"^I am on (the Dashboard|the add-exercise list on Edit Workout)$")]
     public async Task GivenIAmOn(string screen)
@@ -64,7 +64,7 @@ public sealed class AppSteps(
     public void WhenIOpenWorkoutsAndGoBack()
     {
         journeys.GoToWorkouts();
-        workouts.Back();
+        native.BackKey();
         journeys.WaitFor(Journeys.Screen.Dashboard);
     }
 

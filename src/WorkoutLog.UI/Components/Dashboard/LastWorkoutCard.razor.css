@@ -8,7 +8,7 @@
     padding: var(--space-4);
     border: var(--border-width) solid var(--color-border);
     border-radius: var(--radius-lg);
-    background: var(--color-surface);
+    background-color: var(--color-surface);
     text-align: left;
 }
 
@@ -31,10 +31,8 @@ section.card {
 
 .label {
     margin: 0;
-    color: var(--color-text-muted);
-    font-size: var(--font-size-sm);
+    font-size: var(--font-size-md);
     font-weight: var(--font-weight-bold);
-    text-transform: uppercase;
 }
 
 .date {

@@ -2,4 +2,4 @@
 @using WorkoutLog.UI.Screens
 @inject NavigationManager Navigation
 
-<ExercisesPage OnBack="@(() => Navigation.GoTo(string.Empty))" OnOpen="@(id => Navigation.GoTo($"exercises/{id}"))" />
+<ExercisesPage OnNavigate="@(destination => Navigation.GoTo(destination))" OnOpen="@(id => Navigation.GoTo($"exercises/{id}"))" />

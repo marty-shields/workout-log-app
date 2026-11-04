@@ -20,7 +20,7 @@ One exercise's progress: a chart, its records and its sessions. View: `ExerciseV
 
 | Exercise type | Tabs | Caption |
 |---|---|---|
-| Lift | Top set (weight, ×reps over each point), e1RM (to up to 1 decimal place, e.g. 82.3kg or 80kg) | e1RM: "Estimated one-rep max" |
+| Lift | Top set (weight, ×reps over the best and latest points), e1RM (to up to 1 decimal place, e.g. 82.3kg or 80kg) | e1RM: "Estimated one-rep max" |
 | Bodyweight | Best set, Total, Top set; e1RM too on a loaded move | e1RM: "Estimated one-rep max" |
 | Assisted | None; chart titled "Least assist per session", lower is better | "Up = less assist" |
 | Hold | Duration, Weight | |
@@ -29,7 +29,7 @@ One exercise's progress: a chart, its records and its sessions. View: `ExerciseV
 
 Range text: last 3 months, last 6 months, last year, all time. A tab with no values shows its own message in place of the chart: on strength, "No sets in the last 3 months", or "No sets yet" for All; on cardio, its metric (below); with no sessions in the range it is "No sessions in the last 3 months", or "No sessions yet" for All. Records with no value show "—".
 
-Rules: a range is calendar months in the phone's time zone; a session is in range when its local start date is on or after today minus 3, 6 or 12 months, and All has no limit. One point per session, by start time; a session with no value for the tab leaves a gap that the line joins across. e1RM is the best Epley value, weight × (1 + reps / 30), of the sets with a weight and 1–12 reps, a 1-rep set being its weight, compared unrounded. A record tie takes the earliest session. Pace and speed are compared and charted unrounded.
+Rules: a range is calendar months in the phone's time zone; a session is in range when its local start date is on or after today minus 3, 6 or 12 months, and All has no limit. One point per session, by start time; a session with no value for the tab leaves a gap that the line joins across. e1RM is the best Epley value, weight × (1 + reps / 30), of the sets with a weight and 1–12 reps, a 1-rep set being its weight, compared unrounded. A record tie takes the earliest session. The chart labels only its best point and its latest; best follows the tab, so it is the lowest on Pace and Assisted, and a tie takes the most recent. Pace and speed are compared and charted unrounded.
 
 Lift text: records "Heaviest weight" (e.g. *70kg × 3*) and "Best e1RM" (e.g. *82.3kg*), each with its date, e.g. *20 Oct*. Each session shows its date (e.g. *Tue 20 Oct*), its top set as the headline, or its most reps (e.g. *8 reps*) when no set has a weight, and every set, e.g. *60×8 · 62.5×8 · 8 reps*. Dates have the year when it isn't this year.
 

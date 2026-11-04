@@ -6,7 +6,7 @@
     align-items: flex-end;
     justify-content: center;
     padding: var(--space-4) var(--space-4) calc(var(--space-4) + var(--inset-bottom));
-    background: var(--color-scrim);
+    background-color: var(--color-scrim);
 }
 
 .dialog {
@@ -14,7 +14,7 @@
     max-width: var(--dialog-max-width);
     padding: var(--space-6);
     border-radius: var(--radius-lg);
-    background: var(--color-surface);
+    background-color: var(--color-surface);
 }
 
 .title {

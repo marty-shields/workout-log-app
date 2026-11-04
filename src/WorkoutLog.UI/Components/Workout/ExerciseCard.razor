@@ -2,19 +2,21 @@
 @using WorkoutLog.Core.Domain.Workouts
 @using WorkoutLog.Core.Domain.Workouts.Validation
 @using WorkoutLog.UI.Components.Inputs
+@using WorkoutLog.UI.Haptics
 @implements IDisposable
 @inject ILogger<ExerciseCard> Logger
+@inject IHaptics Haptics
 <section class="card @(Exercise.IsDone ? "done" : null) @(Exercise.Error is not null ? "has-error" : null)" data-testid="@TestId">
     <header class="card-header">
         <h2 class="name">@Exercise.Name</h2>
         <div class="actions">
             @if (Exercise.IsDone)
             {
-                <IconButton Icon="IconName.Edit" AriaLabel="@($"Edit {Exercise.Name}")" TestId="@($"{TestId}-edit")" Muted OnClick="Reopen" />
+                <IconButton @ref="first" Icon="IconName.Edit" AriaLabel="@($"Edit {Exercise.Name}")" TestId="@($"{TestId}-edit")" Muted OnClick="Reopen" />
             }
             else
             {
-                <IconButton Icon="IconName.Check" AriaLabel="@($"Mark {Exercise.Name} done")" TestId="@($"{TestId}-done")" OnClick="Done" />
+                <IconButton @ref="first" Icon="IconName.Check" AriaLabel="@($"Mark {Exercise.Name} done")" TestId="@($"{TestId}-done")" OnClick="Done" />
             }
             <IconButton @ref="remove" Icon="IconName.Delete" AriaLabel="@($"Delete {Exercise.Name}")" TestId="@($"{TestId}-remove")" Muted OnClick="OnRemove" />
         </div>
@@ -43,13 +45,14 @@
                     if (entry != open)
                     {
                         <SetSummary @key="entry"
+                                    @ref="summaries[entry]"
                                     Number="number"
                                     ExerciseName="@Exercise.Name"
                                     Fields="Exercise.Fields"
                                     Entry="entry"
                                     IsRecord="entry == Exercise.RecordEntry"
                                     OnOpen="() => OpenSet(entry)"
-                                    OnRemove="() => OnAskRemoveSet.InvokeAsync(entry)"
+                                    OnRemove="() => OnRemoveClosedSet.InvokeAsync(entry)"
                                     TestId="@($"{TestId}-set-{number}")" />
                     }
                     else if (SetGrid.OpensAsPanel(Exercise.Fields))
@@ -76,7 +79,7 @@
                             }
                             @foreach (var field in Exercise.Fields)
                             {
-                                <span data-wrap-ok>@field.DisplayLabel@(field.Required ? " *" : null)</span>
+                                <span data-wrap-ok>@field.DisplayLabel@(field.Required ? "\u00a0*" : null)</span>
                             }
                             <span></span>
                         </div>
@@ -160,9 +163,9 @@
     [Parameter]
     public string? TestId { get; set; }
 
-    /// <summary>Raised by the trash on a closed set; the host confirms and removes it. The open set's close button removes at once.</summary>
+    /// <summary>Raised by the trash on a closed set; the host removes it. The open set's close button removes it here, at once.</summary>
     [Parameter]
-    public EventCallback<EntryState> OnAskRemoveSet { get; set; }
+    public EventCallback<EntryState> OnRemoveClosedSet { get; set; }
 
     /// <summary>Opens the last set when the card is given an exercise. An empty last set opens either way.</summary>
     [Parameter]
@@ -181,7 +184,9 @@
     private SetRow? openRow;
     private readonly Dictionary<string, FieldInput> cardioFields = new();
     private SetPanel? openPanel;
+    private IconButton? first;
     private IconButton? remove;
+    private readonly Dictionary<EntryState, SetSummary> summaries = new();
     private AppButton? addSet;
     private NoteField? noteField;
     private bool editingNote;
@@ -212,6 +217,28 @@
 
     private ValueTask FocusOpenSet() =>
         SetGrid.OpensAsPanel(Exercise.Fields) ? openPanel?.FocusAsync() ?? ValueTask.CompletedTask : openRow?.FocusAsync() ?? ValueTask.CompletedTask;
+
+    /// <summary>
+    /// Moves focus to what Undo put back: the set's pencil, or the open set when it is that one. With no set, or one a done card
+    /// doesn't show, to the card's first button, Mark done or Edit.
+    /// </summary>
+    public ValueTask FocusRestoredAsync(EntryState? set)
+    {
+        if (set is not null && !Exercise.IsDone)
+        {
+            if (set == open)
+            {
+                return FocusOpenSet();
+            }
+
+            if (ShowsSummary(set) && summaries.TryGetValue(set, out var summary))
+            {
+                return summary.FocusEditAsync();
+            }
+        }
+
+        return first?.FocusAsync() ?? ValueTask.CompletedTask;
+    }
 
     /// <summary>
     /// Moves focus to the card's first error. An exercise error: Add set for <see cref="ExerciseError.NoSets"/>, otherwise Remove.
@@ -280,6 +307,11 @@
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
+        foreach (var gone in summaries.Keys.Where(e => !ShowsSummary(e)).ToList())
+        {
+            summaries.Remove(gone);
+        }
+
         if (pending is not { } request || (request.Target == FocusTarget.AddedSet && !FocusTargetRendered()))
         {
             return;
@@ -303,6 +335,10 @@
             }
         }
     }
+
+    /// <summary>Whether the set shows as a summary line, so its entry in <c>summaries</c> is the rendered one.</summary>
+    private bool ShowsSummary(EntryState entry) =>
+        !Exercise.IsDone && Exercise.Kind == ExerciseKind.Strength && entry != open && Exercise.Entries.Contains(entry);
 
     /// <summary>Whether the set or entry <see cref="FocusAsync"/> moves to has been rendered.</summary>
     private bool FocusTargetRendered()
@@ -373,9 +409,11 @@
             cardioFields.Clear();
             openPanel = null;
             addSet = null;
+            Haptics.Play(HapticCue.ExerciseDone);
             return;
         }
 
+        Haptics.Play(HapticCue.Rejected);
         OpenFirstFailingSetUnlessOpenFails();
         Request(new FocusRequest(FocusTarget.FirstError));
     }
@@ -398,15 +436,23 @@
         Request(new FocusRequest(FocusTarget.BlockedSet));
     }
 
+    /// <summary>Plays <see cref="HapticCue.SetLogged"/> when a set was open and closed, or <see cref="HapticCue.Rejected"/> when it blocked.</summary>
     private Task AddSet()
     {
+        var closing = open;
         if (TryAddSet())
         {
+            if (closing is not null)
+            {
+                Haptics.Play(HapticCue.SetLogged);
+            }
+
             return OnChanged.InvokeAsync();
         }
 
         if (!Exercise.SetsFull)
         {
+            Haptics.Play(HapticCue.Rejected);
             Request(new FocusRequest(FocusTarget.BlockedSet));
         }
 

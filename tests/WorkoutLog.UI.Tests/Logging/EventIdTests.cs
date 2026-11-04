@@ -53,6 +53,8 @@ public partial class EventIdTests
             [UiEvent.ReviewImportFocusFailed] = 3601,
             [UiEvent.ReviewPickFailed] = 3701,
             [UiEvent.ImportFileTooLarge] = 3801,
+            [UiEvent.UndoFocusFailed] = 3901,
+            [UiEvent.UndoFocusCheckFailed] = 3902,
         }));
 
     [Test]
@@ -88,6 +90,7 @@ public partial class EventIdTests
             ["UrlBlocked"] = 5041,
             ["UnhandledException"] = 5031,
             ["UnobservedTaskException"] = 5033,
+            ["HapticFailed"] = 5051,
         }));
 
     [TestCaseSource(nameof(SourceFiles))]

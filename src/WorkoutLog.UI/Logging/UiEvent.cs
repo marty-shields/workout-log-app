@@ -89,4 +89,10 @@ internal enum UiEvent
 
     /// <summary><see cref="Import.ImportFileOpener"/>: the picked file is over the size limit.</summary>
     ImportFileTooLarge = 3801,
+
+    /// <summary><see cref="Components.Feedback.Snackbar"/>: focusing Undo failed.</summary>
+    UndoFocusFailed = 3901,
+
+    /// <summary><see cref="Components.Feedback.Snackbar"/>: checking Undo for keyboard focus failed, so the timer runs on.</summary>
+    UndoFocusCheckFailed = 3902,
 }

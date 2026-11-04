@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Maui.LifecycleEvents;
 using WorkoutLog.App.Diagnostics;
 using WorkoutLog.App.Export;
+using WorkoutLog.App.Haptics;
 using WorkoutLog.App.Import;
 using WorkoutLog.App.Logging;
 using WorkoutLog.App.Navigation;
@@ -12,6 +13,7 @@ using WorkoutLog.Core;
 using WorkoutLog.Core.Logging;
 using WorkoutLog.Core.Services;
 using WorkoutLog.UI;
+using WorkoutLog.UI.Haptics;
 using WorkoutLog.UI.Import;
 using WorkoutLog.UI.Lifecycle;
 using WorkoutLog.UI.Sharing;
@@ -32,6 +34,7 @@ public static class MauiProgram
         builder.Services.AddSingleton<IElapsedClock, AndroidElapsedClock>();
         builder.Services.AddSingleton<IFileShare, MauiFileShare>();
         builder.Services.AddSingleton<IImportFilePicker, MauiImportFilePicker>();
+        builder.Services.AddSingleton<IHaptics, AndroidHaptics>();
 
 #if DEBUG
         builder.Services.AddBlazorWebViewDeveloperTools();

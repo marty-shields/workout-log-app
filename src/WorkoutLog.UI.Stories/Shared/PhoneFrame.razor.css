@@ -13,7 +13,7 @@
     overflow: hidden;
     border: 8px solid #111;
     border-radius: 40px;
-    background: var(--color-bg);
+    background-color: var(--color-bg);
     color: var(--color-text);
     transform: translateZ(0);
 }
@@ -32,7 +32,7 @@
     display: flex;
     align-items: center;
     pointer-events: none;
-    background: rgb(0 0 0 / 0.06);
+    background-color: rgb(0 0 0 / 0.06);
     font-size: 0.75rem;
 }
 
@@ -40,7 +40,7 @@
     top: 0;
     height: var(--inset-top);
     padding: 0 24px;
-    background: var(--color-bar);
+    background-color: var(--color-bar);
     color: var(--color-on-bar);
 }
 
@@ -54,7 +54,7 @@
     width: 108px;
     height: 4px;
     border-radius: 2px;
-    background: currentColor;
+    background-color: currentColor;
 }
 
 /* Hides scrollbars inside the phone, as on Android. */

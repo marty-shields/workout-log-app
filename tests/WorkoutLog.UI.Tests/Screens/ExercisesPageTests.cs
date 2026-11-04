@@ -2,6 +2,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Time.Testing;
 using WorkoutLog.Core.Domain.Exercises.Bests;
 using WorkoutLog.Core.Services;
+using WorkoutLog.UI.Navigation;
 using WorkoutLog.UI.Screens;
 
 namespace WorkoutLog.UI.Tests.Screens;
@@ -155,13 +156,24 @@ public class ExercisesPageTests : ComponentTestBase
     }
 
     [Test]
-    public void Back_RaisesOnBack()
+    public void NavigationBar_RaisesOnNavigate()
     {
-        var backs = 0;
-        var cut = Context.Render<ExercisesPage>(p => p.Add(x => x.OnBack, () => backs++));
+        var navigated = new List<NavDestination>();
+        var cut = Context.Render<ExercisesPage>(p => p.Add(x => x.OnNavigate, navigated.Add));
 
-        cut.Find("[data-testid=back]").Click();
+        cut.Find("[data-testid=dashboard-link]").Click();
 
-        Assert.That(backs, Is.EqualTo(1));
+        Assert.That(navigated, Is.EqualTo(new[] { NavDestination.Dashboard }));
+    }
+
+    [Test]
+    public async Task AndroidBack_NavigatesToTheDashboard()
+    {
+        var navigated = new List<NavDestination>();
+        var cut = Context.Render<ExercisesPage>(p => p.Add(x => x.OnNavigate, navigated.Add));
+
+        await cut.InvokeAsync(BackButton.HandleAsync);
+
+        Assert.That(navigated, Is.EqualTo(new[] { NavDestination.Dashboard }));
     }
 }

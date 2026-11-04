@@ -10,8 +10,10 @@ internal static class LocalWeek
     public static DateOnly Monday(DateOnly day) => day.AddDays(-(((int)day.DayOfWeek + 6) % 7));
 
     /// <summary>The Monday of the week <paramref name="instant"/> is in, in <paramref name="zone"/>.</summary>
-    public static DateOnly Monday(DateTimeOffset instant, TimeZoneInfo zone) =>
-        Monday(DateOnly.FromDateTime(TimeZoneInfo.ConvertTime(instant, zone).DateTime));
+    public static DateOnly Monday(DateTimeOffset instant, TimeZoneInfo zone) => Monday(DateOnly.FromDateTime(Local(instant, zone)));
+
+    /// <summary>The wall-clock date and time <paramref name="instant"/> reads in <paramref name="zone"/>.</summary>
+    public static DateTime Local(DateTimeOffset instant, TimeZoneInfo zone) => TimeZoneInfo.ConvertTime(instant, zone).DateTime;
 
     /// <summary>The first instant <paramref name="local"/> reads in <paramref name="zone"/>; the end of the gap if it is skipped.</summary>
     public static DateTimeOffset First(DateTime local, TimeZoneInfo zone)

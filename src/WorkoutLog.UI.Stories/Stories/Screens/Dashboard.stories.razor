@@ -4,12 +4,12 @@
 
     <Story Name="With workouts">
         <Template>
-            <DashboardView OnNewWorkout="() => { }" OnWorkouts="() => { }" OnExercises="() => { }" OnSettings="() => { }">
+            <DashboardView OnNewWorkout="() => { }" OnSettings="() => { }">
                 <LastWorkout>
                     <LastWorkoutCard Workout="SampleDashboard.LastWorkout" OnOpen="() => { }" TestId="last-workout" />
                 </LastWorkout>
                 <Consistency>
-                    <ConsistencyCard ThisWeek="SampleDashboard.ThisWeek" LastWeek="SampleDashboard.LastWeek" WeekCounts="SampleDashboard.WeekCounts" Streak="6" OnMuscles="() => { }" TestId="consistency" />
+                    <ConsistencyCard ThisWeek="SampleDashboard.ThisWeek" LastWeekToDate="SampleDashboard.LastWeekToDate" WeekCounts="SampleDashboard.WeekCounts" Streak="6" OnMuscles="() => { }" TestId="consistency" />
                 </Consistency>
                 <RecentRecords>
                     <RecentRecordsCard Records="SampleDashboard.Records" OnOpen="(int _) => { }" TestId="recent-records" />
@@ -20,12 +20,12 @@
 
     <Story Name="First workout">
         <Template>
-            <DashboardView OnNewWorkout="() => { }" OnWorkouts="() => { }" OnExercises="() => { }" OnSettings="() => { }">
+            <DashboardView OnNewWorkout="() => { }" OnSettings="() => { }">
                 <LastWorkout>
                     <LastWorkoutCard Workout="SampleDashboard.Workout(0, 2)" OnOpen="() => { }" TestId="last-workout" />
                 </LastWorkout>
                 <Consistency>
-                    <ConsistencyCard ThisWeek="SampleDashboard.FirstWeek" LastWeek="SampleDashboard.NoWeek" WeekCounts="SampleDashboard.FirstWeekCounts" Streak="1" OnMuscles="() => { }" TestId="consistency" />
+                    <ConsistencyCard ThisWeek="SampleDashboard.FirstWeek" LastWeekToDate="SampleDashboard.NoWeek" WeekCounts="SampleDashboard.FirstWeekCounts" Streak="1" OnMuscles="() => { }" TestId="consistency" />
                 </Consistency>
                 <RecentRecords>
                     <RecentRecordsCard Records="[]" OnOpen="(int _) => { }" TestId="recent-records" />
@@ -36,12 +36,12 @@
 
     <Story Name="No workouts">
         <Template>
-            <DashboardView OnNewWorkout="() => { }" OnWorkouts="() => { }" OnExercises="() => { }" OnSettings="() => { }">
+            <DashboardView OnNewWorkout="() => { }" OnSettings="() => { }">
                 <LastWorkout>
                     <LastWorkoutCard Workout="null" TestId="last-workout" />
                 </LastWorkout>
                 <Consistency>
-                    <ConsistencyCard ThisWeek="SampleDashboard.NoWeek" LastWeek="SampleDashboard.NoWeek" WeekCounts="SampleDashboard.EmptyWeeks" OnMuscles="() => { }" TestId="consistency" />
+                    <ConsistencyCard ThisWeek="SampleDashboard.NoWeek" LastWeekToDate="SampleDashboard.NoWeek" WeekCounts="SampleDashboard.EmptyWeeks" OnMuscles="() => { }" TestId="consistency" />
                 </Consistency>
                 <RecentRecords>
                     <RecentRecordsCard Records="[]" OnOpen="(int _) => { }" TestId="recent-records" />
@@ -52,13 +52,13 @@
 
     <Story Name="Loading">
         <Template>
-            <DashboardView Loading OnNewWorkout="() => { }" OnWorkouts="() => { }" OnExercises="() => { }" OnSettings="() => { }" />
+            <DashboardView Loading OnNewWorkout="() => { }" OnSettings="() => { }" />
         </Template>
     </Story>
 
     <Story Name="Load failed">
         <Template>
-            <DashboardView Failed OnRetry="() => { }" OnNewWorkout="() => { }" OnWorkouts="() => { }" OnExercises="() => { }" OnSettings="() => { }" />
+            <DashboardView Failed OnRetry="() => { }" OnNewWorkout="() => { }" OnSettings="() => { }" />
         </Template>
     </Story>
 

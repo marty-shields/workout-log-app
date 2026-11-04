@@ -14,7 +14,7 @@
             @foreach (var row in Rows)
             {
                 var now = row.Value(ThisWeek);
-                var before = row.Value(LastWeek);
+                var before = row.Value(LastWeekToDate);
                 <tr data-testid="@($"{TestId}-{row.Key}")">
                     <th scope="row" class="label">@row.Label</th>
                     <td class="value">@row.Format(now)</td>
@@ -24,7 +24,7 @@
             }
         </tbody>
     </table>
-    <p class="note">This week so far against the whole of last week.</p>
+    <p class="note">Compared with last week up to the same day and time.</p>
 </div>
 
 @code {
@@ -39,9 +39,9 @@
     [Parameter, EditorRequired]
     public WeekTotals ThisWeek { get; set; } = null!;
 
-    /// <summary>Last week's totals, Monday to Sunday.</summary>
+    /// <summary>Last week's totals from Monday to the same weekday and time of day as now.</summary>
     [Parameter, EditorRequired]
-    public WeekTotals LastWeek { get; set; } = null!;
+    public WeekTotals LastWeekToDate { get; set; } = null!;
 
     /// <summary>Value of the data-testid attribute, and the prefix of each row's: <c>{TestId}-workouts</c>, <c>{TestId}-time</c>, <c>{TestId}-sets</c>.</summary>
     [Parameter]

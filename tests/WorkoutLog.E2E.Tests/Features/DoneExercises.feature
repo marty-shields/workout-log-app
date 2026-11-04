@@ -47,22 +47,15 @@ Feature: Mark an exercise done
     And Barbell Back Squat is shown open
     And Barbell Back Squat has 2 sets
 
-  Scenario: The trash asks first on an open exercise
-    Given I have added "Barbell Back Squat"
-    When I tap the trash on Barbell Back Squat
-    Then the prompt "Delete Barbell Back Squat?" shows Delete and Cancel
-    When I tap Cancel
-    Then the exercises are, in order: Barbell Back Squat
-
-  Scenario: The trash asks first on a done exercise
+  Scenario: The trash removes a done exercise at once, and Undo puts it back done
     Given I have added "Barbell Back Squat"
     And I have logged Barbell Back Squat set 1: 8 reps, 60 kg
     And I have marked Barbell Back Squat done
     When I tap the trash on Barbell Back Squat
-    Then the prompt "Delete Barbell Back Squat?" shows Delete and Cancel
-    When I tap Delete on the prompt
     Then no prompt is shown
     And the workout shows "No exercises yet"
+    When I tap Undo
+    Then Barbell Back Squat is shown as one line with its name, the pencil and the trash
 
   Scenario: A done exercise is saved as it stands
     Given I have added "Barbell Back Squat"

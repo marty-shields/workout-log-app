@@ -1,6 +1,6 @@
 @using WorkoutLog.UI.Components.Feedback
 @using WorkoutLog.UI.Models.Exercises
-<AppScreen Title="Exercises" OnBack="OnBack">
+<AppScreen Title="Exercises" Destination="NavDestination.Exercises" OnNavigate="OnNavigate">
     @if (Loading)
     {
         <div class="centre">
@@ -13,7 +13,7 @@
     }
     else if (NothingLogged)
     {
-        <EmptyState Message="No exercises logged yet" TestId="exercises-empty" />
+        <EmptyState Message="No exercises logged yet" Hint="Exercises show here once you log them in a workout" TestId="exercises-empty" />
     }
     else
     {
@@ -62,7 +62,7 @@
     [Parameter]
     public EventCallback<ExerciseListItem> OnOpen { get; set; }
 
-    /// <summary>Raised by the back arrow and the Android back button.</summary>
+    /// <summary>Raised with the destination tapped in the bottom navigation bar, and with the Dashboard on Android back.</summary>
     [Parameter]
-    public EventCallback OnBack { get; set; }
+    public EventCallback<NavDestination> OnNavigate { get; set; }
 }

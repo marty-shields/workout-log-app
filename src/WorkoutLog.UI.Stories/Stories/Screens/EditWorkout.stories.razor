@@ -58,13 +58,17 @@
         </Template>
     </Story>
 
-    <Story Name="Delete exercise prompt">
+    <Story Name="Set deleted">
         <Template>
-            <WorkoutView Mode="WorkoutMode.Edit" StartedAt="SampleData.Started" Time="new TimeSpan(1, 4, 37)" Exercises="SampleData.Loaded(SampleData.StrengthWorkout(Catalog))" OnBack="() => { }" OnDelete="() => { }">
-                <Overlay>
-                    <ConfirmDialog Title="Delete Farmer's Walk?" ConfirmText="Delete" Danger />
-                </Overlay>
-            </WorkoutView>
+            @{ var exercises = SampleData.Opened(SampleData.StrengthWorkout(Catalog)); var undo = SampleData.DeleteSet(exercises, 2, 1); }
+            <WorkoutView Mode="WorkoutMode.Edit" StartedAt="SampleData.Started" Time="new TimeSpan(1, 4, 37)" Exercises="exercises" Undo="undo" OnBack="() => { }" OnDelete="() => { }" />
+        </Template>
+    </Story>
+
+    <Story Name="Exercise deleted">
+        <Template>
+            @{ var exercises = SampleData.Loaded(SampleData.StrengthWorkout(Catalog)); var undo = SampleData.DeleteExercise(exercises, 0); }
+            <WorkoutView Mode="WorkoutMode.Edit" StartedAt="SampleData.Started" Time="new TimeSpan(1, 4, 37)" Exercises="exercises" Undo="undo" OnBack="() => { }" OnDelete="() => { }" />
         </Template>
     </Story>
 

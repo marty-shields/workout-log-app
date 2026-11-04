@@ -11,6 +11,7 @@ using WorkoutLog.UI.Models.Settings;
 using WorkoutLog.UI.Models.Summary;
 using WorkoutLog.UI.Models.Workout;
 using WorkoutLog.UI.Models.Workouts;
+using WorkoutLog.UI.Navigation;
 using WorkoutLog.UI.Screens;
 using WorkoutLog.UI.Stories.Samples;
 
@@ -33,7 +34,7 @@ public static class ScreenStates
         new("Screens/Startup", "Loading", c => c.Render<StartupView>().FindAll("*")),
         new("Screens/Startup", "Load failed", c => c.Render<StartupView>(p => p.Add(x => x.Failed, true)).FindAll("*")),
 
-        new("Screens/Dashboard", "With workouts", c => Dashboard(c, SampleDashboard.LastWorkout, SampleDashboard.ThisWeek, SampleDashboard.LastWeek, SampleDashboard.WeekCounts, 6, SampleDashboard.Records)),
+        new("Screens/Dashboard", "With workouts", c => Dashboard(c, SampleDashboard.LastWorkout, SampleDashboard.ThisWeek, SampleDashboard.LastWeekToDate, SampleDashboard.WeekCounts, 6, SampleDashboard.Records)),
         new("Screens/Dashboard", "First workout", c => Dashboard(c, SampleDashboard.Workout(0, 2), SampleDashboard.FirstWeek, SampleDashboard.NoWeek, SampleDashboard.FirstWeekCounts, 1, [])),
         new("Screens/Dashboard", "No workouts", c => Dashboard(c, null, SampleDashboard.NoWeek, SampleDashboard.NoWeek, SampleDashboard.EmptyWeeks, 0, [])),
         new("Screens/Dashboard", "Loading", c => DashboardLoad(c, loading: true)),
@@ -59,7 +60,8 @@ public static class ScreenStates
         new("Screens/New Workout", "Save errors", c => Workout(c, WorkoutMode.New, SampleData.WorkoutWithErrors(Catalog(c), WorkoutChecker(c)))),
         new("Screens/New Workout", "No exercises error", c => Workout(c, WorkoutMode.New, [], error: WorkoutChecker(c).Check([]).Error)),
         new("Screens/New Workout", "Save failed", c => Workout(c, WorkoutMode.New, SampleData.StrengthWorkout(Catalog(c)), error: WorkoutChecker(c).SaveFailed)),
-        new("Screens/New Workout", "Delete exercise prompt", c => Workout(c, WorkoutMode.New, SampleData.StrengthWorkout(Catalog(c)), dialog: ("Delete Barbell Back Squat?", "Delete"))),
+        new("Screens/New Workout", "Set deleted", c => Deleted(c, WorkoutMode.New, SampleData.StrengthWorkoutWithWeights(Catalog(c)), e => SampleData.DeleteSet(e, 0, 1))),
+        new("Screens/New Workout", "Exercise deleted", c => Deleted(c, WorkoutMode.New, SampleData.StrengthWorkoutWithWeights(Catalog(c)), e => SampleData.DeleteExercise(e, 0))),
         new("Screens/New Workout", "Discard prompt", c => Workout(c, WorkoutMode.New, SampleData.StrengthWorkout(Catalog(c)), dialog: ("Discard this workout?", "Discard"))),
 
         new("Screens/Edit Workout", "Loaded", c => Workout(c, WorkoutMode.Edit, SampleData.Loaded(SampleData.StrengthWorkout(Catalog(c))))),
@@ -71,7 +73,8 @@ public static class ScreenStates
         new("Screens/Edit Workout", "Note over the limit", c => Workout(c, WorkoutMode.Edit, SampleData.WithNoteTooLong(SampleData.Opened(SampleData.StrengthWorkout(Catalog(c)))), note: SampleData.NoteTooLong, noteError: SampleData.NoteTooLongError)),
         new("Screens/Edit Workout", "Save errors", c => Workout(c, WorkoutMode.Edit, SampleData.EditWorkoutWithErrors(Catalog(c), WorkoutChecker(c)))),
         new("Screens/Edit Workout", "Save failed", c => Workout(c, WorkoutMode.Edit, SampleData.Opened(SampleData.StrengthWorkout(Catalog(c))), error: WorkoutChecker(c).SaveFailed)),
-        new("Screens/Edit Workout", "Delete exercise prompt", c => Workout(c, WorkoutMode.Edit, SampleData.Loaded(SampleData.StrengthWorkout(Catalog(c))), dialog: ("Delete Farmer's Walk?", "Delete"))),
+        new("Screens/Edit Workout", "Set deleted", c => Deleted(c, WorkoutMode.Edit, SampleData.Opened(SampleData.StrengthWorkout(Catalog(c))), e => SampleData.DeleteSet(e, 2, 1))),
+        new("Screens/Edit Workout", "Exercise deleted", c => Deleted(c, WorkoutMode.Edit, SampleData.Loaded(SampleData.StrengthWorkout(Catalog(c))), e => SampleData.DeleteExercise(e, 0))),
         new("Screens/Edit Workout", "Discard prompt", c => Workout(c, WorkoutMode.Edit, SampleData.Opened(SampleData.StrengthWorkout(Catalog(c))), dialog: ("Discard changes?", "Discard"))),
         new("Screens/Edit Workout", "Delete prompt", c => Workout(c, WorkoutMode.Edit, SampleData.Opened(SampleData.StrengthWorkout(Catalog(c))), dialog: ("Delete this workout?", "Delete"))),
         new("Screens/Edit Workout", "Delete failed", c => Workout(c, WorkoutMode.Edit, SampleData.Opened(SampleData.StrengthWorkout(Catalog(c))), error: WorkoutChecker(c).DeleteFailed)),
@@ -190,7 +193,7 @@ public static class ScreenStates
         BunitContext context,
         LastWorkout? lastWorkout,
         WeekTotals thisWeek,
-        WeekTotals lastWeek,
+        WeekTotals lastWeekToDate,
         IReadOnlyList<int> weekCounts,
         int streak,
         IReadOnlyList<RecentRecord> records) =>
@@ -203,7 +206,7 @@ public static class ScreenStates
                     .Add(x => x.TestId, "last-workout"))
                 .Add<ConsistencyCard>(x => x.Consistency, card => card
                     .Add(x => x.ThisWeek, thisWeek)
-                    .Add(x => x.LastWeek, lastWeek)
+                    .Add(x => x.LastWeekToDate, lastWeekToDate)
                     .Add(x => x.WeekCounts, weekCounts)
                     .Add(x => x.Streak, streak)
                     .Add(x => x.OnMuscles, () => { })
@@ -225,8 +228,7 @@ public static class ScreenStates
         parameters
             .Add(x => x.OnRetry, () => { })
             .Add(x => x.OnNewWorkout, () => { })
-            .Add(x => x.OnWorkouts, () => { })
-            .Add(x => x.OnExercises, () => { })
+            .Add(x => x.OnNavigate, (NavDestination _) => { })
             .Add(x => x.OnSettings, () => { });
 
     private static IReadOnlyList<IElement> Muscles(
@@ -246,7 +248,8 @@ public static class ScreenStates
         string? error = null,
         (string Title, string ConfirmText)? dialog = null,
         string? note = null,
-        string? noteError = null) =>
+        string? noteError = null,
+        PendingUndo? undo = null) =>
         context.Render<WorkoutView>(p =>
         {
             p.Add(x => x.Mode, mode)
@@ -267,6 +270,13 @@ public static class ScreenStates
                 p.Add(x => x.OnDelete, () => { });
             }
 
+            if (undo is not null)
+            {
+                p.Add(x => x.Undo, undo)
+                    .Add(x => x.OnUndo, () => { })
+                    .Add(x => x.OnUndoTimeout, (PendingUndo _) => { });
+            }
+
             if (dialog is { } d)
             {
                 p.Add<ConfirmDialog>(x => x.Overlay, o => o
@@ -277,6 +287,13 @@ public static class ScreenStates
                     .Add(x => x.OnCancel, () => { }));
             }
         }).FindAll("*");
+
+    /// <summary>The workout after <paramref name="delete"/>, with its snackbar.</summary>
+    private static IReadOnlyList<IElement> Deleted(BunitContext context, WorkoutMode mode, List<ExerciseState> exercises, Func<List<ExerciseState>, PendingUndo> delete)
+    {
+        var undo = delete(exercises);
+        return Workout(context, mode, exercises, undo: undo);
+    }
 
     private static IReadOnlyList<IElement> WorkoutLoad(BunitContext context, bool failed = false, bool notFound = false) =>
         context.Render<WorkoutLoadView>(p => p
@@ -303,7 +320,7 @@ public static class ScreenStates
                 .Add(x => x.Loading, loading)
                 .Add(x => x.Failed, failed)
                 .Add(x => x.OnRetry, () => { })
-                .Add(x => x.OnBack, () => { });
+                .Add(x => x.OnNavigate, (NavDestination _) => { });
             if (tappable)
             {
                 p.Add(x => x.OnOpen, (WorkoutsRow _) => { });
@@ -355,7 +372,7 @@ public static class ScreenStates
             .Add(x => x.QueryChanged, (string _) => { })
             .Add(x => x.FilterChanged, (ExerciseFilter _) => { })
             .Add(x => x.OnRetry, () => { })
-            .Add(x => x.OnBack, () => { }))
+            .Add(x => x.OnNavigate, (NavDestination _) => { }))
             .FindAll("*");
 
     private static IReadOnlyList<IElement> AddExercise(

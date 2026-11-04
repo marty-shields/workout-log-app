@@ -1,4 +1,5 @@
 using WorkoutLog.UI.Models.Workouts;
+using WorkoutLog.UI.Navigation;
 using WorkoutLog.UI.Screens;
 
 namespace WorkoutLog.UI.Tests.Screens;
@@ -25,7 +26,11 @@ public class WorkoutsViewTests : ComponentTestBase
     {
         var cut = Context.Render<WorkoutsView>(p => p.Add(x => x.Rows, []));
 
-        Assert.That(cut.Find("[data-testid=workouts-empty]").TextContent, Does.Contain("No workouts yet"));
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.Find("[data-testid=workouts-empty]").TextContent, Does.Contain("No workouts yet"));
+            Assert.That(cut.Find("[data-testid=workouts-empty-hint]").TextContent, Is.EqualTo("Tap New Workout on the Dashboard to log one"));
+        });
     }
 
     [Test]
@@ -44,7 +49,7 @@ public class WorkoutsViewTests : ComponentTestBase
     [Test]
     public void Loading_ShowsTheSpinnerOnly()
     {
-        var cut = Context.Render<WorkoutsView>(p => p.Add(x => x.Rows, Rows).Add(x => x.Loading, true).Add(x => x.OnBack, () => { }));
+        var cut = Context.Render<WorkoutsView>(p => p.Add(x => x.Rows, Rows).Add(x => x.Loading, true));
 
         Assert.Multiple(() =>
         {
@@ -52,7 +57,7 @@ public class WorkoutsViewTests : ComponentTestBase
             Assert.That(cut.FindAll(".rows"), Is.Empty);
             Assert.That(cut.FindAll("[data-testid=workouts-empty]"), Is.Empty);
             Assert.That(cut.FindAll("[data-testid=workouts-error]"), Is.Empty);
-            Assert.That(cut.FindAll("[data-testid=back]"), Has.Count.EqualTo(1));
+            Assert.That(cut.FindAll("[data-testid=bottom-nav]"), Has.Count.EqualTo(1));
         });
     }
 
@@ -117,16 +122,37 @@ public class WorkoutsViewTests : ComponentTestBase
     }
 
     [Test]
-    public void Back_RaisesOnBack()
+    public void IsTopLevel_WithNoBackArrowAndItsNavigationItemCurrent()
     {
-        var back = false;
-        var cut = Context.Render<WorkoutsView>(p => p
-            .Add(x => x.Rows, Rows)
-            .Add(x => x.OnBack, () => back = true));
+        var cut = Context.Render<WorkoutsView>(p => p.Add(x => x.Rows, Rows));
 
-        cut.Find("[data-testid=back]").Click();
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.FindAll("[data-testid=back]"), Is.Empty);
+            Assert.That(cut.Find("[aria-current=page]").GetAttribute("data-testid"), Is.EqualTo("workouts-link"));
+        });
+    }
 
-        Assert.That(back, Is.True);
+    [Test]
+    public async Task AndroidBack_NavigatesToTheDashboard()
+    {
+        var navigated = new List<NavDestination>();
+        var cut = Context.Render<WorkoutsView>(p => p.Add(x => x.Rows, Rows).Add(x => x.OnNavigate, navigated.Add));
+
+        await cut.InvokeAsync(BackButton.HandleAsync);
+
+        Assert.That(navigated, Is.EqualTo(new[] { NavDestination.Dashboard }));
+    }
+
+    [Test]
+    public void NavigationBar_RaisesOnNavigate()
+    {
+        var navigated = new List<NavDestination>();
+        var cut = Context.Render<WorkoutsView>(p => p.Add(x => x.Rows, Rows).Add(x => x.OnNavigate, navigated.Add));
+
+        cut.Find("[data-testid=exercises-link]").Click();
+
+        Assert.That(navigated, Is.EqualTo(new[] { NavDestination.Exercises }));
     }
 
     private IReadOnlyList<JSRuntimeInvocation> Focuses() =>

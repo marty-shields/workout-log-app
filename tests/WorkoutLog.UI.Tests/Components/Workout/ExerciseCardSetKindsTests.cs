@@ -59,7 +59,7 @@ public class ExerciseCardSetKindsTests : ComponentTestBase
 
             if (ask is not null)
             {
-                p.Add(x => x.OnAskRemoveSet, ask);
+                p.Add(x => x.OnRemoveClosedSet, ask);
             }
         });
 
