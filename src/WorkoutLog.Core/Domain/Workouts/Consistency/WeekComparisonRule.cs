@@ -13,17 +13,22 @@ internal sealed class WeekComparisonRule
         var thisWeekStart = LocalWeek.Start(monday, zone);
         return new WeekTallies(
             Tally(workouts.Where(w => w.StartedAt >= thisWeekStart && w.StartedAt <= now)),
-            Tally(LastWeekToDate(workouts, now, zone)));
+            Tally(LastWeekToDate(workouts, monday, LocalWeek.Local(now, zone), zone)));
     }
 
     /// <summary>
     /// Compared by local wall-clock time rather than by instant, so a clock change between the weeks doesn't move the cut by an hour.
+    /// The same point last week is always before <paramref name="monday"/>, so the window is last Monday 00:00 up to it.
     /// </summary>
-    private static IEnumerable<WorkoutTally> LastWeekToDate(IReadOnlyList<WorkoutTally> workouts, DateTimeOffset now, TimeZoneInfo zone)
+    private static IEnumerable<WorkoutTally> LastWeekToDate(IReadOnlyList<WorkoutTally> workouts, DateOnly monday, DateTime localNow, TimeZoneInfo zone)
     {
-        var lastMonday = LocalWeek.Monday(now, zone).AddDays(-7);
-        var samePoint = LocalWeek.Local(now, zone).AddDays(-7);
-        return workouts.Where(w => LocalWeek.Monday(w.StartedAt, zone) == lastMonday && LocalWeek.Local(w.StartedAt, zone) <= samePoint);
+        var from = monday.AddDays(-7).ToDateTime(TimeOnly.MinValue);
+        var samePoint = localNow.AddDays(-7);
+        return workouts.Where(w =>
+        {
+            var local = LocalWeek.Local(w.StartedAt, zone);
+            return local >= from && local <= samePoint;
+        });
     }
 
     private static WeekTally Tally(IEnumerable<WorkoutTally> inWindow)
