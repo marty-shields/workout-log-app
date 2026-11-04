@@ -18,7 +18,7 @@ jobs:
     if: github.event.pull_request.draft == false
     uses: ./.github/workflows/dev-pipeline.yml
 
-  # Fails when a story clips, overflows or wraps at the narrowest card.
+  # Fails when a story clips, overflows or wraps at the narrowest card, or a README screenshot no longer matches its story.
   story-layout:
     if: github.event.pull_request.draft == false
     runs-on: ubuntu-latest
@@ -50,6 +50,19 @@ jobs:
             exit 1
           fi
           node .github/scripts/check-story-layout.mjs http://localhost:5056 "$(command -v google-chrome)" || { cat "$RUNNER_TEMP/stories.log"; exit 1; }
+          if ! node .github/scripts/readme-screenshots.mjs http://localhost:5056 "$(command -v google-chrome)" --check; then
+            node .github/scripts/readme-screenshots.mjs http://localhost:5056 "$(command -v google-chrome)"
+            echo "::error title=README screenshots::A changed screen's README screenshots are stale. Run .github/scripts/readme-screenshots.mjs, or download the readme-screenshots artifact into docs/images/readme/, and commit them."
+            exit 1
+          fi
+
+      - name: Upload retaken README screenshots
+        if: failure()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: readme-screenshots
+          path: docs/images/readme/*.png
+          if-no-files-found: ignore
 
   qa:
     if: github.event.pull_request.draft == false

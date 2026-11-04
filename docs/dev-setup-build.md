@@ -17,7 +17,7 @@ The stories need only the .NET SDK.
 `dotnet run --project src/WorkoutLog.UI.Stories`, then open http://localhost:5056. Story files are `*.stories.razor` in `src/WorkoutLog.UI.Stories/Stories/`. `main` is published at https://marty-shields.github.io/workout-log-app/.
 
 ### README screenshots
-`README.md` shows screen stories, light and dark, from `docs/images/readme/`. To retake one, run the stories, then with Playwright set the colour scheme and open `http://localhost:5056/iframe.html?id=<story id>&viewMode=story`. Screenshot the `.phone` element with a transparent background to `<file>-light.png` and `<file>-dark.png`.
+`README.md` shows screen stories, light and dark, from `docs/images/readme/`. Run the stories, then `node .github/scripts/readme-screenshots.mjs http://localhost:5056 <chrome>` retakes every row below: it opens `iframe.html?id=<story id>` in each colour scheme and saves the `.phone` element to `<file>-light.png` and `<file>-dark.png`. With `--check` it writes nothing and fails when a committed screenshot differs from its story by more than 0.2% of its pixels (allowing for anti-aliasing). CI runs the check in `story-layout`; when it fails, the job's `readme-screenshots` artifact holds the retaken images. A screen that changes look retakes its screenshots in the same PR. To add a screenshot, add a row here and to the README; the script reads this table.
 
 | File | Story id |
 |---|---|
