@@ -31,10 +31,6 @@
     cursor: pointer;
 }
 
-.action:active {
-    background: var(--state-pressed);
-}
-
 @media (prefers-reduced-motion: reduce) {
     .snackbar {
         animation: none;
