@@ -32,25 +32,32 @@ Tokens, components, screens and their behaviour for the Workout Log app.
 Defined in `tokens.css`; the [Tokens](./?path=/story/foundations-tokens--all-tokens) story shows each one in light and dark.
 
 ### Palette
-Five colours, each with a role in light and dark:
+Five colours. Light uses them directly; dark keeps aqua for primary buttons and uses neutral, low-tint colours for everything else so text, accents and surfaces read apart:
 
 | Colour | Light | Dark |
 |---|---|---|
-| Dark teal `#305252` | Top bar, primary buttons, text on secondary buttons | Top bar, secondary buttons, open set, text on primary buttons |
-| Aqua `#b7d5d4` | Secondary buttons, open set, card borders, top-bar subtitle | Text (also on the top bar), primary buttons, focus, stat numbers |
+| Dark teal `#305252` | Top bar, primary buttons, text on secondary buttons | — |
+| Aqua `#b7d5d4` | Secondary buttons, open set, card borders, top-bar subtitle | Primary buttons |
 | Teal `#488286` | Focus, stat numbers | — |
-| Charcoal `#373e40` | Text | Cards |
+| Charcoal `#373e40` | Text | — |
 | Grey `#77878b` | Input borders | — |
 
 Derived from the palette:
 
 | Colour | Light | Dark |
 |---|---|---|
-| Background | `#f4f8f8` | `#1e2324` |
-| Cards | `#ffffff` | Charcoal `#373e40` |
-| Card borders | Aqua `#b7d5d4` | `#4a5558` |
-| Muted text and placeholders | `#5e6e72` | `#9aaaad` |
-| Input borders | Grey `#77878b` | `#9aaaad` |
+| Background | `#f4f8f8` | `#141819` |
+| Cards | `#ffffff` | `#212829` |
+| Card borders | Aqua `#b7d5d4` | `#364243` |
+| Text | Charcoal `#373e40` | `#e4ecec` |
+| Muted text and placeholders | `#5e6e72` | `#a3b1b3` |
+| Input borders | Grey `#77878b` | `#7f9093` |
+| Top bar | Dark teal `#305252` | `#1b2526` |
+| Top-bar text and subtitle | `#ffffff`, aqua `#b7d5d4` | `#e4ecec`, `#a3b1b3` |
+| Text on primary buttons | `#ffffff` | `#173535` |
+| Secondary buttons and open set | Aqua `#b7d5d4` | `#2b4444` |
+| Text on secondary buttons | Dark teal `#305252` | `#d4e8e7` |
+| Focus and stat numbers | Teal `#488286` | `#8cc4c1` |
 | Errors and danger buttons | `#a8231c` | `#f2b8b5` |
 | Increases and records | `#2e7d32` | `#a5d6a7` |
 | Past weeks in the weekly chart | Grey `#77878b` | `#7d8a8c` |

@@ -2,22 +2,22 @@
 :root {
     color-scheme: light dark;
 
-    --color-bg: light-dark(#f4f8f8, #1e2324);
-    --color-surface: light-dark(#ffffff, #373e40);
-    --color-border: light-dark(#b7d5d4, #4a5558);
-    --color-border-strong: light-dark(#77878b, #9aaaad);
-    --color-text: light-dark(#373e40, #b7d5d4);
-    --color-text-muted: light-dark(#5e6e72, #9aaaad);
-    --color-bar: #305252;
-    --color-on-bar: light-dark(#ffffff, #b7d5d4);
-    --color-on-bar-muted: #b7d5d4;
+    --color-bg: light-dark(#f4f8f8, #141819);
+    --color-surface: light-dark(#ffffff, #212829);
+    --color-border: light-dark(#b7d5d4, #364243);
+    --color-border-strong: light-dark(#77878b, #7f9093);
+    --color-text: light-dark(#373e40, #e4ecec);
+    --color-text-muted: light-dark(#5e6e72, #a3b1b3);
+    --color-bar: light-dark(#305252, #1b2526);
+    --color-on-bar: light-dark(#ffffff, #e4ecec);
+    --color-on-bar-muted: light-dark(#b7d5d4, #a3b1b3);
     --color-primary: light-dark(#305252, #b7d5d4);
-    --color-on-primary: light-dark(#ffffff, #305252);
-    --color-secondary: light-dark(#b7d5d4, #305252);
-    --color-on-secondary: light-dark(#305252, #b7d5d4);
-    --color-selected: light-dark(#b7d5d4, #305252);
-    --color-accent: light-dark(#488286, #b7d5d4);
-    --color-focus: light-dark(#488286, #b7d5d4);
+    --color-on-primary: light-dark(#ffffff, #173535);
+    --color-secondary: light-dark(#b7d5d4, #2b4444);
+    --color-on-secondary: light-dark(#305252, #d4e8e7);
+    --color-selected: light-dark(#b7d5d4, #2b4444);
+    --color-accent: light-dark(#488286, #8cc4c1);
+    --color-focus: light-dark(#488286, #8cc4c1);
     --color-danger: light-dark(#a8231c, #f2b8b5);
     --color-on-danger: light-dark(#ffffff, #1e2324);
     --color-error: light-dark(#a8231c, #f2b8b5);
