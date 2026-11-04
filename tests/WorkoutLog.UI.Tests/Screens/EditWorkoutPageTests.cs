@@ -9,6 +9,7 @@ using WorkoutLog.Core.Domain.Workouts;
 using WorkoutLog.Core.Domain.Workouts.Validation;
 using WorkoutLog.Core.Services;
 using WorkoutLog.UI.Components.Layout;
+using WorkoutLog.UI.Haptics;
 using WorkoutLog.UI.Logging;
 using WorkoutLog.UI.Screens;
 using WorkoutLog.UI.Stories.Samples;
@@ -1174,6 +1175,44 @@ public class EditWorkoutPageTests : ComponentTestBase
 
         cut.WaitForAssertion(() => Assert.That(saved, Is.EqualTo(1)));
         Assert.That(workouts.Saves, Has.Count.EqualTo(1));
+    }
+
+    [Test]
+    public async Task Save_TappedTwiceWhileSaving_PlaysWorkoutSavedOnce()
+    {
+        var cut = await RenderLoadedAsync();
+        var pending = new TaskCompletionSource<SaveResult>();
+        workouts.Save = () => pending.Task;
+
+        cut.Find("[data-testid=save-workout]").Click();
+        cut.Find("[data-testid=save-workout]").Click();
+        await cut.InvokeAsync(() => pending.SetResult(new SaveResult(Id, new WorkoutErrors([], []))));
+        await WaitForRendererAsync();
+
+        cut.WaitForAssertion(() => Assert.That(Haptics.Played, Is.EqualTo(new[] { HapticCue.WorkoutSaved })));
+    }
+
+    [Test]
+    public async Task Save_Invalid_PlaysRejected()
+    {
+        var cut = await RenderOpenedAsync();
+        Field(cut, "exercise-3-set-1-reps").Input("");
+
+        cut.Find("[data-testid=save-workout]").Click();
+
+        Assert.That(Haptics.Played, Is.EqualTo(new[] { HapticCue.Rejected }));
+    }
+
+    [Test]
+    public async Task Delete_PlaysNothing()
+    {
+        var cut = await RenderLoadedAsync();
+
+        cut.Find("[data-testid=delete-workout]").Click();
+        cut.Find("[data-testid=confirm-dialog-confirm]").Click();
+        await WaitForRendererAsync();
+
+        Assert.That(Haptics.Played, Is.Empty);
     }
 
     [Test]

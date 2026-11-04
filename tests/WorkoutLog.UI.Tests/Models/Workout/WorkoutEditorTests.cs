@@ -4,6 +4,7 @@ using WorkoutLog.Core.Domain.Exercises;
 using WorkoutLog.Core.Domain.Exercises.Bests;
 using WorkoutLog.Core.Domain.Workouts;
 using WorkoutLog.Core.Services;
+using WorkoutLog.UI.Haptics;
 using WorkoutLog.UI.Models.Exercises;
 using WorkoutLog.UI.Models.Workout;
 using WorkoutLog.UI.Stories.Samples;
@@ -23,6 +24,7 @@ public class WorkoutEditorTests
 
     private WorkoutChecker workoutChecker = null!;
     private FakeLoggedExercisesService loggedExercises = null!;
+    private FakeHaptics haptics = null!;
     private WorkoutEditor editor = null!;
 
     [SetUp]
@@ -32,7 +34,8 @@ public class WorkoutEditorTests
         var setChecker = new SetChecker(workouts, Catalog, NullLogger<SetChecker>.Instance);
         workoutChecker = new WorkoutChecker(setChecker, workouts, NullLogger<WorkoutChecker>.Instance);
         loggedExercises = new FakeLoggedExercisesService();
-        editor = new WorkoutEditor(Catalog, setChecker, workoutChecker, loggedExercises, new FakeTimeProvider(Now));
+        haptics = new FakeHaptics();
+        editor = new WorkoutEditor(Catalog, setChecker, workoutChecker, loggedExercises, new FakeTimeProvider(Now), haptics);
     }
 
     [Test]
@@ -801,6 +804,35 @@ public class WorkoutEditorTests
             Assert.That(editor.ErrorFocus!.Target, Is.EqualTo(ErrorFocusTarget.FirstError));
             Assert.That(editor.SaveState, Is.EqualTo(SavePhase.Idle));
         });
+    }
+
+    [Test]
+    public async Task SaveAsync_Saved_PlaysWorkoutSavedOnceAndNothingWhenCalledAgain()
+    {
+        editor.Start([SampleData.Exercise(Catalog, Squat, ["60", "8"])], null);
+
+        await editor.SaveAsync((_, _) => Task.FromResult(true));
+        await editor.SaveAsync((_, _) => Task.FromResult(true));
+
+        Assert.That(haptics.Played, Is.EqualTo(new[] { HapticCue.WorkoutSaved }));
+    }
+
+    [Test]
+    public async Task SaveAsync_Invalid_PlaysRejected()
+    {
+        await editor.SaveAsync((_, _) => Task.FromResult(true));
+
+        Assert.That(haptics.Played, Is.EqualTo(new[] { HapticCue.Rejected }));
+    }
+
+    [Test]
+    public async Task SaveAsync_Fails_PlaysNothing()
+    {
+        editor.Start([SampleData.Exercise(Catalog, Squat, ["60", "8"])], null);
+
+        await editor.SaveAsync((_, _) => Task.FromResult(false));
+
+        Assert.That(haptics.Played, Is.Empty);
     }
 
     [Test]

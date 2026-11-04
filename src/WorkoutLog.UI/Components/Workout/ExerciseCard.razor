@@ -2,8 +2,10 @@
 @using WorkoutLog.Core.Domain.Workouts
 @using WorkoutLog.Core.Domain.Workouts.Validation
 @using WorkoutLog.UI.Components.Inputs
+@using WorkoutLog.UI.Haptics
 @implements IDisposable
 @inject ILogger<ExerciseCard> Logger
+@inject IHaptics Haptics
 <section class="card @(Exercise.IsDone ? "done" : null) @(Exercise.Error is not null ? "has-error" : null)" data-testid="@TestId">
     <header class="card-header">
         <h2 class="name">@Exercise.Name</h2>
@@ -373,9 +375,11 @@
             cardioFields.Clear();
             openPanel = null;
             addSet = null;
+            Haptics.Play(HapticCue.ExerciseDone);
             return;
         }
 
+        Haptics.Play(HapticCue.Rejected);
         OpenFirstFailingSetUnlessOpenFails();
         Request(new FocusRequest(FocusTarget.FirstError));
     }
@@ -398,15 +402,23 @@
         Request(new FocusRequest(FocusTarget.BlockedSet));
     }
 
+    /// <summary>Plays <see cref="HapticCue.SetLogged"/> when a set was open and closed, or <see cref="HapticCue.Rejected"/> when it blocked.</summary>
     private Task AddSet()
     {
+        var closing = open;
         if (TryAddSet())
         {
+            if (closing is not null)
+            {
+                Haptics.Play(HapticCue.SetLogged);
+            }
+
             return OnChanged.InvokeAsync();
         }
 
         if (!Exercise.SetsFull)
         {
+            Haptics.Play(HapticCue.Rejected);
             Request(new FocusRequest(FocusTarget.BlockedSet));
         }
 

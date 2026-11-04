@@ -10,6 +10,7 @@ using WorkoutLog.Core.Domain.Workouts.Validation;
 using WorkoutLog.Core.Services;
 using WorkoutLog.UI.Components.Feedback;
 using WorkoutLog.UI.Components.Layout;
+using WorkoutLog.UI.Haptics;
 using WorkoutLog.UI.Logging;
 using WorkoutLog.UI.Screens;
 using WorkoutLog.UI.Stories.Samples;
@@ -475,6 +476,46 @@ public class NewWorkoutPageTests : ComponentTestBase
             Assert.That(cut.FindAll("[data-testid=confirm-dialog]"), Is.Empty);
             Assert.That(cut.Find("[data-testid=snackbar-message]").TextContent, Is.EqualTo("Dumbbell Curl deleted"));
         });
+    }
+
+    [Test]
+    public void LoggingLoop_PlaysSetLoggedExerciseDoneAndWorkoutSavedOnceEach()
+    {
+        var cut = RenderPage();
+        Add(cut, 132);
+        cut.Find("[data-testid=exercise-1-set-1-reps]").Input("10");
+        cut.Find("[data-testid=exercise-1-set-1-weight]").Input("20");
+        cut.Find("[data-testid=exercise-1-add-set]").Click();
+        cut.Find("[data-testid=exercise-1-set-2-reps]").Input("8");
+        cut.Find("[data-testid=exercise-1-set-2-weight]").Input("20");
+        cut.Find("[data-testid=exercise-1-done]").Click();
+
+        cut.Find("[data-testid=save-workout]").Click();
+
+        cut.WaitForAssertion(() => Assert.That(Haptics.Played, Is.EqualTo(new[] { HapticCue.SetLogged, HapticCue.ExerciseDone, HapticCue.WorkoutSaved })));
+    }
+
+    [Test]
+    public void Save_Empty_PlaysRejected()
+    {
+        var cut = RenderPage();
+
+        cut.Find("[data-testid=save-workout]").Click();
+
+        Assert.That(Haptics.Played, Is.EqualTo(new[] { HapticCue.Rejected }));
+    }
+
+    [Test]
+    public void AddingDeletingAndUndoing_PlayNothing()
+    {
+        var cut = RenderPage();
+        Add(cut, 132);
+        Add(cut, 6);
+        cut.Find("[data-testid=exercise-2-remove]").Click();
+
+        cut.Find("[data-testid=snackbar-undo]").Click();
+
+        Assert.That(Haptics.Played, Is.Empty);
     }
 
     [Test]
