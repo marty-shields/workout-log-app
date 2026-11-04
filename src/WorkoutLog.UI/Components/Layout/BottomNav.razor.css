@@ -36,3 +36,12 @@
 .current .indicator {
     background-color: var(--color-selected);
 }
+
+/* The pressed layer shows on the indicator pill, as Material's does, not across the whole item. */
+.item:active {
+    background-image: none;
+}
+
+.item:active .indicator {
+    background-image: linear-gradient(var(--state-pressed), var(--state-pressed));
+}

@@ -30,7 +30,7 @@ The Material navigation bar for the top-level screens: Dashboard, Workouts and E
 | Current item | A `--color-selected` pill behind the icon, label and icon in the text colour and bold; the others are muted. `aria-current="page"`. |
 
 - Tapping an item raises `OnNavigate` with its destination. Tapping the current item does nothing.
-- A `<nav>` labelled "Main"; each item is a button. Pressed items show the shared state layer.
+- A `<nav>` labelled "Main"; each item is a button. A pressed item shows the shared state layer on its indicator pill, not across the whole item and the inset.
 - Its bottom padding is the safe-area inset (`--inset-bottom`).
 - `data-testid`: `bottom-nav`, `dashboard-link`, `workouts-link`, `exercises-link`.
 
