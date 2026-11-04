@@ -69,7 +69,24 @@ public sealed partial class SetSteps(WebView web, Native native, WorkoutScreen w
     }
 
     [When(@"^I tap the trash on (.+) set (\d+)$")]
-    public void WhenITapTheSetTrash(string name, int set) => workout.AskRemoveSet(name, set);
+    public void WhenITapTheSetTrash(string name, int set) => workout.RemoveSet(name, set);
+
+    [When(@"^I tap Undo$")]
+    public void WhenITapUndo()
+    {
+        web.WaitUntil(() => workout.Snackbar() is not null, "the snackbar didn't show");
+        workout.Undo();
+    }
+
+    [Then(@"^the snackbar ""(.*)"" shows Undo$")]
+    public void ThenTheSnackbarShows(string message)
+    {
+        web.Eventually(workout.Snackbar, Is.EqualTo(message), "snackbar");
+        Assert.That(workout.UndoText(), Is.EqualTo("Undo"));
+    }
+
+    [Then(@"^no snackbar is shown$")]
+    public void ThenNoSnackbarIsShown() => web.Eventually(workout.Snackbar, Is.Null, "snackbar");
 
     [When(@"^I tap the summary of (.+) set (\d+)$")]
     public void WhenITapTheSummary(string name, int set) => workout.OpenSummary(name, set);

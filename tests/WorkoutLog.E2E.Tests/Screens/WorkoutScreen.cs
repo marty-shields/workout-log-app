@@ -250,22 +250,11 @@ public sealed partial class WorkoutScreen(WebView web, Native native)
 
     public bool HasAddSet(string name) => web.Exists($"{Card(name)}-add-set");
 
-    public void AskRemoveSet(string name, int set)
-    {
-        Open(name);
-        TapButton($"{Card(name)}-set-{set}-remove");
-    }
-
+    /// <summary>Taps the set's trash (closed) or close button (open); either removes it at once.</summary>
     public void RemoveSet(string name, int set)
     {
         Open(name);
-        var closed = IsSummary(name, set);
         TapButton($"{Card(name)}-set-{set}-remove");
-        if (closed)
-        {
-            web.WaitUntil(() => web.Exists("confirm-dialog-confirm"), $"The delete prompt for {name} set {set} didn't show");
-            web.Tap("confirm-dialog-confirm");
-        }
     }
 
     public void OpenSummary(string name, int set)
@@ -282,16 +271,15 @@ public sealed partial class WorkoutScreen(WebView web, Native native)
         }
     }
 
-    /// <summary>Taps the trash, open or done; the "Delete {name}?" prompt opens.</summary>
-    public void AskRemove(string name) => TapButton($"{Card(name)}-remove");
+    /// <summary>Taps the trash, open or done; it removes the exercise at once.</summary>
+    public void Remove(string name) => TapButton($"{Card(name)}-remove");
 
-    /// <summary>Taps the trash and confirms the "Delete {name}?" prompt.</summary>
-    public void Remove(string name)
-    {
-        AskRemove(name);
-        web.WaitUntil(() => web.Exists("confirm-dialog-confirm"), $"The delete prompt for {name} didn't show");
-        web.Tap("confirm-dialog-confirm");
-    }
+    /// <summary>The snackbar's message, or null when none shows.</summary>
+    public string? Snackbar() => web.Exists("snackbar-message") ? web.Text("snackbar-message") : null;
+
+    public string UndoText() => web.Text("snackbar-undo");
+
+    public void Undo() => TapButton("snackbar-undo");
 
     public bool HasRemove(string name) => web.Exists($"{Card(name)}-remove");
 

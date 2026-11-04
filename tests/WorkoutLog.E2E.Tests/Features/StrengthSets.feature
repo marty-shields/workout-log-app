@@ -76,30 +76,37 @@ Feature: Strength sets
     When I remove Barbell Back Squat set 2
     Then Barbell Back Squat sets are: 5 reps 60 kg; 5 reps 65 kg
 
-  Scenario: The trash on a closed set asks first, then removes it
+  Scenario: The trash on a closed set removes it at once, with Undo
     Given I have added "Barbell Back Squat"
     And I have logged Barbell Back Squat sets: 5 reps 60 kg; 5 reps 62.5 kg
     When I tap the trash on Barbell Back Squat set 1
-    Then the prompt "Delete set 1?" shows Delete and Cancel
-    When I tap Delete on the prompt
     Then no prompt is shown
+    And the snackbar "Set 1 deleted" shows Undo
     And Barbell Back Squat has 1 set
 
-  Scenario: Cancelling the set prompt keeps the set
+  Scenario: Undo puts a deleted set back in its place
     Given I have added "Barbell Back Squat"
-    And I have logged Barbell Back Squat sets: 5 reps 60 kg; 5 reps 62.5 kg
+    And I have logged Barbell Back Squat sets: 5 reps 60 kg; 5 reps 62.5 kg; 5 reps 65 kg
     When I tap the trash on Barbell Back Squat set 1
-    And I tap Cancel
-    Then Barbell Back Squat has 2 sets
+    And I tap Undo
+    Then no snackbar is shown
+    And Barbell Back Squat sets are: 5 reps 60 kg; 5 reps 62.5 kg; 5 reps 65 kg
 
-  Scenario: Remove exercise asks first, then removes it
+  Scenario: The trash removes an exercise at once, with Undo
     Given I have added "Barbell Back Squat"
     And I have added "Dumbbell Curl"
     When I tap the trash on Barbell Back Squat
-    Then the prompt "Delete Barbell Back Squat?" shows Delete and Cancel
-    When I tap Delete on the prompt
     Then no prompt is shown
+    And the snackbar "Barbell Back Squat deleted" shows Undo
     And the exercises are, in order: Dumbbell Curl
+
+  Scenario: Undo puts a deleted exercise back in its place
+    Given I have added "Barbell Back Squat"
+    And I have added "Dumbbell Curl"
+    When I tap the trash on Barbell Back Squat
+    And I tap Undo
+    Then no snackbar is shown
+    And the exercises are, in order: Dumbbell Curl, Barbell Back Squat
 
   Scenario: A partly filled duration fills in when I leave it
     Given I have added "Plank"

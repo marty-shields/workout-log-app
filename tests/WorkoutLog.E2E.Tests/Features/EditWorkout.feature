@@ -40,6 +40,12 @@ Feature: Edit a workout
     And I save the workout
     Then reopening workout 1 shows Barbell Back Squat sets: 5 reps 60 kg; 5 reps 65 kg
 
+  Scenario: Undo a removed set and save
+    When I remove Barbell Back Squat set 2
+    And I tap Undo
+    And I save the workout
+    Then reopening workout 1 shows Barbell Back Squat sets: 5 reps 60 kg; 5 reps 62.5 kg; 5 reps 65 kg
+
   Scenario: Swap an exercise and save
     When I remove Treadmill
     And I add "Dumbbell Incline Press"

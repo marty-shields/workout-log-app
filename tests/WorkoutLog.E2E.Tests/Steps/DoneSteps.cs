@@ -3,7 +3,7 @@ using WorkoutLog.E2E.Tests.Screens;
 
 namespace WorkoutLog.E2E.Tests.Steps;
 
-/// <summary>Marking an exercise done, opening it again with the pencil and the delete prompt on an exercise.</summary>
+/// <summary>Marking an exercise done, opening it again with the pencil, and its trash.</summary>
 [Binding]
 public sealed class DoneSteps(WebView web, WorkoutScreen workout)
 {
@@ -21,7 +21,7 @@ public sealed class DoneSteps(WebView web, WorkoutScreen workout)
     public void WhenITapThePencil(string name) => workout.Edit(name);
 
     [When(@"^I tap the trash on (?!.* set \d+$)(.+)$")]
-    public void WhenITapTheTrash(string name) => workout.AskRemove(name);
+    public void WhenITapTheTrash(string name) => workout.Remove(name);
 
     [Then(@"^(.+) is shown as one line with its name, the pencil and the trash$")]
     public void ThenIsOneLine(string name) => web.Eventually(() => workout.IsOneLine(name), Is.True, $"{name} as one line");
