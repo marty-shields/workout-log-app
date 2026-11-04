@@ -6,6 +6,10 @@
 @using WorkoutLog.UI.Models.Settings
 @inject ILogger<SettingsView> Logger
 <AppScreen Title="Settings" OnBack="OnBack">
+    <section class="section">
+        <h2 class="heading">Appearance</h2>
+        <SegmentedControl TValue="ThemePreference" Label="Theme" Options="Themes" Value="Theme" ValueChanged="OnThemeChanged" TestId="theme" />
+    </section>
     @if (Loading)
     {
         <div class="centre">
@@ -18,10 +22,6 @@
     }
     else
     {
-        <section class="section">
-            <h2 class="heading">Appearance</h2>
-            <SegmentedControl TValue="ThemePreference" Label="Theme" Options="Themes" Value="Theme" ValueChanged="OnThemeChanged" TestId="theme" />
-        </section>
         <section class="section">
             <h2 class="heading">Your data</h2>
             <p class="text" data-testid="export-text">@ExportText</p>
@@ -49,11 +49,11 @@
 </AppScreen>
 
 @code {
-    /// <summary>Shows a full-screen spinner instead of the content while the count loads.</summary>
+    /// <summary>Shows a spinner instead of Your data while the count loads. Appearance stays.</summary>
     [Parameter]
     public bool Loading { get; set; }
 
-    /// <summary>Shows the load error and Try again instead of the content, and moves focus to Try again.</summary>
+    /// <summary>Shows the load error and Try again instead of Your data, and moves focus to Try again.</summary>
     [Parameter]
     public bool Failed { get; set; }
 
@@ -107,9 +107,9 @@
 
     private static readonly IReadOnlyList<RadioOption<ThemePreference>> Themes =
     [
-        new(ThemePreference.System, "System", "theme-system"),
-        new(ThemePreference.Light, "Light", "theme-light"),
-        new(ThemePreference.Dark, "Dark", "theme-dark"),
+        new(ThemePreference.System, "System", "settings-theme-system"),
+        new(ThemePreference.Light, "Light", "settings-theme-light"),
+        new(ThemePreference.Dark, "Dark", "settings-theme-dark"),
     ];
 
     private AppButton? export;

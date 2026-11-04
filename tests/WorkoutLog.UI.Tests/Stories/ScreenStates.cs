@@ -100,7 +100,7 @@ public static class ScreenStates
         new("Screens/Workouts", "Load failed", c => Workouts(c, [], tappable: false, failed: true)),
 
         new("Screens/Settings", "With workouts", c => Settings(c, 42)),
-        new("Screens/Settings", "Dark theme", c => Settings(c, 42, theme: ThemePreference.Dark)),
+        new("Screens/Settings", "Dark chosen", c => Settings(c, 42, theme: ThemePreference.Dark)),
         new("Screens/Settings", "One workout", c => Settings(c, 1)),
         new("Screens/Settings", "No workouts", c => Settings(c, 0)),
         new("Screens/Settings", "Loading", c => Settings(c, 0, loading: true)),

@@ -66,6 +66,15 @@ internal enum UiEvent
     /// <summary><see cref="Screens.SettingsPage"/>: picking or opening an import file failed.</summary>
     SettingsPickFailed = 3402,
 
+    /// <summary><see cref="Screens.SettingsPage"/>: reading the saved theme failed.</summary>
+    ThemeLoadFailed = 3403,
+
+    /// <summary><see cref="Screens.SettingsPage"/>: saving the chosen theme failed.</summary>
+    ThemeSaveFailed = 3404,
+
+    /// <summary><see cref="Screens.SettingsPage"/>: storage refused the chosen theme, so it is lost at the next start.</summary>
+    ThemeNotSaved = 3405,
+
     /// <summary><see cref="Screens.SettingsView"/>: focusing Export failed.</summary>
     ExportFocusFailed = 3501,
 

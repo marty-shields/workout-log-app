@@ -54,8 +54,9 @@
     {
         registration = AppStart.Register(() => InvokeAsync(ReloadAsync));
         var done = Session.TakeDone();
-        theme = await Themes.GetAsync();
-        await LoadAsync();
+        var loading = LoadAsync();
+        theme = await LoadThemeAsync();
+        await loading;
         imported = done;
     }
 
@@ -189,10 +190,36 @@
         await OnImportReview.InvokeAsync();
     }
 
+    /// <summary>The saved theme, or System when it can't be read.</summary>
+    private async Task<ThemePreference> LoadThemeAsync()
+    {
+        try
+        {
+            return await Themes.GetAsync();
+        }
+        catch (Exception exception)
+        {
+            Log.ThemeLoadFailed(Logger, exception);
+            return ThemePreference.System;
+        }
+    }
+
+    /// <summary>Applies and saves the choice. A failed interop call keeps the previous choice selected; a refused save keeps the new one, which applies until the app closes.</summary>
     private async Task SetThemeAsync(ThemePreference preference)
     {
-        theme = preference;
-        await Themes.SetAsync(preference);
+        try
+        {
+            var saved = await Themes.SetAsync(preference);
+            theme = preference;
+            if (!saved)
+            {
+                Log.ThemeNotSaved(Logger);
+            }
+        }
+        catch (Exception exception)
+        {
+            Log.ThemeSaveFailed(Logger, exception);
+        }
     }
 
     private void ClearMessages()

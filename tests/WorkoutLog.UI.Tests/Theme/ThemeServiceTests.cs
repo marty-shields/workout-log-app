@@ -38,10 +38,19 @@ public class ThemeServiceTests
     [TestCase(ThemePreference.Dark, "dark")]
     public async Task Set_AppliesAndSavesTheChoice(ThemePreference preference, string expected)
     {
-        context.JSInterop.SetupVoid("workoutLogTheme.set", _ => true).SetVoidResult();
+        context.JSInterop.Setup<bool>("workoutLogTheme.set", _ => true).SetResult(true);
 
-        await service.SetAsync(preference);
+        var saved = await service.SetAsync(preference);
 
         Assert.That(context.JSInterop.Invocations["workoutLogTheme.set"].Single().Arguments, Is.EqualTo(new object[] { expected }));
+        Assert.That(saved, Is.True);
+    }
+
+    [Test]
+    public async Task Set_StorageRefusesTheSave_ReturnsFalse()
+    {
+        context.JSInterop.Setup<bool>("workoutLogTheme.set", _ => true).SetResult(false);
+
+        Assert.That(await service.SetAsync(ThemePreference.Dark), Is.False);
     }
 }

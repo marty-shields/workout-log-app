@@ -28,9 +28,9 @@
 .centre {
     display: grid;
     place-items: center;
-    height: 100%;
+    padding: var(--space-6) 0;
 }
 
-.section + .section {
+.section + * {
     margin-top: var(--space-6);
 }
