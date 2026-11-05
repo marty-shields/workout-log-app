@@ -62,7 +62,7 @@ section + section {
     border-radius: 32%;
 }
 
-/* Android tints the foreground's shape; these stand in for wallpaper tones. */
+/* Android tints the monochrome layer's shape; these stand in for wallpaper tones. */
 .silhouette {
     mask-size: 100% 100%;
 }
@@ -83,16 +83,25 @@ section + section {
     background-color: #b7d5d4;
 }
 
-/* The splash canvas at about the size Android 12+ shows it. */
+/* A 412 × 915 phone at half size, with the splash canvas at about the size Android 12+ shows it. */
 .splash {
-    position: absolute;
-    inset: 0;
     display: grid;
     place-items: center;
-    background-color: #305252;
+    width: 206px;
+    height: 458px;
+    border: 4px solid #111;
+    border-radius: 20px;
+}
+
+.splash.light {
+    background-color: #f4f8f8;
+}
+
+.splash.dark {
+    background-color: #173535;
 }
 
 .splash-image {
-    width: 288px;
-    height: 288px;
+    width: 144px;
+    height: 144px;
 }

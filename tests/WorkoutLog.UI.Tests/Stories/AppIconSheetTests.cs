@@ -14,15 +14,16 @@ public class AppIconSheetTests : ComponentTestBase
 
         var launcher = cut.FindAll(".mask img").Select(img => Decode(img.GetAttribute("src")!)).ToList();
         var themed = cut.FindAll(".silhouette").Select(e => e.GetAttribute("style")!).ToList();
-        var foregroundUri = DataUri + Convert.ToBase64String(Encoding.UTF8.GetBytes(App("AppIcon", "appiconfg.svg")));
+        var monochromeUri = DataUri + Convert.ToBase64String(Encoding.UTF8.GetBytes(App("AppIcon", "appicon_monochrome.svg")));
 
         Assert.Multiple(() =>
         {
             Assert.That(launcher, Has.Count.EqualTo(8));
             Assert.That(launcher.Where((_, i) => i % 2 == 0), Is.All.EqualTo(App("AppIcon", "appicon.svg")));
             Assert.That(launcher.Where((_, i) => i % 2 == 1), Is.All.EqualTo(App("AppIcon", "appiconfg.svg")));
-            Assert.That(themed, Has.Count.EqualTo(4).And.All.Contains(foregroundUri));
-            Assert.That(Decode(cut.Find(".splash-image").GetAttribute("src")!), Is.EqualTo(App("Splash", "splash.svg")));
+            Assert.That(themed, Has.Count.EqualTo(4).And.All.Contains(monochromeUri));
+            Assert.That(Decode(cut.Find(".splash.light .splash-image").GetAttribute("src")!), Is.EqualTo(App("Splash", "splash.svg")));
+            Assert.That(Decode(cut.Find(".splash.dark .splash-image").GetAttribute("src")!), Is.EqualTo(App("AppIcon", "appiconfg.svg")));
         });
     }
 

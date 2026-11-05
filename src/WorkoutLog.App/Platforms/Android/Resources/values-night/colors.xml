@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- MauiSplashScreen's Color is the light splash; this is the dark one. -->
+    <color name="maui_splash_color">#173535</color>
+</resources>
