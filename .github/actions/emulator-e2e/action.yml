@@ -86,10 +86,18 @@ runs:
         echo "::group::Health (last 20)"; tail -n 20 "$RESULTS/health.log" 2>/dev/null || true; echo "::endgroup::"
         ls -la "$RESULTS"
 
+    # Status functions work only in `if:`, so a passed and a failed job's artifacts need a step each.
     - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
-      if: always()
+      if: success()
       with:
-        name: ${{ inputs.artifact }}
+        name: ${{ inputs.artifact }}-${{ github.run_attempt }}
         path: ${{ inputs.results }}/
         retention-days: 1
+        if-no-files-found: ignore
+    - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+      if: failure() || cancelled()
+      with:
+        name: ${{ inputs.artifact }}-${{ github.run_attempt }}
+        path: ${{ inputs.results }}/
+        retention-days: 7
         if-no-files-found: ignore

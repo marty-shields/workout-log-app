@@ -17,6 +17,7 @@ on:
       - src/WorkoutLog.Core/Data/**
       - .github/workflows/release-e2e.yml
       - .github/actions/**
+      - .github/scripts/emulator-dialogs.sh
       - src/WorkoutLog.App/**
       - .github/scripts/e2e-run.sh
       - .github/scripts/chromedriver.sh

@@ -14,6 +14,7 @@ on:
       - src/WorkoutLog.Core/Data/**
       - .github/workflows/upgrade-e2e.yml
       - .github/actions/**
+      - .github/scripts/emulator-dialogs.sh
       - .github/scripts/previous-apk.sh
       - .github/scripts/upgrade-e2e.sh
       - .github/scripts/upgrade-seed-ref.sh

@@ -1,0 +1,5 @@
+::warning title=Emulator::An ANR dialog for com.android.launcher3 was on the screen; closed it by tapping Wait.
+2026-11-05T10:16:02.5521874Z   Failed LeavingWithBackAndComingBackShowsTheDashboard [17 s]
+2026-11-05T10:16:02.5522410Z Assert.That(actual, constraint)
+2026-11-05T10:16:02.5522988Z   Expected: not equal to RunningInForeground
+2026-11-05T10:16:02.5523519Z   But was:  RunningInForeground
