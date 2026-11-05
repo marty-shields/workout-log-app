@@ -66,8 +66,8 @@ A failed try starts both halves again from an uninstalled app. The tag `v1.3.0` 
 
 ## A red emulator shard
 A failed shard's job summary says `infra` or `test`. `classify-shard-failure.sh <log>` decides it from the shard's output (`e2e-output.log` in the results artifact):
-- `infra`: the log shows the emulator or its UiAutomator2 server failing, and no assertion failing. The signatures are `Could not find a connected Android device`, `adb: device offline`, `instrumentation process is not running`, `adb shell date +%s failed (255)`, `WEBVIEW_<package> didn't appear`, and `The emulator did not recover`.
-- `test`: anything else. A log with an assertion failure (an NUnit `Expected:` line) is `test` even when it also shows a signature, so a real failure is never called infrastructure. A UI timeout alone is `test`.
+- `infra`: the log shows the emulator or its UiAutomator2 server failing, and no assertion failing. The signatures are `Could not find a connected Android device`, `adb: device offline`, `instrumentation process is not running`, `adb shell date +%s failed (255)`, `WEBVIEW_<package> didn't appear`, `The emulator did not recover`, and `An ANR dialog for <package>`, the warning `emulator-recover.sh` prints when it closes a system app's "isn't responding" dialog before a try. The app's own ANR dialog doesn't count.
+- `test`: anything else. A log with an assertion failure (an NUnit `Expected:` line) is `test` even when it also shows a signature, so a real failure is never called infrastructure. That holds for the ANR signature too: the dialog is closed before every try, so an assertion that fails on the last try failed on a clear screen. A UI timeout alone is `test`.
 
 The rule:
 1. On `infra`, rerun the failed job once. GitHub keeps the first attempt's logs and summary in the run's attempt list.
@@ -75,6 +75,12 @@ The rule:
 3. The `infra` verdict is a heuristic. `WEBVIEW didn't appear` can also come from an app that fails to start, so one rerun is the limit.
 
 Between tries, `e2e-run.sh` also checks the emulator (`emulator-recover.sh`). A device that doesn't answer gets `adb reconnect`, then a restart of the emulator with the job's flags. Before a retry, the UiAutomator2 server is stopped and uninstalled, so Appium installs a fresh one. If the device still doesn't answer, the job fails with an `Emulator` error instead of running the retry on a dead device.
+
+Before every try, the first one too, it closes any "isn't responding" (ANR) or "has stopped" dialog on the screen (`emulator-dialogs.sh`). Such a dialog takes Android back, covers the file picker and the share sheet and keeps the keyboard down, so every try behind it fails the same way. It taps the dialog's Wait button, else force-stops the app it names, else broadcasts `CLOSE_SYSTEM_DIALOGS`, and prints an `Emulator` warning naming the app (`An ANR dialog for com.android.launcher3 was on the screen; closed it by tapping Wait.`).
+
+Most of those dialogs came from the boot. A guest still busy just after `sys.boot_completed` can leave the launcher without a focused window, and a key sent then makes it "not respond". So `emulator-wait.sh` hides error dialogs (`hide_error_dialogs`) before anything else, sends no key, waits up to 2 minutes for a window to have focus before `wm dismiss-keyguard`, and closes a dialog that is already up.
+
+A failed or cancelled job's results artifact is kept 7 days, a passed one's 1 day. Each attempt uploads its own, named after the job's artifact with the attempt number added (`e2e-results-3-2` is shard 3's rerun).
 
 ## Results
 - `tests/WorkoutLog.E2E.Tests/TestResults/E2E/<yyyyMMdd-HHmmss>/` per run. A failed scenario saves its screen, page source, app log and Appium log in its own folder there.
