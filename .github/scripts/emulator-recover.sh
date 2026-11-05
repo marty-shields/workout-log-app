@@ -3,10 +3,12 @@
 # Makes sure emulator-5554 answers before a test try. A device that is not "device" or does not run a shell command gets
 # `adb reconnect`; if it is still down, the emulator is stopped and booted again the way emulator-start.sh did
 # (emulator-launch.sh, emulator-wait.sh; CI only). With reset-server, the UiAutomator2 server is stopped and uninstalled
-# too, since a crashed one keeps failing every call; Appium installs it again. Exit 1 with an `Emulator` error if the
-# device stays down.
+# too, since a crashed one keeps failing every call; Appium installs it again. Then an ANR or app-error dialog on the
+# screen is closed, with an `Emulator` warning (emulator-dialogs.sh).
+# Exit 1 with an `Emulator` error if the device stays down.
 set -uo pipefail
 here="$(cd "$(dirname "$0")" && pwd)"
+source "$here/emulator-dialogs.sh"
 results="$1"
 reset_server="${2:-}"
 serial=emulator-5554
@@ -49,3 +51,5 @@ if [[ "$reset_server" == reset-server ]]; then
     timeout 30 adb -s "$serial" uninstall "$package" > /dev/null 2>&1 || true
   done
 fi
+
+close_error_dialogs "$serial"
