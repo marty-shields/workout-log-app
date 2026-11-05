@@ -48,7 +48,6 @@ check "delete short" "exit=0" "$(hook 'git push -d origin feat/x')"
 check "delete refspec" "exit=0" "$(hook 'git push origin :feat/x')"
 check "tags" "exit=0" "$(hook 'git push --tags')"
 check "dry run" "exit=0" "$(hook 'git push --dry-run')"
-check "skip switch" "exit=0" "$(CLAUDE_SKIP_PRE_PUSH=1 hook 'git push')"
 
 check "failing check blocks" "$(printf 'exit=2\nfiller comments,docs,E2E step bindings,build')" \
   "$(FAIL_AT=build hook 'git push')"

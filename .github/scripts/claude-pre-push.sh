@@ -2,7 +2,6 @@
 # Claude Code PreToolUse hook on Bash (.claude/settings.json). Before an agent's `git push` that publishes code, runs the
 # checks of dev / build-and-test that need no emulator or browser, and blocks the push (exit 2: Claude Code shows stderr
 # to the agent) when one fails. Every other command passes untouched. Reads the hook's JSON on stdin.
-# CLAUDE_SKIP_PRE_PUSH=1 (set before starting claude) lets every push through.
 # CLAUDE_PRE_PUSH_RUNNER, for the tests: a command called as <runner> <check name> <shell command> in place of each check.
 set -uo pipefail
 
@@ -60,7 +59,6 @@ publishes_code() {
 }
 
 input=$(cat)
-[[ "${CLAUDE_SKIP_PRE_PUSH:-}" == 1 ]] && exit 0
 command=$(jq -r '.tool_input.command // empty' <<< "$input")
 cwd=$(jq -r '.cwd // empty' <<< "$input")
 [[ -n "$command" ]] || exit 0

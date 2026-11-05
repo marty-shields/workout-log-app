@@ -14,7 +14,7 @@ Personal Android app (.NET 10 MAUI Blazor Hybrid). Setup: [docs/dev-setup-build.
 - CI lint (needs `shellcheck`): `.github/scripts/lint-ci.sh` runs shellcheck over the scripts and actionlint over the workflows; CI runs it in `dev / build-and-test`.
 - Docs: `python3 -I .github/scripts/check-docs.py` fails on a relative link or `#anchor` in a tracked `*.md` that doesn't resolve, or a README screenshot and its table row that don't match; CI runs it in `dev / build-and-test`.
 - Design system: `dotnet run --project src/WorkoutLog.UI.Stories` → http://localhost:5056
-- Pre-push gate: a Claude Code hook (`.claude/settings.json`) runs `.github/scripts/claude-pre-push.sh` before an agent's `git push` and blocks the push when a check fails. It runs the comment, docs and step-binding checks, the build, the code style check, both test projects and the coverage floor, plus the CI script tests and lint when `.github/` changed. Deletes, tag pushes and dry runs pass straight through. `CLAUDE_SKIP_PRE_PUSH=1`, set before starting `claude`, turns it off.
+- Pre-push gate: a Claude Code hook (`.claude/settings.json`) runs `.github/scripts/claude-pre-push.sh` before an agent's `git push` and blocks the push when a check fails. It runs the comment, docs and step-binding checks, the build, the code style check, both test projects and the coverage floor, plus the CI script tests and lint when `.github/` changed. Deletes, tag pushes and dry runs pass straight through.
 
 ## How the code fits
 - Projects: App → UI → Core; Stories → UI. `WorkoutLog.UI.Tests` reads the App's files because it can't reference it.
