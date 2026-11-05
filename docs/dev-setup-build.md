@@ -103,7 +103,9 @@ Also: Dependabot opens weekly update PRs (`chore(deps): …`, `semver:patch`); e
 - Branches: `type/<issue>-slug` (e.g. `ci/123-faster-e2e-shards`, `fix/118-skip-future-workouts`); work with no issue leaves out the number (e.g. `chore/update-readme`).
 
 ## Agent identity
-Claude sessions for this repo act on GitHub as `marty-dev-bot[bot]`, a GitHub App installed on this repo only. It has Write-level access. It can push branches, open and merge PRs and rerun jobs. It can't change the ruleset, the repo settings, environments or secrets, and it can't approve a release. With code-owner review on ([Source control](#source-control)), GitHub holds an agent's PR on a CODEOWNERS path until you approve it, so the autopilot gate no longer depends on the agent stopping. This guards against agent mistakes, not against a malicious agent. Agents run as your Linux user, so your own `gh` token is still readable on disk.
+`~/dev-bot` is the bot's folder. Inside it, git and `gh` act as `marty-dev-bot[bot]`, a GitHub App installed on this repo only. That holds for everyone working there: Claude sessions, subagents, resumed sessions and your own terminal. Outside it, git and `gh` act as you. Only the current folder counts, so `gh -R marty-shields/workout-log-app` run from outside still acts as you.
+
+The App has Write-level access. It can push branches, open and merge PRs and rerun jobs. It can't change the ruleset, the repo settings, environments or secrets, and it can't approve a release. With code-owner review on ([Source control](#source-control)), GitHub holds an agent's PR on a CODEOWNERS path until you approve it, so the autopilot gate no longer depends on the agent stopping. This guards against agent mistakes, not against a malicious agent. Agents run as your Linux user, so your own `gh` token is still readable on disk.
 
 The App is a general developer bot, so it can be installed on other repos too. Each of them needs its own CODEOWNERS and ruleset to get the same gate. This setup installs it here.
 
@@ -115,18 +117,35 @@ The App (Settings → Developer settings → GitHub Apps → `marty-dev-bot`, Ap
 | Checks, Metadata | Read |
 | Administration, Environments, Secrets | No access |
 
+Where things live:
+
+| Path | Holds |
+|---|---|
+| `~/dev-bot` | The checkouts agents work in, and `.claude/settings.local.json` |
+| `~/.local/share/marty-dev-bot/bin` | `agent-token.sh` and `agent-git-credential.sh` |
+| `~/.config/marty-dev-bot` | `private-key.pem`, `config`, `gitconfig` and ruleset backups |
+| `~/.cache/marty-dev-bot` | `token.json`, the cached token |
+| `~/.local/bin/gh` | The `gh` shim (`agent-gh.sh`) |
+
 Set it up on a machine:
 1. Generate a private key on the App's page and save it as `~/.config/marty-dev-bot/private-key.pem` with mode 600.
-2. Run `.github/scripts/agent-install.sh 5623577` (a second argument names another key file). It copies `agent-token.sh`, `agent-git-credential.sh` and `agent-gh.sh` (as `gh`) to `~/.local/share/marty-dev-bot/bin`, writes `~/.config/marty-dev-bot/config` (`APP_ID`, `INSTALLATION_ID`, `KEY`) with the App's one installation, and prints the bot's login, user id and commit email. Re-run it after those scripts change. A re-run ends in the same state.
-3. Write `/home/martin/workout-log-app/.claude/settings.local.json`, in the folder above the checkouts where sessions start. It is outside git. It holds:
-   - `env`: `GIT_AUTHOR_NAME` and `GIT_COMMITTER_NAME` set to `marty-dev-bot[bot]`, and `GIT_AUTHOR_EMAIL` and `GIT_COMMITTER_EMAIL` set to the commit email from step 2. `GIT_CONFIG_COUNT=2` with two entries for the key `credential.https://github.com.helper`. The first has an empty value, which clears the `gh auth git-credential` helper. The second is `!/home/martin/.local/share/marty-dev-bot/bin/agent-git-credential.sh`.
-   - a `SessionStart` hook that appends `export PATH="$HOME/.local/share/marty-dev-bot/bin:$PATH"` to `$CLAUDE_ENV_FILE`, so `gh` is the wrapper in every session and subagent.
-   - `permissions.deny`: `Bash(/usr/bin/gh:*)` and `Read(/home/martin/.config/gh/**)`. These make your token harder to use by accident. They are not a wall.
+2. Run `.github/scripts/agent-install.sh 5623577` (a second argument names another key file). Re-run it after those scripts change. A re-run ends in the same state. It:
+   - copies `agent-token.sh` and `agent-git-credential.sh` to `~/.local/share/marty-dev-bot/bin`, and writes `~/.config/marty-dev-bot/config` (`APP_ID`, `INSTALLATION_ID`, `KEY`) with the App's one installation.
+   - writes `~/.config/marty-dev-bot/gitconfig` with the bot's name, commit email and credential helper. An empty `helper =` before the bot's helper clears `gh auth git-credential`.
+   - adds `includeIf "gitdir:~/dev-bot/"` for that file to `~/.gitconfig`. The include must come after the `gh auth git-credential` helper, or the empty `helper =` can't clear it. A new section goes at the end, so a first run gets this right. Running `gh auth setup-git` later puts its helper after the include, and a re-run of `agent-install.sh` doesn't move it. Move the include back to the end by hand.
+   - installs `agent-gh.sh` as `~/.local/bin/gh`, which comes before `/usr/bin` on your `PATH`. Inside `~/dev-bot` it runs `/usr/bin/gh` with the bot's token, and anywhere else it runs `/usr/bin/gh` as is.
+   - creates `~/dev-bot` and, if it has none yet, `~/dev-bot/.claude/settings.local.json` with `permissions.deny` for `Bash(/usr/bin/gh:*)` and `Read(//home/martin/.config/gh/**)` (`//` starts an absolute path). These make your token harder to use by accident. They are not a wall.
+   - prints the bot's login, user id and commit email.
+3. Clone the repo into `~/dev-bot` and start Claude Code there. Keep worktrees inside `~/dev-bot` too. git follows the main checkout, but `gh` follows the current folder.
 
-   Start a new Claude Code session from `/home/martin/workout-log-app` afterwards. A resumed one (`claude --continue`) misses the hook, so its `gh` is still `/usr/bin/gh` and acts as you. Check with `command -v gh`. Your own terminal is unchanged and stays logged in as you.
+An earlier setup put an `env` block and a `SessionStart` hook in `/home/martin/workout-log-app/.claude/settings.local.json`. Delete both.
+
+To check, run `git config user.name` and `gh api installation/repositories -q '.repositories[].full_name'` from a checkout in `~/dev-bot`. The first prints `marty-dev-bot[bot]`, and the second lists only `marty-shields/workout-log-app`.
+
+Admin actions (a ruleset, a repo setting, an environment or a release approval) need you. Type `/usr/bin/gh` in full, or run `gh` from outside `~/dev-bot`.
 
 `agent-token.sh` prints a token and caches it in `~/.cache/marty-dev-bot/token.json` (mode 600). A token lasts an hour, and the script fetches a new one when less than 10 minutes remain. `agent-token.sh --installation-id` lists the App's installations.
 
 To rotate the key, generate a new private key on the App's page, replace `private-key.pem` with it, delete `~/.cache/marty-dev-bot/token.json`, then delete the old key on the App's page. A token minted with the old key works until it expires.
 
-To undo, delete the `env`, the `SessionStart` hook and the deny rules from `settings.local.json` and restart Claude Code. Then uninstall the App (Settings → Applications) or delete it. `~/.local/share/marty-dev-bot`, `~/.config/marty-dev-bot` and `~/.cache/marty-dev-bot` can go too.
+To undo, run `git config --global --remove-section 'includeIf.gitdir:~/dev-bot/'` and delete `~/.local/bin/gh`. Then uninstall the App (Settings → Applications) or delete it. `~/.local/share/marty-dev-bot`, `~/.config/marty-dev-bot` and `~/.cache/marty-dev-bot` can go too.
