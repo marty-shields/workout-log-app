@@ -35,7 +35,7 @@ jobs:
           persist-credentials: false
 
       - name: Start the emulator
-        run: .github/scripts/emulator-start.sh
+        uses: ./.github/actions/start-emulator
 
       # The Debug APK and the E2E test output from dev / build-and-test, in this run (e2e-build).
       - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2

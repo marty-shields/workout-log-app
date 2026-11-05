@@ -1,0 +1,70 @@
+# Keeps the emulator and system image pinned in .github/android-emulator.env in the Actions cache, so the emulator jobs
+# (.github/actions/start-emulator) don't download them from Google. A cache unused for 7 days is evicted: the weekly run
+# restores it, which keeps it, and saves it again only when it is gone. Saved on main, it serves every PR. A PR that changes
+# the pin or this workflow fills a cache only that PR's runs can restore, to prove the change before it merges. Fails when
+# sdkmanager's stable channel has moved past the pin: bump .github/android-emulator.env then (docs/dev-setup-build.md).
+name: Emulator cache
+
+on:
+  schedule:
+    - cron: "23 5 * * 1"
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - .github/android-emulator.env
+      - .github/scripts/emulator-sdk.sh
+      - .github/workflows/emulator-cache.yml
+  pull_request:
+    branches: [main]
+    paths:
+      - .github/android-emulator.env
+      - .github/scripts/emulator-sdk.sh
+      - .github/workflows/emulator-cache.yml
+
+permissions:
+  contents: read
+
+concurrency:
+  group: emulator-cache-${{ github.ref }}
+
+jobs:
+  cache:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - id: pin
+        run: .github/scripts/emulator-sdk.sh cache >> "$GITHUB_OUTPUT"
+
+      - id: restore
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          key: ${{ steps.pin.outputs.key }}
+          path: ${{ steps.pin.outputs.path }}
+
+      - name: Cached already
+        if: steps.restore.outputs.cache-hit == 'true'
+        env:
+          KEY: ${{ steps.pin.outputs.key }}
+        run: |
+          .github/scripts/emulator-sdk.sh check
+          echo "::notice title=Emulator cache::$KEY is cached; restoring it kept it from eviction."
+
+      - name: Install the pinned emulator and image
+        if: steps.restore.outputs.cache-hit != 'true'
+        run: |
+          .github/scripts/emulator-sdk.sh install
+          if ! .github/scripts/emulator-sdk.sh check; then
+            echo "::error title=Emulator cache::sdkmanager's stable emulator or image is not the one pinned. Bump .github/android-emulator.env to the versions above."
+            exit 1
+          fi
+
+      - if: steps.restore.outputs.cache-hit != 'true'
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          key: ${{ steps.pin.outputs.key }}
+          path: ${{ steps.pin.outputs.path }}
