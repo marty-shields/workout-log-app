@@ -1,0 +1,25 @@
+# The start of every emulator E2E job (qa-pipeline.yml's shards, release-e2e.yml, upgrade-e2e.yml): restores the emulator
+# and system image pinned in .github/android-emulator.env from the cache the Emulator cache workflow saves, then starts the
+# emulator in the background (emulator-start.sh), so it boots while the job builds. The jobs only restore: 8 shards never
+# race to save, and PRs don't fill the cache. One action keeps the key and the paths the same in every job, since
+# actions/cache only matches a cache saved with the same paths.
+name: Start the emulator
+description: Restores the pinned emulator and system image from the cache and starts the emulator.
+
+runs:
+  using: composite
+  steps:
+    - id: pin
+      shell: bash
+      run: .github/scripts/emulator-sdk.sh cache >> "$GITHUB_OUTPUT"
+
+    - id: restore
+      uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+      with:
+        key: ${{ steps.pin.outputs.key }}
+        path: ${{ steps.pin.outputs.path }}
+
+    - shell: bash
+      env:
+        EMULATOR_CACHE_HIT: ${{ steps.restore.outputs.cache-hit }}
+      run: .github/scripts/emulator-start.sh

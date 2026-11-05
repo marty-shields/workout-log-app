@@ -21,6 +21,8 @@ on:
       - .github/scripts/e2e-run.sh
       - .github/scripts/chromedriver.sh
       - .github/scripts/emulator-start.sh
+      - .github/scripts/emulator-sdk.sh
+      - .github/android-emulator.env
       - .github/scripts/emulator-wait.sh
 
 permissions:
@@ -43,7 +45,7 @@ jobs:
           persist-credentials: false
 
       - name: Start the emulator
-        run: .github/scripts/emulator-start.sh
+        uses: ./.github/actions/start-emulator
 
       - uses: ./.github/actions/setup-maui
 

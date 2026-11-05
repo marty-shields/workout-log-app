@@ -1,10 +1,15 @@
 #!/usr/bin/env bash
-# Enables KVM, installs the emulator and $SYSTEM_IMAGE (up to 3 tries), creates the AVD $AVD and starts it in the background.
-# Writes $RUNNER_TEMP/emulator.log and emulator.pid; adds platform-tools to the PATH and ANDROID_AVD_HOME to the job's env.
+# Enables KVM, gets the emulator and the system image pinned in .github/android-emulator.env, creates the AVD $AVD and
+# starts it in the background. Run by the start-emulator action, which restores both packages from the cache first: with
+# EMULATOR_CACHE_HIT=true and the pinned versions in place, sdkmanager doesn't run. Otherwise `emulator-sdk.sh install`
+# downloads the latest stable ones. Writes $RUNNER_TEMP/emulator.log and emulator.pid; adds platform-tools to the PATH and
+# ANDROID_AVD_HOME to the job's env.
 set -euo pipefail
-source "$(dirname "$0")/emulator-launch.sh"
-# AOSP image: no Play services or Gboard.
-SYSTEM_IMAGE="${SYSTEM_IMAGE:-system-images;android-36;default;x86_64}"
+here="$(dirname "$0")"
+source "$here/emulator-launch.sh"
+# The pinned image is AOSP: no Play services or Gboard.
+# shellcheck source=.github/android-emulator.env
+source "$here/../android-emulator.env"
 sdk="$ANDROID_HOME/cmdline-tools/latest/bin"
 
 echo "::group::Host"
@@ -27,17 +32,16 @@ sudo apt-get install -y --no-install-recommends libpulse0 > /dev/null
 echo "::endgroup::"
 
 echo "::group::Install the emulator and image"
-(yes || true) | "$sdk/sdkmanager" --licenses > /dev/null
-for try in 1 2 3; do
-  "$sdk/sdkmanager" --install emulator "$SYSTEM_IMAGE" && break
-  if (( try == 3 )); then
-    echo "::error title=sdkmanager::The install failed 3 times."
-    exit 1
+if [[ "${EMULATOR_CACHE_HIT:-}" == true ]] && "$here/emulator-sdk.sh" check; then
+  echo "Restored from the cache; sdkmanager did not run."
+else
+  if [[ "${EMULATOR_CACHE_HIT:-}" == true ]]; then
+    echo "::warning title=Emulator cache::The restored cache doesn't hold the pinned versions; installing with sdkmanager."
+  else
+    echo "::notice title=Emulator cache::The emulator cache missed; downloading with sdkmanager. The Emulator cache workflow (emulator-cache.yml) fills it."
   fi
-  echo "::warning title=sdkmanager::The install failed on try $try of 3; trying again."
-  sleep 5
-done
-"$sdk/sdkmanager" --list_installed | grep -E "emulator|system-images|platform-tools|build-tools"
+  "$here/emulator-sdk.sh" install
+fi
 echo "::endgroup::"
 
 echo "::group::Create the AVD"
