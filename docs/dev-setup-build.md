@@ -121,7 +121,7 @@ Set it up on a machine:
    - a `SessionStart` hook that appends `export PATH="$HOME/.local/share/workout-log-agent/bin:$PATH"` to `$CLAUDE_ENV_FILE`, so `gh` is the wrapper in every session and subagent.
    - `permissions.deny`: `Bash(/usr/bin/gh:*)` and `Read(/home/martin/.config/gh/**)`. These make your token harder to use by accident. They are not a wall.
 
-   Restart Claude Code from `/home/martin/workout-log-app` afterwards. Your own terminal is unchanged and stays logged in as you.
+   Start a new Claude Code session from `/home/martin/workout-log-app` afterwards. A resumed one (`claude --continue`) misses the hook, so its `gh` is still `/usr/bin/gh` and acts as you. Check with `command -v gh`. Your own terminal is unchanged and stays logged in as you.
 
 `agent-token.sh` prints a token and caches it in `~/.cache/workout-log-agent/token.json` (mode 600). A token lasts an hour, and the script fetches a new one when less than 10 minutes remain. `agent-token.sh --installation-id` lists the App's installations.
 
