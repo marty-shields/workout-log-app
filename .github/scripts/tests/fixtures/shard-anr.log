@@ -1,0 +1,3 @@
+::warning title=Emulator::An ANR dialog for com.android.launcher3 was on the screen; closed it by tapping Wait.
+2026-11-05T10:14:41.2215839Z -> error: Timed out: e2e-import.json didn't show in the picker. (10.1s)
+2026-11-05T10:14:41.2236620Z ##[error]Timed out: e2e-import.json didn't show in the picker.
