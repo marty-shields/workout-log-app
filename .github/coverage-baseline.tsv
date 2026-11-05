@@ -1,3 +1,3 @@
-# Line coverage % per assembly, a gate for dev / build-and-test. Made by coverage-summary.py --tsv (docs/dev-setup-build.md).
+# Line coverage % per assembly, a gate for dev / build-and-test. Made by coverage-summary.py --tsv (docs/dev-setup-build.md). (verify)
 WorkoutLog.Core	99.2
 WorkoutLog.UI	98.4
