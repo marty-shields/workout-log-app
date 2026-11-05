@@ -1,0 +1,14 @@
+# Paths an agent can't merge without the owner's approval: CI and its baselines, the agent rules, the build settings,
+# the source conventions, the UI and the database. Keep in step with the autopilot gate in AGENTS.md.
+/.github/ @marty-shields
+/AGENTS.md @marty-shields
+/Directory.Build.props @marty-shields
+/Directory.Packages.props @marty-shields
+/global.json @marty-shields
+/.editorconfig @marty-shields
+/tests/WorkoutLog.UI.Tests/Conventions/ @marty-shields
+*.razor @marty-shields
+*.css @marty-shields
+/src/WorkoutLog.UI.Stories/ @marty-shields
+**/wwwroot/ @marty-shields
+/src/WorkoutLog.Core/Data/ @marty-shields
