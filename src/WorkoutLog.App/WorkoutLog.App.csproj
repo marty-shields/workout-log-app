@@ -27,6 +27,8 @@
   <ItemGroup>
     <MauiIcon Include="Resources\AppIcon\appicon.svg" ForegroundFile="Resources\AppIcon\appiconfg.svg" Color="#173535" />
     <MauiSplashScreen Include="Resources\Splash\splash.svg" Color="#f4f8f8" BaseSize="108,108" />
+    <!-- The themed icon's layer; Platforms/Android/Resources/mipmap-anydpi-v33 puts it in the adaptive icon. -->
+    <MauiImage Include="Resources\AppIcon\appicon_monochrome.svg" BaseSize="108,108" />
   </ItemGroup>
 
   <ItemGroup>
