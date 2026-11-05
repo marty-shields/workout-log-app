@@ -103,9 +103,11 @@ Also: Dependabot opens weekly update PRs (`chore(deps): …`, `semver:patch`); e
 - Branches: `type/<issue>-slug` (e.g. `ci/123-faster-e2e-shards`, `fix/118-skip-future-workouts`); work with no issue leaves out the number (e.g. `chore/update-readme`).
 
 ## Agent identity
-Claude sessions for this repo act on GitHub as `workout-log-agent[bot]`, a GitHub App installed on this repo only. It has Write-level access. It can push branches, open and merge PRs and rerun jobs. It can't change the ruleset, the repo settings, environments or secrets, and it can't approve a release. With code-owner review on ([Source control](#source-control)), GitHub holds an agent's PR on a CODEOWNERS path until you approve it, so the autopilot gate no longer depends on the agent stopping. This guards against agent mistakes, not against a malicious agent. Agents run as your Linux user, so your own `gh` token is still readable on disk.
+Claude sessions for this repo act on GitHub as `marty-dev-bot[bot]`, a GitHub App installed on this repo only. It has Write-level access. It can push branches, open and merge PRs and rerun jobs. It can't change the ruleset, the repo settings, environments or secrets, and it can't approve a release. With code-owner review on ([Source control](#source-control)), GitHub holds an agent's PR on a CODEOWNERS path until you approve it, so the autopilot gate no longer depends on the agent stopping. This guards against agent mistakes, not against a malicious agent. Agents run as your Linux user, so your own `gh` token is still readable on disk.
 
-The App (Settings → Developer settings → GitHub Apps → `workout-log-agent`, App ID 5623577) has no webhook, installs only on this account, and has these repository permissions:
+The App is a general developer bot, so it can be installed on other repos too. Each of them needs its own CODEOWNERS and ruleset to get the same gate. This setup installs it here.
+
+The App (Settings → Developer settings → GitHub Apps → `marty-dev-bot`, App ID 5623577) has no webhook, installs only on this account, and has these repository permissions:
 
 | Permission | Level |
 |---|---|
@@ -114,17 +116,17 @@ The App (Settings → Developer settings → GitHub Apps → `workout-log-agent`
 | Administration, Environments, Secrets | No access |
 
 Set it up on a machine:
-1. Generate a private key on the App's page and save it as `~/.config/workout-log-agent/private-key.pem` with mode 600.
-2. Run `.github/scripts/agent-install.sh 5623577` (a second argument names another key file). It copies `agent-token.sh`, `agent-git-credential.sh` and `agent-gh.sh` (as `gh`) to `~/.local/share/workout-log-agent/bin`, writes `~/.config/workout-log-agent/config` (`APP_ID`, `INSTALLATION_ID`, `KEY`) with the App's one installation, and prints the bot's user id and commit email. Re-run it after those scripts change. A re-run ends in the same state.
+1. Generate a private key on the App's page and save it as `~/.config/marty-dev-bot/private-key.pem` with mode 600.
+2. Run `.github/scripts/agent-install.sh 5623577` (a second argument names another key file). It copies `agent-token.sh`, `agent-git-credential.sh` and `agent-gh.sh` (as `gh`) to `~/.local/share/marty-dev-bot/bin`, writes `~/.config/marty-dev-bot/config` (`APP_ID`, `INSTALLATION_ID`, `KEY`) with the App's one installation, and prints the bot's login, user id and commit email. Re-run it after those scripts change. A re-run ends in the same state.
 3. Write `/home/martin/workout-log-app/.claude/settings.local.json`, in the folder above the checkouts where sessions start. It is outside git. It holds:
-   - `env`: `GIT_AUTHOR_NAME` and `GIT_COMMITTER_NAME` set to `workout-log-agent[bot]`, and `GIT_AUTHOR_EMAIL` and `GIT_COMMITTER_EMAIL` set to the commit email from step 2. `GIT_CONFIG_COUNT=2` with two entries for the key `credential.https://github.com.helper`. The first has an empty value, which clears the `gh auth git-credential` helper. The second is `!/home/martin/.local/share/workout-log-agent/bin/agent-git-credential.sh`.
-   - a `SessionStart` hook that appends `export PATH="$HOME/.local/share/workout-log-agent/bin:$PATH"` to `$CLAUDE_ENV_FILE`, so `gh` is the wrapper in every session and subagent.
+   - `env`: `GIT_AUTHOR_NAME` and `GIT_COMMITTER_NAME` set to `marty-dev-bot[bot]`, and `GIT_AUTHOR_EMAIL` and `GIT_COMMITTER_EMAIL` set to the commit email from step 2. `GIT_CONFIG_COUNT=2` with two entries for the key `credential.https://github.com.helper`. The first has an empty value, which clears the `gh auth git-credential` helper. The second is `!/home/martin/.local/share/marty-dev-bot/bin/agent-git-credential.sh`.
+   - a `SessionStart` hook that appends `export PATH="$HOME/.local/share/marty-dev-bot/bin:$PATH"` to `$CLAUDE_ENV_FILE`, so `gh` is the wrapper in every session and subagent.
    - `permissions.deny`: `Bash(/usr/bin/gh:*)` and `Read(/home/martin/.config/gh/**)`. These make your token harder to use by accident. They are not a wall.
 
    Start a new Claude Code session from `/home/martin/workout-log-app` afterwards. A resumed one (`claude --continue`) misses the hook, so its `gh` is still `/usr/bin/gh` and acts as you. Check with `command -v gh`. Your own terminal is unchanged and stays logged in as you.
 
-`agent-token.sh` prints a token and caches it in `~/.cache/workout-log-agent/token.json` (mode 600). A token lasts an hour, and the script fetches a new one when less than 10 minutes remain. `agent-token.sh --installation-id` lists the App's installations.
+`agent-token.sh` prints a token and caches it in `~/.cache/marty-dev-bot/token.json` (mode 600). A token lasts an hour, and the script fetches a new one when less than 10 minutes remain. `agent-token.sh --installation-id` lists the App's installations.
 
-To rotate the key, generate a new private key on the App's page, replace `private-key.pem` with it, delete `~/.cache/workout-log-agent/token.json`, then delete the old key on the App's page. A token minted with the old key works until it expires.
+To rotate the key, generate a new private key on the App's page, replace `private-key.pem` with it, delete `~/.cache/marty-dev-bot/token.json`, then delete the old key on the App's page. A token minted with the old key works until it expires.
 
-To undo, delete the `env`, the `SessionStart` hook and the deny rules from `settings.local.json` and restart Claude Code. Then uninstall the App (Settings → Applications) or delete it. `~/.local/share/workout-log-agent`, `~/.config/workout-log-agent` and `~/.cache/workout-log-agent` can go too.
+To undo, delete the `env`, the `SessionStart` hook and the deny rules from `settings.local.json` and restart Claude Code. Then uninstall the App (Settings → Applications) or delete it. `~/.local/share/marty-dev-bot`, `~/.config/marty-dev-bot` and `~/.cache/marty-dev-bot` can go too.

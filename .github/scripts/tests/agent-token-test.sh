@@ -9,8 +9,8 @@ credential_script="$here/../agent-git-credential.sh"
 work=$(mktemp -d)
 trap 'rm -rf "$work"' EXIT
 export HOME="$work/home"
-config="$HOME/.config/workout-log-agent/config"
-cache="$HOME/.cache/workout-log-agent/token.json"
+config="$HOME/.config/marty-dev-bot/config"
+cache="$HOME/.cache/marty-dev-bot/token.json"
 mkdir -p "$work/bin" "$(dirname "$config")"
 openssl genrsa -out "$work/key.pem" 2048 2> /dev/null
 openssl rsa -in "$work/key.pem" -pubout -out "$work/public.pem" 2> /dev/null
@@ -20,7 +20,7 @@ cat > "$work/bin/curl" << EOF
 printf '%s\n' "\$@" >> "$work/curl.log"
 case "\${*: -1}" in
   */app/installations/178/access_tokens) printf '{"token":"ghs_fresh","expires_at":"%s"}\n' "\$(date -u -d '+1 hour' +%FT%TZ)" ;;
-  */app/installations) echo '[{"id":178,"account":{"login":"marty-shields"}}]' ;;
+  */app/installations) echo '[{"id":178,"account":{"login":"marty-shields"},"app_slug":"marty-dev-bot"}]' ;;
   *) exit 22 ;;
 esac
 EOF
@@ -71,7 +71,7 @@ check "a cache with an unreadable expiry is refreshed" ghs_fresh "$(bash "$token
 
 rm -f "$work/curl.log"
 write_config 5623 "" "$work/key.pem"
-check "--installation-id lists the installations without INSTALLATION_ID" "178 marty-shields" \
+check "--installation-id lists the installations without INSTALLATION_ID" "178 marty-shields marty-dev-bot" \
   "$(bash "$token_script" --installation-id)"
 check "--installation-id asks GitHub for the App's installations" 1 \
   "$(grep -cx 'https://api.github.com/app/installations' "$work/curl.log")"

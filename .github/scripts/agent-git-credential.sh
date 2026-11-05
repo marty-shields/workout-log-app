@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Usage: git -c 'credential.https://github.com.helper=!<folder>/agent-git-credential.sh' ...
-# A git credential helper: on get for github.com it answers with a token of the workout-log-agent GitHub App, from the
+# A git credential helper: on get for github.com it answers with a token of the marty-dev-bot GitHub App, from the
 # agent-token.sh next to it. It ignores other hosts and the store and erase operations.
 set -euo pipefail
 [[ "${1:-}" == get ]] || exit 0

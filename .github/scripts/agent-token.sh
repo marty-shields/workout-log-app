@@ -1,12 +1,13 @@
 #!/usr/bin/env bash
 # Usage: agent-token.sh [--installation-id]
-# Prints an installation token of the workout-log-agent GitHub App. Reads APP_ID, INSTALLATION_ID and KEY (the private
-# key's path) from ~/.config/workout-log-agent/config, which agent-install.sh writes. Reuses the token cached in
-# ~/.cache/workout-log-agent/token.json while more than 10 minutes remain. With --installation-id it prints
-# "<id> <account>" for each installation of the App instead, so it needs no INSTALLATION_ID. Needs openssl, curl and jq.
+# Prints an installation token of the marty-dev-bot GitHub App. Reads APP_ID, INSTALLATION_ID and KEY (the private
+# key's path) from ~/.config/marty-dev-bot/config, which agent-install.sh writes. Reuses the token cached in
+# ~/.cache/marty-dev-bot/token.json while more than 10 minutes remain. With --installation-id it prints
+# "<id> <account> <app slug>" for each installation of the App instead, so it needs no INSTALLATION_ID. Needs openssl,
+# curl and jq.
 set -euo pipefail
-config="$HOME/.config/workout-log-agent/config"
-cache="$HOME/.cache/workout-log-agent/token.json"
+config="$HOME/.config/marty-dev-bot/config"
+cache="$HOME/.cache/marty-dev-bot/token.json"
 
 fail() {
   echo "agent-token.sh: $1. Run .github/scripts/agent-install.sh <app id> to set it up." >&2
@@ -40,7 +41,7 @@ github() {
 }
 
 if [[ "${1:-}" == --installation-id ]]; then
-  github GET /app/installations | jq -r '.[] | "\(.id) \(.account.login)"'
+  github GET /app/installations | jq -r '.[] | "\(.id) \(.account.login) \(.app_slug)"'
   exit
 fi
 

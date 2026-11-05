@@ -1,15 +1,15 @@
 #!/usr/bin/env bash
-# Usage: agent-install.sh <app id> [private key]   (default key: ~/.config/workout-log-agent/private-key.pem)
-# Sets up the workout-log-agent GitHub App identity on this machine. Copies agent-token.sh, agent-git-credential.sh and
-# agent-gh.sh (as gh) to ~/.local/share/workout-log-agent/bin, writes ~/.config/workout-log-agent/config with the App's
-# one installation, and prints the bot's user id and commit email. Re-run it after these scripts change.
+# Usage: agent-install.sh <app id> [private key]   (default key: ~/.config/marty-dev-bot/private-key.pem)
+# Sets up the marty-dev-bot GitHub App identity on this machine. Copies agent-token.sh, agent-git-credential.sh and
+# agent-gh.sh (as gh) to ~/.local/share/marty-dev-bot/bin, writes ~/.config/marty-dev-bot/config with the App's
+# one installation, and prints the bot's login, user id and commit email. Re-run it after these scripts change.
 set -euo pipefail
 app_id="$1"
-key=$(realpath -- "${2:-$HOME/.config/workout-log-agent/private-key.pem}")
+key=$(realpath -- "${2:-$HOME/.config/marty-dev-bot/private-key.pem}")
 [[ -f "$key" ]] || { echo "agent-install.sh: no private key at $key" >&2; exit 1; }
 here=$(dirname "$0")
-bin="$HOME/.local/share/workout-log-agent/bin"
-config="$HOME/.config/workout-log-agent/config"
+bin="$HOME/.local/share/marty-dev-bot/bin"
+config="$HOME/.config/marty-dev-bot/config"
 
 umask 077
 mkdir -p "$bin" "$(dirname "$config")"
@@ -29,9 +29,11 @@ if (( ${#installations[@]} != 1 )); then
   printf '%s\n' "${installations[@]}" >&2
   exit 1
 fi
-write_config "${installations[0]%% *}"
+read -r installation account slug <<< "${installations[0]}"
+write_config "$installation"
 
-id=$("$bin/gh" api 'users/workout-log-agent%5Bbot%5D' -q .id)
-echo "Installed to $bin, config in $config (installation ${installations[0]})."
+id=$("$bin/gh" api "users/$slug%5Bbot%5D" -q .id)
+echo "Installed to $bin, config in $config (installation $installation on $account)."
+echo "Bot login: ${slug}[bot]"
 echo "Bot user id: $id"
-echo "Commit email: $id+workout-log-agent[bot]@users.noreply.github.com"
+echo "Commit email: $id+${slug}[bot]@users.noreply.github.com"
