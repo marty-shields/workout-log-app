@@ -1,4 +1,4 @@
-@* Shows the App's icon and splash as Android does: launcher masks, the themed icon and the splash screen. *@
+@* Shows the App's icon and splash as Android does: launcher masks, the themed icon and the light and dark splash screens. *@
 <div class="sheet">
     <section>
         <h2 class="heading">Launcher</h2>
@@ -28,7 +28,7 @@
                 {
                     <figure class="icon">
                         <span class="mask circle size-@size @wallpaper">
-                            <span class="layer silhouette" style="@($"mask-image: url({Foreground})")"></span>
+                            <span class="layer silhouette" style="@($"mask-image: url({Monochrome})")"></span>
                         </span>
                         <figcaption>@label, @(size)px</figcaption>
                     </figure>
@@ -39,11 +39,17 @@
 
     <section>
         <h2 class="heading">Splash</h2>
-        <PhoneFrame>
-            <div class="splash">
-                <img class="splash-image" src="@Splash" alt="" />
-            </div>
-        </PhoneFrame>
+        <div class="row">
+            @foreach (var (label, theme, image) in Splashes)
+            {
+                <figure class="icon">
+                    <div class="splash @theme">
+                        <img class="splash-image" src="@image" alt="" />
+                    </div>
+                    <figcaption>@label</figcaption>
+                </figure>
+            }
+        </div>
     </section>
 </div>
 
@@ -62,7 +68,16 @@
 
     private static readonly string Foreground = Art("appiconfg.svg");
 
+    private static readonly string Monochrome = Art("appicon_monochrome.svg");
+
     private static readonly string Splash = Art("splash.svg");
+
+    // The dark splash shows the icon's foreground, whose shadow suits a dark background.
+    private static readonly (string Label, string Theme, string Image)[] Splashes =
+    [
+        ("Light theme", "light", Splash),
+        ("Dark theme", "dark", Foreground),
+    ];
 
     // The App's SVG, embedded by the Stories project, as a data URI.
     private static string Art(string file)
