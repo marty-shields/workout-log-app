@@ -191,3 +191,4 @@ public class CoreServiceCollectionExtensionsTests
         Assert.That(time, Is.SameAs(TimeProvider.System));
     }
 }
+// verify
