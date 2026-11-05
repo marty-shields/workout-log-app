@@ -30,6 +30,7 @@ Personal Android app (.NET 10 MAUI Blazor Hybrid). Setup: [docs/dev-setup-build.
 - No new packages without approval.
 - XML comments only when they add something the name and type don't (a unit, a range, what null means, an order, a why). Component parameters are the exception. Never restate the name. Build warnings no longer ask for them, and CI's `check-filler-comments.py` fails a `<summary>` or `<param>` that only restates the name (a real exception gets `/// <!-- filler-ok: why -->`).
 - Interfaces only where something else implements them, such as a test fake or the stories site. No interface for a single implementation nothing swaps.
+- Act on GitHub as `workout-log-agent[bot]`, through the `gh` and git credential helper in `~/.local/share/workout-log-agent/bin` ([Agent identity](docs/dev-setup-build.md#agent-identity)). Never run `/usr/bin/gh` or use the user's token. Hand an admin action (a ruleset, a repo setting, an environment or a release approval) to the user as a `!` command to run.
 - Commit on a branch, push it and open a DRAFT PR when the work is done. Review happens on the draft PR, not before the commit. Merge only when the user says to, or in an autopilot run (below).
 - PR titles are Conventional Commits with exactly one `semver:major|minor|patch` label (CI checks both).
 - A PR that changes the UI includes screenshots of the changed screens, posted as a PR comment or in the body, before it is marked ready.
@@ -44,7 +45,8 @@ Applies to the issues the user hands to `/pstack:poteto-mode autopilot-full`. Th
    - the diff touches EF migrations, the `DbContext` or model configuration
    - the diff lowers or removes a value in `.github/coverage-baseline.tsv` (a PR could otherwise refresh its own floor with no human stop)
    - the verifier's verdict isn't clean, or the change departs from the issue's acceptance criteria
+   - the diff touches a path in [`.github/CODEOWNERS`](.github/CODEOWNERS). GitHub enforces this one. The PR can't merge until the user approves it on GitHub, so ask for that approval, not only a reply in the session.
 
    For a UI change, retake the README screenshots (`readme-screenshots.mjs`, see Commands) and commit them. Then screenshot every changed story and every screen that uses a changed component, before (`origin/main`) and after, in light and dark, at phone width. Look at each one. Push them to a `pr-screenshots/<issue>-<slug>` branch (tracked in step 1) and put them in the PR body as a table: story, before, after. Then send a push notification and stop with the PR link, the reasons and the table. Requested changes go back to step 2, and the gate runs again with new screenshots.
-4. **Merge** once CI is green, the verdict is clean and the gate passed or was approved: `gh pr ready`, then `gh pr merge --squash --delete-branch`.
+4. **Merge** once CI is green, the verdict is clean and the gate passed or was approved: `gh pr ready`, then `gh pr merge --squash --delete-branch`. A push after the user's approval on GitHub dismisses it, so ask for it again.
 5. **Clean up** everything on the `Run resources` list: stop the tasks and processes, `git worktree remove --force` each worktree (delete a leftover folder, then `git worktree prune`), delete each branch locally and on `origin`, and delete the temp dirs and the session scratchpad. Never touch `main`, anything not on the list, or anything with uncommitted work; report those instead. Finish with what merged, what was removed and what was kept.
