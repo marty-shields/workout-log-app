@@ -243,7 +243,7 @@ public class ExercisesPageTests : ComponentTestBase
     }
 
     [Test]
-    public async Task Refresh_KeepsTheRowsWithoutTheSpinnerThenShowsTheNewValues()
+    public async Task Refresh_ShowsTheSpinnerThenTheNewValues()
     {
         var cut = Context.Render<ExercisesPage>();
         LoggedExercises.Hold = true;
@@ -253,12 +253,16 @@ public class ExercisesPageTests : ComponentTestBase
 
         Assert.Multiple(() =>
         {
-            Assert.That(cut.FindAll("[data-testid=exercises-loading]"), Is.Empty);
-            Assert.That(cut.Find("[data-testid=exercises-row-6] .detail").TextContent, Is.EqualTo("Last Tue 20 Oct · 70kg × 3"));
+            Assert.That(cut.FindAll("[data-testid=exercises-loading]"), Has.Count.EqualTo(1));
+            Assert.That(cut.FindAll("[data-testid^=exercises-row-]"), Is.Empty);
         });
         LoggedExercises.Complete();
         await refresh;
-        Assert.That(cut.Find("[data-testid=exercises-row-6] .detail").TextContent, Is.EqualTo("Last Wed 28 Oct · 80kg × 2"));
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.FindAll("[data-testid=exercises-loading]"), Is.Empty);
+            Assert.That(cut.Find("[data-testid=exercises-row-6] .detail").TextContent, Is.EqualTo("Last Wed 28 Oct · 80kg × 2"));
+        });
     }
 
     [Test]

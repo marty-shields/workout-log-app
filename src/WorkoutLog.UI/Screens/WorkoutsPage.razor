@@ -8,7 +8,7 @@
 @inject IAppStart AppStart
 
 <WorkoutsView History="History" Rows="rows" Dates="dates" DatesChanged="ShowAsync" @bind-Expanded="expanded" Loading="loading" Failed="failure is not Failure.None"
-              OnRetry="RetryAsync" OnRefresh="FetchAsync" OnOpen="row => OnOpen.InvokeAsync(row.Id)" OnNavigate="OnNavigate" />
+              OnRetry="RetryAsync" OnRefresh="LoadAsync" OnOpen="row => OnOpen.InvokeAsync(row.Id)" OnNavigate="OnNavigate" />
 
 @code {
     private enum Failure { None, Counts, Range }
@@ -47,6 +47,11 @@
 
     private Task RetryAsync() => failure is Failure.Counts ? LoadAsync() : ShowAsync(dates);
 
+    /// <summary>
+    /// Shows the spinner and reads the per-day counts with today taken afresh, then the rows. Dates that match a quick range move
+    /// with today; dates picked in the calendar stay. Does nothing while a load runs, and nothing more once the page is disposed
+    /// or other dates are chosen.
+    /// </summary>
     private async Task LoadAsync()
     {
         if (loading)
@@ -56,16 +61,6 @@
 
         (loading, failure) = (true, Failure.None);
         StateHasChanged();
-        await FetchAsync();
-    }
-
-    /// <summary>
-    /// Reads the per-day counts with today taken afresh, then the rows, leaving what's shown and the spinner as they are until
-    /// then. Dates that match a quick range move with today; dates picked in the calendar stay. Does nothing more once the page
-    /// is disposed or other dates are chosen.
-    /// </summary>
-    private async Task FetchAsync()
-    {
         var current = ++query;
         var days = await Workouts.GetDaysAsync();
         if (disposed || current != query)

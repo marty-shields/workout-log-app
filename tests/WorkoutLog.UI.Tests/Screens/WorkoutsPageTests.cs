@@ -449,29 +449,48 @@ public class WorkoutsPageTests : ComponentTestBase
     }
 
     [Test]
-    public async Task Refresh_KeepsTheRowsWithoutTheSpinnerThenShowsTheNewOnes()
+    public async Task Refresh_ShowsTheSpinnerThenTheNewRows()
     {
         var cut = await OpenedAsync();
         await CompleteRangeAsync(cut, Recent);
 
         var refresh = cut.InvokeAsync(cut.FindComponent<AppScreen>().Instance.RefreshAsync);
-        workouts.CompleteDays(OneMore);
-        await WaitForRendererAsync();
 
         Assert.Multiple(() =>
         {
-            Assert.That(workouts.RangeReads, Has.Count.EqualTo(2));
-            Assert.That(cut.FindAll("[data-testid=workouts-loading]"), Is.Empty);
-            Assert.That(Shown(cut), Is.EqualTo(new[] { "workouts-row-4" }));
+            Assert.That(cut.FindAll("[data-testid=workouts-loading]"), Has.Count.EqualTo(1));
+            Assert.That(Shown(cut), Is.Empty);
         });
-
+        workouts.CompleteDays(OneMore);
+        await WaitForRendererAsync();
         workouts.CompleteRange(RecentAndYesterday);
         await refresh;
 
         Assert.Multiple(() =>
         {
+            Assert.That(workouts.DayReads, Is.EqualTo(2));
+            Assert.That(cut.FindAll("[data-testid=workouts-loading]"), Is.Empty);
             Assert.That(Shown(cut), Is.EqualTo(new[] { "workouts-row-5", "workouts-row-4" }));
             Assert.That(cut.Find("[data-testid=workouts-dates-count]").TextContent, Is.EqualTo("2"));
+        });
+    }
+
+    [Test]
+    public async Task Refresh_WhileLoading_IsIgnored()
+    {
+        var cut = Context.Render<WorkoutsPage>();
+
+        var refresh = cut.InvokeAsync(cut.FindComponent<AppScreen>().Instance.RefreshAsync);
+
+        Assert.That(workouts.DayReads, Is.EqualTo(1));
+        workouts.CompleteDays(TwoYears);
+        await WaitForRendererAsync();
+        await CompleteRangeAsync(cut, Recent);
+        await refresh;
+        Assert.Multiple(() =>
+        {
+            Assert.That(workouts.RangeReads, Has.Count.EqualTo(1));
+            Assert.That(Shown(cut), Is.EqualTo(new[] { "workouts-row-4" }));
         });
     }
 

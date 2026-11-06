@@ -352,7 +352,7 @@ public class DashboardPageTests : ComponentTestBase
     }
 
     [Test]
-    public async Task Refresh_KeepsTheCardsWithoutTheSpinnerThenShowsTheNewValues()
+    public async Task Refresh_ShowsTheSpinnerThenTheNewValues()
     {
         var cut = Context.Render<DashboardPage>();
         lastWorkout.Complete(NoWorkouts);
@@ -365,12 +365,16 @@ public class DashboardPageTests : ComponentTestBase
         cut.WaitForAssertion(() => Assert.That(lastWorkout.Calls, Is.EqualTo(2)));
         Assert.Multiple(() =>
         {
-            Assert.That(cut.FindAll("[data-testid=dashboard-loading]"), Is.Empty);
-            Assert.That(cut.FindAll("[data-testid=consistency]"), Has.Count.EqualTo(1));
+            Assert.That(cut.FindAll("[data-testid=dashboard-loading]"), Has.Count.EqualTo(1));
+            Assert.That(cut.FindAll("[data-testid=consistency]"), Is.Empty);
         });
         lastWorkout.Complete(NoWorkouts);
         await refresh;
-        Assert.That(cut.Find("[data-testid=consistency-streak]").TextContent, Is.EqualTo("1-week streak"));
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.FindAll("[data-testid=dashboard-loading]"), Is.Empty);
+            Assert.That(cut.Find("[data-testid=consistency-streak]").TextContent, Is.EqualTo("1-week streak"));
+        });
     }
 
     [Test]
