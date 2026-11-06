@@ -13,7 +13,7 @@
 @inject TimeProvider Clock
 @inject IAppStart AppStart
 
-<DashboardView Loading="loading" Failed="failed" OnRetry="LoadAsync" OnNewWorkout="OnNewWorkout" OnNavigate="OnNavigate" OnSettings="OnSettings">
+<DashboardView Loading="loading" Failed="failed" OnRetry="LoadAsync" OnRefresh="FetchAsync" OnNewWorkout="OnNewWorkout" OnNavigate="OnNavigate" OnSettings="OnSettings">
     <LastWorkout>
         <LastWorkoutCard Workout="last?.Card" OnOpen="OpenLastWorkoutAsync" TestId="last-workout" />
     </LastWorkout>
@@ -78,7 +78,6 @@
         registration?.Dispose();
     }
 
-    /// <summary>Loads the last workout, the Consistency card and recent records. Shows the spinner until all finish, and the error if the last workout or Consistency card fail. Records that fail to load leave their slot empty. Does nothing more once the page is disposed.</summary>
     private async Task LoadAsync()
     {
         if (loading)
@@ -88,6 +87,13 @@
 
         loading = true;
         StateHasChanged();
+        await FetchAsync();
+        loading = false;
+    }
+
+    /// <summary>Reads the last workout, the Consistency card and recent records, and shows them once all finish, or the error if the last workout or Consistency card fail. Records that fail to load leave their slot empty. Does nothing more once the page is disposed.</summary>
+    private async Task FetchAsync()
+    {
         var lastLoad = LastWorkoutService.GetAsync();
         var consistencyLoad = ConsistencyService.GetAsync();
         var recordsLoad = RecentRecordsService.GetAsync();
@@ -103,7 +109,6 @@
         consistency = consistencyResult;
         records = recent.Failed ? null : RecentRecordItems.Items(recent.Records, Catalog, Clock.LocalTimeZone, recent.Now);
         failed = lastResult.Failed || consistencyResult.Failed;
-        loading = false;
     }
 
     /// <summary>The card's values in the phone's time zone.</summary>

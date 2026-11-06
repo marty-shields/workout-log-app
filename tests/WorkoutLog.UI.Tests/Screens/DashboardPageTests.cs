@@ -6,6 +6,7 @@ using WorkoutLog.Core.Domain.Workouts;
 using WorkoutLog.Core.Domain.Workouts.Consistency;
 using WorkoutLog.Core.Services;
 using WorkoutLog.UI.Components.Dashboard;
+using WorkoutLog.UI.Components.Layout;
 using WorkoutLog.UI.Lifecycle;
 using WorkoutLog.UI.Navigation;
 using WorkoutLog.UI.Screens;
@@ -348,6 +349,44 @@ public class DashboardPageTests : ComponentTestBase
             Assert.That(lifecycleLogger.Collector.Count, Is.Zero);
         });
         await started;
+    }
+
+    [Test]
+    public async Task Refresh_KeepsTheCardsWithoutTheSpinnerThenShowsTheNewValues()
+    {
+        var cut = Context.Render<DashboardPage>();
+        lastWorkout.Complete(NoWorkouts);
+        await WaitForRendererAsync();
+        cut.WaitForAssertion(() => Assert.That(cut.FindAll("[data-testid=consistency]"), Has.Count.EqualTo(1)));
+        consistency.Result = Consistency(new WeekTally(1, TimeSpan.FromMinutes(52), 16), WeekTally.None, [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1], 1);
+
+        var refresh = cut.InvokeAsync(cut.FindComponent<AppScreen>().Instance.RefreshAsync);
+
+        cut.WaitForAssertion(() => Assert.That(lastWorkout.Calls, Is.EqualTo(2)));
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.FindAll("[data-testid=dashboard-loading]"), Is.Empty);
+            Assert.That(cut.FindAll("[data-testid=consistency]"), Has.Count.EqualTo(1));
+        });
+        lastWorkout.Complete(NoWorkouts);
+        await refresh;
+        Assert.That(cut.Find("[data-testid=consistency-streak]").TextContent, Is.EqualTo("1-week streak"));
+    }
+
+    [Test]
+    public async Task Refresh_Failed_ShowsTheError()
+    {
+        var cut = Context.Render<DashboardPage>();
+        lastWorkout.Complete(NoWorkouts);
+        await WaitForRendererAsync();
+        cut.WaitForAssertion(() => Assert.That(cut.FindAll("[data-testid=consistency]"), Has.Count.EqualTo(1)));
+        consistency.Result = ConsistencyResult.FailedRead;
+
+        var refresh = cut.InvokeAsync(cut.FindComponent<AppScreen>().Instance.RefreshAsync);
+        lastWorkout.Complete(NoWorkouts);
+        await refresh;
+
+        Assert.That(cut.FindAll("[data-testid=dashboard-error]"), Has.Count.EqualTo(1));
     }
 
     [Test]

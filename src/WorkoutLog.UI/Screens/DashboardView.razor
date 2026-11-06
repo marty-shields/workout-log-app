@@ -1,5 +1,5 @@
 @using WorkoutLog.UI.Components.Feedback
-<AppScreen Title="Workout Log" Destination="NavDestination.Dashboard" OnNavigate="OnNavigate">
+<AppScreen Title="Workout Log" Destination="NavDestination.Dashboard" OnNavigate="OnNavigate" OnRefresh="OnRefresh">
     <Actions>
         <IconButton Icon="IconName.Settings" AriaLabel="Settings" TestId="settings" OnClick="OnSettings" />
     </Actions>
@@ -52,6 +52,10 @@
     /// <summary>Raised by Try again.</summary>
     [Parameter]
     public EventCallback OnRetry { get; set; }
+
+    /// <summary>Raised by pulling the content down, to read it again with what's shown left in place. No pull without it.</summary>
+    [Parameter]
+    public EventCallback OnRefresh { get; set; }
 
     /// <summary>Raised by New Workout.</summary>
     [Parameter]

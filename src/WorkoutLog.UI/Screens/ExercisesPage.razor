@@ -17,6 +17,7 @@
                Loading="loading"
                Failed="failed"
                OnRetry="LoadAsync"
+               OnRefresh="FetchAsync"
                OnOpen="item => OnOpen.InvokeAsync(item.Id)"
                OnNavigate="OnNavigate" />
 
@@ -50,7 +51,6 @@
         registration?.Dispose();
     }
 
-    /// <summary>Ids not in the catalog are already left out by Core. Does nothing more once the page is disposed.</summary>
     private async Task LoadAsync()
     {
         if (loading)
@@ -60,6 +60,13 @@
 
         loading = true;
         StateHasChanged();
+        await FetchAsync();
+        loading = false;
+    }
+
+    /// <summary>Ids not in the catalog are already left out by Core. Does nothing more once the page is disposed.</summary>
+    private async Task FetchAsync()
+    {
         var result = await LoggedExercises.GetAsync();
         if (disposed)
         {
@@ -72,7 +79,6 @@
             .Select(e => ExerciseListItems.Item(definitions[e.ExerciseId], e, Clock.LocalTimeZone, now))
             .ToList();
         failed = result.Failed;
-        loading = false;
         Find();
     }
 

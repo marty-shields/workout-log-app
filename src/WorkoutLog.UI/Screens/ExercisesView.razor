@@ -1,6 +1,6 @@
 @using WorkoutLog.UI.Components.Feedback
 @using WorkoutLog.UI.Models.Exercises
-<AppScreen Title="Exercises" Destination="NavDestination.Exercises" OnNavigate="OnNavigate">
+<AppScreen Title="Exercises" Destination="NavDestination.Exercises" OnNavigate="OnNavigate" OnRefresh="OnRefresh">
     @if (Loading)
     {
         <div class="centre">
@@ -57,6 +57,10 @@
     /// <summary>Raised by Try again.</summary>
     [Parameter]
     public EventCallback OnRetry { get; set; }
+
+    /// <summary>Raised by pulling the content down, to read it again with what's shown left in place. No pull without it.</summary>
+    [Parameter]
+    public EventCallback OnRefresh { get; set; }
 
     /// <summary>Raised when a row is tapped, to open its Exercise page. Rows are not tappable when unset.</summary>
     [Parameter]
