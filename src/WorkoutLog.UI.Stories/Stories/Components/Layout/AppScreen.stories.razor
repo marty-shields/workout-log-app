@@ -38,6 +38,16 @@
         </Template>
     </Story>
 
+    <Story Name="Refreshing">
+        <Template>
+            <AppScreen @ref="refreshing" Title="Screen title" Destination="NavDestination.Workouts" OnNavigate="(NavDestination _) => { }"
+                       OnRefresh="() => new TaskCompletionSource().Task">
+                <p>Scrolling content.</p>
+                <StartRefresh Screen="() => refreshing" />
+            </AppScreen>
+        </Template>
+    </Story>
+
     <Story Name="Snackbar">
         <Template>
             <AppScreen Title="Screen title" OnBack="() => { }">
@@ -63,3 +73,7 @@
     </Story>
 
 </Stories>
+
+@code {
+    private AppScreen? refreshing;
+}

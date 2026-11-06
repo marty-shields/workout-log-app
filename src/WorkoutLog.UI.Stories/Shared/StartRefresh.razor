@@ -1,0 +1,16 @@
+@using WorkoutLog.UI.Components.Layout
+@* Starts a screen's refresh once rendered, to show the pull ring mid-refresh without a finger. *@
+
+@code {
+    /// <summary>The screen to refresh, read after the first render, once its <c>@ref</c> is set.</summary>
+    [Parameter, EditorRequired]
+    public Func<AppScreen?> Screen { get; set; } = () => null;
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (firstRender)
+        {
+            _ = Screen()?.RefreshAsync();
+        }
+    }
+}
