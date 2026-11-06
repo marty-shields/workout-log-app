@@ -10,7 +10,7 @@ public sealed class AddExerciseScreen(WebView web)
     public bool IsOpen() => web.Exists("exercises-overlay");
 
     /// <summary>True once the last sessions have loaded and the rows show.</summary>
-    public bool IsLoaded() => IsOpen() && web.Exists("exercises-search");
+    public bool IsLoaded() => IsOpen() && !web.Exists("exercises-loading");
 
     public string Query() => web.Value("exercises-search");
 

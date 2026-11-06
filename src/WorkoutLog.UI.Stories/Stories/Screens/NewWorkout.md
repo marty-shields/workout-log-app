@@ -14,7 +14,7 @@ Log a workout as you go. View: `WorkoutView` with `Mode` New; page: `NewWorkoutP
 | Content | Workout error, if any; the workout note (`NoteField`), once there is one; `EmptyState` "No exercises yet", hint "Tap Add exercise to start logging", or one `ExerciseCard` per exercise, newest first. Sets in a card are in the order added. At 10 exercises, a muted centred note "At most 10 exercises" under the cards. |
 | Bottom bar | Add exercise (secondary) and Save (primary), side by side. Add exercise is off at 10 exercises. |
 | Snackbar | After a closed set or an exercise is deleted: `Snackbar` "{exercise name} set {n} deleted" or "{exercise name} deleted" with **Undo**, just above the bottom bar (see [Deleting](#deleting)). |
-| Overlays | `AddExerciseView` ([Add Exercise](./?path=/custom/screens-add-exercise-overview)); `ConfirmDialog` "Discard this workout?" on back. |
+| Overlays | `ExercisesView` in pick mode ([Add Exercise](./?path=/custom/screens-add-exercise-overview)); `ConfirmDialog` "Discard this workout?" on back. |
 
 ## Exercises
 Each card shows the fields its definition declares ([exercise list](https://github.com/marty-shields/workout-log-app/blob/main/docs/exercise-list.md)), with the exercise's label where it has one (e.g. Assist (kg), Resistance, Damper). Card parts: [Workout components](./?path=/custom/components-workout-overview).
