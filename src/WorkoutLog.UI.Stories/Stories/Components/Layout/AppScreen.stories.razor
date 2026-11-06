@@ -38,6 +38,15 @@
         </Template>
     </Story>
 
+    <Story Name="Pulling">
+        <Template>
+            <AppScreen Title="Screen title" Destination="NavDestination.Workouts" OnNavigate="(NavDestination _) => { }" OnRefresh="() => { }">
+                <p>Scrolling content.</p>
+                <HoldPull />
+            </AppScreen>
+        </Template>
+    </Story>
+
     <Story Name="Snackbar">
         <Template>
             <AppScreen Title="Screen title" OnBack="() => { }">

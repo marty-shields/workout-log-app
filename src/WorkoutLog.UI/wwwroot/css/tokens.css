@@ -29,6 +29,10 @@
     --color-inverse-primary: light-dark(#b7d5d4, #305252);
     --color-scrim: light-dark(rgb(0 0 0 / 0.45), rgb(0 0 0 / 0.6));
     --state-pressed: color-mix(in srgb, currentColor 12%, transparent);
+    /* light-dark() takes only colours, so the second layer is split in two and each theme hides the blur it doesn't use. */
+    --shadow-raised: 0 1px 2px light-dark(rgb(0 0 0 / 0.18), rgb(0 0 0 / 0.5)),
+        0 3px 8px light-dark(rgb(0 0 0 / 0.14), transparent),
+        0 3px 10px light-dark(transparent, rgb(0 0 0 / 0.45));
 
     --font-family: system-ui, Roboto, sans-serif;
     --font-size-sm: 0.875rem;
@@ -70,6 +74,8 @@
     --spinner-size-small: 1.125rem;
     --spinner-width-small: 2px;
     --spinner-duration: 1s;
+    --pull-refresh-threshold: 64px;
+    --pull-refresh-return-duration: 200ms;
     --snackbar-enter-duration: 150ms;
     --radio-size: 1.5rem;
     --radio-dot-size: 0.75rem;

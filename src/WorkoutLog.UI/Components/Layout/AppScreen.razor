@@ -1,3 +1,9 @@
+@using Microsoft.Extensions.Logging
+@using Microsoft.JSInterop
+@implements IAsyncDisposable
+@inject IJSRuntime JS
+@inject ILogger<AppScreen> Logger
+
 <div class="screen">
     <BackHandler OnBack="Back" />
     <header class="top-bar">
@@ -20,7 +26,13 @@
             @Toolbar
         </div>
     }
-    <main class="content">
+    @if (OnRefresh.HasDelegate)
+    {
+        <div @ref="indicator" class="pull-refresh" data-testid="pull-refresh" aria-hidden="true">
+            <span class="ring"></span>
+        </div>
+    }
+    <main @ref="content" class="content">
         @ChildContent
     </main>
     @if (BottomBar is not null || Destination is not null)
@@ -47,6 +59,12 @@
 </div>
 
 @code {
+    private ElementReference content;
+    private ElementReference indicator;
+    private IJSObjectReference? module;
+    private DotNetObjectReference<AppScreen>? self;
+    private bool refreshing;
+
     /// <summary>Screen title.</summary>
     [Parameter, EditorRequired]
     public string Title { get; set; } = "";
@@ -92,6 +110,69 @@
     /// </summary>
     [Parameter]
     public RenderFragment? Status { get; set; }
+
+    /// <summary>
+    /// Makes the content pull-to-refresh: pulling it down from the top far enough runs this once the finger lifts. The indicator
+    /// shows only while pulling, so the handler shows its own loading state. A pull during a refresh is ignored. Read once, when
+    /// the screen first shows. No gesture when unset.
+    /// </summary>
+    [Parameter]
+    public EventCallback OnRefresh { get; set; }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender || !OnRefresh.HasDelegate)
+        {
+            return;
+        }
+
+        try
+        {
+            self = DotNetObjectReference.Create(this);
+            module = await JS.InvokeAsync<IJSObjectReference>("import", "./_content/WorkoutLog.UI/Components/Layout/AppScreen.razor.js");
+            await module.InvokeVoidAsync("attach", content, indicator, self);
+        }
+        catch (Exception exception)
+        {
+            Log.PullRefreshFailed(Logger, exception);
+        }
+    }
+
+    [JSInvokable]
+    public async Task RefreshAsync()
+    {
+        if (refreshing)
+        {
+            return;
+        }
+
+        refreshing = true;
+        try
+        {
+            await OnRefresh.InvokeAsync();
+        }
+        finally
+        {
+            refreshing = false;
+        }
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (module is not null)
+        {
+            try
+            {
+                await module.InvokeVoidAsync("detach", content);
+                await module.DisposeAsync();
+            }
+            catch (JSDisconnectedException)
+            {
+            }
+        }
+
+        self?.Dispose();
+    }
 
     private EventCallback Back =>
         Destination is { } current && current != NavDestinations.Start

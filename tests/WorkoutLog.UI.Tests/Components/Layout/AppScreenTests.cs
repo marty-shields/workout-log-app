@@ -1,12 +1,19 @@
 using Microsoft.AspNetCore.Components;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Testing;
+using Microsoft.JSInterop;
 using WorkoutLog.UI.Components.Actions;
 using WorkoutLog.UI.Components.Layout;
+using WorkoutLog.UI.Logging;
 using WorkoutLog.UI.Navigation;
 
 namespace WorkoutLog.UI.Tests.Components.Layout;
 
 public class AppScreenTests : ComponentTestBase
 {
+    private const string AppScreenModule = "./_content/WorkoutLog.UI/Components/Layout/AppScreen.razor.js";
+
     [Test]
     public void Render_ShowsTitleAndSubtitle()
     {
@@ -182,5 +189,120 @@ public class AppScreenTests : ComponentTestBase
             .Add(x => x.BottomBar, "<button>Save</button>"));
 
         Assert.That(cut.FindAll("[role=status]"), Is.Empty);
+    }
+
+    [Test]
+    public void NoOnRefresh_HasNoPullGesture()
+    {
+        var cut = Context.Render<AppScreen>(p => p.Add(x => x.Title, "Settings"));
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(Context.JSInterop.Invocations, Is.Empty);
+            Assert.That(cut.FindAll("[data-testid=pull-refresh]"), Is.Empty);
+        });
+    }
+
+    [Test]
+    public void OnRefresh_AttachesThePullGestureToTheContent()
+    {
+        var module = PullModule();
+
+        var cut = Context.Render<AppScreen>(p => p
+            .Add(x => x.Title, "Exercises")
+            .Add(x => x.OnRefresh, () => Task.CompletedTask));
+
+        var attach = module.Invocations["attach"].Single();
+        Assert.Multiple(() =>
+        {
+            attach.Arguments[0].ShouldBeElementReferenceTo(cut.Find("main"));
+            attach.Arguments[1].ShouldBeElementReferenceTo(cut.Find("[data-testid=pull-refresh]"));
+        });
+    }
+
+    [Test]
+    public async Task Refresh_RunsOnRefreshAndShowsNothingOfItsOwn()
+    {
+        PullModule();
+        var done = new TaskCompletionSource();
+        var cut = Context.Render<AppScreen>(p => p
+            .Add(x => x.Title, "Exercises")
+            .Add(x => x.OnRefresh, () => done.Task));
+        var idle = cut.Markup;
+
+        var refresh = cut.InvokeAsync(cut.Instance.RefreshAsync);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(refresh.IsCompleted, Is.False);
+            Assert.That(cut.Markup, Is.EqualTo(idle));
+            Assert.That(cut.FindAll("[role=status]"), Is.Empty);
+        });
+        done.SetResult();
+        await refresh;
+    }
+
+    [Test]
+    public async Task Refresh_DuringARefresh_IsIgnored()
+    {
+        PullModule();
+        var done = new TaskCompletionSource();
+        var calls = 0;
+        var cut = Context.Render<AppScreen>(p => p
+            .Add(x => x.Title, "Exercises")
+            .Add(x => x.OnRefresh, () =>
+            {
+                calls++;
+                return done.Task;
+            }));
+
+        var first = cut.InvokeAsync(cut.Instance.RefreshAsync);
+        var during = cut.InvokeAsync(cut.Instance.RefreshAsync);
+
+        Assert.That(calls, Is.EqualTo(1));
+        done.SetResult();
+        await Task.WhenAll(first, during);
+        await cut.InvokeAsync(cut.Instance.RefreshAsync);
+        Assert.That(calls, Is.EqualTo(2));
+    }
+
+    [Test]
+    public void PullGestureFailsToAttach_LogsItAndShowsTheScreen()
+    {
+        var logger = new FakeLogger<AppScreen>();
+        Context.Services.AddSingleton<ILogger<AppScreen>>(logger);
+        Context.JSInterop.SetupModule(AppScreenModule).SetupVoid("attach", _ => true).SetException(new JSException("Attach failed"));
+
+        var cut = Context.Render<AppScreen>(p => p
+            .Add(x => x.Title, "Exercises")
+            .Add(x => x.OnRefresh, () => Task.CompletedTask)
+            .AddChildContent("<p data-testid=\"shown\">Rows</p>"));
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.FindAll("[data-testid=shown]"), Has.Count.EqualTo(1));
+            Assert.That(LoggedEvents.Of(logger), Is.EqualTo(new[] { (UiEvent.PullRefreshFailed, LogLevel.Warning, "Setting up pull to refresh failed") }));
+        });
+    }
+
+    [Test]
+    public async Task Disposed_DetachesThePullGesture()
+    {
+        var module = PullModule();
+        var cut = Context.Render<AppScreen>(p => p
+            .Add(x => x.Title, "Exercises")
+            .Add(x => x.OnRefresh, () => Task.CompletedTask));
+        var main = cut.Find("main");
+
+        await Context.DisposeComponentsAsync();
+
+        module.Invocations["detach"].Single().Arguments[0].ShouldBeElementReferenceTo(main);
+    }
+
+    private BunitJSModuleInterop PullModule()
+    {
+        var module = Context.JSInterop.SetupModule(AppScreenModule);
+        module.Mode = JSRuntimeMode.Loose;
+        return module;
     }
 }

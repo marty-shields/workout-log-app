@@ -1,0 +1,17 @@
+@attribute [Stories("Components/Lists/ExerciseSearch")]
+
+<Stories TComponent="ExerciseSearch" Layout="typeof(ThemeLayout)">
+
+    <Story Name="Empty">
+        <Template>
+            <ExerciseSearch QueryChanged="(string _) => { }" FilterChanged="(ExerciseFilter _) => { }" TestId="exercises" />
+        </Template>
+    </Story>
+
+    <Story Name="Searching">
+        <Template>
+            <ExerciseSearch Query="squat" Filter="ExerciseFilter.Strength" QueryChanged="(string _) => { }" FilterChanged="(ExerciseFilter _) => { }" TestId="exercises" />
+        </Template>
+    </Story>
+
+</Stories>

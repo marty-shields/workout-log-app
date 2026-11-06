@@ -12,10 +12,10 @@ public sealed class AppSteps(
     WebView web, Native native, AppLog log, Journeys journeys, SeedSteps seed, ScenarioState state, DashboardScreen dashboard,
     WorkoutScreen workout, AddExerciseScreen addExercise)
 {
-    [Given(@"^I am on (the Dashboard|the add-exercise list on Edit Workout)$")]
+    [Given(@"^I am on (the Dashboard|Workouts|Exercises|the add-exercise list on Edit Workout)$")]
     public async Task GivenIAmOn(string screen)
     {
-        if (screen == "the Dashboard")
+        if (screen is "the Dashboard" or "Workouts" or "Exercises")
         {
             if (!native.Launched)
             {
@@ -24,6 +24,14 @@ public sealed class AppSteps(
 
             journeys.WaitFor(Journeys.Screen.Dashboard);
             dashboard.LastWorkout();
+            if (screen == "Workouts")
+            {
+                journeys.GoToWorkouts();
+            }
+            else if (screen == "Exercises")
+            {
+                journeys.GoToExercises();
+            }
         }
         else
         {
@@ -55,10 +63,14 @@ public sealed class AppSteps(
     [When(@"^I send the app to the background and bring it back$")]
     public void WhenISendTheAppToTheBackground()
     {
+        var shown = journeys.Current();
         native.Background(TimeSpan.FromSeconds(3));
         native.Launch();
-        dashboard.LastWorkout();
+        journeys.WaitFor(shown);
     }
+
+    [When(@"^I pull down the list$")]
+    public void WhenIPullDownTheList() => native.PullDown();
 
     [When(@"^I open Workouts and go back$")]
     public void WhenIOpenWorkoutsAndGoBack()

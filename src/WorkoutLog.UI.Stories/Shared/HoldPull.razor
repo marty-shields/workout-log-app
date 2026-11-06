@@ -1,0 +1,14 @@
+@using Microsoft.JSInterop
+@inject IJSRuntime JS
+@* Holds the screen's pull ring part way down once rendered, to show it mid-pull without a finger. *@
+
+@code {
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await using var module = await JS.InvokeAsync<IJSObjectReference>("import", "./Shared/HoldPull.razor.js");
+            await module.InvokeVoidAsync("hold");
+        }
+    }
+}

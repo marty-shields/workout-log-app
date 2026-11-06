@@ -34,7 +34,13 @@
 
     <Story Name="Loading">
         <Template>
-            <ExercisesView Items="[]" Loading />
+            <ExercisesView Items="[]" NothingLogged Loading />
+        </Template>
+    </Story>
+
+    <Story Name="Reloading">
+        <Template>
+            <ExercisesView Items="SampleExercises.All" Loading QueryChanged="(string _) => { }" FilterChanged="(ExerciseFilter _) => { }" OnOpen="(ExerciseListItem _) => { }" />
         </Template>
     </Story>
 

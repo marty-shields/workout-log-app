@@ -1,7 +1,10 @@
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging.Testing;
 using Microsoft.Extensions.Time.Testing;
 using WorkoutLog.Core.Domain.Workouts;
 using WorkoutLog.Core.Services;
+using WorkoutLog.UI.Components.Layout;
+using WorkoutLog.UI.Lifecycle;
 using WorkoutLog.UI.Navigation;
 using WorkoutLog.UI.Screens;
 
@@ -18,9 +21,23 @@ public class WorkoutsPageTests : ComponentTestBase
         [new DateOnly(2025, 3, 12)] = 2,
     }, Failed: false);
 
+    private static readonly WorkoutDaysResult OneMore = new(new Dictionary<DateOnly, int>(TwoYears.PerDay)
+    {
+        [new DateOnly(2026, 11, 5)] = 1,
+    }, Failed: false);
+
     private static readonly WorkoutsResult Recent = new([new WorkoutSummary(4, new DateTimeOffset(2026, 11, 2, 17, 0, 0, TimeSpan.Zero))], Failed: false);
 
+    private static readonly WorkoutsResult RecentAndYesterday = new(
+    [
+        new WorkoutSummary(5, new DateTimeOffset(2026, 11, 5, 17, 0, 0, TimeSpan.Zero)),
+        .. Recent.Workouts,
+    ], Failed: false);
+
     private FakeWorkoutsService workouts = null!;
+    private FakeTimeProvider clock = null!;
+    private FakeLogger<AppLifecycle> lifecycleLogger = null!;
+    private AppLifecycle lifecycle = null!;
 
     [SetUp]
     public void SetUp()
@@ -28,6 +45,9 @@ public class WorkoutsPageTests : ComponentTestBase
         Clock(new DateTimeOffset(2026, 11, 6, 9, 0, 0, TimeSpan.Zero));
         workouts = new FakeWorkoutsService();
         Context.Services.AddSingleton<IWorkoutsService>(workouts);
+        lifecycleLogger = new FakeLogger<AppLifecycle>();
+        lifecycle = new AppLifecycle(lifecycleLogger);
+        Context.Services.AddSingleton<IAppStart>(lifecycle);
     }
 
     [Test]
@@ -301,6 +321,313 @@ public class WorkoutsPageTests : ComponentTestBase
     }
 
     [Test]
+    public async Task AppStarted_ReloadsWithTheSpinnerThenShowsAWorkoutAddedElsewhere()
+    {
+        var cut = await OpenedAsync();
+        await CompleteRangeAsync(cut, Recent);
+
+        var started = lifecycle.NotifyStartedAsync();
+
+        cut.WaitForAssertion(() => Assert.That(cut.FindAll("[data-testid=workouts-loading]"), Has.Count.EqualTo(1)));
+        workouts.CompleteDays(OneMore);
+        await WaitForRendererAsync();
+        await CompleteRangeAsync(cut, RecentAndYesterday);
+        await started;
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(workouts.DayReads, Is.EqualTo(2));
+            Assert.That(workouts.RangeReads[^1], Is.EqualTo((new DateOnly(2026, 8, 6), Today)));
+            Assert.That(cut.Find("[data-testid=workouts-dates-count]").TextContent, Is.EqualTo("2"));
+            Assert.That(Shown(cut), Is.EqualTo(new[] { "workouts-row-5", "workouts-row-4" }));
+        });
+    }
+
+    [Test]
+    public async Task AppStarted_AfterMidnight_MovesAQuickRangeToTheNewToday()
+    {
+        var cut = await OpenedAsync();
+        await CompleteRangeAsync(cut, Recent);
+        cut.Find("[data-testid=workouts-range-6m]").Change(true);
+        await CompleteRangeAsync(cut, Recent);
+        clock.Advance(TimeSpan.FromDays(1));
+
+        var started = lifecycle.NotifyStartedAsync();
+        workouts.CompleteDays(TwoYears);
+        await WaitForRendererAsync();
+        await CompleteRangeAsync(cut, Recent);
+        await started;
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(workouts.RangeReads[^1], Is.EqualTo((new DateOnly(2026, 5, 7), new DateOnly(2026, 11, 7))));
+            Assert.That(Checked(cut), Is.EqualTo(new[] { "workouts-range-6m" }));
+        });
+    }
+
+    [Test]
+    public async Task AppStarted_AfterMidnight_KeepsDatesPickedInTheCalendar()
+    {
+        var cut = await OpenedAsync();
+        await CompleteRangeAsync(cut, Recent);
+        cut.Find("[data-testid=workouts-dates]").Click();
+        cut.Find("[data-testid=range-day-2026-11-02]").Click();
+        cut.Find("[data-testid=range-day-2026-11-06]").Click();
+        cut.Find("[data-testid=range-apply]").Click();
+        await CompleteRangeAsync(cut, Recent);
+        clock.Advance(TimeSpan.FromDays(1));
+
+        var started = lifecycle.NotifyStartedAsync();
+        workouts.CompleteDays(TwoYears);
+        await WaitForRendererAsync();
+        await CompleteRangeAsync(cut, Recent);
+        await started;
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(workouts.RangeReads[^1], Is.EqualTo((new DateOnly(2026, 11, 2), Today)));
+            Assert.That(Checked(cut), Is.Empty);
+        });
+    }
+
+    [Test]
+    public async Task AppStarted_FailedReload_ShowsTheError()
+    {
+        var cut = await OpenedAsync();
+        await CompleteRangeAsync(cut, Recent);
+
+        var started = lifecycle.NotifyStartedAsync();
+        workouts.CompleteDays(new WorkoutDaysResult(new Dictionary<DateOnly, int>(), Failed: true));
+        await started;
+
+        cut.WaitForAssertion(() => Assert.That(cut.FindAll("[data-testid=workouts-error]"), Has.Count.EqualTo(1)));
+    }
+
+    [Test]
+    public async Task AppStarted_CountsFail_TryAgainReadsTheCountsAgain()
+    {
+        var cut = await OpenedAsync();
+        await CompleteRangeAsync(cut, Recent);
+
+        var started = lifecycle.NotifyStartedAsync();
+        workouts.CompleteDays(new WorkoutDaysResult(new Dictionary<DateOnly, int>(), Failed: true));
+        await started;
+
+        await TryAgainAfterFailedCountsShowsTheNewCountsAndRowsAsync(cut);
+    }
+
+    [Test]
+    public async Task Disposed_AppStartedNoLongerReloads()
+    {
+        var cut = await OpenedAsync();
+        await CompleteRangeAsync(cut, Recent);
+
+        await Context.DisposeComponentsAsync();
+        await lifecycle.NotifyStartedAsync();
+
+        Assert.That(workouts.DayReads, Is.EqualTo(1));
+    }
+
+    [Test]
+    public async Task Disposed_WhileReloading_ReloadFinishesWithoutError()
+    {
+        var cut = await OpenedAsync();
+        await CompleteRangeAsync(cut, Recent);
+        var started = lifecycle.NotifyStartedAsync();
+        cut.WaitForAssertion(() => Assert.That(workouts.DayReads, Is.EqualTo(2)));
+
+        await Context.DisposeComponentsAsync();
+        workouts.CompleteDays(OneMore);
+        await WaitForRendererAsync();
+
+        Assert.That(async () => await started, Throws.Nothing);
+        Assert.Multiple(() =>
+        {
+            Assert.That(lifecycleLogger.Collector.Count, Is.Zero);
+            Assert.That(workouts.RangeReads, Has.Count.EqualTo(1));
+        });
+    }
+
+    [Test]
+    public async Task Refresh_FastReload_KeepsTheSpinnerUpForHalfASecond()
+    {
+        var cut = await OpenedAsync();
+        await CompleteRangeAsync(cut, Recent);
+
+        var refresh = cut.InvokeAsync(cut.FindComponent<AppScreen>().Instance.RefreshAsync);
+        workouts.CompleteDays(OneMore);
+        await WaitForRendererAsync();
+        workouts.CompleteRange(RecentAndYesterday);
+        await WaitForRendererAsync();
+        clock.Advance(TimeSpan.FromMilliseconds(499));
+        await WaitForRendererAsync();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.FindAll("[data-testid=workouts-loading]"), Has.Count.EqualTo(1));
+            Assert.That(Shown(cut), Is.Empty);
+        });
+        clock.Advance(TimeSpan.FromMilliseconds(1));
+        await refresh;
+        Assert.Multiple(() =>
+        {
+            Assert.That(workouts.DayReads, Is.EqualTo(2));
+            Assert.That(cut.FindAll("[data-testid=workouts-loading]"), Is.Empty);
+            Assert.That(Shown(cut), Is.EqualTo(new[] { "workouts-row-5", "workouts-row-4" }));
+            Assert.That(cut.Find("[data-testid=workouts-dates-count]").TextContent, Is.EqualTo("2"));
+        });
+    }
+
+    [Test]
+    public async Task Refresh_SlowReload_ShowsTheNewRowsAsSoonAsItFinishes()
+    {
+        var cut = await OpenedAsync();
+        await CompleteRangeAsync(cut, Recent);
+
+        var refresh = cut.InvokeAsync(cut.FindComponent<AppScreen>().Instance.RefreshAsync);
+        clock.Advance(TimeSpan.FromMilliseconds(800));
+        await WaitForRendererAsync();
+
+        Assert.That(cut.FindAll("[data-testid=workouts-loading]"), Has.Count.EqualTo(1));
+        workouts.CompleteDays(OneMore);
+        await WaitForRendererAsync();
+        await CompleteRangeAsync(cut, RecentAndYesterday);
+        await refresh;
+        Assert.Multiple(() =>
+        {
+            Assert.That(Shown(cut), Is.EqualTo(new[] { "workouts-row-5", "workouts-row-4" }));
+        });
+    }
+
+    [Test]
+    public async Task Refresh_WhileLoading_IsIgnored()
+    {
+        var cut = Context.Render<WorkoutsPage>();
+
+        var refresh = cut.InvokeAsync(cut.FindComponent<AppScreen>().Instance.RefreshAsync);
+
+        Assert.That(workouts.DayReads, Is.EqualTo(1));
+        workouts.CompleteDays(TwoYears);
+        await WaitForRendererAsync();
+        await CompleteRangeAsync(cut, Recent);
+        await refresh;
+        Assert.Multiple(() =>
+        {
+            Assert.That(workouts.RangeReads, Has.Count.EqualTo(1));
+            Assert.That(Shown(cut), Is.EqualTo(new[] { "workouts-row-4" }));
+        });
+    }
+
+    [Test]
+    public async Task Refresh_Failed_ShowsTheErrorAfterHalfASecond()
+    {
+        var cut = await OpenedAsync();
+        await CompleteRangeAsync(cut, Recent);
+
+        var refresh = cut.InvokeAsync(cut.FindComponent<AppScreen>().Instance.RefreshAsync);
+        workouts.CompleteDays(OneMore);
+        await WaitForRendererAsync();
+        workouts.CompleteRange(new WorkoutsResult([], Failed: true));
+        await WaitForRendererAsync();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.FindAll("[data-testid=workouts-loading]"), Has.Count.EqualTo(1));
+            Assert.That(cut.FindAll("[data-testid=workouts-error]"), Is.Empty);
+        });
+        clock.Advance(TimeSpan.FromMilliseconds(500));
+        await refresh;
+        Assert.That(cut.FindAll("[data-testid=workouts-error]"), Has.Count.EqualTo(1));
+    }
+
+    [Test]
+    public async Task Refresh_CountsFail_TryAgainReadsTheCountsAgain()
+    {
+        var cut = await OpenedAsync();
+        await CompleteRangeAsync(cut, Recent);
+
+        await cut.InvokeAsync(async () =>
+        {
+            var refresh = cut.FindComponent<AppScreen>().Instance.RefreshAsync();
+            workouts.CompleteDays(new WorkoutDaysResult(new Dictionary<DateOnly, int>(), Failed: true));
+            clock.Advance(TimeSpan.FromMilliseconds(500));
+            await refresh;
+        });
+
+        await TryAgainAfterFailedCountsShowsTheNewCountsAndRowsAsync(cut);
+    }
+
+    [Test]
+    public async Task Refresh_OtherDatesChosenDuringIt_TheirRowsWin()
+    {
+        var cut = await OpenedAsync();
+        await CompleteRangeAsync(cut, Recent);
+
+        var refresh = cut.InvokeAsync(cut.FindComponent<AppScreen>().Instance.RefreshAsync);
+        cut.Find("[data-testid=workouts-range-all]").Change(true);
+        workouts.CompleteDays(OneMore);
+        await WaitForRendererAsync();
+        await CompleteRangeAsync(cut, new WorkoutsResult([new WorkoutSummary(1, new DateTimeOffset(2025, 3, 12, 17, 0, 0, TimeSpan.Zero))], Failed: false));
+        await refresh;
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(workouts.RangeReads, Has.Count.EqualTo(2));
+            Assert.That(Checked(cut), Is.EqualTo(new[] { "workouts-range-all" }));
+            Assert.That(Shown(cut), Is.EqualTo(new[] { "workouts-row-1" }));
+        });
+    }
+
+    [Test]
+    public async Task Refresh_OtherDatesChosenDuringTheHold_TheirRowsShowWhenRead()
+    {
+        var cut = await OpenedAsync();
+        await CompleteRangeAsync(cut, Recent);
+
+        var refresh = cut.InvokeAsync(cut.FindComponent<AppScreen>().Instance.RefreshAsync);
+        workouts.CompleteDays(OneMore);
+        await WaitForRendererAsync();
+        workouts.CompleteRange(RecentAndYesterday);
+        await WaitForRendererAsync();
+        cut.Find("[data-testid=workouts-range-all]").Change(true);
+        clock.Advance(TimeSpan.FromMilliseconds(500));
+        await refresh;
+
+        Assert.That(cut.FindAll("[data-testid=workouts-loading]"), Has.Count.EqualTo(1));
+        await CompleteRangeAsync(cut, new WorkoutsResult([new WorkoutSummary(1, new DateTimeOffset(2025, 3, 12, 17, 0, 0, TimeSpan.Zero))], Failed: false));
+        Assert.Multiple(() =>
+        {
+            Assert.That(workouts.RangeReads, Has.Count.EqualTo(3));
+            Assert.That(Checked(cut), Is.EqualTo(new[] { "workouts-range-all" }));
+            Assert.That(Shown(cut), Is.EqualTo(new[] { "workouts-row-1" }));
+        });
+    }
+
+    [Test]
+    public async Task Refresh_OtherDatesReadBeforeTheHoldEnds_TheirRowsShowAtOnce()
+    {
+        var cut = await OpenedAsync();
+        await CompleteRangeAsync(cut, Recent);
+
+        var refresh = cut.InvokeAsync(cut.FindComponent<AppScreen>().Instance.RefreshAsync);
+        workouts.CompleteDays(OneMore);
+        await WaitForRendererAsync();
+        workouts.CompleteRange(RecentAndYesterday);
+        await WaitForRendererAsync();
+        cut.Find("[data-testid=workouts-range-all]").Change(true);
+        await CompleteRangeAsync(cut, new WorkoutsResult([new WorkoutSummary(1, new DateTimeOffset(2025, 3, 12, 17, 0, 0, TimeSpan.Zero))], Failed: false));
+
+        Assert.That(Shown(cut), Is.EqualTo(new[] { "workouts-row-1" }));
+        clock.Advance(TimeSpan.FromMilliseconds(500));
+        await refresh;
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.FindAll("[data-testid=workouts-loading]"), Is.Empty);
+            Assert.That(Shown(cut), Is.EqualTo(new[] { "workouts-row-1" }));
+        });
+    }
+
+    [Test]
     public void NavigationBar_RaisesOnNavigate()
     {
         var navigated = new List<NavDestination>();
@@ -347,7 +674,7 @@ public class WorkoutsPageTests : ComponentTestBase
 
     private void Clock(DateTimeOffset now)
     {
-        var clock = new FakeTimeProvider(now);
+        clock = new FakeTimeProvider(now);
         clock.SetLocalTimeZone(TimeZoneInfo.CreateCustomTimeZone("UTC+1", TimeSpan.FromHours(1), "UTC+1", "UTC+1"));
         Context.Services.AddSingleton<TimeProvider>(clock);
     }
@@ -360,6 +687,29 @@ public class WorkoutsPageTests : ComponentTestBase
         await WaitForRendererAsync();
         cut.WaitForAssertion(() => Assert.That(workouts.RangeReads, Has.Count.EqualTo(1)));
         return cut;
+    }
+
+    private async Task TryAgainAfterFailedCountsShowsTheNewCountsAndRowsAsync(IRenderedComponent<WorkoutsPage> cut)
+    {
+        cut.WaitForAssertion(() => Assert.That(cut.FindAll("[data-testid=workouts-retry]"), Has.Count.EqualTo(1)));
+
+        var dayReads = workouts.DayReads;
+
+        cut.Find("[data-testid=workouts-retry]").Click();
+
+        Assert.That(workouts.DayReads, Is.EqualTo(dayReads + 1));
+
+        workouts.CompleteDays(OneMore);
+        await WaitForRendererAsync();
+        await CompleteRangeAsync(cut, RecentAndYesterday);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(workouts.RangeReads[^1], Is.EqualTo((new DateOnly(2026, 8, 6), Today)));
+            Assert.That(cut.Find("[data-testid=workouts-dates-count]").TextContent, Is.EqualTo("2"));
+            Assert.That(Shown(cut), Is.EqualTo(new[] { "workouts-row-5", "workouts-row-4" }));
+            Assert.That(cut.FindAll("[data-testid=workouts-error]"), Is.Empty);
+        });
     }
 
     private async Task CompleteRangeAsync(IRenderedComponent<WorkoutsPage> cut, WorkoutsResult result)

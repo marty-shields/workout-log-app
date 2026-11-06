@@ -1,20 +1,27 @@
 @using WorkoutLog.Core.Domain
 @using WorkoutLog.Core.Services
+@using WorkoutLog.UI.Lifecycle
 @using WorkoutLog.UI.Models.Workouts
+@implements IDisposable
 @inject IWorkoutsService Workouts
 @inject TimeProvider Clock
+@inject IAppStart AppStart
 
-<WorkoutsView History="History" Rows="rows" Dates="dates" DatesChanged="ShowAsync" @bind-Expanded="expanded" Loading="loading" Failed="failed"
-              OnRetry="LoadAsync" OnOpen="row => OnOpen.InvokeAsync(row.Id)" OnNavigate="OnNavigate" />
+<WorkoutsView History="History" Rows="rows" Dates="dates" DatesChanged="ShowAsync" @bind-Expanded="expanded" Loading="loading" Failed="failure is not Failure.None"
+              OnRetry="RetryAsync" OnRefresh="() => LoadAsync(PullRefresh.MinimumSpinner)" OnOpen="row => OnOpen.InvokeAsync(row.Id)" OnNavigate="OnNavigate" />
 
 @code {
+    private enum Failure { None, Counts, Range }
+
     private WorkoutHistory? loaded;
     private IReadOnlyList<WorkoutsRow> rows = [];
     private DateSpan dates;
     private bool expanded;
     private bool loading;
-    private bool failed;
+    private Failure failure;
     private int query;
+    private IDisposable? registration;
+    private bool disposed;
 
     /// <summary>Raised with the workout id when a row is tapped.</summary>
     [Parameter]
@@ -26,53 +33,107 @@
 
     private WorkoutHistory History => loaded ?? WorkoutHistory.None;
 
-    protected override Task OnInitializedAsync() => LoadAsync();
+    protected override Task OnInitializedAsync()
+    {
+        registration = AppStart.Register(() => InvokeAsync(ReloadAsync));
+        return LoadAsync();
+    }
 
-    // The per-day counts load once; Try again after a failed range read reads only that range again.
-    private async Task LoadAsync()
+    public void Dispose()
+    {
+        disposed = true;
+        registration?.Dispose();
+    }
+
+    private Task RetryAsync() => failure is Failure.Counts ? LoadAsync() : ShowAsync(dates);
+
+    /// <summary>
+    /// Shows the spinner and reads the per-day counts with today taken afresh, then the rows. Dates that match a quick range move
+    /// with today; dates picked in the calendar stay. Does nothing while a load runs, and nothing more once the page is disposed
+    /// or other dates are chosen.
+    /// </summary>
+    private async Task LoadAsync(TimeSpan minimum = default)
     {
         if (loading)
         {
             return;
         }
 
-        if (loaded is null)
+        (loading, failure) = (true, Failure.None);
+        StateHasChanged();
+        var minimumElapsed = Task.Delay(minimum, Clock);
+        var current = ++query;
+        var days = await Workouts.GetDaysAsync();
+        if (disposed || current != query)
         {
-            loading = true;
-            failed = false;
-            StateHasChanged();
-            var days = await Workouts.GetDaysAsync();
-            if (days.Failed)
-            {
-                (loading, failed) = (false, true);
-                return;
-            }
-
-            loaded = new WorkoutHistory(days.PerDay, DateOnly.FromDateTime(TimeZoneInfo.ConvertTime(Clock.GetUtcNow(), Clock.LocalTimeZone).DateTime));
-            dates = loaded.Span(HistoryRange.ThreeMonths);
-            if (loaded.IsEmpty)
-            {
-                loading = false;
-                return;
-            }
+            return;
         }
 
-        await ShowAsync(dates);
+        if (days.Failed)
+        {
+            (failure, expanded) = (Failure.Counts, false);
+            await HideSpinnerIfLatestAsync(current, minimumElapsed);
+            return;
+        }
+
+        var range = loaded is null ? HistoryRange.ThreeMonths : loaded.RangeOf(dates);
+        loaded = new WorkoutHistory(days.PerDay, DateOnly.FromDateTime(TimeZoneInfo.ConvertTime(Clock.GetUtcNow(), Clock.LocalTimeZone).DateTime));
+        var shown = range is { } quick ? loaded.Span(quick) : dates;
+        if (loaded.IsEmpty)
+        {
+            (dates, rows) = (shown, []);
+            await HideSpinnerIfLatestAsync(current, minimumElapsed);
+            return;
+        }
+
+        await ReadAsync(shown, minimumElapsed);
     }
 
-    private async Task ShowAsync(DateSpan shown)
+    private Task ShowAsync(DateSpan shown)
+    {
+        (loading, failure) = (true, Failure.None);
+        return ReadAsync(shown, Task.CompletedTask);
+    }
+
+    /// <summary>Does nothing more once the page is disposed or other dates are chosen.</summary>
+    private async Task ReadAsync(DateSpan shown, Task minimumElapsed)
     {
         var current = ++query;
-        (dates, loading, failed) = (shown, true, false);
+        dates = shown;
         StateHasChanged();
         var result = await Workouts.GetBetweenAsync(shown.From, shown.To);
-        if (current != query)
+        if (disposed || current != query)
         {
             return;
         }
 
         rows = [.. result.Workouts.Select(w => new WorkoutsRow(w.Id, TimeZoneInfo.ConvertTime(w.StartedAt, Clock.LocalTimeZone).DateTime))];
-        (loading, failed) = (false, result.Failed);
-        expanded &= !failed;
+        failure = result.Failed ? Failure.Range : Failure.None;
+        expanded &= !result.Failed;
+        await HideSpinnerIfLatestAsync(current, minimumElapsed);
+    }
+
+    private async Task HideSpinnerIfLatestAsync(int current, Task minimumElapsed)
+    {
+        await minimumElapsed;
+        if (!disposed && current == query)
+        {
+            loading = false;
+        }
+    }
+
+    /// <summary>Loads again when the app comes back on screen. Does nothing once the page is disposed, before or during the load.</summary>
+    private async Task ReloadAsync()
+    {
+        if (disposed)
+        {
+            return;
+        }
+
+        await LoadAsync();
+        if (!disposed)
+        {
+            StateHasChanged();
+        }
     }
 }

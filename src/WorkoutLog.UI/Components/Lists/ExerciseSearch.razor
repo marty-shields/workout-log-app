@@ -1,0 +1,68 @@
+@using WorkoutLog.Core.Domain.Exercises
+@using WorkoutLog.UI.Components.Inputs
+@using WorkoutLog.UI.Models.Exercises
+<div class="search">
+    <span class="search-icon"><Icon Name="IconName.Search" Tone="IconTone.Muted" /></span>
+    <input @ref="search"
+           type="search"
+           class="search-input"
+           placeholder="Search exercises"
+           aria-label="Search exercises"
+           autocomplete="off"
+           maxlength="@ExerciseCatalog.MaxQueryLength"
+           value="@Query"
+           data-testid="@($"{TestId}-search")"
+           @oninput="OnInput" />
+</div>
+<FilterChips TValue="ExerciseFilter" Label="Type" Options="filters" Value="Filter" ValueChanged="FilterChanged" TestId="@($"{TestId}-filter")" />
+
+@code {
+    private IReadOnlyList<RadioOption<ExerciseFilter>> filters = [];
+    private ElementReference search;
+
+    /// <summary>Search text.</summary>
+    [Parameter]
+    public string? Query { get; set; }
+
+    /// <summary>Raised on each keystroke with the new search text, at most <see cref="ExerciseCatalog.MaxQueryLength"/> characters.</summary>
+    [Parameter]
+    public EventCallback<string> QueryChanged { get; set; }
+
+    /// <summary>Chosen chip.</summary>
+    [Parameter]
+    public ExerciseFilter Filter { get; set; }
+
+    /// <summary>Raised with the chip tapped.</summary>
+    [Parameter]
+    public EventCallback<ExerciseFilter> FilterChanged { get; set; }
+
+    /// <summary>Moves focus to the search box when first shown.</summary>
+    [Parameter]
+    public bool FocusSearch { get; set; }
+
+    /// <summary>Prefix of the data-testid attributes, e.g. exercises gives exercises-search and exercises-filter-all.</summary>
+    [Parameter, EditorRequired]
+    public string TestId { get; set; } = "";
+
+    protected override void OnInitialized() =>
+        filters =
+        [
+            new(ExerciseFilter.All, "All", $"{TestId}-filter-all"),
+            new(ExerciseFilter.Strength, "Strength", $"{TestId}-filter-strength"),
+            new(ExerciseFilter.Cardio, "Cardio", $"{TestId}-filter-cardio"),
+        ];
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender && FocusSearch)
+        {
+            await search.FocusAsync();
+        }
+    }
+
+    private Task OnInput(ChangeEventArgs e)
+    {
+        var text = e.Value as string ?? "";
+        return QueryChanged.InvokeAsync(text.Length > ExerciseCatalog.MaxQueryLength ? text[..ExerciseCatalog.MaxQueryLength] : text);
+    }
+}

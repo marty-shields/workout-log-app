@@ -1,9 +1,12 @@
 @using WorkoutLog.Core.Domain.Exercises
 @using WorkoutLog.Core.Services
+@using WorkoutLog.UI.Lifecycle
 @using WorkoutLog.UI.Models.Exercises
+@implements IDisposable
 @inject ILoggedExercisesService LoggedExercises
 @inject IExerciseCatalog Catalog
 @inject TimeProvider Clock
+@inject IAppStart AppStart
 
 <ExercisesView Items="items"
                Query="@query"
@@ -13,7 +16,8 @@
                NothingLogged="logged.Count == 0"
                Loading="loading"
                Failed="failed"
-               OnRetry="LoadAsync"
+               OnRetry="() => LoadAsync()"
+               OnRefresh="() => LoadAsync(PullRefresh.MinimumSpinner)"
                OnOpen="item => OnOpen.InvokeAsync(item.Id)"
                OnNavigate="OnNavigate" />
 
@@ -24,6 +28,8 @@
     private ExerciseFilter filter;
     private bool loading;
     private bool failed;
+    private IDisposable? registration;
+    private bool disposed;
 
     /// <summary>Raised with the exercise id when a row is tapped.</summary>
     [Parameter]
@@ -33,10 +39,20 @@
     [Parameter]
     public EventCallback<NavDestination> OnNavigate { get; set; }
 
-    protected override Task OnInitializedAsync() => LoadAsync();
+    protected override Task OnInitializedAsync()
+    {
+        registration = AppStart.Register(() => InvokeAsync(ReloadAsync));
+        return LoadAsync();
+    }
 
-    /// <summary>Ids not in the catalog are already left out by Core.</summary>
-    private async Task LoadAsync()
+    public void Dispose()
+    {
+        disposed = true;
+        registration?.Dispose();
+    }
+
+    /// <summary>Ids not in the catalog are already left out by Core. Does nothing more once the page is disposed.</summary>
+    private async Task LoadAsync(TimeSpan minimum = default)
     {
         if (loading)
         {
@@ -45,15 +61,25 @@
 
         loading = true;
         StateHasChanged();
+        var minimumElapsed = Task.Delay(minimum, Clock);
         var result = await LoggedExercises.GetAsync();
+        if (disposed)
+        {
+            return;
+        }
+
         var definitions = Catalog.All.ToDictionary(e => e.Id);
         var now = Clock.GetUtcNow();
         logged = result.Exercises
             .Select(e => ExerciseListItems.Item(definitions[e.ExerciseId], e, Clock.LocalTimeZone, now))
             .ToList();
         failed = result.Failed;
-        loading = false;
         Find();
+        await minimumElapsed;
+        if (!disposed)
+        {
+            loading = false;
+        }
     }
 
     private void Search(string text)
@@ -66,6 +92,21 @@
     {
         filter = value;
         Find();
+    }
+
+    /// <summary>Loads again when the app comes back on screen, keeping the search and chip. Does nothing once the page is disposed, before or during the load.</summary>
+    private async Task ReloadAsync()
+    {
+        if (disposed)
+        {
+            return;
+        }
+
+        await LoadAsync();
+        if (!disposed)
+        {
+            StateHasChanged();
+        }
     }
 
     private void Find() => items = ExerciseListItems.Find(logged, Catalog, query, filter);

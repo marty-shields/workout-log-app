@@ -6,6 +6,7 @@ using WorkoutLog.Core.Domain.Workouts;
 using WorkoutLog.Core.Domain.Workouts.Consistency;
 using WorkoutLog.Core.Services;
 using WorkoutLog.UI.Components.Dashboard;
+using WorkoutLog.UI.Components.Layout;
 using WorkoutLog.UI.Lifecycle;
 using WorkoutLog.UI.Navigation;
 using WorkoutLog.UI.Screens;
@@ -247,10 +248,10 @@ public class DashboardPageTests : ComponentTestBase
 
         lastWorkout.Complete(NoWorkouts);
         await WaitForRendererAsync();
-        await started;
 
         cut.WaitForAssertion(() => Assert.That(cut.Find("[data-testid=consistency-streak]").TextContent, Is.EqualTo("1-week streak")));
         Assert.That(consistency.Calls, Is.EqualTo(2));
+        await started;
     }
 
     [Test]
@@ -348,6 +349,74 @@ public class DashboardPageTests : ComponentTestBase
             Assert.That(lifecycleLogger.Collector.Count, Is.Zero);
         });
         await started;
+    }
+
+    [Test]
+    public async Task Refresh_FastReload_KeepsTheSpinnerUpForHalfASecond()
+    {
+        var cut = await LoadedAsync();
+        consistency.Result = Consistency(new WeekTally(1, TimeSpan.FromMinutes(52), 16), WeekTally.None, [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1], 1);
+
+        var refresh = cut.InvokeAsync(cut.FindComponent<AppScreen>().Instance.RefreshAsync);
+        cut.WaitForAssertion(() => Assert.That(lastWorkout.Calls, Is.EqualTo(2)));
+        lastWorkout.Complete(NoWorkouts);
+        await WaitForRendererAsync();
+        time.Advance(TimeSpan.FromMilliseconds(499));
+        await WaitForRendererAsync();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.FindAll("[data-testid=dashboard-loading]"), Has.Count.EqualTo(1));
+            Assert.That(cut.FindAll("[data-testid=consistency]"), Is.Empty);
+        });
+        time.Advance(TimeSpan.FromMilliseconds(1));
+        await refresh;
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.FindAll("[data-testid=dashboard-loading]"), Is.Empty);
+            Assert.That(cut.Find("[data-testid=consistency-streak]").TextContent, Is.EqualTo("1-week streak"));
+        });
+    }
+
+    [Test]
+    public async Task Refresh_SlowReload_ShowsTheNewValuesAsSoonAsItFinishes()
+    {
+        var cut = await LoadedAsync();
+        consistency.Result = Consistency(new WeekTally(1, TimeSpan.FromMinutes(52), 16), WeekTally.None, [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1], 1);
+
+        var refresh = cut.InvokeAsync(cut.FindComponent<AppScreen>().Instance.RefreshAsync);
+        cut.WaitForAssertion(() => Assert.That(lastWorkout.Calls, Is.EqualTo(2)));
+        time.Advance(TimeSpan.FromMilliseconds(800));
+        await WaitForRendererAsync();
+
+        Assert.That(cut.FindAll("[data-testid=dashboard-loading]"), Has.Count.EqualTo(1));
+        lastWorkout.Complete(NoWorkouts);
+        cut.WaitForAssertion(() => Assert.That(cut.FindAll("[data-testid=dashboard-loading]"), Is.Empty));
+        await refresh;
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.Find("[data-testid=consistency-streak]").TextContent, Is.EqualTo("1-week streak"));
+        });
+    }
+
+    [Test]
+    public async Task Refresh_Failed_ShowsTheErrorAfterHalfASecond()
+    {
+        var cut = await LoadedAsync();
+        consistency.Result = ConsistencyResult.FailedRead;
+
+        var refresh = cut.InvokeAsync(cut.FindComponent<AppScreen>().Instance.RefreshAsync);
+        lastWorkout.Complete(NoWorkouts);
+        await WaitForRendererAsync();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.FindAll("[data-testid=dashboard-loading]"), Has.Count.EqualTo(1));
+            Assert.That(cut.FindAll("[data-testid=dashboard-error]"), Is.Empty);
+        });
+        time.Advance(TimeSpan.FromMilliseconds(500));
+        await refresh;
+        Assert.That(cut.FindAll("[data-testid=dashboard-error]"), Has.Count.EqualTo(1));
     }
 
     [Test]
@@ -489,6 +558,15 @@ public class DashboardPageTests : ComponentTestBase
 
         cut.WaitForAssertion(() => Assert.That(cut.FindAll("[data-testid=recent-records-row-6]"), Has.Count.EqualTo(1)));
         Assert.That(recentRecords.Calls, Is.EqualTo(2));
+    }
+
+    private async Task<IRenderedComponent<DashboardPage>> LoadedAsync()
+    {
+        var cut = Context.Render<DashboardPage>();
+        lastWorkout.Complete(NoWorkouts);
+        await WaitForRendererAsync();
+        cut.WaitForAssertion(() => Assert.That(cut.FindAll("[data-testid=consistency]"), Has.Count.EqualTo(1)));
+        return cut;
     }
 
     /// <summary>Workout 42, 1:12:04 long, with the exercises in order.</summary>

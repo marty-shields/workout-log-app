@@ -1,6 +1,6 @@
 @using WorkoutLog.UI.Components.Feedback
 @using WorkoutLog.UI.Models.Exercises
-<AppScreen Title="Exercises" Destination="NavDestination.Exercises" OnNavigate="OnNavigate">
+<AppScreen Title="Exercises" Destination="NavDestination.Exercises" OnNavigate="OnNavigate" OnRefresh="OnRefresh" Toolbar="@(ShowsTools ? Tools : null)">
     @if (Loading)
     {
         <div class="centre">
@@ -17,7 +17,7 @@
     }
     else
     {
-        <ExerciseList Items="Items" Query="@Query" QueryChanged="QueryChanged" Filter="Filter" FilterChanged="FilterChanged" OnPick="OnOpen" TestId="exercises" />
+        <ExerciseList Items="Items" OnPick="OnOpen" TestId="exercises" />
     }
 </AppScreen>
 
@@ -42,21 +42,25 @@
     [Parameter]
     public EventCallback<ExerciseFilter> FilterChanged { get; set; }
 
-    /// <summary>Shows "No exercises logged yet" instead of the search, chips and rows.</summary>
+    /// <summary>Shows "No exercises logged yet" instead of the search, chips and rows. No search or chips show while loading either.</summary>
     [Parameter]
     public bool NothingLogged { get; set; }
 
-    /// <summary>Shows a spinner instead of the content while the exercises load.</summary>
+    /// <summary>Shows a spinner instead of the rows while the exercises load. The search and chips stay unless <see cref="NothingLogged"/>.</summary>
     [Parameter]
     public bool Loading { get; set; }
 
-    /// <summary>Shows the load error and Try again instead of the content, and moves focus to Try again.</summary>
+    /// <summary>Shows the load error and Try again instead of the search, chips and rows, and moves focus to Try again.</summary>
     [Parameter]
     public bool Failed { get; set; }
 
     /// <summary>Raised by Try again.</summary>
     [Parameter]
     public EventCallback OnRetry { get; set; }
+
+    /// <summary>Raised by pulling the content down, to load it again. No pull without it.</summary>
+    [Parameter]
+    public EventCallback OnRefresh { get; set; }
 
     /// <summary>Raised when a row is tapped, to open its Exercise page. Rows are not tappable when unset.</summary>
     [Parameter]
@@ -65,4 +69,11 @@
     /// <summary>Raised with the destination tapped in the bottom navigation bar, and with the Dashboard on Android back.</summary>
     [Parameter]
     public EventCallback<NavDestination> OnNavigate { get; set; }
+
+    private bool ShowsTools => !Failed && !NothingLogged;
+
+    private RenderFragment Tools =>
+        @<div class="tools">
+            <ExerciseSearch Query="@Query" QueryChanged="QueryChanged" Filter="Filter" FilterChanged="FilterChanged" TestId="exercises" />
+        </div>;
 }

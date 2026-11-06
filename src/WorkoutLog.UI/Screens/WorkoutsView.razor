@@ -2,7 +2,7 @@
 @using WorkoutLog.UI.Components.Feedback
 @using WorkoutLog.UI.Components.Inputs
 @using WorkoutLog.UI.Models.Workouts
-<AppScreen Title="Workouts" Destination="NavDestination.Workouts" OnNavigate="OnNavigate" Toolbar="@(ShowsTools ? Tools : null)">
+<AppScreen Title="Workouts" Destination="NavDestination.Workouts" OnNavigate="OnNavigate" OnRefresh="OnRefresh" Toolbar="@(ShowsTools ? Tools : null)">
     @if (Expanded && ShowsTools)
     {
         @* The calendar under the date field replaces the list, even while one loads. *@
@@ -98,6 +98,10 @@
     /// <summary>Raised by Try again.</summary>
     [Parameter]
     public EventCallback OnRetry { get; set; }
+
+    /// <summary>Raised by pulling the content down, to load it again. No pull without it.</summary>
+    [Parameter]
+    public EventCallback OnRefresh { get; set; }
 
     /// <summary>Raised when a row is tapped.</summary>
     [Parameter, EditorRequired]
