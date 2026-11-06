@@ -2,6 +2,7 @@ using OpenQA.Selenium;
 using OpenQA.Selenium.Appium.Android;
 using OpenQA.Selenium.Appium.Android.Enums;
 using OpenQA.Selenium.Appium.Enums;
+using OpenQA.Selenium.Interactions;
 using WorkoutLog.E2E.Tests.Screens;
 
 namespace WorkoutLog.E2E.Tests.Device;
@@ -108,6 +109,30 @@ public sealed class Native(WebView web)
             web.WaitUntil(() => App.CurrentPackage is { Length: > 0 } package && package != AppiumSetup.App.Package, "the file picker didn't open", LaunchTimeout);
             act();
             web.WaitUntil(() => App.CurrentPackage == AppiumSetup.App.Package, "the app didn't come back from the file picker", LaunchTimeout);
+        }
+        finally
+        {
+            App.Context = WebView;
+        }
+    }
+
+    /// <summary>Drags one finger down the middle of the screen, as a user pulls a list to refresh it.</summary>
+    public void PullDown()
+    {
+        App.Context = NativeApp;
+        try
+        {
+            var size = App.Manage().Window.Size;
+            var x = size.Width / 2;
+            var belowTheToolbars = size.Height * 3 / 10;
+            var pastTheThreshold = size.Height * 7 / 10;
+            var finger = new PointerInputDevice(PointerKind.Touch, "finger");
+            var pull = new ActionSequence(finger);
+            pull.AddAction(finger.CreatePointerMove(CoordinateOrigin.Viewport, x, belowTheToolbars, TimeSpan.Zero));
+            pull.AddAction(finger.CreatePointerDown(MouseButton.Touch));
+            pull.AddAction(finger.CreatePointerMove(CoordinateOrigin.Viewport, x, pastTheThreshold, TimeSpan.FromMilliseconds(600)));
+            pull.AddAction(finger.CreatePointerUp(MouseButton.Touch));
+            App.PerformActions([pull]);
         }
         finally
         {
