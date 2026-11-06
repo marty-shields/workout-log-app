@@ -8,7 +8,7 @@
 @inject IAppStart AppStart
 
 <WorkoutsView History="History" Rows="rows" Dates="dates" DatesChanged="ShowAsync" @bind-Expanded="expanded" Loading="loading" Failed="failed"
-              OnRetry="RetryAsync" OnOpen="row => OnOpen.InvokeAsync(row.Id)" OnNavigate="OnNavigate" />
+              OnRetry="RetryAsync" OnRefresh="FetchAsync" OnOpen="row => OnOpen.InvokeAsync(row.Id)" OnNavigate="OnNavigate" />
 
 @code {
     private WorkoutHistory? loaded;
@@ -59,8 +59,9 @@
     }
 
     /// <summary>
-    /// Reads the per-day counts with today taken afresh, then the rows. Dates that match a quick range move with today; dates
-    /// picked in the calendar stay. Does nothing more once the page is disposed or other dates are chosen.
+    /// Reads the per-day counts with today taken afresh, then the rows, leaving what's shown and the spinner as they are until
+    /// then. Dates that match a quick range move with today; dates picked in the calendar stay. Does nothing more once the page
+    /// is disposed or other dates are chosen.
     /// </summary>
     private async Task FetchAsync()
     {
@@ -86,13 +87,20 @@
             return;
         }
 
-        await ShowAsync(shown);
+        await ReadAsync(shown);
     }
 
-    private async Task ShowAsync(DateSpan shown)
+    private Task ShowAsync(DateSpan shown)
+    {
+        (loading, failed) = (true, false);
+        return ReadAsync(shown);
+    }
+
+    /// <summary>Shows <paramref name="shown"/> and, once read, its rows. Does nothing more once the page is disposed or other dates are chosen.</summary>
+    private async Task ReadAsync(DateSpan shown)
     {
         var current = ++query;
-        (dates, loading, failed) = (shown, true, false);
+        dates = shown;
         StateHasChanged();
         var result = await Workouts.GetBetweenAsync(shown.From, shown.To);
         if (disposed || current != query)
