@@ -16,9 +16,9 @@ public class ExercisesViewTests : ComponentTestBase
         Assert.Multiple(() =>
         {
             Assert.That(cut.Find("[data-testid=screen-title]").TextContent, Is.EqualTo("Exercises"));
-            Assert.That(cut.Find("[data-testid=exercises-search]").GetAttribute("placeholder"), Is.EqualTo("Search exercises"));
-            Assert.That(cut.FindAll("[data-testid=exercises-filter] .text").Select(t => t.TextContent), Is.EqualTo(new[] { "All", "Strength", "Cardio" }));
-            Assert.That(cut.FindAll("[data-testid^=exercises-row-] .text").Select(t => t.TextContent), Is.EqualTo(new[] { "Barbell Back Squat", "Machine Assisted Pull-up" }));
+            Assert.That(cut.Find(".toolbar [data-testid=exercises-search]").GetAttribute("placeholder"), Is.EqualTo("Search exercises"));
+            Assert.That(cut.FindAll(".toolbar [data-testid=exercises-filter] .text").Select(t => t.TextContent), Is.EqualTo(new[] { "All", "Strength", "Cardio" }));
+            Assert.That(cut.FindAll(".content [data-testid^=exercises-row-] .text").Select(t => t.TextContent), Is.EqualTo(new[] { "Barbell Back Squat", "Machine Assisted Pull-up" }));
             Assert.That(cut.FindAll("[data-testid^=exercises-row-] .detail").Select(d => d.TextContent),
                 Is.EqualTo(new[] { "Last Tue 20 Oct · 70kg × 3", "Last Tue 20 Oct · 0kg × 5" }));
         });
@@ -119,6 +119,7 @@ public class ExercisesViewTests : ComponentTestBase
         {
             Assert.That(TestText.Normalise(cut.Find("[data-testid=exercises-empty-message]").TextContent), Is.EqualTo("No exercises logged yet"));
             Assert.That(cut.Find("[data-testid=exercises-empty-hint]").TextContent, Is.EqualTo("Exercises show here once you log them in a workout"));
+            Assert.That(cut.FindAll(".toolbar"), Is.Empty);
             Assert.That(cut.FindAll("[data-testid=exercises-search]"), Is.Empty);
             Assert.That(cut.FindAll("[data-testid=exercises-filter]"), Is.Empty);
             Assert.That(cut.FindAll("[data-testid=exercises-none]"), Is.Empty);
@@ -126,16 +127,36 @@ public class ExercisesViewTests : ComponentTestBase
     }
 
     [Test]
-    public void Loading_ShowsTheSpinnerOnly()
+    public void LoadingBeforeAnythingLoaded_ShowsTheSpinnerOnly()
     {
-        var cut = Context.Render<ExercisesView>(p => p.Add(x => x.Items, SampleExercises.All).Add(x => x.Loading, true));
+        var cut = Context.Render<ExercisesView>(p => p.Add(x => x.Items, []).Add(x => x.NothingLogged, true).Add(x => x.Loading, true));
 
         Assert.Multiple(() =>
         {
             Assert.That(cut.Find("[data-testid=exercises-loading]").TextContent, Does.Contain("Loading…"));
+            Assert.That(cut.FindAll(".toolbar"), Is.Empty);
             Assert.That(cut.FindAll("[data-testid=exercises-search]"), Is.Empty);
-            Assert.That(cut.FindAll("[data-testid^=exercises-row-]"), Is.Empty);
+            Assert.That(cut.FindAll("[data-testid=exercises-empty]"), Is.Empty);
             Assert.That(cut.FindAll("[data-testid=bottom-nav]"), Has.Count.EqualTo(1));
+        });
+    }
+
+    [Test]
+    public void Reloading_KeepsTheSearchAndChipsInTheToolbarWithTheSpinnerInPlaceOfTheRows()
+    {
+        var cut = Context.Render<ExercisesView>(p => p
+            .Add(x => x.Items, SampleExercises.Strength)
+            .Add(x => x.Query, "squat")
+            .Add(x => x.Filter, ExerciseFilter.Strength)
+            .Add(x => x.Loading, true));
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.Find(".toolbar [data-testid=exercises-search]").GetAttribute("value"), Is.EqualTo("squat"));
+            Assert.That(cut.FindAll(".toolbar [data-testid=exercises-filter] input[checked]").Select(i => i.GetAttribute("data-testid")),
+                Is.EqualTo(new[] { "exercises-filter-strength" }));
+            Assert.That(cut.FindAll(".content [data-testid=exercises-loading]"), Has.Count.EqualTo(1));
+            Assert.That(cut.FindAll("[data-testid^=exercises-row-]"), Is.Empty);
         });
     }
 
@@ -148,8 +169,21 @@ public class ExercisesViewTests : ComponentTestBase
         {
             Assert.That(cut.Find("[data-testid=exercises-error]").TextContent, Is.EqualTo("Couldn't load your exercises"));
             Assert.That(cut.Find("[data-testid=exercises-retry]").TextContent.Trim(), Is.EqualTo("Try again"));
+            Assert.That(cut.FindAll(".toolbar"), Is.Empty);
             Assert.That(cut.FindAll("[data-testid=exercises-search]"), Is.Empty);
             Assert.That(cut.FindAll("[data-testid^=exercises-row-]"), Is.Empty);
+        });
+    }
+
+    [Test]
+    public void RetryingAfterAFailure_ShowsTheSpinnerOnly()
+    {
+        var cut = Context.Render<ExercisesView>(p => p.Add(x => x.Items, []).Add(x => x.Failed, true).Add(x => x.Loading, true));
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.FindAll("[data-testid=exercises-loading]"), Has.Count.EqualTo(1));
+            Assert.That(cut.FindAll(".toolbar"), Is.Empty);
         });
     }
 

@@ -59,7 +59,7 @@ public class ExercisesPageTests : ComponentTestBase
         {
             Assert.That(cut.FindAll("[data-testid=exercises-loading]"), Has.Count.EqualTo(1));
             Assert.That(cut.FindAll("[data-testid=exercises-empty]"), Is.Empty);
-            Assert.That(cut.FindAll("[data-testid=exercises-search]"), Is.Empty);
+            Assert.That(cut.FindAll(".toolbar"), Is.Empty);
         });
     }
 
@@ -309,6 +309,41 @@ public class ExercisesPageTests : ComponentTestBase
     }
 
     [Test]
+    public async Task Refresh_KeepsTheSearchAndChipsUpAndTakesChangesMadeDuringIt()
+    {
+        var cut = Context.Render<ExercisesPage>();
+        cut.Find("[data-testid=exercises-search]").Input("curl");
+        LoggedExercises.Hold = true;
+        LoggedExercises.Result = Logged with
+        {
+            Exercises = [new LoggedExercise(Squat, Now.AddHours(-1), new ExerciseBest(80m, 2, null, null)), .. Logged.Exercises.Where(e => e.ExerciseId != Squat)],
+        };
+
+        var refresh = cut.InvokeAsync(cut.FindComponent<AppScreen>().Instance.RefreshAsync);
+        await WaitForRendererAsync();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.FindAll("[data-testid=exercises-loading]"), Has.Count.EqualTo(1));
+            Assert.That(cut.FindAll("[data-testid^=exercises-row-]"), Is.Empty);
+            Assert.That(cut.Find(".toolbar [data-testid=exercises-search]").GetAttribute("value"), Is.EqualTo("curl"));
+        });
+        cut.Find("[data-testid=exercises-search]").Input("squat");
+        cut.Find("[data-testid=exercises-filter-strength]").Change(true);
+        LoggedExercises.Complete();
+        clock.Advance(TimeSpan.FromMilliseconds(500));
+        await refresh;
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.Find(".toolbar [data-testid=exercises-search]").GetAttribute("value"), Is.EqualTo("squat"));
+            Assert.That(cut.FindAll("[data-testid=exercises-filter] input[checked]").Select(i => i.GetAttribute("data-testid")),
+                Is.EqualTo(new[] { "exercises-filter-strength" }));
+            Assert.That(cut.FindAll("[data-testid^=exercises-row-]").Select(r => r.GetAttribute("data-testid")), Is.EqualTo(new[] { "exercises-row-6" }));
+            Assert.That(cut.Find("[data-testid=exercises-row-6] .detail").TextContent, Is.EqualTo("Last Wed 28 Oct · 80kg × 2"));
+        });
+    }
+
+    [Test]
     public async Task Refresh_Failed_ShowsTheErrorAfterHalfASecond()
     {
         var cut = Context.Render<ExercisesPage>();
@@ -324,7 +359,11 @@ public class ExercisesPageTests : ComponentTestBase
         });
         clock.Advance(TimeSpan.FromMilliseconds(500));
         await refresh;
-        Assert.That(cut.FindAll("[data-testid=exercises-error]"), Has.Count.EqualTo(1));
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.FindAll("[data-testid=exercises-error]"), Has.Count.EqualTo(1));
+            Assert.That(cut.FindAll(".toolbar"), Is.Empty);
+        });
     }
 
     [Test]

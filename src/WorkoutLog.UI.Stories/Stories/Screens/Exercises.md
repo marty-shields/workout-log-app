@@ -6,20 +6,19 @@ $attribute: CustomPage("Screens/Exercises/Overview")
 
 The exercises you've logged, opened from the Dashboard. View: `ExercisesView`, built from `ExerciseSearch` and `ExerciseList` as [Add Exercise](./?path=/custom/screens-add-exercise-overview) is; page: `ExercisesPage`.
 
-`ExercisesPage` loads the exercises through `ILoggedExercisesService.GetAsync` each time it opens, and again when the app comes back on screen or on [pull down to refresh](./?path=/custom/components-layout-overview), and searches and filters them in memory. Each load shows the spinner in place of the list, as on opening, then what was read, or the load error. After a pull the spinner stays up for at least half a second, so a fast reload doesn't blink. The search text and chip stay through a reload. Every row opens its [Exercise](./?path=/custom/screens-exercise-overview) page. Android back, or Dashboard in the navigation bar, returns to the Dashboard; Workouts in the navigation bar opens Workouts.
+`ExercisesPage` loads the exercises through `ILoggedExercisesService.GetAsync` each time it opens, and again when the app comes back on screen or on [pull down to refresh](./?path=/custom/components-layout-overview), and searches and filters them in memory. Each load shows the spinner in place of the list, then what was read, or the load error. The search text and chip stay, pinned above the spinner, and can be changed while it shows; the rows that come back match them. After a pull the spinner stays up for at least half a second, so a fast reload doesn't blink. Every row opens its [Exercise](./?path=/custom/screens-exercise-overview) page. Android back, or Dashboard in the navigation bar, returns to the Dashboard; Workouts in the navigation bar opens Workouts.
 
 | Part | Content |
 |---|---|
 | Top bar | Title "Exercises". No back arrow: Exercises is a top-level screen. |
-| Search | Search box with the search `Icon` and "Search exercises". |
-| Chips | `FilterChips`: All, Strength, Cardio. |
+| Toolbar | `ExerciseSearch`, pinned under the top bar with a line under it; the rows scroll beneath. Search box with the search `Icon` and "Search exercises", then `FilterChips`: All, Strength, Cardio. Shows once the exercises have loaded, and stays while they load again. Not shown before the first load finishes, when nothing is logged yet, or when the load failed. |
 | Rows | One `ListRow` per exercise: its name, Strength or Cardio muted at the right, and under the name "Last" with the last session's date and best, e.g. *Last Tue 20 Oct · 70kg × 3*. The best: a lift's top set (heaviest; tie → most reps); a bodyweight move's most reps, or its top set when a set is over 0 kg; an assisted machine's least assist (tie → most reps); a hold's longest; a carry's heaviest set over 0 kg with its distance (tie → longest); cardio's distance when the exercise has it, else its duration. The date has the year when it isn't this year; with no best, the date only. No search text: most recent first; exercises last done in the same workout A–Z. With search text: matches, ranked : every query word, in any order, starts a word of the name or a nickname; names that start with the query first, then other name matches, then nickname matches. Filtered by the chip. Every row has a chevron and opens its Exercise page. |
-| No match | "No exercises match" under the chips. |
+| No match | "No exercises match" under the toolbar. |
 | Nothing logged yet | `EmptyState` "No exercises logged yet", hint "Exercises show here once you log them in a workout", with no search or chips. |
-| Loading | `Spinner` "Loading…" centred. |
+| Loading | `Spinner` "Loading…" centred: on its own on opening, and under the toolbar in place of the rows on a reload. |
 | Load failed | Error "Couldn't load your exercises" and a Secondary **Try again**. Focus moves to Try again. |
 | Navigation bar | `BottomNav` with Exercises current. |
 
-States: [List](./?path=/story/screens-exercises--list) · [Strength](./?path=/story/screens-exercises--strength) · [Cardio](./?path=/story/screens-exercises--cardio) · [No match](./?path=/story/screens-exercises--no-match) · [Nothing logged yet](./?path=/story/screens-exercises--nothing-logged-yet) · [Loading](./?path=/story/screens-exercises--loading) · [Load failed](./?path=/story/screens-exercises--load-failed)
+States: [List](./?path=/story/screens-exercises--list) · [Strength](./?path=/story/screens-exercises--strength) · [Cardio](./?path=/story/screens-exercises--cardio) · [No match](./?path=/story/screens-exercises--no-match) · [Nothing logged yet](./?path=/story/screens-exercises--nothing-logged-yet) · [Loading](./?path=/story/screens-exercises--loading) · [Reloading](./?path=/story/screens-exercises--reloading) · [Load failed](./?path=/story/screens-exercises--load-failed)
 
 `data-testid`: `exercises-search`, `exercises-filter`, `exercises-filter-all`, `exercises-filter-strength`, `exercises-filter-cardio`, `exercises-row-{id}`, `exercises-none`, `exercises-empty`, `exercises-loading`, `exercises-error`, `exercises-retry`, and the navigation bar's `bottom-nav`, `dashboard-link`, `workouts-link`, `exercises-link`.

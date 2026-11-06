@@ -145,7 +145,8 @@ public static class ScreenStates
         new("Screens/Exercises", "Cardio", c => Exercises(c, SampleExercises.Cardio, filter: ExerciseFilter.Cardio)),
         new("Screens/Exercises", "No match", c => Exercises(c, [], query: "deadlift")),
         new("Screens/Exercises", "Nothing logged yet", c => Exercises(c, [], nothingLogged: true)),
-        new("Screens/Exercises", "Loading", c => Exercises(c, [], loading: true)),
+        new("Screens/Exercises", "Loading", c => Exercises(c, [], nothingLogged: true, loading: true)),
+        new("Screens/Exercises", "Reloading", c => Exercises(c, SampleExercises.All, loading: true)),
         new("Screens/Exercises", "Load failed", c => Exercises(c, [], failed: true)),
 
         new("Screens/Exercise", "Lift top set", c => ExercisePage(c, SampleExercises.LiftTopSet)),
