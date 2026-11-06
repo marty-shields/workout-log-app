@@ -46,6 +46,12 @@
         </Template>
     </Story>
 
+    <Story Name="No workout on this day">
+        <Template>
+            <WorkoutsView History="History" Rows="SampleWorkoutHistory.In(SampleWorkoutHistory.RestDay)" Dates="SampleWorkoutHistory.RestDay" OnOpen="(WorkoutsRow _) => { }" />
+        </Template>
+    </Story>
+
     <Story Name="Picking dates">
         <Template>
             <WorkoutsView History="History" Rows="SampleWorkoutHistory.In(History.Span(HistoryRange.ThreeMonths))" Dates="History.Span(HistoryRange.ThreeMonths)" Expanded OnOpen="(WorkoutsRow _) => { }" />

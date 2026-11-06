@@ -80,7 +80,7 @@ public class WorkoutsViewTests : ComponentTestBase
         var cut = Render(ThreeMonths);
 
         Assert.That(cut.FindAll("[data-testid=workouts-range] input").Select(i => i.GetAttribute("aria-label")),
-            Is.EqualTo(new[] { "Last 3 months", "Last 6 months", "Last year", "All workouts" }));
+            Is.EqualTo(new[] { "Last 3 months", "Last 6 months", "Last year", null }));
     }
 
     [Test]

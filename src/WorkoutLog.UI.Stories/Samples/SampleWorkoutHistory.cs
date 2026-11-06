@@ -26,6 +26,9 @@ public static class SampleWorkoutHistory
     /// <summary>Days in the August 2025 break, with no workouts.</summary>
     public static readonly DateSpan NoWorkouts = new(new(2025, 8, 11), new(2025, 8, 22));
 
+    /// <summary>Mon 11 Aug 2025 alone, in the August break.</summary>
+    public static readonly DateSpan RestDay = new(new(2025, 8, 11), new(2025, 8, 11));
+
     /// <summary>The sample workouts in <paramref name="dates"/>, newest first, as the page's range query returns them.</summary>
     public static IReadOnlyList<WorkoutsRow> In(DateSpan dates) => [.. Rows.Where(r => dates.Contains(DateOnly.FromDateTime(r.StartedAt)))];
 

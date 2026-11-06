@@ -104,6 +104,7 @@ public static class ScreenStates
         new("Screens/Workouts", "Dates picked", c => Workouts(c, WorkoutSamples, SampleWorkoutHistory.March2025, tappable: true)),
         new("Screens/Workouts", "One day", c => Workouts(c, WorkoutSamples, new DateSpan(SampleWorkoutHistory.TwoWorkoutsDay, SampleWorkoutHistory.TwoWorkoutsDay), tappable: true)),
         new("Screens/Workouts", "Nothing in range", c => Workouts(c, WorkoutSamples, SampleWorkoutHistory.NoWorkouts, tappable: true)),
+        new("Screens/Workouts", "No workout on this day", c => Workouts(c, WorkoutSamples, SampleWorkoutHistory.RestDay, tappable: true)),
         new("Screens/Workouts", "Picking dates", c => Workouts(c, WorkoutSamples, WorkoutSamples.Span(HistoryRange.ThreeMonths), tappable: true, expanded: true)),
         new("Screens/Workouts", "Picking month", c => Workouts(c, WorkoutSamples, WorkoutSamples.Span(HistoryRange.ThreeMonths), tappable: true, expanded: true, months: true)),
         new("Screens/Workouts", "Loading", c => Workouts(c, WorkoutHistory.None, default, tappable: false, loading: true)),
