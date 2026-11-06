@@ -62,6 +62,21 @@ public class AppScreenTests : ComponentTestBase
     }
 
     [Test]
+    public void BackTestId_NamesTheBackArrow()
+    {
+        var cut = Context.Render<AppScreen>(p => p
+            .Add(x => x.Title, "Exercises")
+            .Add(x => x.OnBack, () => { })
+            .Add(x => x.BackTestId, "exercises-back"));
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.FindAll("[data-testid=exercises-back]"), Has.Count.EqualTo(1));
+            Assert.That(cut.FindAll("[data-testid=back]"), Is.Empty);
+        });
+    }
+
+    [Test]
     public async Task AndroidBack_RaisesOnBack()
     {
         var back = 0;
