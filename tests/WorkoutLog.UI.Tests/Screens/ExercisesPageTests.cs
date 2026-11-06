@@ -1,7 +1,9 @@
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging.Testing;
 using Microsoft.Extensions.Time.Testing;
 using WorkoutLog.Core.Domain.Exercises.Bests;
 using WorkoutLog.Core.Services;
+using WorkoutLog.UI.Lifecycle;
 using WorkoutLog.UI.Navigation;
 using WorkoutLog.UI.Screens;
 
@@ -23,6 +25,15 @@ public class ExercisesPageTests : ComponentTestBase
         new LoggedExercise(Curl, Now.AddYears(-1), null),
     ], Failed: false);
 
+    private static readonly LoggedExercisesResult LoggedAgain = new(
+    [
+        new LoggedExercise(Squat, Now.AddHours(-1), new ExerciseBest(80m, 2, null, null)),
+        .. Logged.Exercises,
+    ], Failed: false);
+
+    private FakeLogger<AppLifecycle> lifecycleLogger = null!;
+    private AppLifecycle lifecycle = null!;
+
     [SetUp]
     public void SetUp()
     {
@@ -30,6 +41,9 @@ public class ExercisesPageTests : ComponentTestBase
         clock.SetLocalTimeZone(TimeZoneInfo.CreateCustomTimeZone("UTC+1", TimeSpan.FromHours(1), "UTC+1", "UTC+1"));
         Context.Services.AddSingleton<TimeProvider>(clock);
         LoggedExercises.Result = Logged;
+        lifecycleLogger = new FakeLogger<AppLifecycle>();
+        lifecycle = new AppLifecycle(lifecycleLogger);
+        Context.Services.AddSingleton<IAppStart>(lifecycle);
     }
 
     [Test]
@@ -153,6 +167,78 @@ public class ExercisesPageTests : ComponentTestBase
         cut.Find($"[data-testid={chip}]").Change(true);
 
         Assert.That(cut.FindAll("[data-testid^=exercises-row-]").Select(r => r.GetAttribute("data-testid")), Is.EqualTo(expected));
+    }
+
+    [Test]
+    public async Task AppStarted_ReloadsWithTheSpinnerThenShowsTheNewValues()
+    {
+        var cut = Context.Render<ExercisesPage>();
+        LoggedExercises.Hold = true;
+        LoggedExercises.Result = LoggedAgain;
+
+        var started = lifecycle.NotifyStartedAsync();
+
+        cut.WaitForAssertion(() => Assert.That(cut.FindAll("[data-testid=exercises-loading]"), Has.Count.EqualTo(1)));
+        LoggedExercises.Complete();
+        await started;
+
+        cut.WaitForAssertion(() => Assert.That(cut.Find("[data-testid=exercises-row-6] .detail").TextContent, Is.EqualTo("Last Wed 28 Oct · 80kg × 2")));
+        Assert.That(LoggedExercises.Loads, Is.EqualTo(2));
+    }
+
+    [Test]
+    public async Task AppStarted_KeepsTheSearchAndChip()
+    {
+        var cut = Context.Render<ExercisesPage>();
+        cut.Find("[data-testid=exercises-search]").Input("curl");
+        cut.Find("[data-testid=exercises-filter-strength]").Change(true);
+
+        await cut.InvokeAsync(lifecycle.NotifyStartedAsync);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(LoggedExercises.Loads, Is.EqualTo(2));
+            Assert.That(cut.Find("[data-testid=exercises-search]").GetAttribute("value"), Is.EqualTo("curl"));
+            Assert.That(cut.FindAll("[data-testid^=exercises-row-]").Select(r => r.GetAttribute("data-testid")), Is.EqualTo(new[] { "exercises-row-132" }));
+        });
+    }
+
+    [Test]
+    public async Task AppStarted_FailedReload_ShowsTheError()
+    {
+        var cut = Context.Render<ExercisesPage>();
+        LoggedExercises.Result = new LoggedExercisesResult([], Failed: true);
+
+        await cut.InvokeAsync(lifecycle.NotifyStartedAsync);
+
+        Assert.That(cut.FindAll("[data-testid=exercises-error]"), Has.Count.EqualTo(1));
+    }
+
+    [Test]
+    public async Task Disposed_AppStartedNoLongerReloads()
+    {
+        Context.Render<ExercisesPage>();
+
+        await Context.DisposeComponentsAsync();
+        await lifecycle.NotifyStartedAsync();
+
+        Assert.That(LoggedExercises.Loads, Is.EqualTo(1));
+    }
+
+    [Test]
+    public async Task Disposed_WhileReloading_ReloadFinishesWithoutError()
+    {
+        var cut = Context.Render<ExercisesPage>();
+        LoggedExercises.Hold = true;
+        var started = lifecycle.NotifyStartedAsync();
+        cut.WaitForAssertion(() => Assert.That(LoggedExercises.Loads, Is.EqualTo(2)));
+
+        await Context.DisposeComponentsAsync();
+        LoggedExercises.Complete();
+        await WaitForRendererAsync();
+
+        Assert.That(async () => await started, Throws.Nothing);
+        Assert.That(lifecycleLogger.Collector.Count, Is.Zero);
     }
 
     [Test]
