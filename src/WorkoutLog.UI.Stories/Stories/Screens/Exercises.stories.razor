@@ -4,25 +4,25 @@
 
     <Story Name="List">
         <Template>
-            <ExercisesView Items="SampleExercises.All" QueryChanged="(string _) => { }" FilterChanged="(ExerciseFilter _) => { }" OnOpen="(ExerciseListItem _) => { }" />
+            <ExercisesView Items="SampleExercises.All" QueryChanged="(string _) => { }" FilterChanged="(ExerciseFilter _) => { }" OnPick="(ExerciseListItem _) => { }" />
         </Template>
     </Story>
 
     <Story Name="Strength">
         <Template>
-            <ExercisesView Items="SampleExercises.Strength" Filter="ExerciseFilter.Strength" QueryChanged="(string _) => { }" FilterChanged="(ExerciseFilter _) => { }" OnOpen="(ExerciseListItem _) => { }" />
+            <ExercisesView Items="SampleExercises.Strength" Filter="ExerciseFilter.Strength" QueryChanged="(string _) => { }" FilterChanged="(ExerciseFilter _) => { }" OnPick="(ExerciseListItem _) => { }" />
         </Template>
     </Story>
 
     <Story Name="Cardio">
         <Template>
-            <ExercisesView Items="SampleExercises.Cardio" Filter="ExerciseFilter.Cardio" QueryChanged="(string _) => { }" FilterChanged="(ExerciseFilter _) => { }" OnOpen="(ExerciseListItem _) => { }" />
+            <ExercisesView Items="SampleExercises.Cardio" Filter="ExerciseFilter.Cardio" QueryChanged="(string _) => { }" FilterChanged="(ExerciseFilter _) => { }" OnPick="(ExerciseListItem _) => { }" />
         </Template>
     </Story>
 
     <Story Name="No match">
         <Template>
-            <ExercisesView Items="[]" Query="deadlift" QueryChanged="(string _) => { }" FilterChanged="(ExerciseFilter _) => { }" OnOpen="(ExerciseListItem _) => { }" />
+            <ExercisesView Items="[]" Query="deadlift" QueryChanged="(string _) => { }" FilterChanged="(ExerciseFilter _) => { }" OnPick="(ExerciseListItem _) => { }" />
         </Template>
     </Story>
 
@@ -40,7 +40,7 @@
 
     <Story Name="Reloading">
         <Template>
-            <ExercisesView Items="SampleExercises.All" Loading QueryChanged="(string _) => { }" FilterChanged="(ExerciseFilter _) => { }" OnOpen="(ExerciseListItem _) => { }" />
+            <ExercisesView Items="SampleExercises.All" Loading QueryChanged="(string _) => { }" FilterChanged="(ExerciseFilter _) => { }" OnPick="(ExerciseListItem _) => { }" />
         </Template>
     </Story>
 

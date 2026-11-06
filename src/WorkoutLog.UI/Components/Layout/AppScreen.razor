@@ -9,7 +9,7 @@
     <header class="top-bar">
         @if (OnBack.HasDelegate)
         {
-            <IconButton Icon="IconName.Back" AriaLabel="Back" TestId="back" OnClick="OnBack" />
+            <IconButton Icon="IconName.Back" AriaLabel="Back" TestId="@BackTestId" OnClick="OnBack" />
         }
         <div class="titles">
             <h1 class="title" data-testid="screen-title">@Title</h1>
@@ -76,6 +76,10 @@
     /// <summary>Raised by the back arrow and the Android back button. No arrow shows when unset, and Android back leaves the app. Unset on a top-level screen.</summary>
     [Parameter]
     public EventCallback OnBack { get; set; }
+
+    /// <summary>data-testid of the back arrow, so a screen layered over another keeps its own.</summary>
+    [Parameter]
+    public string BackTestId { get; set; } = "back";
 
     /// <summary>Makes this a top-level screen: shows the bottom navigation bar with this item current. Android back then goes to <see cref="NavDestinations.Start"/>, or leaves the app from there.</summary>
     [Parameter]

@@ -1,4 +1,7 @@
+using Microsoft.AspNetCore.Components;
 using WorkoutLog.Core.Domain.Exercises;
+using WorkoutLog.UI.Components.Actions;
+using WorkoutLog.UI.Components.Layout;
 using WorkoutLog.UI.Models.Exercises;
 using WorkoutLog.UI.Navigation;
 using WorkoutLog.UI.Screens;
@@ -11,7 +14,7 @@ public class ExercisesViewTests : ComponentTestBase
     [Test]
     public void List_ShowsSearchChipsAndARowPerExerciseWithItsLastSession()
     {
-        var cut = Context.Render<ExercisesView>(p => p.Add(x => x.Items, SampleExercises.All.Take(2).ToList()).Add(x => x.OnOpen, (ExerciseListItem _) => { }));
+        var cut = Context.Render<ExercisesView>(p => p.Add(x => x.Items, SampleExercises.All.Take(2).ToList()).Add(x => x.OnPick, (ExerciseListItem _) => { }));
 
         Assert.Multiple(() =>
         {
@@ -66,10 +69,10 @@ public class ExercisesViewTests : ComponentTestBase
     }
 
     [Test]
-    public void TappingALiftRow_RaisesOnOpenWithIt()
+    public void TappingALiftRow_RaisesOnPickWithIt()
     {
         ExerciseListItem? opened = null;
-        var cut = Context.Render<ExercisesView>(p => p.Add(x => x.Items, SampleExercises.All).Add(x => x.OnOpen, (ExerciseListItem item) => opened = item));
+        var cut = Context.Render<ExercisesView>(p => p.Add(x => x.Items, SampleExercises.All).Add(x => x.OnPick, (ExerciseListItem item) => opened = item));
 
         cut.Find("[data-testid=exercises-row-6]").Click();
 
@@ -77,16 +80,16 @@ public class ExercisesViewTests : ComponentTestBase
     }
 
     [Test]
-    public void WithOnOpen_EveryRowIsTappable()
+    public void WithOnPick_EveryRowIsTappable()
     {
-        var cut = Context.Render<ExercisesView>(p => p.Add(x => x.Items, SampleExercises.All).Add(x => x.OnOpen, (ExerciseListItem _) => { }));
+        var cut = Context.Render<ExercisesView>(p => p.Add(x => x.Items, SampleExercises.All).Add(x => x.OnPick, (ExerciseListItem _) => { }));
 
         Assert.That(cut.FindAll("button[data-testid^=exercises-row-]").Select(r => r.GetAttribute("data-testid")),
             Is.EqualTo(SampleExercises.All.Select(e => $"exercises-row-{e.Id}")));
     }
 
     [Test]
-    public void NoOnOpen_RowsAreNotTappableAndShowTheirKind()
+    public void NoOnPick_RowsAreNotTappableAndShowTheirKind()
     {
         var cut = Context.Render<ExercisesView>(p => p.Add(x => x.Items, SampleExercises.All));
 
@@ -240,4 +243,119 @@ public class ExercisesViewTests : ComponentTestBase
 
         Assert.That(navigated, Is.EqualTo(new[] { NavDestination.Workouts }));
     }
+
+    [Test]
+    public void Picking_IsADialogOverTheWorkoutWithABackArrowAndNoNavigationBarOrPullToRefresh()
+    {
+        var cut = RenderPicker();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.Find("[data-testid=exercises-overlay]").GetAttribute("role"), Is.EqualTo("dialog"));
+            Assert.That(cut.Find("[data-testid=exercises-overlay] [data-testid=screen-title]").TextContent, Is.EqualTo("Exercises"));
+            Assert.That(cut.FindAll("[data-testid=exercises-overlay] .toolbar [data-testid=exercises-search]"), Has.Count.EqualTo(1));
+            Assert.That(cut.FindAll("button[data-testid^=exercises-row-]"), Has.Count.EqualTo(SampleExercises.All.Count));
+            Assert.That(cut.FindAll("[data-testid=bottom-nav]"), Is.Empty);
+            Assert.That(cut.FindAll("[data-testid=pull-refresh]"), Is.Empty);
+        });
+    }
+
+    [Test]
+    public void NotPicking_HasNoOverlay()
+    {
+        var cut = Context.Render<ExercisesView>(p => p.Add(x => x.Items, SampleExercises.All));
+
+        Assert.That(cut.FindAll("[data-testid=exercises-overlay]"), Is.Empty);
+    }
+
+    [Test]
+    public void Picking_FocusesSearch()
+    {
+        var cut = RenderPicker();
+
+        Context.JSInterop.VerifyFocusAsyncInvoke().Arguments[0].ShouldBeElementReferenceTo(cut.Find("[data-testid=exercises-search]"));
+    }
+
+    [Test]
+    public void PickingWhileLoading_ShowsTheSpinnerUnderTheSearchWhichHasFocus()
+    {
+        var cut = Context.Render<ExercisesView>(p => p.Add(x => x.Items, []).Add(x => x.Loading, true).Add(x => x.OnClose, () => { }));
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.Find(".content [data-testid=exercises-loading]").TextContent, Does.Contain("Loading…"));
+            Assert.That(cut.FindAll(".toolbar [data-testid=exercises-search]"), Has.Count.EqualTo(1));
+            Assert.That(cut.FindAll("[data-testid=exercises-back]"), Has.Count.EqualTo(1));
+        });
+        Context.JSInterop.VerifyFocusAsyncInvoke().Arguments[0].ShouldBeElementReferenceTo(cut.Find("[data-testid=exercises-search]"));
+    }
+
+    [Test]
+    public void PickingBackArrow_RaisesOnClose()
+    {
+        var closed = false;
+        var cut = Context.Render<ExercisesView>(p => p.Add(x => x.Items, SampleExercises.All).Add(x => x.OnClose, () => closed = true));
+
+        cut.Find("[data-testid=exercises-back]").Click();
+
+        Assert.That(closed, Is.True);
+    }
+
+    [Test]
+    public void PickingBack_IsTheBackIcon()
+    {
+        var cut = RenderPicker();
+
+        var back = cut.FindComponent<IconButton>().Instance;
+
+        Assert.That((back.TestId, back.Icon, back.Muted, back.Size), Is.EqualTo(("exercises-back", IconName.Back, false, IconSize.Default)));
+    }
+
+    [Test]
+    public void PickingARow_RaisesOnPickWithIt()
+    {
+        ExerciseListItem? picked = null;
+        var cut = Context.Render<ExercisesView>(p => p
+            .Add(x => x.Items, SampleExercises.All)
+            .Add(x => x.OnPick, (ExerciseListItem item) => picked = item)
+            .Add(x => x.OnClose, () => { }));
+
+        cut.Find("[data-testid=exercises-row-132]").Click();
+
+        Assert.That(picked, Is.EqualTo(SampleExercises.All.Single(e => e.Id == 132)));
+    }
+
+    [Test]
+    public async Task PickingAndroidBack_ClosesTheListThenTheScreenBelowTakesBack()
+    {
+        var screenBack = 0;
+        var closed = 0;
+        RenderFragment list = b =>
+        {
+            b.OpenComponent<ExercisesView>(0);
+            b.AddComponentParameter(1, nameof(ExercisesView.Items), SampleExercises.All);
+            b.AddComponentParameter(2, nameof(ExercisesView.OnClose), EventCallback.Factory.Create(this, () => closed++));
+            b.CloseComponent();
+        };
+        var cut = Context.Render<AppScreen>(p => p
+            .Add(x => x.Title, "New Workout")
+            .Add(x => x.OnBack, () => screenBack++)
+            .Add(x => x.ChildContent, list));
+
+        await BackButton.HandleAsync();
+        cut.Render(p => p.Add(x => x.ChildContent, (RenderFragment?)null));
+        await BackButton.HandleAsync();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(closed, Is.EqualTo(1));
+            Assert.That(screenBack, Is.EqualTo(1));
+        });
+    }
+
+    private IRenderedComponent<ExercisesView> RenderPicker() =>
+        Context.Render<ExercisesView>(p => p
+            .Add(x => x.Items, SampleExercises.All)
+            .Add(x => x.OnPick, (ExerciseListItem _) => { })
+            .Add(x => x.OnClose, () => { }));
 }

@@ -1,13 +1,13 @@
 @attribute [Stories("Screens/Add Exercise")]
 @inject IExerciseCatalog Catalog
 
-<Stories TComponent="AddExerciseView" Layout="typeof(PhoneLayout)">
+<Stories TComponent="ExercisesView" Layout="typeof(PhoneLayout)">
 
     <Story Name="No search text">
         <Template>
             <WorkoutView Mode="WorkoutMode.New" StartedAt="SampleData.Started" Time="new TimeSpan(0, 34, 12)" Exercises="SampleData.StrengthWorkout(Catalog)" OnBack="() => { }">
                 <Overlay>
-                    <AddExerciseView Items="SampleData.AddExerciseItems(Catalog, null)" OnPick="(ExerciseListItem _) => { }" OnClose="() => { }" />
+                    <ExercisesView Items="SampleData.AddExerciseItems(Catalog, null)" OnPick="(ExerciseListItem _) => { }" OnClose="() => { }" />
                 </Overlay>
             </WorkoutView>
         </Template>
@@ -17,7 +17,7 @@
         <Template>
             <WorkoutView Mode="WorkoutMode.New" StartedAt="SampleData.Started" Time="new TimeSpan(0, 34, 12)" Exercises="SampleData.StrengthWorkout(Catalog)" OnBack="() => { }">
                 <Overlay>
-                    <AddExerciseView Items="SampleData.AddExerciseItems(Catalog, null, ExerciseFilter.Strength)" Filter="ExerciseFilter.Strength" OnPick="(ExerciseListItem _) => { }" OnClose="() => { }" />
+                    <ExercisesView Items="SampleData.AddExerciseItems(Catalog, null, ExerciseFilter.Strength)" Filter="ExerciseFilter.Strength" OnPick="(ExerciseListItem _) => { }" OnClose="() => { }" />
                 </Overlay>
             </WorkoutView>
         </Template>
@@ -27,7 +27,7 @@
         <Template>
             <WorkoutView Mode="WorkoutMode.New" StartedAt="SampleData.Started" Time="new TimeSpan(0, 34, 12)" Exercises="SampleData.StrengthWorkout(Catalog)" OnBack="() => { }">
                 <Overlay>
-                    <AddExerciseView Items="SampleData.AddExerciseItems(Catalog, null, ExerciseFilter.Cardio)" Filter="ExerciseFilter.Cardio" OnPick="(ExerciseListItem _) => { }" OnClose="() => { }" />
+                    <ExercisesView Items="SampleData.AddExerciseItems(Catalog, null, ExerciseFilter.Cardio)" Filter="ExerciseFilter.Cardio" OnPick="(ExerciseListItem _) => { }" OnClose="() => { }" />
                 </Overlay>
             </WorkoutView>
         </Template>
@@ -37,7 +37,7 @@
         <Template>
             <WorkoutView Mode="WorkoutMode.New" StartedAt="SampleData.Started" Time="new TimeSpan(0, 34, 12)" Exercises="SampleData.StrengthWorkout(Catalog)" OnBack="() => { }">
                 <Overlay>
-                    <AddExerciseView Query="run" Items="@SampleData.AddExerciseItems(Catalog, "run")" OnPick="(ExerciseListItem _) => { }" OnClose="() => { }" />
+                    <ExercisesView Query="run" Items="@SampleData.AddExerciseItems(Catalog, "run")" OnPick="(ExerciseListItem _) => { }" OnClose="() => { }" />
                 </Overlay>
             </WorkoutView>
         </Template>
@@ -47,7 +47,7 @@
         <Template>
             <WorkoutView Mode="WorkoutMode.New" StartedAt="SampleData.Started" Time="new TimeSpan(0, 34, 12)" Exercises="SampleData.StrengthWorkout(Catalog)" OnBack="() => { }">
                 <Overlay>
-                    <AddExerciseView Query="zumba" Items="@SampleData.AddExerciseItems(Catalog, "zumba")" OnPick="(ExerciseListItem _) => { }" OnClose="() => { }" />
+                    <ExercisesView Query="zumba" Items="@SampleData.AddExerciseItems(Catalog, "zumba")" OnPick="(ExerciseListItem _) => { }" OnClose="() => { }" />
                 </Overlay>
             </WorkoutView>
         </Template>
@@ -57,7 +57,7 @@
         <Template>
             <WorkoutView Mode="WorkoutMode.New" StartedAt="SampleData.Started" Time="new TimeSpan(0, 34, 12)" Exercises="SampleData.StrengthWorkout(Catalog)" OnBack="() => { }">
                 <Overlay>
-                    <AddExerciseView Items="[]" Loading OnPick="(ExerciseListItem _) => { }" OnClose="() => { }" />
+                    <ExercisesView Items="[]" Loading OnPick="(ExerciseListItem _) => { }" OnClose="() => { }" />
                 </Overlay>
             </WorkoutView>
         </Template>
@@ -68,7 +68,7 @@
         <Template>
             <WorkoutView Mode="WorkoutMode.New" StartedAt="SampleData.Started" Time="new TimeSpan(0, 34, 12)" Exercises="SampleData.StrengthWorkout(Catalog)" OnBack="() => { }">
                 <Overlay>
-                    <AddExerciseView Items="SampleData.AddExerciseItems(Catalog, null, withLast: false)" OnPick="(ExerciseListItem _) => { }" OnClose="() => { }" />
+                    <ExercisesView Items="SampleData.AddExerciseItems(Catalog, null, withLast: false)" OnPick="(ExerciseListItem _) => { }" OnClose="() => { }" />
                 </Overlay>
             </WorkoutView>
         </Template>

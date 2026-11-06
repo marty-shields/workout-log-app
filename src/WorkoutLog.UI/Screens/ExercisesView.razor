@@ -1,28 +1,18 @@
 @using WorkoutLog.UI.Components.Feedback
 @using WorkoutLog.UI.Models.Exercises
-<AppScreen Title="Exercises" Destination="NavDestination.Exercises" OnNavigate="OnNavigate" OnRefresh="OnRefresh" Toolbar="@(ShowsTools ? Tools : null)">
-    @if (Loading)
-    {
-        <div class="centre">
-            <Spinner Label="Loading…" TestId="exercises-loading" />
-        </div>
-    }
-    else if (Failed)
-    {
-        <LoadFailed Message="Couldn't load your exercises" OnRetry="OnRetry" TestId="exercises" />
-    }
-    else if (NothingLogged)
-    {
-        <EmptyState Message="No exercises logged yet" Hint="Exercises show here once you log them in a workout" TestId="exercises-empty" />
-    }
-    else
-    {
-        <ExerciseList Items="Items" OnPick="OnOpen" TestId="exercises" />
-    }
-</AppScreen>
+@if (Picking)
+{
+    <div class="picker" role="dialog" aria-modal="true" aria-label="Add exercise" data-testid="exercises-overlay">
+        @Screen
+    </div>
+}
+else
+{
+    @Screen
+}
 
 @code {
-    /// <summary>Logged exercises to list, already searched and filtered, in order.</summary>
+    /// <summary>Exercises to list, already searched and filtered, in order.</summary>
     [Parameter, EditorRequired]
     public IReadOnlyList<ExerciseListItem> Items { get; set; } = [];
 
@@ -62,18 +52,50 @@
     [Parameter]
     public EventCallback OnRefresh { get; set; }
 
-    /// <summary>Raised when a row is tapped, to open its Exercise page. Rows are not tappable when unset.</summary>
+    /// <summary>Raised with the row tapped. Rows are not tappable when unset.</summary>
     [Parameter]
-    public EventCallback<ExerciseListItem> OnOpen { get; set; }
+    public EventCallback<ExerciseListItem> OnPick { get; set; }
+
+    /// <summary>
+    /// Raised by the back arrow and Android back. Setting it makes this the add-exercise list, an overlay on the workout with no
+    /// navigation bar, whose search box takes focus when it opens.
+    /// </summary>
+    [Parameter]
+    public EventCallback OnClose { get; set; }
 
     /// <summary>Raised with the destination tapped in the bottom navigation bar, and with the Dashboard on Android back.</summary>
     [Parameter]
     public EventCallback<NavDestination> OnNavigate { get; set; }
 
+    private bool Picking => OnClose.HasDelegate;
+
     private bool ShowsTools => !Failed && !NothingLogged;
+
+    private RenderFragment Screen =>
+        @<AppScreen Title="Exercises" Destination="@(Picking ? null : NavDestination.Exercises)" OnNavigate="OnNavigate" OnBack="OnClose" BackTestId="exercises-back"
+                   OnRefresh="OnRefresh" Toolbar="@(ShowsTools ? Tools : null)">
+            @if (Loading)
+            {
+                <div class="centre">
+                    <Spinner Label="Loading…" TestId="exercises-loading" />
+                </div>
+            }
+            else if (Failed)
+            {
+                <LoadFailed Message="Couldn't load your exercises" OnRetry="OnRetry" TestId="exercises" />
+            }
+            else if (NothingLogged)
+            {
+                <EmptyState Message="No exercises logged yet" Hint="Exercises show here once you log them in a workout" TestId="exercises-empty" />
+            }
+            else
+            {
+                <ExerciseList Items="Items" OnPick="OnPick" TestId="exercises" />
+            }
+        </AppScreen>;
 
     private RenderFragment Tools =>
         @<div class="tools">
-            <ExerciseSearch Query="@Query" QueryChanged="QueryChanged" Filter="Filter" FilterChanged="FilterChanged" TestId="exercises" />
+            <ExerciseSearch Query="@Query" QueryChanged="QueryChanged" Filter="Filter" FilterChanged="FilterChanged" FocusSearch="Picking" TestId="exercises" />
         </div>;
 }

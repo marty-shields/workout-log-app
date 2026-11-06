@@ -11,3 +11,9 @@
     place-items: center;
     height: 100%;
 }
+
+.picker {
+    position: fixed;
+    inset: 0;
+    z-index: 10;
+}
