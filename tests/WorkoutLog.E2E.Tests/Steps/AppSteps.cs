@@ -12,10 +12,10 @@ public sealed class AppSteps(
     WebView web, Native native, AppLog log, Journeys journeys, SeedSteps seed, ScenarioState state, DashboardScreen dashboard,
     WorkoutScreen workout, AddExerciseScreen addExercise)
 {
-    [Given(@"^I am on (the Dashboard|Exercises|the add-exercise list on Edit Workout)$")]
+    [Given(@"^I am on (the Dashboard|Workouts|Exercises|the add-exercise list on Edit Workout)$")]
     public async Task GivenIAmOn(string screen)
     {
-        if (screen is "the Dashboard" or "Exercises")
+        if (screen is "the Dashboard" or "Workouts" or "Exercises")
         {
             if (!native.Launched)
             {
@@ -24,7 +24,11 @@ public sealed class AppSteps(
 
             journeys.WaitFor(Journeys.Screen.Dashboard);
             dashboard.LastWorkout();
-            if (screen == "Exercises")
+            if (screen == "Workouts")
+            {
+                journeys.GoToWorkouts();
+            }
+            else if (screen == "Exercises")
             {
                 journeys.GoToExercises();
             }

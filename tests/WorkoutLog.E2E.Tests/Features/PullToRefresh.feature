@@ -6,6 +6,11 @@ Feature: Pull to refresh
     When I pull down the list
     Then the log shows "Last workout loaded" once more
 
+  Scenario: Pulling down Workouts reloads it
+    Given I am on Workouts
+    When I pull down the list
+    Then the log shows "Counted" once more
+
   Scenario: Pulling down Exercises reloads it
     Given I am on Exercises
     When I pull down the list

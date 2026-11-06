@@ -22,6 +22,12 @@ Feature: App lifecycle
     Then the log shows "Activity started" once more
     And the log shows "Last workout loaded" once more
 
+  Scenario: Workouts reloads when the app comes back
+    Given I am on Workouts
+    When I send the app to the background and bring it back
+    Then the log shows "Activity started" once more
+    And the log shows "Counted" once more
+
   Scenario: Exercises reloads when the app comes back
     Given I am on Exercises
     When I send the app to the background and bring it back
