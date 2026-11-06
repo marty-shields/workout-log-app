@@ -7,16 +7,18 @@
 @inject TimeProvider Clock
 @inject IAppStart AppStart
 
-<WorkoutsView History="History" Rows="rows" Dates="dates" DatesChanged="ShowAsync" @bind-Expanded="expanded" Loading="loading" Failed="failed"
+<WorkoutsView History="History" Rows="rows" Dates="dates" DatesChanged="ShowAsync" @bind-Expanded="expanded" Loading="loading" Failed="failure is not Failure.None"
               OnRetry="RetryAsync" OnRefresh="FetchAsync" OnOpen="row => OnOpen.InvokeAsync(row.Id)" OnNavigate="OnNavigate" />
 
 @code {
+    private enum Failure { None, Counts, Range }
+
     private WorkoutHistory? loaded;
     private IReadOnlyList<WorkoutsRow> rows = [];
     private DateSpan dates;
     private bool expanded;
     private bool loading;
-    private bool failed;
+    private Failure failure;
     private int query;
     private IDisposable? registration;
     private bool disposed;
@@ -43,8 +45,7 @@
         registration?.Dispose();
     }
 
-    // Try again after a failed range read reads only that range again.
-    private Task RetryAsync() => loaded is null ? LoadAsync() : ShowAsync(dates);
+    private Task RetryAsync() => failure is Failure.Counts ? LoadAsync() : ShowAsync(dates);
 
     private async Task LoadAsync()
     {
@@ -53,7 +54,7 @@
             return;
         }
 
-        (loading, failed) = (true, false);
+        (loading, failure) = (true, Failure.None);
         StateHasChanged();
         await FetchAsync();
     }
@@ -74,7 +75,7 @@
 
         if (days.Failed)
         {
-            (loading, failed, expanded) = (false, true, false);
+            (loading, failure, expanded) = (false, Failure.Counts, false);
             return;
         }
 
@@ -83,7 +84,7 @@
         var shown = range is { } quick ? loaded.Span(quick) : dates;
         if (loaded.IsEmpty)
         {
-            (dates, rows, loading, failed) = (shown, [], false, false);
+            (dates, rows, loading, failure) = (shown, [], false, Failure.None);
             return;
         }
 
@@ -92,7 +93,7 @@
 
     private Task ShowAsync(DateSpan shown)
     {
-        (loading, failed) = (true, false);
+        (loading, failure) = (true, Failure.None);
         return ReadAsync(shown);
     }
 
@@ -109,8 +110,8 @@
         }
 
         rows = [.. result.Workouts.Select(w => new WorkoutsRow(w.Id, TimeZoneInfo.ConvertTime(w.StartedAt, Clock.LocalTimeZone).DateTime))];
-        (loading, failed) = (false, result.Failed);
-        expanded &= !failed;
+        (loading, failure) = (false, result.Failed ? Failure.Range : Failure.None);
+        expanded &= !result.Failed;
     }
 
     /// <summary>Loads again when the app comes back on screen. Does nothing once the page is disposed, before or during the load.</summary>

@@ -404,6 +404,19 @@ public class WorkoutsPageTests : ComponentTestBase
     }
 
     [Test]
+    public async Task AppStarted_CountsFail_TryAgainReadsTheCountsAgain()
+    {
+        var cut = await OpenedAsync();
+        await CompleteRangeAsync(cut, Recent);
+
+        var started = lifecycle.NotifyStartedAsync();
+        workouts.CompleteDays(new WorkoutDaysResult(new Dictionary<DateOnly, int>(), Failed: true));
+        await started;
+
+        await TryAgainAfterFailedCountsShowsTheNewCountsAndRowsAsync(cut);
+    }
+
+    [Test]
     public async Task Disposed_AppStartedNoLongerReloads()
     {
         var cut = await OpenedAsync();
@@ -475,6 +488,22 @@ public class WorkoutsPageTests : ComponentTestBase
         await refresh;
 
         Assert.That(cut.FindAll("[data-testid=workouts-error]"), Has.Count.EqualTo(1));
+    }
+
+    [Test]
+    public async Task Refresh_CountsFail_TryAgainReadsTheCountsAgain()
+    {
+        var cut = await OpenedAsync();
+        await CompleteRangeAsync(cut, Recent);
+
+        await cut.InvokeAsync(async () =>
+        {
+            var refresh = cut.FindComponent<AppScreen>().Instance.RefreshAsync();
+            workouts.CompleteDays(new WorkoutDaysResult(new Dictionary<DateOnly, int>(), Failed: true));
+            await refresh;
+        });
+
+        await TryAgainAfterFailedCountsShowsTheNewCountsAndRowsAsync(cut);
     }
 
     [Test]
@@ -558,6 +587,29 @@ public class WorkoutsPageTests : ComponentTestBase
         await WaitForRendererAsync();
         cut.WaitForAssertion(() => Assert.That(workouts.RangeReads, Has.Count.EqualTo(1)));
         return cut;
+    }
+
+    private async Task TryAgainAfterFailedCountsShowsTheNewCountsAndRowsAsync(IRenderedComponent<WorkoutsPage> cut)
+    {
+        cut.WaitForAssertion(() => Assert.That(cut.FindAll("[data-testid=workouts-retry]"), Has.Count.EqualTo(1)));
+
+        var dayReads = workouts.DayReads;
+
+        cut.Find("[data-testid=workouts-retry]").Click();
+
+        Assert.That(workouts.DayReads, Is.EqualTo(dayReads + 1));
+
+        workouts.CompleteDays(OneMore);
+        await WaitForRendererAsync();
+        await CompleteRangeAsync(cut, RecentAndYesterday);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(workouts.RangeReads[^1], Is.EqualTo((new DateOnly(2026, 8, 6), Today)));
+            Assert.That(cut.Find("[data-testid=workouts-dates-count]").TextContent, Is.EqualTo("2"));
+            Assert.That(Shown(cut), Is.EqualTo(new[] { "workouts-row-5", "workouts-row-4" }));
+            Assert.That(cut.FindAll("[data-testid=workouts-error]"), Is.Empty);
+        });
     }
 
     private async Task CompleteRangeAsync(IRenderedComponent<WorkoutsPage> cut, WorkoutsResult result)

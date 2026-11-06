@@ -15,7 +15,7 @@ Saved workouts in a span of dates, newest first. View: `WorkoutsView`; page: `Wo
 | No workouts | `EmptyState` "No workouts yet", hint "Tap New Workout on the Dashboard to log one". |
 | Calendar | Tapping the date field opens a `RangeCalendar` under it, in place of the segments and the list. Cancel or Android back closes it and keeps the dates; Show workouts shows the dates picked. |
 | Loading | `Spinner` "Loading…" centred until the workouts load. When the dates change, the date field and segments stay and the spinner replaces the list. |
-| Load failed | Error "Couldn't load your workouts" and a Secondary **Try again** that reads the counts and dates when the counts never loaded, else only the dates shown. Focus moves to Try again. |
+| Load failed | Error "Couldn't load your workouts" and a Secondary **Try again** that reads the counts and dates again when the counts read failed, on opening or on a reload, else only the dates shown. Focus moves to Try again. |
 | Navigation bar | `BottomNav` with Workouts current. |
 
 The screen always opens on 3M: from today less 3 calendar months to today, in the phone's time zone, the same span as the Exercise chart's 3M. A segment shows as chosen only while the dates match it exactly; dates picked in the calendar choose none. All runs from the first workout. On opening, the page reads how many workouts started on each local day: the date field's count, the calendar dots and month counts, and the first workout's day come from it. Each change of dates reads only the workouts in them.
