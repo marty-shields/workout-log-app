@@ -8,7 +8,7 @@
 
 .top-bar {
     position: relative;
-    z-index: 1;
+    z-index: 3;
     --color-text: var(--color-on-bar);
     --color-text-muted: var(--color-on-bar-muted);
     --color-focus: var(--color-on-bar);
@@ -40,7 +40,7 @@
 
 .toolbar {
     position: relative;
-    z-index: 1;
+    z-index: 3;
     flex: 0 1 auto;
     min-height: 0;
     overflow-y: auto;
@@ -53,10 +53,11 @@
     padding: var(--space-4);
 }
 
-/* A zero-height row at the content's top edge. The ring hangs above it, under the top bar and toolbar, until pulled down. */
+/* A zero-height row at the content's top edge. The ring hangs above it, over the list's sticky headers but under the bars, until pulled down. */
 .pull-refresh {
     --pull: var(--pull-refresh-threshold);
     position: relative;
+    z-index: 2;
     display: flex;
     justify-content: center;
     height: 0;
