@@ -38,12 +38,11 @@
         </Template>
     </Story>
 
-    <Story Name="Refreshing">
+    <Story Name="Pulling">
         <Template>
-            <AppScreen @ref="refreshing" Title="Screen title" Destination="NavDestination.Workouts" OnNavigate="(NavDestination _) => { }"
-                       OnRefresh="() => new TaskCompletionSource().Task">
+            <AppScreen Title="Screen title" Destination="NavDestination.Workouts" OnNavigate="(NavDestination _) => { }" OnRefresh="() => { }">
                 <p>Scrolling content.</p>
-                <StartRefresh Screen="() => refreshing" />
+                <HoldPull />
             </AppScreen>
         </Template>
     </Story>
@@ -73,7 +72,3 @@
     </Story>
 
 </Stories>
-
-@code {
-    private AppScreen? refreshing;
-}
