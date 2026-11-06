@@ -1,11 +1,14 @@
 @using WorkoutLog.Core.Domain
 @using WorkoutLog.Core.Services
+@using WorkoutLog.UI.Lifecycle
 @using WorkoutLog.UI.Models.Workouts
+@implements IDisposable
 @inject IWorkoutsService Workouts
 @inject TimeProvider Clock
+@inject IAppStart AppStart
 
 <WorkoutsView History="History" Rows="rows" Dates="dates" DatesChanged="ShowAsync" @bind-Expanded="expanded" Loading="loading" Failed="failed"
-              OnRetry="LoadAsync" OnOpen="row => OnOpen.InvokeAsync(row.Id)" OnNavigate="OnNavigate" />
+              OnRetry="RetryAsync" OnOpen="row => OnOpen.InvokeAsync(row.Id)" OnNavigate="OnNavigate" />
 
 @code {
     private WorkoutHistory? loaded;
@@ -15,6 +18,8 @@
     private bool loading;
     private bool failed;
     private int query;
+    private IDisposable? registration;
+    private bool disposed;
 
     /// <summary>Raised with the workout id when a row is tapped.</summary>
     [Parameter]
@@ -26,9 +31,21 @@
 
     private WorkoutHistory History => loaded ?? WorkoutHistory.None;
 
-    protected override Task OnInitializedAsync() => LoadAsync();
+    protected override Task OnInitializedAsync()
+    {
+        registration = AppStart.Register(() => InvokeAsync(ReloadAsync));
+        return LoadAsync();
+    }
 
-    // The per-day counts load once; Try again after a failed range read reads only that range again.
+    public void Dispose()
+    {
+        disposed = true;
+        registration?.Dispose();
+    }
+
+    // Try again after a failed range read reads only that range again.
+    private Task RetryAsync() => loaded is null ? LoadAsync() : ShowAsync(dates);
+
     private async Task LoadAsync()
     {
         if (loading)
@@ -36,28 +53,40 @@
             return;
         }
 
-        if (loaded is null)
-        {
-            loading = true;
-            failed = false;
-            StateHasChanged();
-            var days = await Workouts.GetDaysAsync();
-            if (days.Failed)
-            {
-                (loading, failed) = (false, true);
-                return;
-            }
+        (loading, failed) = (true, false);
+        StateHasChanged();
+        await FetchAsync();
+    }
 
-            loaded = new WorkoutHistory(days.PerDay, DateOnly.FromDateTime(TimeZoneInfo.ConvertTime(Clock.GetUtcNow(), Clock.LocalTimeZone).DateTime));
-            dates = loaded.Span(HistoryRange.ThreeMonths);
-            if (loaded.IsEmpty)
-            {
-                loading = false;
-                return;
-            }
+    /// <summary>
+    /// Reads the per-day counts with today taken afresh, then the rows. Dates that match a quick range move with today; dates
+    /// picked in the calendar stay. Does nothing more once the page is disposed or other dates are chosen.
+    /// </summary>
+    private async Task FetchAsync()
+    {
+        var current = ++query;
+        var days = await Workouts.GetDaysAsync();
+        if (disposed || current != query)
+        {
+            return;
         }
 
-        await ShowAsync(dates);
+        if (days.Failed)
+        {
+            (loading, failed, expanded) = (false, true, false);
+            return;
+        }
+
+        var range = loaded is null ? HistoryRange.ThreeMonths : loaded.RangeOf(dates);
+        loaded = new WorkoutHistory(days.PerDay, DateOnly.FromDateTime(TimeZoneInfo.ConvertTime(Clock.GetUtcNow(), Clock.LocalTimeZone).DateTime));
+        var shown = range is { } quick ? loaded.Span(quick) : dates;
+        if (loaded.IsEmpty)
+        {
+            (dates, rows, loading, failed) = (shown, [], false, false);
+            return;
+        }
+
+        await ShowAsync(shown);
     }
 
     private async Task ShowAsync(DateSpan shown)
@@ -66,7 +95,7 @@
         (dates, loading, failed) = (shown, true, false);
         StateHasChanged();
         var result = await Workouts.GetBetweenAsync(shown.From, shown.To);
-        if (current != query)
+        if (disposed || current != query)
         {
             return;
         }
@@ -74,5 +103,20 @@
         rows = [.. result.Workouts.Select(w => new WorkoutsRow(w.Id, TimeZoneInfo.ConvertTime(w.StartedAt, Clock.LocalTimeZone).DateTime))];
         (loading, failed) = (false, result.Failed);
         expanded &= !failed;
+    }
+
+    /// <summary>Loads again when the app comes back on screen. Does nothing once the page is disposed, before or during the load.</summary>
+    private async Task ReloadAsync()
+    {
+        if (disposed)
+        {
+            return;
+        }
+
+        await LoadAsync();
+        if (!disposed)
+        {
+            StateHasChanged();
+        }
     }
 }
