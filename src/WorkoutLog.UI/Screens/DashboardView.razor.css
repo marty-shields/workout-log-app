@@ -7,5 +7,5 @@
 .centre {
     display: grid;
     place-items: center;
-    padding: var(--space-6) 0;
+    height: 100%;
 }
