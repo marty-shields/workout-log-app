@@ -1,7 +1,7 @@
 using AngleSharp.Dom;
 using Microsoft.Extensions.DependencyInjection;
+using WorkoutLog.Core.Domain;
 using WorkoutLog.Core.Domain.Exercises;
-using WorkoutLog.Core.Domain.Exercises.Progress;
 using WorkoutLog.Core.Services;
 using WorkoutLog.UI.Components.Dashboard;
 using WorkoutLog.UI.Components.Overlays;
@@ -408,7 +408,7 @@ public static class ScreenStates
     private static void ExerciseCallbacks(ComponentParameterCollectionBuilder<ExerciseView> parameters) =>
         parameters
             .Add(x => x.TabChanged, (string _) => { })
-            .Add(x => x.RangeChanged, (ChartRange _) => { })
+            .Add(x => x.RangeChanged, (HistoryRange _) => { })
             .Add(x => x.OnRetry, () => { })
             .Add(x => x.OnBack, () => { });
 

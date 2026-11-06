@@ -1,5 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Time.Testing;
+using WorkoutLog.Core.Domain;
 using WorkoutLog.Core.Domain.Exercises.Progress;
 using WorkoutLog.Core.Domain.Workouts;
 using WorkoutLog.Core.Services;
@@ -33,7 +34,7 @@ public class ExercisePageCardioTests : ComponentTestBase
         progress = new FakeCardioProgressService
         {
             Result = new CardioProgressResult([Short, Long], Failed: false),
-            Summary = (_, range) => range == ChartRange.All
+            Summary = (_, range) => range == HistoryRange.All
                 ? new CardioProgress([], new CardioRecords(null, null, null, null, null, null))
                 : new CardioProgress(
                     [
@@ -85,7 +86,7 @@ public class ExercisePageCardioTests : ComponentTestBase
             Assert.That(progress.Loads, Is.EqualTo(new[] { Run }));
             Assert.That(lifts.Loads, Is.Empty);
             Assert.That(progress.Summaries.Single().Sessions, Is.SameAs(progress.Result.Sessions));
-            Assert.That(progress.Summaries.Single().Range, Is.EqualTo(ChartRange.ThreeMonths));
+            Assert.That(progress.Summaries.Single().Range, Is.EqualTo(HistoryRange.ThreeMonths));
             Assert.That(cut.Find("[data-testid=screen-subtitle]").TextContent, Is.EqualTo("Cardio"));
             Assert.That(cut.FindAll("[data-testid=exercise-tabs] input").Select(i => i.GetAttribute("data-testid")),
                 Is.EqualTo(new[] { "exercise-tab-distance", "exercise-tab-duration", "exercise-tab-pace", "exercise-tab-calories" }));
@@ -165,7 +166,7 @@ public class ExercisePageCardioTests : ComponentTestBase
         Assert.Multiple(() =>
         {
             Assert.That(progress.Loads, Has.Count.EqualTo(1));
-            Assert.That(progress.Summaries.Select(s => s.Range), Is.EqualTo(new[] { ChartRange.ThreeMonths, ChartRange.All }));
+            Assert.That(progress.Summaries.Select(s => s.Range), Is.EqualTo(new[] { HistoryRange.ThreeMonths, HistoryRange.All }));
             Assert.That(cut.Find("[data-testid=exercise-chart-empty]").TextContent, Is.EqualTo("No sessions yet"));
             Assert.That(cut.FindAll("[data-testid=exercise-records] .value").Select(v => v.TextContent), Is.EqualTo(new[] { "—", "—", "—", "—" }));
         });

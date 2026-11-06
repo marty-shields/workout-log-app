@@ -1,4 +1,4 @@
-using WorkoutLog.Core.Domain.Exercises.Progress;
+using WorkoutLog.Core.Domain;
 using WorkoutLog.UI.Components.Charts;
 using WorkoutLog.UI.Screens;
 using WorkoutLog.UI.Stories.Samples;
@@ -73,7 +73,7 @@ public class ExerciseViewTests : ComponentTestBase
     [Test]
     public void ChartName_WithATitle_UsesIt()
     {
-        var cut = Render(SampleExercises.Assisted, p => p.Add(x => x.Range, ChartRange.Year));
+        var cut = Render(SampleExercises.Assisted, p => p.Add(x => x.Range, HistoryRange.Year));
 
         Assert.That(cut.FindComponent<Chart>().Instance.Name, Is.EqualTo("Least assist per session, last year"));
     }
@@ -94,11 +94,11 @@ public class ExerciseViewTests : ComponentTestBase
         Assert.That(cut.FindAll("[data-testid=exercise-chart-caption]"), Is.Empty);
     }
 
-    [TestCase(ChartRange.ThreeMonths, "exercise-range-3m")]
-    [TestCase(ChartRange.SixMonths, "exercise-range-6m")]
-    [TestCase(ChartRange.Year, "exercise-range-1y")]
-    [TestCase(ChartRange.All, "exercise-range-all")]
-    public void Range_ChecksItsSegment(ChartRange range, string testId)
+    [TestCase(HistoryRange.ThreeMonths, "exercise-range-3m")]
+    [TestCase(HistoryRange.SixMonths, "exercise-range-6m")]
+    [TestCase(HistoryRange.Year, "exercise-range-1y")]
+    [TestCase(HistoryRange.All, "exercise-range-all")]
+    public void Range_ChecksItsSegment(HistoryRange range, string testId)
     {
         var cut = Render(SampleExercises.LiftTopSet, p => p.Add(x => x.Range, range));
 
@@ -108,19 +108,19 @@ public class ExerciseViewTests : ComponentTestBase
     [Test]
     public void TappingARange_RaisesRangeChanged()
     {
-        var changed = new List<ChartRange>();
-        var cut = Render(SampleExercises.LiftTopSet, p => p.Add(x => x.RangeChanged, (ChartRange r) => changed.Add(r)));
+        var changed = new List<HistoryRange>();
+        var cut = Render(SampleExercises.LiftTopSet, p => p.Add(x => x.RangeChanged, (HistoryRange r) => changed.Add(r)));
 
         cut.Find("[data-testid=exercise-range-all]").Change(true);
 
-        Assert.That(changed, Is.EqualTo(new[] { ChartRange.All }));
+        Assert.That(changed, Is.EqualTo(new[] { HistoryRange.All }));
     }
 
-    [TestCase(ChartRange.ThreeMonths, "Records · last 3 months")]
-    [TestCase(ChartRange.SixMonths, "Records · last 6 months")]
-    [TestCase(ChartRange.Year, "Records · last year")]
-    [TestCase(ChartRange.All, "Records · all time")]
-    public void Records_AreTitledWithTheRange(ChartRange range, string title)
+    [TestCase(HistoryRange.ThreeMonths, "Records · last 3 months")]
+    [TestCase(HistoryRange.SixMonths, "Records · last 6 months")]
+    [TestCase(HistoryRange.Year, "Records · last year")]
+    [TestCase(HistoryRange.All, "Records · all time")]
+    public void Records_AreTitledWithTheRange(HistoryRange range, string title)
     {
         var cut = Render(SampleExercises.LiftTopSet, p => p.Add(x => x.Range, range));
 
@@ -155,11 +155,11 @@ public class ExerciseViewTests : ComponentTestBase
         });
     }
 
-    [TestCase(ChartRange.ThreeMonths, "No sessions in the last 3 months")]
-    [TestCase(ChartRange.SixMonths, "No sessions in the last 6 months")]
-    [TestCase(ChartRange.Year, "No sessions in the last year")]
-    [TestCase(ChartRange.All, "No sessions yet")]
-    public void NoSessionsInRange_ShowsTheRangeMessageDashedRecordsAndNoSessions(ChartRange range, string message)
+    [TestCase(HistoryRange.ThreeMonths, "No sessions in the last 3 months")]
+    [TestCase(HistoryRange.SixMonths, "No sessions in the last 6 months")]
+    [TestCase(HistoryRange.Year, "No sessions in the last year")]
+    [TestCase(HistoryRange.All, "No sessions yet")]
+    public void NoSessionsInRange_ShowsTheRangeMessageDashedRecordsAndNoSessions(HistoryRange range, string message)
     {
         var cut = Render(SampleExercises.NoSessionsInRange, p => p.Add(x => x.Range, range));
 

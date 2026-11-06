@@ -1,3 +1,4 @@
+using WorkoutLog.Core.Domain;
 using WorkoutLog.Core.Domain.Exercises;
 using WorkoutLog.Core.Domain.Exercises.Bests;
 using WorkoutLog.Core.Domain.Exercises.Progress;
@@ -94,11 +95,11 @@ public class ExerciseProgressItemsTests
 
 
 
-    [TestCase(ChartRange.ThreeMonths, "No sets in the last 3 months")]
-    [TestCase(ChartRange.SixMonths, "No sets in the last 6 months")]
-    [TestCase(ChartRange.Year, "No sets in the last year")]
-    [TestCase(ChartRange.All, "No sets yet")]
-    public void NoSets_NamesTheRange(ChartRange range, string expected) =>
+    [TestCase(HistoryRange.ThreeMonths, "No sets in the last 3 months")]
+    [TestCase(HistoryRange.SixMonths, "No sets in the last 6 months")]
+    [TestCase(HistoryRange.Year, "No sets in the last year")]
+    [TestCase(HistoryRange.All, "No sets yet")]
+    public void NoSets_NamesTheRange(HistoryRange range, string expected) =>
         Assert.That(ExerciseProgressItems.NoSets(range), Is.EqualTo(expected));
 
     [Test]

@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging.Testing;
 using Microsoft.Extensions.Time.Testing;
 using Moq;
 using WorkoutLog.Core.Data;
+using WorkoutLog.Core.Domain;
 using WorkoutLog.Core.Domain.Exercises.Progress;
 using WorkoutLog.Core.Domain.Workouts;
 using WorkoutLog.Core.Logging;
@@ -116,7 +117,7 @@ public class CardioProgressServiceTests
         var latest = new CardioSession(2, Now, Entry(TimeSpan.FromMinutes(30), 5.2m));
         var older = new CardioSession(3, Now.AddDays(-7), Entry(TimeSpan.FromMinutes(40), 5m));
 
-        var progress = service.Summarise([outOfRange, latest, older], ChartRange.ThreeMonths);
+        var progress = service.Summarise([outOfRange, latest, older], HistoryRange.ThreeMonths);
 
         var latestPace = TimeSpan.FromTicks(3_461_538_461);
         Assert.That(progress, Is.EqualTo(new CardioProgress(
@@ -137,14 +138,14 @@ public class CardioProgressServiceTests
     {
         var old = new CardioSession(1, Now.AddYears(-3), Entry(TimeSpan.FromHours(2), 20m));
 
-        var progress = service.Summarise([old], ChartRange.All);
+        var progress = service.Summarise([old], HistoryRange.All);
 
         Assert.That(progress.Records.LongestDistance, Is.EqualTo(new ProgressRecord<decimal>(20m, old.StartedAt)));
     }
 
     [Test]
     public void Summarise_NoSessionsInTheRange_HasNoSessionsOrRecords() =>
-        Assert.That(service.Summarise([new CardioSession(1, Now.AddYears(-2), Entry(TimeSpan.FromMinutes(30), 5m))], ChartRange.Year),
+        Assert.That(service.Summarise([new CardioSession(1, Now.AddYears(-2), Entry(TimeSpan.FromMinutes(30), 5m))], HistoryRange.Year),
             Is.EqualTo(new CardioProgress([], new CardioRecords(null, null, null, null, null, null))).UsingPropertiesComparer());
 
     private static CardioEntry Entry(TimeSpan duration, decimal distance) => new(duration, distance, null, null, null, null, null);

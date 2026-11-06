@@ -1,3 +1,4 @@
+using WorkoutLog.Core.Domain;
 using WorkoutLog.Core.Domain.Exercises.Progress;
 using WorkoutLog.Core.Services;
 
@@ -16,21 +17,21 @@ public sealed class FakeExerciseProgressService : IExerciseProgressService
     public ExerciseProgressResult Result { get; set; } = new([], Failed: false);
 
     /// <summary>What each lift summary returns for the sessions and range; no sessions or records by default.</summary>
-    public Func<IReadOnlyList<StrengthSession>, ChartRange, LiftProgress> Summary { get; set; } = (_, _) => new LiftProgress([], new LiftRecords(null, null));
+    public Func<IReadOnlyList<StrengthSession>, HistoryRange, LiftProgress> Summary { get; set; } = (_, _) => new LiftProgress([], new LiftRecords(null, null));
 
     /// <summary>What each bodyweight summary returns for the sessions and range; no sessions or records by default.</summary>
-    public Func<IReadOnlyList<StrengthSession>, ChartRange, BodyweightProgress> BodyweightSummary { get; set; } =
+    public Func<IReadOnlyList<StrengthSession>, HistoryRange, BodyweightProgress> BodyweightSummary { get; set; } =
         (_, _) => new BodyweightProgress([], new BodyweightRecords(null, null, null, null));
 
     /// <summary>What each assisted machine summary returns; no sessions or records by default.</summary>
-    public Func<IReadOnlyList<StrengthSession>, ChartRange, AssistedProgress> AssistedSummary { get; set; } =
+    public Func<IReadOnlyList<StrengthSession>, HistoryRange, AssistedProgress> AssistedSummary { get; set; } =
         (_, _) => new AssistedProgress([], new AssistedRecords(null));
 
     /// <summary>What each hold summary returns; no sessions or records by default.</summary>
-    public Func<IReadOnlyList<StrengthSession>, ChartRange, HoldProgress> HoldSummary { get; set; } = (_, _) => new HoldProgress([], new HoldRecords(null, null));
+    public Func<IReadOnlyList<StrengthSession>, HistoryRange, HoldProgress> HoldSummary { get; set; } = (_, _) => new HoldProgress([], new HoldRecords(null, null));
 
     /// <summary>What each carry summary returns; no sessions or records by default.</summary>
-    public Func<IReadOnlyList<StrengthSession>, ChartRange, CarryProgress> CarrySummary { get; set; } = (_, _) => new CarryProgress([], new CarryRecords(null, null));
+    public Func<IReadOnlyList<StrengthSession>, HistoryRange, CarryProgress> CarrySummary { get; set; } = (_, _) => new CarryProgress([], new CarryRecords(null, null));
 
     /// <summary>When true, loads wait for <see cref="Complete"/>.</summary>
     public bool Hold { get; set; }
@@ -39,19 +40,19 @@ public sealed class FakeExerciseProgressService : IExerciseProgressService
     public List<int> Loads { get; } = [];
 
     /// <summary>Sessions and range of each lift summary, in call order.</summary>
-    public List<(IReadOnlyList<StrengthSession> Sessions, ChartRange Range)> LiftSummaries { get; } = [];
+    public List<(IReadOnlyList<StrengthSession> Sessions, HistoryRange Range)> LiftSummaries { get; } = [];
 
     /// <summary>Sessions and range of each bodyweight summary, in call order.</summary>
-    public List<(IReadOnlyList<StrengthSession> Sessions, ChartRange Range)> BodyweightSummaries { get; } = [];
+    public List<(IReadOnlyList<StrengthSession> Sessions, HistoryRange Range)> BodyweightSummaries { get; } = [];
 
     /// <summary>Sessions and range of each assisted machine summary, in call order.</summary>
-    public List<(IReadOnlyList<StrengthSession> Sessions, ChartRange Range)> AssistedSummaries { get; } = [];
+    public List<(IReadOnlyList<StrengthSession> Sessions, HistoryRange Range)> AssistedSummaries { get; } = [];
 
     /// <summary>Sessions and range of each hold summary, in call order.</summary>
-    public List<(IReadOnlyList<StrengthSession> Sessions, ChartRange Range)> HoldSummaries { get; } = [];
+    public List<(IReadOnlyList<StrengthSession> Sessions, HistoryRange Range)> HoldSummaries { get; } = [];
 
     /// <summary>Sessions and range of each carry summary, in call order.</summary>
-    public List<(IReadOnlyList<StrengthSession> Sessions, ChartRange Range)> CarrySummaries { get; } = [];
+    public List<(IReadOnlyList<StrengthSession> Sessions, HistoryRange Range)> CarrySummaries { get; } = [];
 
     /// <inheritdoc />
     public Task<ExerciseProgressResult> LoadAsync(int exerciseId)
@@ -68,35 +69,35 @@ public sealed class FakeExerciseProgressService : IExerciseProgressService
     }
 
     /// <inheritdoc />
-    public LiftProgress SummariseLift(IReadOnlyList<StrengthSession> sessions, ChartRange range)
+    public LiftProgress SummariseLift(IReadOnlyList<StrengthSession> sessions, HistoryRange range)
     {
         LiftSummaries.Add((sessions, range));
         return Summary(sessions, range);
     }
 
     /// <inheritdoc />
-    public BodyweightProgress SummariseBodyweight(IReadOnlyList<StrengthSession> sessions, ChartRange range)
+    public BodyweightProgress SummariseBodyweight(IReadOnlyList<StrengthSession> sessions, HistoryRange range)
     {
         BodyweightSummaries.Add((sessions, range));
         return BodyweightSummary(sessions, range);
     }
 
     /// <inheritdoc />
-    public AssistedProgress SummariseAssisted(IReadOnlyList<StrengthSession> sessions, ChartRange range)
+    public AssistedProgress SummariseAssisted(IReadOnlyList<StrengthSession> sessions, HistoryRange range)
     {
         AssistedSummaries.Add((sessions, range));
         return AssistedSummary(sessions, range);
     }
 
     /// <inheritdoc />
-    public HoldProgress SummariseHold(IReadOnlyList<StrengthSession> sessions, ChartRange range)
+    public HoldProgress SummariseHold(IReadOnlyList<StrengthSession> sessions, HistoryRange range)
     {
         HoldSummaries.Add((sessions, range));
         return HoldSummary(sessions, range);
     }
 
     /// <inheritdoc />
-    public CarryProgress SummariseCarry(IReadOnlyList<StrengthSession> sessions, ChartRange range)
+    public CarryProgress SummariseCarry(IReadOnlyList<StrengthSession> sessions, HistoryRange range)
     {
         CarrySummaries.Add((sessions, range));
         return CarrySummary(sessions, range);

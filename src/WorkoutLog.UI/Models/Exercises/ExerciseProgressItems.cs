@@ -1,4 +1,5 @@
 using System.Globalization;
+using WorkoutLog.Core.Domain;
 using WorkoutLog.Core.Domain.Exercises;
 using WorkoutLog.Core.Domain.Exercises.Bests;
 using WorkoutLog.Core.Domain.Exercises.Progress;
@@ -58,7 +59,7 @@ public static class ExerciseProgressItems
             .ToList();
 
     /// <summary>Text in place of a chart with no values: No sets in the last 3 months, or No sets yet on All.</summary>
-    public static string NoSets(ChartRange range) => range == ChartRange.All ? "No sets yet" : $"No sets in the {ChartRanges.Text(range)}";
+    public static string NoSets(HistoryRange range) => range == HistoryRange.All ? "No sets yet" : $"No sets in the {HistoryRanges.Text(range)}";
 
     /// <summary>Heaviest weight (e.g. 70kg × 3) and Best e1RM (e.g. 82.3kg), each with its date; no value shows —.</summary>
     public static IReadOnlyList<RecordRow> Records(LiftProgress progress, TimeZoneInfo zone, DateTimeOffset now) =>

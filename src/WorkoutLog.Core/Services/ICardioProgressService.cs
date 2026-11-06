@@ -1,3 +1,4 @@
+using WorkoutLog.Core.Domain;
 using WorkoutLog.Core.Domain.Exercises.Progress;
 
 namespace WorkoutLog.Core.Services;
@@ -12,5 +13,5 @@ public interface ICardioProgressService
     Task<CardioProgressResult> LoadAsync(int exerciseId);
 
     /// <summary>The sessions of <paramref name="sessions"/> in <paramref name="range"/>, each with its chart values, and their records.</summary>
-    CardioProgress Summarise(IReadOnlyList<CardioSession> sessions, ChartRange range);
+    CardioProgress Summarise(IReadOnlyList<CardioSession> sessions, HistoryRange range);
 }

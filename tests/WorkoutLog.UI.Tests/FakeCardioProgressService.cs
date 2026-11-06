@@ -1,3 +1,4 @@
+using WorkoutLog.Core.Domain;
 using WorkoutLog.Core.Domain.Exercises.Progress;
 using WorkoutLog.Core.Services;
 
@@ -15,7 +16,7 @@ public sealed class FakeCardioProgressService : ICardioProgressService
     public CardioProgressResult Result { get; set; } = new([], Failed: false);
 
     /// <summary>What each summary returns for the sessions and range; no sessions or records by default.</summary>
-    public Func<IReadOnlyList<CardioSession>, ChartRange, CardioProgress> Summary { get; set; } =
+    public Func<IReadOnlyList<CardioSession>, HistoryRange, CardioProgress> Summary { get; set; } =
         (_, _) => new CardioProgress([], new CardioRecords(null, null, null, null, null, null));
 
     /// <summary>When true, loads wait for <see cref="Complete"/>.</summary>
@@ -25,7 +26,7 @@ public sealed class FakeCardioProgressService : ICardioProgressService
     public List<int> Loads { get; } = [];
 
     /// <summary>Sessions and range of each summary, in call order.</summary>
-    public List<(IReadOnlyList<CardioSession> Sessions, ChartRange Range)> Summaries { get; } = [];
+    public List<(IReadOnlyList<CardioSession> Sessions, HistoryRange Range)> Summaries { get; } = [];
 
     /// <inheritdoc />
     public Task<CardioProgressResult> LoadAsync(int exerciseId)
@@ -42,7 +43,7 @@ public sealed class FakeCardioProgressService : ICardioProgressService
     }
 
     /// <inheritdoc />
-    public CardioProgress Summarise(IReadOnlyList<CardioSession> sessions, ChartRange range)
+    public CardioProgress Summarise(IReadOnlyList<CardioSession> sessions, HistoryRange range)
     {
         Summaries.Add((sessions, range));
         return Summary(sessions, range);

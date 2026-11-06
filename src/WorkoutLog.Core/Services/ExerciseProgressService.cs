@@ -1,5 +1,6 @@
 using Microsoft.Extensions.Logging;
 using WorkoutLog.Core.Data;
+using WorkoutLog.Core.Domain;
 using WorkoutLog.Core.Domain.Exercises;
 using WorkoutLog.Core.Domain.Exercises.Progress;
 using WorkoutLog.Core.Domain.Workouts;
@@ -63,7 +64,7 @@ internal sealed partial class ExerciseProgressService(
     }
 
     /// <inheritdoc />
-    public LiftProgress SummariseLift(IReadOnlyList<StrengthSession> sessions, ChartRange range)
+    public LiftProgress SummariseLift(IReadOnlyList<StrengthSession> sessions, HistoryRange range)
     {
         var inRange = InRange(sessions, range)
             .Select(s => new LiftSessionProgress(s, topSetRule.TopSet(s.Sets), e1rmRule.Best(s.Sets)))
@@ -72,14 +73,14 @@ internal sealed partial class ExerciseProgressService(
     }
 
     /// <inheritdoc />
-    public BodyweightProgress SummariseBodyweight(IReadOnlyList<StrengthSession> sessions, ChartRange range)
+    public BodyweightProgress SummariseBodyweight(IReadOnlyList<StrengthSession> sessions, HistoryRange range)
     {
         var inRange = InRange(sessions, range).Select(bodyweightRule.Progress).ToList();
         return new BodyweightProgress(inRange, bodyweightRecordsRule.Records(inRange));
     }
 
     /// <inheritdoc />
-    public AssistedProgress SummariseAssisted(IReadOnlyList<StrengthSession> sessions, ChartRange range)
+    public AssistedProgress SummariseAssisted(IReadOnlyList<StrengthSession> sessions, HistoryRange range)
     {
         var inRange = InRange(sessions, range)
             .Select(s => new AssistedSessionProgress(s, leastAssistRule.LeastAssist(s.Sets)))
@@ -88,7 +89,7 @@ internal sealed partial class ExerciseProgressService(
     }
 
     /// <inheritdoc />
-    public HoldProgress SummariseHold(IReadOnlyList<StrengthSession> sessions, ChartRange range)
+    public HoldProgress SummariseHold(IReadOnlyList<StrengthSession> sessions, HistoryRange range)
     {
         var inRange = InRange(sessions, range)
             .Select(s => new HoldSessionProgress(s, holdRule.Longest(s.Sets), holdRule.Heaviest(s.Sets)))
@@ -97,7 +98,7 @@ internal sealed partial class ExerciseProgressService(
     }
 
     /// <inheritdoc />
-    public CarryProgress SummariseCarry(IReadOnlyList<StrengthSession> sessions, ChartRange range)
+    public CarryProgress SummariseCarry(IReadOnlyList<StrengthSession> sessions, HistoryRange range)
     {
         var inRange = InRange(sessions, range)
             .Select(s => new CarrySessionProgress(s, carryRule.Heaviest(s.Sets), carryRule.Longest(s.Sets)))
@@ -106,7 +107,7 @@ internal sealed partial class ExerciseProgressService(
     }
 
     /// <summary>The sessions in <paramref name="range"/>, by start time oldest first.</summary>
-    private IEnumerable<StrengthSession> InRange(IReadOnlyList<StrengthSession> sessions, ChartRange range) =>
+    private IEnumerable<StrengthSession> InRange(IReadOnlyList<StrengthSession> sessions, HistoryRange range) =>
         sessions.Where(s => rangeFilter.Includes(s.StartedAt, range)).OrderBy(s => s.StartedAt);
 
     private static partial class Log

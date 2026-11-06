@@ -1,5 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Time.Testing;
+using WorkoutLog.Core.Domain;
 using WorkoutLog.Core.Domain.Exercises.Bests;
 using WorkoutLog.Core.Domain.Exercises.Progress;
 using WorkoutLog.Core.Domain.Workouts;
@@ -38,7 +39,7 @@ public class ExercisePageTests : ComponentTestBase
         progress = new FakeExerciseProgressService
         {
             Result = new ExerciseProgressResult([Light, Heavy], Failed: false),
-            Summary = (sessions, range) => range == ChartRange.All
+            Summary = (sessions, range) => range == HistoryRange.All
                 ? new LiftProgress([], new LiftRecords(null, null))
                 : new LiftProgress(
                     [
@@ -111,7 +112,7 @@ public class ExercisePageTests : ComponentTestBase
         {
             Assert.That(progress.Loads, Is.EqualTo(new[] { Squat }));
             Assert.That(cardio.Loads, Is.Empty);
-            Assert.That(progress.LiftSummaries.Select(s => s.Range), Is.EqualTo(new[] { ChartRange.ThreeMonths }));
+            Assert.That(progress.LiftSummaries.Select(s => s.Range), Is.EqualTo(new[] { HistoryRange.ThreeMonths }));
             Assert.That(progress.LiftSummaries.Single().Sessions, Is.SameAs(progress.Result.Sessions));
             Assert.That(progress.BodyweightSummaries, Is.Empty);
             Assert.That(cut.FindAll("[data-testid=exercise-tabs] input[checked]").Select(i => i.GetAttribute("data-testid")), Is.EqualTo(new[] { "exercise-tab-top-set" }));
@@ -161,7 +162,7 @@ public class ExercisePageTests : ComponentTestBase
         Assert.Multiple(() =>
         {
             Assert.That(progress.Loads, Has.Count.EqualTo(1));
-            Assert.That(progress.LiftSummaries.Select(s => s.Range), Is.EqualTo(new[] { ChartRange.ThreeMonths, ChartRange.All }));
+            Assert.That(progress.LiftSummaries.Select(s => s.Range), Is.EqualTo(new[] { HistoryRange.ThreeMonths, HistoryRange.All }));
             Assert.That(progress.LiftSummaries[^1].Sessions, Is.SameAs(progress.Result.Sessions));
             Assert.That(cut.Find("[data-testid=exercise-chart-empty]").TextContent, Is.EqualTo("No sessions yet"));
             Assert.That(cut.FindAll("[data-testid=exercise-records] .value").Select(v => v.TextContent), Is.EqualTo(new[] { "—", "—" }));
@@ -224,7 +225,7 @@ public class ExercisePageTests : ComponentTestBase
         var view = cut.FindComponent<ExerciseView>().Instance;
         Assert.Multiple(() =>
         {
-            Assert.That(progress.AssistedSummaries.Select(s => s.Range), Is.EqualTo(new[] { ChartRange.ThreeMonths }));
+            Assert.That(progress.AssistedSummaries.Select(s => s.Range), Is.EqualTo(new[] { HistoryRange.ThreeMonths }));
             Assert.That(cut.FindAll("[data-testid=exercise-tabs]"), Is.Empty);
             Assert.That(cut.Find("[data-testid=exercise-chart-card] .card-title").TextContent, Is.EqualTo("Least assist per session"));
             Assert.That(view.Flipped, Is.True);
