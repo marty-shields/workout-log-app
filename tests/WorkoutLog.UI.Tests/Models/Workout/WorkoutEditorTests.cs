@@ -114,6 +114,26 @@ public class WorkoutEditorTests
     }
 
     [Test]
+    public async Task OpenListAsync_SearchAndChipSetWhileLoading_AreKeptAndApplied()
+    {
+        loggedExercises.Hold = true;
+        var open = editor.OpenListAsync();
+
+        editor.Search("bench");
+        editor.FilterBy(ExerciseFilter.Strength);
+        loggedExercises.Complete();
+        await open;
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(editor.Query, Is.EqualTo("bench"));
+            Assert.That(editor.Filter, Is.EqualTo(ExerciseFilter.Strength));
+            Assert.That(editor.ListItems.Select(i => i.Id),
+                Is.EqualTo(Catalog.Search("bench").Where(e => e.Type == ExerciseType.Strength).Select(e => e.Id)).And.Not.Empty);
+        });
+    }
+
+    [Test]
     public async Task OpenListAsync_Reopened_ClearsTheEarlierRowsWhileLoading()
     {
         await editor.OpenListAsync();
