@@ -12,6 +12,7 @@ public static class HistoryRangeStart
         HistoryRange.ThreeMonths => today.AddMonths(-3),
         HistoryRange.SixMonths => today.AddMonths(-6),
         HistoryRange.Year => today.AddMonths(-12),
-        _ => null,
+        HistoryRange.All => null,
+        _ => throw new ArgumentOutOfRangeException(nameof(range), range, null),
     };
 }

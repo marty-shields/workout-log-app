@@ -29,11 +29,6 @@ public sealed class WorkoutsScreen(WebView web)
     /// <summary>Taps a quick range's segment, e.g. 1y.</summary>
     public void Range(string key) => web.Find($"workouts-range-{key}").FindElement(By.XPath("..")).Click();
 
-    /// <summary>The note that ends the list when workouts outside the dates are hidden, or null.</summary>
-    public string? HiddenNote() => web.Exists("workouts-hidden") ? web.Text("workouts-hidden") : null;
-
-    public void ShowAll() => web.Tap("workouts-show-all");
-
     /// <summary>Picks one day in the calendar: its year and month from the month grid, then the day twice, then Show workouts.</summary>
     public void PickDay(DateTime day)
     {

@@ -53,6 +53,12 @@ public class DisplayFormatTests
     public void Dates_DropTheFirstYearWithinAYearAndShowTheDayForOneDay(int fromYear, int fromMonth, int fromDay, int toYear, int toMonth, int toDay, string expected) =>
         Assert.That(DisplayFormat.Dates(new DateSpan(new(fromYear, fromMonth, fromDay), new(toYear, toMonth, toDay))), Is.EqualTo(expected));
 
+    [TestCase(2026, 8, 6, 2026, 11, 6, "6\u00A0Aug – 6\u00A0Nov\u00A02026")]
+    [TestCase(2025, 11, 6, 2026, 11, 6, "6\u00A0Nov\u00A02025 – 6\u00A0Nov\u00A02026")]
+    [TestCase(2025, 3, 12, 2025, 3, 12, "Wed\u00A012\u00A0Mar\u00A02025")]
+    public void DatesKeptWhole_BreaksOnlyAroundTheDash(int fromYear, int fromMonth, int fromDay, int toYear, int toMonth, int toDay, string expected) =>
+        Assert.That(DisplayFormat.DatesKeptWhole(new DateSpan(new(fromYear, fromMonth, fromDay), new(toYear, toMonth, toDay))), Is.EqualTo(expected));
+
     [Test]
     public void DayAndTime_HasNoYear() =>
         Assert.That(DisplayFormat.DayAndTime(new DateTime(2026, 11, 5, 18, 5, 0)), Is.EqualTo("Thu 5 Nov · 18:05"));

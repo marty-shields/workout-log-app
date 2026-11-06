@@ -102,59 +102,24 @@ public class WorkoutsViewTests : ComponentTestBase
 
         Assert.Multiple(() =>
         {
-            Assert.That(cut.Find("[data-testid=workouts-dates-dates]").TextContent, Is.EqualTo("6 Aug – 6 Nov 2026"));
+            Assert.That(cut.Find("[data-testid=workouts-dates-dates]").TextContent, Is.EqualTo("6\u00A0Aug – 6\u00A0Nov\u00A02026"));
             Assert.That(cut.Find("[data-testid=workouts-dates-count]").TextContent, Is.EqualTo("3"));
         });
     }
 
-    [Test]
-    public void NotAll_EndsWithTheHiddenNoteAndShowAll()
-    {
-        var changed = new List<DateSpan>();
-        var cut = Render(ThreeMonths, p => p.Add(x => x.DatesChanged, (DateSpan d) => changed.Add(d)));
-
-        Assert.That(cut.Find("[data-testid=workouts-hidden]").TextContent, Does.Contain("Workouts outside these dates are hidden"));
-
-        cut.Find("[data-testid=workouts-show-all]").Click();
-
-        Assert.That(changed, Is.EqualTo(new[] { new DateSpan(new(2025, 3, 12), Today) }));
-    }
-
-    [Test]
-    public void All_HasNoHiddenNote()
-    {
-        var cut = Render(History.Span(HistoryRange.All));
-
-        Assert.That(cut.FindAll("[data-testid=workouts-hidden]"), Is.Empty);
-    }
-
-    [Test]
-    public void NothingHidden_HasNoHiddenNoteEvenOn3M()
-    {
-        WorkoutsRow[] rows = [new(1, new DateTime(2026, 10, 20, 18, 5, 0))];
-        var recent = Histories.Of(rows, Today);
-        var cut = Context.Render<WorkoutsView>(p => p.Add(x => x.History, recent).Add(x => x.Rows, rows).Add(x => x.Dates, recent.Span(HistoryRange.ThreeMonths)));
-
-        Assert.That(cut.FindAll("[data-testid=workouts-hidden]"), Is.Empty);
-    }
-
     [TestCase(2026, 9, 1, 2026, 9, 30, "No workouts between these dates")]
     [TestCase(2026, 11, 4, 2026, 11, 4, "No workout on this day")]
-    public void NothingInTheDates_SaysSoWithChangeDates(int fromYear, int fromMonth, int fromDay, int toYear, int toMonth, int toDay, string message)
+    public void NothingInTheDates_SaysSoWithAHint(int fromYear, int fromMonth, int fromDay, int toYear, int toMonth, int toDay, string message)
     {
-        var expanded = new List<bool>();
-        var cut = Render(new DateSpan(new(fromYear, fromMonth, fromDay), new(toYear, toMonth, toDay)), p => p.Add(x => x.ExpandedChanged, expanded.Add));
+        var cut = Render(new DateSpan(new(fromYear, fromMonth, fromDay), new(toYear, toMonth, toDay)));
 
         Assert.Multiple(() =>
         {
             Assert.That(cut.Find("[data-testid=workouts-none-message]").TextContent, Is.EqualTo(message));
+            Assert.That(cut.Find("[data-testid=workouts-none-hint]").TextContent, Is.EqualTo("Choose different dates or a quick range above"));
+            Assert.That(cut.FindAll("[data-testid=workouts-none] button"), Is.Empty);
             Assert.That(cut.FindAll(".rows"), Is.Empty);
-            Assert.That(cut.FindAll("[data-testid=workouts-hidden]"), Is.Empty);
         });
-
-        cut.Find("[data-testid=workouts-change-dates]").Click();
-
-        Assert.That(expanded, Is.EqualTo(new[] { true }));
     }
 
     [Test]
@@ -168,7 +133,6 @@ public class WorkoutsViewTests : ComponentTestBase
             Assert.That(cut.FindAll("[data-testid=range-calendar]"), Has.Count.EqualTo(1));
             Assert.That(cut.FindAll("[data-testid=workouts-range]"), Is.Empty);
             Assert.That(cut.FindAll(".rows"), Is.Empty);
-            Assert.That(cut.FindAll("[data-testid=workouts-hidden]"), Is.Empty);
         });
     }
 
@@ -232,7 +196,7 @@ public class WorkoutsViewTests : ComponentTestBase
         {
             Assert.That(cut.FindAll("[data-testid=workouts-loading]"), Has.Count.EqualTo(1));
             Assert.That(cut.FindAll(".rows"), Is.Empty);
-            Assert.That(cut.Find("[data-testid=workouts-dates-dates]").TextContent, Is.EqualTo("6 Aug – 6 Nov 2026"));
+            Assert.That(cut.Find("[data-testid=workouts-dates-dates]").TextContent, Is.EqualTo("6\u00A0Aug – 6\u00A0Nov\u00A02026"));
             Assert.That(cut.FindAll("[data-testid=workouts-range]"), Has.Count.EqualTo(1));
         });
     }

@@ -10,16 +10,16 @@ public class DateRangeFieldTests : ComponentTestBase
 
     private static readonly WorkoutHistory History = Histories.Of([new(1, new DateTime(2025, 3, 12, 18, 0, 0))], Today);
 
-    [TestCase(2026, 8, 6, 2026, 11, 6, "6 Aug – 6 Nov 2026")]
-    [TestCase(2025, 11, 6, 2026, 11, 6, "6 Nov 2025 – 6 Nov 2026")]
-    [TestCase(2025, 3, 12, 2025, 3, 12, "Wed 12 Mar 2025")]
-    public void Field_ShowsTheDatesAndNamesThemWithTheCount(int fromYear, int fromMonth, int fromDay, int toYear, int toMonth, int toDay, string text)
+    [TestCase(2026, 8, 6, 2026, 11, 6, "6\u00A0Aug – 6\u00A0Nov\u00A02026", "6 Aug – 6 Nov 2026")]
+    [TestCase(2025, 11, 6, 2026, 11, 6, "6\u00A0Nov\u00A02025 – 6\u00A0Nov\u00A02026", "6 Nov 2025 – 6 Nov 2026")]
+    [TestCase(2025, 3, 12, 2025, 3, 12, "Wed\u00A012\u00A0Mar\u00A02025", "Wed 12 Mar 2025")]
+    public void Field_ShowsTheDatesKeptWholeAndNamesThemWithPlainSpacesAndTheCount(int fromYear, int fromMonth, int fromDay, int toYear, int toMonth, int toDay, string shown, string text)
     {
         var cut = Render(new DateSpan(new(fromYear, fromMonth, fromDay), new(toYear, toMonth, toDay)), count: 1);
 
         Assert.Multiple(() =>
         {
-            Assert.That(cut.Find("[data-testid=dates-dates]").TextContent, Is.EqualTo(text));
+            Assert.That(cut.Find("[data-testid=dates-dates]").TextContent, Is.EqualTo(shown));
             Assert.That(cut.Find("[data-testid=dates-count]").TextContent, Is.EqualTo("1"));
             Assert.That(cut.Find("[data-testid=dates]").GetAttribute("aria-label"), Is.EqualTo($"Dates shown: {text}. 1 workout"));
             Assert.That(cut.Find("[data-testid=dates]").GetAttribute("aria-expanded"), Is.EqualTo("false"));

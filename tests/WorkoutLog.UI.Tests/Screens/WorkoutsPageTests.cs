@@ -56,11 +56,10 @@ public class WorkoutsPageTests : ComponentTestBase
         Assert.Multiple(() =>
         {
             Assert.That(workouts.RangeReads, Is.EqualTo(new[] { (new DateOnly(2026, 8, 6), Today) }));
-            Assert.That(cut.Find("[data-testid=workouts-dates-dates]").TextContent, Is.EqualTo("6 Aug – 6 Nov 2026"));
+            Assert.That(cut.Find("[data-testid=workouts-dates-dates]").TextContent, Is.EqualTo("6\u00A0Aug – 6\u00A0Nov\u00A02026"));
             Assert.That(cut.Find("[data-testid=workouts-dates-count]").TextContent, Is.EqualTo("1"));
             Assert.That(Checked(cut), Is.EqualTo(new[] { "workouts-range-3m" }));
             Assert.That(Shown(cut), Is.EqualTo(new[] { "workouts-row-4" }));
-            Assert.That(cut.FindAll("[data-testid=workouts-hidden]"), Has.Count.EqualTo(1));
         });
     }
 
@@ -100,7 +99,7 @@ public class WorkoutsPageTests : ComponentTestBase
         {
             Assert.That(workouts.RangeReads[^1], Is.EqualTo((new DateOnly(2025, 11, 6), Today)));
             Assert.That(cut.FindAll("[data-testid=workouts-loading]"), Has.Count.EqualTo(1));
-            Assert.That(cut.Find("[data-testid=workouts-dates-dates]").TextContent, Is.EqualTo("6 Nov 2025 – 6 Nov 2026"));
+            Assert.That(cut.Find("[data-testid=workouts-dates-dates]").TextContent, Is.EqualTo("6\u00A0Nov\u00A02025 – 6\u00A0Nov\u00A02026"));
             Assert.That(Checked(cut), Is.EqualTo(new[] { "workouts-range-1y" }));
         });
 
@@ -110,12 +109,12 @@ public class WorkoutsPageTests : ComponentTestBase
     }
 
     [Test]
-    public async Task All_ReadsFromTheFirstWorkoutAndHidesNothing()
+    public async Task All_ReadsFromTheFirstWorkout()
     {
         var cut = await OpenedAsync();
         await CompleteRangeAsync(cut, Recent);
 
-        cut.Find("[data-testid=workouts-show-all]").Click();
+        cut.Find("[data-testid=workouts-range-all]").Change(true);
         await CompleteRangeAsync(cut, new WorkoutsResult([], Failed: false));
 
         Assert.Multiple(() =>
@@ -144,7 +143,7 @@ public class WorkoutsPageTests : ComponentTestBase
         Assert.Multiple(() =>
         {
             Assert.That(workouts.RangeReads[^1], Is.EqualTo((new DateOnly(2025, 3, 12), new DateOnly(2025, 3, 12))));
-            Assert.That(cut.Find("[data-testid=workouts-dates-dates]").TextContent, Is.EqualTo("Wed 12 Mar 2025"));
+            Assert.That(cut.Find("[data-testid=workouts-dates-dates]").TextContent, Is.EqualTo("Wed\u00A012\u00A0Mar\u00A02025"));
             Assert.That(cut.FindAll("[data-testid=range-calendar]"), Is.Empty);
             Assert.That(Shown(cut), Is.EqualTo(new[] { "workouts-row-1" }));
             Assert.That(Checked(cut), Is.Empty);
@@ -164,7 +163,7 @@ public class WorkoutsPageTests : ComponentTestBase
         Assert.Multiple(() =>
         {
             Assert.That(workouts.RangeReads, Has.Count.EqualTo(1));
-            Assert.That(cut.Find("[data-testid=workouts-dates-dates]").TextContent, Is.EqualTo("6 Aug – 6 Nov 2026"));
+            Assert.That(cut.Find("[data-testid=workouts-dates-dates]").TextContent, Is.EqualTo("6\u00A0Aug – 6\u00A0Nov\u00A02026"));
             Assert.That(Checked(cut), Is.EqualTo(new[] { "workouts-range-3m" }));
         });
     }

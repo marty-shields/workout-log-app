@@ -7,7 +7,7 @@
             data-testid="@TestId"
             @onclick="() => ExpandedChanged.InvokeAsync(!Expanded)">
         <Icon Name="IconName.Calendar" />
-        <span class="dates" data-testid="@($"{TestId}-dates")" data-wrap-ok>@DisplayFormat.Dates(Dates)</span>
+        <span class="dates" data-testid="@($"{TestId}-dates")" data-wrap-ok>@DisplayFormat.DatesKeptWhole(Dates)</span>
         <span class="count" data-testid="@($"{TestId}-count")">@Count</span>
         <Icon Name="IconName.Down" Tone="IconTone.Muted" />
     </button>

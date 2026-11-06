@@ -52,6 +52,11 @@ internal static class DisplayFormat
         return $"{from} – {to}";
     }
 
+    /// <summary>
+    /// <see cref="Dates"/> with no-break spaces inside each date, so narrow text wraps at the dash and never mid-date, e.g. 4 Nov 2024 – / 6 Nov 2026.
+    /// </summary>
+    public static string DatesKeptWhole(DateSpan dates) => Dates(dates).Replace(' ', '\u00A0').Replace("\u00A0–\u00A0", " – ", StringComparison.Ordinal);
+
     /// <summary>A number of workouts, e.g. 1 workout or 38 workouts.</summary>
     public static string Workouts(int count) => count == 1 ? "1 workout" : $"{count} workouts";
 

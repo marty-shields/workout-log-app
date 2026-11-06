@@ -13,7 +13,6 @@ public sealed class WorkoutHistory
     {
         this.perDay = perDay;
         Today = today;
-        Count = perDay.Where(d => d.Key <= today).Sum(d => d.Value);
         IsEmpty = perDay.Count == 0;
         Earliest = perDay.Count == 0 ? today : DateOnly.FromDayNumber(Math.Min(perDay.Keys.Min().DayNumber, today.DayNumber));
     }
@@ -26,9 +25,6 @@ public sealed class WorkoutHistory
 
     /// <summary>Day of the first saved workout, or <see cref="Today"/> when there are none. Earlier days can't be picked.</summary>
     public DateOnly Earliest { get; }
-
-    /// <summary>Number of saved workouts up to <see cref="Today"/>, the most any span can show. A start after today, from a clock set wrong, is left out.</summary>
-    public int Count { get; }
 
     /// <summary>True when no workout is saved.</summary>
     public bool IsEmpty { get; }

@@ -22,7 +22,7 @@ Feature: Workouts
     When I open Workouts
     Then Workouts lists 40 workouts
 
-  Scenario: Workouts opens on the last 3 months, and Show all workouts lists the older ones
+  Scenario: Workouts opens on the last 3 months, and All lists the older ones
     Given these saved workouts:
       | started            | exercises             |
       | 125 days ago 18:00 | Push-up: 10 reps 0 kg |
@@ -30,12 +30,10 @@ Feature: Workouts
     When I open Workouts
     Then the rows read, in order:
       | yesterday 18:05 |
-    And Workouts says workouts outside these dates are hidden
-    When I tap Show all workouts
+    When I tap All in Workouts
     Then the rows read, in order:
       | yesterday 18:05    |
       | 125 days ago 18:00 |
-    And Workouts hides no workouts
 
   Scenario: 1Y lists a workout from 8 months ago
     Given these saved workouts:

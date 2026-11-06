@@ -31,9 +31,6 @@ public class WorkoutHistoryTests
     }
 
     [Test]
-    public void Count_IsEveryWorkout() => Assert.That(History.Count, Is.EqualTo(4));
-
-    [Test]
     public void CountIn_Dates_CountsTheWorkoutsOnEveryDayIncludingBothEnds() =>
         Assert.That(History.CountIn(new DateSpan(new(2026, 8, 6), Today)), Is.EqualTo(2));
 
@@ -64,14 +61,14 @@ public class WorkoutHistoryTests
         }, Is.All.Null);
 
     [Test]
-    public void AStartAfterToday_IsSavedButNotCounted()
+    public void AStartAfterToday_IsSavedButOutsideAll()
     {
         var history = new WorkoutHistory(new Dictionary<DateOnly, int> { [Today] = 1, [Today.AddDays(1)] = 1 }, Today);
 
         Assert.Multiple(() =>
         {
             Assert.That(history.IsEmpty, Is.False);
-            Assert.That(history.Count, Is.EqualTo(1));
+            Assert.That(history.CountIn(history.Span(HistoryRange.All)), Is.EqualTo(1));
         });
     }
 }

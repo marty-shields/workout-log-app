@@ -36,7 +36,7 @@ A full-width row of 2–4 segments; one is chosen and filled with `--color-selec
 - `data-testid`: `TestId` on the control; each option's `TestId` on its radio.
 
 ## `DateRangeField`
-A 48px field that shows the dates on screen and how many workouts they hold, e.g. *6 Aug – 6 Nov 2026* and *38*: one year as *6 Aug – 6 Nov 2026*, across years as *6 Nov 2025 – 6 Nov 2026*, one day as *Wed 12 Mar 2025*. Screen readers read *Dates shown: 6 Aug – 6 Nov 2026. 38 workouts*. Tapping it raises `ExpandedChanged`; when `Expanded` the field gets a 2px focus-colour border, a `RangeCalendar` opens under it, and Android back closes it. Show workouts closes it and raises `DatesChanged`.
+A 48px field that shows the dates on screen and how many workouts they hold, e.g. *6 Aug – 6 Nov 2026* and *38*: one year as *6 Aug – 6 Nov 2026*, across years as *6 Nov 2025 – 6 Nov 2026*, one day as *Wed 12 Mar 2025*. On a narrow phone the text wraps at the dash, never inside a date. Screen readers read *Dates shown: 6 Aug – 6 Nov 2026. 38 workouts*. Tapping it raises `ExpandedChanged`; when `Expanded` the field gets a 2px focus-colour border, a `RangeCalendar` opens under it, and Android back closes it. Show workouts closes it and raises `DatesChanged`.
 - `data-testid`: `TestId` on the field, `{TestId}-dates`, `{TestId}-count`.
 
 ## `RangeCalendar`

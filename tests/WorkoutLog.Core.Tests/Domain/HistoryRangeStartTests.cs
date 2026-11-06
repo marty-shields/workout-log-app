@@ -23,4 +23,8 @@ public class HistoryRangeStartTests
     [Test]
     public void From_All_IsNull() =>
         Assert.That(HistoryRange.All.From(new DateOnly(2026, 11, 6)), Is.Null);
+
+    [Test]
+    public void From_UndefinedRange_Throws() =>
+        Assert.That(() => ((HistoryRange)99).From(new DateOnly(2026, 11, 6)), Throws.TypeOf<ArgumentOutOfRangeException>().With.Property("ParamName").EqualTo("range"));
 }
