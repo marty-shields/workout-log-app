@@ -17,7 +17,8 @@ The frame of every screen:
 
 - `Destination` makes the screen top-level: it shows the `BottomNav` with that item current and raises `OnNavigate` with the item tapped. A top-level screen sets no `OnBack`, so it has no back arrow. Android back raises `OnNavigate` with the Dashboard (`NavDestinations.Start`), except on the Dashboard, where it leaves the app.
 - Top padding includes the safe-area inset (`--inset-top`). The bottom inset (`--inset-bottom`) goes under the last thing on screen: the navigation bar, else the bottom bar, else the content.
-- `data-testid`: `back`, `screen-title`, `screen-subtitle`, `bottom-bar`, plus `BottomNav`'s.
+- `OnRefresh` makes the content pull-to-refresh. Pulled down from the top, a ring like the `Spinner`'s follows the finger at half its travel, coming out from under the top bar. Let go past `--pull-refresh-threshold`, it stays there and turns until `OnRefresh` finishes, and a polite live region says "Refreshing…". Let go short of it, it goes back up over `--pull-refresh-return-duration`. A pull during a refresh does nothing. With reduced motion the ring doesn't turn or slide back. The content doesn't overscroll, so Android's stretch doesn't fight the pull. No gesture without `OnRefresh`.
+- `data-testid`: `back`, `screen-title`, `screen-subtitle`, `bottom-bar`, `pull-refresh` and `pull-refresh-status` (with `OnRefresh`), plus `BottomNav`'s.
 
 Stories: [AppScreen](./?path=/docs/components-layout-appscreen--docs)
 

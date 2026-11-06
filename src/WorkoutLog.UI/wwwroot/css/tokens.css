@@ -70,6 +70,8 @@
     --spinner-size-small: 1.125rem;
     --spinner-width-small: 2px;
     --spinner-duration: 1s;
+    --pull-refresh-threshold: 64px;
+    --pull-refresh-return-duration: 200ms;
     --snackbar-enter-duration: 150ms;
     --radio-size: 1.5rem;
     --radio-dot-size: 0.75rem;

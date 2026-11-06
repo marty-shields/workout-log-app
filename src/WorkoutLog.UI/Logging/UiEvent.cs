@@ -95,4 +95,7 @@ internal enum UiEvent
 
     /// <summary><see cref="Components.Feedback.Snackbar"/>: checking Undo for keyboard focus failed, so the timer runs on.</summary>
     UndoFocusCheckFailed = 3902,
+
+    /// <summary><see cref="Components.Layout.AppScreen"/>: setting up pull to refresh failed, so the screen can't be pulled.</summary>
+    PullRefreshFailed = 4001,
 }

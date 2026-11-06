@@ -7,6 +7,8 @@
 }
 
 .top-bar {
+    position: relative;
+    z-index: 1;
     --color-text: var(--color-on-bar);
     --color-text-muted: var(--color-on-bar-muted);
     --color-focus: var(--color-on-bar);
@@ -37,6 +39,8 @@
 }
 
 .toolbar {
+    position: relative;
+    z-index: 1;
     flex: 0 1 auto;
     min-height: 0;
     overflow-y: auto;
@@ -45,7 +49,62 @@
 .content {
     flex: 1;
     overflow-y: auto;
+    overscroll-behavior-y: contain;
     padding: var(--space-4);
+}
+
+/* A zero-height row at the content's top edge. The ring hangs above it, under the top bar and toolbar, until pulled down. */
+.pull-refresh {
+    --pull: var(--pull-refresh-threshold);
+    position: relative;
+    display: flex;
+    justify-content: center;
+    height: 0;
+    pointer-events: none;
+}
+
+.ring {
+    box-sizing: border-box;
+    width: var(--spinner-size);
+    height: var(--spinner-size);
+    border: var(--spinner-width) solid var(--color-border);
+    border-top-color: var(--color-accent);
+    border-radius: var(--radius-round);
+    background-color: var(--color-surface);
+    opacity: 0;
+    transform: translateY(calc(-1 * var(--spinner-size)));
+    transition: transform var(--pull-refresh-return-duration) ease-out, opacity var(--pull-refresh-return-duration) ease-out;
+}
+
+.pull-refresh[data-pull] .ring,
+.refreshing .ring {
+    opacity: 1;
+    transform: translateY(calc(var(--pull) - var(--spinner-size)));
+}
+
+.pull-refresh[data-pull="pulling"] .ring {
+    transition: none;
+}
+
+.refreshing .ring {
+    animation: pull-spin var(--spinner-duration) linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .ring {
+        transition: none;
+    }
+
+    .refreshing .ring {
+        animation: none;
+    }
+}
+
+/* rotate, not transform, so the spin doesn't undo the pull's translate. */
+@keyframes pull-spin {
+    to {
+        rotate: 1turn;
+    }
 }
 
 .content:last-child {
