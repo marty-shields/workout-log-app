@@ -449,29 +449,53 @@ public class WorkoutsPageTests : ComponentTestBase
     }
 
     [Test]
-    public async Task Refresh_ShowsTheSpinnerThenTheNewRows()
+    public async Task Refresh_FastReload_KeepsTheSpinnerUpForHalfASecond()
     {
         var cut = await OpenedAsync();
         await CompleteRangeAsync(cut, Recent);
 
         var refresh = cut.InvokeAsync(cut.FindComponent<AppScreen>().Instance.RefreshAsync);
+        workouts.CompleteDays(OneMore);
+        await WaitForRendererAsync();
+        workouts.CompleteRange(RecentAndYesterday);
+        await WaitForRendererAsync();
+        clock.Advance(TimeSpan.FromMilliseconds(499));
+        await WaitForRendererAsync();
 
         Assert.Multiple(() =>
         {
             Assert.That(cut.FindAll("[data-testid=workouts-loading]"), Has.Count.EqualTo(1));
             Assert.That(Shown(cut), Is.Empty);
         });
-        workouts.CompleteDays(OneMore);
-        await WaitForRendererAsync();
-        workouts.CompleteRange(RecentAndYesterday);
+        clock.Advance(TimeSpan.FromMilliseconds(1));
         await refresh;
-
         Assert.Multiple(() =>
         {
             Assert.That(workouts.DayReads, Is.EqualTo(2));
             Assert.That(cut.FindAll("[data-testid=workouts-loading]"), Is.Empty);
             Assert.That(Shown(cut), Is.EqualTo(new[] { "workouts-row-5", "workouts-row-4" }));
             Assert.That(cut.Find("[data-testid=workouts-dates-count]").TextContent, Is.EqualTo("2"));
+        });
+    }
+
+    [Test]
+    public async Task Refresh_SlowReload_ShowsTheNewRowsAsSoonAsItFinishes()
+    {
+        var cut = await OpenedAsync();
+        await CompleteRangeAsync(cut, Recent);
+
+        var refresh = cut.InvokeAsync(cut.FindComponent<AppScreen>().Instance.RefreshAsync);
+        clock.Advance(TimeSpan.FromMilliseconds(800));
+        await WaitForRendererAsync();
+
+        Assert.That(cut.FindAll("[data-testid=workouts-loading]"), Has.Count.EqualTo(1));
+        workouts.CompleteDays(OneMore);
+        await WaitForRendererAsync();
+        await CompleteRangeAsync(cut, RecentAndYesterday);
+        await refresh;
+        Assert.Multiple(() =>
+        {
+            Assert.That(Shown(cut), Is.EqualTo(new[] { "workouts-row-5", "workouts-row-4" }));
         });
     }
 
@@ -495,7 +519,7 @@ public class WorkoutsPageTests : ComponentTestBase
     }
 
     [Test]
-    public async Task Refresh_Failed_ShowsTheError()
+    public async Task Refresh_Failed_ShowsTheErrorAfterHalfASecond()
     {
         var cut = await OpenedAsync();
         await CompleteRangeAsync(cut, Recent);
@@ -504,8 +528,15 @@ public class WorkoutsPageTests : ComponentTestBase
         workouts.CompleteDays(OneMore);
         await WaitForRendererAsync();
         workouts.CompleteRange(new WorkoutsResult([], Failed: true));
-        await refresh;
+        await WaitForRendererAsync();
 
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.FindAll("[data-testid=workouts-loading]"), Has.Count.EqualTo(1));
+            Assert.That(cut.FindAll("[data-testid=workouts-error]"), Is.Empty);
+        });
+        clock.Advance(TimeSpan.FromMilliseconds(500));
+        await refresh;
         Assert.That(cut.FindAll("[data-testid=workouts-error]"), Has.Count.EqualTo(1));
     }
 
@@ -519,6 +550,7 @@ public class WorkoutsPageTests : ComponentTestBase
         {
             var refresh = cut.FindComponent<AppScreen>().Instance.RefreshAsync();
             workouts.CompleteDays(new WorkoutDaysResult(new Dictionary<DateOnly, int>(), Failed: true));
+            clock.Advance(TimeSpan.FromMilliseconds(500));
             await refresh;
         });
 
@@ -542,6 +574,55 @@ public class WorkoutsPageTests : ComponentTestBase
         {
             Assert.That(workouts.RangeReads, Has.Count.EqualTo(2));
             Assert.That(Checked(cut), Is.EqualTo(new[] { "workouts-range-all" }));
+            Assert.That(Shown(cut), Is.EqualTo(new[] { "workouts-row-1" }));
+        });
+    }
+
+    [Test]
+    public async Task Refresh_OtherDatesChosenDuringTheHold_TheirRowsShowWhenRead()
+    {
+        var cut = await OpenedAsync();
+        await CompleteRangeAsync(cut, Recent);
+
+        var refresh = cut.InvokeAsync(cut.FindComponent<AppScreen>().Instance.RefreshAsync);
+        workouts.CompleteDays(OneMore);
+        await WaitForRendererAsync();
+        workouts.CompleteRange(RecentAndYesterday);
+        await WaitForRendererAsync();
+        cut.Find("[data-testid=workouts-range-all]").Change(true);
+        clock.Advance(TimeSpan.FromMilliseconds(500));
+        await refresh;
+
+        Assert.That(cut.FindAll("[data-testid=workouts-loading]"), Has.Count.EqualTo(1));
+        await CompleteRangeAsync(cut, new WorkoutsResult([new WorkoutSummary(1, new DateTimeOffset(2025, 3, 12, 17, 0, 0, TimeSpan.Zero))], Failed: false));
+        Assert.Multiple(() =>
+        {
+            Assert.That(workouts.RangeReads, Has.Count.EqualTo(3));
+            Assert.That(Checked(cut), Is.EqualTo(new[] { "workouts-range-all" }));
+            Assert.That(Shown(cut), Is.EqualTo(new[] { "workouts-row-1" }));
+        });
+    }
+
+    [Test]
+    public async Task Refresh_OtherDatesReadBeforeTheHoldEnds_TheirRowsShowAtOnce()
+    {
+        var cut = await OpenedAsync();
+        await CompleteRangeAsync(cut, Recent);
+
+        var refresh = cut.InvokeAsync(cut.FindComponent<AppScreen>().Instance.RefreshAsync);
+        workouts.CompleteDays(OneMore);
+        await WaitForRendererAsync();
+        workouts.CompleteRange(RecentAndYesterday);
+        await WaitForRendererAsync();
+        cut.Find("[data-testid=workouts-range-all]").Change(true);
+        await CompleteRangeAsync(cut, new WorkoutsResult([new WorkoutSummary(1, new DateTimeOffset(2025, 3, 12, 17, 0, 0, TimeSpan.Zero))], Failed: false));
+
+        Assert.That(Shown(cut), Is.EqualTo(new[] { "workouts-row-1" }));
+        clock.Advance(TimeSpan.FromMilliseconds(500));
+        await refresh;
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.FindAll("[data-testid=workouts-loading]"), Is.Empty);
             Assert.That(Shown(cut), Is.EqualTo(new[] { "workouts-row-1" }));
         });
     }

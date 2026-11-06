@@ -8,7 +8,7 @@
 @inject IAppStart AppStart
 
 <WorkoutsView History="History" Rows="rows" Dates="dates" DatesChanged="ShowAsync" @bind-Expanded="expanded" Loading="loading" Failed="failure is not Failure.None"
-              OnRetry="RetryAsync" OnRefresh="LoadAsync" OnOpen="row => OnOpen.InvokeAsync(row.Id)" OnNavigate="OnNavigate" />
+              OnRetry="RetryAsync" OnRefresh="() => LoadAsync(PullRefresh.MinimumSpinner)" OnOpen="row => OnOpen.InvokeAsync(row.Id)" OnNavigate="OnNavigate" />
 
 @code {
     private enum Failure { None, Counts, Range }
@@ -52,7 +52,7 @@
     /// with today; dates picked in the calendar stay. Does nothing while a load runs, and nothing more once the page is disposed
     /// or other dates are chosen.
     /// </summary>
-    private async Task LoadAsync()
+    private async Task LoadAsync(TimeSpan minimum = default)
     {
         if (loading)
         {
@@ -61,6 +61,7 @@
 
         (loading, failure) = (true, Failure.None);
         StateHasChanged();
+        var minimumElapsed = Task.Delay(minimum, Clock);
         var current = ++query;
         var days = await Workouts.GetDaysAsync();
         if (disposed || current != query)
@@ -70,7 +71,8 @@
 
         if (days.Failed)
         {
-            (loading, failure, expanded) = (false, Failure.Counts, false);
+            (failure, expanded) = (Failure.Counts, false);
+            await HideSpinnerIfLatestAsync(current, minimumElapsed);
             return;
         }
 
@@ -79,21 +81,22 @@
         var shown = range is { } quick ? loaded.Span(quick) : dates;
         if (loaded.IsEmpty)
         {
-            (dates, rows, loading, failure) = (shown, [], false, Failure.None);
+            (dates, rows) = (shown, []);
+            await HideSpinnerIfLatestAsync(current, minimumElapsed);
             return;
         }
 
-        await ReadAsync(shown);
+        await ReadAsync(shown, minimumElapsed);
     }
 
     private Task ShowAsync(DateSpan shown)
     {
         (loading, failure) = (true, Failure.None);
-        return ReadAsync(shown);
+        return ReadAsync(shown, Task.CompletedTask);
     }
 
-    /// <summary>Shows <paramref name="shown"/> and, once read, its rows. Does nothing more once the page is disposed or other dates are chosen.</summary>
-    private async Task ReadAsync(DateSpan shown)
+    /// <summary>Does nothing more once the page is disposed or other dates are chosen.</summary>
+    private async Task ReadAsync(DateSpan shown, Task minimumElapsed)
     {
         var current = ++query;
         dates = shown;
@@ -105,8 +108,18 @@
         }
 
         rows = [.. result.Workouts.Select(w => new WorkoutsRow(w.Id, TimeZoneInfo.ConvertTime(w.StartedAt, Clock.LocalTimeZone).DateTime))];
-        (loading, failure) = (false, result.Failed ? Failure.Range : Failure.None);
+        failure = result.Failed ? Failure.Range : Failure.None;
         expanded &= !result.Failed;
+        await HideSpinnerIfLatestAsync(current, minimumElapsed);
+    }
+
+    private async Task HideSpinnerIfLatestAsync(int current, Task minimumElapsed)
+    {
+        await minimumElapsed;
+        if (!disposed && current == query)
+        {
+            loading = false;
+        }
     }
 
     /// <summary>Loads again when the app comes back on screen. Does nothing once the page is disposed, before or during the load.</summary>

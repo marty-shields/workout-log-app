@@ -16,8 +16,8 @@
                NothingLogged="logged.Count == 0"
                Loading="loading"
                Failed="failed"
-               OnRetry="LoadAsync"
-               OnRefresh="LoadAsync"
+               OnRetry="() => LoadAsync()"
+               OnRefresh="() => LoadAsync(PullRefresh.MinimumSpinner)"
                OnOpen="item => OnOpen.InvokeAsync(item.Id)"
                OnNavigate="OnNavigate" />
 
@@ -52,7 +52,7 @@
     }
 
     /// <summary>Ids not in the catalog are already left out by Core. Does nothing more once the page is disposed.</summary>
-    private async Task LoadAsync()
+    private async Task LoadAsync(TimeSpan minimum = default)
     {
         if (loading)
         {
@@ -61,6 +61,7 @@
 
         loading = true;
         StateHasChanged();
+        var minimumElapsed = Task.Delay(minimum, Clock);
         var result = await LoggedExercises.GetAsync();
         if (disposed)
         {
@@ -73,8 +74,12 @@
             .Select(e => ExerciseListItems.Item(definitions[e.ExerciseId], e, Clock.LocalTimeZone, now))
             .ToList();
         failed = result.Failed;
-        loading = false;
         Find();
+        await minimumElapsed;
+        if (!disposed)
+        {
+            loading = false;
+        }
     }
 
     private void Search(string text)

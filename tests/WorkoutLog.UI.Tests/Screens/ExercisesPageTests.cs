@@ -32,13 +32,14 @@ public class ExercisesPageTests : ComponentTestBase
         .. Logged.Exercises,
     ], Failed: false);
 
+    private FakeTimeProvider clock = null!;
     private FakeLogger<AppLifecycle> lifecycleLogger = null!;
     private AppLifecycle lifecycle = null!;
 
     [SetUp]
     public void SetUp()
     {
-        var clock = new FakeTimeProvider(Now);
+        clock = new FakeTimeProvider(Now);
         clock.SetLocalTimeZone(TimeZoneInfo.CreateCustomTimeZone("UTC+1", TimeSpan.FromHours(1), "UTC+1", "UTC+1"));
         Context.Services.AddSingleton<TimeProvider>(clock);
         LoggedExercises.Result = Logged;
@@ -181,10 +182,10 @@ public class ExercisesPageTests : ComponentTestBase
 
         cut.WaitForAssertion(() => Assert.That(cut.FindAll("[data-testid=exercises-loading]"), Has.Count.EqualTo(1)));
         LoggedExercises.Complete();
-        await started;
 
         cut.WaitForAssertion(() => Assert.That(cut.Find("[data-testid=exercises-row-6] .detail").TextContent, Is.EqualTo("Last Wed 28 Oct · 80kg × 2")));
         Assert.That(LoggedExercises.Loads, Is.EqualTo(2));
+        await started;
     }
 
     [Test]
@@ -243,24 +244,47 @@ public class ExercisesPageTests : ComponentTestBase
     }
 
     [Test]
-    public async Task Refresh_ShowsTheSpinnerThenTheNewValues()
+    public async Task Refresh_FastReload_KeepsTheSpinnerUpForHalfASecond()
     {
         var cut = Context.Render<ExercisesPage>();
-        LoggedExercises.Hold = true;
         LoggedExercises.Result = LoggedAgain;
 
         var refresh = cut.InvokeAsync(cut.FindComponent<AppScreen>().Instance.RefreshAsync);
+        await WaitForRendererAsync();
+        clock.Advance(TimeSpan.FromMilliseconds(499));
+        await WaitForRendererAsync();
 
         Assert.Multiple(() =>
         {
             Assert.That(cut.FindAll("[data-testid=exercises-loading]"), Has.Count.EqualTo(1));
             Assert.That(cut.FindAll("[data-testid^=exercises-row-]"), Is.Empty);
         });
-        LoggedExercises.Complete();
+        clock.Advance(TimeSpan.FromMilliseconds(1));
         await refresh;
         Assert.Multiple(() =>
         {
             Assert.That(cut.FindAll("[data-testid=exercises-loading]"), Is.Empty);
+            Assert.That(cut.Find("[data-testid=exercises-row-6] .detail").TextContent, Is.EqualTo("Last Wed 28 Oct · 80kg × 2"));
+        });
+    }
+
+    [Test]
+    public async Task Refresh_SlowReload_ShowsTheNewValuesAsSoonAsItFinishes()
+    {
+        var cut = Context.Render<ExercisesPage>();
+        LoggedExercises.Hold = true;
+        LoggedExercises.Result = LoggedAgain;
+
+        var refresh = cut.InvokeAsync(cut.FindComponent<AppScreen>().Instance.RefreshAsync);
+        clock.Advance(TimeSpan.FromMilliseconds(800));
+        await WaitForRendererAsync();
+
+        Assert.That(cut.FindAll("[data-testid=exercises-loading]"), Has.Count.EqualTo(1));
+        LoggedExercises.Complete();
+        cut.WaitForAssertion(() => Assert.That(cut.FindAll("[data-testid=exercises-loading]"), Is.Empty));
+        await refresh;
+        Assert.Multiple(() =>
+        {
             Assert.That(cut.Find("[data-testid=exercises-row-6] .detail").TextContent, Is.EqualTo("Last Wed 28 Oct · 80kg × 2"));
         });
     }
@@ -272,7 +296,9 @@ public class ExercisesPageTests : ComponentTestBase
         cut.Find("[data-testid=exercises-search]").Input("curl");
         cut.Find("[data-testid=exercises-filter-strength]").Change(true);
 
-        await cut.InvokeAsync(cut.FindComponent<AppScreen>().Instance.RefreshAsync);
+        var refresh = cut.InvokeAsync(cut.FindComponent<AppScreen>().Instance.RefreshAsync);
+        clock.Advance(TimeSpan.FromMilliseconds(500));
+        await refresh;
 
         Assert.Multiple(() =>
         {
@@ -283,13 +309,21 @@ public class ExercisesPageTests : ComponentTestBase
     }
 
     [Test]
-    public async Task Refresh_Failed_ShowsTheError()
+    public async Task Refresh_Failed_ShowsTheErrorAfterHalfASecond()
     {
         var cut = Context.Render<ExercisesPage>();
         LoggedExercises.Result = new LoggedExercisesResult([], Failed: true);
 
-        await cut.InvokeAsync(cut.FindComponent<AppScreen>().Instance.RefreshAsync);
+        var refresh = cut.InvokeAsync(cut.FindComponent<AppScreen>().Instance.RefreshAsync);
+        await WaitForRendererAsync();
 
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.FindAll("[data-testid=exercises-loading]"), Has.Count.EqualTo(1));
+            Assert.That(cut.FindAll("[data-testid=exercises-error]"), Is.Empty);
+        });
+        clock.Advance(TimeSpan.FromMilliseconds(500));
+        await refresh;
         Assert.That(cut.FindAll("[data-testid=exercises-error]"), Has.Count.EqualTo(1));
     }
 
