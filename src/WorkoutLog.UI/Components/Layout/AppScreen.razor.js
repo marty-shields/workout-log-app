@@ -11,15 +11,11 @@ export function attach(content, indicator, screen) {
 
     const show = (next) => {
         phase = next;
-        if (phase === "idle") {
-            delete indicator.dataset.pull;
-        } else {
-            indicator.dataset.pull = phase;
-        }
-
         if (phase === "pulling") {
+            indicator.dataset.pull = "";
             indicator.style.setProperty("--pull", `${pull}px`);
         } else {
+            delete indicator.dataset.pull;
             indicator.style.removeProperty("--pull");
         }
     };
@@ -55,16 +51,9 @@ export function attach(content, indicator, screen) {
             return;
         }
 
-        if (pull < threshold) {
-            show("idle");
-            return;
-        }
-
-        show("released");
-        try {
+        show("idle");
+        if (pull >= threshold) {
             await screen.invokeMethodAsync("RefreshAsync");
-        } finally {
-            show("idle");
         }
     };
 

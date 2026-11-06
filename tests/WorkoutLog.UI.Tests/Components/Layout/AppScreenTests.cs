@@ -217,33 +217,29 @@ public class AppScreenTests : ComponentTestBase
         {
             attach.Arguments[0].ShouldBeElementReferenceTo(cut.Find("main"));
             attach.Arguments[1].ShouldBeElementReferenceTo(cut.Find("[data-testid=pull-refresh]"));
-            Assert.That(cut.Find("[data-testid=pull-refresh-status]").TextContent, Is.Empty);
         });
     }
 
     [Test]
-    public async Task Refresh_SpinsAndSaysRefreshingUntilOnRefreshFinishes()
+    public async Task Refresh_RunsOnRefreshAndShowsNothingOfItsOwn()
     {
         PullModule();
         var done = new TaskCompletionSource();
         var cut = Context.Render<AppScreen>(p => p
             .Add(x => x.Title, "Exercises")
             .Add(x => x.OnRefresh, () => done.Task));
+        var idle = cut.Markup;
 
         var refresh = cut.InvokeAsync(cut.Instance.RefreshAsync);
 
         Assert.Multiple(() =>
         {
-            Assert.That(cut.Find("[data-testid=pull-refresh]").ClassList, Does.Contain("refreshing"));
-            Assert.That(cut.Find("[data-testid=pull-refresh-status]").TextContent, Is.EqualTo("Refreshing…"));
+            Assert.That(refresh.IsCompleted, Is.False);
+            Assert.That(cut.Markup, Is.EqualTo(idle));
+            Assert.That(cut.FindAll("[role=status]"), Is.Empty);
         });
         done.SetResult();
         await refresh;
-        Assert.Multiple(() =>
-        {
-            Assert.That(cut.Find("[data-testid=pull-refresh]").ClassList, Does.Not.Contain("refreshing"));
-            Assert.That(cut.Find("[data-testid=pull-refresh-status]").TextContent, Is.Empty);
-        });
     }
 
     [Test]
@@ -261,11 +257,12 @@ public class AppScreenTests : ComponentTestBase
             }));
 
         var first = cut.InvokeAsync(cut.Instance.RefreshAsync);
-        await cut.InvokeAsync(cut.Instance.RefreshAsync);
-        done.SetResult();
-        await first;
-        await cut.InvokeAsync(cut.Instance.RefreshAsync);
+        var during = cut.InvokeAsync(cut.Instance.RefreshAsync);
 
+        Assert.That(calls, Is.EqualTo(1));
+        done.SetResult();
+        await Task.WhenAll(first, during);
+        await cut.InvokeAsync(cut.Instance.RefreshAsync);
         Assert.That(calls, Is.EqualTo(2));
     }
 

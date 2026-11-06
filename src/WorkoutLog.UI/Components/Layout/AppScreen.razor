@@ -28,10 +28,9 @@
     }
     @if (OnRefresh.HasDelegate)
     {
-        <div @ref="indicator" class="pull-refresh @(refreshing ? "refreshing" : null)" data-testid="pull-refresh" aria-hidden="true">
+        <div @ref="indicator" class="pull-refresh" data-testid="pull-refresh" aria-hidden="true">
             <span class="ring"></span>
         </div>
-        <span class="visually-hidden" role="status" data-testid="pull-refresh-status">@(refreshing ? "Refreshing…" : null)</span>
     }
     <main @ref="content" class="content">
         @ChildContent
@@ -113,8 +112,9 @@
     public RenderFragment? Status { get; set; }
 
     /// <summary>
-    /// Makes the content pull-to-refresh: pulling it down from the top far enough runs this, and the indicator spins until the
-    /// task finishes. A pull during a refresh is ignored. Read once, when the screen first shows. No gesture when unset.
+    /// Makes the content pull-to-refresh: pulling it down from the top far enough runs this once the finger lifts. The indicator
+    /// shows only while pulling, so the handler shows its own loading state. A pull during a refresh is ignored. Read once, when
+    /// the screen first shows. No gesture when unset.
     /// </summary>
     [Parameter]
     public EventCallback OnRefresh { get; set; }
@@ -147,7 +147,6 @@
         }
 
         refreshing = true;
-        StateHasChanged();
         try
         {
             await OnRefresh.InvokeAsync();
@@ -155,7 +154,6 @@
         finally
         {
             refreshing = false;
-            StateHasChanged();
         }
     }
 
