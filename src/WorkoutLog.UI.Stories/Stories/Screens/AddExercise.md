@@ -4,7 +4,7 @@ $attribute: CustomPage("Screens/Add Exercise/Overview")
 
 # Add Exercise
 
-Add an exercise to the workout. View: `AddExerciseView`, an overlay on `WorkoutView`, built from `ExerciseList` as the [Exercises](./?path=/custom/screens-exercises-overview) screen is. `WorkoutEditor` holds its search, chip and rows, and loads the last sessions through `ILoggedExercisesService.GetAsync` each time it opens.
+Add an exercise to the workout. View: `AddExerciseView`, an overlay on `WorkoutView`, built from `ExerciseSearch` and `ExerciseList` as the [Exercises](./?path=/custom/screens-exercises-overview) screen is. `WorkoutEditor` holds its search, chip and rows, and loads the last sessions through `ILoggedExercisesService.GetAsync` each time it opens.
 
 | Part | Content |
 |---|---|

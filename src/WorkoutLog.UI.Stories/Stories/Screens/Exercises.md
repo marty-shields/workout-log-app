@@ -4,7 +4,7 @@ $attribute: CustomPage("Screens/Exercises/Overview")
 
 # Exercises
 
-The exercises you've logged, opened from the Dashboard. View: `ExercisesView`, built from `ExerciseList` as [Add Exercise](./?path=/custom/screens-add-exercise-overview) is; page: `ExercisesPage`.
+The exercises you've logged, opened from the Dashboard. View: `ExercisesView`, built from `ExerciseSearch` and `ExerciseList` as [Add Exercise](./?path=/custom/screens-add-exercise-overview) is; page: `ExercisesPage`.
 
 `ExercisesPage` loads the exercises through `ILoggedExercisesService.GetAsync` each time it opens, and again when the app comes back on screen or on [pull down to refresh](./?path=/custom/components-layout-overview), and searches and filters them in memory. Each load shows the spinner in place of the list, as on opening, then what was read, or the load error. After a pull the spinner stays up for at least half a second, so a fast reload doesn't blink. The search text and chip stay through a reload. Every row opens its [Exercise](./?path=/custom/screens-exercise-overview) page. Android back, or Dashboard in the navigation bar, returns to the Dashboard; Workouts in the navigation bar opens Workouts.
 

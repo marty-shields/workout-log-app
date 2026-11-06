@@ -15,7 +15,10 @@
         }
         else
         {
-            <ExerciseList Items="Items" Query="@Query" QueryChanged="QueryChanged" Filter="Filter" FilterChanged="FilterChanged" FocusSearch OnPick="OnPick" TestId="exercises" />
+            <div class="tools">
+                <ExerciseSearch Query="@Query" QueryChanged="QueryChanged" Filter="Filter" FilterChanged="FilterChanged" FocusSearch TestId="exercises" />
+            </div>
+            <ExerciseList Items="Items" OnPick="OnPick" TestId="exercises" />
         }
     </div>
 </div>

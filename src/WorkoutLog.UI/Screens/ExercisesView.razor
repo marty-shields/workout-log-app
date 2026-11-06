@@ -17,7 +17,10 @@
     }
     else
     {
-        <ExerciseList Items="Items" Query="@Query" QueryChanged="QueryChanged" Filter="Filter" FilterChanged="FilterChanged" OnPick="OnOpen" TestId="exercises" />
+        <div class="tools">
+            <ExerciseSearch Query="@Query" QueryChanged="QueryChanged" Filter="Filter" FilterChanged="FilterChanged" TestId="exercises" />
+        </div>
+        <ExerciseList Items="Items" OnPick="OnOpen" TestId="exercises" />
     }
 </AppScreen>
 
