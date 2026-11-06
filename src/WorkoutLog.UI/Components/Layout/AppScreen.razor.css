@@ -71,15 +71,16 @@
     border-top-color: var(--color-accent);
     border-radius: var(--radius-round);
     background-color: var(--color-surface);
+    box-shadow: var(--shadow-raised);
     opacity: 0;
-    transform: translateY(calc(-1 * var(--spinner-size)));
-    transition: transform var(--pull-refresh-return-duration) ease-out, opacity var(--pull-refresh-return-duration) ease-out;
+    translate: 0 calc(-1 * var(--spinner-size));
+    transition: translate var(--pull-refresh-return-duration) ease-out, opacity var(--pull-refresh-return-duration) ease-out;
 }
 
 .pull-refresh[data-pull] .ring,
 .refreshing .ring {
     opacity: 1;
-    transform: translateY(calc(var(--pull) - var(--spinner-size)));
+    translate: 0 calc(var(--pull) - var(--spinner-size));
 }
 
 .pull-refresh[data-pull="pulling"] .ring {
@@ -100,7 +101,6 @@
     }
 }
 
-/* rotate, not transform, so the spin doesn't undo the pull's translate. */
 @keyframes pull-spin {
     to {
         rotate: 1turn;
