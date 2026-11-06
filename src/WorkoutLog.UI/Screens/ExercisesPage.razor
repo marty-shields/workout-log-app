@@ -18,7 +18,7 @@
                Failed="failed"
                OnRetry="() => LoadAsync()"
                OnRefresh="() => LoadAsync(PullRefresh.MinimumSpinner)"
-               OnOpen="item => OnOpen.InvokeAsync(item.Id)"
+               OnPick="item => OnOpen.InvokeAsync(item.Id)"
                OnNavigate="OnNavigate" />
 
 @code {

@@ -395,7 +395,7 @@ public static class ScreenStates
 
     private static IReadOnlyList<IElement> AddExercise(
         BunitContext context, string? query, ExerciseFilter filter = ExerciseFilter.All, bool loading = false, bool withLast = true) =>
-        context.Render<AddExerciseView>(p => p
+        context.Render<ExercisesView>(p => p
             .Add(x => x.Items, loading ? [] : SampleData.AddExerciseItems(Catalog(context), query, filter, withLast))
             .Add(x => x.Query, query)
             .Add(x => x.Filter, filter)

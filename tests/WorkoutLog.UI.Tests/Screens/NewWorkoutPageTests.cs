@@ -288,7 +288,7 @@ public class NewWorkoutPageTests : ComponentTestBase
     }
 
     [Test]
-    public void AddExercise_ShowsTheSpinnerUntilTheLastSessionsLoad()
+    public void AddExercise_ShowsTheSpinnerUnderTheSearchUntilTheLastSessionsLoad()
     {
         LoggedExercises.Hold = true;
         LoggedExercises.Result = new LoggedExercisesResult([new LoggedExercise(6, Start.AddDays(-1), null)], Failed: false);
@@ -299,7 +299,8 @@ public class NewWorkoutPageTests : ComponentTestBase
         Assert.Multiple(() =>
         {
             Assert.That(cut.FindAll("[data-testid=exercises-loading]"), Has.Count.EqualTo(1));
-            Assert.That(cut.FindAll("[data-testid=exercises-search]"), Is.Empty);
+            Assert.That(cut.FindAll("[data-testid=exercises-search]"), Has.Count.EqualTo(1));
+            Assert.That(cut.FindAll("[data-testid^=exercises-row-]"), Is.Empty);
         });
         LoggedExercises.Complete();
         cut.WaitForAssertion(() =>
