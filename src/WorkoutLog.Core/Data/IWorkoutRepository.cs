@@ -29,6 +29,9 @@ internal interface IWorkoutRepository
     /// </summary>
     Task<IReadOnlyList<WorkoutSummary>> ListAsync(DateTimeOffset? from = null, DateTimeOffset? to = null, int? limit = null);
 
+    /// <summary>Returns every saved workout's start time, UTC, in no particular order. Reads only the start column.</summary>
+    Task<IReadOnlyList<DateTimeOffset>> ListStartsAsync();
+
     /// <summary>Returns the workout with the latest start, with its exercise ids in position order, or null if there are none.</summary>
     Task<WorkoutOutline?> GetLatestAsync();
 

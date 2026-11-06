@@ -83,7 +83,7 @@ It's built for one person and one phone: no accounts, no sign-up.
 
 ### Progress
 
-- Workouts lists every session; open one to edit or delete it.
+- Workouts opens on the last 3 months, grouped by month. 3M, 6M, 1Y and All change the range in one tap, and the date field picks any day or span of days from a calendar. Open a workout to edit or delete it.
 - Exercises lists every exercise you've logged, with its last session and best.
 - Each exercise has a chart, records and its sessions over 3 months, 6 months, a year or all time:
   - lifts: top set and estimated one-rep max

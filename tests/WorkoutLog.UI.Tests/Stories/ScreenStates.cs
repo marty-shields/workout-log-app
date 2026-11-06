@@ -97,10 +97,17 @@ public static class ScreenStates
         new("Screens/Add Exercise", "Loading", c => AddExercise(c, null, loading: true)),
         new("Screens/Add Exercise", "Load failed", c => AddExercise(c, null, withLast: false)),
 
-        new("Screens/Workouts", "Empty", c => Workouts(c, [], tappable: true)),
-        new("Screens/Workouts", "With workouts", c => Workouts(c, SampleData.WorkoutsRows, tappable: true)),
-        new("Screens/Workouts", "Loading", c => Workouts(c, [], tappable: false, loading: true)),
-        new("Screens/Workouts", "Load failed", c => Workouts(c, [], tappable: false, failed: true)),
+        new("Screens/Workouts", "Empty", c => Workouts(c, WorkoutHistory.None, default, tappable: true)),
+        new("Screens/Workouts", "With workouts", c => Workouts(c, WorkoutSamples, WorkoutSamples.Span(HistoryRange.ThreeMonths), tappable: true)),
+        new("Screens/Workouts", "1Y", c => Workouts(c, WorkoutSamples, WorkoutSamples.Span(HistoryRange.Year), tappable: true)),
+        new("Screens/Workouts", "All", c => Workouts(c, WorkoutSamples, WorkoutSamples.Span(HistoryRange.All), tappable: true)),
+        new("Screens/Workouts", "Dates picked", c => Workouts(c, WorkoutSamples, SampleWorkoutHistory.March2025, tappable: true)),
+        new("Screens/Workouts", "One day", c => Workouts(c, WorkoutSamples, new DateSpan(SampleWorkoutHistory.TwoWorkoutsDay, SampleWorkoutHistory.TwoWorkoutsDay), tappable: true)),
+        new("Screens/Workouts", "Nothing in range", c => Workouts(c, WorkoutSamples, SampleWorkoutHistory.NoWorkouts, tappable: true)),
+        new("Screens/Workouts", "Picking dates", c => Workouts(c, WorkoutSamples, WorkoutSamples.Span(HistoryRange.ThreeMonths), tappable: true, expanded: true)),
+        new("Screens/Workouts", "Picking month", c => Workouts(c, WorkoutSamples, WorkoutSamples.Span(HistoryRange.ThreeMonths), tappable: true, expanded: true, months: true)),
+        new("Screens/Workouts", "Loading", c => Workouts(c, WorkoutHistory.None, default, tappable: false, loading: true)),
+        new("Screens/Workouts", "Load failed", c => Workouts(c, WorkoutHistory.None, default, tappable: false, failed: true)),
 
         new("Screens/Settings", "With workouts", c => Settings(c, 42)),
         new("Screens/Settings", "Dark chosen", c => Settings(c, 42, theme: ThemePreference.Dark)),
@@ -312,11 +319,20 @@ public static class ScreenStates
             .Add(x => x.OnDone, () => { }))
             .FindAll("*");
 
+    private static WorkoutHistory WorkoutSamples => SampleWorkoutHistory.History;
+
     private static IReadOnlyList<IElement> Workouts(
-        BunitContext context, IReadOnlyList<WorkoutsRow> rows, bool tappable, bool loading = false, bool failed = false) =>
+        BunitContext context, WorkoutHistory history, DateSpan dates, bool tappable, bool loading = false, bool failed = false,
+        bool expanded = false, bool months = false) =>
         context.Render<WorkoutsView>(p =>
         {
-            p.Add(x => x.Rows, rows)
+            p.Add(x => x.History, history)
+                .Add(x => x.Rows, history.IsEmpty ? [] : SampleWorkoutHistory.In(dates))
+                .Add(x => x.Dates, dates)
+                .Add(x => x.DatesChanged, (DateSpan _) => { })
+                .Add(x => x.Expanded, expanded)
+                .Add(x => x.ExpandedChanged, (bool _) => { })
+                .Add(x => x.OpenOnMonths, months)
                 .Add(x => x.Loading, loading)
                 .Add(x => x.Failed, failed)
                 .Add(x => x.OnRetry, () => { })

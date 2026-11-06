@@ -29,6 +29,8 @@ public class GatedWorkoutRepositoryMockTests
         inner.Setup(r => r.GetAsync(3)).ReturnsAsync(stored);
         inner.Setup(r => r.GetAllAsync()).ReturnsAsync(all);
         inner.Setup(r => r.ListAsync(Start, Start, 5)).ReturnsAsync(summaries);
+        IReadOnlyList<DateTimeOffset> starts = [Start];
+        inner.Setup(r => r.ListStartsAsync()).ReturnsAsync(starts);
         inner.Setup(r => r.GetLatestAsync()).ReturnsAsync(outline);
         inner.Setup(r => r.ListTalliesAsync(Start, Start.AddDays(1))).ReturnsAsync(tallies);
         inner.Setup(r => r.GetWeightsAsync(1, Start)).ReturnsAsync(weights);
@@ -44,6 +46,7 @@ public class GatedWorkoutRepositoryMockTests
         Assert.That(await gated.GetAsync(3), Is.SameAs(stored));
         Assert.That(await gated.GetAllAsync(), Is.SameAs(all));
         Assert.That(await gated.ListAsync(Start, Start, 5), Is.SameAs(summaries));
+        Assert.That(await gated.ListStartsAsync(), Is.SameAs(starts));
         Assert.That(await gated.GetLatestAsync(), Is.SameAs(outline));
         Assert.That(await gated.ListTalliesAsync(Start, Start.AddDays(1)), Is.SameAs(tallies));
         Assert.That(await gated.GetWeightsAsync(1, Start), Is.SameAs(weights));
@@ -61,6 +64,7 @@ public class GatedWorkoutRepositoryMockTests
     [TestCase("Get", nameof(IWorkoutRepository.GetAsync))]
     [TestCase("GetAll", nameof(IWorkoutRepository.GetAllAsync))]
     [TestCase("List", nameof(IWorkoutRepository.ListAsync))]
+    [TestCase("Starts", nameof(IWorkoutRepository.ListStartsAsync))]
     [TestCase("Latest", nameof(IWorkoutRepository.GetLatestAsync))]
     [TestCase("Tallies", nameof(IWorkoutRepository.ListTalliesAsync))]
     [TestCase("Weights", nameof(IWorkoutRepository.GetWeightsAsync))]
@@ -84,6 +88,7 @@ public class GatedWorkoutRepositoryMockTests
             "Get" => gated.GetAsync(1),
             "GetAll" => gated.GetAllAsync(),
             "List" => gated.ListAsync(),
+            "Starts" => gated.ListStartsAsync(),
             "Latest" => gated.GetLatestAsync(),
             "Tallies" => gated.ListTalliesAsync(Start, Start),
             "Weights" => gated.GetWeightsAsync(1, null),

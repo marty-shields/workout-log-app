@@ -1,3 +1,4 @@
+@using WorkoutLog.Core.Domain
 @using WorkoutLog.UI.Models.Workouts
 @attribute [Stories("Screens/Workouts")]
 
@@ -5,26 +6,72 @@
 
     <Story Name="Empty">
         <Template>
-            <WorkoutsView Rows="[]" OnOpen="(WorkoutsRow _) => { }" />
+            <WorkoutsView OnOpen="(WorkoutsRow _) => { }" />
         </Template>
     </Story>
 
     <Story Name="With workouts">
         <Template>
-            <WorkoutsView Rows="SampleData.WorkoutsRows" OnOpen="(WorkoutsRow _) => { }" />
+            <WorkoutsView History="History" Rows="SampleWorkoutHistory.In(History.Span(HistoryRange.ThreeMonths))" Dates="History.Span(HistoryRange.ThreeMonths)" OnOpen="(WorkoutsRow _) => { }" />
+        </Template>
+    </Story>
+
+    <Story Name="1Y">
+        <Template>
+            <WorkoutsView History="History" Rows="SampleWorkoutHistory.In(History.Span(HistoryRange.Year))" Dates="History.Span(HistoryRange.Year)" OnOpen="(WorkoutsRow _) => { }" />
+        </Template>
+    </Story>
+
+    <Story Name="All">
+        <Template>
+            <WorkoutsView History="History" Rows="SampleWorkoutHistory.In(History.Span(HistoryRange.All))" Dates="History.Span(HistoryRange.All)" OnOpen="(WorkoutsRow _) => { }" />
+        </Template>
+    </Story>
+
+    <Story Name="Dates picked">
+        <Template>
+            <WorkoutsView History="History" Rows="SampleWorkoutHistory.In(SampleWorkoutHistory.March2025)" Dates="SampleWorkoutHistory.March2025" OnOpen="(WorkoutsRow _) => { }" />
+        </Template>
+    </Story>
+
+    <Story Name="One day">
+        <Template>
+            <WorkoutsView History="History" Rows="SampleWorkoutHistory.In(new DateSpan(SampleWorkoutHistory.TwoWorkoutsDay, SampleWorkoutHistory.TwoWorkoutsDay))" Dates="new DateSpan(SampleWorkoutHistory.TwoWorkoutsDay, SampleWorkoutHistory.TwoWorkoutsDay)" OnOpen="(WorkoutsRow _) => { }" />
+        </Template>
+    </Story>
+
+    <Story Name="Nothing in range">
+        <Template>
+            <WorkoutsView History="History" Rows="SampleWorkoutHistory.In(SampleWorkoutHistory.NoWorkouts)" Dates="SampleWorkoutHistory.NoWorkouts" OnOpen="(WorkoutsRow _) => { }" />
+        </Template>
+    </Story>
+
+    <Story Name="Picking dates">
+        <Template>
+            <WorkoutsView History="History" Rows="SampleWorkoutHistory.In(History.Span(HistoryRange.ThreeMonths))" Dates="History.Span(HistoryRange.ThreeMonths)" Expanded OnOpen="(WorkoutsRow _) => { }" />
+        </Template>
+    </Story>
+
+    <Story Name="Picking month">
+        <Template>
+            <WorkoutsView History="History" Rows="SampleWorkoutHistory.In(History.Span(HistoryRange.ThreeMonths))" Dates="History.Span(HistoryRange.ThreeMonths)" Expanded OpenOnMonths OnOpen="(WorkoutsRow _) => { }" />
         </Template>
     </Story>
 
     <Story Name="Loading">
         <Template>
-            <WorkoutsView Rows="[]" Loading OnOpen="(WorkoutsRow _) => { }" />
+            <WorkoutsView Loading OnOpen="(WorkoutsRow _) => { }" />
         </Template>
     </Story>
 
     <Story Name="Load failed">
         <Template>
-            <WorkoutsView Rows="[]" Failed OnRetry="() => { }" OnOpen="(WorkoutsRow _) => { }" />
+            <WorkoutsView Failed OnRetry="() => { }" OnOpen="(WorkoutsRow _) => { }" />
         </Template>
     </Story>
 
 </Stories>
+
+@code {
+    private static WorkoutHistory History => SampleWorkoutHistory.History;
+}

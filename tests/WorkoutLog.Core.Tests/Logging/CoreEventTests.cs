@@ -34,6 +34,8 @@ public class CoreEventTests
             [CoreEvent.WorkoutDeleteFailed] = 1211,
             [CoreEvent.WorkoutsLoaded] = 1301,
             [CoreEvent.WorkoutsLoadFailed] = 1302,
+            [CoreEvent.WorkoutDaysLoaded] = 1303,
+            [CoreEvent.WorkoutDaysLoadFailed] = 1304,
             [CoreEvent.LastWorkoutLoaded] = 1410,
             [CoreEvent.LastWorkoutLoadFailed] = 1411,
             [CoreEvent.LastWorkoutUnknownExercise] = 1412,

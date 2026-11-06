@@ -36,6 +36,12 @@
     font-variant-numeric: tabular-nums;
 }
 
+.toolbar {
+    flex: 0 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+}
+
 .content {
     flex: 1;
     overflow-y: auto;

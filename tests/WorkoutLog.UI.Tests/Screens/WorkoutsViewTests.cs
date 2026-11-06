@@ -1,30 +1,193 @@
+using WorkoutLog.Core.Domain;
 using WorkoutLog.UI.Models.Workouts;
 using WorkoutLog.UI.Navigation;
 using WorkoutLog.UI.Screens;
+using WorkoutLog.UI.Tests.Models.Workouts;
 
 namespace WorkoutLog.UI.Tests.Screens;
 
 public class WorkoutsViewTests : ComponentTestBase
 {
-    private static readonly WorkoutsRow[] Rows =
+    private static readonly DateOnly Today = new(2026, 11, 6);
+
+    private static readonly WorkoutsRow[] All =
     [
-        new(2, new DateTime(2026, 10, 20, 18, 5, 0)),
-        new(1, new DateTime(2026, 10, 20, 7, 30, 0)),
+        new(5, new DateTime(2026, 11, 5, 18, 5, 0)),
+        new(4, new DateTime(2026, 11, 2, 7, 30, 0)),
+        new(3, new DateTime(2026, 10, 20, 18, 5, 0)),
+        new(2, new DateTime(2026, 5, 1, 17, 0, 0)),
+        new(1, new DateTime(2025, 3, 12, 18, 0, 0)),
     ];
 
-    [Test]
-    public void Rows_ShowDayDateAndStartTimeInGivenOrder()
-    {
-        var cut = Context.Render<WorkoutsView>(p => p.Add(x => x.Rows, Rows));
+    private static readonly WorkoutHistory History = Histories.Of(All, Today);
 
-        Assert.That(cut.FindAll(".text").Select(t => t.TextContent),
-            Is.EqualTo(new[] { "Tue 20 Oct 2026 · 18:05", "Tue 20 Oct 2026 · 07:30" }));
+    private static readonly DateSpan ThreeMonths = History.Span(HistoryRange.ThreeMonths);
+
+    [Test]
+    public void Rows_ShowDayDateAndStartTimeWithoutTheYearInGivenOrder()
+    {
+        var cut = Render(ThreeMonths);
+
+        Assert.That(cut.FindAll(".rows .text").Select(t => t.TextContent),
+            Is.EqualTo(new[] { "Thu 5 Nov · 18:05", "Mon 2 Nov · 07:30", "Tue 20 Oct · 18:05" }));
+    }
+
+    [Test]
+    public void Rows_SitUnderAHeaderPerMonthWithItsCount()
+    {
+        var cut = Render(ThreeMonths);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.FindAll("h2.month-title").Select(h => $"{h.Children[0].TextContent} · {h.Children[1].TextContent}"),
+                Is.EqualTo(new[] { "November 2026 · 2 workouts", "October 2026 · 1 workout" }));
+            Assert.That(cut.FindAll("[data-testid=workouts-month-2026-11] ~ .rows [data-testid^=workouts-row-]").Select(r => r.GetAttribute("data-testid")),
+                Is.EqualTo(new[] { "workouts-row-5", "workouts-row-4" }));
+        });
+    }
+
+    [Test]
+    public void Dates_ShowOnlyTheWorkoutsInThem()
+    {
+        var cut = Render(History.Span(HistoryRange.Year));
+
+        Assert.That(cut.FindAll("[data-testid^=workouts-row-]").Select(r => r.GetAttribute("data-testid")),
+            Is.EqualTo(new[] { "workouts-row-5", "workouts-row-4", "workouts-row-3", "workouts-row-2" }));
+    }
+
+    [TestCase(HistoryRange.ThreeMonths, "workouts-range-3m")]
+    [TestCase(HistoryRange.SixMonths, "workouts-range-6m")]
+    [TestCase(HistoryRange.Year, "workouts-range-1y")]
+    [TestCase(HistoryRange.All, "workouts-range-all")]
+    public void DatesOfARange_CheckItsSegment(HistoryRange range, string testId)
+    {
+        var cut = Render(History.Span(range));
+
+        Assert.That(cut.FindAll("[data-testid=workouts-range] input[checked]").Select(i => i.GetAttribute("data-testid")), Is.EqualTo(new[] { testId }));
+    }
+
+    [Test]
+    public void DatesPicked_CheckNoSegment()
+    {
+        var cut = Render(new DateSpan(new(2026, 10, 1), Today));
+
+        Assert.That(cut.FindAll("[data-testid=workouts-range] input[checked]"), Is.Empty);
+    }
+
+    [Test]
+    public void Segments_ReadAsWordsToScreenReaders()
+    {
+        var cut = Render(ThreeMonths);
+
+        Assert.That(cut.FindAll("[data-testid=workouts-range] input").Select(i => i.GetAttribute("aria-label")),
+            Is.EqualTo(new[] { "Last 3 months", "Last 6 months", "Last year", "All workouts" }));
+    }
+
+    [Test]
+    public void TappingASegment_RaisesDatesChangedWithItsRangeUpToToday()
+    {
+        var changed = new List<DateSpan>();
+        var cut = Render(ThreeMonths, p => p.Add(x => x.DatesChanged, (DateSpan d) => changed.Add(d)));
+
+        cut.Find("[data-testid=workouts-range-1y]").Change(true);
+        cut.Find("[data-testid=workouts-range-all]").Change(true);
+
+        Assert.That(changed, Is.EqualTo(new[] { new DateSpan(new(2025, 11, 6), Today), new DateSpan(new(2025, 3, 12), Today) }));
+    }
+
+    [Test]
+    public void Field_ShowsTheDatesAndTheirCount()
+    {
+        var cut = Render(ThreeMonths);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.Find("[data-testid=workouts-dates-dates]").TextContent, Is.EqualTo("6 Aug – 6 Nov 2026"));
+            Assert.That(cut.Find("[data-testid=workouts-dates-count]").TextContent, Is.EqualTo("3"));
+        });
+    }
+
+    [Test]
+    public void NotAll_EndsWithTheHiddenNoteAndShowAll()
+    {
+        var changed = new List<DateSpan>();
+        var cut = Render(ThreeMonths, p => p.Add(x => x.DatesChanged, (DateSpan d) => changed.Add(d)));
+
+        Assert.That(cut.Find("[data-testid=workouts-hidden]").TextContent, Does.Contain("Workouts outside these dates are hidden"));
+
+        cut.Find("[data-testid=workouts-show-all]").Click();
+
+        Assert.That(changed, Is.EqualTo(new[] { new DateSpan(new(2025, 3, 12), Today) }));
+    }
+
+    [Test]
+    public void All_HasNoHiddenNote()
+    {
+        var cut = Render(History.Span(HistoryRange.All));
+
+        Assert.That(cut.FindAll("[data-testid=workouts-hidden]"), Is.Empty);
+    }
+
+    [Test]
+    public void NothingHidden_HasNoHiddenNoteEvenOn3M()
+    {
+        WorkoutsRow[] rows = [new(1, new DateTime(2026, 10, 20, 18, 5, 0))];
+        var recent = Histories.Of(rows, Today);
+        var cut = Context.Render<WorkoutsView>(p => p.Add(x => x.History, recent).Add(x => x.Rows, rows).Add(x => x.Dates, recent.Span(HistoryRange.ThreeMonths)));
+
+        Assert.That(cut.FindAll("[data-testid=workouts-hidden]"), Is.Empty);
+    }
+
+    [TestCase(2026, 9, 1, 2026, 9, 30, "No workouts between these dates")]
+    [TestCase(2026, 11, 4, 2026, 11, 4, "No workout on this day")]
+    public void NothingInTheDates_SaysSoWithChangeDates(int fromYear, int fromMonth, int fromDay, int toYear, int toMonth, int toDay, string message)
+    {
+        var expanded = new List<bool>();
+        var cut = Render(new DateSpan(new(fromYear, fromMonth, fromDay), new(toYear, toMonth, toDay)), p => p.Add(x => x.ExpandedChanged, expanded.Add));
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.Find("[data-testid=workouts-none-message]").TextContent, Is.EqualTo(message));
+            Assert.That(cut.FindAll(".rows"), Is.Empty);
+            Assert.That(cut.FindAll("[data-testid=workouts-hidden]"), Is.Empty);
+        });
+
+        cut.Find("[data-testid=workouts-change-dates]").Click();
+
+        Assert.That(expanded, Is.EqualTo(new[] { true }));
+    }
+
+    [Test]
+    public void Expanded_ShowsTheCalendarInsteadOfTheSegmentsAndRows()
+    {
+        var cut = Render(ThreeMonths, p => p.Add(x => x.Expanded, true));
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.Find("[data-testid=workouts-dates]").GetAttribute("aria-expanded"), Is.EqualTo("true"));
+            Assert.That(cut.FindAll("[data-testid=range-calendar]"), Has.Count.EqualTo(1));
+            Assert.That(cut.FindAll("[data-testid=workouts-range]"), Is.Empty);
+            Assert.That(cut.FindAll(".rows"), Is.Empty);
+            Assert.That(cut.FindAll("[data-testid=workouts-hidden]"), Is.Empty);
+        });
+    }
+
+    [Test]
+    public void NoWorkouts_HasNoFieldOrSegments()
+    {
+        var cut = Context.Render<WorkoutsView>(p => p.Add(x => x.History, new WorkoutHistory(new Dictionary<DateOnly, int>(), Today)));
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.FindAll("[data-testid=workouts-dates]"), Is.Empty);
+            Assert.That(cut.FindAll("[data-testid=workouts-range]"), Is.Empty);
+        });
     }
 
     [Test]
     public void NoRows_ShowsNoWorkoutsYet()
     {
-        var cut = Context.Render<WorkoutsView>(p => p.Add(x => x.Rows, []));
+        var cut = Context.Render<WorkoutsView>(p => p.Add(x => x.History, new WorkoutHistory(new Dictionary<DateOnly, int>(), Today)));
 
         Assert.Multiple(() =>
         {
@@ -37,19 +200,17 @@ public class WorkoutsViewTests : ComponentTestBase
     public void WithOnOpen_TappingRowRaisesIt()
     {
         WorkoutsRow? opened = null;
-        var cut = Context.Render<WorkoutsView>(p => p
-            .Add(x => x.Rows, Rows)
-            .Add(x => x.OnOpen, (WorkoutsRow row) => opened = row));
+        var cut = Render(ThreeMonths, p => p.Add(x => x.OnOpen, (WorkoutsRow row) => opened = row));
 
-        cut.Find("[data-testid=workouts-row-1]").Click();
+        cut.Find("[data-testid=workouts-row-4]").Click();
 
-        Assert.That(opened, Is.EqualTo(Rows[1]));
+        Assert.That(opened, Is.EqualTo(All[1]));
     }
 
     [Test]
     public void Loading_ShowsTheSpinnerOnly()
     {
-        var cut = Context.Render<WorkoutsView>(p => p.Add(x => x.Rows, Rows).Add(x => x.Loading, true));
+        var cut = Context.Render<WorkoutsView>(p => p.Add(x => x.Loading, true));
 
         Assert.Multiple(() =>
         {
@@ -57,14 +218,29 @@ public class WorkoutsViewTests : ComponentTestBase
             Assert.That(cut.FindAll(".rows"), Is.Empty);
             Assert.That(cut.FindAll("[data-testid=workouts-empty]"), Is.Empty);
             Assert.That(cut.FindAll("[data-testid=workouts-error]"), Is.Empty);
+            Assert.That(cut.FindAll("[data-testid=workouts-dates]"), Is.Empty);
             Assert.That(cut.FindAll("[data-testid=bottom-nav]"), Has.Count.EqualTo(1));
+        });
+    }
+
+    [Test]
+    public void LoadingNewDates_KeepsTheDatesAndSegmentsOverTheSpinner()
+    {
+        var cut = Render(ThreeMonths, p => p.Add(x => x.Loading, true));
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.FindAll("[data-testid=workouts-loading]"), Has.Count.EqualTo(1));
+            Assert.That(cut.FindAll(".rows"), Is.Empty);
+            Assert.That(cut.Find("[data-testid=workouts-dates-dates]").TextContent, Is.EqualTo("6 Aug – 6 Nov 2026"));
+            Assert.That(cut.FindAll("[data-testid=workouts-range]"), Has.Count.EqualTo(1));
         });
     }
 
     [Test]
     public void Failed_ShowsTheErrorAndTryAgainInsteadOfTheRows()
     {
-        var cut = Context.Render<WorkoutsView>(p => p.Add(x => x.Rows, []).Add(x => x.Failed, true));
+        var cut = Context.Render<WorkoutsView>(p => p.Add(x => x.Failed, true));
 
         Assert.Multiple(() =>
         {
@@ -80,7 +256,6 @@ public class WorkoutsViewTests : ComponentTestBase
     {
         var retries = 0;
         var cut = Context.Render<WorkoutsView>(p => p
-            .Add(x => x.Rows, [])
             .Add(x => x.Failed, true)
             .Add(x => x.OnRetry, () => retries++));
 
@@ -92,7 +267,7 @@ public class WorkoutsViewTests : ComponentTestBase
     [Test]
     public void Failed_FocusesTryAgain()
     {
-        var cut = Context.Render<WorkoutsView>(p => p.Add(x => x.Rows, []).Add(x => x.Failed, true));
+        var cut = Context.Render<WorkoutsView>(p => p.Add(x => x.Failed, true));
 
         cut.WaitForAssertion(() => Focuses().Single().Arguments[0]
             .ShouldBeElementReferenceTo(cut.Find("[data-testid=workouts-retry]")));
@@ -101,7 +276,7 @@ public class WorkoutsViewTests : ComponentTestBase
     [Test]
     public void Failed_RenderedAgain_DoesNotFocusAgain()
     {
-        var cut = Context.Render<WorkoutsView>(p => p.Add(x => x.Rows, []).Add(x => x.Failed, true));
+        var cut = Context.Render<WorkoutsView>(p => p.Add(x => x.Failed, true));
         cut.WaitForAssertion(() => Assert.That(Focuses(), Has.Count.EqualTo(1)));
 
         cut.Render(p => p.Add(x => x.Failed, true));
@@ -112,7 +287,7 @@ public class WorkoutsViewTests : ComponentTestBase
     [Test]
     public void FailedAfterLoading_FocusesTryAgainAgain()
     {
-        var cut = Context.Render<WorkoutsView>(p => p.Add(x => x.Rows, []).Add(x => x.Failed, true));
+        var cut = Context.Render<WorkoutsView>(p => p.Add(x => x.Failed, true));
         cut.WaitForAssertion(() => Assert.That(Focuses(), Has.Count.EqualTo(1)));
 
         cut.Render(p => p.Add(x => x.Loading, true));
@@ -124,7 +299,7 @@ public class WorkoutsViewTests : ComponentTestBase
     [Test]
     public void IsTopLevel_WithNoBackArrowAndItsNavigationItemCurrent()
     {
-        var cut = Context.Render<WorkoutsView>(p => p.Add(x => x.Rows, Rows));
+        var cut = Render(ThreeMonths);
 
         Assert.Multiple(() =>
         {
@@ -137,7 +312,7 @@ public class WorkoutsViewTests : ComponentTestBase
     public async Task AndroidBack_NavigatesToTheDashboard()
     {
         var navigated = new List<NavDestination>();
-        var cut = Context.Render<WorkoutsView>(p => p.Add(x => x.Rows, Rows).Add(x => x.OnNavigate, navigated.Add));
+        var cut = Render(ThreeMonths, p => p.Add(x => x.OnNavigate, navigated.Add));
 
         await cut.InvokeAsync(BackButton.HandleAsync);
 
@@ -148,12 +323,38 @@ public class WorkoutsViewTests : ComponentTestBase
     public void NavigationBar_RaisesOnNavigate()
     {
         var navigated = new List<NavDestination>();
-        var cut = Context.Render<WorkoutsView>(p => p.Add(x => x.Rows, Rows).Add(x => x.OnNavigate, navigated.Add));
+        var cut = Render(ThreeMonths, p => p.Add(x => x.OnNavigate, navigated.Add));
 
         cut.Find("[data-testid=exercises-link]").Click();
 
         Assert.That(navigated, Is.EqualTo(new[] { NavDestination.Exercises }));
     }
+
+    [Test]
+    public async Task AndroidBack_WhileExpanded_ClosesTheCalendarAndStays()
+    {
+        var navigated = new List<NavDestination>();
+        var expanded = new List<bool>();
+        var cut = Render(ThreeMonths, p => p
+            .Add(x => x.Expanded, true)
+            .Add(x => x.ExpandedChanged, expanded.Add)
+            .Add(x => x.OnNavigate, navigated.Add));
+
+        await cut.InvokeAsync(BackButton.HandleAsync);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(expanded, Is.EqualTo(new[] { false }));
+            Assert.That(navigated, Is.Empty);
+        });
+    }
+
+    private IRenderedComponent<WorkoutsView> Render(DateSpan dates, Action<ComponentParameterCollectionBuilder<WorkoutsView>>? more = null) =>
+        Context.Render<WorkoutsView>(p =>
+        {
+            p.Add(x => x.History, History).Add(x => x.Rows, Histories.In(All, dates)).Add(x => x.Dates, dates);
+            more?.Invoke(p);
+        });
 
     private IReadOnlyList<JSRuntimeInvocation> Focuses() =>
         Context.JSInterop.Invocations["Blazor._internal.domWrapper.focus"];

@@ -1,4 +1,5 @@
 using System.Globalization;
+using WorkoutLog.UI.Models.Workouts;
 
 namespace WorkoutLog.UI.Tests;
 
@@ -44,4 +45,29 @@ public class DisplayFormatTests
     [TestCase(1, 2, 30, "1:02:30")]
     public void Clock_MinutesAndSecondsOrHoursFromAnHour(int hours, int minutes, int seconds, string expected) =>
         Assert.That(DisplayFormat.Clock(new TimeSpan(hours, minutes, seconds)), Is.EqualTo(expected));
+
+    [TestCase(2026, 8, 6, 2026, 11, 6, "6 Aug – 6 Nov 2026")]
+    [TestCase(2025, 3, 1, 2025, 3, 31, "1 Mar – 31 Mar 2025")]
+    [TestCase(2025, 11, 6, 2026, 11, 6, "6 Nov 2025 – 6 Nov 2026")]
+    [TestCase(2025, 3, 12, 2025, 3, 12, "Wed 12 Mar 2025")]
+    public void Dates_DropTheFirstYearWithinAYearAndShowTheDayForOneDay(int fromYear, int fromMonth, int fromDay, int toYear, int toMonth, int toDay, string expected) =>
+        Assert.That(DisplayFormat.Dates(new DateSpan(new(fromYear, fromMonth, fromDay), new(toYear, toMonth, toDay))), Is.EqualTo(expected));
+
+    [Test]
+    public void DayAndTime_HasNoYear() =>
+        Assert.That(DisplayFormat.DayAndTime(new DateTime(2026, 11, 5, 18, 5, 0)), Is.EqualTo("Thu 5 Nov · 18:05"));
+
+    [Test]
+    public void Day_HasNoYear() => Assert.That(DisplayFormat.Day(new DateOnly(2025, 3, 12)), Is.EqualTo("Wed 12 Mar"));
+
+    [Test]
+    public void DayShortYear_HasTwoYearDigits() => Assert.That(DisplayFormat.DayShortYear(new DateOnly(2025, 3, 12)), Is.EqualTo("Wed 12 Mar 25"));
+
+    [Test]
+    public void Month_IsItsNameAndYear() => Assert.That(DisplayFormat.Month(2026, 11), Is.EqualTo("November 2026"));
+
+    [TestCase(0, "0 workouts")]
+    [TestCase(1, "1 workout")]
+    [TestCase(38, "38 workouts")]
+    public void Workouts_IsSingularOnlyForOne(int count, string expected) => Assert.That(DisplayFormat.Workouts(count), Is.EqualTo(expected));
 }

@@ -1,14 +1,20 @@
+@using WorkoutLog.Core.Domain
 @using WorkoutLog.Core.Services
 @using WorkoutLog.UI.Models.Workouts
 @inject IWorkoutsService Workouts
 @inject TimeProvider Clock
 
-<WorkoutsView Rows="rows" Loading="loading" Failed="failed" OnRetry="LoadAsync" OnOpen="row => OnOpen.InvokeAsync(row.Id)" OnNavigate="OnNavigate" />
+<WorkoutsView History="History" Rows="rows" Dates="dates" DatesChanged="ShowAsync" @bind-Expanded="expanded" Loading="loading" Failed="failed"
+              OnRetry="LoadAsync" OnOpen="row => OnOpen.InvokeAsync(row.Id)" OnNavigate="OnNavigate" />
 
 @code {
+    private WorkoutHistory? loaded;
     private IReadOnlyList<WorkoutsRow> rows = [];
+    private DateSpan dates;
+    private bool expanded;
     private bool loading;
     private bool failed;
+    private int query;
 
     /// <summary>Raised with the workout id when a row is tapped.</summary>
     [Parameter]
@@ -18,8 +24,11 @@
     [Parameter]
     public EventCallback<NavDestination> OnNavigate { get; set; }
 
+    private WorkoutHistory History => loaded ?? WorkoutHistory.None;
+
     protected override Task OnInitializedAsync() => LoadAsync();
 
+    // The per-day counts load once; Try again after a failed range read reads only that range again.
     private async Task LoadAsync()
     {
         if (loading)
@@ -27,13 +36,43 @@
             return;
         }
 
-        loading = true;
+        if (loaded is null)
+        {
+            loading = true;
+            failed = false;
+            StateHasChanged();
+            var days = await Workouts.GetDaysAsync();
+            if (days.Failed)
+            {
+                (loading, failed) = (false, true);
+                return;
+            }
+
+            loaded = new WorkoutHistory(days.PerDay, DateOnly.FromDateTime(TimeZoneInfo.ConvertTime(Clock.GetUtcNow(), Clock.LocalTimeZone).DateTime));
+            dates = loaded.Span(HistoryRange.ThreeMonths);
+            if (loaded.IsEmpty)
+            {
+                loading = false;
+                return;
+            }
+        }
+
+        await ShowAsync(dates);
+    }
+
+    private async Task ShowAsync(DateSpan shown)
+    {
+        var current = ++query;
+        (dates, loading, failed) = (shown, true, false);
         StateHasChanged();
-        var result = await Workouts.GetAllAsync();
-        rows = result.Workouts
-            .Select(w => new WorkoutsRow(w.Id, TimeZoneInfo.ConvertTime(w.StartedAt, Clock.LocalTimeZone).DateTime))
-            .ToList();
-        failed = result.Failed;
-        loading = false;
+        var result = await Workouts.GetBetweenAsync(shown.From, shown.To);
+        if (current != query)
+        {
+            return;
+        }
+
+        rows = [.. result.Workouts.Select(w => new WorkoutsRow(w.Id, TimeZoneInfo.ConvertTime(w.StartedAt, Clock.LocalTimeZone).DateTime))];
+        (loading, failed) = (false, result.Failed);
+        expanded &= !failed;
     }
 }
