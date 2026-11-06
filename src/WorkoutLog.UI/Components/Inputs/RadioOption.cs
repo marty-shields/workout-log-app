@@ -5,4 +5,7 @@ namespace WorkoutLog.UI.Components.Inputs;
 /// <param name="Label">Text of the choice.</param>
 /// <param name="TestId">Value of the radio's data-testid attribute.</param>
 /// <param name="Hint">Smaller text under the label.</param>
-public sealed record RadioOption<TValue>(TValue Value, string Label, string TestId, string? Hint = null);
+/// <param name="AriaLabel">
+/// Name screen readers read instead of <paramref name="Label"/>, for a short label such as 3M. Only <see cref="SegmentedControl{TValue}"/> uses it.
+/// </param>
+public sealed record RadioOption<TValue>(TValue Value, string Label, string TestId, string? Hint = null, string? AriaLabel = null);

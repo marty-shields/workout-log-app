@@ -20,6 +20,12 @@
         </Template>
     </Story>
 
+    <Story Name="None chosen">
+        <Template>
+            <SegmentedControl TValue="string" Label="Range" Options="Four" Value="@("custom")" ValueChanged="(string _) => { }" TestId="exercise-range" />
+        </Template>
+    </Story>
+
 </Stories>
 
 @code {

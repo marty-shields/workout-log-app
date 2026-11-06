@@ -36,6 +36,30 @@ public class SegmentedControlTests : ComponentTestBase
     }
 
     [Test]
+    public void Value_MatchingNoOption_ChecksNone()
+    {
+        var cut = Render(value: 4);
+
+        Assert.That(cut.FindAll("input").Select(i => i.HasAttribute("checked")), Is.EqualTo(new[] { false, false, false }));
+    }
+
+    [Test]
+    public void AriaLabel_NamesItsRadioAndOthersKeepTheirLabel()
+    {
+        var cut = Context.Render<SegmentedControl<int>>(p => p
+            .Add(x => x.Label, "Range")
+            .Add(x => x.Options, [new RadioOption<int>(1, "3M", "three", AriaLabel: "Last 3 months"), new RadioOption<int>(2, "All", "all")])
+            .Add(x => x.Value, 1));
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.Find("[data-testid=three]").GetAttribute("aria-label"), Is.EqualTo("Last 3 months"));
+            Assert.That(cut.Find("[data-testid=all]").HasAttribute("aria-label"), Is.False);
+            Assert.That(cut.FindAll(".text").Select(t => t.TextContent), Is.EqualTo(new[] { "3M", "All" }));
+        });
+    }
+
+    [Test]
     public void Options_ShareOneNamePerControl()
     {
         var first = Render(value: 1);

@@ -106,6 +106,15 @@ public class ExerciseViewTests : ComponentTestBase
     }
 
     [Test]
+    public void Ranges_ReadAsWordsToScreenReaders()
+    {
+        var cut = Render(SampleExercises.LiftTopSet);
+
+        Assert.That(cut.FindAll("[data-testid=exercise-range] input").Select(i => i.GetAttribute("aria-label")),
+            Is.EqualTo(new[] { "Last 3 months", "Last 6 months", "Last year", "All workouts" }));
+    }
+
+    [Test]
     public void TappingARange_RaisesRangeChanged()
     {
         var changed = new List<HistoryRange>();
