@@ -1,0 +1,26 @@
+using WorkoutLog.Core.Domain;
+
+namespace WorkoutLog.Core.Tests.Domain;
+
+public class HistoryRangeStartTests
+{
+    [TestCase(HistoryRange.ThreeMonths, 2026, 8, 6)]
+    [TestCase(HistoryRange.SixMonths, 2026, 5, 6)]
+    [TestCase(HistoryRange.Year, 2025, 11, 6)]
+    public void From_IsTodayMinusCalendarMonths(HistoryRange range, int year, int month, int day) =>
+        Assert.That(range.From(new DateOnly(2026, 11, 6)), Is.EqualTo(new DateOnly(year, month, day)));
+
+    [TestCase(HistoryRange.ThreeMonths, 2026, 2, 28)]
+    [TestCase(HistoryRange.SixMonths, 2025, 11, 30)]
+    [TestCase(HistoryRange.Year, 2025, 5, 31)]
+    public void From_EndOfALongMonth_IsTheLastDayOfTheShorterMonth(HistoryRange range, int year, int month, int day) =>
+        Assert.That(range.From(new DateOnly(2026, 5, 31)), Is.EqualTo(new DateOnly(year, month, day)));
+
+    [Test]
+    public void From_LeapDay_IsTheLastDayOfFebruaryAYearBack() =>
+        Assert.That(HistoryRange.Year.From(new DateOnly(2028, 2, 29)), Is.EqualTo(new DateOnly(2027, 2, 28)));
+
+    [Test]
+    public void From_All_IsNull() =>
+        Assert.That(HistoryRange.All.From(new DateOnly(2026, 11, 6)), Is.Null);
+}

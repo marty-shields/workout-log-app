@@ -1,6 +1,6 @@
 namespace WorkoutLog.Core.Domain;
 
-/// <summary>Time the Exercise chart and records cover, back from today.</summary>
+/// <summary>Time back from today that the Exercise chart and records, and the Workouts list, cover.</summary>
 public enum HistoryRange
 {
     /// <summary>Last 3 months.</summary>
