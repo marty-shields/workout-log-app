@@ -9,9 +9,11 @@ public sealed class ExercisesScreen(WebView web)
 
     private const string RowSelector = "[data-testid^=\"exercises-row-\"]";
 
-    /// <summary>Waits until the list, "No exercises logged yet" or the load error shows.</summary>
+    /// <summary>Waits until the rows, "No exercises match", "No exercises logged yet" or the load error shows. The search box shows during a reload too.</summary>
     public void WaitUntilLoaded() =>
-        web.WaitUntil(() => web.Exists("exercises-search") || web.Exists("exercises-empty") || web.Exists("exercises-error"), "Exercises didn't load");
+        web.WaitUntil(
+            () => web.FindAll(RowSelector).Count > 0 || web.Exists("exercises-none") || web.Exists("exercises-empty") || web.Exists("exercises-error"),
+            "Exercises didn't load");
 
     /// <summary>Row names, in order, once loaded.</summary>
     public IReadOnlyList<string> Names()
