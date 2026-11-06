@@ -60,6 +60,12 @@ internal enum CoreEvent
     /// <summary><see cref="Services.WorkoutsService"/>: reading the saved workouts failed.</summary>
     WorkoutsLoadFailed = 1302,
 
+    /// <summary><see cref="Services.WorkoutsService"/>: the workouts per local day read.</summary>
+    WorkoutDaysLoaded = 1303,
+
+    /// <summary><see cref="Services.WorkoutsService"/>: reading the workouts per local day failed.</summary>
+    WorkoutDaysLoadFailed = 1304,
+
     /// <summary><see cref="Services.LastWorkoutService"/>: last workout read.</summary>
     LastWorkoutLoaded = 1410,
 

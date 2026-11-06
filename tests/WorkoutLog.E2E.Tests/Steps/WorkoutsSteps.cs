@@ -90,5 +90,11 @@ public sealed class WorkoutsSteps(WebView web, Journeys journeys, WorkoutsScreen
         web.Eventually(workout.Title, Is.EqualTo(DashboardSteps.Date(clock.LocalNow().Date.AddDays(-1))));
     }
 
-    private static string DateAndTime(DateTime value) => value.ToString("ddd d MMM yyyy · HH:mm", CultureInfo.InvariantCulture);
+    [When(@"^I tap (3M|6M|1Y|All) in Workouts$")]
+    public void WhenITapARange(string range) => workouts.Range(range.ToLowerInvariant());
+
+    [When(@"^I pick the day (.+) in the calendar$")]
+    public void WhenIPickTheDay(string day) => workouts.PickDay(SeedTime.Resolve($"{day} 00:00", clock.LocalNow()));
+
+    private static string DateAndTime(DateTime value) => value.ToString("ddd d MMM · HH:mm", CultureInfo.InvariantCulture);
 }

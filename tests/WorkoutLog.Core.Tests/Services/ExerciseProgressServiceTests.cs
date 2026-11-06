@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging.Testing;
 using Microsoft.Extensions.Time.Testing;
 using Moq;
 using WorkoutLog.Core.Data;
+using WorkoutLog.Core.Domain;
 using WorkoutLog.Core.Domain.Exercises.Bests;
 using WorkoutLog.Core.Domain.Exercises.Progress;
 using WorkoutLog.Core.Domain.Workouts;
@@ -143,7 +144,7 @@ public class ExerciseProgressServiceTests
         var heavy = new StrengthSession(3, Now, [Set(8, 62.5m), Set(3, 70m)]);
         var light = new StrengthSession(4, Now.AddDays(-7), [Set(15, 50m), Set(5, 60m)]);
 
-        var progress = service.SummariseLift([outOfRange, noWeight, heavy, light], ChartRange.ThreeMonths);
+        var progress = service.SummariseLift([outOfRange, noWeight, heavy, light], HistoryRange.ThreeMonths);
 
         Assert.That(progress, Is.EqualTo(new LiftProgress(
         [
@@ -160,14 +161,14 @@ public class ExerciseProgressServiceTests
     {
         var old = new StrengthSession(1, Now.AddYears(-3), [Set(1, 200m)]);
 
-        var progress = service.SummariseLift([old], ChartRange.All);
+        var progress = service.SummariseLift([old], HistoryRange.All);
 
         Assert.That(progress.Records.HeaviestWeight, Is.EqualTo(new ProgressRecord<ExerciseBest>(new ExerciseBest(200m, 1, null, null), old.StartedAt)));
     }
 
     [Test]
     public void SummariseLift_NoSessionsInTheRange_HasNoSessionsOrRecords() =>
-        Assert.That(service.SummariseLift([new StrengthSession(1, Now.AddYears(-2), [Set(5, 60m)])], ChartRange.Year),
+        Assert.That(service.SummariseLift([new StrengthSession(1, Now.AddYears(-2), [Set(5, 60m)])], HistoryRange.Year),
             Is.EqualTo(new LiftProgress([], new LiftRecords(null, null))).UsingPropertiesComparer());
 
     [Test]
@@ -177,7 +178,7 @@ public class ExerciseProgressServiceTests
         var mixed = new StrengthSession(2, Now, [Set(20, null), Set(18, 0m), Set(8, 10m)]);
         var unweighted = new StrengthSession(3, Now.AddDays(-7), [Set(25, null), Set(15, null)]);
 
-        var progress = service.SummariseBodyweight([outOfRange, mixed, unweighted], ChartRange.ThreeMonths);
+        var progress = service.SummariseBodyweight([outOfRange, mixed, unweighted], HistoryRange.ThreeMonths);
 
         Assert.That(progress, Is.EqualTo(new BodyweightProgress(
         [
@@ -192,7 +193,7 @@ public class ExerciseProgressServiceTests
 
     [Test]
     public void SummariseBodyweight_NoSessionsInTheRange_HasNoSessionsOrRecords() =>
-        Assert.That(service.SummariseBodyweight([new StrengthSession(1, Now.AddYears(-2), [Set(20, null)])], ChartRange.Year),
+        Assert.That(service.SummariseBodyweight([new StrengthSession(1, Now.AddYears(-2), [Set(20, null)])], HistoryRange.Year),
             Is.EqualTo(new BodyweightProgress([], new BodyweightRecords(null, null, null, null))).UsingPropertiesComparer());
 
     [Test]
@@ -202,7 +203,7 @@ public class ExerciseProgressServiceTests
         var latest = new StrengthSession(2, Now, [Set(8, 5m), Set(5, null)]);
         var earlier = new StrengthSession(3, Now.AddDays(-7), [Set(8, 10m), Set(6, 5m)]);
 
-        var progress = service.SummariseAssisted([outOfRange, latest, earlier], ChartRange.ThreeMonths);
+        var progress = service.SummariseAssisted([outOfRange, latest, earlier], HistoryRange.ThreeMonths);
 
         Assert.That(progress, Is.EqualTo(new AssistedProgress(
         [
@@ -218,7 +219,7 @@ public class ExerciseProgressServiceTests
         var latest = new StrengthSession(2, Now, [Timed(105, null), Timed(60, 10m), Timed(80, 0m)]);
         var earlier = new StrengthSession(3, Now.AddDays(-7), [Timed(90, null)]);
 
-        var progress = service.SummariseHold([outOfRange, latest, earlier], ChartRange.ThreeMonths);
+        var progress = service.SummariseHold([outOfRange, latest, earlier], HistoryRange.ThreeMonths);
 
         var heaviest = new ExerciseBest(10m, null, TimeSpan.FromSeconds(60), null);
         Assert.That(progress, Is.EqualTo(new HoldProgress(
@@ -235,7 +236,7 @@ public class ExerciseProgressServiceTests
         var latest = new StrengthSession(2, Now, [Carried(28m, 40m), Carried(32m, 40m)]);
         var earlier = new StrengthSession(3, Now.AddDays(-7), [Carried(null, 60m)]);
 
-        var progress = service.SummariseCarry([outOfRange, latest, earlier], ChartRange.ThreeMonths);
+        var progress = service.SummariseCarry([outOfRange, latest, earlier], HistoryRange.ThreeMonths);
 
         Assert.That(progress, Is.EqualTo(new CarryProgress(
         [

@@ -1,3 +1,4 @@
+using WorkoutLog.Core.Domain;
 using WorkoutLog.Core.Domain.Exercises.Progress;
 
 namespace WorkoutLog.Core.Services;
@@ -13,20 +14,20 @@ public interface IExerciseProgressService
     Task<ExerciseProgressResult> LoadAsync(int exerciseId);
 
     /// <summary>The lift sessions of <paramref name="sessions"/> in <paramref name="range"/>, each with its top set and e1RM, and their records.</summary>
-    LiftProgress SummariseLift(IReadOnlyList<StrengthSession> sessions, ChartRange range);
+    LiftProgress SummariseLift(IReadOnlyList<StrengthSession> sessions, HistoryRange range);
 
     /// <summary>
     /// The bodyweight sessions of <paramref name="sessions"/> in <paramref name="range"/>, each with its best set, total, top set and e1RM,
     /// and their records.
     /// </summary>
-    BodyweightProgress SummariseBodyweight(IReadOnlyList<StrengthSession> sessions, ChartRange range);
+    BodyweightProgress SummariseBodyweight(IReadOnlyList<StrengthSession> sessions, HistoryRange range);
 
     /// <summary>The assisted machine sessions of <paramref name="sessions"/> in <paramref name="range"/>, each with its least assist, and their records.</summary>
-    AssistedProgress SummariseAssisted(IReadOnlyList<StrengthSession> sessions, ChartRange range);
+    AssistedProgress SummariseAssisted(IReadOnlyList<StrengthSession> sessions, HistoryRange range);
 
     /// <summary>The hold sessions of <paramref name="sessions"/> in <paramref name="range"/>, each with its longest and heaviest set, and their records.</summary>
-    HoldProgress SummariseHold(IReadOnlyList<StrengthSession> sessions, ChartRange range);
+    HoldProgress SummariseHold(IReadOnlyList<StrengthSession> sessions, HistoryRange range);
 
     /// <summary>The carry sessions of <paramref name="sessions"/> in <paramref name="range"/>, each with its heaviest and longest set, and their records.</summary>
-    CarryProgress SummariseCarry(IReadOnlyList<StrengthSession> sessions, ChartRange range);
+    CarryProgress SummariseCarry(IReadOnlyList<StrengthSession> sessions, HistoryRange range);
 }

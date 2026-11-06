@@ -1,5 +1,6 @@
 using Microsoft.Extensions.Logging;
 using WorkoutLog.Core.Data;
+using WorkoutLog.Core.Domain;
 using WorkoutLog.Core.Domain.Exercises;
 using WorkoutLog.Core.Domain.Exercises.Progress;
 using WorkoutLog.Core.Domain.Workouts;
@@ -55,7 +56,7 @@ internal sealed partial class CardioProgressService(
     }
 
     /// <inheritdoc />
-    public CardioProgress Summarise(IReadOnlyList<CardioSession> sessions, ChartRange range)
+    public CardioProgress Summarise(IReadOnlyList<CardioSession> sessions, HistoryRange range)
     {
         var inRange = sessions
             .Where(s => rangeFilter.Includes(s.StartedAt, range))

@@ -46,4 +46,7 @@ public enum IconName
 
     /// <summary>Dumbbell (<c>fitness_center</c>).</summary>
     Exercise,
+
+    /// <summary>Calendar page (<c>calendar_today</c>).</summary>
+    Calendar,
 }

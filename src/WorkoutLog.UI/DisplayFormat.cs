@@ -1,5 +1,6 @@
 using System.Globalization;
 using WorkoutLog.Core.Domain.Exercises;
+using WorkoutLog.UI.Models.Workouts;
 
 namespace WorkoutLog.UI;
 
@@ -23,6 +24,41 @@ internal static class DisplayFormat
 
     /// <summary>Day, date and time, e.g. Tue 20 Oct 2026 · 18:05.</summary>
     public static string DateAndTime(DateTime value) => value.ToString("ddd d MMM yyyy · HH:mm", CultureInfo.InvariantCulture);
+
+    /// <summary>Day, date without the year, and time, e.g. Thu 5 Nov · 18:05.</summary>
+    public static string DayAndTime(DateTime value) => value.ToString("ddd d MMM · HH:mm", CultureInfo.InvariantCulture);
+
+    /// <summary>Day and date without the year, e.g. Thu 12 Mar.</summary>
+    public static string Day(DateOnly value) => value.ToString("ddd d MMM", CultureInfo.InvariantCulture);
+
+    /// <summary>Day and date with a two-digit year, e.g. Thu 12 Mar 25.</summary>
+    public static string DayShortYear(DateOnly value) => value.ToString("ddd d MMM yy", CultureInfo.InvariantCulture);
+
+    /// <summary>Month and year, e.g. November 2026.</summary>
+    public static string Month(int year, int month) => new DateOnly(year, month, 1).ToString("MMMM yyyy", CultureInfo.InvariantCulture);
+
+    /// <summary>
+    /// Dates in a span: one day as Thu 12 Mar 2025, one year as 6 Aug – 6 Nov 2026, and across years as 6 Nov 2025 – 6 Nov 2026.
+    /// </summary>
+    public static string Dates(DateSpan dates)
+    {
+        var to = dates.To.ToString("d MMM yyyy", CultureInfo.InvariantCulture);
+        if (dates.IsOneDay)
+        {
+            return dates.From.ToString("ddd ", CultureInfo.InvariantCulture) + to;
+        }
+
+        var from = dates.From.ToString(dates.From.Year == dates.To.Year ? "d MMM" : "d MMM yyyy", CultureInfo.InvariantCulture);
+        return $"{from} – {to}";
+    }
+
+    /// <summary>
+    /// <see cref="Dates"/> with no-break spaces inside each date, so narrow text wraps at the dash and never mid-date, e.g. 4 Nov 2024 – / 6 Nov 2026.
+    /// </summary>
+    public static string DatesKeptWhole(DateSpan dates) => Dates(dates).Replace(' ', '\u00A0').Replace("\u00A0–\u00A0", " – ", StringComparison.Ordinal);
+
+    /// <summary>A number of workouts, e.g. 1 workout or 38 workouts.</summary>
+    public static string Workouts(int count) => count == 1 ? "1 workout" : $"{count} workouts";
 
     /// <summary>Calendar days since a date: Today, Yesterday, or e.g. 3 days ago.</summary>
     public static string DaysAgo(int days) => days switch

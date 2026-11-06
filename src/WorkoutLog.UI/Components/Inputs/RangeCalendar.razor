@@ -1,0 +1,198 @@
+@using System.Globalization
+@using WorkoutLog.UI.Models.Workouts
+<div class="calendar" data-testid="range-calendar">
+    <div class="ends">
+        <button type="button" class="end" aria-pressed="@Pressed(End.From)" data-testid="range-from" @onclick="() => Choose(End.From)">
+            <span class="end-label">From</span>
+            <span class="end-value">@DisplayFormat.DayShortYear(from)</span>
+        </button>
+        <button type="button" class="end" aria-pressed="@Pressed(End.To)" data-testid="range-to" @onclick="() => Choose(End.To)">
+            <span class="end-label">To</span>
+            <span class="end-value">@(to is { } last ? DisplayFormat.DayShortYear(last) : "Pick a day")</span>
+        </button>
+    </div>
+
+    @if (pickingYear is { } year)
+    {
+        <div class="head">
+            <button type="button" class="arrow" aria-label="Previous year" disabled="@(year <= History.Earliest.Year)" data-testid="range-prev-year" @onclick="() => pickingYear--">
+                <span class="flip"><Icon Name="IconName.Chevron" /></span>
+            </button>
+            <span class="year" data-testid="range-year">@year</span>
+            <button type="button" class="arrow" aria-label="Next year" disabled="@(year >= History.Today.Year)" data-testid="range-next-year" @onclick="() => pickingYear++">
+                <Icon Name="IconName.Chevron" />
+            </button>
+        </div>
+        <div class="months">
+            @for (var m = 1; m <= 12; m++)
+            {
+                var month = new DateOnly(year, m, 1);
+                var outside = month < FirstOfMonth(History.Earliest) || month > FirstOfMonth(History.Today);
+                var count = History.CountIn(year, m);
+                <button type="button"
+                        class="month"
+                        disabled="@outside"
+                        aria-current="@(month == shown ? "true" : null)"
+                        aria-label="@($"{DisplayFormat.Month(year, m)}, {DisplayFormat.Workouts(count)}")"
+                        data-testid="@($"range-month-{year:D4}-{m:D2}")"
+                        @onclick="() => Show(month)">
+                    @month.ToString("MMM", CultureInfo.InvariantCulture)
+                    <span class="month-count">@(outside ? "–" : count)</span>
+                </button>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="head">
+            <button type="button" class="arrow" aria-label="Previous month" disabled="@(shown <= FirstOfMonth(History.Earliest))" data-testid="range-prev-month" @onclick="() => shown = shown.AddMonths(-1)">
+                <span class="flip"><Icon Name="IconName.Chevron" /></span>
+            </button>
+            <button type="button" class="title" aria-label="@($"Choose month, showing {MonthName}")" data-testid="range-month-name" @onclick="() => pickingYear = shown.Year">
+                @MonthName
+                <Icon Name="IconName.Down" />
+            </button>
+            <button type="button" class="arrow" aria-label="Next month" disabled="@(shown >= FirstOfMonth(History.Today))" data-testid="range-next-month" @onclick="() => shown = shown.AddMonths(1)">
+                <Icon Name="IconName.Chevron" />
+            </button>
+        </div>
+        <div class="days" role="group" aria-label="@MonthName">
+            @foreach (var letter in WeekDays)
+            {
+                <span class="weekday" aria-hidden="true">@letter</span>
+            }
+            @for (var i = 0; i < ((int)shown.DayOfWeek + 6) % 7; i++)
+            {
+                <span></span>
+            }
+            @for (var day = shown; day.Month == shown.Month; day = day.AddDays(1))
+            {
+                var date = day;
+                var logged = History.HasWorkoutOn(date);
+                <button type="button"
+                        class="day @DayClasses(date)"
+                        disabled="@(date > History.Today || date < History.Earliest)"
+                        data-testid="@($"range-day-{date:yyyy-MM-dd}")"
+                        @onclick="() => Tap(date)">
+                    <span class="number" aria-hidden="true">@date.Day</span>
+                    <span class="visually-hidden">@(DisplayFormat.Day(date) + (logged ? ", workout logged" : ""))</span>
+                    @if (logged)
+                    {
+                        <span class="dot"></span>
+                    }
+                </button>
+            }
+        </div>
+    }
+
+    <p class="hint" aria-live="polite" data-testid="range-hint">@Hint</p>
+    <div class="actions">
+        <AppButton Variant="ButtonVariant.Secondary" TestId="range-cancel" OnClick="OnCancel">Cancel</AppButton>
+        <AppButton TestId="range-apply" OnClick="Apply">Show workouts</AppButton>
+    </div>
+</div>
+
+@code {
+    private static readonly string[] WeekDays = ["M", "T", "W", "T", "F", "S", "S"];
+
+    private DateOnly from;
+    private DateOnly? to;
+    private End next;
+    private DateOnly shown;
+    private int? pickingYear;
+
+    /// <summary>Saved workouts: their days get a dot, months their counts, and days outside them can't be picked.</summary>
+    [Parameter, EditorRequired]
+    public WorkoutHistory History { get; set; } = WorkoutHistory.None;
+
+    /// <summary>Dates shown when the calendar opens. Later changes to it are ignored.</summary>
+    [Parameter, EditorRequired]
+    public DateSpan Dates { get; set; }
+
+    /// <summary>Opens on the month/year grid instead of the days.</summary>
+    [Parameter]
+    public bool OpenOnMonths { get; set; }
+
+    /// <summary>Raised by Show workouts with the dates picked.</summary>
+    [Parameter]
+    public EventCallback<DateSpan> OnApply { get; set; }
+
+    /// <summary>Raised by Cancel. The dates picked are thrown away.</summary>
+    [Parameter]
+    public EventCallback OnCancel { get; set; }
+
+    private enum End
+    {
+        From,
+        To,
+    }
+
+    protected override void OnInitialized()
+    {
+        from = Dates.From;
+        to = Dates.To;
+        shown = FirstOfMonth(Dates.To);
+        pickingYear = OpenOnMonths ? shown.Year : null;
+    }
+
+    private string MonthName => DisplayFormat.Month(shown.Year, shown.Month);
+
+    private string Hint => pickingYear is not null ? "Choose a month"
+        : next == End.To ? "Tap the last day, or the same day again for one day"
+        : "Tap the first day";
+
+    private string Pressed(End end) => next == end ? "true" : "false";
+
+    private void Choose(End end)
+    {
+        next = end;
+        if (end == End.From)
+        {
+            shown = FirstOfMonth(from);
+        }
+        else if (to is { } last)
+        {
+            shown = FirstOfMonth(last);
+        }
+
+        pickingYear = null;
+    }
+
+    private void Show(DateOnly month)
+    {
+        shown = month;
+        pickingYear = null;
+    }
+
+    private void Tap(DateOnly day)
+    {
+        if (next == End.From)
+        {
+            (from, to, next) = (day, null, End.To);
+        }
+        else if (day < from)
+        {
+            (from, to, next) = (day, from, End.From);
+        }
+        else
+        {
+            (to, next) = (day, End.From);
+        }
+    }
+
+    private Task Apply() => OnApply.InvokeAsync(new DateSpan(from, to ?? from));
+
+    private string DayClasses(DateOnly day)
+    {
+        var last = to ?? from;
+        return string.Join(' ', new[]
+        {
+            day >= from && day <= last ? "in" : null,
+            day == from ? "first" : null,
+            day == last ? "last" : null,
+            day == History.Today ? "today" : null,
+        }.OfType<string>());
+    }
+
+    private static DateOnly FirstOfMonth(DateOnly day) => new(day.Year, day.Month, 1);
+}

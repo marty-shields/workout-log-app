@@ -1,3 +1,4 @@
+@using WorkoutLog.Core.Domain
 @using WorkoutLog.Core.Domain.Exercises
 @using WorkoutLog.Core.Domain.Exercises.Progress
 @using WorkoutLog.Core.Services
@@ -43,7 +44,7 @@
     private IReadOnlyList<CardioSession> loadedCardio = [];
     private IReadOnlyList<RadioOption<string>> tabs = ExerciseProgressItems.Tabs;
     private string tab = ExerciseProgressItems.TopSetTab;
-    private ChartRange range = ChartRange.ThreeMonths;
+    private HistoryRange range = HistoryRange.ThreeMonths;
     private string? chartTitle;
     private bool flipped;
     private Func<decimal, string> format = ExerciseProgressItems.Weight;
@@ -126,7 +127,7 @@
         Summarise();
     }
 
-    private void ChooseRange(ChartRange value)
+    private void ChooseRange(HistoryRange value)
     {
         range = value;
         Summarise();

@@ -1,4 +1,5 @@
 using Microsoft.Extensions.Time.Testing;
+using WorkoutLog.Core.Domain;
 using WorkoutLog.Core.Domain.Exercises.Progress;
 
 namespace WorkoutLog.Core.Tests.Domain.Exercises.Progress;
@@ -7,10 +8,10 @@ public class RangeFilterTests
 {
     private static readonly TimeZoneInfo Plus10 = TimeZoneInfo.CreateCustomTimeZone("UTC+10", TimeSpan.FromHours(10), "UTC+10", "UTC+10");
 
-    [TestCase(ChartRange.ThreeMonths, 2026, 7, 28)]
-    [TestCase(ChartRange.SixMonths, 2026, 4, 28)]
-    [TestCase(ChartRange.Year, 2025, 10, 28)]
-    public void Includes_FirstDayOfTheRange_IsIn(ChartRange range, int year, int month, int day)
+    [TestCase(HistoryRange.ThreeMonths, 2026, 7, 28)]
+    [TestCase(HistoryRange.SixMonths, 2026, 4, 28)]
+    [TestCase(HistoryRange.Year, 2025, 10, 28)]
+    public void Includes_FirstDayOfTheRange_IsIn(HistoryRange range, int year, int month, int day)
     {
         var filter = Filter(new DateTimeOffset(2026, 10, 28, 9, 0, 0, TimeSpan.Zero), TimeZoneInfo.Utc);
         var first = new DateTimeOffset(year, month, day, 0, 0, 0, TimeSpan.Zero);
@@ -29,8 +30,8 @@ public class RangeFilterTests
 
         Assert.Multiple(() =>
         {
-            Assert.That(filter.Includes(new DateTimeOffset(2026, 2, 28, 0, 0, 0, TimeSpan.Zero), ChartRange.ThreeMonths), Is.True);
-            Assert.That(filter.Includes(new DateTimeOffset(2026, 2, 27, 23, 59, 59, TimeSpan.Zero), ChartRange.ThreeMonths), Is.False);
+            Assert.That(filter.Includes(new DateTimeOffset(2026, 2, 28, 0, 0, 0, TimeSpan.Zero), HistoryRange.ThreeMonths), Is.True);
+            Assert.That(filter.Includes(new DateTimeOffset(2026, 2, 27, 23, 59, 59, TimeSpan.Zero), HistoryRange.ThreeMonths), Is.False);
         });
     }
 
@@ -42,8 +43,8 @@ public class RangeFilterTests
 
         Assert.Multiple(() =>
         {
-            Assert.That(filter.Includes(new DateTimeOffset(2026, 7, 28, 14, 0, 0, TimeSpan.Zero), ChartRange.ThreeMonths), Is.True);
-            Assert.That(filter.Includes(new DateTimeOffset(2026, 7, 28, 13, 59, 59, TimeSpan.Zero), ChartRange.ThreeMonths), Is.False);
+            Assert.That(filter.Includes(new DateTimeOffset(2026, 7, 28, 14, 0, 0, TimeSpan.Zero), HistoryRange.ThreeMonths), Is.True);
+            Assert.That(filter.Includes(new DateTimeOffset(2026, 7, 28, 13, 59, 59, TimeSpan.Zero), HistoryRange.ThreeMonths), Is.False);
         });
     }
 
@@ -52,7 +53,7 @@ public class RangeFilterTests
     {
         var filter = Filter(new DateTimeOffset(2026, 10, 28, 9, 0, 0, TimeSpan.Zero), TimeZoneInfo.Utc);
 
-        Assert.That(filter.Includes(new DateTimeOffset(2001, 1, 1, 0, 0, 0, TimeSpan.Zero), ChartRange.All), Is.True);
+        Assert.That(filter.Includes(new DateTimeOffset(2001, 1, 1, 0, 0, 0, TimeSpan.Zero), HistoryRange.All), Is.True);
     }
 
     private static RangeFilter Filter(DateTimeOffset now, TimeZoneInfo zone)

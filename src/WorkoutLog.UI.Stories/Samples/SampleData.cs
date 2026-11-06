@@ -2,7 +2,6 @@ using WorkoutLog.Core.Domain.Exercises;
 using WorkoutLog.Core.Domain.Workouts;
 using WorkoutLog.UI.Models.Exercises;
 using WorkoutLog.UI.Models.Workout;
-using WorkoutLog.UI.Models.Workouts;
 
 namespace WorkoutLog.UI.Stories.Samples;
 
@@ -240,15 +239,6 @@ public static class SampleData
         checker.Check(exercises);
         return exercises;
     }
-
-    /// <summary>Workouts rows, newest first.</summary>
-    public static IReadOnlyList<WorkoutsRow> WorkoutsRows { get; } =
-    [
-        new(4, new DateTime(2026, 10, 20, 18, 5, 0)),
-        new(3, new DateTime(2026, 10, 20, 7, 30, 0)),
-        new(2, new DateTime(2026, 10, 19, 17, 45, 0)),
-        new(1, new DateTime(2026, 10, 16, 18, 10, 0)),
-    ];
 
     /// <summary>A strength exercise with ten filled sets, so Add set is off.</summary>
     public static ExerciseState FullSets(IExerciseCatalog catalog, int id) => Exercise(catalog, id, [.. Enumerable.Repeat(Sets(catalog, id), 10)]);

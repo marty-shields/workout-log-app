@@ -79,6 +79,10 @@ internal sealed class WorkoutRepository(SQLiteAsyncConnection connection, Workou
     }
 
     /// <inheritdoc />
+    public async Task<IReadOnlyList<DateTimeOffset>> ListStartsAsync() =>
+        [.. (await connection.QueryScalarsAsync<long>("SELECT StartedAt FROM Workout")).Select(ticks => new DateTimeOffset(ticks, TimeSpan.Zero))];
+
+    /// <inheritdoc />
     public async Task<WorkoutOutline?> GetLatestAsync()
     {
         const string sql = """

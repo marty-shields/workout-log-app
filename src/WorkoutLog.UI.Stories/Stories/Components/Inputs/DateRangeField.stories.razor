@@ -1,0 +1,39 @@
+@using WorkoutLog.Core.Domain
+@using WorkoutLog.UI.Models.Workouts
+@attribute [Stories("Components/Inputs/DateRangeField")]
+
+<Stories TComponent="DateRangeField" Layout="typeof(ThemeLayout)">
+
+    <Story Name="Within a year">
+        <Template>
+            <DateRangeField Dates="History.Span(HistoryRange.ThreeMonths)" Count="Count(History.Span(HistoryRange.ThreeMonths))" History="History" TestId="workouts-dates" />
+        </Template>
+    </Story>
+
+    <Story Name="Across years">
+        <Template>
+            <DateRangeField Dates="History.Span(HistoryRange.Year)" Count="Count(History.Span(HistoryRange.Year))" History="History" TestId="workouts-dates" />
+        </Template>
+    </Story>
+
+    <Story Name="One day">
+        <Template>
+            <DateRangeField Dates="OneDay" Count="Count(OneDay)" History="History" TestId="workouts-dates" />
+        </Template>
+    </Story>
+
+    <Story Name="Expanded">
+        <Template>
+            <DateRangeField Dates="History.Span(HistoryRange.ThreeMonths)" Count="Count(History.Span(HistoryRange.ThreeMonths))" History="History" Expanded TestId="workouts-dates" />
+        </Template>
+    </Story>
+
+</Stories>
+
+@code {
+    private static WorkoutHistory History => SampleWorkoutHistory.History;
+
+    private static readonly DateSpan OneDay = new(SampleWorkoutHistory.TwoWorkoutsDay, SampleWorkoutHistory.TwoWorkoutsDay);
+
+    private static int Count(DateSpan dates) => History.CountIn(dates);
+}

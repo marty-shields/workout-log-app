@@ -1,5 +1,5 @@
 Feature: Workouts
-  My saved workouts, newest first.
+  My saved workouts, newest first. The screen opens on the last 3 months; 3M, 6M, 1Y, All and the calendar change the dates.
 
   Scenario: Workouts with no workouts says so
     When I open Workouts
@@ -17,10 +17,48 @@ Feature: Workouts
       | 3 days ago 18:05  |
       | 10 days ago 07:30 |
 
-  Scenario: Every workout loads at once
+  Scenario: Every workout in the last 3 months loads at once
     Given 40 saved workouts on different days
     When I open Workouts
     Then Workouts lists 40 workouts
+
+  Scenario: Workouts opens on the last 3 months, and All lists the older ones
+    Given these saved workouts:
+      | started            | exercises             |
+      | 125 days ago 18:00 | Push-up: 10 reps 0 kg |
+      | yesterday 18:05    | Push-up: 10 reps 0 kg |
+    When I open Workouts
+    Then the rows read, in order:
+      | yesterday 18:05 |
+    When I tap All in Workouts
+    Then the rows read, in order:
+      | yesterday 18:05    |
+      | 125 days ago 18:00 |
+
+  Scenario: 1Y lists a workout from 8 months ago
+    Given these saved workouts:
+      | started            | exercises             |
+      | 400 days ago 18:00 | Push-up: 10 reps 0 kg |
+      | 240 days ago 18:00 | Push-up: 10 reps 0 kg |
+      | yesterday 18:05    | Push-up: 10 reps 0 kg |
+    When I open Workouts
+    And I tap 1Y in Workouts
+    Then the rows read, in order:
+      | yesterday 18:05    |
+      | 240 days ago 18:00 |
+
+  Scenario: Picking one day lists only that day's workouts
+    Given these saved workouts:
+      | started          | exercises             |
+      | 5 days ago 18:00 | Push-up: 10 reps 0 kg |
+      | 3 days ago 07:30 | Push-up: 10 reps 0 kg |
+      | 3 days ago 18:05 | Push-up: 10 reps 0 kg |
+      | yesterday 18:05  | Push-up: 10 reps 0 kg |
+    When I open Workouts
+    And I pick the day 3 days ago in the calendar
+    Then the rows read, in order:
+      | 3 days ago 18:05 |
+      | 3 days ago 07:30 |
 
   @smoke
   Scenario: Tapping a row opens that workout

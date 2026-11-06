@@ -14,6 +14,12 @@
         </div>
         @Actions
     </header>
+    @if (Toolbar is not null)
+    {
+        <div class="toolbar">
+            @Toolbar
+        </div>
+    }
     <main class="content">
         @ChildContent
     </main>
@@ -64,6 +70,13 @@
     /// <summary>Actions at the right of the top bar.</summary>
     [Parameter]
     public RenderFragment? Actions { get; set; }
+
+    /// <summary>
+    /// Controls fixed between the top bar and the content, such as filters. They scroll on their own only when taller than the screen.
+    /// No toolbar shows when unset.
+    /// </summary>
+    [Parameter]
+    public RenderFragment? Toolbar { get; set; }
 
     /// <summary>Scrolling screen content.</summary>
     [Parameter]

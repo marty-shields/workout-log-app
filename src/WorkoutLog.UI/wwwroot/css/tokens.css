@@ -75,6 +75,8 @@
     --radio-dot-size: 0.75rem;
     --nav-indicator-width: 4rem;
     --nav-indicator-height: 2rem;
+    --calendar-day-size: 2.25rem;
+    --calendar-dot-size: 0.25rem;
 }
 
 /* Forces a theme on an element and its children. */

@@ -1,0 +1,61 @@
+@using WorkoutLog.UI.Models.Workouts
+<div class="date-range">
+    <button type="button"
+            class="field"
+            aria-expanded="@(Expanded ? "true" : "false")"
+            aria-label="@($"Dates shown: {DisplayFormat.Dates(Dates)}. {DisplayFormat.Workouts(Count)}")"
+            data-testid="@TestId"
+            @onclick="() => ExpandedChanged.InvokeAsync(!Expanded)">
+        <Icon Name="IconName.Calendar" />
+        <span class="dates" data-testid="@($"{TestId}-dates")" data-wrap-ok>@DisplayFormat.DatesKeptWhole(Dates)</span>
+        <span class="count" data-testid="@($"{TestId}-count")">@Count</span>
+        <Icon Name="IconName.Down" Tone="IconTone.Muted" />
+    </button>
+    @if (Expanded)
+    {
+        <BackHandler OnBack="Close" />
+        <RangeCalendar History="History" Dates="Dates" OpenOnMonths="OpenOnMonths" OnApply="Apply" OnCancel="Close" />
+    }
+</div>
+
+@code {
+    /// <summary>Dates shown.</summary>
+    [Parameter, EditorRequired]
+    public DateSpan Dates { get; set; }
+
+    /// <summary>Number of workouts in <see cref="Dates"/>.</summary>
+    [Parameter, EditorRequired]
+    public int Count { get; set; }
+
+    /// <summary>Saved workouts, for the calendar.</summary>
+    [Parameter, EditorRequired]
+    public WorkoutHistory History { get; set; } = WorkoutHistory.None;
+
+    /// <summary>Shows the calendar under the field. Android back then closes it.</summary>
+    [Parameter]
+    public bool Expanded { get; set; }
+
+    /// <summary>Raised with true when the field is tapped while closed, and with false to close it.</summary>
+    [Parameter]
+    public EventCallback<bool> ExpandedChanged { get; set; }
+
+    /// <summary>Opens the calendar on the month/year grid instead of the days.</summary>
+    [Parameter]
+    public bool OpenOnMonths { get; set; }
+
+    /// <summary>Raised by Show workouts with the dates picked, after the calendar closes.</summary>
+    [Parameter]
+    public EventCallback<DateSpan> DatesChanged { get; set; }
+
+    /// <summary>Value of the field's data-testid attribute, and the prefix of its dates and count.</summary>
+    [Parameter]
+    public string? TestId { get; set; }
+
+    private Task Close() => ExpandedChanged.InvokeAsync(false);
+
+    private async Task Apply(DateSpan dates)
+    {
+        await Close();
+        await DatesChanged.InvokeAsync(dates);
+    }
+}

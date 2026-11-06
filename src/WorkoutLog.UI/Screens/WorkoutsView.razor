@@ -1,7 +1,13 @@
+@using WorkoutLog.Core.Domain
 @using WorkoutLog.UI.Components.Feedback
+@using WorkoutLog.UI.Components.Inputs
 @using WorkoutLog.UI.Models.Workouts
-<AppScreen Title="Workouts" Destination="NavDestination.Workouts" OnNavigate="OnNavigate">
-    @if (Loading)
+<AppScreen Title="Workouts" Destination="NavDestination.Workouts" OnNavigate="OnNavigate" Toolbar="@(ShowsTools ? Tools : null)">
+    @if (Expanded && ShowsTools)
+    {
+        @* The calendar under the date field replaces the list, even while one loads. *@
+    }
+    else if (Loading)
     {
         <div class="centre">
             <Spinner Label="Loading…" TestId="workouts-loading" />
@@ -11,29 +17,77 @@
     {
         <LoadFailed Message="Couldn't load your workouts" OnRetry="OnRetry" TestId="workouts" />
     }
-    else if (Rows.Count == 0)
+    else if (History.IsEmpty)
     {
         <EmptyState Message="No workouts yet" Hint="Tap New Workout on the Dashboard to log one" TestId="workouts-empty" />
     }
+    else if (Rows.Count == 0)
+    {
+        <EmptyState Message="@(Dates.IsOneDay ? "No workout on this day" : "No workouts between these dates")" Hint="Choose different dates or a quick range above" TestId="workouts-none" />
+    }
     else
     {
-        <ul class="rows">
-            @foreach (var row in Rows)
-            {
-                <li>
-                    <ListRow Text="@DisplayFormat.DateAndTime(row.StartedAt)" OnClick="() => OnOpen.InvokeAsync(row)" TestId="@($"workouts-row-{row.Id}")" />
-                </li>
-            }
-        </ul>
+        @foreach (var month in Rows.GroupBy(r => (r.StartedAt.Year, r.StartedAt.Month)))
+        {
+            <section class="month">
+                <h2 class="month-title" data-testid="@($"workouts-month-{month.Key.Year:D4}-{month.Key.Month:D2}")">
+                    <span>@DisplayFormat.Month(month.Key.Year, month.Key.Month)</span>
+                    <span class="month-count">@DisplayFormat.Workouts(month.Count())</span>
+                </h2>
+                <ul class="rows">
+                    @foreach (var row in month)
+                    {
+                        <li>
+                            <ListRow Text="@DisplayFormat.DayAndTime(row.StartedAt)" OnClick="() => OnOpen.InvokeAsync(row)" TestId="@($"workouts-row-{row.Id}")" />
+                        </li>
+                    }
+                </ul>
+            </section>
+        }
     }
 </AppScreen>
 
 @code {
-    /// <summary>Saved workouts, newest first.</summary>
-    [Parameter, EditorRequired]
+    private static readonly IReadOnlyList<RadioOption<HistoryRange?>> Ranges =
+    [
+        new(HistoryRange.ThreeMonths, "3M", "workouts-range-3m", AriaLabel: "Last 3 months"),
+        new(HistoryRange.SixMonths, "6M", "workouts-range-6m", AriaLabel: "Last 6 months"),
+        new(HistoryRange.Year, "1Y", "workouts-range-1y", AriaLabel: "Last year"),
+        new(HistoryRange.All, "All", "workouts-range-all"),
+    ];
+
+    private int count;
+    private HistoryRange? range;
+
+    /// <summary>Workouts per day: the date field's count, the chosen segment and the calendar.</summary>
+    [Parameter]
+    public WorkoutHistory History { get; set; } = WorkoutHistory.None;
+
+    /// <summary>The workouts in <see cref="Dates"/>, newest first.</summary>
+    [Parameter]
     public IReadOnlyList<WorkoutsRow> Rows { get; set; } = [];
 
-    /// <summary>Shows a spinner instead of the content while the workouts load.</summary>
+    /// <summary>Dates shown. The segment whose range they match shows as chosen; none does for dates picked in the calendar.</summary>
+    [Parameter]
+    public DateSpan Dates { get; set; }
+
+    /// <summary>Raised with the new dates when a segment or Show workouts in the calendar is tapped.</summary>
+    [Parameter]
+    public EventCallback<DateSpan> DatesChanged { get; set; }
+
+    /// <summary>Shows the calendar under the date field, instead of the segments and the list.</summary>
+    [Parameter]
+    public bool Expanded { get; set; }
+
+    /// <summary>Raised with true by the date field, and with false when the calendar closes.</summary>
+    [Parameter]
+    public EventCallback<bool> ExpandedChanged { get; set; }
+
+    /// <summary>Opens the calendar on the month/year grid instead of the days.</summary>
+    [Parameter]
+    public bool OpenOnMonths { get; set; }
+
+    /// <summary>Shows a spinner instead of the content while the workouts load. The dates stay when <see cref="History"/> is set.</summary>
     [Parameter]
     public bool Loading { get; set; }
 
@@ -52,4 +106,23 @@
     /// <summary>Raised with the destination tapped in the bottom navigation bar, and with the Dashboard on Android back.</summary>
     [Parameter]
     public EventCallback<NavDestination> OnNavigate { get; set; }
+
+    protected override void OnParametersSet()
+    {
+        count = History.IsEmpty ? 0 : History.CountIn(Dates);
+        range = History.IsEmpty ? null : History.RangeOf(Dates);
+    }
+
+    private bool ShowsTools => !Failed && !History.IsEmpty;
+
+    private RenderFragment Tools =>
+        @<div class="tools">
+            <DateRangeField Dates="Dates" Count="count" History="History" Expanded="Expanded" ExpandedChanged="ExpandedChanged"
+                            OpenOnMonths="OpenOnMonths" DatesChanged="DatesChanged" TestId="workouts-dates" />
+            @if (!Expanded)
+            {
+                <SegmentedControl TValue="HistoryRange?" Label="Quick dates" Options="Ranges" Value="range"
+                                  ValueChanged="r => DatesChanged.InvokeAsync(History.Span(r!.Value))" TestId="workouts-range" />
+            }
+        </div>;
 }

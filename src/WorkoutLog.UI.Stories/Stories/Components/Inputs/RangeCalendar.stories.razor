@@ -1,0 +1,29 @@
+@using WorkoutLog.Core.Domain
+@using WorkoutLog.UI.Models.Workouts
+@attribute [Stories("Components/Inputs/RangeCalendar")]
+
+<Stories TComponent="RangeCalendar" Layout="typeof(ThemeLayout)">
+
+    <Story Name="Last 3 months">
+        <Template>
+            <RangeCalendar History="History" Dates="History.Span(HistoryRange.ThreeMonths)" />
+        </Template>
+    </Story>
+
+    <Story Name="Dates picked">
+        <Template>
+            <RangeCalendar History="History" Dates="SampleWorkoutHistory.March2025" />
+        </Template>
+    </Story>
+
+    <Story Name="Month grid">
+        <Template>
+            <RangeCalendar History="History" Dates="SampleWorkoutHistory.March2025" OpenOnMonths />
+        </Template>
+    </Story>
+
+</Stories>
+
+@code {
+    private static WorkoutHistory History => SampleWorkoutHistory.History;
+}

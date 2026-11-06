@@ -1,3 +1,4 @@
+using WorkoutLog.Core.Domain;
 using WorkoutLog.Core.Domain.Exercises;
 using WorkoutLog.Core.Domain.Exercises.Progress;
 using WorkoutLog.Core.Domain.Workouts;
@@ -102,13 +103,13 @@ public class CardioProgressItemsTests
         Assert.That(CardioProgressItems.Points(Progress(Session(1, new DateTimeOffset(2026, 10, 10, 20, 0, 0, TimeSpan.Zero), Best(5m))), "distance", Brisbane, Now)
             .Select(p => (p.Date, p.Label)), Is.EqualTo(new[] { ("11 Oct", (string?)null) }));
 
-    [TestCase("distance", ChartRange.ThreeMonths, "No distance logged in the last 3 months")]
-    [TestCase("duration", ChartRange.SixMonths, "No duration logged in the last 6 months")]
-    [TestCase("pace", ChartRange.Year, "No pace logged in the last year")]
-    [TestCase("speed", ChartRange.Year, "No speed logged in the last year")]
-    [TestCase("floors", ChartRange.All, "No floors logged yet")]
-    [TestCase("calories", ChartRange.All, "No calories logged yet")]
-    public void NoValues_NamesTheMetricAndRange(string tab, ChartRange range, string message) =>
+    [TestCase("distance", HistoryRange.ThreeMonths, "No distance logged in the last 3 months")]
+    [TestCase("duration", HistoryRange.SixMonths, "No duration logged in the last 6 months")]
+    [TestCase("pace", HistoryRange.Year, "No pace logged in the last year")]
+    [TestCase("speed", HistoryRange.Year, "No speed logged in the last year")]
+    [TestCase("floors", HistoryRange.All, "No floors logged yet")]
+    [TestCase("calories", HistoryRange.All, "No calories logged yet")]
+    public void NoValues_NamesTheMetricAndRange(string tab, HistoryRange range, string message) =>
         Assert.That(CardioProgressItems.NoValues(tab, range), Is.EqualTo(message));
 
     [Test]

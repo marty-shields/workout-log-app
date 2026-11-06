@@ -1,4 +1,5 @@
 using System.Globalization;
+using WorkoutLog.Core.Domain;
 using WorkoutLog.Core.Domain.Exercises;
 using WorkoutLog.Core.Domain.Exercises.Progress;
 using WorkoutLog.Core.Domain.Workouts;
@@ -75,10 +76,10 @@ public static class CardioProgressItems
         progress.Sessions.Select(s => new ChartPoint(ExerciseProgressItems.Day(s.Session.StartedAt, zone, now), Value(s.Best, tab))).ToList();
 
     /// <summary>Text in place of a chart with no values for <paramref name="tab"/>: e.g. No calories logged in the last 3 months, or No calories logged yet on All.</summary>
-    public static string NoValues(string tab, ChartRange range)
+    public static string NoValues(string tab, HistoryRange range)
     {
         var what = $"No {Charts.Single(c => c.Key == tab).Noun} logged";
-        return range == ChartRange.All ? $"{what} yet" : $"{what} in the {ChartRanges.Text(range)}";
+        return range == HistoryRange.All ? $"{what} yet" : $"{what} in the {HistoryRanges.Text(range)}";
     }
 
     /// <summary>

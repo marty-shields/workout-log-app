@@ -216,6 +216,25 @@ public class WorkoutRepositoryTests
     }
 
     [Test]
+    public async Task ListStartsAsync_ReturnsEveryStartAsUtc()
+    {
+        await repository.AddAsync(new NewWorkout(Start.ToOffset(TimeSpan.FromHours(1)), Finish, Exercises()));
+        await repository.AddAsync(new NewWorkout(Start.AddHours(-10), Start.AddHours(-9), []));
+        await repository.AddAsync(new NewWorkout(Start.AddDays(-400), Finish.AddDays(-400), Exercises()));
+
+        var starts = await repository.ListStartsAsync();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(starts.Select(s => s.UtcDateTime), Is.EquivalentTo(new[] { Start.UtcDateTime, Start.AddHours(-10).UtcDateTime, Start.AddDays(-400).UtcDateTime }));
+            Assert.That(starts.Select(s => s.Offset), Is.All.EqualTo(TimeSpan.Zero));
+        });
+    }
+
+    [Test]
+    public async Task ListStartsAsync_NoWorkouts_ReturnsEmpty() => Assert.That(await repository.ListStartsAsync(), Is.Empty);
+
+    [Test]
     public async Task ListAsync_TimesWithAnOffset_ReadBackAsUtc()
     {
         await repository.AddAsync(new NewWorkout(Start.ToOffset(TimeSpan.FromHours(1)), Finish, Exercises()));
