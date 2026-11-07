@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Web;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Testing;
@@ -110,6 +111,44 @@ public class ExerciseCardTests : ComponentTestBase
         ]);
         exercise.Entries.Add(new EntryState { Values = { ["reps"] = "8" } });
         return exercise;
+    }
+
+    [Test]
+    public void EnterInLastField_AddsASetAndOpensIt()
+    {
+        var exercise = Strength(1);
+        var cut = Context.Render<ExerciseCard>(p => p
+            .Add(x => x.Exercise, exercise)
+            .Add(x => x.TestId, "exercise-1"));
+
+        cut.Find("[data-testid=exercise-1-set-1-reps]").KeyDown(new KeyboardEventArgs { Key = "Enter" });
+        Assert.That(exercise.Entries, Has.Count.EqualTo(1));
+
+        cut.Find("[data-testid=exercise-1-set-1-weight]").KeyDown(new KeyboardEventArgs { Key = "Enter" });
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(exercise.Entries, Has.Count.EqualTo(2));
+            Assert.That(cut.FindAll("[data-testid=exercise-1-set-2-reps]"), Has.Count.EqualTo(1));
+        });
+    }
+
+    [Test]
+    public void EnterInLastField_BlockedByValidation_AddsNoSet()
+    {
+        var exercise = Strength(1);
+        var cut = Context.Render<ExerciseCard>(p => p
+            .Add(x => x.Exercise, exercise)
+            .Add(x => x.ValidateSet, WholeReps)
+            .Add(x => x.TestId, "exercise-1"));
+
+        cut.Find("[data-testid=exercise-1-set-1-weight]").KeyDown(new KeyboardEventArgs { Key = "Enter" });
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(exercise.Entries, Has.Count.EqualTo(1));
+            Assert.That(exercise.Entries[0].Errors, Contains.Key("reps"));
+        });
     }
 
     [Test]

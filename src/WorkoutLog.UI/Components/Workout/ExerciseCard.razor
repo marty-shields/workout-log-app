@@ -66,6 +66,7 @@
                                   Last="@(Exercise.LastTime?.EntryOrNull(number))"
                                   IsRecord="entry == Exercise.RecordEntry"
                                   OnChanged="() => EntryChanged(entry)"
+                                  OnEnterLast="AddSetFromEnter"
                                   OnRemove="() => RemoveSet(entry)"
                                   TestId="@($"{TestId}-set-{number}")" />
                     }
@@ -92,6 +93,7 @@
                                 Last="@LastText(number)"
                                 IsRecord="entry == Exercise.RecordEntry"
                                 OnChanged="() => EntryChanged(entry)"
+                                OnEnterLast="AddSetFromEnter"
                                 OnRemove="() => RemoveSet(entry)"
                                 TestId="@($"{TestId}-set-{number}")" />
                     }
@@ -457,6 +459,17 @@
         }
 
         return Task.CompletedTask;
+    }
+
+    /// <summary>Enter in the open set's last field: adds a set as Add set does, then focuses its first field.</summary>
+    private async Task AddSetFromEnter()
+    {
+        var count = Exercise.Entries.Count;
+        await AddSet();
+        if (Exercise.Entries.Count > count)
+        {
+            Request(new FocusRequest(FocusTarget.AddedSet));
+        }
     }
 
     private bool TryAddSet()
