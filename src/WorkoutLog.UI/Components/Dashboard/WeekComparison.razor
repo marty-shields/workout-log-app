@@ -24,7 +24,7 @@
             }
         </tbody>
     </table>
-    <p class="note">Compared with last week up to the same day and time.</p>
+    <p class="note">Last week counted to the end of the same weekday.</p>
 </div>
 
 @code {
@@ -39,7 +39,7 @@
     [Parameter, EditorRequired]
     public WeekTotals ThisWeek { get; set; } = null!;
 
-    /// <summary>Last week's totals from Monday to the same weekday and time of day as now.</summary>
+    /// <summary>Last week's totals from Monday to the end of the same weekday as today.</summary>
     [Parameter, EditorRequired]
     public WeekTotals LastWeekToDate { get; set; } = null!;
 

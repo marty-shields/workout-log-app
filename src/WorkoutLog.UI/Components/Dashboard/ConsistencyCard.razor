@@ -22,7 +22,7 @@
     [Parameter, EditorRequired]
     public WeekTotals ThisWeek { get; set; } = null!;
 
-    /// <summary>Last week's totals from Monday to the same weekday and time of day as now.</summary>
+    /// <summary>Last week's totals from Monday to the end of the same weekday as today.</summary>
     [Parameter, EditorRequired]
     public WeekTotals LastWeekToDate { get; set; } = null!;
 

@@ -65,13 +65,13 @@ Feature: Dashboard
     And this week shows 0 workouts
 
   @today
-  Scenario: This week so far is compared with last week up to the same day and time
+  Scenario: This week so far is compared with last week up to the end of the same day
     Given these saved workouts:
-      | started          | finished         | exercises                                                       |
-      | today 00:00      | today 00:50      | Push-up: 10 reps 0 kg; 12 reps 0 kg / Treadmill: 0:20:00, 3.2 km |
-      | 7 days ago 00:00 | 7 days ago 00:25 | Push-up: 10 reps 0 kg                                           |
-      | 7 days ago 00:01 | 7 days ago 00:31 | Push-up: 10 reps 0 kg                                           |
-      | 7 days ago 23:59 | 6 days ago 00:20 | Push-up: 10 reps 0 kg                                           |
+      | started           | finished          | exercises                                                        |
+      | today 00:00       | today 00:50       | Push-up: 10 reps 0 kg; 12 reps 0 kg / Treadmill: 0:20:00, 3.2 km |
+      | 7 days ago 00:00  | 7 days ago 00:25  | Push-up: 10 reps 0 kg                                            |
+      | 7 days ago 00:01  | 7 days ago 00:31  | Push-up: 10 reps 0 kg                                            |
+      | 14 days ago 12:00 | 14 days ago 12:20 | Push-up: 10 reps 0 kg                                            |
     Then This week vs last week shows:
       | row      | this week | last week | change    |
       | Workouts | 1         | 2         | down 1    |
