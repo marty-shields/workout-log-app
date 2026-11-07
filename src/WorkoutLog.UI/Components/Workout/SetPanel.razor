@@ -19,7 +19,7 @@
         @foreach (var field in Fields)
         {
             <div class="@(field.Kind == FieldKind.Duration ? "wide" : null)">
-                <FieldInput @ref="fields[field.Key]" Field="field" Entry="Entry" OnChanged="OnChanged" TestId="@($"{TestId}-{field.Key}")" />
+                <FieldInput @ref="fields[field.Key]" Field="field" Entry="Entry" OnChanged="OnChanged" OnEnter="@(field == Fields[^1] ? OnEnterLast : default)" TestId="@($"{TestId}-{field.Key}")" />
             </div>
         }
     </div>
@@ -54,6 +54,10 @@
     /// <summary>Raised after a value changes.</summary>
     [Parameter]
     public EventCallback OnChanged { get; set; }
+
+    /// <summary>Raised when Enter is pressed in the last field.</summary>
+    [Parameter]
+    public EventCallback OnEnterLast { get; set; }
 
     /// <summary>Raised by the remove button.</summary>
     [Parameter]

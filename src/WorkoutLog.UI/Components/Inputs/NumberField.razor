@@ -15,7 +15,8 @@
            aria-required="@(Required ? "true" : null)"
            aria-invalid="@(Invalid ? "true" : null)"
            data-testid="@TestId"
-           @oninput="OnInput" />
+           @oninput="OnInput"
+           @onkeydown="OnKeyDown" />
 </label>
 
 @code {
@@ -47,6 +48,10 @@
     [Parameter]
     public EventCallback<string?> ValueChanged { get; set; }
 
+    /// <summary>Raised when Enter is pressed in the input. Unset: Enter does nothing.</summary>
+    [Parameter]
+    public EventCallback OnEnter { get; set; }
+
     /// <summary>Value of the input's data-testid attribute.</summary>
     [Parameter]
     public string? TestId { get; set; }
@@ -55,6 +60,8 @@
 
     /// <summary>Moves focus to the input.</summary>
     public ValueTask FocusAsync() => input.FocusAsync();
+
+    private Task OnKeyDown(KeyboardEventArgs e) => e.Key == "Enter" ? OnEnter.InvokeAsync() : Task.CompletedTask;
 
     private Task OnInput(ChangeEventArgs e)
     {

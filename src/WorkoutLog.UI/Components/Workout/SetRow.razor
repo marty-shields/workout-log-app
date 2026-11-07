@@ -8,7 +8,7 @@
     }
     @foreach (var field in Fields)
     {
-        <FieldInput @ref="fields[field.Key]" Field="field" Entry="Entry" ShowLabel="false" OnChanged="OnChanged" TestId="@($"{TestId}-{field.Key}")" />
+        <FieldInput @ref="fields[field.Key]" Field="field" Entry="Entry" ShowLabel="false" OnChanged="OnChanged" OnEnter="@(field == Fields[^1] ? OnEnterLast : default)" TestId="@($"{TestId}-{field.Key}")" />
     }
     <IconButton Icon="IconName.Close" AriaLabel="@RemoveLabel" TestId="@($"{TestId}-remove")" Muted Size="IconSize.Small" OnClick="OnRemove" />
 </div>
@@ -57,6 +57,10 @@
     /// <summary>Raised after a value changes.</summary>
     [Parameter]
     public EventCallback OnChanged { get; set; }
+
+    /// <summary>Raised when Enter is pressed in the last field.</summary>
+    [Parameter]
+    public EventCallback OnEnterLast { get; set; }
 
     /// <summary>Raised by the remove button.</summary>
     [Parameter]
