@@ -68,6 +68,18 @@ public class ConsistencyServiceTests
     }
 
     [Test]
+    public async Task GetAsync_WorkoutLaterTodayLastWeek_IsInLastWeekToDate()
+    {
+        var now = new DateTimeOffset(2026, 11, 3, 5, 12, 0, TimeSpan.Zero);
+        UseClock(now, TimeZoneInfo.Utc);
+        repository.Setup(r => r.ListTalliesAsync(DateTimeOffset.MinValue, now)).ReturnsAsync([Workout(new DateTimeOffset(2026, 10, 27, 18, 0, 0, TimeSpan.Zero), 4)]);
+
+        var result = await service.GetAsync();
+
+        Assert.That(result.Comparison.LastWeekToDate.Workouts, Is.EqualTo(1));
+    }
+
+    [Test]
     public async Task GetAsync_StreakCountsWeeksBeforeThe12()
     {
         var weekly = Enumerable.Range(0, 20).Select(weeksAgo => Workout(Now.AddDays(-7 * weeksAgo), 3)).ToList();

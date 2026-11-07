@@ -21,6 +21,18 @@ public class WeekComparisonRuleTests
     }
 
     [Test]
+    public void Compare_WorkoutLaterOnTheSameWeekdayLastWeek_IsInLastWeekToDate()
+    {
+        var lastWednesday = new DateTimeOffset(2026, 10, 21, 0, 0, 0, TimeSpan.Zero);
+
+        var comparison = rule.Compare(
+            [Workout(lastWednesday.AddHours(17).AddMinutes(59)), Workout(lastWednesday.AddHours(23).AddMinutes(30)), Workout(lastWednesday.AddDays(1))],
+            Now, TimeZoneInfo.Utc);
+
+        Assert.That(comparison.LastWeekToDate.Workouts, Is.EqualTo(2));
+    }
+
+    [Test]
     public void Compare_LastWeekToDateIsLastMondayToTheSameWeekdayAndTime()
     {
         var lastMonday = new DateTimeOffset(2026, 10, 19, 0, 0, 0, TimeSpan.Zero);

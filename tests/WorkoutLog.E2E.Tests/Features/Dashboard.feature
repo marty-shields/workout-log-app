@@ -79,6 +79,18 @@ Feature: Dashboard
       | Sets     | 2         | 2         | no change |
 
   @today
+  Scenario: A workout later in the day than now, on the same day last week, is in last week's total
+    Given these saved workouts:
+      | started          | finished         | exercises             |
+      | today 00:00      | today 00:30      | Push-up: 10 reps 0 kg |
+      | 7 days ago 23:59 | 6 days ago 00:19 | Push-up: 10 reps 0 kg |
+    Then This week vs last week shows:
+      | row      | this week | last week | change    |
+      | Workouts | 1         | 1         | no change |
+      | Time     | 30m       | 20m       | up 10m    |
+      | Sets     | 1         | 1         | no change |
+
+  @today
   Scenario: The last 12 weeks and the streak, seeded across three weeks
     Given these saved workouts:
       | started           | exercises             |
