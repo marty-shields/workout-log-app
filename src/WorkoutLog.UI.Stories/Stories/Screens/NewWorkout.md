@@ -18,7 +18,7 @@ Log a workout as you go. View: `WorkoutView` with `Mode` New; page: `NewWorkoutP
 
 ## Exercises
 Each card shows the fields its definition declares ([exercise list](https://github.com/marty-shields/workout-log-app/blob/main/docs/exercise-list.md)), with the exercise's label where it has one (e.g. Assist (kg), Resistance, Damper). Card parts: [Workout components](./?path=/custom/components-workout-overview).
-- Strength: rows of sets (e.g. weight and reps, duration for Plank), Add set, remove set. Starts with one empty set. One set is open at a time and the others show as a summary line (see below). Add set does nothing while the open set is empty or has errors; the errors show on that set and focus moves to its first field at fault. Otherwise it closes the open set and opens the new one. At 10 sets Add set is off, with a muted note "At most 10 sets" under it.
+- Strength: rows of sets (e.g. weight and reps, duration for Plank), Add set, remove set. Starts with one empty set. One set is open at a time and the others show as a summary line (see below). Add set does nothing while the open set is empty or has errors; the errors show on that set and focus moves to its first field at fault. Otherwise it closes the open set and opens the new one. Enter in the last field of the open set does the same as Add set and focuses the new set's first field; Enter in an earlier field leaves the keyboard's own next-field move alone, and a duration as the last field ignores Enter. At 10 sets Add set is off, with a muted note "At most 10 sets" under it.
 - Weight is required (`*`). On a bodyweight move, assisted machine, hold or carry, a blank weight becomes 0 before every check: Add set, opening another set and Save. A lift's blank weight shows "Enter weight".
 - A closed set is a summary line, e.g. *1  8 reps · 60kg* or *1  40m · 32kg · 0:00:45*, with a pencil and a trash. The pencil opens it, once the open set is valid; an open set with errors stays open and shows them. The trash deletes it at once, with Undo (see [Deleting](#deleting)). The close button on the open set removes it at once, with no Undo, and leaves every set closed. Carries (more than two fields, one a duration) open as a panel with every field labelled; other exercises open as one row. A set with errors is never closed, so a closed set shows none.
 - Cardio: one entry, duration and the exercise's other metrics, with units. Starts empty; not removable on its own. Outdoor Run and Walk show their pace, and Treadmill and Outdoor Cycle their speed, worked out from distance and duration, as a muted line under the fields: *Pace 5:46/km*, *Speed 10.4 km/h*, or *Pace —* / *Speed —* until both are filled and more than 0. They are never typed.
@@ -77,9 +77,9 @@ A valid Save calls `IWorkoutService.SaveNewAsync` with the workout note and `ISe
 
 ## Haptics
 With the phone on a bench, a short buzz confirms the moments that matter (see [Haptics](./?path=/custom/foundations-haptics)):
-- Add set that closes a valid open set: a light tick (`SetLogged`).
+- Add set, or Enter in the last field, that closes a valid open set: a light tick (`SetLogged`).
 - The tick marking an exercise done (`ExerciseDone`), and Save saving the workout, once (`WorkoutSaved`).
-- Add set, the tick or Save blocked by errors: the reject pattern (`Rejected`).
+- Add set, Enter in the last field, the tick or Save blocked by errors: the reject pattern (`Rejected`).
 
 Nothing else buzzes: not typing, opening another set, adding or deleting an exercise or set, Undo, a failed write or Discard. Nothing buzzes when the phone's touch feedback is off.
 
