@@ -69,3 +69,20 @@ Feature: Keyboard
     When I open the add-exercise list
     And I close the add-exercise list with its back arrow
     Then the add-exercise list is closed
+
+  Scenario: Enter in a set's first field adds no set
+    Given I have added "Barbell Back Squat"
+    When I tap Barbell Back Squat set 1 weight
+    And I type "60" into Barbell Back Squat set 1 weight
+    And I press the Android Enter key
+    Then Barbell Back Squat has 1 set
+
+  Scenario: Enter in a set's last field adds a set and focuses its first field
+    Given I have added "Barbell Back Squat"
+    When I tap Barbell Back Squat set 1 weight
+    And I type "60" into Barbell Back Squat set 1 weight
+    And I tap Barbell Back Squat set 1 reps
+    And I type "8" into Barbell Back Squat set 1 reps
+    And I press the Android Enter key
+    Then Barbell Back Squat has 2 sets
+    And focus is on Barbell Back Squat set 2 weight

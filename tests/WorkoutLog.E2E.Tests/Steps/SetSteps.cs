@@ -27,6 +27,13 @@ public sealed partial class SetSteps(WebView web, Native native, WorkoutScreen w
         }
     }
 
+    [When(@"^I press the Android Enter key$")]
+    public void WhenIPressEnter()
+    {
+        native.EnterKey();
+        web.Settle();
+    }
+
     [Given(@"^I have entered ""(.*)"" in (.+)$")]
     public void GivenIHaveEntered(string text, string field)
     {

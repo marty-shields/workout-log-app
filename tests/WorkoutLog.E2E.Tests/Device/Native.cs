@@ -32,6 +32,8 @@ public sealed class Native(WebView web)
     public void BackKey() => App.PressKeyCode(AndroidKeyCode.Back);
 
     /// <summary>Goes to the home screen and leaves the app running; Android backs up no app that was force-stopped, as Appium stops it.</summary>
+    public void EnterKey() => App.PressKeyCode(AndroidKeyCode.Enter);
+
     public void Home() => App.PressKeyCode(AndroidKeyCode.Home);
 
     public bool IsKeyboardShown() => App.IsKeyboardShown();

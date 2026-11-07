@@ -1,9 +1,11 @@
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Web;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Testing;
 using Microsoft.JSInterop;
 using WorkoutLog.Core.Domain.Exercises;
+using WorkoutLog.Core.Domain.Workouts;
 using WorkoutLog.UI.Components.Actions;
 using WorkoutLog.UI.Components.Workout;
 using WorkoutLog.UI.Logging;
@@ -110,6 +112,82 @@ public class ExerciseCardTests : ComponentTestBase
         ]);
         exercise.Entries.Add(new EntryState { Values = { ["reps"] = "8" } });
         return exercise;
+    }
+
+    [Test]
+    public void EnterInLastField_AddsASetAndOpensIt()
+    {
+        var exercise = Strength(1);
+        var cut = Context.Render<ExerciseCard>(p => p
+            .Add(x => x.Exercise, exercise)
+            .Add(x => x.TestId, "exercise-1"));
+
+        cut.Find("[data-testid=exercise-1-set-1-reps]").KeyDown(new KeyboardEventArgs { Key = "Enter" });
+        Assert.That(exercise.Entries, Has.Count.EqualTo(1));
+
+        cut.Find("[data-testid=exercise-1-set-1-weight]").KeyDown(new KeyboardEventArgs { Key = "Enter" });
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(exercise.Entries, Has.Count.EqualTo(2));
+            Assert.That(cut.FindAll("[data-testid=exercise-1-set-2-reps]"), Has.Count.EqualTo(1));
+        });
+    }
+
+    [Test]
+    public void EnterInLastField_FocusesTheNewSetsFirstField()
+    {
+        var cut = Context.Render<ExerciseCard>(p => p
+            .Add(x => x.Exercise, Strength(1))
+            .Add(x => x.TestId, "exercise-1"));
+
+        cut.Find("[data-testid=exercise-1-set-1-weight]").KeyDown(new KeyboardEventArgs { Key = "Enter" });
+
+        cut.WaitForAssertion(() => Assert.That(FocusedId(), Is.EqualTo(ReferenceId(cut, "exercise-1-set-2-reps"))));
+    }
+
+    [Test]
+    public void EnterInLastField_WithTenSets_AddsNoSet()
+    {
+        var exercise = Strength(WorkoutLimits.MaxSets);
+        var cut = Context.Render<ExerciseCard>(p => p
+            .Add(x => x.Exercise, exercise)
+            .Add(x => x.TestId, "exercise-1"));
+
+        cut.Find($"[data-testid=exercise-1-set-{WorkoutLimits.MaxSets}-weight]").KeyDown(new KeyboardEventArgs { Key = "Enter" });
+
+        Assert.That(exercise.Entries, Has.Count.EqualTo(WorkoutLimits.MaxSets));
+    }
+
+    [Test]
+    public void Carry_EnterInTheDurationLastField_IsIgnoredAndEnterElsewhereAddsNoSet()
+    {
+        var exercise = Carry(1);
+        var cut = Context.Render<ExerciseCard>(p => p
+            .Add(x => x.Exercise, exercise)
+            .Add(x => x.TestId, "exercise-1"));
+
+        cut.Find("[data-testid=exercise-1-set-1-weight]").KeyDown(new KeyboardEventArgs { Key = "Enter" });
+
+        Assert.That(exercise.Entries, Has.Count.EqualTo(1));
+    }
+
+    [Test]
+    public void EnterInLastField_BlockedByValidation_AddsNoSet()
+    {
+        var exercise = Strength(1);
+        var cut = Context.Render<ExerciseCard>(p => p
+            .Add(x => x.Exercise, exercise)
+            .Add(x => x.ValidateSet, WholeReps)
+            .Add(x => x.TestId, "exercise-1"));
+
+        cut.Find("[data-testid=exercise-1-set-1-weight]").KeyDown(new KeyboardEventArgs { Key = "Enter" });
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(exercise.Entries, Has.Count.EqualTo(1));
+            Assert.That(exercise.Entries[0].Errors, Contains.Key("reps"));
+        });
     }
 
     [Test]

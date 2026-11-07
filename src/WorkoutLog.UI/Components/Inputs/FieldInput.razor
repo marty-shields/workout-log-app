@@ -20,6 +20,7 @@ else
                  Invalid="Invalid"
                  Value="@CurrentValue"
                  ValueChanged="OnValueChanged"
+                 OnEnter="OnEnter"
                  TestId="@TestId" />
 }
 
@@ -39,6 +40,10 @@ else
     /// <summary>Raised after the value changes.</summary>
     [Parameter]
     public EventCallback OnChanged { get; set; }
+
+    /// <summary>Raised when Enter is pressed in a number input. A duration ignores it.</summary>
+    [Parameter]
+    public EventCallback OnEnter { get; set; }
 
     /// <summary>data-testid of the input, or the prefix for duration boxes.</summary>
     [Parameter]
