@@ -10,7 +10,7 @@ public class WeekComparisonTests : ComponentTestBase
     private static readonly WeekTotals Nothing = new(0, TimeSpan.Zero, 0);
 
     [Test]
-    public void TitleColumnsAndNote_AreShown()
+    public void TitleAndColumns_AreShown()
     {
         var cut = Render(ThisWeek, LastWeekToDate);
 
@@ -18,7 +18,6 @@ public class WeekComparisonTests : ComponentTestBase
         {
             Assert.That(cut.Find("caption").TextContent, Is.EqualTo("This week vs last week"));
             Assert.That(cut.FindAll("thead th").Select(th => th.TextContent), Is.EqualTo(new[] { "This week", "Last week", "Change" }));
-            Assert.That(cut.Find(".note").TextContent, Is.EqualTo("Compared with last week up to the same day and time."));
         });
     }
 
