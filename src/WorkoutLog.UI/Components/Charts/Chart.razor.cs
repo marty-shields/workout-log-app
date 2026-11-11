@@ -176,7 +176,8 @@ public partial class Chart
 
     private static decimal NiceStep(decimal rough)
     {
-        var power = (decimal)Math.Pow(10, Math.Floor(Math.Log10((double)rough)));
+        var exponent = (int)Math.Floor(Math.Log10((double)rough));
+        var power = exponent < 0 ? 1m / (decimal)Math.Pow(10, -exponent) : (decimal)Math.Pow(10, exponent);
         return NiceSteps.First(m => m * power >= rough) * power;
     }
 

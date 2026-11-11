@@ -131,18 +131,19 @@ public class DatabaseInitializerTests
         Assert.That(await connection.ExecuteAsync(insert), Is.EqualTo(1));
     }
 
-    [TestCase(0.29)]
-    [TestCase(62.5)]
-    [TestCase(999.99)]
-    [TestCase(0)]
+    [TestCase("0.29")]
+    [TestCase("62.5")]
+    [TestCase("999.99")]
+    [TestCase("0")]
     public async Task InitializeAsync_NewDatabase_KeepsTwoPlaceDecimalsWrittenBySqliteNet(decimal weight)
     {
         await Initializer(DatabaseInitializer.CurrentVersion, AppSteps()).InitializeAsync();
 
-        await connection.InsertAsync(new StrengthSetRow { WorkoutExerciseId = 1, Position = 0, Reps = 5, WeightKg = weight, Distance = weight + 0.01m });
-        await connection.InsertAsync(new CardioEntryRow { WorkoutExerciseId = 1, Duration = TimeSpan.FromMinutes(30), Distance = weight + 0.01m, Rate = weight + 0.01m });
+        var other = (double)(weight + 0.01m);
+        await connection.InsertAsync(new StrengthSetRow { WorkoutExerciseId = 1, Position = 0, Reps = 5, WeightKg = (double)weight, Distance = other });
+        await connection.InsertAsync(new CardioEntryRow { WorkoutExerciseId = 1, Duration = TimeSpan.FromMinutes(30), Distance = other, Rate = other });
 
-        Assert.That((await connection.Table<StrengthSetRow>().FirstAsync()).WeightKg, Is.EqualTo(weight));
+        Assert.That(Real.ToDecimal((await connection.Table<StrengthSetRow>().FirstAsync()).WeightKg), Is.EqualTo(weight));
     }
 
     [Test]
@@ -154,7 +155,7 @@ public class DatabaseInitializerTests
         {
             for (var hundredths = 0; hundredths <= 100_000; hundredths++)
             {
-                db.Insert(new StrengthSetRow { WorkoutExerciseId = 1, Position = 0, Reps = 1, WeightKg = hundredths / 100m });
+                db.Insert(new StrengthSetRow { WorkoutExerciseId = 1, Position = 0, Reps = 1, WeightKg = (double)(hundredths / 100m) });
             }
         });
 

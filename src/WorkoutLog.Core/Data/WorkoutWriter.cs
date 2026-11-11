@@ -97,20 +97,20 @@ internal sealed class WorkoutWriter(SQLiteConnection db) : IWorkoutWriter
         WorkoutExerciseId = workoutExerciseId,
         Position = position,
         Reps = set.Reps,
-        WeightKg = set.WeightKg ?? throw new ArgumentException("Strength set has no weight", nameof(set)),
+        WeightKg = (double)(set.WeightKg ?? throw new ArgumentException("Strength set has no weight", nameof(set))),
         Duration = set.Duration,
-        Distance = set.Distance,
+        Distance = (double?)set.Distance,
     };
 
     private static CardioEntryRow ToRow(CardioEntry entry, int workoutExerciseId) => new()
     {
         WorkoutExerciseId = workoutExerciseId,
         Duration = entry.Duration ?? throw new ArgumentException("Cardio entry has no duration", nameof(entry)),
-        Distance = entry.Distance,
+        Distance = (double?)entry.Distance,
         Floors = entry.Floors,
         Level = entry.Level,
-        Incline = entry.Incline,
+        Incline = (double?)entry.Incline,
         Calories = entry.Calories,
-        Rate = entry.Rate,
+        Rate = (double?)entry.Rate,
     };
 }

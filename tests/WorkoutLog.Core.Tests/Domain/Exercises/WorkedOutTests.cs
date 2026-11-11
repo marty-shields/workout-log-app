@@ -58,9 +58,9 @@ public class WorkedOutTests
     public void RoundPace_IsToTheSecondHalvesAwayFromZero(long ticks, int seconds) =>
         Assert.That(WorkedOut.RoundPace(TimeSpan.FromTicks(ticks)), Is.EqualTo(TimeSpan.FromSeconds(seconds)));
 
-    [TestCase(10.4, 10.4)]
-    [TestCase(8.575, 8.58)]
-    [TestCase(8.574999, 8.57)]
+    [TestCase("10.4", "10.4")]
+    [TestCase("8.575", "8.58")]
+    [TestCase("8.574999", "8.57")]
     public void RoundSpeed_IsTo2PlacesHalvesAwayFromZero(decimal speed, decimal expected) =>
         Assert.That(WorkedOut.RoundSpeed(speed), Is.EqualTo(expected));
 
