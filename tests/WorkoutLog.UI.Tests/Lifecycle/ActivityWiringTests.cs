@@ -1,8 +1,8 @@
 namespace WorkoutLog.UI.Tests.Lifecycle;
 
 /// <summary>
-/// The App passes the activity's lifecycle to <c>IBackButton</c>, <c>IAppLifecycle</c> and <c>AndroidDiagnostics</c>;
-/// the back button and app start follow only <c>MainActivity</c>, not MAUI's own activities.
+/// The App passes the activity's lifecycle to <c>IBackButton</c>, <c>IAppLifecycle</c>, <c>AndroidKeyboardRestore</c> and <c>AndroidDiagnostics</c>;
+/// the back button, app start and keyboard restore follow only <c>MainActivity</c>, not MAUI's own activities.
 /// The App can't be referenced, so its files are read. Whitespace is ignored.
 /// </summary>
 public class ActivityWiringTests
@@ -16,6 +16,9 @@ public class ActivityWiringTests
     [TestCase("MauiProgram.cs", ".OnDestroy(activity => Lifecycle().Detach(activity))")]
     [TestCase("MauiProgram.cs", "AddDiagnostics(builder);")]
     [TestCase("MauiProgram.cs", ".OnStart(_ => Diagnostics().ActivityStarted())")]
+    [TestCase("MauiProgram.cs", "AddKeyboardRestore(builder);")]
+    [TestCase("MauiProgram.cs", "if (activity is MainActivity) { KeyboardRestore().Paused(activity); }")]
+    [TestCase("MauiProgram.cs", "if (activity is MainActivity) { _ = KeyboardRestore().Resumed(activity); }")]
     [TestCase("Navigation/AndroidBackButton.cs", "backButton.Attach(activity);")]
     [TestCase("Navigation/AndroidBackButton.cs", "backButton.Detach(activity);")]
     [TestCase("Diagnostics/AndroidDiagnostics.cs", "public void ActivityStarted() => Log.ActivityStarted(logger);")]

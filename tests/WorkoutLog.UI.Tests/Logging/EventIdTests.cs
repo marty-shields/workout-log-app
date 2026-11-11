@@ -92,6 +92,7 @@ public partial class EventIdTests
             ["UnhandledException"] = 5031,
             ["UnobservedTaskException"] = 5033,
             ["HapticFailed"] = 5051,
+            ["KeyboardRestoreFailed"] = 5061,
         }));
 
     [TestCaseSource(nameof(SourceFiles))]

@@ -36,4 +36,7 @@ internal enum AppEvent
 
     /// <summary>Touch feedback for a haptic cue failed; nothing else happens.</summary>
     HapticFailed = 5051,
+
+    /// <summary>Showing the keyboard again after the app returned failed; the keyboard stays as Android left it.</summary>
+    KeyboardRestoreFailed = 5061,
 }
