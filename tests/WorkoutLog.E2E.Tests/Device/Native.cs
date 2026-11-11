@@ -147,17 +147,21 @@ public sealed class Native(WebView web)
 
     /// <summary>
     /// Turns the screen off with the power key, wakes it and dismisses the keyguard, as a user locks and unlocks the phone.
-    /// Returns once the app's window has the focus again and the page has settled. No PIN is entered.
+    /// Waits until the app's window lost the focus, so the app really paused, and until it has the focus again; the page then settles.
+    /// No PIN is entered.
     /// </summary>
     public void LockAndUnlock()
     {
         var adb = AppiumSetup.Adb;
+        var package = AppiumSetup.App.Package;
+        bool AppHasFocus() => adb.Shell("dumpsys", "window").Split('\n').Any(line => line.Contains("mCurrentFocus", StringComparison.Ordinal) && line.Contains(package, StringComparison.Ordinal));
+
         adb.Shell("input", "keyevent", "KEYCODE_SLEEP");
-        web.WaitUntil(() => adb.Shell("dumpsys", "power").Contains("mWakefulness=Asleep", StringComparison.Ordinal), "the screen didn't turn off", LaunchTimeout);
+        web.WaitUntil(() => adb.Shell("dumpsys", "power") is var power && (power.Contains("mWakefulness=Asleep", StringComparison.Ordinal) || power.Contains("mWakefulness=Dozing", StringComparison.Ordinal)), "the screen didn't turn off", LaunchTimeout);
+        web.WaitUntil(() => !AppHasFocus(), "the app's window kept the focus while the screen was off", LaunchTimeout);
         adb.Shell("input", "keyevent", "KEYCODE_WAKEUP");
         adb.Shell("wm", "dismiss-keyguard");
-        web.WaitUntil(() => App.GetAppState(AppiumSetup.App.Package) == AppState.RunningInForeground, "the app didn't come back to the front", LaunchTimeout);
-        web.WaitUntil(() => adb.Shell("dumpsys", "window").Split('\n').Any(line => line.Contains("mCurrentFocus", StringComparison.Ordinal) && line.Contains(AppiumSetup.App.Package, StringComparison.Ordinal)), "the app's window didn't get the focus", LaunchTimeout);
+        web.WaitUntil(AppHasFocus, "the app's window didn't get the focus", LaunchTimeout);
         web.Settle();
     }
 

@@ -2,7 +2,7 @@ namespace WorkoutLog.UI.Tests.Lifecycle;
 
 /// <summary>
 /// The App passes the activity's lifecycle to <c>IBackButton</c>, <c>IAppLifecycle</c>, <c>AndroidKeyboardRestore</c> and <c>AndroidDiagnostics</c>;
-/// the back button, app start and keyboard restore follow only <c>MainActivity</c>, not MAUI's own activities.
+/// the back button, app start and keyboard restore follow only <c>MainActivity</c>, not MAUI's own activities, except that destroy is passed on and each class ignores any activity but its own.
 /// The App can't be referenced, so its files are read. Whitespace is ignored.
 /// </summary>
 public class ActivityWiringTests
@@ -17,9 +17,10 @@ public class ActivityWiringTests
     [TestCase("MauiProgram.cs", "AddDiagnostics(builder);")]
     [TestCase("MauiProgram.cs", ".OnStart(_ => Diagnostics().ActivityStarted())")]
     [TestCase("MauiProgram.cs", "AddKeyboardRestore(builder);")]
-    [TestCase("MauiProgram.cs", "if (activity is MainActivity) { KeyboardRestore().Paused(activity); }")]
-    [TestCase("MauiProgram.cs", "if (activity is MainActivity) { KeyboardRestore().Attach(activity); }")]
-    [TestCase("MauiProgram.cs", "if (activity is MainActivity) { KeyboardRestore().Resumed(activity); }")]
+    [TestCase("MauiProgram.cs", "builder.Services.AddSingleton<AndroidKeyboardRestore>();")]
+    [TestCase("MauiProgram.cs", ".OnPause(activity => { if (activity is MainActivity) { KeyboardRestore().Paused(activity); } })")]
+    [TestCase("MauiProgram.cs", ".OnCreate((activity, _) => { if (activity is MainActivity) { KeyboardRestore().Attach(activity); } })")]
+    [TestCase("MauiProgram.cs", ".OnResume(activity => { if (activity is MainActivity) { KeyboardRestore().Resumed(activity); } })")]
     [TestCase("MauiProgram.cs", ".OnDestroy(activity => KeyboardRestore().Detach(activity))")]
     [TestCase("Navigation/AndroidBackButton.cs", "backButton.Attach(activity);")]
     [TestCase("Navigation/AndroidBackButton.cs", "backButton.Detach(activity);")]

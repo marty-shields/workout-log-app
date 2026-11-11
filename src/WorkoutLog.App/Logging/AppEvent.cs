@@ -52,6 +52,15 @@ internal enum AppEvent
     /// <summary>The restore asked the WebView whether a text input is focused, and shows the keyboard only if so.</summary>
     KeyboardRestoreDecided = 5065,
 
-    /// <summary>Whether the keyboard is wanted changed: shown, or hidden by the user rather than the system.</summary>
+    /// <summary>The keyboard became visible or hidden, or whether it is wanted changed; records the window and screen state at that moment.</summary>
     KeyboardWantedChanged = 5066,
+
+    /// <summary>The restore asked Android to show the keyboard; records whether Android accepted the request.</summary>
+    KeyboardShowRequested = 5067,
+
+    /// <summary>A restore ended without asking for the keyboard, with the reason.</summary>
+    KeyboardRestoreSkipped = 5068,
+
+    /// <summary>The device manufacturer, model and default keyboard app package, logged once when the activity is created.</summary>
+    KeyboardDevice = 5069,
 }

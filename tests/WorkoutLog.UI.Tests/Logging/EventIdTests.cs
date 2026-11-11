@@ -98,6 +98,9 @@ public partial class EventIdTests
             ["KeyboardWindowFocusRegained"] = 5064,
             ["KeyboardRestoreDecided"] = 5065,
             ["KeyboardWantedChanged"] = 5066,
+            ["KeyboardShowRequested"] = 5067,
+            ["KeyboardRestoreSkipped"] = 5068,
+            ["KeyboardDevice"] = 5069,
         }));
 
     [TestCaseSource(nameof(SourceFiles))]

@@ -70,7 +70,11 @@ public sealed class AppSteps(
     }
 
     [When(@"^I lock and unlock the phone$")]
-    public void WhenILockAndUnlockThePhone() => native.LockAndUnlock();
+    public void WhenILockAndUnlockThePhone()
+    {
+        state.LogAtStart = log.Read();
+        native.LockAndUnlock();
+    }
 
     [When(@"^I pull down the list$")]
     public void WhenIPullDownTheList() => native.PullDown();
@@ -108,6 +112,13 @@ public sealed class AppSteps(
     {
         var before = AppLog.Count(state.LogAtStart, text);
         web.Eventually(() => AppLog.Count(log.Read(), text), Is.EqualTo(before + 1), $"lines with \"{text}\"");
+    }
+
+    [Then(@"^the log shows ""(.*)"" since I locked the phone$")]
+    public void ThenTheLogShowsSinceILockedThePhone(string text)
+    {
+        var before = AppLog.Count(state.LogAtStart, text);
+        web.Eventually(() => AppLog.Count(log.Read(), text), Is.GreaterThan(before), $"lines with \"{text}\"");
     }
 
     [Then(@"^the log contains none of: (.+)$")]
