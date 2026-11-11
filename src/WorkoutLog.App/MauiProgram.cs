@@ -5,6 +5,7 @@ using WorkoutLog.App.Diagnostics;
 using WorkoutLog.App.Export;
 using WorkoutLog.App.Haptics;
 using WorkoutLog.App.Import;
+using WorkoutLog.App.Keyboard;
 using WorkoutLog.App.Logging;
 using WorkoutLog.App.Navigation;
 using WorkoutLog.App.Sharing;
@@ -44,6 +45,7 @@ public static class MauiProgram
         AddDiagnostics(builder);
         AddBackButton(builder);
         AddAppLifecycle(builder);
+        AddKeyboardRestore(builder);
 
         return builder.Build();
     }
@@ -93,6 +95,40 @@ public static class MauiProgram
             .OnDestroy(activity => Lifecycle().Detach(activity))));
 
         static IAppLifecycle Lifecycle() => IPlatformApplication.Current!.Services.GetRequiredService<IAppLifecycle>();
+    }
+
+    /// <summary>
+    /// Restores the soft keyboard after the app returns through <see cref="AndroidKeyboardRestore"/>, which follows <see cref="MainActivity"/> from create to destroy.
+    /// The handlers resolve it from the app's services.
+    /// </summary>
+    private static void AddKeyboardRestore(MauiAppBuilder builder)
+    {
+        builder.Services.AddSingleton<AndroidKeyboardRestore>();
+        builder.ConfigureLifecycleEvents(events => events.AddAndroid(android => android
+            .OnCreate((activity, _) =>
+            {
+                if (activity is MainActivity)
+                {
+                    KeyboardRestore().Attach(activity);
+                }
+            })
+            .OnPause(activity =>
+            {
+                if (activity is MainActivity)
+                {
+                    KeyboardRestore().Paused(activity);
+                }
+            })
+            .OnResume(activity =>
+            {
+                if (activity is MainActivity)
+                {
+                    KeyboardRestore().Resumed(activity);
+                }
+            })
+            .OnDestroy(activity => KeyboardRestore().Detach(activity))));
+
+        static AndroidKeyboardRestore KeyboardRestore() => IPlatformApplication.Current!.Services.GetRequiredService<AndroidKeyboardRestore>();
     }
 
     /// <summary>

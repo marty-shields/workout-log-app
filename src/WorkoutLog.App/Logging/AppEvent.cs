@@ -36,4 +36,31 @@ internal enum AppEvent
 
     /// <summary>Touch feedback for a haptic cue failed; nothing else happens.</summary>
     HapticFailed = 5051,
+
+    /// <summary>Showing the keyboard again after the app returned failed; the keyboard stays as Android left it.</summary>
+    KeyboardRestoreFailed = 5061,
+
+    /// <summary>The app paused; records whether the keyboard was wanted and the window had focus.</summary>
+    KeyboardPaused = 5062,
+
+    /// <summary>The app resumed; records whether the keyboard was wanted and the window had focus.</summary>
+    KeyboardResumed = 5063,
+
+    /// <summary>The window got its focus back while a keyboard restore was waiting for it.</summary>
+    KeyboardWindowFocusRegained = 5064,
+
+    /// <summary>The restore asked the WebView whether a text input is focused, and shows the keyboard only if so.</summary>
+    KeyboardRestoreDecided = 5065,
+
+    /// <summary>The keyboard became visible or hidden, or whether it is wanted changed; records the window and screen state at that moment.</summary>
+    KeyboardWantedChanged = 5066,
+
+    /// <summary>The restore asked Android to show the keyboard; records which attempt it was and whether Android accepted the request.</summary>
+    KeyboardShowRequested = 5067,
+
+    /// <summary>A restore ended without asking for the keyboard, with the reason.</summary>
+    KeyboardRestoreSkipped = 5068,
+
+    /// <summary>The device manufacturer, model and default keyboard app package, logged once when the activity is created.</summary>
+    KeyboardDevice = 5069,
 }

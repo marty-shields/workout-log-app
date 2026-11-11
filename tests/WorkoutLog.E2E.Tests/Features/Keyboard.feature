@@ -86,3 +86,23 @@ Feature: Keyboard
     And I press the Android Enter key
     Then Barbell Back Squat has 2 sets
     And focus is on Barbell Back Squat set 2 weight
+
+  Scenario: Regression guard, passes without the fix on stock images: locking and unlocking with the keyboard open keeps it
+    Given I have added "Barbell Back Squat"
+    When I tap Barbell Back Squat set 1 weight
+    And I type "60" into Barbell Back Squat set 1 weight
+    And I tap Barbell Back Squat set 1 reps
+    And I lock and unlock the phone
+    Then the log shows "App resumed, keyboard wanted True" since I locked the phone
+    And the soft keyboard is shown
+    And focus is on Barbell Back Squat set 1 reps
+
+  Scenario: Regression guard, passes without the fix on stock images: locking and unlocking with the keyboard hidden keeps it hidden
+    Given I have added "Barbell Back Squat"
+    When I tap Barbell Back Squat set 1 reps
+    And I go back with Android back
+    Then the soft keyboard is hidden
+    When I lock and unlock the phone
+    Then the log shows "App resumed, keyboard wanted False" since I locked the phone
+    And the soft keyboard is hidden
+    And focus is on Barbell Back Squat set 1 reps
