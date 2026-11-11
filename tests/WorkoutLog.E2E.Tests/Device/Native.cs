@@ -145,7 +145,10 @@ public sealed class Native(WebView web)
     /// <summary>Sends the app to the background for <paramref name="time"/>, then brings it back.</summary>
     public void Background(TimeSpan time) => App.BackgroundApp(time);
 
-    /// <summary>Turns the screen off with the power key, wakes it and dismisses the keyguard, as a user locks and unlocks the phone.</summary>
+    /// <summary>
+    /// Turns the screen off with the power key, wakes it and dismisses the keyguard, as a user locks and unlocks the phone.
+    /// Returns once the app's window has the focus again and the page has settled. No PIN is entered.
+    /// </summary>
     public void LockAndUnlock()
     {
         var adb = AppiumSetup.Adb;
@@ -154,6 +157,8 @@ public sealed class Native(WebView web)
         adb.Shell("input", "keyevent", "KEYCODE_WAKEUP");
         adb.Shell("wm", "dismiss-keyguard");
         web.WaitUntil(() => App.GetAppState(AppiumSetup.App.Package) == AppState.RunningInForeground, "the app didn't come back to the front", LaunchTimeout);
+        web.WaitUntil(() => adb.Shell("dumpsys", "window").Split('\n').Any(line => line.Contains("mCurrentFocus", StringComparison.Ordinal) && line.Contains(AppiumSetup.App.Package, StringComparison.Ordinal)), "the app's window didn't get the focus", LaunchTimeout);
+        web.Settle();
     }
 
     public AppState State() => App.GetAppState(AppiumSetup.App.Package);

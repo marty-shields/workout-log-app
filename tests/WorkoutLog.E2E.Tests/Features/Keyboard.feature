@@ -87,7 +87,7 @@ Feature: Keyboard
     Then Barbell Back Squat has 2 sets
     And focus is on Barbell Back Squat set 2 weight
 
-  Scenario: Locking and unlocking the phone with the keyboard open keeps the keyboard
+  Scenario: Regression guard, passes without the fix on stock images: locking and unlocking with the keyboard open keeps it
     Given I have added "Barbell Back Squat"
     When I tap Barbell Back Squat set 1 weight
     And I type "60" into Barbell Back Squat set 1 weight
@@ -96,7 +96,7 @@ Feature: Keyboard
     Then the soft keyboard is shown
     And focus is on Barbell Back Squat set 1 reps
 
-  Scenario: Locking and unlocking the phone with the keyboard hidden keeps it hidden
+  Scenario: Regression guard, passes without the fix on stock images: locking and unlocking with the keyboard hidden keeps it hidden
     Given I have added "Barbell Back Squat"
     When I tap Barbell Back Squat set 1 reps
     And I go back with Android back

@@ -2,60 +2,98 @@ using Android.App;
 using Android.Content;
 using Android.Views;
 using Android.Views.InputMethods;
-using Android.Webkit;
-using AndroidX.Core.View;
 using Microsoft.Extensions.Logging;
 using WorkoutLog.App.Logging;
-using WorkoutLog.UI.Keyboard;
 
 namespace WorkoutLog.App.Keyboard;
 
 /// <summary>
-/// Brings the soft keyboard back when the app returns with a text input still focused and the keyboard having been up.
+/// Brings the soft keyboard back when the app returns with a text input still focused and the user had not hidden the keyboard.
 /// Some phones hide the keyboard when the screen locks and nothing asks for it again after the unlock, although the focus survives.
 /// Where Android restores the keyboard itself the request is a no-op. A failure is logged and otherwise ignored.
 /// </summary>
-internal sealed partial class AndroidKeyboardRestore(ILogger<AndroidKeyboardRestore> logger)
+internal sealed partial class AndroidKeyboardRestore(ILogger<AndroidKeyboardRestore> logger) : IDisposable
 {
-    private const string TextInputFocused =
-        "(() => { const e = document.activeElement; return !!e && (e.tagName === 'INPUT' || e.tagName === 'TEXTAREA' || e.isContentEditable); })()";
+    private Activity? current;
+    private bool resumed;
+    private bool keyboardWanted;
+    private int generation;
+    private ViewTreeObserver? focusObserver;
+    private ViewTreeObserver.IOnWindowFocusChangeListener? focusListener;
 
-    private Task<KeyboardAtPause>? atPause;
-
-    /// <summary>Starts reading what was true of the keyboard. The page answers asynchronously, so <see cref="Resumed"/> waits for it.</summary>
-    public void Paused(Activity activity)
+    /// <summary>Starts following the keyboard of a created activity, which replaces any earlier one.</summary>
+    public void Attach(Activity activity)
     {
         try
         {
-            var decor = activity.Window?.DecorView;
-            var shown = decor is not null && ViewCompat.GetRootWindowInsets(decor)?.IsVisible(WindowInsetsCompat.Type.Ime()) == true;
-            atPause = shown && FindWebView(decor) is { } webView ? ReadAsync(webView, shown) : Task.FromResult(default(KeyboardAtPause));
+            Clear();
+            current = activity;
+            activity.Window?.DecorView?.SetOnApplyWindowInsetsListener(new InsetsListener(this));
         }
         catch (Exception exception)
         {
-            atPause = null;
             Log.RestoreFailed(logger, exception);
         }
     }
 
-    /// <summary>Shows the keyboard once the WebView has the window focus again, if <see cref="KeyboardAtPause.ShowOnResume"/>.</summary>
-    public async Task Resumed(Activity activity)
+    /// <summary>Stops following the keyboard when the current activity is destroyed. An earlier activity is ignored.</summary>
+    public void Detach(Activity activity)
     {
-        var pending = atPause;
-        atPause = null;
-        if (pending is null)
+        if (!ReferenceEquals(activity, current))
         {
             return;
         }
 
         try
         {
-            if (!(await pending).ShowOnResume || FindWebView(activity.Window?.DecorView) is not { } webView)
+            Clear();
+        }
+        catch (Exception exception)
+        {
+            Log.RestoreFailed(logger, exception);
+        }
+    }
+
+    public void Paused(Activity activity)
+    {
+        if (!ReferenceEquals(activity, current))
+        {
+            return;
+        }
+
+        try
+        {
+            resumed = false;
+            generation++;
+            RemoveFocusListener();
+            Log.Paused(logger, keyboardWanted, activity.Window?.DecorView?.HasWindowFocus ?? false);
+        }
+        catch (Exception exception)
+        {
+            Log.RestoreFailed(logger, exception);
+        }
+    }
+
+    /// <summary>Asks for the keyboard once the WebView has the window focus again, if it was wanted.</summary>
+    public void Resumed(Activity activity)
+    {
+        if (!ReferenceEquals(activity, current))
+        {
+            return;
+        }
+
+        try
+        {
+            resumed = true;
+            var decor = activity.Window?.DecorView;
+            Log.Resumed(logger, keyboardWanted, decor?.HasWindowFocus ?? false);
+            RemoveFocusListener();
+            if (!keyboardWanted || FindWebView(decor) is not { } webView)
             {
                 return;
             }
 
-            ShowWhenFocused(webView);
+            ShowWhenFocused(webView, ++generation);
         }
         catch (Exception exception)
         {
@@ -63,27 +101,88 @@ internal sealed partial class AndroidKeyboardRestore(ILogger<AndroidKeyboardRest
         }
     }
 
-    private static Task<KeyboardAtPause> ReadAsync(Android.Webkit.WebView webView, bool shown)
+    private void ImeChanged(Android.Views.View decor, WindowInsets insets)
     {
-        var result = new TaskCompletionSource<KeyboardAtPause>();
-        webView.EvaluateJavascript(TextInputFocused, new Callback(value => result.TrySetResult(new KeyboardAtPause(shown, value == "true"))));
-        return result.Task;
+        try
+        {
+            var visible = insets.IsVisible(WindowInsets.Type.Ime());
+            var chosenByUser = resumed && decor.HasWindowFocus;
+            var wanted = visible || (keyboardWanted && !chosenByUser);
+            if (wanted != keyboardWanted)
+            {
+                keyboardWanted = wanted;
+                Log.WantedChanged(logger, wanted, visible, resumed, decor.HasWindowFocus);
+            }
+        }
+        catch (Exception exception)
+        {
+            Log.RestoreFailed(logger, exception);
+        }
     }
 
-    private static void ShowWhenFocused(Android.Webkit.WebView webView)
+    private void ShowWhenFocused(Android.Webkit.WebView webView, int forGeneration)
     {
         if (webView.HasWindowFocus)
         {
-            webView.Post(() => Show(webView));
+            Post(webView, forGeneration);
             return;
         }
 
-        var listener = new FocusListener(webView);
-        webView.ViewTreeObserver?.AddOnWindowFocusChangeListener(listener);
+        var observer = webView.ViewTreeObserver;
+        if (observer is null)
+        {
+            return;
+        }
+
+        focusObserver = observer;
+        focusListener = new FocusListener(this, logger, webView, forGeneration);
+        observer.AddOnWindowFocusChangeListener(focusListener);
     }
 
-    private static void Show(Android.Webkit.WebView webView) =>
-        (webView.Context?.GetSystemService(Context.InputMethodService) as InputMethodManager)?.ShowSoftInput(webView, ShowFlags.Implicit);
+    private void Post(Android.Webkit.WebView webView, int forGeneration) => webView.Post(() =>
+    {
+        try
+        {
+            if (forGeneration != generation || !resumed)
+            {
+                return;
+            }
+
+            var textEditor = webView.OnCheckIsTextEditor();
+            Log.Decided(logger, textEditor);
+            if (textEditor)
+            {
+                (webView.Context?.GetSystemService(Context.InputMethodService) as InputMethodManager)?.ShowSoftInput(webView, ShowFlags.Implicit);
+            }
+        }
+        catch (Exception exception)
+        {
+            Log.RestoreFailed(logger, exception);
+        }
+    });
+
+    public void Dispose() => RemoveFocusListener();
+
+    private void RemoveFocusListener()
+    {
+        if (focusListener is not null && focusObserver is { IsAlive: true })
+        {
+            focusObserver.RemoveOnWindowFocusChangeListener(focusListener);
+        }
+
+        focusListener = null;
+        focusObserver = null;
+    }
+
+    private void Clear()
+    {
+        RemoveFocusListener();
+        current?.Window?.DecorView?.SetOnApplyWindowInsetsListener(null);
+        current = null;
+        resumed = false;
+        keyboardWanted = false;
+        generation++;
+    }
 
     private static Android.Webkit.WebView? FindWebView(Android.Views.View? view)
     {
@@ -106,22 +205,35 @@ internal sealed partial class AndroidKeyboardRestore(ILogger<AndroidKeyboardRest
         return null;
     }
 
-    private sealed class Callback(Action<string?> onValue) : Java.Lang.Object, IValueCallback
+    private sealed class InsetsListener(AndroidKeyboardRestore owner) : Java.Lang.Object, Android.Views.View.IOnApplyWindowInsetsListener
     {
-        public void OnReceiveValue(Java.Lang.Object? value) => onValue(value?.ToString());
+        public WindowInsets OnApplyWindowInsets(Android.Views.View v, WindowInsets insets)
+        {
+            owner.ImeChanged(v, insets);
+            return v.OnApplyWindowInsets(insets) ?? insets;
+        }
     }
 
-    private sealed class FocusListener(Android.Webkit.WebView webView) : Java.Lang.Object, ViewTreeObserver.IOnWindowFocusChangeListener
+    private sealed class FocusListener(AndroidKeyboardRestore owner, ILogger logger, Android.Webkit.WebView webView, int forGeneration)
+        : Java.Lang.Object, ViewTreeObserver.IOnWindowFocusChangeListener
     {
         public void OnWindowFocusChanged(bool hasFocus)
         {
-            if (!hasFocus)
+            try
             {
-                return;
-            }
+                if (!hasFocus)
+                {
+                    return;
+                }
 
-            webView.ViewTreeObserver?.RemoveOnWindowFocusChangeListener(this);
-            webView.Post(() => Show(webView));
+                Log.FocusRegained(logger);
+                owner.RemoveFocusListener();
+                owner.Post(webView, forGeneration);
+            }
+            catch (Exception exception)
+            {
+                Log.RestoreFailed(logger, exception);
+            }
         }
     }
 
@@ -129,5 +241,20 @@ internal sealed partial class AndroidKeyboardRestore(ILogger<AndroidKeyboardRest
     {
         [LoggerMessage((int)AppEvent.KeyboardRestoreFailed, LogLevel.Warning, "Restoring the keyboard after the app returned failed")]
         public static partial void RestoreFailed(ILogger logger, Exception exception);
+
+        [LoggerMessage((int)AppEvent.KeyboardPaused, LogLevel.Information, "App paused, keyboard wanted {Wanted}, window focus {WindowFocus}")]
+        public static partial void Paused(ILogger logger, bool wanted, bool windowFocus);
+
+        [LoggerMessage((int)AppEvent.KeyboardResumed, LogLevel.Information, "App resumed, keyboard wanted {Wanted}, window focus {WindowFocus}")]
+        public static partial void Resumed(ILogger logger, bool wanted, bool windowFocus);
+
+        [LoggerMessage((int)AppEvent.KeyboardWindowFocusRegained, LogLevel.Information, "Window focus regained while waiting to restore the keyboard")]
+        public static partial void FocusRegained(ILogger logger);
+
+        [LoggerMessage((int)AppEvent.KeyboardRestoreDecided, LogLevel.Information, "Keyboard restore, text input focused {TextInputFocused}")]
+        public static partial void Decided(ILogger logger, bool textInputFocused);
+
+        [LoggerMessage((int)AppEvent.KeyboardWantedChanged, LogLevel.Information, "Keyboard wanted {Wanted}, keyboard visible {Visible}, resumed {Resumed}, window focus {WindowFocus}")]
+        public static partial void WantedChanged(ILogger logger, bool wanted, bool visible, bool resumed, bool windowFocus);
     }
 }

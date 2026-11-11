@@ -39,4 +39,19 @@ internal enum AppEvent
 
     /// <summary>Showing the keyboard again after the app returned failed; the keyboard stays as Android left it.</summary>
     KeyboardRestoreFailed = 5061,
+
+    /// <summary>The app paused; records whether the keyboard was wanted and the window had focus.</summary>
+    KeyboardPaused = 5062,
+
+    /// <summary>The app resumed; records whether the keyboard was wanted and the window had focus.</summary>
+    KeyboardResumed = 5063,
+
+    /// <summary>The window got its focus back while a keyboard restore was waiting for it.</summary>
+    KeyboardWindowFocusRegained = 5064,
+
+    /// <summary>The restore asked the WebView whether a text input is focused, and shows the keyboard only if so.</summary>
+    KeyboardRestoreDecided = 5065,
+
+    /// <summary>Whether the keyboard is wanted changed: shown, or hidden by the user rather than the system.</summary>
+    KeyboardWantedChanged = 5066,
 }

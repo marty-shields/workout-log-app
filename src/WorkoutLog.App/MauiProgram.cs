@@ -98,13 +98,20 @@ public static class MauiProgram
     }
 
     /// <summary>
-    /// Restores the soft keyboard after the app returns through <see cref="AndroidKeyboardRestore"/>. Only <see cref="MainActivity"/> counts.
+    /// Restores the soft keyboard after the app returns through <see cref="AndroidKeyboardRestore"/>, which follows <see cref="MainActivity"/> from create to destroy.
     /// The handlers resolve it from the app's services.
     /// </summary>
     private static void AddKeyboardRestore(MauiAppBuilder builder)
     {
         builder.Services.AddSingleton<AndroidKeyboardRestore>();
         builder.ConfigureLifecycleEvents(events => events.AddAndroid(android => android
+            .OnCreate((activity, _) =>
+            {
+                if (activity is MainActivity)
+                {
+                    KeyboardRestore().Attach(activity);
+                }
+            })
             .OnPause(activity =>
             {
                 if (activity is MainActivity)
@@ -116,9 +123,10 @@ public static class MauiProgram
             {
                 if (activity is MainActivity)
                 {
-                    _ = KeyboardRestore().Resumed(activity);
+                    KeyboardRestore().Resumed(activity);
                 }
-            })));
+            })
+            .OnDestroy(activity => KeyboardRestore().Detach(activity))));
 
         static AndroidKeyboardRestore KeyboardRestore() => IPlatformApplication.Current!.Services.GetRequiredService<AndroidKeyboardRestore>();
     }
