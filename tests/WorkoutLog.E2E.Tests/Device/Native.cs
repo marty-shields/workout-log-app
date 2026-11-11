@@ -145,6 +145,17 @@ public sealed class Native(WebView web)
     /// <summary>Sends the app to the background for <paramref name="time"/>, then brings it back.</summary>
     public void Background(TimeSpan time) => App.BackgroundApp(time);
 
+    /// <summary>Turns the screen off with the power key, wakes it and dismisses the keyguard, as a user locks and unlocks the phone.</summary>
+    public void LockAndUnlock()
+    {
+        var adb = AppiumSetup.Adb;
+        adb.Shell("input", "keyevent", "KEYCODE_SLEEP");
+        web.WaitUntil(() => adb.Shell("dumpsys", "power").Contains("mWakefulness=Asleep", StringComparison.Ordinal), "the screen didn't turn off", LaunchTimeout);
+        adb.Shell("input", "keyevent", "KEYCODE_WAKEUP");
+        adb.Shell("wm", "dismiss-keyguard");
+        web.WaitUntil(() => App.GetAppState(AppiumSetup.App.Package) == AppState.RunningInForeground, "the app didn't come back to the front", LaunchTimeout);
+    }
+
     public AppState State() => App.GetAppState(AppiumSetup.App.Package);
 
     /// <summary>Whether <see cref="Launch"/> has run in this scenario.</summary>

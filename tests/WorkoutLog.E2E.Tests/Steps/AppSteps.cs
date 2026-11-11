@@ -69,6 +69,9 @@ public sealed class AppSteps(
         journeys.WaitFor(shown);
     }
 
+    [When(@"^I lock and unlock the phone$")]
+    public void WhenILockAndUnlockThePhone() => native.LockAndUnlock();
+
     [When(@"^I pull down the list$")]
     public void WhenIPullDownTheList() => native.PullDown();
 
