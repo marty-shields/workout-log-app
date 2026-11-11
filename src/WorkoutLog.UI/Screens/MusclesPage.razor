@@ -24,7 +24,6 @@
         }
 
         loading = true;
-        StateHasChanged();
         var result = await MuscleSets.GetAsync();
         groups = result.Groups.Select(g => new MuscleGroupSets(g.Group.ToString(), g.Sets)).ToList();
         failed = result.Failed;

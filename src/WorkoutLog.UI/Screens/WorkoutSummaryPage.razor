@@ -30,7 +30,6 @@
     {
         loading = true;
         failed = false;
-        StateHasChanged();
         var result = await Summaries.GetAsync(WorkoutId);
         if (disposed)
         {

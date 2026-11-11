@@ -23,7 +23,7 @@
         }
         else
         {
-            <button type="button" class="summary @(Error is not null ? "invalid" : null)" aria-describedby="@(Error is not null ? ErrorId : null)" data-testid="@($"{TestId}-open")" @onclick="FocusAsync">
+            <button type="button" class="summary @(Error is not null ? "invalid" : null)" aria-describedby="@(Error is not null ? ErrorId : null)" data-testid="@($"{TestId}-open")" @onclick="OpenAsync">
                 <span class="visually-hidden">Edit @Label: </span>
                 <span class="text">@Value</span>
             </button>
@@ -74,16 +74,20 @@
 
     private bool HasValue => !string.IsNullOrWhiteSpace(Value);
 
-    /// <summary>Opens the text box and moves focus into it.</summary>
+    /// <summary>Opens the text box and moves focus into it. For callers outside this field's event handlers, so it renders itself.</summary>
     public async Task FocusAsync()
+    {
+        await OpenAsync();
+        StateHasChanged();
+    }
+
+    private async Task OpenAsync()
     {
         focusRequested = true;
         if (!Editing)
         {
             await SetEditingAsync(true);
         }
-
-        StateHasChanged();
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)

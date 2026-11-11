@@ -79,7 +79,6 @@
 
         phase = SettingsPhase.Loading;
         ClearMessages();
-        StateHasChanged();
         var result = await Export.CountAsync();
         if (disposed)
         {
@@ -90,7 +89,10 @@
         phase = result.Failed ? SettingsPhase.LoadFailed : SettingsPhase.Idle;
     }
 
-    /// <summary>Loads again when the app comes back on screen. Does nothing once the page is disposed, before or during the load.</summary>
+    /// <summary>
+    /// Loads again when the app comes back on screen. Does nothing once the page is disposed, before or during the load.
+    /// Not an event handler, so it renders the spinner and the result itself.
+    /// </summary>
     private async Task ReloadAsync()
     {
         if (disposed)
@@ -98,7 +100,9 @@
             return;
         }
 
-        await LoadAsync();
+        var loading = LoadAsync();
+        StateHasChanged();
+        await loading;
         if (!disposed)
         {
             StateHasChanged();
@@ -119,7 +123,6 @@
 
         phase = SettingsPhase.Exporting;
         ClearMessages();
-        StateHasChanged();
         var result = await Export.ExportAsync();
         if (disposed)
         {
@@ -160,7 +163,6 @@
 
         phase = SettingsPhase.Reading;
         ClearMessages();
-        StateHasChanged();
         ImportReview? review = null;
         var pickFailed = false;
         try
