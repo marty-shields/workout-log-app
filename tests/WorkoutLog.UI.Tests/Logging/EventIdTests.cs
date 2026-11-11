@@ -92,6 +92,15 @@ public partial class EventIdTests
             ["UnhandledException"] = 5031,
             ["UnobservedTaskException"] = 5033,
             ["HapticFailed"] = 5051,
+            ["KeyboardRestoreFailed"] = 5061,
+            ["KeyboardPaused"] = 5062,
+            ["KeyboardResumed"] = 5063,
+            ["KeyboardWindowFocusRegained"] = 5064,
+            ["KeyboardRestoreDecided"] = 5065,
+            ["KeyboardWantedChanged"] = 5066,
+            ["KeyboardShowRequested"] = 5067,
+            ["KeyboardRestoreSkipped"] = 5068,
+            ["KeyboardDevice"] = 5069,
         }));
 
     [TestCaseSource(nameof(SourceFiles))]
