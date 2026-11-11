@@ -38,24 +38,15 @@ public class AppIconColourTests
     public void AppProject_IconAndSplashColours_ArePaletteColours()
     {
         var project = XDocument.Parse(RepoFiles.Read("src", "WorkoutLog.App", "WorkoutLog.App.csproj"));
-        string? Colour(string item) =>
-            ((string?)project.Descendants().Single(e => e.Name.LocalName == item).Attribute("Color"))?.ToLowerInvariant();
+        string? Colour(string item, string attribute) =>
+            ((string?)project.Descendants().Single(e => e.Name.LocalName == item).Attribute(attribute))?.ToLowerInvariant();
 
         Assert.Multiple(() =>
         {
-            Assert.That(Colour("MauiIcon"), Is.AnyOf([.. Allowed]));
-            Assert.That(Colour("MauiSplashScreen"), Is.EqualTo(Palette["splash-light"]));
+            Assert.That(Colour("MauiIcon", "Color"), Is.AnyOf([.. Allowed]));
+            Assert.That(Colour("MauiSplashScreen", "Color"), Is.EqualTo(Palette["splash-light"]));
+            Assert.That(Colour("MauiSplashScreen", "DarkColor"), Is.EqualTo(Palette["splash-dark"]));
         });
-    }
-
-    [Test]
-    public void DarkSplashColour_IsThePalettesDarkSplash()
-    {
-        var colours = XDocument.Parse(RepoFiles.Read("src", "WorkoutLog.App", "Platforms", "Android", "Resources", "values-night", "colors.xml"));
-
-        var splash = colours.Descendants("color").Single(e => (string?)e.Attribute("name") == "maui_splash_color").Value;
-
-        Assert.That(splash.ToLowerInvariant(), Is.EqualTo(Palette["splash-dark"]));
     }
 
     [Test]

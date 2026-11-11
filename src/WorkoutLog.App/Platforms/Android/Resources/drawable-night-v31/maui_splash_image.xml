@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!-- MAUI's Android 12+ splash image with the icon's foreground, whose shadow is drawn for a dark background. -->
-<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:width="108dp" android:height="108dp" android:gravity="center">
-        <bitmap android:gravity="fill" android:src="@mipmap/appicon_foreground" android:mipMap="true" />
-    </item>
-</layer-list>
