@@ -11,12 +11,17 @@ namespace WorkoutLog.App.Keyboard;
 
 /// <summary>
 /// Brings the soft keyboard back when the app returns with a text input still focused and the user had not hidden the keyboard.
-/// Hypothesis, not confirmed on any device: some phones hide the keyboard when the screen locks and nothing asks for it again
-/// after the unlock, although the focus survives. Where Android restores the keyboard itself the request is a no-op.
-/// A failure is logged and otherwise ignored. The Information logs exist so a phone's log can confirm or refute the hypothesis.
+/// Measured on a Sony XQ-FE54 (Android 17, Gboard): after an unlock the system asks the keyboard to hide because the window regained focus
+/// with no editor yet (HIDE_SAME_WINDOW_FOCUSED_WITHOUT_EDITOR), and that hide completes about 340 ms later, after any show requested on focus.
+/// Android sends no signal when it completes, so the keyboard is requested again until it is shown.
+/// Where Android keeps the keyboard itself the first check finds it shown and nothing is requested.
+/// A failure is logged and otherwise ignored.
 /// </summary>
 internal sealed partial class AndroidKeyboardRestore(ILogger<AndroidKeyboardRestore> logger) : IDisposable
 {
+    private const int MaxAttempts = 4;
+    private const long AttemptIntervalMs = 400;
+
     private Activity? current;
     private bool resumed;
     private bool keyboardWanted;
@@ -153,7 +158,10 @@ internal sealed partial class AndroidKeyboardRestore(ILogger<AndroidKeyboardRest
         observer.AddOnWindowFocusChangeListener(focusListener);
     }
 
-    private void Post(Android.Webkit.WebView webView, int forGeneration) => webView.Post(() =>
+    private void Post(Android.Webkit.WebView webView, int forGeneration) => Attempt(webView, forGeneration, 1);
+
+    /// <summary>Waits, then asks for the keyboard unless it is already shown, and asks again until it is or the attempts run out.</summary>
+    private void Attempt(Android.Webkit.WebView webView, int forGeneration, int attempt) => webView.PostDelayed(() =>
     {
         try
         {
@@ -163,19 +171,31 @@ internal sealed partial class AndroidKeyboardRestore(ILogger<AndroidKeyboardRest
                 return;
             }
 
+            if (webView.RootWindowInsets?.IsVisible(WindowInsets.Type.Ime()) ?? false)
+            {
+                Log.Skipped(logger, $"keyboard shown after {attempt - 1} requests");
+                return;
+            }
+
             var textEditor = webView.OnCheckIsTextEditor();
             Log.Decided(logger, textEditor);
-            if (textEditor)
+            if (!textEditor)
             {
-                var accepted = (webView.Context?.GetSystemService(Context.InputMethodService) as InputMethodManager)?.ShowSoftInput(webView, ShowFlags.Implicit) ?? false;
-                Log.ShowRequested(logger, accepted);
+                return;
+            }
+
+            var accepted = (webView.Context?.GetSystemService(Context.InputMethodService) as InputMethodManager)?.ShowSoftInput(webView, ShowFlags.Implicit) ?? false;
+            Log.ShowRequested(logger, attempt, accepted);
+            if (attempt < MaxAttempts)
+            {
+                Attempt(webView, forGeneration, attempt + 1);
             }
         }
         catch (Exception exception)
         {
             Log.RestoreFailed(logger, exception);
         }
-    });
+    }, AttemptIntervalMs);
 
     public void Dispose() => Clear();
 
@@ -279,8 +299,8 @@ internal sealed partial class AndroidKeyboardRestore(ILogger<AndroidKeyboardRest
         [LoggerMessage((int)AppEvent.KeyboardWantedChanged, LogLevel.Information, "Keyboard wanted {Wanted}, keyboard visible {Visible}, resumed {Resumed}, window focus {WindowFocus}, interactive {Interactive}, keyguard locked {KeyguardLocked}")]
         public static partial void WantedChanged(ILogger logger, bool wanted, bool visible, bool resumed, bool windowFocus, bool interactive, bool keyguardLocked);
 
-        [LoggerMessage((int)AppEvent.KeyboardShowRequested, LogLevel.Information, "Keyboard requested, Android accepted {Accepted}")]
-        public static partial void ShowRequested(ILogger logger, bool accepted);
+        [LoggerMessage((int)AppEvent.KeyboardShowRequested, LogLevel.Information, "Keyboard requested, attempt {Attempt}, Android accepted {Accepted}")]
+        public static partial void ShowRequested(ILogger logger, int attempt, bool accepted);
 
         [LoggerMessage((int)AppEvent.KeyboardRestoreSkipped, LogLevel.Information, "Keyboard restore skipped: {Reason}")]
         public static partial void Skipped(ILogger logger, string reason);

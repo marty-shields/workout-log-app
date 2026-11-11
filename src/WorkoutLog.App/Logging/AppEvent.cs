@@ -55,7 +55,7 @@ internal enum AppEvent
     /// <summary>The keyboard became visible or hidden, or whether it is wanted changed; records the window and screen state at that moment.</summary>
     KeyboardWantedChanged = 5066,
 
-    /// <summary>The restore asked Android to show the keyboard; records whether Android accepted the request.</summary>
+    /// <summary>The restore asked Android to show the keyboard; records which attempt it was and whether Android accepted the request.</summary>
     KeyboardShowRequested = 5067,
 
     /// <summary>A restore ended without asking for the keyboard, with the reason.</summary>
