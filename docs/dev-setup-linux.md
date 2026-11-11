@@ -9,7 +9,7 @@ One time per machine. `e2e-local.sh` (below) skips, and names what is missing, u
 4. Environment: `JAVA_HOME`, `ANDROID_HOME` and (if the SDK isn't installed system-wide) `DOTNET_ROOT`; on the `PATH`, `dotnet`, `$ANDROID_HOME/cmdline-tools/latest/bin` and `$ANDROID_HOME/platform-tools`. Set them in your shell profile and restart the shell. `e2e-local.sh` also runs in shells that don't read your profile (an agent's): if they're unset it looks for the SDK in `~/Android/Sdk`, the JDK behind `java` on the `PATH`, the .NET SDK in `~/.dotnet`, and Node.js in `~/.local/node` (ahead of any system Node).
 5. Accept the Android licences (`sdkmanager --licenses`), then install `platform-tools`, `emulator` and the system image pinned in `.github/android-emulator.env` (`SYSTEM_IMAGE`).
 6. The `maui-android` workload, at the `--version` in `.github/actions/setup-maui/action.yml`.
-7. The platform and build-tools the App needs: `dotnet build src/WorkoutLog.App -t:InstallAndroidDependencies -f net10.0-android -p:AndroidSdkDirectory="$ANDROID_HOME" -p:AcceptAndroidSDKLicenses=True`. A first run can print an `aapt2` error after installing them; build again.
+7. The platform and build-tools the App needs: `dotnet build src/WorkoutLog.App -t:InstallAndroidDependencies -f net11.0-android -p:AndroidSdkDirectory="$ANDROID_HOME" -p:AcceptAndroidSDKLicenses=True`. A first run can print an `aapt2` error after installing them; build again.
 
 Also needs read-write `/dev/kvm` (virtualisation on; your user in the `kvm` group) and the `libpulse` library.
 

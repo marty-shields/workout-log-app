@@ -110,7 +110,7 @@ jobs:
           RELEASE_KEYSTORE_PASSWORD: ${{ secrets.RELEASE_KEYSTORE_PASSWORD }}
           RELEASE_KEY_ALIAS: ${{ secrets.RELEASE_KEY_ALIAS }}
         run: |
-          dotnet publish src/WorkoutLog.App -c Release -f net10.0-android -p:AndroidPackageFormat=apk \
+          dotnet publish src/WorkoutLog.App -c Release -f net11.0-android -p:AndroidPackageFormat=apk \
             -r android-arm64 --no-restore \
             -p:ApplicationDisplayVersion="$VERSION" -p:ApplicationVersion="$CODE" \
             -p:AndroidKeyStore=true -p:AndroidSigningKeyStore="$RUNNER_TEMP/release.keystore" \

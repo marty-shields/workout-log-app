@@ -4,6 +4,8 @@
     <OverrideHtmlAssetPlaceholders>true</OverrideHtmlAssetPlaceholders>
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
     <MD2RazorDefaultBaseClass>global::BlazingStory.Internals.Pages.MarkdownPageBase</MD2RazorDefaultBaseClass>
+    <!-- BL0016 (unguarded JS interop call): a story whose script fails should fail loudly in the browser, not be caught. An .editorconfig section doesn't reach the code generated from .razor files. -->
+    <NoWarn>$(NoWarn);BL0016</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>

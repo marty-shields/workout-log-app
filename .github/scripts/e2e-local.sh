@@ -248,7 +248,7 @@ if [[ ! -d $e2e/node_modules || $e2e/package-lock.json -nt $e2e/node_modules/.pa
 fi
 # A given APK needs no Debug build.
 if [[ -z "${E2E_APP_APK:-}" ]]; then
-  run dotnet build src/WorkoutLog.App -f net10.0-android
+  run dotnet build src/WorkoutLog.App -f net11.0-android
 fi
 run dotnet build "$e2e"
 
