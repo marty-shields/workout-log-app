@@ -49,7 +49,7 @@ public sealed partial class SettingsSteps(
     [Then(@"^the status bar icons are light$")]
     public void ThenTheStatusBarIconsAreLight() => web.Eventually(Native.StatusBarIcons, Is.EqualTo("light"), "status bar icons");
 
-    [Then(@"^Settings shows the app version$")]
+    [Then(@"^the app version is listed on Settings$")]
     public void ThenSettingsShowsTheAppVersion() => Assert.That(settings.Version(), Does.Match(@"^Version \d+(\.\d+)+"));
 
     [Then(@"^Settings says ""(.+)""$")]

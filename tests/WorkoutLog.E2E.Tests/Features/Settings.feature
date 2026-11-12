@@ -8,7 +8,7 @@ Feature: Settings
 
   Scenario: Settings shows the app version
     Given I have opened Settings
-    Then Settings shows the app version
+    Then the app version is listed on Settings
 
   Scenario Outline: Back returns to the Dashboard
     Given I have opened Settings
