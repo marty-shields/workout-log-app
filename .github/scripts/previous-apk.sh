@@ -3,9 +3,10 @@
 # Builds the APK of the last release, the latest v* tag before this commit, to <out apk> for the upgrade check, and prints
 # the tag. Debug (the default) is the Debug app; Release is the x64 Release app, signed with the debug key like this
 # commit's in release-e2e.yml. The tag's files are built with this commit's global.json, so the SDK CI installs builds
-# them, for the tag's own NetVersion. That SDK can bring implicit packages (such as Microsoft.NET.ILLink.Tasks) at versions
-# the tag's lock files don't hold, so the restore isn't locked. Build this commit's APK on the same machine, or with the
-# same debug keystore: one APK installs over another only when the same key signs both.
+# them, for the tag's own NetVersion. For an older NetVersion that SDK can bring implicit packages (such as
+# Microsoft.NET.ILLink.Tasks) at versions the tag's lock files don't hold, so the restore is locked only when the tag's
+# NetVersion is this commit's. Build this commit's APK on the same machine, or with the same debug keystore: one APK
+# installs over another only when the same key signs both.
 set -euo pipefail
 out=$(realpath -m -- "$1")
 configuration="${2:-Debug}"
@@ -20,9 +21,11 @@ trap 'rm -rf "$src"' EXIT
 git archive "$tag" | tar -x -C "$src"
 cp global.json "$src/global.json"
 app="$src/src/WorkoutLog.App"
-net=$(sed -n 's:.*<NetVersion>\(.*\)</NetVersion>.*:\1:p' "$src/Directory.Build.props")
+net_version() { sed -n 's:.*<NetVersion>\(.*\)</NetVersion>.*:\1:p' "$1/Directory.Build.props"; }
+net=$(net_version "$src")
 [[ -n "$net" ]] || { echo "No NetVersion in $tag's Directory.Build.props." >&2; exit 1; }
-lenient=(-p:TreatWarningsAsErrors=false -p:MSBuildTreatWarningsAsErrors=false -p:RestoreLockedMode=false)
+lenient=(-p:TreatWarningsAsErrors=false -p:MSBuildTreatWarningsAsErrors=false)
+[[ "$net" == "$(net_version .)" ]] || lenient+=(-p:RestoreLockedMode=false)
 case "$configuration" in
   Debug)
     dotnet build "$app" -f "$net-android" "${lenient[@]}" >&2
