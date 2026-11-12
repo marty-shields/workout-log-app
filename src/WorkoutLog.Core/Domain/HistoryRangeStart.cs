@@ -15,4 +15,8 @@ public static class HistoryRangeStart
         HistoryRange.All => null,
         _ => throw new ArgumentOutOfRangeException(nameof(range), range, null),
     };
+
+    /// <summary>True when <paramref name="date"/> is on or after the range start and not after <paramref name="today"/>.</summary>
+    public static bool Includes(this HistoryRange range, DateOnly today, DateOnly date) =>
+        date <= today && (range.From(today) is not { } from || date >= from);
 }
