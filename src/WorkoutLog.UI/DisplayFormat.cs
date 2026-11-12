@@ -68,6 +68,16 @@ internal static class DisplayFormat
         _ => $"{days} days ago",
     };
 
+    /// <summary>Whole minutes as hours and minutes, e.g. 12 h 30 min, or 45 min under an hour.</summary>
+    public static string HoursAndMinutes(TimeSpan value)
+    {
+        var minutes = (int)value.TotalMinutes;
+        return minutes >= 60 ? $"{minutes / 60} h {minutes % 60} min" : $"{minutes} min";
+    }
+
+    /// <summary>Workouts per week to one decimal, e.g. 2.5.</summary>
+    public static string PerWeek(double value) => value.ToString("0.0", CultureInfo.InvariantCulture);
+
     /// <summary>Elapsed time as h:mm:ss.</summary>
     public static string Duration(TimeSpan value) => $"{(int)value.TotalHours}:{value.Minutes:00}:{value.Seconds:00}";
 

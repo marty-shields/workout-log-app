@@ -33,7 +33,10 @@ public class WorkoutsPageTests : ComponentTestBase
         .. Recent.Loaded(),
     ]);
 
+    private static readonly WorkoutTotals Totals = new(1, 12, new TimeSpan(0, 45, 0), 0.5);
+
     private FakeWorkoutsService workouts = null!;
+    private FakeWorkoutTotalsService totals = null!;
     private FakeTimeProvider clock = null!;
     private FakeLogger<AppLifecycle> lifecycleLogger = null!;
     private AppLifecycle lifecycle = null!;
@@ -44,6 +47,8 @@ public class WorkoutsPageTests : ComponentTestBase
         Clock(new DateTimeOffset(2026, 11, 6, 9, 0, 0, TimeSpan.Zero));
         workouts = new FakeWorkoutsService();
         Context.Services.AddSingleton<IWorkoutsService>(workouts);
+        totals = new FakeWorkoutTotalsService { Result = new ReadResult<WorkoutTotals>(Totals) };
+        Context.Services.AddSingleton<IWorkoutTotalsService>(totals);
         lifecycleLogger = new FakeLogger<AppLifecycle>();
         lifecycle = new AppLifecycle(lifecycleLogger);
         Context.Services.AddSingleton<IAppStart>(lifecycle);
@@ -203,6 +208,118 @@ public class WorkoutsPageTests : ComponentTestBase
     }
 
     [Test]
+    public async Task Opens_LoadsTheTotalsOfTheSameDatesAsTheList()
+    {
+        var cut = await OpenedAsync();
+        await CompleteRangeAsync(cut, Recent);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(totals.Loads, Is.EqualTo(new[] { (new DateOnly(2026, 8, 6), Today) }));
+            Assert.That(cut.Find("[data-testid=workout-totals-workouts]").TextContent, Is.EqualTo("1"));
+            Assert.That(cut.Find("[data-testid=workout-totals-sets]").TextContent, Is.EqualTo("12"));
+            Assert.That(cut.Find("[data-testid=workout-totals-time]").TextContent, Is.EqualTo("45 min"));
+            Assert.That(cut.Find("[data-testid=workout-totals-per-week]").TextContent, Is.EqualTo("0.5"));
+        });
+    }
+
+    [Test]
+    public async Task Segment_ReloadsTheTotalsForTheNewDates()
+    {
+        var cut = await OpenedAsync();
+        await CompleteRangeAsync(cut, Recent);
+        totals.Result = new ReadResult<WorkoutTotals>(new WorkoutTotals(9, 100, new TimeSpan(7, 30, 0), 2.5));
+
+        cut.Find("[data-testid=workouts-range-1y]").Change(true);
+        await CompleteRangeAsync(cut, Recent);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(totals.Loads[^1], Is.EqualTo((new DateOnly(2025, 11, 6), Today)));
+            Assert.That(cut.Find("[data-testid=workout-totals-workouts]").TextContent, Is.EqualTo("9"));
+            Assert.That(cut.Find("[data-testid=workout-totals-time]").TextContent, Is.EqualTo("7 h 30 min"));
+            Assert.That(cut.Find("[data-testid=workout-totals-per-week]").TextContent, Is.EqualTo("2.5"));
+        });
+    }
+
+    [Test]
+    public async Task PickingDates_ReloadsTheTotalsForThem()
+    {
+        var cut = await OpenedAsync();
+        await CompleteRangeAsync(cut, Recent);
+
+        cut.Find("[data-testid=workouts-dates]").Click();
+        cut.Find("[data-testid=range-month-name]").Click();
+        cut.Find("[data-testid=range-prev-year]").Click();
+        cut.Find("[data-testid=range-month-2025-03]").Click();
+        cut.Find("[data-testid=range-day-2025-03-12]").Click();
+        cut.Find("[data-testid=range-day-2025-03-12]").Click();
+        cut.Find("[data-testid=range-apply]").Click();
+        await CompleteRangeAsync(cut, Recent);
+
+        Assert.That(totals.Loads[^1], Is.EqualTo((new DateOnly(2025, 3, 12), new DateOnly(2025, 3, 12))));
+    }
+
+    [Test]
+    public async Task TotalsFail_ListStillShowsAndThereIsNoCard()
+    {
+        totals.Result = new ReadFailed();
+        var cut = await OpenedAsync();
+
+        await CompleteRangeAsync(cut, Recent);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(Shown(cut), Is.EqualTo(new[] { "workouts-row-4" }));
+            Assert.That(cut.FindAll("[data-testid=workout-totals]"), Is.Empty);
+            Assert.That(cut.FindAll("[data-testid=workouts-error]"), Is.Empty);
+        });
+    }
+
+    [Test]
+    public async Task TotalsFailOnARangeChange_TheCardGoesAndTheNewRowsShow()
+    {
+        var cut = await OpenedAsync();
+        await CompleteRangeAsync(cut, Recent);
+        Assert.That(cut.FindAll("[data-testid=workout-totals]"), Has.Count.EqualTo(1));
+        totals.Result = new ReadFailed();
+
+        cut.Find("[data-testid=workouts-range-1y]").Change(true);
+        await CompleteRangeAsync(cut, RecentAndYesterday);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(Shown(cut), Is.EqualTo(new[] { "workouts-row-5", "workouts-row-4" }));
+            Assert.That(cut.FindAll("[data-testid=workout-totals]"), Is.Empty);
+        });
+    }
+
+    [Test]
+    public async Task ATotalsReadAnsweringAfterANewerRequest_IsIgnored()
+    {
+        totals.Hold = true;
+        var cut = Context.Render<WorkoutsPage>();
+        workouts.CompleteDays(TwoYears);
+        await WaitForRendererAsync();
+        cut.WaitForAssertion(() => Assert.That(totals.Loads, Has.Count.EqualTo(1)));
+        cut.Find("[data-testid=workouts-range-all]").Change(true);
+        cut.WaitForAssertion(() => Assert.That(totals.Loads, Has.Count.EqualTo(2)));
+
+        workouts.CompleteRange(Recent, index: 1);
+        totals.Complete(new ReadResult<WorkoutTotals>(new WorkoutTotals(99, 99, TimeSpan.FromHours(99), 9.9)), index: 1);
+        workouts.CompleteRange(new ReadResult<IReadOnlyList<WorkoutSummary>>([new WorkoutSummary(1, new DateTimeOffset(2025, 3, 12, 17, 0, 0, TimeSpan.Zero))]));
+        totals.Complete(new ReadResult<WorkoutTotals>(new WorkoutTotals(3, 30, TimeSpan.FromHours(2), 0.1)));
+        await WaitForRendererAsync();
+
+        cut.WaitForAssertion(() => Assert.That(cut.Find("[data-testid=workout-totals-workouts]").TextContent, Is.EqualTo("3")));
+        Assert.Multiple(() =>
+        {
+            Assert.That(Shown(cut), Is.EqualTo(new[] { "workouts-row-1" }));
+            Assert.That(cut.Find("[data-testid=workout-totals-time]").TextContent, Is.EqualTo("2 h 0 min"));
+        });
+    }
+
+    [Test]
     public async Task NoWorkouts_ShowsNoWorkoutsYetAndReadsNoRange()
     {
         var cut = Context.Render<WorkoutsPage>();
@@ -211,7 +328,11 @@ public class WorkoutsPageTests : ComponentTestBase
         await WaitForRendererAsync();
 
         cut.WaitForAssertion(() => Assert.That(cut.Find("[data-testid=workouts-empty]").TextContent, Does.Contain("No workouts yet")));
-        Assert.That(workouts.RangeReads, Is.Empty);
+        Assert.Multiple(() =>
+        {
+            Assert.That(workouts.RangeReads, Is.Empty);
+            Assert.That(totals.Loads, Is.Empty);
+        });
     }
 
     [Test]

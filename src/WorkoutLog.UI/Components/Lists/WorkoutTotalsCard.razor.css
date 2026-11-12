@@ -1,0 +1,34 @@
+.card {
+    padding: var(--space-4);
+    border: var(--border-width) solid var(--color-border);
+    border-radius: var(--radius-lg);
+    background-color: var(--color-surface);
+}
+
+.totals {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-4);
+    margin: 0;
+}
+
+.item {
+    display: flex;
+    flex-direction: column-reverse;
+    gap: var(--space-1);
+    min-width: 0;
+}
+
+.value {
+    margin: 0;
+    color: var(--color-accent);
+    font-size: var(--font-size-xl);
+    font-weight: var(--font-weight-bold);
+    font-variant-numeric: tabular-nums;
+    line-height: var(--line-height-tight);
+}
+
+.label {
+    color: var(--color-text-muted);
+    font-size: var(--font-size-sm);
+}

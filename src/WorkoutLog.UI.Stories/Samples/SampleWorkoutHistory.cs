@@ -1,3 +1,4 @@
+using WorkoutLog.Core.Services;
 using WorkoutLog.UI.Models.Workouts;
 
 namespace WorkoutLog.UI.Stories.Samples;
@@ -31,6 +32,17 @@ public static class SampleWorkoutHistory
 
     /// <summary>The sample workouts in <paramref name="dates"/>, newest first, as the page's range query returns them.</summary>
     public static IReadOnlyList<WorkoutsRow> In(DateSpan dates) => [.. Rows.Where(r => dates.Contains(DateOnly.FromDateTime(r.StartedAt)))];
+
+    /// <summary>
+    /// Totals for the sample workouts in <paramref name="dates"/>: 12 sets and 52 minutes each, and the count over the weeks in the dates,
+    /// at least one.
+    /// </summary>
+    public static WorkoutTotals Totals(DateSpan dates)
+    {
+        var count = In(dates).Count;
+        var days = Math.Max(dates.To.DayNumber - dates.From.DayNumber + 1, 7);
+        return new WorkoutTotals(count, count * 12, TimeSpan.FromMinutes(count * 52), count * 7.0 / days);
+    }
 
     private static List<WorkoutsRow> Build()
     {

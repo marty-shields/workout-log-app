@@ -12,6 +12,10 @@ A full-width row of text, with an optional muted `Detail` line under it and opti
 A number with a label, on a card. The number uses `--color-accent` at `--font-size-xxl`.
 - `data-testid`: `TestId`.
 
+## `WorkoutTotalsCard`
+A card of four values in a two-column grid, each a bold `--color-accent` number at `--font-size-xl` over a muted label: **Workouts**, **Sets**, **Time trained** (e.g. *12 h 30 min*, or *45 min* under an hour) and **Per week** (one decimal, e.g. *2.5*). Takes a `WorkoutTotals`. Screen readers read it as a section named "Totals for these dates" and each value as a term and its definition.
+- `data-testid`: `TestId` as the prefix: `{TestId}-workouts`, `{TestId}-sets`, `{TestId}-time`, `{TestId}-per-week`.
+
 ## `EmptyState`
 A message in a dashed box, for a list or section with nothing in it. An optional `Hint` under it, smaller, says how to fill it.
 - `data-testid`: `TestId`; the message `{TestId}-message`, the hint `{TestId}-hint`.

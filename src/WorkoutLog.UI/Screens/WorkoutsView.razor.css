@@ -28,6 +28,10 @@
     font-variant-numeric: tabular-nums;
 }
 
+.totals {
+    margin-top: var(--space-1);
+}
+
 .rows {
     margin: 0;
     padding: 0;
