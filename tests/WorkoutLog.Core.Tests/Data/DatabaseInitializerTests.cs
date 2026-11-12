@@ -5,6 +5,7 @@ using Moq;
 using SQLite;
 using WorkoutLog.Core.Data;
 using WorkoutLog.Core.Domain.Exercises;
+using WorkoutLog.Core.Domain.Workouts;
 using WorkoutLog.Core.Logging;
 
 namespace WorkoutLog.Core.Tests.Data;
@@ -147,19 +148,25 @@ public class DatabaseInitializerTests
     }
 
     [Test]
-    public async Task InitializeAsync_NewDatabase_KeepsEveryTwoPlaceWeightFrom0To1000()
+    public async Task InitializeAsync_NewDatabase_ReadsBackEveryTwoPlaceWeightFrom0To1000AsSaved()
     {
         await Initializer(DatabaseInitializer.CurrentVersion, AppSteps()).InitializeAsync();
+        var repository = new WorkoutRepository(connection, new WorkoutWriterFactory());
+        var weights = Enumerable.Range(0, 100_001).Select(hundredths => hundredths / 100m).ToList();
+        var start = new DateTimeOffset(2026, 10, 21, 17, 0, 0, TimeSpan.Zero);
 
-        await connection.RunInTransactionAsync(db =>
+        // A workout holds up to 10 exercises of up to 10 sets.
+        foreach (var (workout, index) in weights.Chunk(100).Select((workout, index) => (workout, index)))
         {
-            for (var hundredths = 0; hundredths <= 100_000; hundredths++)
-            {
-                db.Insert(new StrengthSetRow { WorkoutExerciseId = 1, Position = 0, Reps = 1, WeightKg = (double)(hundredths / 100m) });
-            }
-        });
+            var exercises = workout.Chunk(10)
+                .Select((sets, exercise) => new StrengthExercise(exercise + 1, sets.Select(weight => new StrengthSet(1, weight, null, null)).ToList()))
+                .ToList();
+            var started = start.AddHours(2 * index);
+            await repository.AddAsync(new NewWorkout(started, started.AddHours(1), exercises));
+        }
 
-        Assert.That(await connection.Table<StrengthSetRow>().CountAsync(), Is.EqualTo(100_001));
+        var read = (await repository.GetAllAsync()).SelectMany(workout => workout.Exercises).Cast<StrengthExercise>().SelectMany(exercise => exercise.Sets);
+        Assert.That(read.Select(set => set.WeightKg), Is.EqualTo(weights));
     }
 
     [Test]
