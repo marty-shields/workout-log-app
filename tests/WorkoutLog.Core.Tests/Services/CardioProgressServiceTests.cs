@@ -47,11 +47,10 @@ public class CardioProgressServiceTests
 
         var result = await service.LoadAsync(Run);
 
-        Assert.That(result, Is.EqualTo(new CardioProgressResult(
-        [
+        Assert.That(result.Loaded(), Is.EqualTo([
             new CardioSession(1, older, Entry(TimeSpan.FromMinutes(25), 4m)),
             new CardioSession(2, Now, Entry(TimeSpan.FromMinutes(30), 5.2m)),
-        ], Failed: false)).UsingPropertiesComparer());
+        ]).UsingPropertiesComparer());
     }
 
     [Test]
@@ -59,7 +58,7 @@ public class CardioProgressServiceTests
     {
         repository.Setup(r => r.GetSessionsAsync(StairClimber)).ReturnsAsync([]);
 
-        Assert.That((await service.LoadAsync(StairClimber)).Failed, Is.False);
+        Assert.That((await service.LoadAsync(StairClimber)).Value, Is.Not.InstanceOf<ReadFailed>());
     }
 
     [Test]
@@ -78,7 +77,7 @@ public class CardioProgressServiceTests
     {
         var result = await service.LoadAsync(999);
 
-        Assert.That(result, Is.EqualTo(new CardioProgressResult([], Failed: true)).UsingPropertiesComparer());
+        Assert.That(result.Value, Is.InstanceOf<ReadFailed>());
         Assert.That(LoggedEvents.Of(logger), Is.EqualTo(new[] { (CoreEvent.CardioProgressUnknownExercise, LogLevel.Warning, "Exercise 999 is not in the exercise list") }));
         repository.VerifyNoOtherCalls();
     }
@@ -89,7 +88,7 @@ public class CardioProgressServiceTests
     {
         var result = await service.LoadAsync(exerciseId);
 
-        Assert.That(result, Is.EqualTo(new CardioProgressResult([], Failed: true)).UsingPropertiesComparer());
+        Assert.That(result.Value, Is.InstanceOf<ReadFailed>());
         Assert.That(LoggedEvents.Of(logger), Is.EqualTo(new[] { (CoreEvent.CardioProgressNotCardio, LogLevel.Warning, $"Exercise {exerciseId} is not cardio") }));
         repository.VerifyNoOtherCalls();
     }
@@ -102,7 +101,7 @@ public class CardioProgressServiceTests
 
         var result = await service.LoadAsync(Run);
 
-        Assert.That(result, Is.EqualTo(new CardioProgressResult([], Failed: true)).UsingPropertiesComparer());
+        Assert.That(result.Value, Is.InstanceOf<ReadFailed>());
         Assert.Multiple(() =>
         {
             Assert.That(LoggedEvents.Of(logger), Is.EqualTo(new[] { (CoreEvent.CardioProgressLoadFailed, LogLevel.Error, "Loading the sessions of exercise 311 failed") }));

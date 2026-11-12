@@ -291,7 +291,7 @@ public class NewWorkoutPageTests : ComponentTestBase
     public void AddExercise_ShowsTheSpinnerUnderTheSearchUntilTheLastSessionsLoad()
     {
         LoggedExercises.Hold = true;
-        LoggedExercises.Result = new LoggedExercisesResult([new LoggedExercise(6, Start.AddDays(-1), null)], Failed: false);
+        LoggedExercises.Result = new ReadResult<IReadOnlyList<LoggedExercise>>([new LoggedExercise(6, Start.AddDays(-1), null)]);
         var cut = RenderPage();
 
         cut.Find("[data-testid=add-exercise]").Click();
@@ -314,7 +314,7 @@ public class NewWorkoutPageTests : ComponentTestBase
     [Test]
     public void AddExercise_LoadFailed_ListsTheCatalogWithNoLastLinesOrMessage()
     {
-        LoggedExercises.Result = new LoggedExercisesResult([], Failed: true);
+        LoggedExercises.Result = new ReadFailed();
         var cut = RenderPage();
 
         cut.Find("[data-testid=add-exercise]").Click();
@@ -907,7 +907,7 @@ public class NewWorkoutPageTests : ComponentTestBase
             Assert.That(weights.Loads, Is.EqualTo(new[] { 6 }));
             Assert.That(cut.FindAll("[data-testid=exercise-1-weights]"), Is.Empty);
         });
-        weights.Complete(new WeightHistoryResult(62.5m, 70m, null, Failed: false));
+        weights.Complete(new ReadResult<ExerciseHistory>(new ExerciseHistory(62.5m, 70m, null)));
         await WaitForRendererAsync();
         cut.WaitForAssertion(() => Assert.That(cut.Find("[data-testid=exercise-1-weights]").TextContent, Is.EqualTo("Last 62.5kg · PB 70kg")));
     }
@@ -924,7 +924,7 @@ public class NewWorkoutPageTests : ComponentTestBase
         var cut = RenderPage();
         Add(cut, exerciseId);
 
-        weights.Complete(new WeightHistoryResult(lastKg, bestKg, null, Failed: false));
+        weights.Complete(new ReadResult<ExerciseHistory>(new ExerciseHistory(lastKg, bestKg, null)));
         await WaitForRendererAsync();
 
         cut.WaitForAssertion(() => Assert.That(cut.FindAll("[data-testid=exercise-1-weights]").Select(w => w.TextContent), Is.EqualTo(line is null ? [] : new[] { line })));
@@ -938,7 +938,7 @@ public class NewWorkoutPageTests : ComponentTestBase
         var cut = RenderPage();
         Add(cut, 6);
 
-        weights.Complete(new WeightHistoryResult(null, null, null, failed));
+        weights.Complete(failed ? new ReadFailed() : new ExerciseHistory(null, null, null));
         await WaitForRendererAsync();
 
         Assert.Multiple(() =>
@@ -956,7 +956,7 @@ public class NewWorkoutPageTests : ComponentTestBase
         var cut = RenderPage();
 
         Add(cut, 300);
-        weights.Complete(new WeightHistoryResult(60m, 70m, "Felt strong", Failed: false));
+        weights.Complete(new ReadResult<ExerciseHistory>(new ExerciseHistory(60m, 70m, "Felt strong")));
         await WaitForRendererAsync();
 
         Assert.Multiple(() =>
@@ -975,7 +975,7 @@ public class NewWorkoutPageTests : ComponentTestBase
         var cut = RenderPage();
         Add(cut, 6);
 
-        weights.Complete(new WeightHistoryResult(62.5m, 70m, "Belt on from set 3", Failed: false));
+        weights.Complete(new ReadResult<ExerciseHistory>(new ExerciseHistory(62.5m, 70m, "Belt on from set 3")));
         await WaitForRendererAsync();
 
         cut.WaitForAssertion(() =>
@@ -992,7 +992,7 @@ public class NewWorkoutPageTests : ComponentTestBase
         var cut = RenderPage();
         Add(cut, 300);
 
-        weights.Complete(new WeightHistoryResult(null, null, null, Failed: true));
+        weights.Complete(new ReadFailed());
         await WaitForRendererAsync();
 
         Assert.Multiple(() =>
@@ -1009,7 +1009,7 @@ public class NewWorkoutPageTests : ComponentTestBase
         var weights = UseWeights();
         var cut = RenderPage();
         Add(cut, 300);
-        weights.Complete(new WeightHistoryResult(null, null, "Windy", Failed: false));
+        weights.Complete(new ReadResult<ExerciseHistory>(new ExerciseHistory(null, null, "Windy")));
         await WaitForRendererAsync();
 
         Add(cut, 300);
@@ -1027,7 +1027,7 @@ public class NewWorkoutPageTests : ComponentTestBase
         var weights = UseWeights();
         var cut = RenderPage();
         Add(cut, 6);
-        weights.Complete(new WeightHistoryResult(60m, 70m, null, Failed: false));
+        weights.Complete(new ReadResult<ExerciseHistory>(new ExerciseHistory(60m, 70m, null)));
         await WaitForRendererAsync();
 
         Add(cut, 6);
@@ -1045,7 +1045,7 @@ public class NewWorkoutPageTests : ComponentTestBase
         var weights = UseWeights();
         var cut = RenderPage();
         Add(cut, 6);
-        weights.Complete(new WeightHistoryResult(60m, 70m, null, Failed: false));
+        weights.Complete(new ReadResult<ExerciseHistory>(new ExerciseHistory(60m, 70m, null)));
         await WaitForRendererAsync();
         Remove(cut, 1);
 
@@ -1329,7 +1329,7 @@ public class NewWorkoutPageTests : ComponentTestBase
         Add(cut, 6);
         Remove(cut, 1);
 
-        weights.Complete(new WeightHistoryResult(60m, 70m, null, Failed: false));
+        weights.Complete(new ReadResult<ExerciseHistory>(new ExerciseHistory(60m, 70m, null)));
         await WaitForRendererAsync();
 
         Assert.Multiple(() =>
@@ -1348,11 +1348,11 @@ public class NewWorkoutPageTests : ComponentTestBase
         Remove(cut, 1);
         Add(cut, 6);
 
-        weights.Complete(new WeightHistoryResult(50m, 55m, null, Failed: false), index: 0);
+        weights.Complete(new ReadResult<ExerciseHistory>(new ExerciseHistory(50m, 55m, null)), index: 0);
         await WaitForRendererAsync();
         Assert.That(cut.FindAll("[data-testid=exercise-1-weights]"), Is.Empty);
 
-        weights.Complete(new WeightHistoryResult(60m, 70m, null, Failed: false), index: 1);
+        weights.Complete(new ReadResult<ExerciseHistory>(new ExerciseHistory(60m, 70m, null)), index: 1);
         await WaitForRendererAsync();
         cut.WaitForAssertion(() => Assert.That(cut.Find("[data-testid=exercise-1-weights]").TextContent, Is.EqualTo("Last 60kg · PB 70kg")));
     }
@@ -1896,24 +1896,24 @@ public class NewWorkoutPageTests : ComponentTestBase
     /// <summary>Records the exercise id of each load; each load waits until the test completes it.</summary>
     private sealed class PendingWeightHistory : IWeightHistoryService
     {
-        private readonly List<TaskCompletionSource<WeightHistoryResult>> pending = [];
+        private readonly List<TaskCompletionSource<ReadResult<ExerciseHistory>>> pending = [];
 
         public List<int> Loads { get; } = [];
 
         /// <summary>The <c>before</c> of each load.</summary>
         public List<DateTimeOffset?> Befores { get; } = [];
 
-        public Task<WeightHistoryResult> GetAsync(int exerciseId, DateTimeOffset? before)
+        public Task<ReadResult<ExerciseHistory>> GetAsync(int exerciseId, DateTimeOffset? before)
         {
             Loads.Add(exerciseId);
             Befores.Add(before);
-            var load = new TaskCompletionSource<WeightHistoryResult>(TaskCreationOptions.RunContinuationsAsynchronously);
+            var load = new TaskCompletionSource<ReadResult<ExerciseHistory>>(TaskCreationOptions.RunContinuationsAsynchronously);
             pending.Add(load);
             return load.Task;
         }
 
         /// <summary>Completes a load: the latest, or the one at <paramref name="index"/> in call order.</summary>
-        public void Complete(WeightHistoryResult result, int? index = null) => pending[index ?? pending.Count - 1].SetResult(result);
+        public void Complete(ReadResult<ExerciseHistory> result, int? index = null) => pending[index ?? pending.Count - 1].SetResult(result);
     }
 
     /// <summary>A <see cref="FakeTimeProvider"/> that keeps the timers it creates and can fail reads of the time.</summary>

@@ -36,8 +36,12 @@
             return;
         }
 
-        summary = result.Summary is { } saved ? SummaryItems.Summary(saved, Catalog) : null;
-        failed = result.Failed;
+        summary = result switch
+        {
+            SavedWorkoutSummary saved => SummaryItems.Summary(saved, Catalog),
+            ReadFailed => null,
+        };
+        failed = result is ReadFailed;
         loading = false;
     }
 }

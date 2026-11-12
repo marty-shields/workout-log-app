@@ -73,7 +73,7 @@ public class WorkoutEditorTests
     [Test]
     public async Task OpenListAsync_LoggedExercisesShowTheirLastSession()
     {
-        loggedExercises.Result = new LoggedExercisesResult([new LoggedExercise(Squat, Now.AddDays(-8), new ExerciseBest(70m, 3, null, null))], Failed: false);
+        loggedExercises.Result = new ReadResult<IReadOnlyList<LoggedExercise>>([new LoggedExercise(Squat, Now.AddDays(-8), new ExerciseBest(70m, 3, null, null))]);
 
         await editor.OpenListAsync();
 
@@ -83,7 +83,7 @@ public class WorkoutEditorTests
     [Test]
     public async Task OpenListAsync_LoadFailed_ListsTheCatalogWithNoLastSessions()
     {
-        loggedExercises.Result = new LoggedExercisesResult([], Failed: true);
+        loggedExercises.Result = new ReadFailed();
 
         await editor.OpenListAsync();
 

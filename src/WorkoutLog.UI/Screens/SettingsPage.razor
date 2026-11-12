@@ -85,8 +85,11 @@
             return;
         }
 
-        count = result.Count;
-        phase = result.Failed ? SettingsPhase.LoadFailed : SettingsPhase.Idle;
+        (count, phase) = result switch
+        {
+            int saved => (saved, SettingsPhase.Idle),
+            ReadFailed => (0, SettingsPhase.LoadFailed),
+        };
     }
 
     /// <summary>

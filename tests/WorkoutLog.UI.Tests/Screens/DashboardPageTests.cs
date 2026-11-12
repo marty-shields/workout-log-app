@@ -15,9 +15,9 @@ namespace WorkoutLog.UI.Tests.Screens;
 
 public class DashboardPageTests : ComponentTestBase
 {
-    private static readonly LastWorkoutResult NoWorkouts = new(null, Failed: false);
+    private static readonly ReadResult<WorkoutOutline?> NoWorkouts = (WorkoutOutline?)null;
 
-    private static readonly LastWorkoutResult Failed = new(null, Failed: true);
+    private static readonly ReadResult<WorkoutOutline?> Failed = new ReadFailed();
 
     /// <summary>Fri 23 Oct 2026, 22:30 UTC.</summary>
     private static readonly DateTimeOffset Now = new(2026, 10, 23, 22, 30, 0, TimeSpan.Zero);
@@ -149,7 +149,7 @@ public class DashboardPageTests : ComponentTestBase
     [Test]
     public async Task ConsistencyLoadFails_ShowsTheError()
     {
-        consistency.Result = ConsistencyResult.FailedRead;
+        consistency.Result = new ReadFailed();
         var cut = Context.Render<DashboardPage>();
 
         lastWorkout.Complete(NoWorkouts);
@@ -262,7 +262,7 @@ public class DashboardPageTests : ComponentTestBase
         await WaitForRendererAsync();
         cut.WaitForAssertion(() => Assert.That(cut.FindAll("[data-testid=consistency]"), Has.Count.EqualTo(1)));
 
-        consistency.Result = ConsistencyResult.FailedRead;
+        consistency.Result = new ReadFailed();
         var started = lifecycle.NotifyStartedAsync();
         lastWorkout.Complete(NoWorkouts);
         await WaitForRendererAsync();
@@ -403,7 +403,7 @@ public class DashboardPageTests : ComponentTestBase
     public async Task Refresh_Failed_ShowsTheErrorAfterHalfASecond()
     {
         var cut = await LoadedAsync();
-        consistency.Result = ConsistencyResult.FailedRead;
+        consistency.Result = new ReadFailed();
 
         var refresh = cut.InvokeAsync(cut.FindComponent<AppScreen>().Instance.RefreshAsync);
         lastWorkout.Complete(NoWorkouts);
@@ -466,11 +466,10 @@ public class DashboardPageTests : ComponentTestBase
     [Test]
     public async Task Loaded_ShowsTheRecordsInOrderWithTheirBestAndDaysAgoInThePhonesTimeZone()
     {
-        recentRecords.Result = new RecentRecordsResult(
-        [
+        recentRecords.Result = new ReadResult<RecentRecords>(new RecentRecords([
             new ExerciseRecord(6, new DateTimeOffset(2026, 10, 22, 23, 30, 0, TimeSpan.Zero), new ExerciseBest(70m, 3, null, null)),
             new ExerciseRecord(311, Now.AddDays(-2), new ExerciseBest(null, null, null, 5.2m)),
-        ], Now, Failed: false);
+        ], Now));
         var cut = Context.Render<DashboardPage>();
 
         lastWorkout.Complete(NoWorkouts);
@@ -488,7 +487,7 @@ public class DashboardPageTests : ComponentTestBase
     [Test]
     public async Task Loaded_LoadEndsAfterMidnight_CountsDaysAgoFromWhenTheRecordsWereRead()
     {
-        recentRecords.Result = new RecentRecordsResult([new ExerciseRecord(6, Now.AddDays(-29), new ExerciseBest(70m, 3, null, null))], Now, Failed: false);
+        recentRecords.Result = new ReadResult<RecentRecords>(new RecentRecords([new ExerciseRecord(6, Now.AddDays(-29), new ExerciseBest(70m, 3, null, null))], Now));
         var cut = Context.Render<DashboardPage>();
 
         time.Advance(TimeSpan.FromHours(1));
@@ -514,7 +513,7 @@ public class DashboardPageTests : ComponentTestBase
     [Test]
     public async Task RecordsFailToLoad_ShowsNoRecordsCardAndTheRestOfTheDashboard()
     {
-        recentRecords.Result = new RecentRecordsResult([], Now, Failed: true);
+        recentRecords.Result = new ReadFailed();
         var cut = Context.Render<DashboardPage>();
 
         lastWorkout.Complete(NoWorkouts);
@@ -531,7 +530,7 @@ public class DashboardPageTests : ComponentTestBase
     [Test]
     public async Task Record_Tapped_RaisesOnOpenExerciseWithItsId()
     {
-        recentRecords.Result = new RecentRecordsResult([new ExerciseRecord(6, Now.AddDays(-1), new ExerciseBest(70m, 3, null, null))], Now, Failed: false);
+        recentRecords.Result = new ReadResult<RecentRecords>(new RecentRecords([new ExerciseRecord(6, Now.AddDays(-1), new ExerciseBest(70m, 3, null, null))], Now));
         int? opened = null;
         var cut = Context.Render<DashboardPage>(p => p.Add(x => x.OnOpenExercise, id => opened = id));
         lastWorkout.Complete(NoWorkouts);
@@ -549,7 +548,7 @@ public class DashboardPageTests : ComponentTestBase
         lastWorkout.Complete(NoWorkouts);
         await WaitForRendererAsync();
         cut.WaitForAssertion(() => Assert.That(cut.FindAll("[data-testid=recent-records-none]"), Has.Count.EqualTo(1)));
-        recentRecords.Result = new RecentRecordsResult([new ExerciseRecord(6, Now.AddDays(-1), new ExerciseBest(70m, 3, null, null))], Now, Failed: false);
+        recentRecords.Result = new ReadResult<RecentRecords>(new RecentRecords([new ExerciseRecord(6, Now.AddDays(-1), new ExerciseBest(70m, 3, null, null))], Now));
 
         var started = lifecycle.NotifyStartedAsync();
         lastWorkout.Complete(NoWorkouts);
@@ -570,13 +569,13 @@ public class DashboardPageTests : ComponentTestBase
     }
 
     /// <summary>Workout 42, 1:12:04 long, with the exercises in order.</summary>
-    private static LastWorkoutResult Last(DateTimeOffset startedAt, int[] exerciseIds) =>
-        new(new WorkoutOutline(42, startedAt, startedAt + new TimeSpan(1, 12, 4), exerciseIds), Failed: false);
+    private static ReadResult<WorkoutOutline?> Last(DateTimeOffset startedAt, int[] exerciseIds) =>
+        new WorkoutOutline(42, startedAt, startedAt + new TimeSpan(1, 12, 4), exerciseIds);
 
     private static string Name(int exerciseId) => Catalog.All.Single(e => e.Id == exerciseId).Name;
 
-    private static ConsistencyResult Consistency(WeekTally thisWeek, WeekTally lastWeek, int[] weekCounts, int streak) =>
-        new(new WeekTallies(thisWeek, lastWeek), weekCounts, streak, Failed: false);
+    private static ReadResult<WeeklyConsistency> Consistency(WeekTally thisWeek, WeekTally lastWeek, int[] weekCounts, int streak) =>
+        new WeeklyConsistency(new WeekTallies(thisWeek, lastWeek), weekCounts, streak);
 
     private IReadOnlyList<JSRuntimeInvocation> Focuses() =>
         Context.JSInterop.Invocations["Blazor._internal.domWrapper.focus"];
@@ -584,11 +583,11 @@ public class DashboardPageTests : ComponentTestBase
     /// <summary>Returns <see cref="Result"/> at once; no records by default.</summary>
     private sealed class FakeRecentRecordsService : IRecentRecordsService
     {
-        public RecentRecordsResult Result { get; set; } = new([], Now, Failed: false);
+        public ReadResult<RecentRecords> Result { get; set; } = new ReadResult<RecentRecords>(new RecentRecords([], Now));
 
         public int Calls { get; private set; }
 
-        public Task<RecentRecordsResult> GetAsync()
+        public Task<ReadResult<RecentRecords>> GetAsync()
         {
             Calls++;
             return Task.FromResult(Result);
@@ -598,29 +597,29 @@ public class DashboardPageTests : ComponentTestBase
     /// <summary>Each call waits until the test completes it.</summary>
     private sealed class FakeLastWorkoutService : ILastWorkoutService
     {
-        private TaskCompletionSource<LastWorkoutResult> pending = new();
+        private TaskCompletionSource<ReadResult<WorkoutOutline?>> pending = new();
 
         public int Calls { get; private set; }
 
-        public Task<LastWorkoutResult> GetAsync()
+        public Task<ReadResult<WorkoutOutline?>> GetAsync()
         {
             Calls++;
-            pending = new TaskCompletionSource<LastWorkoutResult>();
+            pending = new TaskCompletionSource<ReadResult<WorkoutOutline?>>();
             return pending.Task;
         }
 
         /// <summary>Completes the latest call.</summary>
-        public void Complete(LastWorkoutResult result) => pending.SetResult(result);
+        public void Complete(ReadResult<WorkoutOutline?> result) => pending.SetResult(result);
     }
 
     /// <summary>Returns <see cref="Result"/> at once; no workouts by default.</summary>
     private sealed class FakeConsistencyService : IConsistencyService
     {
-        public ConsistencyResult Result { get; set; } = Consistency(WeekTally.None, WeekTally.None, new int[12], 0);
+        public ReadResult<WeeklyConsistency> Result { get; set; } = Consistency(WeekTally.None, WeekTally.None, new int[12], 0);
 
         public int Calls { get; private set; }
 
-        public Task<ConsistencyResult> GetAsync()
+        public Task<ReadResult<WeeklyConsistency>> GetAsync()
         {
             Calls++;
             return Task.FromResult(Result);

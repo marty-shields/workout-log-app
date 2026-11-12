@@ -21,19 +21,19 @@ internal sealed partial class CardioProgressService(
     ILogger<CardioProgressService> logger) : ICardioProgressService
 {
     /// <inheritdoc />
-    public async Task<CardioProgressResult> LoadAsync(int exerciseId)
+    public async Task<ReadResult<IReadOnlyList<CardioSession>>> LoadAsync(int exerciseId)
     {
         var definition = catalog.All.FirstOrDefault(e => e.Id == exerciseId);
         if (definition is null)
         {
             Log.UnknownExercise(logger, exerciseId);
-            return new CardioProgressResult([], Failed: true);
+            return new ReadFailed();
         }
 
         if (definition.Category != ExerciseCategory.Cardio)
         {
             Log.NotCardio(logger, exerciseId);
-            return new CardioProgressResult([], Failed: true);
+            return new ReadFailed();
         }
 
         IReadOnlyList<WorkoutSession> sessions;
@@ -44,7 +44,7 @@ internal sealed partial class CardioProgressService(
         catch (Exception exception)
         {
             Log.LoadFailed(logger, exerciseId, exception);
-            return new CardioProgressResult([], Failed: true);
+            return new ReadFailed();
         }
 
         var cardio = sessions
@@ -52,7 +52,7 @@ internal sealed partial class CardioProgressService(
             .Select(s => new CardioSession(s.WorkoutId, s.StartedAt, ((CardioExercise)s.Exercise).Entry))
             .ToList();
         Log.Loaded(logger, cardio.Count, exerciseId);
-        return new CardioProgressResult(cardio, Failed: false);
+        return cardio;
     }
 
     /// <inheritdoc />

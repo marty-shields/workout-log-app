@@ -84,7 +84,11 @@
         }
 
         await LastTimes.LoadAsync(exercise);
-        var history = await WeightHistory.GetAsync(item.Id, null);
+        if (await WeightHistory.GetAsync(item.Id, null) is not ExerciseHistory history)
+        {
+            return;
+        }
+
         exercise.LastNote = history.LastNote;
         if (item.Kind != ExerciseKind.Strength)
         {

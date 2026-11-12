@@ -25,7 +25,7 @@ public class WorkoutSummaryPageTests : ComponentTestBase
     [SetUp]
     public void SetUp()
     {
-        summaries = new FakeWorkoutSummaryService { Result = new WorkoutSummaryResult(Loaded, Failed: false) };
+        summaries = new FakeWorkoutSummaryService { Result = new ReadResult<SavedWorkoutSummary>(Loaded) };
         Context.Services.AddSingleton<IWorkoutSummaryService>(summaries);
     }
 
@@ -49,7 +49,7 @@ public class WorkoutSummaryPageTests : ComponentTestBase
     [Test]
     public void FirstWorkout_ShowsNoRecordsOrChanges()
     {
-        summaries.Result = new WorkoutSummaryResult(Loaded with { HasEarlierWorkout = false }, Failed: false);
+        summaries.Result = new ReadResult<SavedWorkoutSummary>(Loaded with { HasEarlierWorkout = false });
 
         var cut = Render(7);
 
@@ -80,7 +80,7 @@ public class WorkoutSummaryPageTests : ComponentTestBase
     [Test]
     public void LoadFailed_ShowsTheErrorAndDoneStillWorks()
     {
-        summaries.Result = new WorkoutSummaryResult(null, Failed: true);
+        summaries.Result = new ReadFailed();
         var done = 0;
         var cut = Render(7, () => done++);
 
@@ -93,9 +93,9 @@ public class WorkoutSummaryPageTests : ComponentTestBase
     [Test]
     public void TryAgain_LoadsAgain()
     {
-        summaries.Result = new WorkoutSummaryResult(null, Failed: true);
+        summaries.Result = new ReadFailed();
         var cut = Render(7);
-        summaries.Result = new WorkoutSummaryResult(Loaded, Failed: false);
+        summaries.Result = new ReadResult<SavedWorkoutSummary>(Loaded);
 
         cut.Find("[data-testid=summary-retry]").Click();
 
@@ -123,7 +123,7 @@ public class WorkoutSummaryPageTests : ComponentTestBase
     [Test]
     public void EarlierWorkoutButNoShownExercises_ShowsNoSinceLastTimeCard()
     {
-        summaries.Result = new WorkoutSummaryResult(Loaded with { Exercises = [] }, Failed: false);
+        summaries.Result = new ReadResult<SavedWorkoutSummary>(Loaded with { Exercises = [] });
 
         var cut = Render(7);
 

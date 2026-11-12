@@ -40,8 +40,8 @@ public class WorkoutsServiceTests
 
         var result = await service.GetBetweenAsync(new DateOnly(2026, 10, 20), new DateOnly(2026, 10, 21));
 
-        Assert.That(result.Failed, Is.False);
-        Assert.That(result.Workouts, Is.EqualTo(workouts));
+        Assert.That(result.Value, Is.Not.InstanceOf<ReadFailed>());
+        Assert.That(result.Loaded(), Is.EqualTo(workouts));
     }
 
     [Test]
@@ -55,7 +55,7 @@ public class WorkoutsServiceTests
 
         var result = await service.GetBetweenAsync(new DateOnly(2026, 10, 24), new DateOnly(2026, 10, 25));
 
-        Assert.That(result.Failed, Is.False);
+        Assert.That(result.Value, Is.Not.InstanceOf<ReadFailed>());
     }
 
     [TestCase(0)]
@@ -79,8 +79,7 @@ public class WorkoutsServiceTests
 
         var result = await service.GetBetweenAsync(new DateOnly(2026, 10, 21), new DateOnly(2026, 10, 21));
 
-        Assert.That(result.Failed, Is.True);
-        Assert.That(result.Workouts, Is.Empty);
+        Assert.That(result.Value, Is.InstanceOf<ReadFailed>());
         Assert.That(LoggedEvents.Of(logger), Is.EqualTo(new[] { (CoreEvent.WorkoutsLoadFailed, LogLevel.Error, "Loading the workouts failed") }));
         Assert.That(logger.LatestRecord.Exception, Is.SameAs(exception));
     }
@@ -98,8 +97,8 @@ public class WorkoutsServiceTests
 
         var result = await service.GetDaysAsync();
 
-        Assert.That(result.Failed, Is.False);
-        Assert.That(result.PerDay, Is.EquivalentTo(new Dictionary<DateOnly, int>
+        Assert.That(result.Value, Is.Not.InstanceOf<ReadFailed>());
+        Assert.That(result.Loaded(), Is.EquivalentTo(new Dictionary<DateOnly, int>
         {
             [new DateOnly(2026, 7, 20)] = 3,
             [new DateOnly(2026, 7, 21)] = 1,
@@ -117,7 +116,7 @@ public class WorkoutsServiceTests
 
         var result = await service.GetDaysAsync();
 
-        Assert.That(result.PerDay.Keys, Is.EquivalentTo(new[] { new DateOnly(2026, 7, 21), new DateOnly(2026, 12, 20) }));
+        Assert.That(result.Loaded().Keys, Is.EquivalentTo(new[] { new DateOnly(2026, 7, 21), new DateOnly(2026, 12, 20) }));
     }
 
     [Test]
@@ -138,8 +137,7 @@ public class WorkoutsServiceTests
 
         var result = await service.GetDaysAsync();
 
-        Assert.That(result.Failed, Is.True);
-        Assert.That(result.PerDay, Is.Empty);
+        Assert.That(result.Value, Is.InstanceOf<ReadFailed>());
         Assert.That(LoggedEvents.Of(logger), Is.EqualTo(new[] { (CoreEvent.WorkoutDaysLoadFailed, LogLevel.Error, "Counting the workouts per day failed") }));
         Assert.That(logger.LatestRecord.Exception, Is.SameAs(exception));
     }
@@ -155,7 +153,7 @@ public class WorkoutsServiceTests
         await service.GetBetweenAsync(new DateOnly(2026, 10, 5), new DateOnly(2026, 10, 5));
         var days = await service.GetDaysAsync();
 
-        Assert.That(days.PerDay.Keys, Is.EquivalentTo(new[] { new DateOnly(2026, 10, 4), new DateOnly(2026, 10, 5) }));
+        Assert.That(days.Loaded().Keys, Is.EquivalentTo(new[] { new DateOnly(2026, 10, 4), new DateOnly(2026, 10, 5) }));
         repository.Verify(r => r.ListAsync(first, It.IsAny<DateTimeOffset?>(), null), Times.Once);
     }
 
@@ -170,7 +168,7 @@ public class WorkoutsServiceTests
         await service.GetBetweenAsync(new DateOnly(2026, 10, 25), new DateOnly(2026, 10, 25));
         var days = await service.GetDaysAsync();
 
-        Assert.That(days.PerDay, Is.EquivalentTo(new Dictionary<DateOnly, int> { [new DateOnly(2026, 10, 25)] = 1, [new DateOnly(2026, 10, 26)] = 2 }));
+        Assert.That(days.Loaded(), Is.EquivalentTo(new Dictionary<DateOnly, int> { [new DateOnly(2026, 10, 25)] = 1, [new DateOnly(2026, 10, 26)] = 2 }));
         repository.Verify(r => r.ListAsync(It.IsAny<DateTimeOffset?>(), first.AddTicks(-1), null), Times.Once);
     }
 

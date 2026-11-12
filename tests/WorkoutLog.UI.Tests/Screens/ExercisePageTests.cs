@@ -38,7 +38,7 @@ public class ExercisePageTests : ComponentTestBase
         Context.Services.AddSingleton<TimeProvider>(clock);
         progress = new FakeExerciseProgressService
         {
-            Result = new ExerciseProgressResult([Light, Heavy], Failed: false),
+            Result = new ReadResult<IReadOnlyList<StrengthSession>>([Light, Heavy]),
             Summary = (sessions, range) => range == HistoryRange.All
                 ? new LiftProgress([], new LiftRecords(null, null))
                 : new LiftProgress(
@@ -88,7 +88,7 @@ public class ExercisePageTests : ComponentTestBase
     [Test]
     public void OneSession_ShowsOnePointItsRecordsAndItsRow()
     {
-        progress.Result = new ExerciseProgressResult([Heavy], Failed: false);
+        progress.Result = new ReadResult<IReadOnlyList<StrengthSession>>([Heavy]);
         progress.Summary = (_, _) => new LiftProgress(
             [new LiftSessionProgress(Heavy, Top(70m, 3), 62.5m * (1 + 8 / 30m))],
             new LiftRecords(new ProgressRecord<ExerciseBest>(Top(70m, 3), Heavy.StartedAt), new ProgressRecord<decimal>(62.5m * (1 + 8 / 30m), Heavy.StartedAt)));
@@ -113,7 +113,7 @@ public class ExercisePageTests : ComponentTestBase
             Assert.That(progress.Loads, Is.EqualTo(new[] { Squat }));
             Assert.That(cardio.Loads, Is.Empty);
             Assert.That(progress.LiftSummaries.Select(s => s.Range), Is.EqualTo(new[] { HistoryRange.ThreeMonths }));
-            Assert.That(progress.LiftSummaries.Single().Sessions, Is.SameAs(progress.Result.Sessions));
+            Assert.That(progress.LiftSummaries.Single().Sessions, Is.SameAs(progress.Result.Loaded()));
             Assert.That(progress.BodyweightSummaries, Is.Empty);
             Assert.That(cut.FindAll("[data-testid=exercise-tabs] input[checked]").Select(i => i.GetAttribute("data-testid")), Is.EqualTo(new[] { "exercise-tab-top-set" }));
             Assert.That(cut.FindAll("[data-testid=exercise-range] input[checked]").Select(i => i.GetAttribute("data-testid")), Is.EqualTo(new[] { "exercise-range-3m" }));
@@ -163,7 +163,7 @@ public class ExercisePageTests : ComponentTestBase
         {
             Assert.That(progress.Loads, Has.Count.EqualTo(1));
             Assert.That(progress.LiftSummaries.Select(s => s.Range), Is.EqualTo(new[] { HistoryRange.ThreeMonths, HistoryRange.All }));
-            Assert.That(progress.LiftSummaries[^1].Sessions, Is.SameAs(progress.Result.Sessions));
+            Assert.That(progress.LiftSummaries[^1].Sessions, Is.SameAs(progress.Result.Loaded()));
             Assert.That(cut.Find("[data-testid=exercise-chart-empty]").TextContent, Is.EqualTo("No sessions yet"));
             Assert.That(cut.FindAll("[data-testid=exercise-records] .value").Select(v => v.TextContent), Is.EqualTo(new[] { "—", "—" }));
             Assert.That(cut.FindAll("[data-testid^=exercise-session-]"), Is.Empty);
@@ -197,17 +197,17 @@ public class ExercisePageTests : ComponentTestBase
     [Test]
     public void LoadFailed_ShowsTheErrorAndTryAgainLoadsAgain()
     {
-        progress.Result = new ExerciseProgressResult([], Failed: true);
+        progress.Result = new ReadFailed();
         var cut = Render(Squat);
         Assume.That(cut.Find("[data-testid=exercise-error]").TextContent, Is.EqualTo("Couldn't load this exercise"));
-        progress.Result = new ExerciseProgressResult([Light, Heavy], Failed: false);
+        progress.Result = new ReadResult<IReadOnlyList<StrengthSession>>([Light, Heavy]);
 
         cut.Find("[data-testid=exercise-retry]").Click();
 
         Assert.Multiple(() =>
         {
             Assert.That(progress.Loads, Is.EqualTo(new[] { Squat, Squat }));
-            Assert.That(progress.LiftSummaries[^1].Sessions, Is.SameAs(progress.Result.Sessions));
+            Assert.That(progress.LiftSummaries[^1].Sessions, Is.SameAs(progress.Result.Loaded()));
             Assert.That(cut.FindAll("[data-testid=exercise-error]"), Is.Empty);
             Assert.That(cut.FindAll("[data-testid^=exercise-session-]"), Has.Count.EqualTo(2));
         });
@@ -307,7 +307,7 @@ public class ExercisePageTests : ComponentTestBase
     [Test]
     public void UnknownExercise_ShowsLoadFailedWithNoName()
     {
-        progress.Result = new ExerciseProgressResult([], Failed: true);
+        progress.Result = new ReadFailed();
 
         var cut = Render(999);
 
@@ -343,7 +343,7 @@ public class ExercisePageTests : ComponentTestBase
                 Is.EqualTo(new[] { "exercise-tab-best-set", "exercise-tab-total", "exercise-tab-top-set" }));
             Assert.That(cut.FindAll("[data-testid=exercise-tabs] input[checked]").Select(i => i.GetAttribute("data-testid")), Is.EqualTo(new[] { "exercise-tab-best-set" }));
             Assert.That(cut.FindAll("[data-testid=exercise-range] input[checked]").Select(i => i.GetAttribute("data-testid")), Is.EqualTo(new[] { "exercise-range-3m" }));
-            Assert.That(progress.BodyweightSummaries.Single().Sessions, Is.SameAs(progress.Result.Sessions));
+            Assert.That(progress.BodyweightSummaries.Single().Sessions, Is.SameAs(progress.Result.Loaded()));
             Assert.That(progress.LiftSummaries, Is.Empty);
             Assert.That(cut.FindAll("[data-testid=exercise-chart-values] li").Select(v => v.TextContent), Is.EqualTo(new[] { "13 Oct: 25", "20 Oct: 20" }));
             Assert.That(cut.FindAll("[data-testid=exercise-records] .value").Select(v => v.TextContent), Is.EqualTo(new[] { "25 reps", "63 reps", "16kg × 8" }));
@@ -391,7 +391,7 @@ public class ExercisePageTests : ComponentTestBase
     public void Bodyweight_TabWithNoValues_ShowsNoSets()
     {
         var session = new StrengthSession(1, Now, [Set(20, null)]);
-        progress.Result = new ExerciseProgressResult([session], Failed: false);
+        progress.Result = new ReadResult<IReadOnlyList<StrengthSession>>([session]);
         progress.BodyweightSummary = (_, _) => new BodyweightProgress(
             [new BodyweightSessionProgress(session, 20, 20, null, null)],
             new BodyweightRecords(new ProgressRecord<int>(20, Now), new ProgressRecord<int>(20, Now), null, null));
@@ -412,7 +412,7 @@ public class ExercisePageTests : ComponentTestBase
         var unweighted = new StrengthSession(5, Now.AddDays(-15), [Set(25, null), Set(20, null), Set(18, null)]);
         var mixed = new StrengthSession(6, Now.AddDays(-8), [Set(20, null), Set(8, 16m)]);
         var e1rm = 16m * (1 + 8 / 30m);
-        progress.Result = new ExerciseProgressResult([unweighted, mixed], Failed: false);
+        progress.Result = new ReadResult<IReadOnlyList<StrengthSession>>([unweighted, mixed]);
         progress.BodyweightSummary = (_, _) => new BodyweightProgress(
             [
                 new BodyweightSessionProgress(unweighted, 25, 63, null, null),

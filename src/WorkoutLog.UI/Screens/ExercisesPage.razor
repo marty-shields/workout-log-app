@@ -70,10 +70,15 @@
 
         var definitions = Catalog.All.ToDictionary(e => e.Id);
         var now = Clock.GetUtcNow();
-        logged = result.Exercises
+        IReadOnlyList<LoggedExercise> exercises = result switch
+        {
+            IReadOnlyList<LoggedExercise> read => read,
+            ReadFailed => [],
+        };
+        logged = exercises
             .Select(e => ExerciseListItems.Item(definitions[e.ExerciseId], e, Clock.LocalTimeZone, now))
             .ToList();
-        failed = result.Failed;
+        failed = result is ReadFailed;
         Find();
         await minimumElapsed;
         if (!disposed)

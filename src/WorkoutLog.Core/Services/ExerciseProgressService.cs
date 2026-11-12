@@ -30,19 +30,19 @@ internal sealed partial class ExerciseProgressService(
     ILogger<ExerciseProgressService> logger) : IExerciseProgressService
 {
     /// <inheritdoc />
-    public async Task<ExerciseProgressResult> LoadAsync(int exerciseId)
+    public async Task<ReadResult<IReadOnlyList<StrengthSession>>> LoadAsync(int exerciseId)
     {
         var definition = catalog.All.FirstOrDefault(e => e.Id == exerciseId);
         if (definition is null)
         {
             Log.UnknownExercise(logger, exerciseId);
-            return new ExerciseProgressResult([], Failed: true);
+            return new ReadFailed();
         }
 
         if (definition.Category == ExerciseCategory.Cardio)
         {
             Log.NotSupported(logger, exerciseId);
-            return new ExerciseProgressResult([], Failed: true);
+            return new ReadFailed();
         }
 
         IReadOnlyList<WorkoutSession> sessions;
@@ -53,14 +53,14 @@ internal sealed partial class ExerciseProgressService(
         catch (Exception exception)
         {
             Log.LoadFailed(logger, exerciseId, exception);
-            return new ExerciseProgressResult([], Failed: true);
+            return new ReadFailed();
         }
 
         var strength = sessions
             .Select(s => new StrengthSession(s.WorkoutId, s.StartedAt, (s.Exercise as StrengthExercise)?.Sets ?? []))
             .ToList();
         Log.Loaded(logger, strength.Count, exerciseId);
-        return new ExerciseProgressResult(strength, Failed: false);
+        return strength;
     }
 
     /// <inheritdoc />

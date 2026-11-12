@@ -106,14 +106,22 @@
         if (IsCardio)
         {
             var result = await CardioProgress.LoadAsync(ExerciseId);
-            loadedCardio = result.Sessions;
-            failed = result.Failed;
+            loadedCardio = result switch
+            {
+                IReadOnlyList<CardioSession> sessions => sessions,
+                ReadFailed => [],
+            };
+            failed = result is ReadFailed;
         }
         else
         {
             var result = await Progress.LoadAsync(ExerciseId);
-            loaded = result.Sessions;
-            failed = result.Failed;
+            loaded = result switch
+            {
+                IReadOnlyList<StrengthSession> sessions => sessions,
+                ReadFailed => [],
+            };
+            failed = result is ReadFailed;
         }
 
         phase = failed ? ExercisePhase.LoadFailed : ExercisePhase.Loaded;

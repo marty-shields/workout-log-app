@@ -7,15 +7,14 @@ namespace WorkoutLog.UI.Tests.Screens;
 
 public class MusclesPageTests : ComponentTestBase
 {
-    private static readonly MuscleSetsResult Loaded = new(
-    [
+    private static readonly ReadResult<IReadOnlyList<MuscleGroupCount>> Loaded = new ReadResult<IReadOnlyList<MuscleGroupCount>>([
         new MuscleGroupCount(MuscleGroup.Chest, 12),
         new MuscleGroupCount(MuscleGroup.Back, 0),
         new MuscleGroupCount(MuscleGroup.Shoulders, 0),
         new MuscleGroupCount(MuscleGroup.Arms, 1),
         new MuscleGroupCount(MuscleGroup.Legs, 9),
         new MuscleGroupCount(MuscleGroup.Core, 0),
-    ], Failed: false);
+    ]);
 
     private FakeMuscleSetsService muscleSets = null!;
 
@@ -62,7 +61,7 @@ public class MusclesPageTests : ComponentTestBase
     [Test]
     public void NothingInTheLast7Days_EveryGroupIsNotTrained()
     {
-        muscleSets.Result = new MuscleSetsResult(Enum.GetValues<MuscleGroup>().Select(g => new MuscleGroupCount(g, 0)).ToList(), Failed: false);
+        muscleSets.Result = new ReadResult<IReadOnlyList<MuscleGroupCount>>(Enum.GetValues<MuscleGroup>().Select(g => new MuscleGroupCount(g, 0)).ToList());
 
         var cut = Context.Render<MusclesPage>();
 
@@ -72,7 +71,7 @@ public class MusclesPageTests : ComponentTestBase
     [Test]
     public void LoadFailed_ShowsTheErrorAndTryAgainLoadsAgain()
     {
-        muscleSets.Result = new MuscleSetsResult([], Failed: true);
+        muscleSets.Result = new ReadFailed();
         var cut = Context.Render<MusclesPage>();
         Assume.That(cut.Find("[data-testid=muscles-error]").TextContent, Is.EqualTo("Couldn't load your muscles"));
         muscleSets.Result = Loaded;

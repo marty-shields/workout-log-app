@@ -5,7 +5,7 @@ public interface IWorkoutSummaryService
 {
     /// <summary>
     /// Returns the summary of the workout: its totals, and each exercise's best, whether it is a record and how it compares with the exercise's last
-    /// session before the workout. Ids not in the exercise list are left out. A failed load, or a missing workout, returns <see cref="WorkoutSummaryResult.Failed"/>.
+    /// session before the workout. Ids not in the exercise list are left out. A missing workout returns <see cref="ReadFailed"/>, as a failed read does.
     /// </summary>
-    Task<WorkoutSummaryResult> GetAsync(int workoutId);
+    Task<ReadResult<SavedWorkoutSummary>> GetAsync(int workoutId);
 }

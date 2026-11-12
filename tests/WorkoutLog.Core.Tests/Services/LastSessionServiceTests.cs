@@ -39,7 +39,7 @@ public class LastSessionServiceTests
     {
         Setup(Squat, null, null);
 
-        Assert.That(await service.GetAsync(Squat), Is.EqualTo(new LastSessionResult(null, null, Failed: false)));
+        Assert.That((await service.GetAsync(Squat)).Value, Is.Null);
     }
 
     [Test]
@@ -52,9 +52,9 @@ public class LastSessionServiceTests
 
         Assert.Multiple(() =>
         {
-            Assert.That(((StrengthExercise)result.Exercise!).Sets, Is.EqualTo(sets));
-            Assert.That(result.Best, Is.Null);
-            Assert.That(result.Failed, Is.False);
+            Assert.That(((StrengthExercise)result.Loaded()!.Exercise!).Sets, Is.EqualTo(sets));
+            Assert.That(result.Loaded()!.Best, Is.Null);
+            Assert.That(result.Value, Is.Not.InstanceOf<ReadFailed>());
         });
     }
 
@@ -64,7 +64,7 @@ public class LastSessionServiceTests
         var sets = new[] { new StrengthSet(null, 20m, TimeSpan.FromSeconds(90), null) };
         Setup(Plank, null, new StrengthExercise(Plank, sets));
 
-        Assert.That(((StrengthExercise)(await service.GetAsync(Plank)).Exercise!).Sets, Is.EqualTo(sets));
+        Assert.That(((StrengthExercise)(await service.GetAsync(Plank)).Loaded()!.Exercise!).Sets, Is.EqualTo(sets));
     }
 
     [Test]
@@ -73,7 +73,7 @@ public class LastSessionServiceTests
         var sets = new[] { new StrengthSet(null, 0m, TimeSpan.FromSeconds(90), null) };
         Setup(Plank, null, new StrengthExercise(Plank, sets));
 
-        Assert.That(((StrengthExercise)(await service.GetAsync(Plank)).Exercise!).Sets, Is.EqualTo(sets));
+        Assert.That(((StrengthExercise)(await service.GetAsync(Plank)).Loaded()!.Exercise!).Sets, Is.EqualTo(sets));
     }
 
     [Test]
@@ -86,9 +86,9 @@ public class LastSessionServiceTests
 
         Assert.Multiple(() =>
         {
-            Assert.That(((CardioExercise)result.Exercise!).Entry, Is.EqualTo(entry));
-            Assert.That(result.Best, Is.EqualTo(new CardioBest(5m, new TimeSpan(0, 30, 0), new TimeSpan(0, 6, 0), 10m, null, 310)));
-            Assert.That(result.Failed, Is.False);
+            Assert.That(((CardioExercise)result.Loaded()!.Exercise!).Entry, Is.EqualTo(entry));
+            Assert.That(result.Loaded()!.Best, Is.EqualTo(new CardioBest(5m, new TimeSpan(0, 30, 0), new TimeSpan(0, 6, 0), 10m, null, 310)));
+            Assert.That(result.Value, Is.Not.InstanceOf<ReadFailed>());
         });
     }
 
@@ -98,7 +98,7 @@ public class LastSessionServiceTests
         var exercise = new StrengthExercise(Squat, [new StrengthSet(8, 55m, null, null)]);
         Setup(Squat, Started, exercise);
 
-        Assert.That((await service.GetAsync(Squat, Started)).Exercise, Is.SameAs(exercise));
+        Assert.That((await service.GetAsync(Squat, Started)).Loaded()!.Exercise, Is.SameAs(exercise));
     }
 
     [Test]
@@ -116,7 +116,7 @@ public class LastSessionServiceTests
     {
         repository.Setup(r => r.GetLastSessionOfAsync(Squat, null)).ThrowsAsync(new InvalidOperationException("disk"));
 
-        Assert.That(await service.GetAsync(Squat), Is.EqualTo(new LastSessionResult(null, null, Failed: true)));
+        Assert.That((await service.GetAsync(Squat)).Value, Is.InstanceOf<ReadFailed>());
     }
 
     [Test]

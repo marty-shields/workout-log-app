@@ -1426,8 +1426,8 @@ public class EditWorkoutPageTests : ComponentTestBase
     [Test]
     public async Task Loaded_ReadsEachExercisesLastNoteBeforeTheWorkoutsStart()
     {
-        history.Results[6] = new WeightHistoryResult(70m, 80m, "Belt on from set 3", Failed: false);
-        history.Results[300] = new WeightHistoryResult(null, null, "Windy", Failed: false);
+        history.Results[6] = new ReadResult<ExerciseHistory>(new ExerciseHistory(70m, 80m, "Belt on from set 3"));
+        history.Results[300] = new ReadResult<ExerciseHistory>(new ExerciseHistory(null, null, "Windy"));
 
         var cut = await RenderOpenedAsync();
 
@@ -1444,7 +1444,7 @@ public class EditWorkoutPageTests : ComponentTestBase
     [Test]
     public async Task Loaded_FailedHistoryRead_ShowsNoLastNoteAndNoError()
     {
-        history.Results[6] = new WeightHistoryResult(null, null, null, Failed: true);
+        history.Results[6] = new ReadFailed();
 
         var cut = await RenderOpenedAsync();
 
@@ -1459,7 +1459,7 @@ public class EditWorkoutPageTests : ComponentTestBase
     [Test]
     public async Task Pick_ReadsTheLastNoteBeforeTheWorkoutsStartOnceForAnAddedExercise()
     {
-        history.Results[132] = new WeightHistoryResult(null, null, "Slow tempo", Failed: false);
+        history.Results[132] = new ReadResult<ExerciseHistory>(new ExerciseHistory(null, null, "Slow tempo"));
         var cut = await RenderLoadedAsync();
         history.Calls.Clear();
 

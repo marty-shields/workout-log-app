@@ -19,18 +19,16 @@ public class ExercisesPageTests : ComponentTestBase
     /// <summary>Wed 28 Oct 2026 12:00 UTC.</summary>
     private static readonly DateTimeOffset Now = new(2026, 10, 28, 12, 0, 0, TimeSpan.Zero);
 
-    private static readonly LoggedExercisesResult Logged = new(
-    [
+    private static readonly ReadResult<IReadOnlyList<LoggedExercise>> Logged = new ReadResult<IReadOnlyList<LoggedExercise>>([
         new LoggedExercise(Run, Now.AddDays(-1), new ExerciseBest(null, null, null, 5.2m)),
         new LoggedExercise(Squat, Now.AddDays(-8), new ExerciseBest(70m, 3, null, null)),
         new LoggedExercise(Curl, Now.AddYears(-1), null),
-    ], Failed: false);
+    ]);
 
-    private static readonly LoggedExercisesResult LoggedAgain = new(
-    [
+    private static readonly ReadResult<IReadOnlyList<LoggedExercise>> LoggedAgain = new ReadResult<IReadOnlyList<LoggedExercise>>([
         new LoggedExercise(Squat, Now.AddHours(-1), new ExerciseBest(80m, 2, null, null)),
-        .. Logged.Exercises,
-    ], Failed: false);
+        .. Logged.Loaded(),
+    ]);
 
     private FakeTimeProvider clock = null!;
     private FakeLogger<AppLifecycle> lifecycleLogger = null!;
@@ -105,7 +103,7 @@ public class ExercisesPageTests : ComponentTestBase
     [Test]
     public void NothingLogged_ShowsTheMessage()
     {
-        LoggedExercises.Result = new LoggedExercisesResult([], Failed: false);
+        LoggedExercises.Result = new ReadResult<IReadOnlyList<LoggedExercise>>([]);
 
         var cut = Context.Render<ExercisesPage>();
 
@@ -119,7 +117,7 @@ public class ExercisesPageTests : ComponentTestBase
     [Test]
     public void LoadFailed_ShowsTheErrorAndTryAgainLoadsAgain()
     {
-        LoggedExercises.Result = new LoggedExercisesResult([], Failed: true);
+        LoggedExercises.Result = new ReadFailed();
         var cut = Context.Render<ExercisesPage>();
         Assume.That(cut.Find("[data-testid=exercises-error]").TextContent, Is.EqualTo("Couldn't load your exercises"));
         LoggedExercises.Result = Logged;
@@ -209,7 +207,7 @@ public class ExercisesPageTests : ComponentTestBase
     public async Task AppStarted_FailedReload_ShowsTheError()
     {
         var cut = Context.Render<ExercisesPage>();
-        LoggedExercises.Result = new LoggedExercisesResult([], Failed: true);
+        LoggedExercises.Result = new ReadFailed();
 
         await cut.InvokeAsync(lifecycle.NotifyStartedAsync);
 
@@ -314,10 +312,8 @@ public class ExercisesPageTests : ComponentTestBase
         var cut = Context.Render<ExercisesPage>();
         cut.Find("[data-testid=exercises-search]").Input("curl");
         LoggedExercises.Hold = true;
-        LoggedExercises.Result = Logged with
-        {
-            Exercises = [new LoggedExercise(Squat, Now.AddHours(-1), new ExerciseBest(80m, 2, null, null)), .. Logged.Exercises.Where(e => e.ExerciseId != Squat)],
-        };
+        LoggedExercises.Result = new ReadResult<IReadOnlyList<LoggedExercise>>(
+            [new LoggedExercise(Squat, Now.AddHours(-1), new ExerciseBest(80m, 2, null, null)), .. Logged.Loaded().Where(e => e.ExerciseId != Squat)]);
 
         var refresh = cut.InvokeAsync(cut.FindComponent<AppScreen>().Instance.RefreshAsync);
         await WaitForRendererAsync();
@@ -347,7 +343,7 @@ public class ExercisesPageTests : ComponentTestBase
     public async Task Refresh_Failed_ShowsTheErrorAfterHalfASecond()
     {
         var cut = Context.Render<ExercisesPage>();
-        LoggedExercises.Result = new LoggedExercisesResult([], Failed: true);
+        LoggedExercises.Result = new ReadFailed();
 
         var refresh = cut.InvokeAsync(cut.FindComponent<AppScreen>().Instance.RefreshAsync);
         await WaitForRendererAsync();

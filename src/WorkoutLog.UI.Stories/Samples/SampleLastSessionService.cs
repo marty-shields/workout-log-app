@@ -6,5 +6,5 @@ namespace WorkoutLog.UI.Stories.Samples;
 public sealed class SampleLastSessionService : ILastSessionService
 {
     /// <inheritdoc />
-    public Task<LastSessionResult> GetAsync(int exerciseId, DateTimeOffset? before = null) => throw new NotSupportedException("The stories don't load last sessions.");
+    public Task<ReadResult<LastSessionExercise?>> GetAsync(int exerciseId, DateTimeOffset? before = null) => throw new NotSupportedException("The stories don't load last sessions.");
 }

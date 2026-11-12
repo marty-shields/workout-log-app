@@ -18,6 +18,10 @@ public sealed class LastTimeLoader(ILastSessionService lastSessions, IExerciseCa
             return;
         }
 
-        exercise.LastTime = LastTimeItems.From(definition, await lastSessions.GetAsync(exercise.ExerciseId, before));
+        exercise.LastTime = await lastSessions.GetAsync(exercise.ExerciseId, before) switch
+        {
+            LastSessionExercise last => LastTimeItems.From(definition, last),
+            null or ReadFailed => null,
+        };
     }
 }

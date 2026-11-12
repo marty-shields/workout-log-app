@@ -153,7 +153,12 @@ public sealed class WorkoutEditor(
             return;
         }
 
-        var logged = result.Exercises.ToDictionary(e => e.ExerciseId);
+        IReadOnlyList<LoggedExercise> lastSessions = result switch
+        {
+            IReadOnlyList<LoggedExercise> read => read,
+            ReadFailed => [],
+        };
+        var logged = lastSessions.ToDictionary(e => e.ExerciseId);
         var now = clock.GetUtcNow();
         listItems = catalog.Search(null)
             .Select(e => ExerciseListItems.Item(e, logged.GetValueOrDefault(e.Id), clock.LocalTimeZone, now))

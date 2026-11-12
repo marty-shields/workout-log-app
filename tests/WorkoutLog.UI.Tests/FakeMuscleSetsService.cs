@@ -8,10 +8,10 @@ namespace WorkoutLog.UI.Tests;
 /// </summary>
 public sealed class FakeMuscleSetsService : IMuscleSetsService
 {
-    private readonly List<TaskCompletionSource<MuscleSetsResult>> pending = [];
+    private readonly List<TaskCompletionSource<ReadResult<IReadOnlyList<MuscleGroupCount>>>> pending = [];
 
     /// <summary>What each load returns.</summary>
-    public MuscleSetsResult Result { get; set; } = new([], Failed: false);
+    public ReadResult<IReadOnlyList<MuscleGroupCount>> Result { get; set; } = new ReadResult<IReadOnlyList<MuscleGroupCount>>([]);
 
     /// <summary>When true, loads wait for <see cref="Complete"/>.</summary>
     public bool Hold { get; set; }
@@ -19,7 +19,7 @@ public sealed class FakeMuscleSetsService : IMuscleSetsService
     public int Loads { get; private set; }
 
     /// <inheritdoc />
-    public Task<MuscleSetsResult> GetAsync()
+    public Task<ReadResult<IReadOnlyList<MuscleGroupCount>>> GetAsync()
     {
         Loads++;
         if (!Hold)
@@ -27,7 +27,7 @@ public sealed class FakeMuscleSetsService : IMuscleSetsService
             return Task.FromResult(Result);
         }
 
-        var load = new TaskCompletionSource<MuscleSetsResult>(TaskCreationOptions.RunContinuationsAsynchronously);
+        var load = new TaskCompletionSource<ReadResult<IReadOnlyList<MuscleGroupCount>>>(TaskCreationOptions.RunContinuationsAsynchronously);
         pending.Add(load);
         return load.Task;
     }

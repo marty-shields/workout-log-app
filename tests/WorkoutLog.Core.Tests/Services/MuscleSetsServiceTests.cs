@@ -49,15 +49,14 @@ public class MuscleSetsServiceTests
 
         var result = await service.GetAsync();
 
-        Assert.That(result, Is.EqualTo(new MuscleSetsResult(
-        [
+        Assert.That(result.Loaded(), Is.EqualTo([
             new MuscleGroupCount(MuscleGroup.Chest, 0),
             new MuscleGroupCount(MuscleGroup.Back, 0),
             new MuscleGroupCount(MuscleGroup.Shoulders, 0),
             new MuscleGroupCount(MuscleGroup.Arms, 2),
             new MuscleGroupCount(MuscleGroup.Legs, 7),
             new MuscleGroupCount(MuscleGroup.Core, 1),
-        ], Failed: false)).UsingPropertiesComparer());
+        ]).UsingPropertiesComparer());
     }
 
     [Test]
@@ -69,9 +68,9 @@ public class MuscleSetsServiceTests
 
         Assert.Multiple(() =>
         {
-            Assert.That(result.Groups.Select(g => g.Group), Is.EqualTo(Enum.GetValues<MuscleGroup>()));
-            Assert.That(result.Groups.Select(g => g.Sets), Is.All.Zero);
-            Assert.That(result.Failed, Is.False);
+            Assert.That(result.Loaded().Select(g => g.Group), Is.EqualTo(Enum.GetValues<MuscleGroup>()));
+            Assert.That(result.Loaded().Select(g => g.Sets), Is.All.Zero);
+            Assert.That(result.Value, Is.Not.InstanceOf<ReadFailed>());
         });
     }
 
@@ -82,7 +81,7 @@ public class MuscleSetsServiceTests
 
         var result = await service.GetAsync();
 
-        Assert.That(result.Groups.Select(g => g.Sets), Is.EqualTo(new[] { 1, 0, 0, 0, 0, 0 }));
+        Assert.That(result.Loaded().Select(g => g.Sets), Is.EqualTo(new[] { 1, 0, 0, 0, 0, 0 }));
     }
 
     [Test]
@@ -94,7 +93,7 @@ public class MuscleSetsServiceTests
 
         Assert.Multiple(() =>
         {
-            Assert.That(result.Groups.Select(g => g.Sets), Is.EqualTo(new[] { 2, 0, 0, 0, 0, 0 }));
+            Assert.That(result.Loaded().Select(g => g.Sets), Is.EqualTo(new[] { 2, 0, 0, 0, 0, 0 }));
             Assert.That(LoggedEvents.Of(logger), Is.EqualTo(new[]
             {
                 (CoreEvent.MuscleSetsUnknownExercise, LogLevel.Warning, $"Exercise {UnknownId} is not in the exercise list; left out"),
@@ -199,7 +198,7 @@ public class MuscleSetsServiceTests
 
         Assert.Multiple(() =>
         {
-            Assert.That(result, Is.EqualTo(new MuscleSetsResult([], Failed: true)).UsingPropertiesComparer());
+            Assert.That(result.Value, Is.InstanceOf<ReadFailed>());
             Assert.That(LoggedEvents.Of(logger), Is.EqualTo(new[] { (CoreEvent.MuscleSetsLoadFailed, LogLevel.Warning, "Loading the sets per muscle group failed") }));
             Assert.That(logger.LatestRecord.Exception, Is.SameAs(exception));
         });

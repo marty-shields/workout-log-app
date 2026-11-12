@@ -48,7 +48,7 @@ public class LoggedExercisesServiceTests
     {
         Setup();
 
-        Assert.That(await service.GetAsync(), Is.EqualTo(new LoggedExercisesResult([], Failed: false)).UsingPropertiesComparer());
+        Assert.That((await service.GetAsync()).Loaded(), Is.Empty);
     }
 
     [Test]
@@ -60,11 +60,10 @@ public class LoggedExercisesServiceTests
 
         var result = await service.GetAsync();
 
-        Assert.That(result, Is.EqualTo(new LoggedExercisesResult(
-        [
+        Assert.That(result.Loaded(), Is.EqualTo([
             new LoggedExercise(Squat, Start, new ExerciseBest(70m, 3, null, null)),
             new LoggedExercise(Run, Start.AddDays(-1), new ExerciseBest(null, null, null, 5.2m)),
-        ], Failed: false)).UsingPropertiesComparer());
+        ]).UsingPropertiesComparer());
     }
 
     [Test]
@@ -72,7 +71,7 @@ public class LoggedExercisesServiceTests
     {
         Setup(new LastSession(Squat, Start, new StrengthExercise(Squat, [new StrengthSet(5, null, null, null)])));
 
-        Assert.That((await service.GetAsync()).Exercises.Single(), Is.EqualTo(new LoggedExercise(Squat, Start, null)));
+        Assert.That((await service.GetAsync()).Loaded().Single(), Is.EqualTo(new LoggedExercise(Squat, Start, null)));
     }
 
     [Test]
@@ -84,7 +83,7 @@ public class LoggedExercisesServiceTests
             Session(Squat, Start.AddDays(-1)),
             Session(Curl, Start));
 
-        Assert.That((await service.GetAsync()).Exercises.Select(e => e.ExerciseId), Is.EqualTo(new[] { Curl, PushUp, Squat, Run }));
+        Assert.That((await service.GetAsync()).Loaded().Select(e => e.ExerciseId), Is.EqualTo(new[] { Curl, PushUp, Squat, Run }));
     }
 
     [Test]
@@ -104,7 +103,7 @@ public class LoggedExercisesServiceTests
 
         var result = await service.GetAsync();
 
-        Assert.That(result.Exercises.Select(e => e.ExerciseId), Is.EqualTo(new[] { Squat }));
+        Assert.That(result.Loaded().Select(e => e.ExerciseId), Is.EqualTo(new[] { Squat }));
         Assert.That(LoggedEvents.Of(logger), Is.EqualTo(new[]
         {
             (CoreEvent.LoggedExercisesUnknownExercise, LogLevel.Warning, "Exercise 999 is not in the exercise list; left out"),
@@ -120,7 +119,7 @@ public class LoggedExercisesServiceTests
 
         var result = await service.GetAsync();
 
-        Assert.That(result, Is.EqualTo(new LoggedExercisesResult([], Failed: true)).UsingPropertiesComparer());
+        Assert.That(result.Value, Is.InstanceOf<ReadFailed>());
         var record = logger.Collector.LatestRecord;
         Assert.Multiple(() =>
         {

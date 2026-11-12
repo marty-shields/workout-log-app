@@ -12,9 +12,9 @@ namespace WorkoutLog.UI.Models.Exercises;
 public static class LastTimeItems
 {
     /// <summary>
-    /// One text per set, or the one cardio entry. Null when there is no last session, loading failed, or the session isn't the exercise's kind.
+    /// One text per set, or the one cardio entry. Null when the session isn't the exercise's kind.
     /// </summary>
-    public static LastTime? From(ExerciseDefinition exercise, LastSessionResult last) => (last.Exercise, last.Best) switch
+    public static LastTime? From(ExerciseDefinition exercise, LastSessionExercise last) => (last.Exercise, last.Best) switch
     {
         (StrengthExercise strength, _) when exercise.Category != ExerciseCategory.Cardio =>
             new LastTime([.. strength.Sets.Select(set => SetText(exercise, set))]),

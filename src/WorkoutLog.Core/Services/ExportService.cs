@@ -17,16 +17,16 @@ internal sealed partial class ExportService(
     ILogger<ExportService> logger) : IExportService
 {
     /// <inheritdoc />
-    public async Task<ExportCount> CountAsync()
+    public async Task<ReadResult<int>> CountAsync()
     {
         try
         {
-            return new ExportCount((await repository.ListAsync()).Count, Failed: false);
+            return (await repository.ListAsync()).Count;
         }
         catch (Exception exception)
         {
             Log.CountFailed(logger, exception);
-            return new ExportCount(0, Failed: true);
+            return new ReadFailed();
         }
     }
 

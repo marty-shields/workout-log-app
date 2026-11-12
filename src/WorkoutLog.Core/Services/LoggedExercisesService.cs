@@ -20,7 +20,7 @@ internal sealed partial class LoggedExercisesService(
     private readonly IReadOnlyList<IBestRule> rules = rules.ToList();
 
     /// <inheritdoc />
-    public async Task<LoggedExercisesResult> GetAsync()
+    public async Task<ReadResult<IReadOnlyList<LoggedExercise>>> GetAsync()
     {
         IReadOnlyList<LastSession> sessions;
         try
@@ -30,7 +30,7 @@ internal sealed partial class LoggedExercisesService(
         catch (Exception exception)
         {
             Log.LoadFailed(logger, exception);
-            return new LoggedExercisesResult([], Failed: true);
+            return new ReadFailed();
         }
 
         var definitions = catalog.All.ToDictionary(e => e.Id);
@@ -53,7 +53,7 @@ internal sealed partial class LoggedExercisesService(
             .Select(e => e.Exercise)
             .ToList();
         Log.Loaded(logger, ordered.Count);
-        return new LoggedExercisesResult(ordered, Failed: false);
+        return ordered;
     }
 
     private static partial class Log

@@ -133,7 +133,7 @@ else
             }
 
             state.IsDone = true;
-            state.LastNote = (await WeightHistory.GetAsync(exercise.ExerciseId, workout.StartedAt)).LastNote;
+            state.LastNote = await LastNoteAsync(exercise.ExerciseId, workout.StartedAt);
             exercises.Add(state);
         }
 
@@ -157,9 +157,13 @@ else
         if (added && Editor.Exercises.FirstOrDefault(e => e.ExerciseId == item.Id) is { } exercise)
         {
             await LastTimes.LoadAsync(exercise, loadedStart);
-            exercise.LastNote = (await WeightHistory.GetAsync(item.Id, loadedStart)).LastNote;
+            exercise.LastNote = await LastNoteAsync(item.Id, loadedStart);
         }
     }
+
+    /// <summary>The exercise's note in the last workout that started before <paramref name="before"/>. Null when there is none, or the read failed.</summary>
+    private async Task<string?> LastNoteAsync(int exerciseId, DateTimeOffset before) =>
+        await WeightHistory.GetAsync(exerciseId, before) is ExerciseHistory history ? history.LastNote : null;
 
     private async Task BackAsync()
     {

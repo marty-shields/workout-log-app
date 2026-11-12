@@ -19,7 +19,7 @@ internal sealed partial class WorkoutSummaryService(
     ILogger<WorkoutSummaryService> logger) : IWorkoutSummaryService
 {
     /// <inheritdoc />
-    public async Task<WorkoutSummaryResult> GetAsync(int workoutId)
+    public async Task<ReadResult<SavedWorkoutSummary>> GetAsync(int workoutId)
     {
         try
         {
@@ -58,14 +58,12 @@ internal sealed partial class WorkoutSummaryService(
             var sets = workout.Exercises.OfType<StrengthExercise>().Sum(e => e.Sets.Count);
             var hasEarlierWorkout = workouts.Any(w => w.StartedAt < workout.StartedAt);
             Log.Loaded(logger, workoutId);
-            return new WorkoutSummaryResult(
-                new SavedWorkoutSummary(workout.FinishedAt - workout.StartedAt, workout.Exercises.Count, sets, hasEarlierWorkout, exercises),
-                Failed: false);
+            return new SavedWorkoutSummary(workout.FinishedAt - workout.StartedAt, workout.Exercises.Count, sets, hasEarlierWorkout, exercises);
         }
         catch (Exception exception)
         {
             Log.LoadFailed(logger, exception);
-            return new WorkoutSummaryResult(null, Failed: true);
+            return new ReadFailed();
         }
     }
 

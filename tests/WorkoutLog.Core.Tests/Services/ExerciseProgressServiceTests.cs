@@ -50,11 +50,10 @@ public class ExerciseProgressServiceTests
 
         var result = await service.LoadAsync(Squat);
 
-        Assert.That(result, Is.EqualTo(new ExerciseProgressResult(
-        [
+        Assert.That(result.Loaded(), Is.EqualTo([
             new StrengthSession(1, older, [Set(8, 60m)]),
             new StrengthSession(2, Now, [Set(5, 65m), Set(3, 70m)]),
-        ], Failed: false)).UsingPropertiesComparer());
+        ]).UsingPropertiesComparer());
     }
 
     [Test]
@@ -62,7 +61,7 @@ public class ExerciseProgressServiceTests
     {
         repository.Setup(r => r.GetSessionsAsync(PlateFrontRaise)).ReturnsAsync([]);
 
-        Assert.That((await service.LoadAsync(PlateFrontRaise)).Failed, Is.False);
+        Assert.That((await service.LoadAsync(PlateFrontRaise)).Value, Is.Not.InstanceOf<ReadFailed>());
     }
 
     [Test]
@@ -72,7 +71,7 @@ public class ExerciseProgressServiceTests
 
         var result = await service.LoadAsync(PushUp);
 
-        Assert.That(result, Is.EqualTo(new ExerciseProgressResult([new StrengthSession(1, Now, [Set(20, null), Set(8, 10m)])], Failed: false))
+        Assert.That(result.Loaded(), Is.EqualTo([new StrengthSession(1, Now, [Set(20, null), Set(8, 10m)])])
             .UsingPropertiesComparer());
     }
 
@@ -92,7 +91,7 @@ public class ExerciseProgressServiceTests
     {
         var result = await service.LoadAsync(999);
 
-        Assert.That(result, Is.EqualTo(new ExerciseProgressResult([], Failed: true)).UsingPropertiesComparer());
+        Assert.That(result.Value, Is.InstanceOf<ReadFailed>());
         Assert.That(LoggedEvents.Of(logger), Is.EqualTo(new[] { (CoreEvent.ExerciseProgressUnknownExercise, LogLevel.Warning, "Exercise 999 is not in the exercise list") }));
         repository.VerifyNoOtherCalls();
     }
@@ -107,7 +106,7 @@ public class ExerciseProgressServiceTests
 
         var result = await service.LoadAsync(exerciseId);
 
-        Assert.That(result, Is.EqualTo(new ExerciseProgressResult([new StrengthSession(1, Now, [Set(8, 10m)])], Failed: false)).UsingPropertiesComparer());
+        Assert.That(result.Loaded(), Is.EqualTo([new StrengthSession(1, Now, [Set(8, 10m)])]).UsingPropertiesComparer());
     }
 
     [TestCase(Run)]
@@ -115,7 +114,7 @@ public class ExerciseProgressServiceTests
     {
         var result = await service.LoadAsync(exerciseId);
 
-        Assert.That(result, Is.EqualTo(new ExerciseProgressResult([], Failed: true)).UsingPropertiesComparer());
+        Assert.That(result.Value, Is.InstanceOf<ReadFailed>());
         Assert.That(LoggedEvents.Of(logger), Is.EqualTo(new[] { (CoreEvent.ExerciseProgressNotSupported, LogLevel.Warning, $"Exercise {exerciseId} has no strength progress page") }));
         repository.VerifyNoOtherCalls();
     }
@@ -128,7 +127,7 @@ public class ExerciseProgressServiceTests
 
         var result = await service.LoadAsync(Squat);
 
-        Assert.That(result, Is.EqualTo(new ExerciseProgressResult([], Failed: true)).UsingPropertiesComparer());
+        Assert.That(result.Value, Is.InstanceOf<ReadFailed>());
         Assert.Multiple(() =>
         {
             Assert.That(LoggedEvents.Of(logger), Is.EqualTo(new[] { (CoreEvent.ExerciseProgressLoadFailed, LogLevel.Error, "Loading the sessions of exercise 6 failed") }));

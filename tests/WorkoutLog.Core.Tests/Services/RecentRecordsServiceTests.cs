@@ -49,7 +49,7 @@ public class RecentRecordsServiceTests
     {
         Setup();
 
-        Assert.That(await service.GetAsync(), Is.EqualTo(new RecentRecordsResult([], Now, Failed: false)).UsingPropertiesComparer());
+        Assert.That((await service.GetAsync()).Loaded(), Is.EqualTo(new RecentRecords([], Now)).UsingPropertiesComparer());
     }
 
     [Test]
@@ -61,7 +61,7 @@ public class RecentRecordsServiceTests
 
         var result = await service.GetAsync();
 
-        Assert.That(result, Is.EqualTo(new RecentRecordsResult([new ExerciseRecord(Squat, Now.AddDays(-2), new ExerciseBest(70m, 3, null, null))], Now, Failed: false))
+        Assert.That(result.Loaded(), Is.EqualTo(new RecentRecords([new ExerciseRecord(Squat, Now.AddDays(-2), new ExerciseBest(70m, 3, null, null))], Now))
             .UsingPropertiesComparer());
     }
 
@@ -70,7 +70,7 @@ public class RecentRecordsServiceTests
     {
         Setup(Workout(Now.AddDays(-1), Sets(Squat, Set(5, 100m))));
 
-        Assert.That((await service.GetAsync()).Records, Is.Empty);
+        Assert.That((await service.GetAsync()).Loaded().Records, Is.Empty);
     }
 
     [Test]
@@ -78,7 +78,7 @@ public class RecentRecordsServiceTests
     {
         Setup(Workout(LongAgo, Sets(Squat, Set(5, 60m))), Workout(Now.AddDays(-1), Sets(Squat, Set(5, 60m))));
 
-        Assert.That((await service.GetAsync()).Records, Is.Empty);
+        Assert.That((await service.GetAsync()).Loaded().Records, Is.Empty);
     }
 
     [Test]
@@ -89,7 +89,7 @@ public class RecentRecordsServiceTests
             Workout(Now.AddDays(-3), Sets(AssistedPullUp, Set(10, 30m))),
             Workout(Now.AddDays(-1), Sets(AssistedPullUp, Set(8, 20m))));
 
-        Assert.That((await service.GetAsync()).Records, Is.EqualTo(new[] { new ExerciseRecord(AssistedPullUp, Now.AddDays(-1), new ExerciseBest(20m, 8, null, null)) }));
+        Assert.That((await service.GetAsync()).Loaded().Records, Is.EqualTo(new[] { new ExerciseRecord(AssistedPullUp, Now.AddDays(-1), new ExerciseBest(20m, 8, null, null)) }));
     }
 
     [Test]
@@ -97,7 +97,7 @@ public class RecentRecordsServiceTests
     {
         Setup(Workout(LongAgo, Sets(Squat, Set(5, 60m))), Workout(WindowStart, Sets(Squat, Set(5, 70m))));
 
-        Assert.That((await service.GetAsync()).Records.Select(r => r.StartedAt), Is.EqualTo(new[] { WindowStart }));
+        Assert.That((await service.GetAsync()).Loaded().Records.Select(r => r.StartedAt), Is.EqualTo(new[] { WindowStart }));
     }
 
     [Test]
@@ -105,7 +105,7 @@ public class RecentRecordsServiceTests
     {
         Setup(Workout(LongAgo, Sets(Squat, Set(5, 60m))), Workout(WindowStart.AddMinutes(-1), Sets(Squat, Set(5, 70m))));
 
-        Assert.That((await service.GetAsync()).Records, Is.Empty);
+        Assert.That((await service.GetAsync()).Loaded().Records, Is.Empty);
     }
 
     [Test]
@@ -113,7 +113,7 @@ public class RecentRecordsServiceTests
     {
         Setup(Workout(LongAgo, Sets(Squat, Set(5, 60m))), Workout(Now.AddMinutes(1), Sets(Squat, Set(5, 70m))));
 
-        Assert.That((await service.GetAsync()).Records, Is.Empty);
+        Assert.That((await service.GetAsync()).Loaded().Records, Is.Empty);
     }
 
     [Test]
@@ -124,7 +124,7 @@ public class RecentRecordsServiceTests
             Workout(LongAgo.AddDays(1), Sets(Squat, Set(5, 70m))),
             Workout(Now.AddDays(-1), Sets(Squat, Set(5, 65m))));
 
-        Assert.That((await service.GetAsync()).Records, Is.Empty);
+        Assert.That((await service.GetAsync()).Loaded().Records, Is.Empty);
     }
 
     [Test]
@@ -135,7 +135,7 @@ public class RecentRecordsServiceTests
             Workout(Now.AddDays(-5), Sets(Squat, Set(5, 70m))),
             Workout(Now.AddDays(-2), Sets(Squat, Set(5, 75m))));
 
-        Assert.That((await service.GetAsync()).Records, Is.EqualTo(new[] { new ExerciseRecord(Squat, Now.AddDays(-2), new ExerciseBest(75m, 5, null, null)) }));
+        Assert.That((await service.GetAsync()).Loaded().Records, Is.EqualTo(new[] { new ExerciseRecord(Squat, Now.AddDays(-2), new ExerciseBest(75m, 5, null, null)) }));
     }
 
     [Test]
@@ -148,7 +148,7 @@ public class RecentRecordsServiceTests
             Workout(Now.AddDays(-5), Sets(Squat, Set(5, 70m))),
             Workout(Now.AddDays(-2), Sets(PushUp, Set(25, 0m)), Sets(Curl, Set(10, 12m))));
 
-        Assert.That((await service.GetAsync()).Records.Select(r => r.ExerciseId), Is.EqualTo(new[] { Curl, PushUp, Squat }));
+        Assert.That((await service.GetAsync()).Loaded().Records.Select(r => r.ExerciseId), Is.EqualTo(new[] { Curl, PushUp, Squat }));
     }
 
     [Test]
@@ -170,7 +170,7 @@ public class RecentRecordsServiceTests
 
         var result = await service.GetAsync();
 
-        Assert.That(result.Records.Select(r => r.ExerciseId), Is.EqualTo(new[] { Squat }));
+        Assert.That(result.Loaded().Records.Select(r => r.ExerciseId), Is.EqualTo(new[] { Squat }));
         Assert.That(LoggedEvents.Of(logger), Is.EqualTo(new[]
         {
             (CoreEvent.RecentRecordsUnknownExercise, LogLevel.Warning, "Exercise 999 is not in the exercise list; left out"),
@@ -186,7 +186,7 @@ public class RecentRecordsServiceTests
 
         var result = await service.GetAsync();
 
-        Assert.That(result, Is.EqualTo(new RecentRecordsResult([], Now, Failed: true)).UsingPropertiesComparer());
+        Assert.That(result.Value, Is.InstanceOf<ReadFailed>());
         Assert.Multiple(() =>
         {
             Assert.That(LoggedEvents.Of(logger), Is.EqualTo(new[] { (CoreEvent.RecentRecordsLoadFailed, LogLevel.Warning, "Loading the recent records failed") }));
@@ -205,7 +205,7 @@ public class RecentRecordsServiceTests
 
         var result = await service.GetAsync();
 
-        Assert.That(result, Is.EqualTo(new RecentRecordsResult([], Now, Failed: false)).UsingPropertiesComparer());
+        Assert.That(result.Loaded(), Is.EqualTo(new RecentRecords([], Now)).UsingPropertiesComparer());
         Assert.Multiple(() =>
         {
             Assert.That(LoggedEvents.Of(logger).Select(e => e.Item1), Does.Contain(CoreEvent.RecentRecordsExerciseFailed));

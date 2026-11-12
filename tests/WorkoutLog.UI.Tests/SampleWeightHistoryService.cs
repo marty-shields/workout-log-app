@@ -7,8 +7,8 @@ namespace WorkoutLog.UI.Tests;
 public sealed class SampleWeightHistoryService : IWeightHistoryService
 {
     /// <inheritdoc />
-    public Task<WeightHistoryResult> GetAsync(int exerciseId, DateTimeOffset? before) =>
+    public Task<ReadResult<ExerciseHistory>> GetAsync(int exerciseId, DateTimeOffset? before) =>
         Task.FromResult(SampleData.Weights.TryGetValue(exerciseId, out var weights)
-            ? new WeightHistoryResult(weights.LastKg, weights.BestKg, null, Failed: false)
-            : new WeightHistoryResult(null, null, null, Failed: false));
+            ? new ReadResult<ExerciseHistory>(new ExerciseHistory(weights.LastKg, weights.BestKg, null))
+            : new ReadResult<ExerciseHistory>(new ExerciseHistory(null, null, null)));
 }

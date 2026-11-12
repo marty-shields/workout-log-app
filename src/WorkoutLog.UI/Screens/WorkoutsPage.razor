@@ -1,4 +1,5 @@
 @using WorkoutLog.Core.Domain
+@using WorkoutLog.Core.Domain.Workouts
 @using WorkoutLog.Core.Services
 @using WorkoutLog.UI.Lifecycle
 @using WorkoutLog.UI.Models.Workouts
@@ -69,7 +70,7 @@
             return;
         }
 
-        if (days.Failed)
+        if (days is not IReadOnlyDictionary<DateOnly, int> perDay)
         {
             (failure, expanded) = (Failure.Counts, false);
             await HideSpinnerIfLatestAsync(current, minimumElapsed);
@@ -77,7 +78,7 @@
         }
 
         var range = loaded is null ? HistoryRange.ThreeMonths : loaded.RangeOf(dates);
-        loaded = new WorkoutHistory(days.PerDay, DateOnly.FromDateTime(TimeZoneInfo.ConvertTime(Clock.GetUtcNow(), Clock.LocalTimeZone).DateTime));
+        loaded = new WorkoutHistory(perDay, DateOnly.FromDateTime(TimeZoneInfo.ConvertTime(Clock.GetUtcNow(), Clock.LocalTimeZone).DateTime));
         var shown = range is { } quick ? loaded.Span(quick) : dates;
         if (loaded.IsEmpty)
         {
@@ -107,9 +108,14 @@
             return;
         }
 
-        rows = [.. result.Workouts.Select(w => new WorkoutsRow(w.Id, TimeZoneInfo.ConvertTime(w.StartedAt, Clock.LocalTimeZone).DateTime))];
-        failure = result.Failed ? Failure.Range : Failure.None;
-        expanded &= !result.Failed;
+        IReadOnlyList<WorkoutSummary> workouts = result switch
+        {
+            IReadOnlyList<WorkoutSummary> read => read,
+            ReadFailed => [],
+        };
+        rows = [.. workouts.Select(w => new WorkoutsRow(w.Id, TimeZoneInfo.ConvertTime(w.StartedAt, Clock.LocalTimeZone).DateTime))];
+        failure = result is ReadFailed ? Failure.Range : Failure.None;
+        expanded &= failure is Failure.None;
         await HideSpinnerIfLatestAsync(current, minimumElapsed);
     }
 

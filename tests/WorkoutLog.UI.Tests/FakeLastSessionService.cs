@@ -10,7 +10,7 @@ namespace WorkoutLog.UI.Tests;
 /// </summary>
 public sealed class FakeLastSessionService : ILastSessionService
 {
-    private readonly Dictionary<int, LastSessionResult> sessions = [];
+    private readonly Dictionary<int, LastSessionExercise> sessions = [];
 
     /// <summary>When true, every read fails.</summary>
     public bool Failing { get; set; }
@@ -20,14 +20,12 @@ public sealed class FakeLastSessionService : ILastSessionService
 
     /// <summary>Returns <paramref name="exercise"/> as the last session of its exercise.</summary>
     public void Set(WorkoutExercise exercise, CardioBest? best = null) =>
-        sessions[exercise.ExerciseId] = new LastSessionResult(exercise, best, Failed: false);
+        sessions[exercise.ExerciseId] = new LastSessionExercise(exercise, best);
 
     /// <inheritdoc />
-    public Task<LastSessionResult> GetAsync(int exerciseId, DateTimeOffset? before = null)
+    public Task<ReadResult<LastSessionExercise?>> GetAsync(int exerciseId, DateTimeOffset? before = null)
     {
         Requests.Add((exerciseId, before));
-        return Task.FromResult(Failing
-            ? new LastSessionResult(null, null, Failed: true)
-            : sessions.GetValueOrDefault(exerciseId) ?? new LastSessionResult(null, null, Failed: false));
+        return Task.FromResult<ReadResult<LastSessionExercise?>>(Failing ? new ReadFailed() : sessions.GetValueOrDefault(exerciseId));
     }
 }

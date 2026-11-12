@@ -311,7 +311,7 @@ public class ExportServiceTests
         repository.Setup(r => r.ListAsync(null, null, null))
             .ReturnsAsync(Enumerable.Range(1, count).Select(id => new WorkoutSummary(id, Start.AddDays(id))).ToList());
 
-        Assert.That(await service.CountAsync(), Is.EqualTo(new ExportCount(count, Failed: false)));
+        Assert.That((await service.CountAsync()).Loaded(), Is.EqualTo(count));
         Assert.That(LoggedEvents.Of(logger), Is.Empty);
     }
 
@@ -321,7 +321,7 @@ public class ExportServiceTests
         var exception = new InvalidOperationException("disk");
         repository.Setup(r => r.ListAsync(null, null, null)).ThrowsAsync(exception);
 
-        Assert.That(await service.CountAsync(), Is.EqualTo(new ExportCount(0, Failed: true)));
+        Assert.That((await service.CountAsync()).Value, Is.InstanceOf<ReadFailed>());
         Assert.That(LoggedEvents.Of(logger), Is.EqualTo(new[] { (CoreEvent.ExportCountFailed, LogLevel.Error, "Counting the workouts to export failed") }));
         Assert.That(logger.LatestRecord.Exception, Is.SameAs(exception));
     }

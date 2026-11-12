@@ -8,10 +8,10 @@ namespace WorkoutLog.UI.Tests;
 /// </summary>
 public sealed class FakeLoggedExercisesService : ILoggedExercisesService
 {
-    private readonly List<TaskCompletionSource<LoggedExercisesResult>> pending = [];
+    private readonly List<TaskCompletionSource<ReadResult<IReadOnlyList<LoggedExercise>>>> pending = [];
 
     /// <summary>What each load returns.</summary>
-    public LoggedExercisesResult Result { get; set; } = new([], Failed: false);
+    public ReadResult<IReadOnlyList<LoggedExercise>> Result { get; set; } = new ReadResult<IReadOnlyList<LoggedExercise>>([]);
 
     /// <summary>When true, loads wait for <see cref="Complete"/>.</summary>
     public bool Hold { get; set; }
@@ -19,7 +19,7 @@ public sealed class FakeLoggedExercisesService : ILoggedExercisesService
     public int Loads { get; private set; }
 
     /// <inheritdoc />
-    public Task<LoggedExercisesResult> GetAsync()
+    public Task<ReadResult<IReadOnlyList<LoggedExercise>>> GetAsync()
     {
         Loads++;
         if (!Hold)
@@ -27,7 +27,7 @@ public sealed class FakeLoggedExercisesService : ILoggedExercisesService
             return Task.FromResult(Result);
         }
 
-        var load = new TaskCompletionSource<LoggedExercisesResult>(TaskCreationOptions.RunContinuationsAsynchronously);
+        var load = new TaskCompletionSource<ReadResult<IReadOnlyList<LoggedExercise>>>(TaskCreationOptions.RunContinuationsAsynchronously);
         pending.Add(load);
         return load.Task;
     }
