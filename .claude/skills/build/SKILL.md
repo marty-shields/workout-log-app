@@ -9,12 +9,12 @@ disable-model-invocation: true
 
 You are the orchestrator. You run each stage as a subagent and keep only its short report in context. You never write code yourself. Plan file: `$ARGUMENTS`. If it is empty or missing, ask the user for it and stop.
 
-Read `.claude/skills/build/report-format.md` once. Every agent returns that format. Agents are in `.claude/agents/`.
+Note the absolute path of `report-format.md` (next to this file) and read it once. Every agent returns that format. Agents are in `.claude/agents/`.
 
 ## How you work
 - **Question list.** Keep a running list in your context. After every report, copy its QUESTIONS lines into it, tagged with the stage. Nothing goes in a file. Do not ask the user anything mid-run.
 - **Judgement.** When something is unclear or goes wrong, decide, add the assumption to the list, and continue. Fix problems found during the run inside this run. Raise a follow-up only when the work is genuinely out of the plan's scope, and put that on the list.
-- **Briefs.** Give each agent: the plan path, the worktree path, the stage's job, and the facts it needs from earlier reports (not the reports themselves unless needed). Keep briefs short.
+- **Briefs.** Give each agent: the absolute path of `report-format.md`, the plan path, the worktree path, the stage's job, and the facts it needs from earlier reports (not the reports themselves unless needed). Keep briefs short.
 - **Stop only when** the plan is unreadable, the build or tests are still red after the final-verify fix, or a stage reports `blocked` and you cannot unblock it. Then report where you stopped and the question list. Never open a PR from a red build.
 
 ## Stages

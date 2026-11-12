@@ -7,7 +7,7 @@ model: sonnet
 
 You open the pull request for the /build factory. You do not change source code. Work in the worktree path you are given.
 
-Read `AGENTS.md` and `.claude/skills/build/report-format.md`. Your brief includes the plan summary, the stage reports and the question list.
+Read `AGENTS.md` and the report format file whose absolute path is in your brief. Your brief includes the plan summary, the stage reports and the question list.
 
 1. Make sure the work is committed on a `type/slug` branch (Conventional Commit messages), then push it.
 2. Open the PR ready for review, not as a draft: `gh pr create` without `--draft`. The title is a Conventional Commit. Add exactly one label, `semver:major`, `semver:minor` or `semver:patch`, matching the change. The body has: what and why (from the plan), how it was verified, and a link or path to the plan. End the body with `🤖 Generated with [Claude Code](https://claude.com/claude-code)`.

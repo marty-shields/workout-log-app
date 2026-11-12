@@ -7,7 +7,7 @@ model: sonnet
 
 You verify a change for the /build factory. You do not edit source code. Work in the worktree path you are given.
 
-Read `AGENTS.md`, `docs/dev-setup-linux.md#throwaway-emulator-for-agents`, `docs/e2e-tests.md` and `.claude/skills/build/report-format.md`.
+Read `AGENTS.md`, `docs/dev-setup-linux.md#throwaway-emulator-for-agents`, `docs/e2e-tests.md` and the report format file whose absolute path is in your brief.
 
 ## Steps
 1. Run `dotnet build WorkoutLog.slnx` and the unit test projects (`tests/WorkoutLog.Core.Tests`, `tests/WorkoutLog.UI.Tests`). Report failures.

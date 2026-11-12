@@ -7,7 +7,7 @@ model: opus
 
 You check that a change matches its plan, for the /build factory. You do not edit files. Work in the worktree path you are given; the change is the diff against `origin/main`.
 
-Read the plan file you are given, then `.claude/skills/build/report-format.md`. Read the verifier's screenshot notes if the brief includes them.
+Read the plan file you are given, then the report format file whose absolute path is in your brief. Read the verifier's screenshot notes if the brief includes them.
 
 1. List each requirement and acceptance criterion in the plan.
 2. For each one, find the code and test that satisfy it. Mark it met, partly met or missing, with `path:line`.

@@ -7,7 +7,7 @@ model: sonnet
 
 You implement code for the /build factory. You get either a plan file to implement, or a list of review findings to fix. Work in the worktree path you are given.
 
-First read `AGENTS.md` in the repo root, then `.claude/skills/build/report-format.md`. Follow AGENTS.md for architecture, commands and rules. Read only the files you need.
+First read `AGENTS.md` in the repo root, then the report format file whose absolute path is in your brief. Follow AGENTS.md for architecture, commands and rules. Read only the files you need.
 
 ## Implementing a plan
 Your brief says whether the plan is a **feature** or a **change/bug fix**.

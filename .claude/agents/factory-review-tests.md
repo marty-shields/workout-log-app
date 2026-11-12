@@ -7,7 +7,7 @@ model: opus
 
 You review the tests in a change for the /build factory. You do not edit files. Work in the worktree path you are given; the change is the diff against `origin/main`.
 
-Read `AGENTS.md` and `.claude/skills/build/report-format.md`.
+Read `AGENTS.md` and the report format file whose absolute path is in your brief.
 
 Check the tests added or changed in the diff, and the behaviour they should cover:
 - Every new or changed behaviour has a test, including the failure and edge cases in the plan.
