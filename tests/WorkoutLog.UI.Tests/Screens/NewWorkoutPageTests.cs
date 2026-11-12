@@ -232,7 +232,7 @@ public class NewWorkoutPageTests : ComponentTestBase
     public void Back_AfterASaveFails_Asks()
     {
         var cut = RenderPage();
-        workouts.SaveNew = () => Task.FromResult(new SaveResult(null, new WorkoutErrors([WorkoutError.SaveFailed], [])));
+        workouts.SaveNew = () => Task.FromResult<SaveResult>(new WorkoutErrors([WorkoutError.SaveFailed], []));
         Add(cut, 132);
         cut.Find("[data-testid=exercise-1-set-1-reps]").Input("8");
         cut.Find("[data-testid=exercise-1-set-1-weight]").Input("20");
@@ -1548,7 +1548,7 @@ public class NewWorkoutPageTests : ComponentTestBase
     public void Save_WriteFailsWithNotes_ShowsTheSaveErrorAndKeepsTheNotes()
     {
         var cut = RenderPage();
-        workouts.SaveNew = () => Task.FromResult(new SaveResult(null, new WorkoutErrors([WorkoutError.SaveFailed], [])));
+        workouts.SaveNew = () => Task.FromResult<SaveResult>(new WorkoutErrors([WorkoutError.SaveFailed], []));
         Add(cut, 132);
         cut.Find("[data-testid=exercise-1-set-1-reps]").Input("8");
         cut.Find("[data-testid=exercise-1-set-1-weight]").Input("20");
@@ -1588,7 +1588,7 @@ public class NewWorkoutPageTests : ComponentTestBase
         var saved = 0;
         var cut = RenderPage(onSaved: _ => saved++);
         var save = ReferenceId(cut, "save-workout");
-        workouts.SaveNew = () => Task.FromResult(new SaveResult(null, new WorkoutErrors([WorkoutError.SaveFailed], [])));
+        workouts.SaveNew = () => Task.FromResult<SaveResult>(new WorkoutErrors([WorkoutError.SaveFailed], []));
         Add(cut, 132);
         cut.Find("[data-testid=exercise-1-set-1-reps]").Input("8");
         cut.Find("[data-testid=exercise-1-set-1-weight]").Input("20");
@@ -1609,7 +1609,7 @@ public class NewWorkoutPageTests : ComponentTestBase
     public void Save_NoWorkoutIdWithAnotherCode_ShowsSaveFailed()
     {
         var cut = RenderPage();
-        workouts.SaveNew = () => Task.FromResult(new SaveResult(null, new WorkoutErrors([WorkoutError.NoExercises], [])));
+        workouts.SaveNew = () => Task.FromResult<SaveResult>(new WorkoutErrors([WorkoutError.NoExercises], []));
         Add(cut, 132);
         cut.Find("[data-testid=exercise-1-set-1-reps]").Input("8");
         cut.Find("[data-testid=exercise-1-set-1-weight]").Input("20");
@@ -1632,7 +1632,7 @@ public class NewWorkoutPageTests : ComponentTestBase
 
         cut.Find("[data-testid=save-workout]").Click();
         cut.Find("[data-testid=save-workout]").Click();
-        await cut.InvokeAsync(() => pending.SetResult(new SaveResult(1, new WorkoutErrors([], []))));
+        await cut.InvokeAsync(() => pending.SetResult(new Saved(1)));
         await WaitForRendererAsync();
 
         cut.WaitForAssertion(() => Assert.That(saved, Is.EqualTo(1)));
@@ -1654,7 +1654,7 @@ public class NewWorkoutPageTests : ComponentTestBase
 
         cut.Find("[data-testid=save-workout]").Click();
         var whileSaving = cut.FindAll("[data-testid=snackbar]").Count;
-        await cut.InvokeAsync(() => pending.SetResult(new SaveResult(null, new WorkoutErrors([WorkoutError.SaveFailed], []))));
+        await cut.InvokeAsync(() => pending.SetResult(new WorkoutErrors([WorkoutError.SaveFailed], [])));
         await WaitForRendererAsync();
 
         cut.WaitForAssertion(() => Assert.Multiple(() =>
@@ -1689,7 +1689,7 @@ public class NewWorkoutPageTests : ComponentTestBase
     {
         var saved = 0;
         var cut = RenderPage(onSaved: _ => saved++);
-        workouts.SaveNew = () => Task.FromResult(new SaveResult(null, new WorkoutErrors([WorkoutError.SaveFailed], [])));
+        workouts.SaveNew = () => Task.FromResult<SaveResult>(new WorkoutErrors([WorkoutError.SaveFailed], []));
         Add(cut, 132);
         cut.Find("[data-testid=exercise-1-set-1-reps]").Input("8");
         cut.Find("[data-testid=exercise-1-set-1-weight]").Input("20");

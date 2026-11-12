@@ -2,7 +2,8 @@ using WorkoutLog.Core.Domain.Workouts.Validation;
 
 namespace WorkoutLog.Core.Services;
 
-/// <summary>Outcome of saving a workout.</summary>
-/// <param name="WorkoutId">Id of the saved workout. Null when nothing was saved.</param>
-/// <param name="Errors">Why the workout wasn't saved. Valid when it was.</param>
-public sealed record SaveResult(int? WorkoutId, WorkoutErrors Errors);
+/// <summary>The workout was saved with this id.</summary>
+public sealed record Saved(int WorkoutId);
+
+/// <summary>The saved workout, or why nothing was saved: the workout's errors, or <see cref="WorkoutError.SaveFailed"/> when the write failed.</summary>
+public union SaveResult(Saved, WorkoutErrors);

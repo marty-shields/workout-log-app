@@ -69,7 +69,7 @@ public class WorkoutServiceTests
 
         var results = new[] { await service.SaveNewAsync(first, null, Exercises()), await service.SaveNewAsync(second, null, Exercises()) };
 
-        Assert.That(results.Select(r => r.WorkoutId), Is.EqualTo(new int?[] { 7, 8 }));
+        Assert.That(results.Select(r => r.Value), Is.EqualTo(new[] { new Saved(7), new Saved(8) }));
         repository.Verify(r => r.AddAsync(It.IsAny<NewWorkout>()), Times.Exactly(2));
     }
 
@@ -136,7 +136,7 @@ public class WorkoutServiceTests
 
         var result = await service.SaveNewAsync(draft, null, Exercises());
 
-        Assert.That(result, Is.EqualTo(new SaveResult(7, NoErrors)));
+        Assert.That(result.Value, Is.EqualTo(new Saved(7)));
         Assert.That(saved!.StartedAt, Is.EqualTo(Start));
         Assert.That(saved.FinishedAt, Is.EqualTo(Start.AddMinutes(62)));
         Assert.That(Same(saved.Exercises, Exercises()), Is.True);
@@ -172,7 +172,7 @@ public class WorkoutServiceTests
 
         var result = await service.SaveNewAsync(service.StartNew(), null, Exercises());
 
-        Assert.That(result, Is.EqualTo(new SaveResult(null, Errors)));
+        Assert.That(result.Value, Is.EqualTo(Errors));
         repository.VerifyNoOtherCalls();
     }
 
@@ -202,7 +202,7 @@ public class WorkoutServiceTests
 
         var result = await service.SaveNewAsync(service.StartNew(), null, Exercises());
 
-        Assert.That(result, Is.EqualTo(new SaveResult(null, SaveFailed)).UsingPropertiesComparer());
+        Assert.That(result.Value, Is.EqualTo(SaveFailed).UsingPropertiesComparer());
     }
 
     [Test]
@@ -224,10 +224,10 @@ public class WorkoutServiceTests
 
             var second = await saving.SaveNewAsync(saving.StartNew(), null, exercises);
 
-            Assert.That(first.WorkoutId, Is.Not.Null);
-            Assert.That(second, Is.EqualTo(new SaveResult(null, SaveFailed)).UsingPropertiesComparer());
+            Assert.That(first.Value, Is.InstanceOf<Saved>());
+            Assert.That(second.Value, Is.EqualTo(SaveFailed).UsingPropertiesComparer());
             Assert.That(await provider.GetRequiredService<IWorkoutRepository>().ListAsync(),
-                Is.EqualTo(new[] { new WorkoutSummary(first.WorkoutId!.Value, Start) }));
+                Is.EqualTo(new[] { new WorkoutSummary(((Saved)first.Value!).WorkoutId, Start) }));
         }
         finally
         {
@@ -245,7 +245,7 @@ public class WorkoutServiceTests
 
         var result = await service.SaveAsync(7, null, Exercises());
 
-        Assert.That(result, Is.EqualTo(new SaveResult(7, NoErrors)));
+        Assert.That(result.Value, Is.EqualTo(new Saved(7)));
         Assert.That(Same(saved!, Exercises()), Is.True);
         repository.Verify(r => r.ReplaceAsync(7, It.IsAny<string?>(), It.IsAny<IReadOnlyList<WorkoutExercise>>()), Times.Once);
         repository.VerifyNoOtherCalls();
@@ -301,7 +301,7 @@ public class WorkoutServiceTests
         {
             await provider.GetRequiredService<IDatabaseInitializer>().InitializeAsync();
             var saving = provider.GetRequiredService<IWorkoutService>();
-            var id = (await saving.SaveNewAsync(saving.StartNew(), "  Felt strong ", NotedExercises(Treadmill))).WorkoutId!.Value;
+            var id = ((Saved)(await saving.SaveNewAsync(saving.StartNew(), "  Felt strong ", NotedExercises(Treadmill))).Value!).WorkoutId;
             var added = (Workout)(await saving.GetAsync(id)).Value!;
 
             var edit = await saving.SaveAsync(id, " ", [new StrengthExercise(Press, [new StrengthSet(10, 20m, null, null)]), new CardioExercise(Treadmill, Entry(), " Hills ")]);
@@ -311,7 +311,7 @@ public class WorkoutServiceTests
             {
                 Assert.That(added.Note, Is.EqualTo("Felt strong"));
                 Assert.That(added.Exercises.Select(e => e.Note), Is.EqualTo(new[] { "Grip slipped", null }));
-                Assert.That(edit.WorkoutId, Is.EqualTo(id));
+                Assert.That(edit.Value, Is.EqualTo(new Saved(id)));
                 Assert.That(edited.Note, Is.Null);
                 Assert.That(edited.Exercises.Select(e => e.Note), Is.EqualTo(new[] { null, "Hills" }));
             });
@@ -337,12 +337,11 @@ public class WorkoutServiceTests
         {
             await provider.GetRequiredService<IDatabaseInitializer>().InitializeAsync();
             var saving = provider.GetRequiredService<IWorkoutService>();
-            var id = (await saving.SaveNewAsync(saving.StartNew(), "Felt strong", NotedExercises(Treadmill))).WorkoutId!.Value;
+            var id = ((Saved)(await saving.SaveNewAsync(saving.StartNew(), "Felt strong", NotedExercises(Treadmill))).Value!).WorkoutId;
 
             var result = await saving.SaveAsync(id, new string('n', 501), NotedExercises(Treadmill));
 
-            Assert.That(result.WorkoutId, Is.Null);
-            Assert.That(result.Errors.Note, Is.EqualTo(NoteError.TooLong));
+            Assert.That(((WorkoutErrors)result.Value!).Note, Is.EqualTo(NoteError.TooLong));
             Assert.That(((Workout)(await saving.GetAsync(id)).Value!).Note, Is.EqualTo("Felt strong"));
         }
         finally
@@ -359,7 +358,7 @@ public class WorkoutServiceTests
 
         var result = await service.SaveAsync(7, null, Exercises());
 
-        Assert.That(result, Is.EqualTo(new SaveResult(null, Errors)));
+        Assert.That(result.Value, Is.EqualTo(Errors));
         repository.VerifyNoOtherCalls();
     }
 
@@ -370,7 +369,7 @@ public class WorkoutServiceTests
 
         var result = await service.SaveAsync(7, null, Exercises());
 
-        Assert.That(result, Is.EqualTo(new SaveResult(null, SaveFailed)).UsingPropertiesComparer());
+        Assert.That(result.Value, Is.EqualTo(SaveFailed).UsingPropertiesComparer());
     }
 
     [Test]

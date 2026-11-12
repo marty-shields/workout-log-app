@@ -116,7 +116,7 @@
         int? savedId = null;
         if (await Editor.SaveAsync(async (note, records) =>
             {
-                savedId = (await Workouts.SaveNewAsync(draft, note, records)).WorkoutId;
+                savedId = await Workouts.SaveNewAsync(draft, note, records) is Saved saved ? saved.WorkoutId : null;
                 return savedId is not null;
             }))
         {

@@ -35,7 +35,7 @@ public sealed class SampleWorkoutService(TimeProvider time, IExerciseCatalog cat
     public Task<SaveResult> SaveNewAsync(WorkoutDraft draft, string? note, IReadOnlyList<WorkoutExercise> exercises)
     {
         var errors = validator.Validate(note, exercises);
-        return Task.FromResult(new SaveResult(errors.IsValid ? 1 : null, errors));
+        return Task.FromResult<SaveResult>(errors.IsValid ? new Saved(1) : errors);
     }
 
     /// <inheritdoc />
@@ -46,7 +46,7 @@ public sealed class SampleWorkoutService(TimeProvider time, IExerciseCatalog cat
     public Task<SaveResult> SaveAsync(int workoutId, string? note, IReadOnlyList<WorkoutExercise> exercises)
     {
         var errors = validator.Validate(note, exercises);
-        return Task.FromResult(new SaveResult(errors.IsValid ? workoutId : null, errors));
+        return Task.FromResult<SaveResult>(errors.IsValid ? new Saved(workoutId) : errors);
     }
 
     /// <inheritdoc />
