@@ -40,7 +40,11 @@ fresh() {
   rm -rf "$repo"
   git init -q -b main "$repo"
   git_ config user.email t@t; git_ config user.name t
-  echo '{}' > "$repo/global.json"
+  sdk 11.0.100
+}
+# sdk <global.json SDK version>, committed by the next commit_net
+sdk() {
+  printf '{\n  "sdk": {\n    "version": "%s",\n    "rollForward": "patch"\n  }\n}\n' "$1" > "$repo/global.json"
 }
 
 # run <name> <configuration> <expected tag, exit, copied APK and dotnet calls>
@@ -76,6 +80,17 @@ exit=0
 apk
 restore - locked
 publish net11.0-android locked"
+
+fresh; commit_net net11.0; git_ tag v1.11.0; sdk 11.0.101; commit_net net11.0
+run "a tag on this commit's NetVersion but another SDK builds Debug unlocked" Debug "v1.11.0
+exit=0
+apk
+build net11.0-android unlocked"
+run "a tag on this commit's NetVersion but another SDK restores and publishes Release unlocked" Release "v1.11.0
+exit=0
+apk
+restore - unlocked
+publish net11.0-android unlocked"
 
 fresh; commit_net ""; git_ tag v1.0.0; commit_net net11.0
 run "a tag with no NetVersion fails before building" Debug "exit=1"
