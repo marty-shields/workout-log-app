@@ -97,7 +97,7 @@ jobs:
 
       # Packages are downloaded before any secret is on the runner.
       - name: Restore
-        run: dotnet restore src/WorkoutLog.App
+        run: dotnet restore src/WorkoutLog.App -p:Configuration=Release
 
       - name: Keystore
         env:

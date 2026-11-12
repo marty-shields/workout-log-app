@@ -34,7 +34,7 @@ Run settings choose the build under test. The Debug app is the default.
 
 `e2e-run.sh` (and so `e2e-local.sh`) passes these from `E2E_APP_PACKAGE`, `E2E_APP_APK` and `E2E_PREVIOUS_APK`. With `E2E_PREVIOUS_APK` set, `e2e-local.sh` runs `upgrade-e2e.sh` instead, and the filter must be `Category=upgrade`:
 ```
-dotnet restore src/WorkoutLog.App
+dotnet restore src/WorkoutLog.App -p:Configuration=Release
 dotnet publish src/WorkoutLog.App -c Release -f net11.0-android -p:AndroidPackageFormat=apk -r android-x64 --no-restore -o <folder>
 E2E_APP_PACKAGE=uk.martinshields.workoutlog E2E_APP_APK=<folder>/uk.martinshields.workoutlog-Signed.apk \
   .github/scripts/e2e-local.sh "Category=release|Category=backup"

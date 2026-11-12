@@ -138,7 +138,7 @@ jobs:
 
       - name: Build the Release APK (x64, debug key)
         run: |
-          dotnet restore src/WorkoutLog.App
+          dotnet restore src/WorkoutLog.App -p:Configuration=Release
           dotnet publish src/WorkoutLog.App -c Release -f net11.0-android -p:AndroidPackageFormat=apk \
             -r android-x64 --no-restore -o "$RUNNER_TEMP/backup"
 
