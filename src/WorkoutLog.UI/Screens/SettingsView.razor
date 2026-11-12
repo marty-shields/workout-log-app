@@ -81,7 +81,7 @@
 
     /// <summary>A finished import, shown under Import as "Added 3 workouts, replaced 2, skipped 1". Null for none.</summary>
     [Parameter]
-    public ImportResult? Imported { get; set; }
+    public Imported? Imported { get; set; }
 
     /// <summary>The chosen theme, shown selected in Appearance. System follows the phone.</summary>
     [Parameter]
@@ -136,7 +136,7 @@
     };
 
     /// <summary>"Added N workouts", then ", replaced N" and ", skipped N" when not 0.</summary>
-    private static string DoneText(ImportResult result)
+    private static string DoneText(Imported result)
     {
         var text = string.Create(CultureInfo.InvariantCulture, $"Added {result.Added:N0} {(result.Added == 1 ? "workout" : "workouts")}");
         if (result.Replaced > 0)

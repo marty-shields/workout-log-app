@@ -8,7 +8,7 @@ public class ImportSessionTests
     [Test]
     public void TakeDone_ReturnsTheResultOnce()
     {
-        var done = new ImportResult(ImportStatus.Imported, 1, 0, 0);
+        var done = new Imported(1, 0, 0);
         var session = new ImportSession { Done = done };
 
         Assert.Multiple(() =>

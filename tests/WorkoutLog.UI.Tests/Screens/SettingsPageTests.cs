@@ -585,7 +585,7 @@ public class SettingsPageTests : ComponentTestBase
     [Test]
     public async Task Imported_ShowsTheDoneMessageOnce()
     {
-        session.Done = new ImportResult(ImportStatus.Imported, 3, 2, 1);
+        session.Done = new Imported(3, 2, 1);
 
         var cut = await LoadedAsync(45);
 
@@ -599,7 +599,7 @@ public class SettingsPageTests : ComponentTestBase
     [Test]
     public async Task DoneMessage_ClearsOnTheNextExportTap()
     {
-        session.Done = new ImportResult(ImportStatus.Imported, 3, 0, 0);
+        session.Done = new Imported(3, 0, 0);
         var cut = await LoadedAsync(3);
 
         cut.Find("[data-testid=export]").Click();
@@ -610,7 +610,7 @@ public class SettingsPageTests : ComponentTestBase
     [Test]
     public async Task DoneMessage_ClearsOnTheNextImportTap()
     {
-        session.Done = new ImportResult(ImportStatus.Imported, 3, 0, 0);
+        session.Done = new Imported(3, 0, 0);
         var cut = await LoadedAsync(3);
 
         cut.Find("[data-testid=import]").Click();
@@ -621,7 +621,7 @@ public class SettingsPageTests : ComponentTestBase
     [Test]
     public async Task DoneMessage_ClearsOnAppStartReload()
     {
-        session.Done = new ImportResult(ImportStatus.Imported, 3, 0, 0);
+        session.Done = new Imported(3, 0, 0);
         var cut = await LoadedAsync(3);
 
         var started = lifecycle.NotifyStartedAsync();

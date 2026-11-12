@@ -9,10 +9,10 @@ public sealed class ImportSession
     public ImportReview? Review { get; set; }
 
     /// <summary>The finished import Settings shows next, or null.</summary>
-    public ImportResult? Done { get; set; }
+    public Imported? Done { get; set; }
 
     /// <summary>Returns <see cref="Done"/> and clears it.</summary>
-    public ImportResult? TakeDone()
+    public Imported? TakeDone()
     {
         var done = Done;
         Done = null;

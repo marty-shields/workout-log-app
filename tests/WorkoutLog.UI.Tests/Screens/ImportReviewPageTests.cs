@@ -11,7 +11,7 @@ namespace WorkoutLog.UI.Tests.Screens;
 public class ImportReviewPageTests : ComponentTestBase
 {
     private static readonly ImportReview Review = new("f.json", 4, 2, 1, 1, 0, PhoneCount: 2);
-    private static readonly ImportResult Imported = new(ImportStatus.Imported, 2, 1, 0);
+    private static readonly Imported Done = new(2, 1, 0);
 
     private FakeImportService import = null!;
     private FakeImportFileOpener opener = null!;
@@ -99,13 +99,13 @@ public class ImportReviewPageTests : ComponentTestBase
             Assert.That(import.Calls, Is.EqualTo(new[] { (Review, ImportMode.Add, DifferentChoice.UseFiles) }));
             Assert.That(cut.Find("[data-testid=review-import]").TextContent.Trim(), Is.EqualTo("Importing…"));
         });
-        import.Complete(Imported);
+        import.Complete(Done);
         await WaitForRendererAsync();
 
         cut.WaitForAssertion(() => Assert.That(imports, Is.EqualTo(1)));
         Assert.Multiple(() =>
         {
-            Assert.That(session.Done, Is.EqualTo(Imported));
+            Assert.That(session.Done, Is.EqualTo(Done));
             Assert.That(session.Review, Is.Null);
             Assert.That(backs, Is.Zero);
         });
@@ -135,7 +135,7 @@ public class ImportReviewPageTests : ComponentTestBase
         var cut = Render();
         cut.Find("[data-testid=review-import]").Click();
 
-        import.Complete(new ImportResult(ImportStatus.Failed, 0, 0, 0));
+        import.Complete(new ImportFailed());
         await WaitForRendererAsync();
 
         cut.WaitForAssertion(() => Assert.That(cut.Find("[data-testid=review-failed]").TextContent, Is.EqualTo("Couldn't import your workouts. Try again")));
@@ -153,7 +153,7 @@ public class ImportReviewPageTests : ComponentTestBase
     {
         var cut = Render();
         cut.Find("[data-testid=review-import]").Click();
-        import.Complete(new ImportResult(ImportStatus.Failed, 0, 0, 0));
+        import.Complete(new ImportFailed());
         await WaitForRendererAsync();
         cut.WaitForAssertion(() => Assert.That(cut.FindAll("[data-testid=review-failed]"), Has.Count.EqualTo(1)));
 
@@ -182,7 +182,7 @@ public class ImportReviewPageTests : ComponentTestBase
             Assert.That(cut.FindAll("[data-testid=replace-dialog]"), Is.Empty);
             Assert.That(import.Calls, Is.EqualTo(new[] { (Review, ImportMode.ReplaceAll, DifferentChoice.KeepPhones) }));
         });
-        import.Complete(new ImportResult(ImportStatus.Imported, 4, 0, 0));
+        import.Complete(new Imported(4, 0, 0));
         await WaitForRendererAsync();
         cut.WaitForAssertion(() => Assert.That(imports, Is.EqualTo(1)));
     }
@@ -200,7 +200,7 @@ public class ImportReviewPageTests : ComponentTestBase
         await second;
 
         Assert.That(import.Calls, Has.Count.EqualTo(1));
-        import.Complete(new ImportResult(ImportStatus.Imported, 4, 0, 0));
+        import.Complete(new Imported(4, 0, 0));
         await first;
     }
 

@@ -35,7 +35,7 @@
     private int count;
     private ThemePreference theme;
     private ExportMessage message;
-    private ImportResult? imported;
+    private Imported? imported;
     private bool Busy => phase is SettingsPhase.Loading or SettingsPhase.Exporting or SettingsPhase.Reading;
 
     private IDisposable? registration;

@@ -361,7 +361,7 @@ public class SettingsViewTests : ComponentTestBase
     [TestCase(1042, 1001, 1500, "Added 1,042 workouts, replaced 1,001, skipped 1,500")]
     public void Imported_ShowsTheDoneMessageUnderImport(int added, int replaced, int skipped, string text)
     {
-        var cut = Context.Render<SettingsView>(p => p.Add(x => x.Imported, new ImportResult(ImportStatus.Imported, added, replaced, skipped)));
+        var cut = Context.Render<SettingsView>(p => p.Add(x => x.Imported, new Imported(added, replaced, skipped)));
 
         var done = cut.Find("[data-testid=import-done]");
         Assert.Multiple(() =>
