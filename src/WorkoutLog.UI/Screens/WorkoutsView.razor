@@ -1,6 +1,8 @@
 @using WorkoutLog.Core.Domain
+@using WorkoutLog.Core.Services
 @using WorkoutLog.UI.Components.Feedback
 @using WorkoutLog.UI.Components.Inputs
+@using WorkoutLog.UI.Components.Lists
 @using WorkoutLog.UI.Models.Workouts
 <AppScreen Title="Workouts" Destination="NavDestination.Workouts" OnNavigate="OnNavigate" OnRefresh="OnRefresh" Toolbar="@(ShowsTools ? Tools : null)">
     @if (Expanded && ShowsTools)
@@ -27,6 +29,11 @@
     }
     else
     {
+        @if (Totals is not null)
+        {
+            <WorkoutTotalsCard Totals="Totals" TestId="workout-totals" />
+        }
+
         @foreach (var month in Rows.GroupBy(r => (r.StartedAt.Year, r.StartedAt.Month)))
         {
             <section class="month">
@@ -66,6 +73,10 @@
     /// <summary>The workouts in <see cref="Dates"/>, newest first.</summary>
     [Parameter]
     public IReadOnlyList<WorkoutsRow> Rows { get; set; } = [];
+
+    /// <summary>The totals of <see cref="Rows"/>, shown above them. No card when null, or when there are no rows.</summary>
+    [Parameter]
+    public WorkoutTotals? Totals { get; set; }
 
     /// <summary>Dates shown. The segment whose range they match shows as chosen; none does for dates picked in the calendar.</summary>
     [Parameter]

@@ -1,3 +1,4 @@
+using WorkoutLog.Core.Services;
 using WorkoutLog.UI.Models.Workouts;
 
 namespace WorkoutLog.UI.Stories.Samples;
@@ -13,6 +14,9 @@ public static class SampleWorkoutHistory
 
     /// <summary>Wed 12 Mar 2025, with a morning and an evening workout.</summary>
     public static readonly DateOnly TwoWorkoutsDay = new(2025, 3, 12);
+
+    /// <summary>What the Workouts screen's totals card shows for the 3M span.</summary>
+    public static readonly WorkoutTotals Totals = new(38, 612, new TimeSpan(32, 30, 0), 2.9);
 
     /// <summary>Every sample workout, newest first.</summary>
     public static IReadOnlyList<WorkoutsRow> Rows { get; } = Build();

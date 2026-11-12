@@ -34,6 +34,7 @@ public class WorkoutsPageTests : ComponentTestBase
     ]);
 
     private FakeWorkoutsService workouts = null!;
+    private FakeWorkoutTotalsService totals = null!;
     private FakeTimeProvider clock = null!;
     private FakeLogger<AppLifecycle> lifecycleLogger = null!;
     private AppLifecycle lifecycle = null!;
@@ -44,6 +45,8 @@ public class WorkoutsPageTests : ComponentTestBase
         Clock(new DateTimeOffset(2026, 11, 6, 9, 0, 0, TimeSpan.Zero));
         workouts = new FakeWorkoutsService();
         Context.Services.AddSingleton<IWorkoutsService>(workouts);
+        totals = new FakeWorkoutTotalsService();
+        Context.Services.AddSingleton<IWorkoutTotalsService>(totals);
         lifecycleLogger = new FakeLogger<AppLifecycle>();
         lifecycle = new AppLifecycle(lifecycleLogger);
         Context.Services.AddSingleton<IAppStart>(lifecycle);
@@ -199,6 +202,82 @@ public class WorkoutsPageTests : ComponentTestBase
         await WaitForRendererAsync();
 
         cut.WaitForAssertion(() => Assert.That(Shown(cut), Is.EqualTo(new[] { "workouts-row-1" })));
+        Assert.That(Checked(cut), Is.EqualTo(new[] { "workouts-range-all" }));
+    }
+
+    [Test]
+    public async Task Opens_LoadsTheTotalsOfTheSameDatesAsTheList()
+    {
+        var cut = await OpenedAsync();
+        await CompleteRangeAsync(cut, Recent);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(totals.Reads, Is.EqualTo(new[] { (new DateOnly(2026, 8, 6), Today) }));
+            Assert.That(cut.Find("[data-testid=workout-totals-workouts]").TextContent, Is.EqualTo("3"));
+            Assert.That(cut.Find("[data-testid=workout-totals-per-week]").TextContent, Is.EqualTo("2.5"));
+        });
+    }
+
+    [Test]
+    public async Task RangeChange_ReloadsTheTotalsWithTheList()
+    {
+        var cut = await OpenedAsync();
+        await CompleteRangeAsync(cut, Recent);
+        totals.Result = new WorkoutTotals(9, 90, TimeSpan.FromMinutes(45), 0.5);
+
+        cut.Find("[data-testid=workouts-range-1y]").Change(true);
+        await CompleteRangeAsync(cut, Recent);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(totals.Reads[^1], Is.EqualTo((new DateOnly(2025, 11, 6), Today)));
+            Assert.That(cut.Find("[data-testid=workout-totals-workouts]").TextContent, Is.EqualTo("9"));
+            Assert.That(cut.Find("[data-testid=workout-totals-time]").TextContent, Is.EqualTo("45 min"));
+        });
+    }
+
+    [Test]
+    public async Task TotalsFail_HideTheCardAndShowTheList()
+    {
+        totals.Result = new ReadFailed();
+        var cut = await OpenedAsync();
+
+        await CompleteRangeAsync(cut, Recent);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.FindAll("[data-testid=workout-totals]"), Is.Empty);
+            Assert.That(cut.FindAll("[data-testid=workouts-error]"), Is.Empty);
+            Assert.That(Shown(cut), Is.EqualTo(new[] { "workouts-row-4" }));
+        });
+    }
+
+    [Test]
+    public async Task NoWorkoutsInTheRange_HideTheCard()
+    {
+        var cut = await OpenedAsync();
+
+        await CompleteRangeAsync(cut, new ReadResult<IReadOnlyList<WorkoutSummary>>([]));
+
+        Assert.That(cut.FindAll("[data-testid=workout-totals]"), Is.Empty);
+    }
+
+    [Test]
+    public async Task EarlierTotalsAnsweringLast_AreIgnored()
+    {
+        totals.Hold = true;
+        var cut = await OpenedAsync();
+        cut.Find("[data-testid=workouts-range-all]").Change(true);
+        workouts.CompleteRange(Recent);
+        workouts.CompleteRange(Recent, index: 1);
+
+        totals.Complete(new ReadResult<WorkoutTotals>(new WorkoutTotals(5, 50, TimeSpan.FromMinutes(50), 5)));
+        await WaitForRendererAsync();
+        totals.Complete(new ReadResult<WorkoutTotals>(new WorkoutTotals(1, 10, TimeSpan.FromMinutes(10), 1)), index: 1);
+        await WaitForRendererAsync();
+
+        cut.WaitForAssertion(() => Assert.That(cut.Find("[data-testid=workout-totals-workouts]").TextContent, Is.EqualTo("5")));
         Assert.That(Checked(cut), Is.EqualTo(new[] { "workouts-range-all" }));
     }
 

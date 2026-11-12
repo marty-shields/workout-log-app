@@ -1,0 +1,29 @@
+@using WorkoutLog.Core.Services
+<dl class="card" data-testid="@TestId">
+    <div class="item">
+        <dt class="label">Workouts</dt>
+        <dd class="value" data-testid="@($"{TestId}-workouts")">@Totals.Workouts</dd>
+    </div>
+    <div class="item">
+        <dt class="label">Sets</dt>
+        <dd class="value" data-testid="@($"{TestId}-sets")">@Totals.Sets</dd>
+    </div>
+    <div class="item">
+        <dt class="label">Time trained</dt>
+        <dd class="value" data-testid="@($"{TestId}-time")">@DisplayFormat.TimeTrained(Totals.TimeTrained)</dd>
+    </div>
+    <div class="item">
+        <dt class="label">Per week</dt>
+        <dd class="value" data-testid="@($"{TestId}-per-week")">@DisplayFormat.PerWeek(Totals.AveragePerWeek)</dd>
+    </div>
+</dl>
+
+@code {
+    /// <summary>The totals to show.</summary>
+    [Parameter, EditorRequired]
+    public WorkoutTotals Totals { get; set; } = null!;
+
+    /// <summary>Value of the data-testid attribute, and the prefix of its parts': <c>{TestId}-workouts</c>, <c>{TestId}-sets</c>, <c>{TestId}-time</c>, <c>{TestId}-per-week</c>.</summary>
+    [Parameter]
+    public string? TestId { get; set; }
+}
