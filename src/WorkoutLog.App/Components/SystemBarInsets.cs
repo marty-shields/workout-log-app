@@ -16,6 +16,7 @@ namespace WorkoutLog.App.Components;
 public sealed class SystemBarInsets : ComponentBase, IDisposable
 {
     private View? decor;
+    private ViewTreeObserver? observer;
     private LayoutListener? listener;
     private (float Top, float Bottom)? applied;
 
@@ -29,7 +30,7 @@ public sealed class SystemBarInsets : ComponentBase, IDisposable
             return;
         }
 
-        if (decor?.ViewTreeObserver is { IsAlive: true } observer)
+        if (observer is { IsAlive: true })
         {
             observer.RemoveOnGlobalLayoutListener(listener);
         }
@@ -47,7 +48,8 @@ public sealed class SystemBarInsets : ComponentBase, IDisposable
 
         decor = view;
         listener = new LayoutListener(() => InvokeAsync(ApplyAsync));
-        decor.ViewTreeObserver?.AddOnGlobalLayoutListener(listener);
+        observer = decor.ViewTreeObserver;
+        observer?.AddOnGlobalLayoutListener(listener);
         await ApplyAsync();
     }
 
@@ -65,15 +67,19 @@ public sealed class SystemBarInsets : ComponentBase, IDisposable
             return;
         }
 
-        applied = current;
         try
         {
             await JS.InvokeVoidAsync("document.documentElement.style.setProperty", "--inset-top", Pixels(current.Top));
             await JS.InvokeVoidAsync("document.documentElement.style.setProperty", "--inset-bottom", Pixels(current.Bottom));
+            applied = current;
         }
         catch (JSDisconnectedException)
         {
             // The page is gone, and its insets with it.
+        }
+        catch (JSException)
+        {
+            // Left unapplied, so the next layout tries again.
         }
     }
 
