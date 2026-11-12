@@ -45,5 +45,16 @@ public class ContrastTests
         Assert.That(Rgb.Contrast(fg, bg), Is.GreaterThanOrEqualTo(minimum), $"{fg} on {bg}");
     }
 
+    // The App keeps the status bar's icons light (StatusBarTheme.Dark in App.xaml.cs) in both themes, and Android draws them
+    // white over the top bar.
+    [TestCase("light")]
+    [TestCase("dark")]
+    public void StatusBarIcons_OnTheTopBar_MeetWcagAA(string theme)
+    {
+        var bar = Pick(DesignTokens.Colour("--color-bar"), theme);
+
+        Assert.That(Rgb.Contrast(Rgb.Parse("#ffffff"), bar), Is.GreaterThanOrEqualTo(LargeTextOrControl), $"#ffffff on {bar}");
+    }
+
     private static Rgb Pick((Rgb Light, Rgb Dark) colour, string theme) => theme == "light" ? colour.Light : colour.Dark;
 }

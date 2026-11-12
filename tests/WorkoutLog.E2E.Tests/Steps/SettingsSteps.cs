@@ -10,7 +10,7 @@ namespace WorkoutLog.E2E.Tests.Steps;
 
 [Binding]
 public sealed partial class SettingsSteps(
-    DashboardScreen dashboard, SettingsScreen settings, Journeys journeys, Native native, DeviceClock clock, ScenarioState state)
+    DashboardScreen dashboard, SettingsScreen settings, Journeys journeys, Native native, DeviceClock clock, ScenarioState state, WebView web)
 {
     [When(@"^I tap Settings on the Dashboard$")]
     public void WhenITapSettingsOnTheDashboard()
@@ -25,6 +25,29 @@ public sealed partial class SettingsSteps(
         WhenITapSettingsOnTheDashboard();
         journeys.WaitFor(Journeys.Screen.Settings);
     }
+
+    [Given(@"^the phone's dark theme is (on|off)$")]
+    public void GivenThePhonesDarkThemeIs(string onOrOff)
+    {
+        var replaced = Native.SetDarkTheme(onOrOff == "on" ? "yes" : "no");
+        state.PhoneDarkTheme ??= replaced;
+    }
+
+    /// <summary>Puts back the phone's dark theme the scenario changed.</summary>
+    [AfterScenario]
+    public void RestoreDarkTheme()
+    {
+        if (state.PhoneDarkTheme is { } night)
+        {
+            Native.SetDarkTheme(night);
+        }
+    }
+
+    [When(@"^I choose the (System|Light|Dark) theme$")]
+    public void WhenIChooseTheTheme(string theme) => settings.ChooseTheme(theme.ToLowerInvariant());
+
+    [Then(@"^the status bar icons are light$")]
+    public void ThenTheStatusBarIconsAreLight() => web.Eventually(Native.StatusBarIcons, Is.EqualTo("light"), "status bar icons");
 
     [Then(@"^Settings says ""(.+)""$")]
     public void ThenSettingsSays(string text) => Assert.That(settings.ExportText(), Is.EqualTo(text));

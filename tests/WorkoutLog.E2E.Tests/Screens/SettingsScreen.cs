@@ -1,6 +1,8 @@
+using OpenQA.Selenium;
+
 namespace WorkoutLog.E2E.Tests.Screens;
 
-/// <summary>Settings: a back arrow and title, the export text and Export, and Import with its messages.</summary>
+/// <summary>Settings: a back arrow and title, the theme, the export text and Export, and Import with its messages.</summary>
 public sealed class SettingsScreen(WebView web)
 {
     public const string Title = "Settings";
@@ -10,6 +12,14 @@ public sealed class SettingsScreen(WebView web)
     {
         web.WaitUntil(() => web.Exists("export-text"), "Settings didn't load");
         return web.Text("export-text");
+    }
+
+    /// <summary>Taps a theme in Appearance (system, light or dark) and waits until it is selected.</summary>
+    public void ChooseTheme(string theme)
+    {
+        var radio = $"settings-theme-{theme}";
+        web.Find(radio).FindElement(By.XPath("..")).Click();
+        web.Eventually(() => web.Find(radio).Selected, Is.True, $"{theme} theme selected");
     }
 
     public bool ExportEnabled() => web.Find("export").Enabled;
