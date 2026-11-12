@@ -101,5 +101,5 @@ Also: Dependabot opens weekly update PRs (`chore(deps): …`, `semver:patch`); e
 
 ## Source control
 - GitHub: [marty-shields/workout-log-app](https://github.com/marty-shields/workout-log-app), public, default branch `main`.
-- `main` is protected by the `Protect main` ruleset: no direct pushes, force pushes or deletion; changes go through a PR with the [CI](#ci) checks passing. PRs are opened as drafts; the reviewer marks them ready and squash-merges. Merged branches are deleted.
+- `main` is protected by the `Protect main` ruleset: no direct pushes, force pushes or deletion; changes go through a PR with the [CI](#ci) checks passing. PRs are opened ready for review so all CI runs; the reviewer squash-merges. Merged branches are deleted.
 - Branches: `type/<issue>-slug` (e.g. `ci/123-faster-e2e-shards`, `fix/118-skip-future-workouts`); work with no issue leaves out the number (e.g. `chore/update-readme`).
