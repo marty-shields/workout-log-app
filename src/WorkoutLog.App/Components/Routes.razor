@@ -6,6 +6,7 @@
 @inject IExportService ExportService
 @inject NavigationManager Navigation
 
+<SystemBarInsets />
 <StartupGate Initialize="InitializeAsync">
     <AppErrorBoundary OnRestart="() => Navigation.GoTo(string.Empty)">
         <Router AppAssembly="typeof(MauiProgram).Assembly">

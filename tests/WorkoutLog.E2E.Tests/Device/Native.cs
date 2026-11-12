@@ -1,3 +1,5 @@
+using System.Globalization;
+using System.Text.RegularExpressions;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Appium.Android;
 using OpenQA.Selenium.Appium.Android.Enums;
@@ -11,7 +13,7 @@ namespace WorkoutLog.E2E.Tests.Device;
 /// Android itself: back, the soft keyboard, the share sheet, the file picker, the app's state, the phone's dark theme and the status bar.
 /// Appium runs these on the device from either context.
 /// </summary>
-public sealed class Native(WebView web)
+public sealed partial class Native(WebView web)
 {
     internal const string NativeApp = "NATIVE_APP";
     internal static string WebView => AppiumSetup.App.WebViewContext;
@@ -179,6 +181,27 @@ public sealed class Native(WebView web)
 
         return regions.Any(region => region.Contains("LIGHT_STATUS_BARS", StringComparison.Ordinal)) ? "dark" : "light";
     }
+
+    /// <summary>
+    /// The screen rows the system bars cover, in device pixels, from the visible inset sources in <c>dumpsys window</c>:
+    /// the row where the status bar and camera cutout end at the top, and the row where the navigation bar starts at the bottom.
+    /// Null when the dump has neither a top bar nor a bottom navigation bar.
+    /// </summary>
+    public static (int TopEnd, int BottomStart)? SystemBars()
+    {
+        var sources = AppiumSetup.Adb.Shell("dumpsys", "window").Split('\n')
+            .Select(line => InsetsSource().Match(line))
+            .Where(match => match.Success)
+            .Select(match => (Type: match.Groups["type"].Value, Top: int.Parse(match.Groups["top"].Value, CultureInfo.InvariantCulture),
+                Bottom: int.Parse(match.Groups["bottom"].Value, CultureInfo.InvariantCulture)))
+            .ToList();
+        var top = sources.Where(s => s.Type != "navigationBars" && s.Top == 0).Select(s => s.Bottom).DefaultIfEmpty().Max();
+        var bottom = sources.Where(s => s.Type == "navigationBars" && s.Top > 0).Select(s => s.Top).DefaultIfEmpty().Min();
+        return top > 0 && bottom > 0 ? (top, bottom) : null;
+    }
+
+    [GeneratedRegex(@"InsetsSource id=\S+ type=(?<type>statusBars|displayCutout|navigationBars) frame=\[\d+,(?<top>\d+)\]\[\d+,(?<bottom>\d+)\] visible=true")]
+    private static partial Regex InsetsSource();
 
     /// <summary>Whether the app's window has the focus, in <c>dumpsys window</c>'s output.</summary>
     private static bool HasFocus(string window) =>

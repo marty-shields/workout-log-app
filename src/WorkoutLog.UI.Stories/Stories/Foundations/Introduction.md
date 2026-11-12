@@ -24,7 +24,7 @@ Tokens, components, screens and their behaviour for the Workout Log app.
 - Components use tokens only; no hard-coded colours or sizes. Story-only chrome (phone frame, theme switch) is exempt.
 - Components take their data as parameters. Pages call services.
 - Numbers use the phone's numeric keyboard: `inputmode="numeric"` for whole numbers, `inputmode="decimal"` for decimals. Duration is three boxes: h, mm, ss.
-- Content stays inside the Android 16 safe-area insets.
+- Content stays inside the Android 16 safe-area insets: `--inset-top` and `--inset-bottom`. The app sets them to the space the status bar, camera cutout and navigation bar cover; elsewhere they are `env(safe-area-inset-*)`, and the phone frame sets 32px.
 - Layout suits one-handed use.
 - Interactive elements have a `data-testid`.
 

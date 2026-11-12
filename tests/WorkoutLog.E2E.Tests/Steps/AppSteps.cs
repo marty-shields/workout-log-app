@@ -1,3 +1,4 @@
+using System.Globalization;
 using OpenQA.Selenium.Appium.Enums;
 using Reqnroll;
 using WorkoutLog.E2E.Tests.Device;
@@ -93,6 +94,26 @@ public sealed class AppSteps(
     [Then(@"^the soft keyboard is (shown|hidden)$")]
     public void ThenTheSoftKeyboardIs(string shown) =>
         web.Eventually(native.IsKeyboardShown, Is.EqualTo(shown == "shown"), "soft keyboard shown");
+
+    [Then(@"^the screen title is below the status bar and the tabs are above the navigation bar$")]
+    public void ThenTheTitleAndTabsClearTheSystemBars()
+    {
+        var bars = Native.SystemBars();
+        Assert.That(bars, Is.Not.Null, "no status bar or navigation bar in dumpsys window");
+        var (topEnd, bottomStart) = bars!.Value;
+        web.Eventually(() =>
+        {
+            var edges = web.List(
+                "const dpr = devicePixelRatio;" +
+                "const title = document.querySelector('[data-testid=screen-title]').getBoundingClientRect().top;" +
+                "const tabs = Math.max(...[...document.querySelectorAll('.bottom-nav .label')].map(l => l.getBoundingClientRect().bottom));" +
+                "return [title * dpr, tabs * dpr];");
+            var (title, tabs) = (Convert.ToDouble(edges[0], CultureInfo.InvariantCulture), Convert.ToDouble(edges[1], CultureInfo.InvariantCulture));
+            return title >= topEnd && tabs <= bottomStart
+                ? "clear"
+                : $"title starts at {title:0} px, status bar ends at {topEnd} px; tabs end at {tabs:0} px, navigation bar starts at {bottomStart} px";
+        }, Is.EqualTo("clear"), "system bars");
+    }
 
     [Then(@"^the field asks for a (numeric|decimal) keypad$")]
     public void ThenTheFieldAsksFor(string keypad) => Assert.That(workout.InputMode(web.Focused()), Is.EqualTo(keypad));
