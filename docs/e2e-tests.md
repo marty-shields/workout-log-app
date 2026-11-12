@@ -82,6 +82,13 @@ Most of those dialogs came from the boot. A guest still busy just after `sys.boo
 
 A failed or cancelled job's results artifact is kept 7 days, a passed one's 1 day. Each attempt uploads its own, named after the job's artifact with the attempt number added (`e2e-results-3-2` is shard 3's rerun).
 
+## Screenshots of a screen state
+A review sometimes needs a screenshot of a state the existing scenarios do not leave on screen, such as a screen with seeded data or dark mode. Take it from a throwaway scenario in a detached copy of the branch, never in the working tree under review:
+1. `git worktree add --detach <dir> <commit>` and work only in `<dir>`. Delete it afterwards with `git worktree remove --force <dir>`. Never commit the scenario.
+2. Add a feature file and a small step file under `tests/WorkoutLog.E2E.Tests/Features` and `Steps` in the copy. Seed data with the existing step `Given these saved workouts:` (a table with `started` and `exercises` columns; write times as the steps do, like "10 days ago 07:30" or "yesterday 18:05", and see `Seeding/SeedTime.cs` and `Features/Workouts.feature` for the cell format). Reuse the existing steps in `Steps/` to open the screen, such as `I open Workouts`, instead of writing new ones.
+3. Capture the screen inside the scenario, while the emulator is up: `adb -s emulator-5554 exec-out screencap -p > <file>`, or the Appium driver's `GetScreenshot()` as `Hooks/AppHooks.cs` does for a failed scenario. `e2e-local.sh` stops the emulator when the run ends, so there is nothing to capture afterwards. For dark mode run `adb -s emulator-5554 shell cmd uimode night yes` (or `no` for light) and wait a few seconds before capturing. Save the images outside the repo.
+4. Run only that scenario from the copy: `.github/scripts/e2e-local.sh "FullyQualifiedName~<FeatureName>"`. In an agent's shell, first run `adb start-server` in its own command (see [Throwaway emulator for agents](dev-setup-linux.md#throwaway-emulator-for-agents)).
+
 ## Results
 - `tests/WorkoutLog.E2E.Tests/TestResults/E2E/<yyyyMMdd-HHmmss>/` per run. A failed scenario saves its screen, page source, app log and Appium log in its own folder there.
 - A phone run's files can show notifications, the phone's serial number and what the tests typed. Keep them local; turn on Do Not Disturb during a run.
