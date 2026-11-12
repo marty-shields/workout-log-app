@@ -9,5 +9,4 @@ public sealed record Imported(int Added, int Replaced, int Skipped);
 /// <summary>The write failed; nothing was written.</summary>
 public sealed record ImportFailed;
 
-/// <summary>How an import ended.</summary>
 public union ImportResult(Imported, ImportFailed);

@@ -9,5 +9,4 @@ public sealed record ExportTooLarge;
 /// <summary>Reading the workouts or writing the file failed.</summary>
 public sealed record ExportFailed;
 
-/// <summary>How an export ended.</summary>
 public union ExportResult(ExportedFile, ExportTooLarge, ExportFailed);

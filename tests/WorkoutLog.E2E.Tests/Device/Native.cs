@@ -185,7 +185,7 @@ public sealed partial class Native(WebView web)
     /// <summary>
     /// The screen rows the system bars cover, in device pixels, from the visible inset sources in <c>dumpsys window</c>:
     /// the row where the status bar and camera cutout end at the top, and the row where the navigation bar starts at the bottom.
-    /// Null when the dump has neither a top bar nor a bottom navigation bar.
+    /// Null when the dump lacks either.
     /// </summary>
     public static (int TopEnd, int BottomStart)? SystemBars()
     {
