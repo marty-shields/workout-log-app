@@ -27,4 +27,34 @@ public class HistoryRangeStartTests
     [Test]
     public void From_UndefinedRange_Throws() =>
         Assert.That(() => ((HistoryRange)99).From(new DateOnly(2026, 11, 6)), Throws.TypeOf<ArgumentOutOfRangeException>().With.Property("ParamName").EqualTo("range"));
+
+    [TestCase(HistoryRange.ThreeMonths, 2026, 8, 6)]
+    [TestCase(HistoryRange.SixMonths, 2026, 5, 6)]
+    [TestCase(HistoryRange.Year, 2025, 11, 6)]
+    public void Includes_TheStartDay_IsTrue(HistoryRange range, int year, int month, int day) =>
+        Assert.That(range.Includes(new DateOnly(2026, 11, 6), new DateOnly(year, month, day)), Is.True);
+
+    [TestCase(HistoryRange.ThreeMonths, 2026, 8, 5)]
+    [TestCase(HistoryRange.SixMonths, 2026, 5, 5)]
+    [TestCase(HistoryRange.Year, 2025, 11, 5)]
+    public void Includes_TheDayBeforeTheStart_IsFalse(HistoryRange range, int year, int month, int day) =>
+        Assert.That(range.Includes(new DateOnly(2026, 11, 6), new DateOnly(year, month, day)), Is.False);
+
+    [TestCase(HistoryRange.ThreeMonths)]
+    [TestCase(HistoryRange.SixMonths)]
+    [TestCase(HistoryRange.Year)]
+    [TestCase(HistoryRange.All)]
+    public void Includes_Today_IsTrue(HistoryRange range) =>
+        Assert.That(range.Includes(new DateOnly(2026, 11, 6), new DateOnly(2026, 11, 6)), Is.True);
+
+    [TestCase(HistoryRange.ThreeMonths)]
+    [TestCase(HistoryRange.SixMonths)]
+    [TestCase(HistoryRange.Year)]
+    [TestCase(HistoryRange.All)]
+    public void Includes_Tomorrow_IsFalse(HistoryRange range) =>
+        Assert.That(range.Includes(new DateOnly(2026, 11, 6), new DateOnly(2026, 11, 7)), Is.False);
+
+    [Test]
+    public void Includes_All_IncludesAVeryOldDate() =>
+        Assert.That(HistoryRange.All.Includes(new DateOnly(2026, 11, 6), new DateOnly(1900, 1, 1)), Is.True);
 }
