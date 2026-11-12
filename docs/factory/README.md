@@ -47,5 +47,5 @@ A feature gets code and tests together. A change or bug fix gets a failing test 
 ## Verification notes
 - Screenshots come from the Android emulator through `.github/scripts/e2e-local.sh` and `adb exec-out screencap -p`, because Chrome is not installed here. If the emulator cannot start, the verifier says so and the PR question list records it.
 - The README screenshots (`readme-screenshots.mjs`) need Chrome, so the factory does not regenerate them. When a change affects a README screen, the question list says so.
-- Subagents call `/code-review` and `/security-review` through the Skill tool. If that ever stops working, the reviewer agent still carries its own checklist.
+- `/code-review` and `/security-review` run as nested `claude -p` sessions started inside the worktree, because a skill reviews the branch of its own working directory and a subagent's directory is not the worktree. The nested session's tokens are not in the parent run's total; the reviewer reports its cost under EVIDENCE.
 - AGENTS.md used to say "draft PR". The factory opens ready PRs, and AGENTS.md now says the same.
