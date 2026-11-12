@@ -8,6 +8,7 @@
 @implements IDisposable
 @inject IExportService Export
 @inject IFileShare FileShare
+@inject IExportEnvironment HostEnvironment
 @inject IImportFileOpener Opener
 @inject ImportSession Session
 @inject IAppStart AppStart
@@ -17,7 +18,7 @@
 <SettingsView Loading="phase == SettingsPhase.Loading" Failed="phase == SettingsPhase.LoadFailed" Count="count"
               Exporting="phase == SettingsPhase.Exporting" ExportMessage="message"
               Reading="phase == SettingsPhase.Reading" ImportFailed="phase == SettingsPhase.ImportFailed" Imported="imported"
-              Theme="theme" OnThemeChanged="SetThemeAsync"
+              Theme="theme" Version="@HostEnvironment.AppVersion" OnThemeChanged="SetThemeAsync"
               OnRetry="LoadAsync" OnExport="ExportAsync" OnImport="ImportAsync" OnBack="OnBack" />
 
 @code {

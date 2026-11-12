@@ -58,7 +58,7 @@ jobs:
 
       - name: Build the App and the E2E tests
         run: |
-          dotnet build src/WorkoutLog.App -f net11.0-android
+          dotnet build src/WorkoutLog.App -f net11.0-android -p:ApplicationDisplayVersion=1.0.0-e2e.${{ github.run_id }}
           dotnet build tests/WorkoutLog.E2E.Tests
 
       # A failed try starts again from an uninstalled app, up to 3 tries in all.

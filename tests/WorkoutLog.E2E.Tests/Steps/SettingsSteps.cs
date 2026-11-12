@@ -49,6 +49,9 @@ public sealed partial class SettingsSteps(
     [Then(@"^the status bar icons are light$")]
     public void ThenTheStatusBarIconsAreLight() => web.Eventually(Native.StatusBarIcons, Is.EqualTo("light"), "status bar icons");
 
+    [Then(@"^the app version is listed on Settings$")]
+    public void ThenTheAppVersionIsListedOnSettings() => Assert.That(settings.Version(), Is.EqualTo($"Version {AppiumSetup.Adb.VersionName(AppiumSetup.App.Package)}"), "the version Settings shows against the installed package's versionName");
+
     [Then(@"^Settings says ""(.+)""$")]
     public void ThenSettingsSays(string text) => Assert.That(settings.ExportText(), Is.EqualTo(text));
 

@@ -25,6 +25,17 @@ internal sealed class Adb(string? udid)
     /// <summary>Runs <c>adb shell</c> and returns its trimmed standard output; throws if it exits with an error.</summary>
     public string Shell(params string[] args) => Run(["shell", .. args]).Trim();
 
+    /// <summary>The <c>versionName</c> installed for <paramref name="package"/>, the display version the app shows.</summary>
+    public string VersionName(string package)
+    {
+        var line = Shell("dumpsys", "package", package)
+            .Split('\n', StringSplitOptions.TrimEntries)
+            .FirstOrDefault(l => l.StartsWith("versionName=", StringComparison.Ordinal));
+        return line?["versionName=".Length..] is { Length: > 0 } name
+            ? name
+            : throw new InvalidOperationException($"dumpsys package {package} has no versionName: is it installed?");
+    }
+
     /// <summary>
     /// Runs <c>adb shell</c> with access to <paramref name="app"/>'s private folder: as the app with run-as when it is the Debug app,
     /// otherwise as root, which an emulator allows. Give paths under <see cref="TestedApp.DataFolder"/>.
