@@ -3,6 +3,7 @@
 @* Holds the screen's pull ring part way down once rendered, to show it mid-pull without a finger. *@
 
 @code {
+    #pragma warning disable BL0016 // A story whose script fails should fail loudly in the browser, not be caught.
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
@@ -11,4 +12,5 @@
             await module.InvokeVoidAsync("hold");
         }
     }
+    #pragma warning restore BL0016
 }
