@@ -5,10 +5,11 @@
 @using WorkoutLog.UI.Models.Workouts
 @implements IDisposable
 @inject IWorkoutsService Workouts
+@inject IWorkoutTotalsService TotalsService
 @inject TimeProvider Clock
 @inject IAppStart AppStart
 
-<WorkoutsView History="History" Rows="rows" Dates="dates" DatesChanged="ShowAsync" @bind-Expanded="expanded" Loading="loading" Failed="failure is not Failure.None"
+<WorkoutsView History="History" Rows="rows" Totals="totals" Dates="dates" DatesChanged="ShowAsync" @bind-Expanded="expanded" Loading="loading" Failed="failure is not Failure.None"
               OnRetry="RetryAsync" OnRefresh="() => LoadAsync(PullRefresh.MinimumSpinner)" OnOpen="row => OnOpen.InvokeAsync(row.Id)" OnNavigate="OnNavigate" />
 
 @code {
@@ -16,6 +17,7 @@
 
     private WorkoutHistory? loaded;
     private IReadOnlyList<WorkoutsRow> rows = [];
+    private WorkoutTotals? totals;
     private DateSpan dates;
     private bool expanded;
     private bool loading;
@@ -82,7 +84,7 @@
         var shown = range is { } quick ? loaded.Span(quick) : dates;
         if (loaded.IsEmpty)
         {
-            (dates, rows) = (shown, []);
+            (dates, rows, totals) = (shown, [], null);
             await HideSpinnerIfLatestAsync(current, minimumElapsed);
             return;
         }
@@ -102,7 +104,10 @@
         var current = ++query;
         dates = shown;
         StateHasChanged();
-        var result = await Workouts.GetBetweenAsync(shown.From, shown.To);
+        var reading = Workouts.GetBetweenAsync(shown.From, shown.To);
+        var addingUp = TotalsService.GetAsync(shown.From, shown.To);
+        var result = await reading;
+        var sums = await addingUp;
         if (disposed || current != query)
         {
             return;
@@ -114,6 +119,7 @@
             ReadFailed => [],
         };
         rows = [.. workouts.Select(w => new WorkoutsRow(w.Id, TimeZoneInfo.ConvertTime(w.StartedAt, Clock.LocalTimeZone).DateTime))];
+        totals = sums is WorkoutTotals sum ? sum : null;
         failure = result is ReadFailed ? Failure.Range : Failure.None;
         expanded &= failure is Failure.None;
         await HideSpinnerIfLatestAsync(current, minimumElapsed);

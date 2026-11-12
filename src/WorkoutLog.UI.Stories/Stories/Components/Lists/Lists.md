@@ -12,6 +12,10 @@ A full-width row of text, with an optional muted `Detail` line under it and opti
 A number with a label, on a card. The number uses `--color-accent` at `--font-size-xxl`.
 - `data-testid`: `TestId`.
 
+## `WorkoutTotalsCard`
+The totals of a span of workouts on a card, in two columns: **Workouts**, **Sets**, **Time trained** (e.g. *12 h 30 min*, or *45 min* under an hour) and **Per week** (one decimal), each value over its label.
+- `data-testid`: `TestId`; the values `{TestId}-workouts`, `{TestId}-sets`, `{TestId}-time`, `{TestId}-per-week`.
+
 ## `EmptyState`
 A message in a dashed box, for a list or section with nothing in it. An optional `Hint` under it, smaller, says how to fill it.
 - `data-testid`: `TestId`; the message `{TestId}-message`, the hint `{TestId}-hint`.
@@ -32,4 +36,4 @@ Search box with the search `Icon`, then `FilterChips` All / Strength / Cardio. N
 One `ListRow` per exercise: its name, "Last" with the last session when it has one, and Strength or Cardio as its `Aside`. "No exercises match" when the list is empty. With `OnPick` the rows are tappable, with a chevron. Used under an `ExerciseSearch` by Exercises and Add Exercise.
 - `data-testid`: `TestId` as the prefix: `{TestId}-row-{id}`, `{TestId}-none`.
 
-Stories: [ListRow](./?path=/docs/components-lists-listrow--docs) · [StatTile](./?path=/docs/components-lists-stattile--docs) · [EmptyState](./?path=/docs/components-lists-emptystate--docs) · [RecordsCard](./?path=/docs/components-lists-recordscard--docs) · [SessionRow](./?path=/docs/components-lists-sessionrow--docs) · [ExerciseSearch](./?path=/docs/components-lists-exercisesearch--docs) · [ExerciseList](./?path=/docs/components-lists-exerciselist--docs)
+Stories: [ListRow](./?path=/docs/components-lists-listrow--docs) · [StatTile](./?path=/docs/components-lists-stattile--docs) · [WorkoutTotalsCard](./?path=/docs/components-lists-workouttotalscard--docs) · [EmptyState](./?path=/docs/components-lists-emptystate--docs) · [RecordsCard](./?path=/docs/components-lists-recordscard--docs) · [SessionRow](./?path=/docs/components-lists-sessionrow--docs) · [ExerciseSearch](./?path=/docs/components-lists-exercisesearch--docs) · [ExerciseList](./?path=/docs/components-lists-exerciselist--docs)

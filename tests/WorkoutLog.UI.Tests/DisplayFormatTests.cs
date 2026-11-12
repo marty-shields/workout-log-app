@@ -76,4 +76,20 @@ public class DisplayFormatTests
     [TestCase(1, "1 workout")]
     [TestCase(38, "38 workouts")]
     public void Workouts_IsSingularOnlyForOne(int count, string expected) => Assert.That(DisplayFormat.Workouts(count), Is.EqualTo(expected));
+
+    [TestCase(0, 0, "0 min")]
+    [TestCase(0, 45, "45 min")]
+    [TestCase(0, 59, "59 min")]
+    [TestCase(1, 0, "1 h 0 min")]
+    [TestCase(12, 30, "12 h 30 min")]
+    [TestCase(130, 5, "130 h 5 min")]
+    public void TimeTrained_IsHoursAndMinutesOrMinutesUnderAnHour(int hours, int minutes, string expected) =>
+        Assert.That(DisplayFormat.TimeTrained(new TimeSpan(hours, minutes, 59)), Is.EqualTo(expected));
+
+    [TestCase(0.0, "0.0")]
+    [TestCase(2.5, "2.5")]
+    [TestCase(2.46, "2.5")]
+    [TestCase(3.0, "3.0")]
+    [TestCase(0.04, "0.0")]
+    public void PerWeek_IsOneDecimal(double value, string expected) => Assert.That(DisplayFormat.PerWeek(value), Is.EqualTo(expected));
 }

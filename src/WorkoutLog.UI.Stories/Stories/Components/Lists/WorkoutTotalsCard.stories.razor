@@ -1,0 +1,18 @@
+@using WorkoutLog.Core.Services
+@attribute [Stories("Components/Lists/WorkoutTotalsCard")]
+
+<Stories TComponent="WorkoutTotalsCard" Layout="typeof(ThemeLayout)">
+
+    <Story Name="Default">
+        <Template>
+            <WorkoutTotalsCard Totals="new WorkoutTotals(38, 452, new TimeSpan(31, 40, 0), 2.9)" TestId="totals" />
+        </Template>
+    </Story>
+
+    <Story Name="Under an hour">
+        <Template>
+            <WorkoutTotalsCard Totals="new WorkoutTotals(1, 9, TimeSpan.FromMinutes(45), 1)" TestId="totals" />
+        </Template>
+    </Story>
+
+</Stories>

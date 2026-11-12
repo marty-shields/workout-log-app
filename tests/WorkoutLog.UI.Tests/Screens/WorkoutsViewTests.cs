@@ -1,4 +1,5 @@
 using WorkoutLog.Core.Domain;
+using WorkoutLog.Core.Services;
 using WorkoutLog.UI.Models.Workouts;
 using WorkoutLog.UI.Navigation;
 using WorkoutLog.UI.Screens;
@@ -44,6 +45,57 @@ public class WorkoutsViewTests : ComponentTestBase
             Assert.That(cut.FindAll("[data-testid=workouts-month-2026-11] ~ .rows [data-testid^=workouts-row-]").Select(r => r.GetAttribute("data-testid")),
                 Is.EqualTo(new[] { "workouts-row-5", "workouts-row-4" }));
         });
+    }
+
+    [Test]
+    public void Totals_ShowInACardBetweenTheDateFieldAndTheFirstMonth()
+    {
+        var cut = Render(ThreeMonths, p => p.Add(x => x.Totals, new WorkoutTotals(3, 30, TimeSpan.FromMinutes(150), 0.5)));
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.FindAll("[data-testid=workout-totals]"), Has.Count.EqualTo(1));
+            Assert.That(cut.Find("[data-testid=workout-totals-workouts]").TextContent, Is.EqualTo("3"));
+            Assert.That(cut.Find("[data-testid=workout-totals-time]").TextContent, Is.EqualTo("2 h 30 min"));
+            Assert.That(cut.Find("[data-testid=workouts-dates]").CompareDocumentPosition(cut.Find("[data-testid=workout-totals]")),
+                Is.EqualTo(AngleSharp.Dom.DocumentPositions.Following));
+            Assert.That(cut.Find("[data-testid=workout-totals]").CompareDocumentPosition(cut.Find("h2.month-title")),
+                Is.EqualTo(AngleSharp.Dom.DocumentPositions.Following));
+        });
+    }
+
+    [Test]
+    public void NoTotals_ShowNoCardAndTheRows()
+    {
+        var cut = Render(ThreeMonths);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.FindAll("[data-testid=workout-totals]"), Is.Empty);
+            Assert.That(cut.FindAll("[data-testid^=workouts-row-]"), Has.Count.EqualTo(3));
+        });
+    }
+
+    [Test]
+    public void NothingInTheDates_ShowsNoCardEvenWithTotals()
+    {
+        var cut = Render(new DateSpan(new(2026, 9, 1), new(2026, 9, 30)), p => p.Add(x => x.Totals, new WorkoutTotals(0, 0, TimeSpan.Zero, 0)));
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.FindAll("[data-testid=workout-totals]"), Is.Empty);
+            Assert.That(cut.FindAll("[data-testid=workouts-none]"), Has.Count.EqualTo(1));
+        });
+    }
+
+    [Test]
+    public void NoWorkoutsYet_ShowsNoCardEvenWithTotals()
+    {
+        var cut = Context.Render<WorkoutsView>(p => p
+            .Add(x => x.History, new WorkoutHistory(new Dictionary<DateOnly, int>(), Today))
+            .Add(x => x.Totals, new WorkoutTotals(1, 1, TimeSpan.Zero, 1)));
+
+        Assert.That(cut.FindAll("[data-testid=workout-totals]"), Is.Empty);
     }
 
     [Test]
