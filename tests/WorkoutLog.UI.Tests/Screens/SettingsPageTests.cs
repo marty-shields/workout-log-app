@@ -11,7 +11,6 @@ using WorkoutLog.UI.Logging;
 using WorkoutLog.UI.Models.Settings;
 using WorkoutLog.UI.Screens;
 using WorkoutLog.UI.Sharing;
-using WorkoutLog.UI.Versioning;
 
 namespace WorkoutLog.UI.Tests.Screens;
 
@@ -35,7 +34,7 @@ public class SettingsPageTests : ComponentTestBase
         Context.Services.AddSingleton<IExportService>(export);
         share = new FakeFileShare();
         Context.Services.AddSingleton<IFileShare>(share);
-        Context.Services.AddSingleton<IAppVersion>(new FakeAppVersion());
+        Context.Services.AddSingleton<IExportEnvironment>(new FakeEnvironment());
         logger = new FakeLogger<SettingsPage>();
         Context.Services.AddSingleton<ILogger<SettingsPage>>(logger);
         lifecycle = new AppLifecycle(new FakeLogger<AppLifecycle>());
@@ -719,9 +718,11 @@ public class SettingsPageTests : ComponentTestBase
         public void CompleteExport(ExportResult result) => export.SetResult(result);
     }
 
-    private sealed class FakeAppVersion : IAppVersion
+    private sealed class FakeEnvironment : IExportEnvironment
     {
-        public string Current => "2.3.4";
+        public string AppVersion => "2.3.4";
+
+        public string CacheFolder => Path.GetTempPath();
     }
 
     /// <summary>Records each share; each waits until the test completes or fails it.</summary>

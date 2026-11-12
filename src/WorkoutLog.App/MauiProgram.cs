@@ -10,7 +10,6 @@ using WorkoutLog.App.Logging;
 using WorkoutLog.App.Navigation;
 using WorkoutLog.App.Sharing;
 using WorkoutLog.App.Timing;
-using WorkoutLog.App.Versioning;
 using WorkoutLog.Core;
 using WorkoutLog.Core.Logging;
 using WorkoutLog.Core.Services;
@@ -19,7 +18,6 @@ using WorkoutLog.UI.Haptics;
 using WorkoutLog.UI.Import;
 using WorkoutLog.UI.Lifecycle;
 using WorkoutLog.UI.Sharing;
-using WorkoutLog.UI.Versioning;
 
 namespace WorkoutLog.App;
 
@@ -36,7 +34,6 @@ public static class MauiProgram
         builder.Services.AddSingleton<IExportEnvironment, MauiExportEnvironment>();
         builder.Services.AddSingleton<IElapsedClock, AndroidElapsedClock>();
         builder.Services.AddSingleton<IFileShare, MauiFileShare>();
-        builder.Services.AddSingleton<IAppVersion, MauiAppVersion>();
         builder.Services.AddSingleton<IImportFilePicker, MauiImportFilePicker>();
         builder.Services.AddSingleton<IHaptics, AndroidHaptics>();
 
