@@ -31,7 +31,7 @@ public class EditWorkoutPageTests : ComponentTestBase
         new CardioExercise(300, new CardioEntry(new TimeSpan(0, 20, 0), 3.2m, null, null, 1.5m, null, null)),
     ]);
 
-    private static readonly WorkoutResult Loaded = new(Saved, WorkoutLoad.Loaded);
+    private static readonly WorkoutResult Loaded = Saved;
 
     /// <summary><see cref="Saved"/> with a workout note, and notes on the squat and the treadmill.</summary>
     private static readonly Workout SavedWithNotes = Saved with
@@ -336,7 +336,7 @@ public class EditWorkoutPageTests : ComponentTestBase
     {
         var cut = RenderPage();
 
-        workouts.Complete(new WorkoutResult(null, WorkoutLoad.NotFound));
+        workouts.Complete(new WorkoutNotFound());
         await WaitForRendererAsync();
 
         cut.WaitForAssertion(() => Assert.That(cut.FindAll("[data-testid=workout-not-found]"), Has.Count.EqualTo(1)));
@@ -347,7 +347,7 @@ public class EditWorkoutPageTests : ComponentTestBase
     public async Task LoadFails_ShowsTheErrorThenTryAgainReloads()
     {
         var cut = RenderPage();
-        workouts.Complete(new WorkoutResult(null, WorkoutLoad.Failed));
+        workouts.Complete(new ReadFailed());
         await WaitForRendererAsync();
         cut.WaitForAssertion(() => Assert.That(cut.FindAll("[data-testid=workout-load-error]"), Has.Count.EqualTo(1)));
 
@@ -370,12 +370,12 @@ public class EditWorkoutPageTests : ComponentTestBase
     public async Task TryAgain_FailsAgain_ShowsTheErrorAndFocusesTryAgainAgain()
     {
         var cut = RenderPage();
-        workouts.Complete(new WorkoutResult(null, WorkoutLoad.Failed));
+        workouts.Complete(new ReadFailed());
         await WaitForRendererAsync();
         cut.WaitForAssertion(() => Assert.That(Focuses(), Has.Count.EqualTo(1)));
 
         cut.Find("[data-testid=workout-load-retry]").Click();
-        workouts.Complete(new WorkoutResult(null, WorkoutLoad.Failed));
+        workouts.Complete(new ReadFailed());
         await WaitForRendererAsync();
 
         cut.WaitForAssertion(() => Assert.That(Focuses(), Has.Count.EqualTo(2)));
@@ -388,7 +388,7 @@ public class EditWorkoutPageTests : ComponentTestBase
     {
         var cut = RenderPage();
 
-        workouts.Complete(new WorkoutResult(null, WorkoutLoad.Failed));
+        workouts.Complete(new ReadFailed());
         await WaitForRendererAsync();
 
         cut.WaitForAssertion(() => Assert.That(cut.FindAll("[data-testid=workout-load-error]"), Has.Count.EqualTo(1)));
@@ -400,7 +400,7 @@ public class EditWorkoutPageTests : ComponentTestBase
     {
         var cut = RenderPage();
 
-        workouts.Complete(new WorkoutResult(Saved with { Exercises = [Saved.Exercises[0], new StrengthExercise(9999, [])] }, WorkoutLoad.Loaded));
+        workouts.Complete(Saved with { Exercises = [Saved.Exercises[0], new StrengthExercise(9999, [])] });
         await WaitForRendererAsync();
 
         cut.WaitForAssertion(() => Assert.That(cut.FindAll("[data-testid=workout-load-error]"), Has.Count.EqualTo(1)));
@@ -415,7 +415,7 @@ public class EditWorkoutPageTests : ComponentTestBase
     {
         var cut = RenderPage();
 
-        workouts.Complete(new WorkoutResult(Saved with { Exercises = [new CardioExercise(6, new CardioEntry(TimeSpan.FromMinutes(1), null, null, null, null, null, null))] }, WorkoutLoad.Loaded));
+        workouts.Complete(Saved with { Exercises = [new CardioExercise(6, new CardioEntry(TimeSpan.FromMinutes(1), null, null, null, null, null, null))] });
         await WaitForRendererAsync();
 
         cut.WaitForAssertion(() => Assert.That(cut.FindAll("[data-testid=workout-load-error]"), Has.Count.EqualTo(1)));
@@ -537,7 +537,7 @@ public class EditWorkoutPageTests : ComponentTestBase
                 await cut.InvokeAsync(BackButton.HandleAsync);
                 break;
             case "save failed":
-                workouts.Save = () => Task.FromResult(new SaveResult(null, new WorkoutErrors([WorkoutError.SaveFailed], [])));
+                workouts.Save = () => Task.FromResult<SaveResult>(new WorkoutErrors([WorkoutError.SaveFailed], []));
                 cut.Find("[data-testid=save-workout]").Click();
                 break;
         }
@@ -623,7 +623,7 @@ public class EditWorkoutPageTests : ComponentTestBase
     {
         var backs = 0;
         var cut = await RenderOpenedAsync(onBack: () => backs++);
-        workouts.Save = () => Task.FromResult(new SaveResult(null, new WorkoutErrors([WorkoutError.SaveFailed], [])));
+        workouts.Save = () => Task.FromResult<SaveResult>(new WorkoutErrors([WorkoutError.SaveFailed], []));
         Field(cut, "exercise-3-set-1-reps").Input("9");
         Field(cut, "exercise-3-set-1-weight").Input("20");
         cut.Find("[data-testid=save-workout]").Click();
@@ -648,13 +648,13 @@ public class EditWorkoutPageTests : ComponentTestBase
         Assert.That(backs, Is.EqualTo(1));
     }
 
-    [TestCase(WorkoutLoad.NotFound)]
-    [TestCase(WorkoutLoad.Failed)]
-    public async Task Back_NotLoaded_RaisesOnBack(WorkoutLoad status)
+    [TestCase(true)]
+    [TestCase(false)]
+    public async Task Back_NotLoaded_RaisesOnBack(bool notFound)
     {
         var backs = 0;
         var cut = RenderPage(onBack: () => backs++);
-        workouts.Complete(new WorkoutResult(null, status));
+        workouts.Complete(notFound ? new WorkoutNotFound() : new ReadFailed());
         await WaitForRendererAsync();
         cut.WaitForAssertion(() => Assert.That(cut.FindAll("[data-testid=workout-loading]"), Is.Empty));
 
@@ -1147,7 +1147,7 @@ public class EditWorkoutPageTests : ComponentTestBase
         var saved = 0;
         var cut = await RenderLoadedAsync(onSaved: () => saved++);
         var save = cut.Find("[data-testid=save-workout]").GetAttribute("blazor:elementreference");
-        workouts.Save = () => Task.FromResult(new SaveResult(null, new WorkoutErrors([WorkoutError.SaveFailed], [])));
+        workouts.Save = () => Task.FromResult<SaveResult>(new WorkoutErrors([WorkoutError.SaveFailed], []));
 
         cut.Find("[data-testid=save-workout]").Click();
 
@@ -1170,7 +1170,7 @@ public class EditWorkoutPageTests : ComponentTestBase
 
         cut.Find("[data-testid=save-workout]").Click();
         cut.Find("[data-testid=save-workout]").Click();
-        await cut.InvokeAsync(() => pending.SetResult(new SaveResult(Id, new WorkoutErrors([], []))));
+        await cut.InvokeAsync(() => pending.SetResult(new Saved(Id)));
         await WaitForRendererAsync();
 
         cut.WaitForAssertion(() => Assert.That(saved, Is.EqualTo(1)));
@@ -1186,7 +1186,7 @@ public class EditWorkoutPageTests : ComponentTestBase
 
         cut.Find("[data-testid=save-workout]").Click();
         cut.Find("[data-testid=save-workout]").Click();
-        await cut.InvokeAsync(() => pending.SetResult(new SaveResult(Id, new WorkoutErrors([], []))));
+        await cut.InvokeAsync(() => pending.SetResult(new Saved(Id)));
         await WaitForRendererAsync();
 
         cut.WaitForAssertion(() => Assert.That(Haptics.Played, Is.EqualTo(new[] { HapticCue.WorkoutSaved })));
@@ -1372,7 +1372,7 @@ public class EditWorkoutPageTests : ComponentTestBase
     public async Task Pick_ClearsTheWorkoutError()
     {
         var cut = await RenderLoadedAsync();
-        workouts.Save = () => Task.FromResult(new SaveResult(null, new WorkoutErrors([WorkoutError.SaveFailed], [])));
+        workouts.Save = () => Task.FromResult<SaveResult>(new WorkoutErrors([WorkoutError.SaveFailed], []));
         cut.Find("[data-testid=save-workout]").Click();
 
         Add(cut, 132);
@@ -1426,8 +1426,8 @@ public class EditWorkoutPageTests : ComponentTestBase
     [Test]
     public async Task Loaded_ReadsEachExercisesLastNoteBeforeTheWorkoutsStart()
     {
-        history.Results[6] = new WeightHistoryResult(70m, 80m, "Belt on from set 3", Failed: false);
-        history.Results[300] = new WeightHistoryResult(null, null, "Windy", Failed: false);
+        history.Results[6] = new ReadResult<ExerciseHistory>(new ExerciseHistory(70m, 80m, "Belt on from set 3"));
+        history.Results[300] = new ReadResult<ExerciseHistory>(new ExerciseHistory(null, null, "Windy"));
 
         var cut = await RenderOpenedAsync();
 
@@ -1444,7 +1444,7 @@ public class EditWorkoutPageTests : ComponentTestBase
     [Test]
     public async Task Loaded_FailedHistoryRead_ShowsNoLastNoteAndNoError()
     {
-        history.Results[6] = new WeightHistoryResult(null, null, null, Failed: true);
+        history.Results[6] = new ReadFailed();
 
         var cut = await RenderOpenedAsync();
 
@@ -1459,7 +1459,7 @@ public class EditWorkoutPageTests : ComponentTestBase
     [Test]
     public async Task Pick_ReadsTheLastNoteBeforeTheWorkoutsStartOnceForAnAddedExercise()
     {
-        history.Results[132] = new WeightHistoryResult(null, null, "Slow tempo", Failed: false);
+        history.Results[132] = new ReadResult<ExerciseHistory>(new ExerciseHistory(null, null, "Slow tempo"));
         var cut = await RenderLoadedAsync();
         history.Calls.Clear();
 
@@ -1593,7 +1593,7 @@ public class EditWorkoutPageTests : ComponentTestBase
     public async Task Save_Fails_WithNotes_ShowsTheSaveErrorKeepsTheNotesAndSavesThemOnRetry()
     {
         var cut = await RenderOpenedAsync(saved: SavedWithNotes);
-        workouts.Save = () => Task.FromResult(new SaveResult(null, new WorkoutErrors([WorkoutError.SaveFailed], [])));
+        workouts.Save = () => Task.FromResult<SaveResult>(new WorkoutErrors([WorkoutError.SaveFailed], []));
         cut.Find("[data-testid=save-workout]").Click();
         workouts.Save = null;
 
@@ -1748,7 +1748,7 @@ public class EditWorkoutPageTests : ComponentTestBase
     private async Task<IRenderedComponent<EditWorkoutPage>> RenderLoadedAsync(Action? onBack = null, Action? onSaved = null, Action? onDeleted = null, Workout? saved = null)
     {
         var cut = RenderPage(onBack, onSaved, onDeleted);
-        workouts.Complete(saved is null ? Loaded : new WorkoutResult(saved, WorkoutLoad.Loaded));
+        workouts.Complete(saved is null ? Loaded : saved);
         await WaitForRendererAsync();
         cut.WaitForAssertion(() => Assert.That(cut.FindAll("[data-testid=save-workout]"), Has.Count.EqualTo(1)));
         return cut;

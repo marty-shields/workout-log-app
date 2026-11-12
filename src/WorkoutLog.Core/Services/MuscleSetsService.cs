@@ -21,7 +21,7 @@ internal sealed partial class MuscleSetsService(
     private readonly Dictionary<int, ExerciseDefinition> definitions = catalog.All.ToDictionary(e => e.Id);
 
     /// <inheritdoc />
-    public async Task<MuscleSetsResult> GetAsync()
+    public async Task<ReadResult<IReadOnlyList<MuscleGroupCount>>> GetAsync()
     {
         IReadOnlyList<ExerciseSetCount> counts;
         try
@@ -34,7 +34,7 @@ internal sealed partial class MuscleSetsService(
         catch (Exception exception)
         {
             Log.LoadFailed(logger, exception);
-            return new MuscleSetsResult([], Failed: true);
+            return new ReadFailed();
         }
 
         var sets = Enum.GetValues<MuscleGroup>().ToDictionary(g => g, _ => 0);
@@ -60,7 +60,7 @@ internal sealed partial class MuscleSetsService(
         }
 
         Log.Loaded(logger, workouts.Count);
-        return new MuscleSetsResult(Enum.GetValues<MuscleGroup>().Select(g => new MuscleGroupCount(g, sets[g])).ToList(), Failed: false);
+        return Enum.GetValues<MuscleGroup>().Select(g => new MuscleGroupCount(g, sets[g])).ToList();
     }
 
     private static partial class Log

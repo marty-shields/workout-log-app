@@ -13,7 +13,7 @@ namespace WorkoutLog.Core.Services;
 internal sealed partial class WorkoutsService(IWorkoutRepository repository, TimeProvider clock, ILogger<WorkoutsService> logger) : IWorkoutsService
 {
     /// <inheritdoc />
-    public async Task<WorkoutsResult> GetBetweenAsync(DateOnly from, DateOnly to)
+    public async Task<ReadResult<IReadOnlyList<WorkoutSummary>>> GetBetweenAsync(DateOnly from, DateOnly to)
     {
         var zone = clock.LocalTimeZone;
         IReadOnlyList<WorkoutSummary> workouts;
@@ -24,15 +24,15 @@ internal sealed partial class WorkoutsService(IWorkoutRepository repository, Tim
         catch (Exception exception)
         {
             Log.LoadFailed(logger, exception);
-            return new WorkoutsResult([], Failed: true);
+            return new ReadFailed();
         }
 
         Log.Loaded(logger, workouts.Count);
-        return new WorkoutsResult(workouts, Failed: false);
+        return workouts;
     }
 
     /// <inheritdoc />
-    public async Task<WorkoutDaysResult> GetDaysAsync()
+    public async Task<ReadResult<IReadOnlyDictionary<DateOnly, int>>> GetDaysAsync()
     {
         IReadOnlyList<DateTimeOffset> starts;
         try
@@ -42,13 +42,13 @@ internal sealed partial class WorkoutsService(IWorkoutRepository repository, Tim
         catch (Exception exception)
         {
             Log.DaysLoadFailed(logger, exception);
-            return new WorkoutDaysResult(new Dictionary<DateOnly, int>(), Failed: true);
+            return new ReadFailed();
         }
 
         var zone = clock.LocalTimeZone;
         var perDay = starts.CountBy(start => DateOnly.FromDateTime(LocalWeek.Local(start, zone))).ToDictionary();
         Log.DaysLoaded(logger, starts.Count, perDay.Count);
-        return new WorkoutDaysResult(perDay, Failed: false);
+        return perDay;
     }
 
     private static partial class Log

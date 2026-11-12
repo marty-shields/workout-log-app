@@ -11,10 +11,10 @@ namespace WorkoutLog.UI.Tests;
 /// </summary>
 public sealed class FakeExerciseProgressService : IExerciseProgressService
 {
-    private readonly List<TaskCompletionSource<ExerciseProgressResult>> pending = [];
+    private readonly List<TaskCompletionSource<ReadResult<IReadOnlyList<StrengthSession>>>> pending = [];
 
     /// <summary>What each load returns.</summary>
-    public ExerciseProgressResult Result { get; set; } = new([], Failed: false);
+    public ReadResult<IReadOnlyList<StrengthSession>> Result { get; set; } = new ReadResult<IReadOnlyList<StrengthSession>>([]);
 
     /// <summary>What each lift summary returns for the sessions and range; no sessions or records by default.</summary>
     public Func<IReadOnlyList<StrengthSession>, HistoryRange, LiftProgress> Summary { get; set; } = (_, _) => new LiftProgress([], new LiftRecords(null, null));
@@ -55,7 +55,7 @@ public sealed class FakeExerciseProgressService : IExerciseProgressService
     public List<(IReadOnlyList<StrengthSession> Sessions, HistoryRange Range)> CarrySummaries { get; } = [];
 
     /// <inheritdoc />
-    public Task<ExerciseProgressResult> LoadAsync(int exerciseId)
+    public Task<ReadResult<IReadOnlyList<StrengthSession>>> LoadAsync(int exerciseId)
     {
         Loads.Add(exerciseId);
         if (!Hold)
@@ -63,7 +63,7 @@ public sealed class FakeExerciseProgressService : IExerciseProgressService
             return Task.FromResult(Result);
         }
 
-        var load = new TaskCompletionSource<ExerciseProgressResult>(TaskCreationOptions.RunContinuationsAsynchronously);
+        var load = new TaskCompletionSource<ReadResult<IReadOnlyList<StrengthSession>>>(TaskCreationOptions.RunContinuationsAsynchronously);
         pending.Add(load);
         return load.Task;
     }

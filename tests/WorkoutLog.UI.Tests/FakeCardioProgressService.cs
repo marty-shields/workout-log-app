@@ -10,10 +10,10 @@ namespace WorkoutLog.UI.Tests;
 /// </summary>
 public sealed class FakeCardioProgressService : ICardioProgressService
 {
-    private readonly List<TaskCompletionSource<CardioProgressResult>> pending = [];
+    private readonly List<TaskCompletionSource<ReadResult<IReadOnlyList<CardioSession>>>> pending = [];
 
     /// <summary>What each load returns.</summary>
-    public CardioProgressResult Result { get; set; } = new([], Failed: false);
+    public ReadResult<IReadOnlyList<CardioSession>> Result { get; set; } = new ReadResult<IReadOnlyList<CardioSession>>([]);
 
     /// <summary>What each summary returns for the sessions and range; no sessions or records by default.</summary>
     public Func<IReadOnlyList<CardioSession>, HistoryRange, CardioProgress> Summary { get; set; } =
@@ -29,7 +29,7 @@ public sealed class FakeCardioProgressService : ICardioProgressService
     public List<(IReadOnlyList<CardioSession> Sessions, HistoryRange Range)> Summaries { get; } = [];
 
     /// <inheritdoc />
-    public Task<CardioProgressResult> LoadAsync(int exerciseId)
+    public Task<ReadResult<IReadOnlyList<CardioSession>>> LoadAsync(int exerciseId)
     {
         Loads.Add(exerciseId);
         if (!Hold)
@@ -37,7 +37,7 @@ public sealed class FakeCardioProgressService : ICardioProgressService
             return Task.FromResult(Result);
         }
 
-        var load = new TaskCompletionSource<CardioProgressResult>(TaskCreationOptions.RunContinuationsAsynchronously);
+        var load = new TaskCompletionSource<ReadResult<IReadOnlyList<CardioSession>>>(TaskCreationOptions.RunContinuationsAsynchronously);
         pending.Add(load);
         return load.Task;
     }

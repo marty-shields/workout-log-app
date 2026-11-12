@@ -53,12 +53,12 @@ internal sealed partial class WorkoutService(
         var errors = validator.Validate(note, copy);
         if (!errors.IsValid)
         {
-            return new SaveResult(null, errors);
+            return errors;
         }
 
         var length = TimeSpan.FromTicks(Math.Max(1, Elapsed(draft).Ticks));
         var workout = new NewWorkout(draft.StartedAt, draft.StartedAt + length, copy, NoteText.Normalize(note));
-        return await WriteAsync(null, copy.Length, () => repository.AddAsync(workout), errors);
+        return await WriteAsync(null, copy.Length, () => repository.AddAsync(workout));
     }
 
     /// <inheritdoc />
@@ -72,17 +72,17 @@ internal sealed partial class WorkoutService(
         catch (Exception exception)
         {
             Log.LoadFailed(logger, workoutId, exception);
-            return new WorkoutResult(null, WorkoutLoad.Failed);
+            return new ReadFailed();
         }
 
         if (workout is null)
         {
             Log.NotFound(logger, workoutId);
-            return new WorkoutResult(null, WorkoutLoad.NotFound);
+            return new WorkoutNotFound();
         }
 
         Log.Loaded(logger, workoutId, workout.Exercises.Count);
-        return new WorkoutResult(workout, WorkoutLoad.Loaded);
+        return workout;
     }
 
     /// <inheritdoc />
@@ -92,14 +92,14 @@ internal sealed partial class WorkoutService(
         var errors = validator.Validate(note, copy);
         if (!errors.IsValid)
         {
-            return new SaveResult(null, errors);
+            return errors;
         }
 
         return await WriteAsync(workoutId, copy.Length, async () =>
         {
             await repository.ReplaceAsync(workoutId, NoteText.Normalize(note), copy);
             return workoutId;
-        }, errors);
+        });
     }
 
     /// <inheritdoc />
@@ -120,7 +120,7 @@ internal sealed partial class WorkoutService(
     }
 
     /// <summary>Runs <paramref name="write"/> and logs the outcome. <paramref name="workoutId"/> is null for a new workout.</summary>
-    private async Task<SaveResult> WriteAsync(int? workoutId, int exerciseCount, Func<Task<int>> write, WorkoutErrors errors)
+    private async Task<SaveResult> WriteAsync(int? workoutId, int exerciseCount, Func<Task<int>> write)
     {
         int savedId;
         try
@@ -138,7 +138,7 @@ internal sealed partial class WorkoutService(
                 Log.AddFailed(logger, exception);
             }
 
-            return new SaveResult(null, SaveFailed);
+            return SaveFailed;
         }
 
         if (workoutId is null)
@@ -150,7 +150,7 @@ internal sealed partial class WorkoutService(
             Log.Updated(logger, savedId, exerciseCount);
         }
 
-        return new SaveResult(savedId, errors);
+        return new Saved(savedId);
     }
 
     /// <summary>

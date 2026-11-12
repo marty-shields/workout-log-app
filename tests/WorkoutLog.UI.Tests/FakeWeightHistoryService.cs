@@ -6,15 +6,15 @@ namespace WorkoutLog.UI.Tests;
 public sealed class FakeWeightHistoryService : IWeightHistoryService
 {
     /// <summary>The result per exercise id; an exercise with none has no history.</summary>
-    public Dictionary<int, WeightHistoryResult> Results { get; } = [];
+    public Dictionary<int, ReadResult<ExerciseHistory>> Results { get; } = [];
 
     /// <summary>The exercise id and <c>before</c> of each read, in call order.</summary>
     public List<(int ExerciseId, DateTimeOffset? Before)> Calls { get; } = [];
 
     /// <inheritdoc />
-    public Task<WeightHistoryResult> GetAsync(int exerciseId, DateTimeOffset? before)
+    public Task<ReadResult<ExerciseHistory>> GetAsync(int exerciseId, DateTimeOffset? before)
     {
         Calls.Add((exerciseId, before));
-        return Task.FromResult(Results.GetValueOrDefault(exerciseId, new WeightHistoryResult(null, null, null, Failed: false)));
+        return Task.FromResult(Results.GetValueOrDefault(exerciseId, new ReadResult<ExerciseHistory>(new ExerciseHistory(null, null, null))));
     }
 }

@@ -8,10 +8,9 @@ public interface IExerciseProgressService
 {
     /// <summary>
     /// Returns every session of the exercise, by start time oldest first, its sets in order.
-    /// An id not in the exercise list, a cardio exercise or a failed read
-    /// returns <see cref="ExerciseProgressResult.Failed"/> and no sessions.
+    /// An id not in the exercise list or a cardio exercise returns <see cref="ReadFailed"/>, as a failed read does.
     /// </summary>
-    Task<ExerciseProgressResult> LoadAsync(int exerciseId);
+    Task<ReadResult<IReadOnlyList<StrengthSession>>> LoadAsync(int exerciseId);
 
     /// <summary>The lift sessions of <paramref name="sessions"/> in <paramref name="range"/>, each with its top set and e1RM, and their records.</summary>
     LiftProgress SummariseLift(IReadOnlyList<StrengthSession> sessions, HistoryRange range);

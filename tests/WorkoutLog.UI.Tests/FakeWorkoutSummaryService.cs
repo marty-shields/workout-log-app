@@ -8,10 +8,10 @@ namespace WorkoutLog.UI.Tests;
 /// </summary>
 public sealed class FakeWorkoutSummaryService : IWorkoutSummaryService
 {
-    private readonly List<TaskCompletionSource<WorkoutSummaryResult>> pending = [];
+    private readonly List<TaskCompletionSource<ReadResult<SavedWorkoutSummary>>> pending = [];
 
     /// <summary>What each load returns.</summary>
-    public WorkoutSummaryResult Result { get; set; } = new(null, Failed: true);
+    public ReadResult<SavedWorkoutSummary> Result { get; set; } = new ReadFailed();
 
     /// <summary>When true, loads wait for <see cref="Complete"/>.</summary>
     public bool Hold { get; set; }
@@ -20,7 +20,7 @@ public sealed class FakeWorkoutSummaryService : IWorkoutSummaryService
     public List<int> Loads { get; } = [];
 
     /// <inheritdoc />
-    public Task<WorkoutSummaryResult> GetAsync(int workoutId)
+    public Task<ReadResult<SavedWorkoutSummary>> GetAsync(int workoutId)
     {
         Loads.Add(workoutId);
         if (!Hold)
@@ -28,7 +28,7 @@ public sealed class FakeWorkoutSummaryService : IWorkoutSummaryService
             return Task.FromResult(Result);
         }
 
-        var load = new TaskCompletionSource<WorkoutSummaryResult>(TaskCreationOptions.RunContinuationsAsynchronously);
+        var load = new TaskCompletionSource<ReadResult<SavedWorkoutSummary>>(TaskCreationOptions.RunContinuationsAsynchronously);
         pending.Add(load);
         return load.Task;
     }

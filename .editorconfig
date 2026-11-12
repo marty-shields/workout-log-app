@@ -75,6 +75,18 @@ dotnet_diagnostic.CA1829.severity = none
 # CA1001: the Android dispatcher owns the back callback and removes it, so this class must not dispose it.
 dotnet_diagnostic.CA1001.severity = none
 
+[src/WorkoutLog.UI/Theme/ThemeService.cs]
+# BL0016: SettingsPage, the only caller, catches a failed call. The service lets it through so the page can tell a failed call from a refused save (false).
+dotnet_diagnostic.BL0016.severity = none
+
+[tests/WorkoutLog.UI.Tests/Components/Feedback/SnackbarTests.cs]
+# BL0016: the fake IJSRuntime's InvokeAsync overload forwards to its other overload, which is no JS call.
+dotnet_diagnostic.BL0016.severity = none
+
+[tests/WorkoutLog.UI.Tests/Theme/SystemBarInsetWriterTests.cs]
+# BL0016: the fake IJSRuntime's InvokeAsync overload forwards to its other overload, which is no JS call.
+dotnet_diagnostic.BL0016.severity = none
+
 [src/WorkoutLog.Core/Data/DatabaseGate.cs]
 # CA1001: one gate lives for the whole process and its semaphore never allocates a wait handle, so there is nothing to release.
 dotnet_diagnostic.CA1001.severity = none

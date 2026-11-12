@@ -119,6 +119,7 @@
     private IJSObjectReference? module;
     private Dictionary<string, string> values = [];
 
+    #pragma warning disable BL0016 // A story whose script fails should fail loudly in the browser, not be caught.
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (!firstRender)
@@ -130,6 +131,7 @@
         values = await module.InvokeAsync<Dictionary<string, string>>("read", sheet);
         StateHasChanged();
     }
+    #pragma warning restore BL0016
 
     public async ValueTask DisposeAsync()
     {

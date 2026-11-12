@@ -103,12 +103,12 @@ internal sealed partial class ImportService(
         catch (Exception exception)
         {
             Log.WriteFailed(logger, exception);
-            return new ImportResult(ImportStatus.Failed, 0, 0, 0);
+            return new ImportFailed();
         }
 
         var how = mode == ImportMode.ReplaceAll ? $"{mode}" : $"{mode} and {different}";
         Log.Imported(logger, how, review.New, review.Already, review.Different, review.Skipped);
-        return new ImportResult(ImportStatus.Imported, added.Count, replaced.Count, review.Skipped);
+        return new Imported(added.Count, replaced.Count, review.Skipped);
     }
 
     private ImportReview Group(string fileName, IReadOnlyList<ImportWorkout> workouts, IReadOnlyList<Workout> saved)

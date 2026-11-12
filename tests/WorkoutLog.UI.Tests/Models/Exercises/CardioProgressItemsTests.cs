@@ -1,3 +1,4 @@
+using System.Globalization;
 using WorkoutLog.Core.Domain;
 using WorkoutLog.Core.Domain.Exercises;
 using WorkoutLog.Core.Domain.Exercises.Progress;
@@ -83,19 +84,19 @@ public class CardioProgressItemsTests
             Assert.That(CardioProgressItems.Caption(tab), Is.EqualTo(caption));
         });
 
-    [TestCase("distance", new object?[] { null, 5.2 })]
-    [TestCase("duration", new object?[] { 1500.0, 1800.0 })]
-    [TestCase("pace", new object?[] { null, 346.5 })]
-    [TestCase("speed", new object?[] { null, 10.4 })]
-    [TestCase("floors", new object?[] { 42.0, null })]
-    [TestCase("calories", new object?[] { 300.0, 410.0 })]
+    [TestCase("distance", new object?[] { null, "5.2" })]
+    [TestCase("duration", new object?[] { "1500", "1800" })]
+    [TestCase("pace", new object?[] { null, "346.5" })]
+    [TestCase("speed", new object?[] { null, "10.4" })]
+    [TestCase("floors", new object?[] { "42", null })]
+    [TestCase("calories", new object?[] { "300", "410" })]
     public void Points_AreOnePerSessionOldestFirst_TimesInSeconds_NoValueWhenNotLogged(string tab, object?[] values)
     {
         var progress = Progress(
             Session(1, Now.AddDays(-20), new CardioBest(null, TimeSpan.FromMinutes(25), null, null, 42, 300)),
             Session(2, Now.AddDays(-10), new CardioBest(5.2m, TimeSpan.FromMinutes(30), TimeSpan.FromSeconds(346.5), 10.4m, null, 410)));
 
-        Assert.That(CardioProgressItems.Points(progress, tab, TimeZoneInfo.Utc, Now).Select(p => p.Value), Is.EqualTo(values.Select(v => v is double d ? (decimal?)d : null)));
+        Assert.That(CardioProgressItems.Points(progress, tab, TimeZoneInfo.Utc, Now).Select(p => p.Value), Is.EqualTo(values.Select(v => v is string s ? decimal.Parse(s, CultureInfo.InvariantCulture) : (decimal?)null)));
     }
 
     [Test]

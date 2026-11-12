@@ -8,7 +8,7 @@
 
 [![Latest release](https://img.shields.io/github/v/release/marty-shields/workout-log-app?label=release)](https://github.com/marty-shields/workout-log-app/releases/latest)
 ![Android 16](https://img.shields.io/badge/Android-16_(API_36)-34A853?logo=android&logoColor=white)
-![.NET 10](https://img.shields.io/badge/.NET-10-512BD4?logo=dotnet&logoColor=white)
+![.NET 11](https://img.shields.io/badge/.NET-11-512BD4?logo=dotnet&logoColor=white)
 ![MAUI Blazor Hybrid](https://img.shields.io/badge/MAUI-Blazor_Hybrid-512BD4?logo=blazor&logoColor=white)
 ![SQLite](https://img.shields.io/badge/SQLite-on_device-003B57?logo=sqlite&logoColor=white)
 [![Stories site](https://img.shields.io/badge/stories-GitHub_Pages-305252?logo=storybook&logoColor=white)](https://marty-shields.github.io/workout-log-app/)
@@ -178,7 +178,7 @@ Workout Log is sideloaded: it isn't on Google Play.
 
 | Area | Choice |
 |---|---|
-| App | [.NET MAUI Blazor Hybrid](https://learn.microsoft.com/dotnet/maui/user-interface/controls/blazorwebview) on .NET 10: Razor components in a native Android shell |
+| App | [.NET MAUI Blazor Hybrid](https://learn.microsoft.com/dotnet/maui/user-interface/controls/blazorwebview) on .NET 11: Razor components in a native Android shell |
 | Platform | Android 16 (API 36), sideloaded |
 | Data | SQLite via sqlite-net-pcl, on the device |
 | Design system | Design tokens, components and screens, documented in a [BlazingStory](https://github.com/jsakamoto/BlazingStory) stories site, [published on GitHub Pages](https://marty-shields.github.io/workout-log-app/) |
@@ -204,7 +204,7 @@ tests/
 
 ## Getting started
 
-You need the .NET 10 SDK with the `maui-android` workload. The full setup, including the Android SDK and the phone, is in [Dev setup & build](docs/dev-setup-build.md).
+You need the .NET 11 SDK with the `maui-android` workload. The full setup, including the Android SDK and the phone, is in [Dev setup & build](docs/dev-setup-build.md).
 
 ```powershell
 # Build (warnings fail the build)
@@ -218,7 +218,7 @@ dotnet test tests/WorkoutLog.UI.Tests
 dotnet run --project src/WorkoutLog.UI.Stories
 
 # Run on a connected Android phone
-dotnet build src/WorkoutLog.App -t:Run -f net10.0-android
+dotnet build src/WorkoutLog.App -t:Run -f net11.0-android
 ```
 
 The end-to-end tests need a connected device or an emulator: see [E2E tests](docs/e2e-tests.md).

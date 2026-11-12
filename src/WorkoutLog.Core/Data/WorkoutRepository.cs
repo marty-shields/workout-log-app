@@ -136,7 +136,7 @@ internal sealed class WorkoutRepository(SQLiteAsyncConnection connection, Workou
             """;
         var rows = await connection.QueryAsync<WeightRow>(sql, exerciseId, before?.UtcTicks);
         return rows.GroupBy(r => r.WorkoutId)
-            .Select(g => new WorkoutWeights(g.Key, g.Where(r => r.WeightKg is not null).Select(r => r.WeightKg!.Value).ToList(), g.First().Note))
+            .Select(g => new WorkoutWeights(g.Key, g.Where(r => r.WeightKg is not null).Select(r => Real.ToDecimal(r.WeightKg!.Value)).ToList(), g.First().Note))
             .ToList();
     }
 
@@ -253,10 +253,10 @@ internal sealed class WorkoutRepository(SQLiteAsyncConnection connection, Workou
             ? new CardioExercise(exerciseId, ToEntry(entry), note)
             : new StrengthExercise(exerciseId, sets[id].Select(ToSet).ToList(), note);
 
-    private static StrengthSet ToSet(StrengthSetRow row) => new(row.Reps, row.WeightKg, row.Duration, row.Distance);
+    private static StrengthSet ToSet(StrengthSetRow row) => new(row.Reps, Real.ToDecimal(row.WeightKg), row.Duration, Real.ToDecimal(row.Distance));
 
     private static CardioEntry ToEntry(CardioEntryRow row) =>
-        new(row.Duration, row.Distance, row.Floors, row.Level, row.Incline, row.Calories, row.Rate);
+        new(row.Duration, Real.ToDecimal(row.Distance), row.Floors, row.Level, Real.ToDecimal(row.Incline), row.Calories, Real.ToDecimal(row.Rate));
 
     /// <summary>One set's weight with its workout id and the exercise's note; null weight for a set without one or an exercise without sets.</summary>
     private sealed class WeightRow
@@ -265,7 +265,7 @@ internal sealed class WorkoutRepository(SQLiteAsyncConnection connection, Workou
 
         public string? Note { get; set; }
 
-        public decimal? WeightKg { get; set; }
+        public double? WeightKg { get; set; }
     }
 
     /// <summary>A workout's times, in UTC ticks, with one of its exercise ids; null for a workout without exercises.</summary>

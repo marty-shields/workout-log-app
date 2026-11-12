@@ -3,7 +3,7 @@ Running the E2E suite on a phone or an emulator, and where the results go. Set u
 
 ## Each run
 1. Connect the device and unlock it; keep it unlocked (Developer options → **Stay awake** helps). A locked device fails each test.
-2. Build the App: `dotnet build src/WorkoutLog.App -f net10.0-android`. The tests install this APK; they don't build it. Build and test from the same commit.
+2. Build the App: `dotnet build src/WorkoutLog.App -f net11.0-android`. The tests install this APK; they don't build it. Build and test from the same commit.
 3. Run the tests: every scenario the Debug app runs (all but `@upgrade` and `@backup`, see [Tags](#tags)), the smoke scenarios, one feature's:
    ```
    dotnet test tests/WorkoutLog.E2E.Tests --filter "Category!=upgrade&Category!=backup"
@@ -34,8 +34,8 @@ Run settings choose the build under test. The Debug app is the default.
 
 `e2e-run.sh` (and so `e2e-local.sh`) passes these from `E2E_APP_PACKAGE`, `E2E_APP_APK` and `E2E_PREVIOUS_APK`. With `E2E_PREVIOUS_APK` set, `e2e-local.sh` runs `upgrade-e2e.sh` instead, and the filter must be `Category=upgrade`:
 ```
-dotnet restore src/WorkoutLog.App
-dotnet publish src/WorkoutLog.App -c Release -f net10.0-android -p:AndroidPackageFormat=apk -r android-x64 --no-restore -o <folder>
+dotnet restore src/WorkoutLog.App -p:Configuration=Release
+dotnet publish src/WorkoutLog.App -c Release -f net11.0-android -p:AndroidPackageFormat=apk -r android-x64 --no-restore -o <folder>
 E2E_APP_PACKAGE=uk.martinshields.workoutlog E2E_APP_APK=<folder>/uk.martinshields.workoutlog-Signed.apk \
   .github/scripts/e2e-local.sh "Category=release|Category=backup"
 

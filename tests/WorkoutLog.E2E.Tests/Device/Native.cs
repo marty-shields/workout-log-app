@@ -1,3 +1,5 @@
+using System.Globalization;
+using System.Text.RegularExpressions;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Appium.Android;
 using OpenQA.Selenium.Appium.Android.Enums;
@@ -8,9 +10,10 @@ using WorkoutLog.E2E.Tests.Screens;
 namespace WorkoutLog.E2E.Tests.Device;
 
 /// <summary>
-/// Android itself: back, the soft keyboard, the share sheet, the file picker and the app's state. Appium runs these on the device from either context.
+/// Android itself: back, the soft keyboard, the share sheet, the file picker, the app's state, the phone's dark theme and the status bar.
+/// Appium runs these on the device from either context.
 /// </summary>
-public sealed class Native(WebView web)
+public sealed partial class Native(WebView web)
 {
     internal const string NativeApp = "NATIVE_APP";
     internal static string WebView => AppiumSetup.App.WebViewContext;
@@ -145,6 +148,65 @@ public sealed class Native(WebView web)
     /// <summary>Sends the app to the background for <paramref name="time"/>, then brings it back.</summary>
     public void Background(TimeSpan time) => App.BackgroundApp(time);
 
+    /// <summary>Sets the phone's dark theme to a <c>cmd uimode night</c> value (yes, no or auto) and returns the value it replaced.</summary>
+    public static string SetDarkTheme(string night)
+    {
+        var replaced = AppiumSetup.Adb.Shell("cmd", "uimode", "night").Replace("Night mode: ", "", StringComparison.Ordinal);
+        AppiumSetup.Adb.Shell("cmd", "uimode", "night", night);
+        return replaced;
+    }
+
+    /// <summary>
+    /// The colour of the status bar's icons over the app: dark when a status bar appearance region in <c>dumpsys window</c>
+    /// asks for LIGHT_STATUS_BARS (icons for a light surface), otherwise light. Android prints the regions in every theme,
+    /// unlike <c>mLastAppearance</c>, which it leaves out when no flag is set; a dump without them is not read as light.
+    /// </summary>
+    public static string StatusBarIcons()
+    {
+        var window = AppiumSetup.Adb.Shell("dumpsys", "window");
+        if (!HasFocus(window))
+        {
+            return "not over the app";
+        }
+
+        var regions = window.Split('\n')
+            .SkipWhile(line => !line.Contains("mLastStatusBarAppearanceRegions=", StringComparison.Ordinal))
+            .Skip(1)
+            .TakeWhile(line => line.TrimStart().StartsWith("AppearanceRegion{", StringComparison.Ordinal))
+            .ToList();
+        if (regions.Count == 0)
+        {
+            return "unknown: dumpsys window has no status bar appearance regions";
+        }
+
+        return regions.Any(region => region.Contains("LIGHT_STATUS_BARS", StringComparison.Ordinal)) ? "dark" : "light";
+    }
+
+    /// <summary>
+    /// The screen rows the system bars cover, in device pixels, from the visible inset sources in <c>dumpsys window</c>:
+    /// the row where the status bar and camera cutout end at the top, and the row where the navigation bar starts at the bottom.
+    /// Null when the dump lacks either.
+    /// </summary>
+    public static (int TopEnd, int BottomStart)? SystemBars()
+    {
+        var sources = AppiumSetup.Adb.Shell("dumpsys", "window").Split('\n')
+            .Select(line => InsetsSource().Match(line))
+            .Where(match => match.Success)
+            .Select(match => (Type: match.Groups["type"].Value, Top: int.Parse(match.Groups["top"].Value, CultureInfo.InvariantCulture),
+                Bottom: int.Parse(match.Groups["bottom"].Value, CultureInfo.InvariantCulture)))
+            .ToList();
+        var top = sources.Where(s => s.Type != "navigationBars" && s.Top == 0).Select(s => s.Bottom).DefaultIfEmpty().Max();
+        var bottom = sources.Where(s => s.Type == "navigationBars" && s.Top > 0).Select(s => s.Top).DefaultIfEmpty().Min();
+        return top > 0 && bottom > 0 ? (top, bottom) : null;
+    }
+
+    [GeneratedRegex(@"InsetsSource id=\S+ type=(?<type>statusBars|displayCutout|navigationBars) frame=\[\d+,(?<top>\d+)\]\[\d+,(?<bottom>\d+)\] visible=true")]
+    private static partial Regex InsetsSource();
+
+    /// <summary>Whether the app's window has the focus, in <c>dumpsys window</c>'s output.</summary>
+    private static bool HasFocus(string window) =>
+        window.Split('\n').Any(line => line.Contains("mCurrentFocus", StringComparison.Ordinal) && line.Contains(AppiumSetup.App.Package, StringComparison.Ordinal));
+
     /// <summary>
     /// Turns the screen off with the power key, wakes it and dismisses the keyguard, as a user locks and unlocks the phone.
     /// Waits until the app's window lost the focus, so the app really paused, and until it has the focus again; the page then settles.
@@ -153,8 +215,7 @@ public sealed class Native(WebView web)
     public void LockAndUnlock()
     {
         var adb = AppiumSetup.Adb;
-        var package = AppiumSetup.App.Package;
-        bool AppHasFocus() => adb.Shell("dumpsys", "window").Split('\n').Any(line => line.Contains("mCurrentFocus", StringComparison.Ordinal) && line.Contains(package, StringComparison.Ordinal));
+        static bool AppHasFocus() => HasFocus(AppiumSetup.Adb.Shell("dumpsys", "window"));
 
         adb.Shell("input", "keyevent", "KEYCODE_SLEEP");
         web.WaitUntil(() => adb.Shell("dumpsys", "power") is var power && (power.Contains("mWakefulness=Asleep", StringComparison.Ordinal) || power.Contains("mWakefulness=Dozing", StringComparison.Ordinal)), "the screen didn't turn off", LaunchTimeout);

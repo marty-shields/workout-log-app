@@ -59,8 +59,8 @@ public class ExportServiceTests
 
         var result = await service.ExportAsync();
 
-        Assert.That(result, Is.EqualTo(new ExportResult(ExportStatus.Exported, Path.Combine(folder, FileName))));
-        Assert.That(await File.ReadAllTextAsync(result.FilePath!), Is.EqualTo(Header +
+        Assert.That(result.Value, Is.EqualTo(new ExportedFile(Path.Combine(folder, FileName))));
+        Assert.That(await File.ReadAllTextAsync(PathOf(result)), Is.EqualTo(Header +
             """[{"startedAt":"2026-10-21T17:05:00.1234567Z","finishedAt":"2026-10-21T18:02:41.7654321Z","exercises":[""" +
             """{"exercise":{"id":8,"name":"Barbell Bench Press","type":"Strength"},"sets":[{"reps":8,"weightKg":60},{"reps":6,"weightKg":62.5}]},""" +
             """{"exercise":{"id":311,"name":"Outdoor Run","type":"Cardio","distanceUnit":"Km","paceUnit":"PerKm"},"entry":{"duration":"00:30:00","distance":5.2}}]}]}"""));
@@ -97,7 +97,7 @@ public class ExportServiceTests
 
         var result = await service.ExportAsync();
 
-        Assert.That(await File.ReadAllTextAsync(result.FilePath!), Is.EqualTo(Header +
+        Assert.That(await File.ReadAllTextAsync(PathOf(result)), Is.EqualTo(Header +
             """[{"startedAt":"2026-10-21T17:05:00.1234567Z","finishedAt":"2026-10-21T18:02:41.7654321Z","note":"Felt strong","exercises":[""" +
             """{"exercise":{"id":8,"name":"Barbell Bench Press","type":"Strength"},"note":"Grip \"slipped\"\non set 2","sets":[{"reps":8,"weightKg":60}]},""" +
             """{"exercise":{"id":311,"name":"Outdoor Run","type":"Cardio","distanceUnit":"Km","paceUnit":"PerKm"},"entry":{"duration":"00:30:00","distance":5.2}},""" +
@@ -131,7 +131,7 @@ public class ExportServiceTests
 
         var result = await service.ExportAsync();
 
-        Assert.That(await File.ReadAllTextAsync(result.FilePath!), Does.Contain(
+        Assert.That(await File.ReadAllTextAsync(PathOf(result)), Does.Contain(
             """exercises":[{"exercise":{"id":999},"sets":[{"reps":5,"weightKg":0}]},{"exercise":{"id":998},"entry":{"duration":"00:01:00"}}]}"""));
         Assert.That(LoggedEvents.Of(logger), Is.EqualTo(new[]
         {
@@ -148,7 +148,7 @@ public class ExportServiceTests
             new Workout(5, Start, Finish, [new StrengthExercise(13, [new StrengthSet(1, 0m, null, null)]), new StrengthExercise(8, [new StrengthSet(2, 0m, null, null)])]),
             new Workout(2, Start.AddDays(1), Finish.AddDays(1), []));
 
-        var json = await File.ReadAllTextAsync((await service.ExportAsync()).FilePath!);
+        var json = await File.ReadAllTextAsync(PathOf(await service.ExportAsync()));
 
         Assert.That(json, Is.EqualTo(Header +
             """[{"startedAt":"2026-10-21T17:05:00.1234567Z","finishedAt":"2026-10-21T18:02:41.7654321Z","exercises":[""" +
@@ -162,7 +162,7 @@ public class ExportServiceTests
     {
         Workouts();
 
-        Assert.That(await File.ReadAllTextAsync((await service.ExportAsync()).FilePath!), Is.EqualTo(Header + "[]}"));
+        Assert.That(await File.ReadAllTextAsync(PathOf(await service.ExportAsync())), Is.EqualTo(Header + "[]}"));
     }
 
     [Test]
@@ -172,7 +172,7 @@ public class ExportServiceTests
         time.SetUtcNow(Now.ToOffset(offset));
         Workouts(new Workout(1, Start.ToOffset(offset), Finish.ToOffset(offset), []));
 
-        var json = await File.ReadAllTextAsync((await service.ExportAsync()).FilePath!);
+        var json = await File.ReadAllTextAsync(PathOf(await service.ExportAsync()));
 
         Assert.That(json, Does.StartWith(Header + """[{"startedAt":"2026-10-21T17:05:00.1234567Z","finishedAt":"2026-10-21T18:02:41.7654321Z","""));
     }
@@ -185,8 +185,8 @@ public class ExportServiceTests
 
         var result = await service.ExportAsync();
 
-        Assert.That(result.FilePath, Is.EqualTo(Path.Combine(folder, "workout-log-2026-10-27-0405.json")));
-        Assert.That(File.Exists(result.FilePath), Is.True);
+        Assert.That(PathOf(result), Is.EqualTo(Path.Combine(folder, "workout-log-2026-10-27-0405.json")));
+        Assert.That(File.Exists(PathOf(result)), Is.True);
     }
 
     [Test]
@@ -197,7 +197,7 @@ public class ExportServiceTests
 
         var result = await service.ExportAsync();
 
-        Assert.That(await File.ReadAllTextAsync(result.FilePath!), Is.EqualTo(Header + "[]}"));
+        Assert.That(await File.ReadAllTextAsync(PathOf(result)), Is.EqualTo(Header + "[]}"));
     }
 
     [Test]
@@ -211,7 +211,7 @@ public class ExportServiceTests
 
         Assert.That(earlier.Any(File.Exists), Is.False);
         Assert.That(others.All(File.Exists), Is.True);
-        Assert.That(Directory.GetFiles(folder, ExportFormat.FilePattern), Is.EqualTo(new[] { result.FilePath }));
+        Assert.That(Directory.GetFiles(folder, ExportFormat.FilePattern), Is.EqualTo(new[] { PathOf(result) }));
     }
 
     [Test]
@@ -247,8 +247,8 @@ public class ExportServiceTests
 
         var result = await service.ExportAsync();
 
-        Assert.That(result.Status, Is.EqualTo(ExportStatus.Exported));
-        Assert.That(new FileInfo(result.FilePath!).Length, Is.EqualTo(5_242_880));
+        Assert.That(result.Value, Is.InstanceOf<ExportedFile>());
+        Assert.That(new FileInfo(PathOf(result)).Length, Is.EqualTo(5_242_880));
     }
 
     [Test]
@@ -259,7 +259,7 @@ public class ExportServiceTests
 
         var result = await service.ExportAsync();
 
-        Assert.That(result, Is.EqualTo(new ExportResult(ExportStatus.TooLarge, null)));
+        Assert.That(result.Value, Is.InstanceOf<ExportTooLarge>());
         Assert.That(Directory.GetFiles(folder), Is.Empty);
         Assert.That(LoggedEvents.Of(logger), Is.EqualTo(new[]
         {
@@ -286,7 +286,7 @@ public class ExportServiceTests
 
         var result = await service.ExportAsync();
 
-        Assert.That(result, Is.EqualTo(new ExportResult(ExportStatus.Failed, null)));
+        Assert.That(result.Value, Is.InstanceOf<ExportFailed>());
         Assert.That(LoggedEvents.Of(logger), Is.EqualTo(new[] { (CoreEvent.ExportFailed, LogLevel.Error, "Exporting the workouts failed") }));
         Assert.That(logger.LatestRecord.Exception, Is.SameAs(exception));
     }
@@ -299,7 +299,7 @@ public class ExportServiceTests
 
         var result = await service.ExportAsync();
 
-        Assert.That(result, Is.EqualTo(new ExportResult(ExportStatus.Failed, null)));
+        Assert.That(result.Value, Is.InstanceOf<ExportFailed>());
         Assert.That(LoggedEvents.Of(logger), Is.EqualTo(new[] { (CoreEvent.ExportFailed, LogLevel.Error, "Exporting the workouts failed") }));
         Assert.That(logger.LatestRecord.Exception, Is.InstanceOf<DirectoryNotFoundException>());
     }
@@ -311,7 +311,7 @@ public class ExportServiceTests
         repository.Setup(r => r.ListAsync(null, null, null))
             .ReturnsAsync(Enumerable.Range(1, count).Select(id => new WorkoutSummary(id, Start.AddDays(id))).ToList());
 
-        Assert.That(await service.CountAsync(), Is.EqualTo(new ExportCount(count, Failed: false)));
+        Assert.That((await service.CountAsync()).Loaded(), Is.EqualTo(count));
         Assert.That(LoggedEvents.Of(logger), Is.Empty);
     }
 
@@ -321,7 +321,7 @@ public class ExportServiceTests
         var exception = new InvalidOperationException("disk");
         repository.Setup(r => r.ListAsync(null, null, null)).ThrowsAsync(exception);
 
-        Assert.That(await service.CountAsync(), Is.EqualTo(new ExportCount(0, Failed: true)));
+        Assert.That((await service.CountAsync()).Value, Is.InstanceOf<ReadFailed>());
         Assert.That(LoggedEvents.Of(logger), Is.EqualTo(new[] { (CoreEvent.ExportCountFailed, LogLevel.Error, "Counting the workouts to export failed") }));
         Assert.That(logger.LatestRecord.Exception, Is.SameAs(exception));
     }
@@ -342,7 +342,7 @@ public class ExportServiceTests
     /// <summary>The exercises of the only workout in the exported file, without the surrounding brackets.</summary>
     private async Task<string> ExerciseJson()
     {
-        var json = await File.ReadAllTextAsync((await service.ExportAsync()).FilePath!);
+        var json = await File.ReadAllTextAsync(PathOf(await service.ExportAsync()));
         const string before = "\"exercises\":[";
         var start = json.IndexOf(before, StringComparison.Ordinal) + before.Length;
         return json[start..^"]}]}".Length];
@@ -354,4 +354,7 @@ public class ExportServiceTests
         var unpadded = Encoding.UTF8.GetByteCount(Header.Replace("1.4.0", "") + "[]}");
         environment.SetupGet(e => e.AppVersion).Returns(new string('9', bytes - unpadded));
     }
+
+    private static string PathOf(ExportResult result) =>
+        result is ExportedFile file ? file.FilePath : throw new AssertionException($"Expected an exported file, but the export returned {result.Value}.");
 }

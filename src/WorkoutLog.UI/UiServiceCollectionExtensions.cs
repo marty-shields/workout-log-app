@@ -22,5 +22,6 @@ public static class UiServiceCollectionExtensions
             .AddSingleton<IWorkoutChecker, WorkoutChecker>()
             .AddSingleton<LastTimeLoader>()
             .AddScoped<ThemeService>()
+            .AddScoped<SystemBarInsetWriter>()
             .AddTransient<WorkoutEditor>();
 }

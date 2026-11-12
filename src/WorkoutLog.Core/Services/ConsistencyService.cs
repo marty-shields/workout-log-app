@@ -15,9 +15,9 @@ internal sealed partial class ConsistencyService(
     ILogger<ConsistencyService> logger) : IConsistencyService
 {
     /// <inheritdoc />
-    public async Task<ConsistencyResult> GetAsync()
+    public async Task<ReadResult<WeeklyConsistency>> GetAsync()
     {
-        ConsistencyResult result;
+        WeeklyConsistency result;
         int workouts;
         try
         {
@@ -25,13 +25,13 @@ internal sealed partial class ConsistencyService(
             var zone = time.LocalTimeZone;
             var tallies = await repository.ListTalliesAsync(DateTimeOffset.MinValue, now);
             var weekCounts = barsRule.Count(tallies, now, zone);
-            result = new ConsistencyResult(comparisonRule.Compare(tallies, now, zone), weekCounts, streakRule.Streak(tallies.Select(w => w.StartedAt), now, zone), Failed: false);
+            result = new WeeklyConsistency(comparisonRule.Compare(tallies, now, zone), weekCounts, streakRule.Streak(tallies.Select(w => w.StartedAt), now, zone));
             workouts = weekCounts.Sum();
         }
         catch (Exception exception)
         {
             Log.LoadFailed(logger, exception);
-            return ConsistencyResult.FailedRead;
+            return new ReadFailed();
         }
 
         Log.Loaded(logger, workouts, result.Streak);

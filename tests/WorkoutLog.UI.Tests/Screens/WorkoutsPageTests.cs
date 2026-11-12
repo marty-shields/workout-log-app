@@ -14,25 +14,24 @@ public class WorkoutsPageTests : ComponentTestBase
 {
     private static readonly DateOnly Today = new(2026, 11, 6);
 
-    private static readonly WorkoutDaysResult TwoYears = new(new Dictionary<DateOnly, int>
+    private static readonly ReadResult<IReadOnlyDictionary<DateOnly, int>> TwoYears = new ReadResult<IReadOnlyDictionary<DateOnly, int>>(new Dictionary<DateOnly, int>
     {
         [new DateOnly(2026, 11, 2)] = 1,
         [new DateOnly(2026, 7, 6)] = 1,
         [new DateOnly(2025, 3, 12)] = 2,
-    }, Failed: false);
+    });
 
-    private static readonly WorkoutDaysResult OneMore = new(new Dictionary<DateOnly, int>(TwoYears.PerDay)
+    private static readonly ReadResult<IReadOnlyDictionary<DateOnly, int>> OneMore = new ReadResult<IReadOnlyDictionary<DateOnly, int>>(new Dictionary<DateOnly, int>(TwoYears.Loaded())
     {
         [new DateOnly(2026, 11, 5)] = 1,
-    }, Failed: false);
+    });
 
-    private static readonly WorkoutsResult Recent = new([new WorkoutSummary(4, new DateTimeOffset(2026, 11, 2, 17, 0, 0, TimeSpan.Zero))], Failed: false);
+    private static readonly ReadResult<IReadOnlyList<WorkoutSummary>> Recent = new ReadResult<IReadOnlyList<WorkoutSummary>>([new WorkoutSummary(4, new DateTimeOffset(2026, 11, 2, 17, 0, 0, TimeSpan.Zero))]);
 
-    private static readonly WorkoutsResult RecentAndYesterday = new(
-    [
+    private static readonly ReadResult<IReadOnlyList<WorkoutSummary>> RecentAndYesterday = new ReadResult<IReadOnlyList<WorkoutSummary>>([
         new WorkoutSummary(5, new DateTimeOffset(2026, 11, 5, 17, 0, 0, TimeSpan.Zero)),
-        .. Recent.Workouts,
-    ], Failed: false);
+        .. Recent.Loaded(),
+    ]);
 
     private FakeWorkoutsService workouts = null!;
     private FakeTimeProvider clock = null!;
@@ -88,11 +87,10 @@ public class WorkoutsPageTests : ComponentTestBase
     {
         var cut = await OpenedAsync();
 
-        await CompleteRangeAsync(cut, new WorkoutsResult(
-        [
+        await CompleteRangeAsync(cut, new ReadResult<IReadOnlyList<WorkoutSummary>>([
             new WorkoutSummary(2, new DateTimeOffset(2026, 10, 20, 23, 30, 0, TimeSpan.Zero)),
             new WorkoutSummary(1, new DateTimeOffset(2026, 10, 20, 17, 5, 0, TimeSpan.Zero)),
-        ], Failed: false));
+        ]));
 
         Assert.That(cut.FindAll(".rows .text").Select(t => t.TextContent), Is.EqualTo(new[] { "Wed 21 Oct · 00:30", "Tue 20 Oct · 18:05" }));
     }
@@ -135,7 +133,7 @@ public class WorkoutsPageTests : ComponentTestBase
         await CompleteRangeAsync(cut, Recent);
 
         cut.Find("[data-testid=workouts-range-all]").Change(true);
-        await CompleteRangeAsync(cut, new WorkoutsResult([], Failed: false));
+        await CompleteRangeAsync(cut, new ReadResult<IReadOnlyList<WorkoutSummary>>([]));
 
         Assert.Multiple(() =>
         {
@@ -158,7 +156,7 @@ public class WorkoutsPageTests : ComponentTestBase
         cut.Find("[data-testid=range-day-2025-03-12]").Click();
         cut.Find("[data-testid=range-day-2025-03-12]").Click();
         cut.Find("[data-testid=range-apply]").Click();
-        await CompleteRangeAsync(cut, new WorkoutsResult([new WorkoutSummary(1, new DateTimeOffset(2025, 3, 12, 17, 0, 0, TimeSpan.Zero))], Failed: false));
+        await CompleteRangeAsync(cut, new ReadResult<IReadOnlyList<WorkoutSummary>>([new WorkoutSummary(1, new DateTimeOffset(2025, 3, 12, 17, 0, 0, TimeSpan.Zero))]));
 
         Assert.Multiple(() =>
         {
@@ -196,7 +194,7 @@ public class WorkoutsPageTests : ComponentTestBase
         cut.Find("[data-testid=workouts-range-1y]").Change(true);
         cut.Find("[data-testid=workouts-range-all]").Change(true);
 
-        workouts.CompleteRange(new WorkoutsResult([new WorkoutSummary(1, new DateTimeOffset(2025, 3, 12, 17, 0, 0, TimeSpan.Zero))], Failed: false));
+        workouts.CompleteRange(new ReadResult<IReadOnlyList<WorkoutSummary>>([new WorkoutSummary(1, new DateTimeOffset(2025, 3, 12, 17, 0, 0, TimeSpan.Zero))]));
         workouts.CompleteRange(Recent, index: 1);
         await WaitForRendererAsync();
 
@@ -209,7 +207,7 @@ public class WorkoutsPageTests : ComponentTestBase
     {
         var cut = Context.Render<WorkoutsPage>();
 
-        workouts.CompleteDays(new WorkoutDaysResult(new Dictionary<DateOnly, int>(), Failed: false));
+        workouts.CompleteDays(new ReadResult<IReadOnlyDictionary<DateOnly, int>>(new Dictionary<DateOnly, int>()));
         await WaitForRendererAsync();
 
         cut.WaitForAssertion(() => Assert.That(cut.Find("[data-testid=workouts-empty]").TextContent, Does.Contain("No workouts yet")));
@@ -220,7 +218,7 @@ public class WorkoutsPageTests : ComponentTestBase
     public async Task CountsFail_ShowTheErrorAndTryAgainReadsBoth()
     {
         var cut = Context.Render<WorkoutsPage>();
-        workouts.CompleteDays(new WorkoutDaysResult(new Dictionary<DateOnly, int>(), Failed: true));
+        workouts.CompleteDays(new ReadFailed());
         await WaitForRendererAsync();
         cut.WaitForAssertion(() => Focuses().Single().Arguments[0].ShouldBeElementReferenceTo(cut.Find("[data-testid=workouts-retry]")));
         Assert.That(cut.Find("[data-testid=workouts-error]").TextContent, Is.EqualTo("Couldn't load your workouts"));
@@ -247,7 +245,7 @@ public class WorkoutsPageTests : ComponentTestBase
         var cut = await OpenedAsync();
         await CompleteRangeAsync(cut, Recent);
         cut.Find("[data-testid=workouts-range-1y]").Change(true);
-        workouts.CompleteRange(new WorkoutsResult([], Failed: true));
+        workouts.CompleteRange(new ReadFailed());
         await WaitForRendererAsync();
         cut.WaitForAssertion(() => Assert.That(cut.FindAll("[data-testid=workouts-retry]"), Has.Count.EqualTo(1)));
 
@@ -277,7 +275,7 @@ public class WorkoutsPageTests : ComponentTestBase
             Assert.That(cut.FindAll("[data-testid=workouts-loading]"), Is.Empty);
         });
 
-        workouts.CompleteRange(new WorkoutsResult([], Failed: true));
+        workouts.CompleteRange(new ReadFailed());
         await WaitForRendererAsync();
         cut.WaitForAssertion(() => Assert.That(cut.FindAll("[data-testid=workouts-retry]"), Has.Count.EqualTo(1)));
         cut.Find("[data-testid=workouts-retry]").Click();
@@ -294,12 +292,12 @@ public class WorkoutsPageTests : ComponentTestBase
     public async Task TryAgain_FailsAgain_FocusesTryAgainAgain()
     {
         var cut = Context.Render<WorkoutsPage>();
-        workouts.CompleteDays(new WorkoutDaysResult(new Dictionary<DateOnly, int>(), Failed: true));
+        workouts.CompleteDays(new ReadFailed());
         await WaitForRendererAsync();
         cut.WaitForAssertion(() => Assert.That(Focuses(), Has.Count.EqualTo(1)));
 
         cut.Find("[data-testid=workouts-retry]").Click();
-        workouts.CompleteDays(new WorkoutDaysResult(new Dictionary<DateOnly, int>(), Failed: true));
+        workouts.CompleteDays(new ReadFailed());
         await WaitForRendererAsync();
 
         cut.WaitForAssertion(() => Assert.That(Focuses(), Has.Count.EqualTo(2)));
@@ -397,7 +395,7 @@ public class WorkoutsPageTests : ComponentTestBase
         await CompleteRangeAsync(cut, Recent);
 
         var started = lifecycle.NotifyStartedAsync();
-        workouts.CompleteDays(new WorkoutDaysResult(new Dictionary<DateOnly, int>(), Failed: true));
+        workouts.CompleteDays(new ReadFailed());
         await started;
 
         cut.WaitForAssertion(() => Assert.That(cut.FindAll("[data-testid=workouts-error]"), Has.Count.EqualTo(1)));
@@ -410,7 +408,7 @@ public class WorkoutsPageTests : ComponentTestBase
         await CompleteRangeAsync(cut, Recent);
 
         var started = lifecycle.NotifyStartedAsync();
-        workouts.CompleteDays(new WorkoutDaysResult(new Dictionary<DateOnly, int>(), Failed: true));
+        workouts.CompleteDays(new ReadFailed());
         await started;
 
         await TryAgainAfterFailedCountsShowsTheNewCountsAndRowsAsync(cut);
@@ -527,7 +525,7 @@ public class WorkoutsPageTests : ComponentTestBase
         var refresh = cut.InvokeAsync(cut.FindComponent<AppScreen>().Instance.RefreshAsync);
         workouts.CompleteDays(OneMore);
         await WaitForRendererAsync();
-        workouts.CompleteRange(new WorkoutsResult([], Failed: true));
+        workouts.CompleteRange(new ReadFailed());
         await WaitForRendererAsync();
 
         Assert.Multiple(() =>
@@ -549,7 +547,7 @@ public class WorkoutsPageTests : ComponentTestBase
         await cut.InvokeAsync(async () =>
         {
             var refresh = cut.FindComponent<AppScreen>().Instance.RefreshAsync();
-            workouts.CompleteDays(new WorkoutDaysResult(new Dictionary<DateOnly, int>(), Failed: true));
+            workouts.CompleteDays(new ReadFailed());
             clock.Advance(TimeSpan.FromMilliseconds(500));
             await refresh;
         });
@@ -567,7 +565,7 @@ public class WorkoutsPageTests : ComponentTestBase
         cut.Find("[data-testid=workouts-range-all]").Change(true);
         workouts.CompleteDays(OneMore);
         await WaitForRendererAsync();
-        await CompleteRangeAsync(cut, new WorkoutsResult([new WorkoutSummary(1, new DateTimeOffset(2025, 3, 12, 17, 0, 0, TimeSpan.Zero))], Failed: false));
+        await CompleteRangeAsync(cut, new ReadResult<IReadOnlyList<WorkoutSummary>>([new WorkoutSummary(1, new DateTimeOffset(2025, 3, 12, 17, 0, 0, TimeSpan.Zero))]));
         await refresh;
 
         Assert.Multiple(() =>
@@ -594,7 +592,7 @@ public class WorkoutsPageTests : ComponentTestBase
         await refresh;
 
         Assert.That(cut.FindAll("[data-testid=workouts-loading]"), Has.Count.EqualTo(1));
-        await CompleteRangeAsync(cut, new WorkoutsResult([new WorkoutSummary(1, new DateTimeOffset(2025, 3, 12, 17, 0, 0, TimeSpan.Zero))], Failed: false));
+        await CompleteRangeAsync(cut, new ReadResult<IReadOnlyList<WorkoutSummary>>([new WorkoutSummary(1, new DateTimeOffset(2025, 3, 12, 17, 0, 0, TimeSpan.Zero))]));
         Assert.Multiple(() =>
         {
             Assert.That(workouts.RangeReads, Has.Count.EqualTo(3));
@@ -615,7 +613,7 @@ public class WorkoutsPageTests : ComponentTestBase
         workouts.CompleteRange(RecentAndYesterday);
         await WaitForRendererAsync();
         cut.Find("[data-testid=workouts-range-all]").Change(true);
-        await CompleteRangeAsync(cut, new WorkoutsResult([new WorkoutSummary(1, new DateTimeOffset(2025, 3, 12, 17, 0, 0, TimeSpan.Zero))], Failed: false));
+        await CompleteRangeAsync(cut, new ReadResult<IReadOnlyList<WorkoutSummary>>([new WorkoutSummary(1, new DateTimeOffset(2025, 3, 12, 17, 0, 0, TimeSpan.Zero))]));
 
         Assert.That(Shown(cut), Is.EqualTo(new[] { "workouts-row-1" }));
         clock.Advance(TimeSpan.FromMilliseconds(500));
@@ -712,7 +710,7 @@ public class WorkoutsPageTests : ComponentTestBase
         });
     }
 
-    private async Task CompleteRangeAsync(IRenderedComponent<WorkoutsPage> cut, WorkoutsResult result)
+    private async Task CompleteRangeAsync(IRenderedComponent<WorkoutsPage> cut, ReadResult<IReadOnlyList<WorkoutSummary>> result)
     {
         workouts.CompleteRange(result);
         await WaitForRendererAsync();
@@ -731,32 +729,32 @@ public class WorkoutsPageTests : ComponentTestBase
     /// <summary>Each read waits until the test completes it.</summary>
     private sealed class FakeWorkoutsService : IWorkoutsService
     {
-        private readonly List<TaskCompletionSource<WorkoutsResult>> ranges = [];
-        private TaskCompletionSource<WorkoutDaysResult> days = new();
+        private readonly List<TaskCompletionSource<ReadResult<IReadOnlyList<WorkoutSummary>>>> ranges = [];
+        private TaskCompletionSource<ReadResult<IReadOnlyDictionary<DateOnly, int>>> days = new();
 
         public int DayReads { get; private set; }
 
         /// <summary>The days of each range read, in order.</summary>
         public List<(DateOnly From, DateOnly To)> RangeReads { get; } = [];
 
-        public Task<WorkoutDaysResult> GetDaysAsync()
+        public Task<ReadResult<IReadOnlyDictionary<DateOnly, int>>> GetDaysAsync()
         {
             DayReads++;
-            days = new TaskCompletionSource<WorkoutDaysResult>();
+            days = new TaskCompletionSource<ReadResult<IReadOnlyDictionary<DateOnly, int>>>();
             return days.Task;
         }
 
-        public Task<WorkoutsResult> GetBetweenAsync(DateOnly from, DateOnly to)
+        public Task<ReadResult<IReadOnlyList<WorkoutSummary>>> GetBetweenAsync(DateOnly from, DateOnly to)
         {
             RangeReads.Add((from, to));
-            var pending = new TaskCompletionSource<WorkoutsResult>();
+            var pending = new TaskCompletionSource<ReadResult<IReadOnlyList<WorkoutSummary>>>();
             ranges.Add(pending);
             return pending.Task;
         }
 
-        public void CompleteDays(WorkoutDaysResult result) => days.SetResult(result);
+        public void CompleteDays(ReadResult<IReadOnlyDictionary<DateOnly, int>> result) => days.SetResult(result);
 
         /// <summary>Completes a pending range read: the latest, or the one <paramref name="index"/> from the end.</summary>
-        public void CompleteRange(WorkoutsResult result, int index = 0) => ranges[^(index + 1)].SetResult(result);
+        public void CompleteRange(ReadResult<IReadOnlyList<WorkoutSummary>> result, int index = 0) => ranges[^(index + 1)].SetResult(result);
     }
 }

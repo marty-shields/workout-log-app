@@ -172,7 +172,7 @@ public class ImportServiceTests
 
         var result = await service.ImportAsync(review, ImportMode.Add, DifferentChoice.KeepPhones);
 
-        Assert.That(result, Is.EqualTo(new ImportResult(ImportStatus.Imported, Added: 1, Replaced: 0, Skipped: 1)));
+        Assert.That(result.Value, Is.EqualTo(new Imported(Added: 1, Replaced: 0, Skipped: 1)));
         Assert.That(await repository.GetAllAsync(), Is.EqualTo(new[]
         {
             phone[0],
@@ -189,7 +189,7 @@ public class ImportServiceTests
 
         var result = await service.ImportAsync(review, ImportMode.Add, DifferentChoice.UseFiles);
 
-        Assert.That(result, Is.EqualTo(new ImportResult(ImportStatus.Imported, 1, 1, 0)));
+        Assert.That(result.Value, Is.EqualTo(new Imported(1, 1, 0)));
         Assert.That(await repository.GetAllAsync(), Is.EqualTo(new[]
         {
             phone[0],
@@ -206,7 +206,7 @@ public class ImportServiceTests
 
         var result = await service.ImportAsync(review, ImportMode.ReplaceAll, DifferentChoice.UseFiles);
 
-        Assert.That(result, Is.EqualTo(new ImportResult(ImportStatus.Imported, Added: 3, Replaced: 0, Skipped: 1)));
+        Assert.That(result.Value, Is.EqualTo(new Imported(Added: 3, Replaced: 0, Skipped: 1)));
         Assert.That(await repository.GetAllAsync(), Is.EqualTo(new[]
         {
             Saved(await IdAtAsync(0), 0, BenchSaved),
@@ -240,7 +240,7 @@ public class ImportServiceTests
 
         var result = await service.ImportAsync(review, ImportMode.Add, DifferentChoice.KeepPhones);
 
-        Assert.That(result, Is.EqualTo(new ImportResult(ImportStatus.Failed, 0, 0, 0)));
+        Assert.That(result.Value, Is.InstanceOf<ImportFailed>());
         Assert.That((await repository.ListAsync()).Select(w => w.StartedAt), Is.EqualTo(new[] { Start.AddHours(1) }));
         Assert.That(LoggedEvents.Of(logger), Is.EqualTo(new[] { (CoreEvent.ImportWriteFailed, LogLevel.Error, "Writing the import failed; nothing was written") }));
         Assert.That(logger.LatestRecord.Exception, Is.InstanceOf<SQLiteException>());
@@ -308,7 +308,7 @@ public class ImportServiceTests
             environment.SetupGet(e => e.CacheFolder).Returns(folder.FullName);
             var exported = await new ExportService(repository, Catalog, environment.Object, TimeProvider.System, new FakeLogger<ExportService>()).ExportAsync();
 
-            await using var file = System.IO.File.OpenRead(exported.FilePath!);
+            await using var file = System.IO.File.OpenRead(((ExportedFile)exported.Value!).FilePath);
             var review = await service.ReadAsync(file, FileName);
 
             Assert.That(review with { Groups = ImportGroups.Empty }, Is.EqualTo(new ImportReview(FileName, 2, 0, 2, 0, 0, 2)));
@@ -372,7 +372,7 @@ public class ImportServiceTests
 
         var result = await service.ImportAsync(review, ImportMode.Add, choice);
 
-        Assert.That(result.Replaced, Is.EqualTo(choice == DifferentChoice.UseFiles ? 1 : 0));
+        Assert.That(((Imported)result.Value!).Replaced, Is.EqualTo(choice == DifferentChoice.UseFiles ? 1 : 0));
         Assert.That(await repository.GetAllAsync(),
             Is.EqualTo(new[] { new Workout(id, Start, Start.AddHours(1), [BenchSaved[0] with { Note = exerciseNote }], workoutNote) }).UsingPropertiesComparer());
     }
@@ -421,7 +421,7 @@ public class ImportServiceTests
     {
         var result = await service.ImportAsync(new ImportReview(FileName, 3, 3, 0, 0, 0, 0), ImportMode.Add, DifferentChoice.KeepPhones);
 
-        Assert.That(result, Is.EqualTo(new ImportResult(ImportStatus.Imported, 0, 0, 0)));
+        Assert.That(result.Value, Is.EqualTo(new Imported(0, 0, 0)));
         Assert.That(await repository.ListAsync(), Is.Empty);
     }
 

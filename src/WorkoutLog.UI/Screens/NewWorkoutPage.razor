@@ -84,7 +84,11 @@
         }
 
         await LastTimes.LoadAsync(exercise);
-        var history = await WeightHistory.GetAsync(item.Id, null);
+        if (await WeightHistory.GetAsync(item.Id, null) is not ExerciseHistory history)
+        {
+            return;
+        }
+
         exercise.LastNote = history.LastNote;
         if (item.Kind != ExerciseKind.Strength)
         {
@@ -112,7 +116,7 @@
         int? savedId = null;
         if (await Editor.SaveAsync(async (note, records) =>
             {
-                savedId = (await Workouts.SaveNewAsync(draft, note, records)).WorkoutId;
+                savedId = await Workouts.SaveNewAsync(draft, note, records) is Saved saved ? saved.WorkoutId : null;
                 return savedId is not null;
             }))
         {

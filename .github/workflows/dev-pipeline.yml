@@ -111,14 +111,14 @@ jobs:
       # Nothing is backed up or transferred from the Debug APK.
       - name: Check the Debug APK
         if: ${{ !cancelled() && steps.build.outcome == 'success' }}
-        run: .github/scripts/check-backup.sh src/WorkoutLog.App/bin/Debug/net10.0-android/uk.martinshields.workoutlog.debug-Signed.apk false no_backup
+        run: .github/scripts/check-backup.sh src/WorkoutLog.App/bin/Debug/net11.0-android/uk.martinshields.workoutlog.debug-Signed.apk false no_backup
 
       # The QA pipeline's shards download these. obj is included for dotnet test --no-build.
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: e2e-build
           path: |
-            src/WorkoutLog.App/bin/Debug/net10.0-android/uk.martinshields.workoutlog.debug-Signed.apk
+            src/WorkoutLog.App/bin/Debug/net11.0-android/uk.martinshields.workoutlog.debug-Signed.apk
             tests/WorkoutLog.E2E.Tests/bin
             tests/WorkoutLog.E2E.Tests/obj
           retention-days: 1
@@ -138,8 +138,8 @@ jobs:
 
       - name: Build the Release APK (x64, debug key)
         run: |
-          dotnet restore src/WorkoutLog.App
-          dotnet publish src/WorkoutLog.App -c Release -f net10.0-android -p:AndroidPackageFormat=apk \
+          dotnet restore src/WorkoutLog.App -p:Configuration=Release
+          dotnet publish src/WorkoutLog.App -c Release -f net11.0-android -p:AndroidPackageFormat=apk \
             -r android-x64 --no-restore -o "$RUNNER_TEMP/backup"
 
       - name: Check the Release APK
@@ -147,7 +147,7 @@ jobs:
 
       - name: Build the Release APK (arm64, debug key)
         run: |
-          dotnet publish src/WorkoutLog.App -c Release -f net10.0-android -p:AndroidPackageFormat=apk \
+          dotnet publish src/WorkoutLog.App -c Release -f net11.0-android -p:AndroidPackageFormat=apk \
             -r android-arm64 --no-restore -o "$RUNNER_TEMP/arm64"
 
       - name: Check the arm64 Release APK holds arm64 only

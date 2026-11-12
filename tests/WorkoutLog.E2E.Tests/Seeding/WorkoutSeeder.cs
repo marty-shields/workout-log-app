@@ -5,6 +5,7 @@ using SQLite;
 using WorkoutLog.Core;
 using WorkoutLog.Core.Data;
 using WorkoutLog.Core.Domain.Workouts;
+using WorkoutLog.Core.Domain.Workouts.Validation;
 using WorkoutLog.Core.Services;
 using WorkoutLog.E2E.Tests.Device;
 
@@ -62,10 +63,15 @@ public sealed class WorkoutSeeder(Native native)
                 clock.Now = workout.StartedAt;
                 var draft = workoutService.StartNew();
                 clock.Now = workout.FinishedAt;
-                var result = await workoutService.SaveNewAsync(draft, workout.Note, workout.Exercises);
-                if (result.WorkoutId != i + 1)
+                var failure = await workoutService.SaveNewAsync(draft, workout.Note, workout.Exercises) switch
                 {
-                    throw new InvalidOperationException($"Seeding workout {i + 1} failed: {string.Join(", ", result.Errors.Errors)}, {result.Errors.Exercises.Count(e => !e.IsValid)} exercises with errors.");
+                    Saved saved when saved.WorkoutId == i + 1 => null,
+                    Saved saved => $"saved as workout {saved.WorkoutId}",
+                    WorkoutErrors errors => $"{string.Join(", ", errors.Errors)}, {errors.Exercises.Count(e => !e.IsValid)} exercises with errors",
+                };
+                if (failure is not null)
+                {
+                    throw new InvalidOperationException($"Seeding workout {i + 1} failed: {failure}.");
                 }
             }
         }

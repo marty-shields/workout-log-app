@@ -2,7 +2,7 @@
 Building the app and setting up the E2E tests on Windows, with a phone or an emulator. Running the tests: [E2E tests](e2e-tests.md). Linux: [Dev setup: Linux](dev-setup-linux.md).
 
 ## Prerequisites
-- **Visual Studio** with the **.NET Multi-platform App UI development** workload (installs the MAUI workloads, Android SDK and OpenJDK), or **VS Code** with the **.NET MAUI** extension plus `dotnet workload install maui-android`, the Android SDK (API 36) and a JDK.
+- **Visual Studio** with the **.NET Multi-platform App UI development** workload (installs the MAUI workloads, Android SDK and OpenJDK), or **VS Code** with the **.NET MAUI** extension plus `dotnet workload install maui-android`, the Android SDK (API 37) and a JDK.
 - For the E2E tests: Node.js 20.19+, 22.12+ or 24+, and `ANDROID_HOME` and `JAVA_HOME` ([One-time setup for the E2E tests](#e2e-one-time-setup)).
 
 The .NET SDK, Git and `gh` are in [Dev setup & build](dev-setup-build.md#prerequisites).

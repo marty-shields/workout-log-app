@@ -121,7 +121,7 @@ public static class ScreenStates
         new("Screens/Settings", "Too many workouts", c => Settings(c, 12345, message: ExportMessage.TooLarge)),
         new("Screens/Settings", "Reading", c => Settings(c, 42, reading: true)),
         new("Screens/Settings", "Import failed", c => Settings(c, 42, importFailed: true)),
-        new("Screens/Settings", "Imported", c => Settings(c, 45, imported: new ImportResult(ImportStatus.Imported, 3, 2, 1))),
+        new("Screens/Settings", "Imported", c => Settings(c, 45, imported: new Imported(3, 2, 1))),
 
         new("Screens/Import Review", "New only", c => ReviewScreen(c, Review(fresh: 44))),
         new("Screens/Import Review", "With all groups", c => ReviewScreen(c, Review(3, 38, 2, 1))),
@@ -354,7 +354,7 @@ public static class ScreenStates
         ExportMessage message = ExportMessage.None,
         bool reading = false,
         bool importFailed = false,
-        ImportResult? imported = null,
+        Imported? imported = null,
         ThemePreference theme = ThemePreference.System) =>
         context.Render<SettingsView>(p => p
             .Add(x => x.Theme, theme)

@@ -14,7 +14,7 @@ internal sealed partial class WeightHistoryService(IWorkoutRepository repository
     : IWeightHistoryService
 {
     /// <inheritdoc />
-    public async Task<WeightHistoryResult> GetAsync(int exerciseId, DateTimeOffset? before)
+    public async Task<ReadResult<ExerciseHistory>> GetAsync(int exerciseId, DateTimeOffset? before)
     {
         IReadOnlyList<WorkoutWeights> workouts;
         try
@@ -24,17 +24,16 @@ internal sealed partial class WeightHistoryService(IWorkoutRepository repository
         catch (Exception exception)
         {
             Log.LoadFailed(logger, exerciseId, exception);
-            return new WeightHistoryResult(null, null, null, Failed: true);
+            return new ReadFailed();
         }
 
         Func<IEnumerable<decimal>, decimal?> best = catalog.IsAssisted(exerciseId)
             ? weights => weights.Select(w => (decimal?)w).Min()
             : weights => weights.Select(w => (decimal?)w).Max();
-        return new WeightHistoryResult(
+        return new ExerciseHistory(
             workouts.Count == 0 ? null : best(workouts[0].WeightsKg),
             best(workouts.SelectMany(w => w.WeightsKg)),
-            workouts.Count == 0 ? null : workouts[0].Note,
-            Failed: false);
+            workouts.Count == 0 ? null : workouts[0].Note);
     }
 
     private static partial class Log

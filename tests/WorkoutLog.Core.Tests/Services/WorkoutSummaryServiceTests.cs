@@ -43,7 +43,7 @@ public class WorkoutSummaryServiceTests
         var saved = Workout(Start, Sets(Squat, Set(5, 60m), Set(5, 60m)), Sets(Curl, Set(10, 10m)), Entry(Run, TimeSpan.FromMinutes(30), 5m));
         Setup();
 
-        var summary = (await service.GetAsync(saved.Id)).Summary!;
+        var summary = (await service.GetAsync(saved.Id)).Loaded()!;
 
         Assert.Multiple(() =>
         {
@@ -59,7 +59,7 @@ public class WorkoutSummaryServiceTests
         var saved = Workout(Start, Sets(Squat, Set(5, 60m)));
         Setup();
 
-        var summary = (await service.GetAsync(saved.Id)).Summary!;
+        var summary = (await service.GetAsync(saved.Id)).Loaded()!;
 
         Assert.Multiple(() =>
         {
@@ -76,7 +76,7 @@ public class WorkoutSummaryServiceTests
         var saved = Workout(Start, Sets(Squat, Set(3, 102.5m)));
         Setup();
 
-        var exercise = (await service.GetAsync(saved.Id)).Summary!.Exercises.Single();
+        var exercise = (await service.GetAsync(saved.Id)).Loaded()!.Exercises.Single();
 
         Assert.Multiple(() =>
         {
@@ -93,7 +93,7 @@ public class WorkoutSummaryServiceTests
         var saved = Workout(Start, Sets(Squat, Set(5, 95m)));
         Setup();
 
-        var exercise = (await service.GetAsync(saved.Id)).Summary!.Exercises.Single();
+        var exercise = (await service.GetAsync(saved.Id)).Loaded()!.Exercises.Single();
 
         Assert.Multiple(() =>
         {
@@ -109,7 +109,7 @@ public class WorkoutSummaryServiceTests
         var saved = Workout(Start, Sets(Squat, Set(5, 100m)));
         Setup();
 
-        var exercise = (await service.GetAsync(saved.Id)).Summary!.Exercises.Single();
+        var exercise = (await service.GetAsync(saved.Id)).Loaded()!.Exercises.Single();
 
         Assert.Multiple(() =>
         {
@@ -125,7 +125,7 @@ public class WorkoutSummaryServiceTests
         var saved = Workout(Start, Sets(Squat, Set(5, 90m)));
         Setup();
 
-        Assert.That((await service.GetAsync(saved.Id)).Summary!.Exercises.Single().Change, Is.EqualTo(new BestChange(BestChangeKind.Down, new ExerciseBest(10m, null, null, null))));
+        Assert.That((await service.GetAsync(saved.Id)).Loaded()!.Exercises.Single().Change, Is.EqualTo(new BestChange(BestChangeKind.Down, new ExerciseBest(10m, null, null, null))));
     }
 
     [Test]
@@ -135,7 +135,7 @@ public class WorkoutSummaryServiceTests
         var saved = Workout(Start, Sets(AssistedPullUp, Set(8, 20m)));
         Setup();
 
-        var exercise = (await service.GetAsync(saved.Id)).Summary!.Exercises.Single();
+        var exercise = (await service.GetAsync(saved.Id)).Loaded()!.Exercises.Single();
 
         Assert.Multiple(() =>
         {
@@ -151,7 +151,7 @@ public class WorkoutSummaryServiceTests
         var saved = Workout(Start, Entry(StairClimber, TimeSpan.FromMinutes(15), null));
         Setup();
 
-        Assert.That((await service.GetAsync(saved.Id)).Summary!.Exercises.Single().Change,
+        Assert.That((await service.GetAsync(saved.Id)).Loaded()!.Exercises.Single().Change,
             Is.EqualTo(new BestChange(BestChangeKind.Up, new ExerciseBest(null, null, TimeSpan.FromMinutes(5), null))));
     }
 
@@ -162,7 +162,7 @@ public class WorkoutSummaryServiceTests
         var saved = Workout(Start, Sets(Squat, Set(5, 100m)), Sets(Curl, Set(10, 10m)));
         Setup();
 
-        var summary = (await service.GetAsync(saved.Id)).Summary!;
+        var summary = (await service.GetAsync(saved.Id)).Loaded()!;
 
         Assert.Multiple(() =>
         {
@@ -178,7 +178,7 @@ public class WorkoutSummaryServiceTests
         Workout(Start.AddDays(7), Sets(Squat, Set(5, 200m)));
         Setup();
 
-        var summary = (await service.GetAsync(saved.Id)).Summary!;
+        var summary = (await service.GetAsync(saved.Id)).Loaded()!;
 
         Assert.Multiple(() =>
         {
@@ -193,7 +193,7 @@ public class WorkoutSummaryServiceTests
         var saved = Workout(Start, Sets(Squat, Set(5, 60m)), Sets(999, Set(5, 60m)));
         Setup();
 
-        var summary = (await service.GetAsync(saved.Id)).Summary!;
+        var summary = (await service.GetAsync(saved.Id)).Loaded()!;
 
         Assert.That(summary.Exercises.Select(e => e.ExerciseId), Is.EqualTo(new[] { Squat }));
         Assert.That(LoggedEvents.Of(logger), Is.EqualTo(new[]
@@ -210,7 +210,7 @@ public class WorkoutSummaryServiceTests
         var saved = Workout(Start, Sets(Squat, Set(5, 100m)), Sets(Curl));
         Setup();
 
-        var summary = (await service.GetAsync(saved.Id)).Summary!;
+        var summary = (await service.GetAsync(saved.Id)).Loaded()!;
 
         Assert.Multiple(() =>
         {
@@ -237,8 +237,8 @@ public class WorkoutSummaryServiceTests
 
         Assert.Multiple(() =>
         {
-            Assert.That(result.Failed, Is.False);
-            Assert.That(result.Summary!.Exercises.Select(e => e.ExerciseId), Is.EqualTo(new[] { Curl }));
+            Assert.That(result.Value, Is.Not.InstanceOf<ReadFailed>());
+            Assert.That(result.Loaded()!.Exercises.Select(e => e.ExerciseId), Is.EqualTo(new[] { Curl }));
             Assert.That(LoggedEvents.Of(logger).Select(e => (e.Id, e.Level)), Does.Contain((CoreEvent.WorkoutSummaryExerciseFailed, LogLevel.Warning)));
             Assert.That(logger.Collector.GetSnapshot().Single(r => r.Id.Id == (int)CoreEvent.WorkoutSummaryExerciseFailed).Exception, Is.SameAs(error));
         });
@@ -263,7 +263,7 @@ public class WorkoutSummaryServiceTests
 
         var result = await service.GetAsync(1);
 
-        Assert.That(result, Is.EqualTo(new WorkoutSummaryResult(null, Failed: true)));
+        Assert.That(result.Value, Is.InstanceOf<ReadFailed>());
         Assert.Multiple(() =>
         {
             Assert.That(LoggedEvents.Of(logger), Is.EqualTo(new[] { (CoreEvent.WorkoutSummaryLoadFailed, LogLevel.Warning, "Loading the workout summary failed") }));
@@ -277,7 +277,7 @@ public class WorkoutSummaryServiceTests
         Workout(Start, Sets(Squat, Set(5, 60m)));
         Setup();
 
-        Assert.That((await service.GetAsync(99)).Failed, Is.True);
+        Assert.That((await service.GetAsync(99)).Value, Is.InstanceOf<ReadFailed>());
     }
 
     private Workout Workout(DateTimeOffset startedAt, params WorkoutExercise[] exercises)

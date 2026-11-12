@@ -17,7 +17,7 @@ namespace WorkoutLog.UI.Tests.Screens;
 public class SettingsPageTests : ComponentTestBase
 {
     private const string FilePath = "/cache/workout-log-2026-10-26-1805.json";
-    private static readonly ExportResult Exported = new(ExportStatus.Exported, FilePath);
+    private static readonly ExportResult Exported = new ExportedFile(FilePath);
 
     private FakeExportService export = null!;
     private FakeFileShare share = null!;
@@ -51,7 +51,7 @@ public class SettingsPageTests : ComponentTestBase
     public async Task Theme_DefaultsToSystem()
     {
         var cut = Context.Render<SettingsPage>();
-        export.CompleteCount(new ExportCount(0, false));
+        export.CompleteCount(new ReadResult<int>(0));
         await WaitForRendererAsync();
 
         Assert.That(cut.Find("[data-testid=settings-theme-system]").HasAttribute("checked"), Is.True);
@@ -62,7 +62,7 @@ public class SettingsPageTests : ComponentTestBase
     {
         Context.JSInterop.Setup<string>("workoutLogTheme.get", _ => true).SetResult("dark");
         var cut = Context.Render<SettingsPage>();
-        export.CompleteCount(new ExportCount(0, false));
+        export.CompleteCount(new ReadResult<int>(0));
         await WaitForRendererAsync();
 
         Assert.Multiple(() =>
@@ -76,7 +76,7 @@ public class SettingsPageTests : ComponentTestBase
     public async Task Theme_Tapped_SavesAndShowsTheChoice()
     {
         var cut = Context.Render<SettingsPage>();
-        export.CompleteCount(new ExportCount(0, false));
+        export.CompleteCount(new ReadResult<int>(0));
         await WaitForRendererAsync();
 
         cut.Find("[data-testid=settings-theme-light]").Change(true);
@@ -101,7 +101,7 @@ public class SettingsPageTests : ComponentTestBase
         });
 
         get.SetResult("dark");
-        export.CompleteCount(new ExportCount(5, false));
+        export.CompleteCount(new ReadResult<int>(5));
         await WaitForRendererAsync();
 
         Assert.Multiple(() =>
@@ -118,7 +118,7 @@ public class SettingsPageTests : ComponentTestBase
         var exception = new JSException("no storage");
         Context.JSInterop.Setup<string>("workoutLogTheme.get", _ => true).SetException(exception);
         var cut = Context.Render<SettingsPage>();
-        export.CompleteCount(new ExportCount(2, false));
+        export.CompleteCount(new ReadResult<int>(2));
         await WaitForRendererAsync();
 
         Assert.Multiple(() =>
@@ -136,7 +136,7 @@ public class SettingsPageTests : ComponentTestBase
         var exception = new JSException("no storage");
         Context.JSInterop.Setup<bool>("workoutLogTheme.set", _ => true).SetException(exception);
         var cut = Context.Render<SettingsPage>();
-        export.CompleteCount(new ExportCount(0, false));
+        export.CompleteCount(new ReadResult<int>(0));
         await WaitForRendererAsync();
 
         var control = cut.FindComponent<SegmentedControl<ThemePreference>>();
@@ -158,7 +158,7 @@ public class SettingsPageTests : ComponentTestBase
     {
         Context.JSInterop.Setup<bool>("workoutLogTheme.set", _ => true).SetResult(false);
         var cut = Context.Render<SettingsPage>();
-        export.CompleteCount(new ExportCount(0, false));
+        export.CompleteCount(new ReadResult<int>(0));
         await WaitForRendererAsync();
 
         cut.Find("[data-testid=settings-theme-light]").Change(true);
@@ -171,7 +171,7 @@ public class SettingsPageTests : ComponentTestBase
     public async Task Theme_CountFailed_StaysChangeable()
     {
         var cut = Context.Render<SettingsPage>();
-        export.CompleteCount(new ExportCount(0, true));
+        export.CompleteCount(new ReadFailed());
         await WaitForRendererAsync();
 
         cut.Find("[data-testid=settings-theme-dark]").Change(true);
@@ -238,7 +238,7 @@ public class SettingsPageTests : ComponentTestBase
     public async Task LoadFails_ShowsTheErrorAndTryAgainReloads()
     {
         var cut = Context.Render<SettingsPage>();
-        export.CompleteCount(new ExportCount(0, Failed: true));
+        export.CompleteCount(new ReadFailed());
         await WaitForRendererAsync();
         cut.WaitForAssertion(() => Assert.That(cut.Find("[data-testid=settings-error]").TextContent, Is.EqualTo("Couldn't load your workouts")));
 
@@ -249,7 +249,7 @@ public class SettingsPageTests : ComponentTestBase
             Assert.That(export.CountCalls, Is.EqualTo(2));
             Assert.That(cut.FindAll("[data-testid=settings-loading]"), Has.Count.EqualTo(1));
         });
-        export.CompleteCount(new ExportCount(3, Failed: false));
+        export.CompleteCount(new ReadResult<int>(3));
         await WaitForRendererAsync();
         cut.WaitForAssertion(() => Assert.That(cut.Find("[data-testid=export-text]").TextContent, Is.EqualTo("Export all 3 workouts to a JSON file")));
     }
@@ -261,7 +261,7 @@ public class SettingsPageTests : ComponentTestBase
 
         var started = lifecycle.NotifyStartedAsync();
         cut.WaitForAssertion(() => Assert.That(cut.FindAll("[data-testid=settings-loading]"), Has.Count.EqualTo(1)));
-        export.CompleteCount(new ExportCount(4, Failed: false));
+        export.CompleteCount(new ReadResult<int>(4));
         await WaitForRendererAsync();
         await started;
 
@@ -351,7 +351,7 @@ public class SettingsPageTests : ComponentTestBase
         var button = cut.Find("[data-testid=export]").GetAttribute("blazor:elementReference");
 
         cut.Find("[data-testid=export]").Click();
-        export.CompleteExport(new ExportResult(ExportStatus.Failed, null));
+        export.CompleteExport(new ExportFailed());
         await WaitForRendererAsync();
 
         cut.WaitForAssertion(() => Assert.That(cut.Find("[data-testid=export-error]").TextContent, Is.EqualTo("Couldn't export your workouts. Try again")));
@@ -370,7 +370,7 @@ public class SettingsPageTests : ComponentTestBase
         var cut = await LoadedAsync(3);
 
         cut.Find("[data-testid=export]").Click();
-        export.CompleteExport(new ExportResult(ExportStatus.TooLarge, null));
+        export.CompleteExport(new ExportTooLarge());
         await WaitForRendererAsync();
 
         cut.WaitForAssertion(() => Assert.That(cut.Find("[data-testid=export-error]").TextContent, Is.EqualTo("Too many workouts to export")));
@@ -414,7 +414,7 @@ public class SettingsPageTests : ComponentTestBase
         var cut = await ExportFailedAsync();
 
         var started = lifecycle.NotifyStartedAsync();
-        export.CompleteCount(new ExportCount(3, Failed: false));
+        export.CompleteCount(new ReadResult<int>(3));
         await WaitForRendererAsync();
         await started;
 
@@ -585,7 +585,7 @@ public class SettingsPageTests : ComponentTestBase
     [Test]
     public async Task Imported_ShowsTheDoneMessageOnce()
     {
-        session.Done = new ImportResult(ImportStatus.Imported, 3, 2, 1);
+        session.Done = new Imported(3, 2, 1);
 
         var cut = await LoadedAsync(45);
 
@@ -599,7 +599,7 @@ public class SettingsPageTests : ComponentTestBase
     [Test]
     public async Task DoneMessage_ClearsOnTheNextExportTap()
     {
-        session.Done = new ImportResult(ImportStatus.Imported, 3, 0, 0);
+        session.Done = new Imported(3, 0, 0);
         var cut = await LoadedAsync(3);
 
         cut.Find("[data-testid=export]").Click();
@@ -610,7 +610,7 @@ public class SettingsPageTests : ComponentTestBase
     [Test]
     public async Task DoneMessage_ClearsOnTheNextImportTap()
     {
-        session.Done = new ImportResult(ImportStatus.Imported, 3, 0, 0);
+        session.Done = new Imported(3, 0, 0);
         var cut = await LoadedAsync(3);
 
         cut.Find("[data-testid=import]").Click();
@@ -621,11 +621,11 @@ public class SettingsPageTests : ComponentTestBase
     [Test]
     public async Task DoneMessage_ClearsOnAppStartReload()
     {
-        session.Done = new ImportResult(ImportStatus.Imported, 3, 0, 0);
+        session.Done = new Imported(3, 0, 0);
         var cut = await LoadedAsync(3);
 
         var started = lifecycle.NotifyStartedAsync();
-        export.CompleteCount(new ExportCount(3, Failed: false));
+        export.CompleteCount(new ReadResult<int>(3));
         await WaitForRendererAsync();
         await started;
 
@@ -660,7 +660,7 @@ public class SettingsPageTests : ComponentTestBase
     private async Task<IRenderedComponent<SettingsPage>> LoadedAsync(int count, Action? onImportReview = null)
     {
         var cut = Context.Render<SettingsPage>(p => p.Add(x => x.OnBack, () => { }).Add(x => x.OnImportReview, onImportReview ?? (() => { })));
-        export.CompleteCount(new ExportCount(count, Failed: false));
+        export.CompleteCount(new ReadResult<int>(count));
         await WaitForRendererAsync();
         cut.WaitForAssertion(() => Assert.That(cut.FindAll("[data-testid=export]"), Has.Count.EqualTo(1)));
         return cut;
@@ -670,7 +670,7 @@ public class SettingsPageTests : ComponentTestBase
     {
         var cut = await LoadedAsync(3);
         cut.Find("[data-testid=export]").Click();
-        export.CompleteExport(new ExportResult(ExportStatus.Failed, null));
+        export.CompleteExport(new ExportFailed());
         await WaitForRendererAsync();
         cut.WaitForAssertion(() => Assert.That(cut.FindAll("[data-testid=export-error]"), Has.Count.EqualTo(1)));
         return cut;
@@ -679,7 +679,7 @@ public class SettingsPageTests : ComponentTestBase
     /// <summary>Each call waits until the test completes it.</summary>
     private sealed class FakeExportService : IExportService
     {
-        private TaskCompletionSource<ExportCount> count = new();
+        private TaskCompletionSource<ReadResult<int>> count = new();
         private TaskCompletionSource<ExportResult> export = new();
 
         public int CountCalls { get; private set; }
@@ -688,10 +688,10 @@ public class SettingsPageTests : ComponentTestBase
 
         public Task DeleteLeftoversAsync() => Task.CompletedTask;
 
-        public Task<ExportCount> CountAsync()
+        public Task<ReadResult<int>> CountAsync()
         {
             CountCalls++;
-            count = new TaskCompletionSource<ExportCount>();
+            count = new TaskCompletionSource<ReadResult<int>>();
             return count.Task;
         }
 
@@ -703,7 +703,7 @@ public class SettingsPageTests : ComponentTestBase
         }
 
         /// <summary>Completes the latest count.</summary>
-        public void CompleteCount(ExportCount result) => count.SetResult(result);
+        public void CompleteCount(ReadResult<int> result) => count.SetResult(result);
 
         /// <summary>Completes the latest export.</summary>
         public void CompleteExport(ExportResult result) => export.SetResult(result);

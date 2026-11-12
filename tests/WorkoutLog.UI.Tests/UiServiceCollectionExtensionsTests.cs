@@ -28,6 +28,7 @@ public class UiServiceCollectionExtensionsTests
             (typeof(IWorkoutChecker), typeof(WorkoutChecker), ServiceLifetime.Singleton),
             (typeof(LastTimeLoader), typeof(LastTimeLoader), ServiceLifetime.Singleton),
             (typeof(ThemeService), typeof(ThemeService), ServiceLifetime.Scoped),
+            (typeof(SystemBarInsetWriter), typeof(SystemBarInsetWriter), ServiceLifetime.Scoped),
             (typeof(WorkoutEditor), typeof(WorkoutEditor), ServiceLifetime.Transient),
         }));
     }

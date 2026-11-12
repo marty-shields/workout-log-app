@@ -24,10 +24,14 @@
         }
 
         loading = true;
-        StateHasChanged();
         var result = await MuscleSets.GetAsync();
-        groups = result.Groups.Select(g => new MuscleGroupSets(g.Group.ToString(), g.Sets)).ToList();
-        failed = result.Failed;
+        IReadOnlyList<MuscleGroupCount> counts = result switch
+        {
+            IReadOnlyList<MuscleGroupCount> read => read,
+            ReadFailed => [],
+        };
+        groups = counts.Select(g => new MuscleGroupSets(g.Group.ToString(), g.Sets)).ToList();
+        failed = result is ReadFailed;
         loading = false;
     }
 }

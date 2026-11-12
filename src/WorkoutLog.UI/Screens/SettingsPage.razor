@@ -35,7 +35,7 @@
     private int count;
     private ThemePreference theme;
     private ExportMessage message;
-    private ImportResult? imported;
+    private Imported? imported;
     private bool Busy => phase is SettingsPhase.Loading or SettingsPhase.Exporting or SettingsPhase.Reading;
 
     private IDisposable? registration;
@@ -79,18 +79,23 @@
 
         phase = SettingsPhase.Loading;
         ClearMessages();
-        StateHasChanged();
         var result = await Export.CountAsync();
         if (disposed)
         {
             return;
         }
 
-        count = result.Count;
-        phase = result.Failed ? SettingsPhase.LoadFailed : SettingsPhase.Idle;
+        (count, phase) = result switch
+        {
+            int saved => (saved, SettingsPhase.Idle),
+            ReadFailed => (0, SettingsPhase.LoadFailed),
+        };
     }
 
-    /// <summary>Loads again when the app comes back on screen. Does nothing once the page is disposed, before or during the load.</summary>
+    /// <summary>
+    /// Loads again when the app comes back on screen. Does nothing once the page is disposed, before or during the load.
+    /// Not an event handler, so it renders the spinner and the result itself.
+    /// </summary>
     private async Task ReloadAsync()
     {
         if (disposed)
@@ -98,7 +103,9 @@
             return;
         }
 
-        await LoadAsync();
+        var loading = LoadAsync();
+        StateHasChanged();
+        await loading;
         if (!disposed)
         {
             StateHasChanged();
@@ -119,18 +126,17 @@
 
         phase = SettingsPhase.Exporting;
         ClearMessages();
-        StateHasChanged();
         var result = await Export.ExportAsync();
         if (disposed)
         {
             return;
         }
 
-        if (result is { Status: ExportStatus.Exported, FilePath: { } path })
+        if (result is ExportedFile file)
         {
             try
             {
-                await FileShare.ShareAsync(path, "Export workouts");
+                await FileShare.ShareAsync(file.FilePath, "Export workouts");
             }
             catch (Exception exception)
             {
@@ -140,7 +146,7 @@
         }
         else
         {
-            message = result.Status == ExportStatus.TooLarge ? ExportMessage.TooLarge : ExportMessage.Failed;
+            message = result is ExportTooLarge ? ExportMessage.TooLarge : ExportMessage.Failed;
         }
 
         phase = SettingsPhase.Idle;
@@ -160,7 +166,6 @@
 
         phase = SettingsPhase.Reading;
         ClearMessages();
-        StateHasChanged();
         ImportReview? review = null;
         var pickFailed = false;
         try

@@ -47,7 +47,7 @@ public class WeightHistoryServiceTests
     {
         SetupNotes(Squat, null, (60m, "Felt heavy"), (55m, "Easy"));
 
-        Assert.That(await service.GetAsync(Squat, null), Is.EqualTo(new WeightHistoryResult(60m, 60m, "Felt heavy", Failed: false)));
+        Assert.That((await service.GetAsync(Squat, null)).Loaded(), Is.EqualTo(new ExerciseHistory(60m, 60m, "Felt heavy")));
     }
 
     [Test]
@@ -55,7 +55,7 @@ public class WeightHistoryServiceTests
     {
         SetupNotes(Squat, null, (60m, null), (55m, "Easy"));
 
-        Assert.That((await service.GetAsync(Squat, null)).LastNote, Is.Null);
+        Assert.That((await service.GetAsync(Squat, null)).Loaded().LastNote, Is.Null);
     }
 
     [Test]
@@ -64,7 +64,7 @@ public class WeightHistoryServiceTests
         repository.Setup(r => r.GetWeightsAsync(Treadmill, null))
             .ReturnsAsync([new WorkoutWeights(2, [], "Hills"), new WorkoutWeights(1, [], "Flat")]);
 
-        Assert.That(await service.GetAsync(Treadmill, null), Is.EqualTo(new WeightHistoryResult(null, null, "Hills", Failed: false)));
+        Assert.That((await service.GetAsync(Treadmill, null)).Loaded(), Is.EqualTo(new ExerciseHistory(null, null, "Hills")));
     }
 
     [Test]
@@ -73,7 +73,7 @@ public class WeightHistoryServiceTests
         var before = new DateTimeOffset(2026, 10, 21, 17, 5, 0, TimeSpan.Zero);
         SetupNotes(Squat, before, (55m, "Easy"));
 
-        Assert.That(await service.GetAsync(Squat, before), Is.EqualTo(new WeightHistoryResult(55m, 55m, "Easy", Failed: false)));
+        Assert.That((await service.GetAsync(Squat, before)).Loaded(), Is.EqualTo(new ExerciseHistory(55m, 55m, "Easy")));
     }
 
     [Test]
@@ -81,7 +81,7 @@ public class WeightHistoryServiceTests
     {
         Setup(Squat);
 
-        Assert.That(await service.GetAsync(Squat, null), Is.EqualTo(new WeightHistoryResult(null, null, null, Failed: false)));
+        Assert.That((await service.GetAsync(Squat, null)).Loaded(), Is.EqualTo(new ExerciseHistory(null, null, null)));
     }
 
     [Test]
@@ -89,7 +89,7 @@ public class WeightHistoryServiceTests
     {
         Setup(Squat, [60m, 62.5m, 57.5m]);
 
-        Assert.That(await service.GetAsync(Squat, null), Is.EqualTo(new WeightHistoryResult(62.5m, 62.5m, null, Failed: false)));
+        Assert.That((await service.GetAsync(Squat, null)).Loaded(), Is.EqualTo(new ExerciseHistory(62.5m, 62.5m, null)));
     }
 
     [Test]
@@ -97,7 +97,7 @@ public class WeightHistoryServiceTests
     {
         Setup(Squat, [60m, 62.5m], [70m], [65m]);
 
-        Assert.That(await service.GetAsync(Squat, null), Is.EqualTo(new WeightHistoryResult(62.5m, 70m, null, Failed: false)));
+        Assert.That((await service.GetAsync(Squat, null)).Loaded(), Is.EqualTo(new ExerciseHistory(62.5m, 70m, null)));
     }
 
     [TestCase(new[] { 75, 60, 62.5 }, new[] { 70.0 }, new[] { 65.0 }, 75, 75, TestName = "GetAsync_PbInTheLastWorkoutsFirstSet")]
@@ -109,7 +109,7 @@ public class WeightHistoryServiceTests
     {
         Setup(Squat, [.. latest.Select(w => (decimal)w)], [.. middle.Select(w => (decimal)w)], [.. oldest.Select(w => (decimal)w)]);
 
-        Assert.That(await service.GetAsync(Squat, null), Is.EqualTo(new WeightHistoryResult((decimal)expectedLast, (decimal)expectedBest, null, Failed: false)));
+        Assert.That((await service.GetAsync(Squat, null)).Loaded(), Is.EqualTo(new ExerciseHistory((decimal)expectedLast, (decimal)expectedBest, null)));
     }
 
     [TestCase(new[] { 15, 25, 20.0 }, new[] { 10.0 }, new[] { 30.0 }, 15, 10, TestName = "GetAsync_Assisted_BestInTheLastWorkoutsFirstSet_PbInTheMiddle")]
@@ -120,7 +120,7 @@ public class WeightHistoryServiceTests
     {
         Setup(AssistedPullUp, [.. latest.Select(w => (decimal)w)], [.. middle.Select(w => (decimal)w)], [.. oldest.Select(w => (decimal)w)]);
 
-        Assert.That(await service.GetAsync(AssistedPullUp, null), Is.EqualTo(new WeightHistoryResult((decimal)expectedLast, (decimal)expectedBest, null, Failed: false)));
+        Assert.That((await service.GetAsync(AssistedPullUp, null)).Loaded(), Is.EqualTo(new ExerciseHistory((decimal)expectedLast, (decimal)expectedBest, null)));
     }
 
     [Test]
@@ -128,7 +128,7 @@ public class WeightHistoryServiceTests
     {
         Setup(Squat, [], [70m]);
 
-        Assert.That(await service.GetAsync(Squat, null), Is.EqualTo(new WeightHistoryResult(null, 70m, null, Failed: false)));
+        Assert.That((await service.GetAsync(Squat, null)).Loaded(), Is.EqualTo(new ExerciseHistory(null, 70m, null)));
     }
 
     [Test]
@@ -136,7 +136,7 @@ public class WeightHistoryServiceTests
     {
         Setup(Squat, [], []);
 
-        Assert.That(await service.GetAsync(Squat, null), Is.EqualTo(new WeightHistoryResult(null, null, null, Failed: false)));
+        Assert.That((await service.GetAsync(Squat, null)).Loaded(), Is.EqualTo(new ExerciseHistory(null, null, null)));
     }
 
     [Test]
@@ -144,7 +144,7 @@ public class WeightHistoryServiceTests
     {
         Setup(Squat, [0m]);
 
-        Assert.That(await service.GetAsync(Squat, null), Is.EqualTo(new WeightHistoryResult(0m, 0m, null, Failed: false)));
+        Assert.That((await service.GetAsync(Squat, null)).Loaded(), Is.EqualTo(new ExerciseHistory(0m, 0m, null)));
     }
 
     [Test]
@@ -152,7 +152,7 @@ public class WeightHistoryServiceTests
     {
         Setup(AssistedPullUp, [25m, 20m], [15m], [30m]);
 
-        Assert.That(await service.GetAsync(AssistedPullUp, null), Is.EqualTo(new WeightHistoryResult(20m, 15m, null, Failed: false)));
+        Assert.That((await service.GetAsync(AssistedPullUp, null)).Loaded(), Is.EqualTo(new ExerciseHistory(20m, 15m, null)));
     }
 
     [Test]
@@ -160,7 +160,7 @@ public class WeightHistoryServiceTests
     {
         Setup(AssistedPullUp, [10m], [0m, 5m]);
 
-        Assert.That(await service.GetAsync(AssistedPullUp, null), Is.EqualTo(new WeightHistoryResult(10m, 0m, null, Failed: false)));
+        Assert.That((await service.GetAsync(AssistedPullUp, null)).Loaded(), Is.EqualTo(new ExerciseHistory(10m, 0m, null)));
     }
 
     [Test]
@@ -168,7 +168,7 @@ public class WeightHistoryServiceTests
     {
         Setup(9999, [10m, 20m]);
 
-        Assert.That(await service.GetAsync(9999, null), Is.EqualTo(new WeightHistoryResult(20m, 20m, null, Failed: false)));
+        Assert.That((await service.GetAsync(9999, null)).Loaded(), Is.EqualTo(new ExerciseHistory(20m, 20m, null)));
     }
 
     [Test]
@@ -186,7 +186,7 @@ public class WeightHistoryServiceTests
     {
         repository.Setup(r => r.GetWeightsAsync(Squat, null)).ThrowsAsync(new InvalidOperationException("disk"));
 
-        Assert.That(await service.GetAsync(Squat, null), Is.EqualTo(new WeightHistoryResult(null, null, null, Failed: true)));
+        Assert.That((await service.GetAsync(Squat, null)).Value, Is.InstanceOf<ReadFailed>());
     }
 
     [Test]

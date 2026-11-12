@@ -60,7 +60,7 @@ public class AppiumSetup
         var project = Path.Combine(root, "tests", "WorkoutLog.E2E.Tests");
         var appium = Path.Combine(project, "node_modules", "appium", "index.js");
         var tested = Tested(root);
-        var buildHint = tested.IsDebug ? "build the App: dotnet build src/WorkoutLog.App -f net10.0-android" : "build it (docs/e2e-tests.md)";
+        var buildHint = tested.IsDebug ? "build the App: dotnet build src/WorkoutLog.App -f net11.0-android" : "build it (docs/e2e-tests.md)";
 
         Require(Environment.GetEnvironmentVariable("ANDROID_HOME") is { Length: > 0 }, "ANDROID_HOME is not set (docs/dev-setup-windows.md, docs/dev-setup-linux.md).");
         Require(Environment.GetEnvironmentVariable("JAVA_HOME") is { Length: > 0 }, "JAVA_HOME is not set (docs/dev-setup-windows.md, docs/dev-setup-linux.md).");
@@ -202,7 +202,7 @@ public class AppiumSetup
         var package = TestContext.Parameters.Get("AppPackage", TestedApp.DebugPackage);
         var apk = TestContext.Parameters.Get("AppApk");
         Require(apk is not null || package == TestedApp.DebugPackage, $"AppApk is not set: pass the APK of {package} (docs/e2e-tests.md).");
-        apk ??= Path.Combine(root, "src", "WorkoutLog.App", "bin", "Debug", "net10.0-android", $"{TestedApp.DebugPackage}-Signed.apk");
+        apk ??= Path.Combine(root, "src", "WorkoutLog.App", "bin", "Debug", "net11.0-android", $"{TestedApp.DebugPackage}-Signed.apk");
         return new TestedApp(package, Path.GetFullPath(apk), TestContext.Parameters.Get("PreviousApk") is { } previous ? Path.GetFullPath(previous) : null);
     }
 

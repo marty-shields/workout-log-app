@@ -1,6 +1,6 @@
 # AGENTS.md — Workout Log
 
-Personal Android app (.NET 10 MAUI Blazor Hybrid). Setup: [docs/dev-setup-build.md](docs/dev-setup-build.md) ([Windows](docs/dev-setup-windows.md), [Linux](docs/dev-setup-linux.md)). E2E runs: [docs/e2e-tests.md](docs/e2e-tests.md). Release: [docs/release.md](docs/release.md). Screen behaviour: the design system's [screen pages](src/WorkoutLog.UI.Stories/Stories/Screens/) (BlazingStory). Work items and their acceptance criteria: GitHub issues.
+Personal Android app (.NET 11 MAUI Blazor Hybrid). Setup: [docs/dev-setup-build.md](docs/dev-setup-build.md) ([Windows](docs/dev-setup-windows.md), [Linux](docs/dev-setup-linux.md)). E2E runs: [docs/e2e-tests.md](docs/e2e-tests.md). Release: [docs/release.md](docs/release.md). Screen behaviour: the design system's [screen pages](src/WorkoutLog.UI.Stories/Stories/Screens/) (BlazingStory). Work items and their acceptance criteria: GitHub issues.
 
 ## Commands
 - Build: `dotnet build WorkoutLog.slnx` (warnings fail the build)
@@ -18,7 +18,7 @@ Personal Android app (.NET 10 MAUI Blazor Hybrid). Setup: [docs/dev-setup-build.
 ## How the code fits
 - Projects: App → UI → Core; Stories → UI. `WorkoutLog.UI.Tests` reads the App's files because it can't reference it.
 - Screens: a `*Page` calls services, a `*View` takes parameters. `StoryCoverageTests` requires a screen story for every `*View`.
-- Services return a status (`ExportStatus`), not exceptions.
+- Services return a status (`ExportResult`), not exceptions.
 - Every database call goes through `DatabaseGate` (`DatabaseGateTests`).
 - Event ids: `CoreEvent` 1000s, `UiEvent` 2000s, `AppEvent` 5000s. `CoreEventTests` and `EventIdTests` fix the values and ranges.
 - Styling: tokens only, no literal colours or sizes (`TokensOnlyCssTests`).

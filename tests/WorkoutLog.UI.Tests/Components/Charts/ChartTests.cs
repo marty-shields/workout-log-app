@@ -99,19 +99,19 @@ public class ChartTests : ComponentTestBase
     }
 
     [TestCase(59, 72, false, 55, 75, 5)]
-    [TestCase(72.8, 82.3, false, 70, 85, 5)]
+    [TestCase("72.8", "82.3", false, 70, 85, 5)]
     [TestCase(15, 25, false, 15, 25, 5)]
-    [TestCase(4.1, 5.2, false, 4, 5.5, 0.5)]
+    [TestCase("4.1", "5.2", false, 4, "5.5", "0.5")]
     [TestCase(14, 14, false, 13, 15, 1)]
     [TestCase(0, 0, false, 0, 1, 1)]
     [TestCase(0, 0, true, 0, 1, 1)]
-    [TestCase(79.17, 79.2, false, 79.1, 79.2, 0.1)]
+    [TestCase("79.17", "79.2", false, "79.1", "79.2", "0.1")]
     [TestCase(330, 352, true, 330, 360, 10)]
     [TestCase(60, 105, true, 60, 105, 15)]
     [TestCase(1500, 1800, true, 1440, 1800, 120)]
-    public void Scale_RoundStepsSpanningTheValues(double min, double max, bool time, double low, double high, double step)
+    public void Scale_RoundStepsSpanningTheValues(decimal min, decimal max, bool time, decimal low, decimal high, decimal step)
     {
-        Assert.That(Chart.Scale((decimal)min, (decimal)max, time), Is.EqualTo(((decimal)low, (decimal)high, (decimal)step)));
+        Assert.That(Chart.Scale(min, max, time), Is.EqualTo((low, high, step)));
     }
 
     [Test]

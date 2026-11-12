@@ -34,7 +34,7 @@ public class NotesNotLoggedTests
             var workouts = provider.GetRequiredService<IWorkoutService>();
             var draft = workouts.StartNew();
             WorkoutExercise[] exercises = [new StrengthExercise(8, [new StrengthSet(8, 60m, null, null)], Sentinel)];
-            var id = (await workouts.SaveNewAsync(draft, Sentinel, exercises)).WorkoutId!.Value;
+            var id = ((Saved)(await workouts.SaveNewAsync(draft, Sentinel, exercises)).Value!).WorkoutId;
             await workouts.SaveAsync(id, $"{Sentinel} edited", exercises);
             var failed = await workouts.SaveNewAsync(draft, Sentinel, exercises);
             await workouts.GetAsync(id);
@@ -50,7 +50,7 @@ public class NotesNotLoggedTests
 
             Assert.Multiple(() =>
             {
-                Assert.That(failed.WorkoutId, Is.Null, "the second save of the same start fails");
+                Assert.That(failed.Value, Is.Not.InstanceOf<Saved>(), "the second save of the same start fails");
                 Assert.That((review.New, review.Different, review.Skipped), Is.EqualTo((1, 1, 1)), "new, different on a note, and an over-long note");
                 Assert.That(records.Select(r => (CoreEvent)r.Id.Id), Is.SupersetOf(new[]
                 {

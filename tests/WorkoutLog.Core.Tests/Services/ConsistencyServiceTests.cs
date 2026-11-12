@@ -44,12 +44,12 @@ public class ConsistencyServiceTests
 
         Assert.Multiple(() =>
         {
-            Assert.That(result.Comparison, Is.EqualTo(new WeekTallies(
+            Assert.That(result.Loaded().Comparison, Is.EqualTo(new WeekTallies(
                 new WeekTally(1, TimeSpan.FromMinutes(45), 12),
                 new WeekTally(2, TimeSpan.FromMinutes(90), 14))));
-            Assert.That(result.WeekCounts, Is.EqualTo(new[] { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 1 }));
-            Assert.That(result.Streak, Is.EqualTo(2));
-            Assert.That(result.Failed, Is.False);
+            Assert.That(result.Loaded().WeekCounts, Is.EqualTo(new[] { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 1 }));
+            Assert.That(result.Loaded().Streak, Is.EqualTo(2));
+            Assert.That(result.Value, Is.Not.InstanceOf<ReadFailed>());
             repository.Verify(r => r.ListTalliesAsync(DateTimeOffset.MinValue, Now), Times.Once);
         });
     }
@@ -64,7 +64,7 @@ public class ConsistencyServiceTests
 
         var result = await service.GetAsync();
 
-        Assert.That((result.Comparison.LastWeekToDate.Workouts, result.WeekCounts[^2]), Is.EqualTo((0, 1)));
+        Assert.That((result.Loaded().Comparison.LastWeekToDate.Workouts, result.Loaded().WeekCounts[^2]), Is.EqualTo((0, 1)));
     }
 
     [Test]
@@ -76,7 +76,7 @@ public class ConsistencyServiceTests
 
         var result = await service.GetAsync();
 
-        Assert.That(result.Comparison.LastWeekToDate.Workouts, Is.EqualTo(1));
+        Assert.That(result.Loaded().Comparison.LastWeekToDate.Workouts, Is.EqualTo(1));
     }
 
     [Test]
@@ -89,8 +89,8 @@ public class ConsistencyServiceTests
 
         Assert.Multiple(() =>
         {
-            Assert.That(result.Streak, Is.EqualTo(20));
-            Assert.That(result.WeekCounts, Is.EqualTo(Enumerable.Repeat(1, 12)));
+            Assert.That(result.Loaded().Streak, Is.EqualTo(20));
+            Assert.That(result.Loaded().WeekCounts, Is.EqualTo(Enumerable.Repeat(1, 12)));
         });
     }
 
@@ -103,7 +103,7 @@ public class ConsistencyServiceTests
 
         var result = await service.GetAsync();
 
-        Assert.That(result.WeekCounts[^1], Is.EqualTo(1));
+        Assert.That(result.Loaded().WeekCounts[^1], Is.EqualTo(1));
     }
 
     [Test]
@@ -113,8 +113,8 @@ public class ConsistencyServiceTests
 
         var result = await service.GetAsync();
 
-        Assert.That(result, Is.EqualTo(new ConsistencyResult(new WeekTallies(WeekTally.None, WeekTally.None), result.WeekCounts, 0, Failed: false)));
-        Assert.That(result.WeekCounts, Is.EqualTo(new int[12]));
+        Assert.That(result.Loaded(), Is.EqualTo(new WeeklyConsistency(new WeekTallies(WeekTally.None, WeekTally.None), result.Loaded().WeekCounts, 0)));
+        Assert.That(result.Loaded().WeekCounts, Is.EqualTo(new int[12]));
     }
 
     [Test]
@@ -141,9 +141,7 @@ public class ConsistencyServiceTests
 
         Assert.Multiple(() =>
         {
-            Assert.That(result, Is.SameAs(ConsistencyResult.FailedRead));
-            Assert.That(result.Failed, Is.True);
-            Assert.That(result.WeekCounts, Is.EqualTo(new int[12]));
+            Assert.That(result.Value, Is.InstanceOf<ReadFailed>());
             Assert.That(LoggedEvents.Of(logger), Is.EqualTo(new[] { (CoreEvent.ConsistencyLoadFailed, LogLevel.Warning, "Loading the Consistency card failed") }));
             Assert.That(logger.LatestRecord.Exception, Is.SameAs(exception));
         });
@@ -161,7 +159,7 @@ public class ConsistencyServiceTests
 
         Assert.Multiple(() =>
         {
-            Assert.That(result.Failed, Is.True);
+            Assert.That(result.Value, Is.InstanceOf<ReadFailed>());
             Assert.That(logger.LatestRecord.Exception, Is.SameAs(exception));
         });
     }

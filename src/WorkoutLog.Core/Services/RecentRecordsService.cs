@@ -22,7 +22,7 @@ internal sealed partial class RecentRecordsService(
     private const int MaxRecords = 3;
 
     /// <inheritdoc />
-    public async Task<RecentRecordsResult> GetAsync()
+    public async Task<ReadResult<RecentRecords>> GetAsync()
     {
         var now = time.GetUtcNow();
         try
@@ -63,12 +63,12 @@ internal sealed partial class RecentRecordsService(
                 .Select(r => r.Record)
                 .ToList();
             Log.Loaded(logger, recent.Count);
-            return new RecentRecordsResult(recent, now, Failed: false);
+            return new RecentRecords(recent, now);
         }
         catch (Exception exception)
         {
             Log.LoadFailed(logger, exception);
-            return new RecentRecordsResult([], now, Failed: true);
+            return new ReadFailed();
         }
     }
 

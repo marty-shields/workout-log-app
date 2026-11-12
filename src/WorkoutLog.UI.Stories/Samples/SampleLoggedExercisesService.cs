@@ -6,5 +6,5 @@ namespace WorkoutLog.UI.Stories.Samples;
 public sealed class SampleLoggedExercisesService : ILoggedExercisesService
 {
     /// <inheritdoc />
-    public Task<LoggedExercisesResult> GetAsync() => throw new NotSupportedException("The stories don't load logged exercises.");
+    public Task<ReadResult<IReadOnlyList<LoggedExercise>>> GetAsync() => throw new NotSupportedException("The stories don't load logged exercises.");
 }

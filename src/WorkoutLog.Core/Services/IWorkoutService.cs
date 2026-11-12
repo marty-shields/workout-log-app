@@ -30,10 +30,6 @@ public interface IWorkoutService
     /// </summary>
     Task<SaveResult> SaveNewAsync(WorkoutDraft draft, string? note, IReadOnlyList<WorkoutExercise> exercises);
 
-    /// <summary>
-    /// Returns the saved workout. A missing id returns <see cref="WorkoutLoad.NotFound"/>;
-    /// a failed read returns <see cref="WorkoutLoad.Failed"/>.
-    /// </summary>
     Task<WorkoutResult> GetAsync(int workoutId);
 
     /// <summary>

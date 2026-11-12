@@ -32,7 +32,7 @@ public class LastWorkoutServiceTests
     {
         repository.Setup(r => r.GetLatestAsync()).ReturnsAsync((WorkoutOutline?)null);
 
-        Assert.That(await service.GetAsync(), Is.EqualTo(new LastWorkoutResult(null, Failed: false)));
+        Assert.That((await service.GetAsync()).Value, Is.Null);
         Assert.That(LoggedEvents.Of(logger), Is.EqualTo(new[] { (CoreEvent.LastWorkoutLoaded, LogLevel.Information, "Last workout loaded") }));
     }
 
@@ -43,7 +43,7 @@ public class LastWorkoutServiceTests
 
         var result = await service.GetAsync();
 
-        Assert.That(result, Is.EqualTo(new LastWorkoutResult(new WorkoutOutline(4, Start, Finish, [300, 1, 187]), Failed: false))
+        Assert.That(result.Value, Is.EqualTo(new WorkoutOutline(4, Start, Finish, [300, 1, 187]))
             .UsingPropertiesComparer());
         Assert.That(LoggedEvents.Of(logger), Is.EqualTo(new[] { (CoreEvent.LastWorkoutLoaded, LogLevel.Information, "Last workout loaded") }));
     }
@@ -55,7 +55,7 @@ public class LastWorkoutServiceTests
 
         var result = await service.GetAsync();
 
-        Assert.That(result.Workout!.ExerciseIds, Is.EqualTo(new[] { 1, 300 }));
+        Assert.That(result.Loaded()!.ExerciseIds, Is.EqualTo(new[] { 1, 300 }));
         Assert.That(LoggedEvents.Of(logger), Is.EqualTo(new[]
         {
             (CoreEvent.LastWorkoutUnknownExercise, LogLevel.Warning, "Exercise 9999 is not in the exercise list; left out"),
@@ -71,7 +71,7 @@ public class LastWorkoutServiceTests
 
         var result = await service.GetAsync();
 
-        Assert.That(result, Is.EqualTo(new LastWorkoutResult(null, Failed: true)));
+        Assert.That(result.Value, Is.InstanceOf<ReadFailed>());
         Assert.Multiple(() =>
         {
             Assert.That(LoggedEvents.Of(logger), Is.EqualTo(new[] { (CoreEvent.LastWorkoutLoadFailed, LogLevel.Warning, "Loading the last workout failed") }));

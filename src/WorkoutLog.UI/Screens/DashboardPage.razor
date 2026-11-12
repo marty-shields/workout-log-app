@@ -36,7 +36,7 @@
 @code {
     private (int Id, LastWorkout Card)? last;
     private IReadOnlyList<RecentRecord>? records;
-    private ConsistencyResult consistency = ConsistencyResult.FailedRead;
+    private WeeklyConsistency consistency = WeeklyConsistency.None;
     private bool loading;
     private bool failed;
     private IDisposable? registration;
@@ -100,10 +100,22 @@
             return;
         }
 
-        last = lastResult.Workout is { } workout ? (workout.Id, Card(workout)) : null;
-        consistency = consistencyResult;
-        records = recent.Failed ? null : RecentRecordItems.Items(recent.Records, Catalog, Clock.LocalTimeZone, recent.Now);
-        failed = lastResult.Failed || consistencyResult.Failed;
+        last = lastResult switch
+        {
+            WorkoutOutline workout => (workout.Id, Card(workout)),
+            null or ReadFailed => null,
+        };
+        consistency = consistencyResult switch
+        {
+            WeeklyConsistency read => read,
+            ReadFailed => WeeklyConsistency.None,
+        };
+        records = recent switch
+        {
+            RecentRecords read => RecentRecordItems.Items(read.Records, Catalog, Clock.LocalTimeZone, read.Now),
+            ReadFailed => null,
+        };
+        failed = lastResult is ReadFailed || consistencyResult is ReadFailed;
         await minimumElapsed;
         if (!disposed)
         {

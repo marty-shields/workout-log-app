@@ -19,10 +19,10 @@ internal sealed class StrengthSetRow
 
     /// <summary>Weight in kg; 0 is unweighted or no assist.</summary>
     [NotNull]
-    public decimal WeightKg { get; set; }
+    public double WeightKg { get; set; }
 
     public TimeSpan? Duration { get; set; }
 
     /// <summary>Distance, in the exercise's unit.</summary>
-    public decimal? Distance { get; set; }
+    public double? Distance { get; set; }
 }

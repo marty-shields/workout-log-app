@@ -86,14 +86,6 @@ public class LastTimeItemsTests
     }
 
     [Test]
-    public void From_NoLastSession_IsNull() =>
-        Assert.That(LastTimeItems.From(Find(Squat), new LastSessionResult(null, null, Failed: false)), Is.Null);
-
-    [Test]
-    public void From_FailedRead_IsNull() =>
-        Assert.That(LastTimeItems.From(Find(Squat), new LastSessionResult(null, null, Failed: true)), Is.Null);
-
-    [Test]
     public void From_CardioSessionOfAStrengthExercise_IsNull() =>
         Assert.That(From(Squat, new CardioExercise(Squat, new CardioEntry(new TimeSpan(0, 30, 0), null, null, null, null, null, null)),
             new CardioBest(null, new TimeSpan(0, 30, 0), null, null, null, null)), Is.Null);
@@ -105,7 +97,7 @@ public class LastTimeItemsTests
     private static ExerciseDefinition Find(int id) => Catalog.All.Single(e => e.Id == id);
 
     private static LastTime? From(int exerciseId, WorkoutExercise exercise, CardioBest? best = null) =>
-        LastTimeItems.From(Find(exerciseId), new LastSessionResult(exercise, best, Failed: false));
+        LastTimeItems.From(Find(exerciseId), new LastSessionExercise(exercise, best));
 
     private static StrengthExercise Sets(params StrengthSet[] sets) => new(0, sets);
 

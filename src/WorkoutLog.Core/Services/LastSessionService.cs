@@ -14,7 +14,7 @@ internal sealed partial class LastSessionService(IWorkoutRepository repository, 
     : ILastSessionService
 {
     /// <inheritdoc />
-    public async Task<LastSessionResult> GetAsync(int exerciseId, DateTimeOffset? before = null)
+    public async Task<ReadResult<LastSessionExercise?>> GetAsync(int exerciseId, DateTimeOffset? before = null)
     {
         LastSession? last;
         try
@@ -24,14 +24,14 @@ internal sealed partial class LastSessionService(IWorkoutRepository repository, 
         catch (Exception exception)
         {
             Log.LoadFailed(logger, exerciseId, exception);
-            return new LastSessionResult(null, null, Failed: true);
+            return new ReadFailed();
         }
 
         return last?.Exercise switch
         {
-            null => new LastSessionResult(null, null, Failed: false),
-            CardioExercise cardio => new LastSessionResult(cardio, cardioRule.Best(cardio.Entry), Failed: false),
-            var exercise => new LastSessionResult(exercise, null, Failed: false),
+            null => (LastSessionExercise?)null,
+            CardioExercise cardio => new LastSessionExercise(cardio, cardioRule.Best(cardio.Entry)),
+            var exercise => new LastSessionExercise(exercise, null),
         };
     }
 

@@ -51,8 +51,8 @@ jobs:
 
       - name: Build the Release APK (x64, debug key)
         run: |
-          dotnet restore src/WorkoutLog.App
-          dotnet publish src/WorkoutLog.App -c Release -f net10.0-android -p:AndroidPackageFormat=apk \
+          dotnet restore src/WorkoutLog.App -p:Configuration=Release
+          dotnet publish src/WorkoutLog.App -c Release -f net11.0-android -p:AndroidPackageFormat=apk \
             -r android-x64 --no-restore -o "$RUNNER_TEMP/release"
           cp "$HOME/.local/share/Xamarin/Mono for Android/debug.keystore" "$RUNNER_TEMP/release/"
 

@@ -111,10 +111,10 @@
         notice = ReviewNotice.None;
         StateHasChanged();
         var result = await Import.ImportAsync(review!, mode, different);
-        if (result.Status == ImportStatus.Imported)
+        if (result is Imported done)
         {
             Session.Review = null;
-            Session.Done = result;
+            Session.Done = done;
             await OnImported.InvokeAsync();
             return;
         }
@@ -150,7 +150,6 @@
         }
 
         activity = ReviewActivity.Reading;
-        StateHasChanged();
         ImportReview? next = null;
         var pickFailed = false;
         try

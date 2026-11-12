@@ -16,7 +16,7 @@ internal sealed class CardioEntryRow
     public TimeSpan Duration { get; set; }
 
     /// <summary>Distance, in the exercise's unit.</summary>
-    public decimal? Distance { get; set; }
+    public double? Distance { get; set; }
 
     public int? Floors { get; set; }
 
@@ -24,10 +24,10 @@ internal sealed class CardioEntryRow
     public int? Level { get; set; }
 
     /// <summary>Incline, percent.</summary>
-    public decimal? Incline { get; set; }
+    public double? Incline { get; set; }
 
     public int? Calories { get; set; }
 
     /// <summary>Rate, in the exercise's unit.</summary>
-    public decimal? Rate { get; set; }
+    public double? Rate { get; set; }
 }

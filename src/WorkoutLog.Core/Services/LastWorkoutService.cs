@@ -11,7 +11,7 @@ internal sealed partial class LastWorkoutService(IWorkoutRepository repository, 
     : ILastWorkoutService
 {
     /// <inheritdoc />
-    public async Task<LastWorkoutResult> GetAsync()
+    public async Task<ReadResult<WorkoutOutline?>> GetAsync()
     {
         WorkoutOutline? workout;
         try
@@ -21,7 +21,7 @@ internal sealed partial class LastWorkoutService(IWorkoutRepository repository, 
         catch (Exception exception)
         {
             Log.LoadFailed(logger, exception);
-            return new LastWorkoutResult(null, Failed: true);
+            return new ReadFailed();
         }
 
         if (workout is not null)
@@ -36,7 +36,7 @@ internal sealed partial class LastWorkoutService(IWorkoutRepository repository, 
         }
 
         Log.Loaded(logger);
-        return new LastWorkoutResult(workout, Failed: false);
+        return workout;
     }
 
     private static partial class Log

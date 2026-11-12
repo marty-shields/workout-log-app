@@ -33,7 +33,7 @@ public class ExercisePageCardioTests : ComponentTestBase
         Context.Services.AddSingleton<IExerciseProgressService>(lifts);
         progress = new FakeCardioProgressService
         {
-            Result = new CardioProgressResult([Short, Long], Failed: false),
+            Result = new ReadResult<IReadOnlyList<CardioSession>>([Short, Long]),
             Summary = (_, range) => range == HistoryRange.All
                 ? new CardioProgress([], new CardioRecords(null, null, null, null, null, null))
                 : new CardioProgress(
@@ -85,7 +85,7 @@ public class ExercisePageCardioTests : ComponentTestBase
         {
             Assert.That(progress.Loads, Is.EqualTo(new[] { Run }));
             Assert.That(lifts.Loads, Is.Empty);
-            Assert.That(progress.Summaries.Single().Sessions, Is.SameAs(progress.Result.Sessions));
+            Assert.That(progress.Summaries.Single().Sessions, Is.SameAs(progress.Result.Loaded()));
             Assert.That(progress.Summaries.Single().Range, Is.EqualTo(HistoryRange.ThreeMonths));
             Assert.That(cut.Find("[data-testid=screen-subtitle]").TextContent, Is.EqualTo("Cardio"));
             Assert.That(cut.FindAll("[data-testid=exercise-tabs] input").Select(i => i.GetAttribute("data-testid")),
@@ -175,7 +175,7 @@ public class ExercisePageCardioTests : ComponentTestBase
     [Test]
     public void NoDistance_OpensOnDurationWithFloors()
     {
-        progress.Result = new CardioProgressResult([], Failed: false);
+        progress.Result = new ReadResult<IReadOnlyList<CardioSession>>([]);
         progress.Summary = (_, _) => new CardioProgress([], new CardioRecords(null, null, null, null, null, null));
 
         var cut = Render(StairClimber);
@@ -191,10 +191,10 @@ public class ExercisePageCardioTests : ComponentTestBase
     [Test]
     public void LoadFailed_ShowsTheErrorAndTryAgainLoadsAgain()
     {
-        progress.Result = new CardioProgressResult([], Failed: true);
+        progress.Result = new ReadFailed();
         var cut = Render(Run);
         Assume.That(cut.Find("[data-testid=exercise-error]").TextContent, Is.EqualTo("Couldn't load this exercise"));
-        progress.Result = new CardioProgressResult([Short, Long], Failed: false);
+        progress.Result = new ReadResult<IReadOnlyList<CardioSession>>([Short, Long]);
 
         cut.Find("[data-testid=exercise-retry]").Click();
 
