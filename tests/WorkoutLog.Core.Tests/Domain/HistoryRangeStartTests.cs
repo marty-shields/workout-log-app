@@ -24,21 +24,23 @@ public class HistoryRangeStartTests
     public void From_All_IsNull() =>
         Assert.That(HistoryRange.All.From(new DateOnly(2026, 11, 6)), Is.Null);
 
-    [TestCase(HistoryRange.ThreeMonths)]
-    [TestCase(HistoryRange.SixMonths)]
-    [TestCase(HistoryRange.Year)]
-    public void Includes_TheStartDay_IsTrue(HistoryRange range)
+    [TestCase(HistoryRange.ThreeMonths, 2026, 11, 6)]
+    [TestCase(HistoryRange.SixMonths, 2026, 11, 6)]
+    [TestCase(HistoryRange.Year, 2026, 11, 6)]
+    [TestCase(HistoryRange.ThreeMonths, 2026, 5, 31)]
+    public void Includes_TheStartDay_IsTrue(HistoryRange range, int year, int month, int day)
     {
-        var today = new DateOnly(2026, 11, 6);
+        var today = new DateOnly(year, month, day);
         Assert.That(range.Includes(today, range.From(today)!.Value), Is.True);
     }
 
-    [TestCase(HistoryRange.ThreeMonths)]
-    [TestCase(HistoryRange.SixMonths)]
-    [TestCase(HistoryRange.Year)]
-    public void Includes_TheDayBeforeTheStart_IsFalse(HistoryRange range)
+    [TestCase(HistoryRange.ThreeMonths, 2026, 11, 6)]
+    [TestCase(HistoryRange.SixMonths, 2026, 11, 6)]
+    [TestCase(HistoryRange.Year, 2026, 11, 6)]
+    [TestCase(HistoryRange.ThreeMonths, 2026, 5, 31)]
+    public void Includes_TheDayBeforeTheStart_IsFalse(HistoryRange range, int year, int month, int day)
     {
-        var today = new DateOnly(2026, 11, 6);
+        var today = new DateOnly(year, month, day);
         Assert.That(range.Includes(today, range.From(today)!.Value.AddDays(-1)), Is.False);
     }
 
@@ -65,6 +67,14 @@ public class HistoryRangeStartTests
     [Test]
     public void Includes_All_IncludesAVeryOldDate() =>
         Assert.That(HistoryRange.All.Includes(new DateOnly(2026, 11, 6), new DateOnly(1970, 1, 1)), Is.True);
+
+    [TestCase(1)]
+    [TestCase(-1)]
+    public void Includes_UndefinedRange_Throws(int dayOffsetFromToday)
+    {
+        var today = new DateOnly(2026, 11, 6);
+        Assert.That(() => ((HistoryRange)99).Includes(today, today.AddDays(dayOffsetFromToday)), Throws.TypeOf<ArgumentOutOfRangeException>());
+    }
 
     [Test]
     public void From_UndefinedRange_Throws() =>
