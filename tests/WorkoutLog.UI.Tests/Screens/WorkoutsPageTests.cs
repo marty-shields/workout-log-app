@@ -254,6 +254,24 @@ public class WorkoutsPageTests : ComponentTestBase
     }
 
     [Test]
+    public async Task TotalsFailOnALaterRange_HideTheEarlierCardAndShowTheRows()
+    {
+        var cut = await OpenedAsync();
+        await CompleteRangeAsync(cut, Recent);
+        Assert.That(cut.FindAll("[data-testid=workout-totals]"), Is.Not.Empty);
+        totals.Result = new ReadFailed();
+
+        cut.Find("[data-testid=workouts-range-1y]").Change(true);
+        await CompleteRangeAsync(cut, Recent);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.FindAll("[data-testid=workout-totals]"), Is.Empty);
+            Assert.That(Shown(cut), Is.EqualTo(new[] { "workouts-row-4" }));
+        });
+    }
+
+    [Test]
     public async Task NoWorkoutsInTheRange_HideTheCard()
     {
         var cut = await OpenedAsync();
