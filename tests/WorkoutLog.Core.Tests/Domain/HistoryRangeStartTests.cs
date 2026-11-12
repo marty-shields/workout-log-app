@@ -31,6 +31,10 @@ public class HistoryRangeStartTests
     private static readonly DateOnly Today = new(2026, 11, 6);
 
     [Test]
+    public void Includes_UndefinedRangeWithFutureDate_Throws() =>
+        Assert.That(() => ((HistoryRange)99).Includes(Today, Today.AddDays(1)), Throws.TypeOf<ArgumentOutOfRangeException>());
+
+    [Test]
     public void Includes_TheStartDay_IsTrue() =>
         Assert.That(HistoryRange.ThreeMonths.Includes(Today, new DateOnly(2026, 8, 6)), Is.True);
 
