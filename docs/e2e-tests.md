@@ -3,7 +3,7 @@ Running the E2E suite on a phone or an emulator, and where the results go. Set u
 
 ## Each run
 1. Connect the device and unlock it; keep it unlocked (Developer options → **Stay awake** helps). A locked device fails each test.
-2. Build the App: `dotnet build src/WorkoutLog.App -f net11.0-android`. The tests install this APK; they don't build it. Build and test from the same commit.
+2. Build the App: `dotnet build src/WorkoutLog.App -f net11.0-android`. The tests install this APK; they don't build it. The Settings version scenario expects the installed package's `versionName`, so any build works; CI and `e2e-local.sh` build with `-p:ApplicationDisplayVersion=1.0.0-e2e.<run id>` (`1.0.0-e2e.<epoch>` locally) so it proves the line reads the build's version rather than the `1.0.0` default. Build and test from the same commit.
 3. Run the tests: every scenario the Debug app runs (all but `@upgrade` and `@backup`, see [Tags](#tags)), the smoke scenarios, one feature's:
    ```
    dotnet test tests/WorkoutLog.E2E.Tests --filter "Category!=upgrade&Category!=backup"

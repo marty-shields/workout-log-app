@@ -4,7 +4,7 @@ Also: [Windows setup](dev-setup-windows.md), [Linux setup](dev-setup-linux.md), 
 ## App identity
 - Release: **Workout Log**, package id **`uk.martinshields.workoutlog`**. The id can't change without a reinstall, which wipes all data.
 - Debug: **Workout Log (Dev)**, package id **`uk.martinshields.workoutlog.debug`**. It installs alongside the release app with its own data, so USB debugging never touches real workouts.
-- Version: SemVer display version; the version code is the number of `v*` tags + 1. The release workflow sets both; local builds are `1.0.0` (1).
+- Version: SemVer display version; the version code is the number of `v*` tags + 1. The release workflow sets both; local builds are `1.0.0` (1). The CI and `e2e-local.sh` Debug builds for E2E pass `-p:ApplicationDisplayVersion=1.0.0-e2e.<run id>` (`1.0.0-e2e.<epoch seconds>` locally), so the Settings version scenario checks the version of the installed package; the version code stays 1.
 
 ## Prerequisites
 - .NET 11 SDK: the version in `global.json` or a later patch.

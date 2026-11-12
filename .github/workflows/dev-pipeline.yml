@@ -41,7 +41,9 @@ jobs:
 
       - name: Build
         id: build
-        run: dotnet build WorkoutLog.slnx
+        # A unique display version (a suffix: assembly version parts stop at 65535) for the Debug App every shard installs, so the E2E test of the Settings version line proves it
+        # reads the build's version and not the 1.0.0 default. Only this Debug build gets it; release.yml sets the real one on its publish.
+        run: dotnet build WorkoutLog.slnx -p:ApplicationDisplayVersion=1.0.0-e2e.${{ github.run_id }}
 
       # Fails on a file that breaks .editorconfig, such as import order, braces or private field names.
       - name: Check code style

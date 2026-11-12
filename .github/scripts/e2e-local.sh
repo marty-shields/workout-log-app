@@ -248,7 +248,8 @@ if [[ ! -d $e2e/node_modules || $e2e/package-lock.json -nt $e2e/node_modules/.pa
 fi
 # A given APK needs no Debug build.
 if [[ -z "${E2E_APP_APK:-}" ]]; then
-  run dotnet build src/WorkoutLog.App -f net11.0-android
+  # A unique display version (a suffix, as an assembly version takes no component over 65535), so the Settings version scenario proves the line reads the build's version, not the 1.0.0 default.
+  run dotnet build src/WorkoutLog.App -f net11.0-android "-p:ApplicationDisplayVersion=1.0.0-e2e.$(date +%s)"
 fi
 run dotnet build "$e2e"
 
