@@ -24,6 +24,38 @@ public class HistoryRangeStartTests
     public void From_All_IsNull() =>
         Assert.That(HistoryRange.All.From(new DateOnly(2026, 11, 6)), Is.Null);
 
+    private static readonly DateOnly Today = new(2026, 11, 6);
+
+    [TestCase(HistoryRange.ThreeMonths)]
+    [TestCase(HistoryRange.SixMonths)]
+    [TestCase(HistoryRange.Year)]
+    public void Includes_TheStartDay_IsTrue(HistoryRange range) =>
+        Assert.That(range.Includes(Today, range.From(Today)!.Value), Is.True);
+
+    [TestCase(HistoryRange.ThreeMonths)]
+    [TestCase(HistoryRange.SixMonths)]
+    [TestCase(HistoryRange.Year)]
+    public void Includes_TheDayBeforeTheStart_IsFalse(HistoryRange range) =>
+        Assert.That(range.Includes(Today, range.From(Today)!.Value.AddDays(-1)), Is.False);
+
+    [TestCase(HistoryRange.ThreeMonths)]
+    [TestCase(HistoryRange.SixMonths)]
+    [TestCase(HistoryRange.Year)]
+    [TestCase(HistoryRange.All)]
+    public void Includes_Today_IsTrue(HistoryRange range) =>
+        Assert.That(range.Includes(Today, Today), Is.True);
+
+    [TestCase(HistoryRange.ThreeMonths)]
+    [TestCase(HistoryRange.SixMonths)]
+    [TestCase(HistoryRange.Year)]
+    [TestCase(HistoryRange.All)]
+    public void Includes_Tomorrow_IsFalse(HistoryRange range) =>
+        Assert.That(range.Includes(Today, Today.AddDays(1)), Is.False);
+
+    [Test]
+    public void Includes_All_IncludesAVeryOldDate() =>
+        Assert.That(HistoryRange.All.Includes(Today, new DateOnly(1970, 1, 1)), Is.True);
+
     [Test]
     public void From_UndefinedRange_Throws() =>
         Assert.That(() => ((HistoryRange)99).From(new DateOnly(2026, 11, 6)), Throws.TypeOf<ArgumentOutOfRangeException>().With.Property("ParamName").EqualTo("range"));
