@@ -1,7 +1,6 @@
-using System.Globalization;
 using Android.Views;
 using Microsoft.AspNetCore.Components;
-using Microsoft.JSInterop;
+using WorkoutLog.UI.Theme;
 using View = Android.Views.View;
 
 namespace WorkoutLog.App.Components;
@@ -18,10 +17,9 @@ public sealed class SystemBarInsets : ComponentBase, IDisposable
     private View? decor;
     private ViewTreeObserver? observer;
     private LayoutListener? listener;
-    private (float Top, float Bottom)? applied;
 
     [Inject]
-    private IJSRuntime JS { get; set; } = null!;
+    private SystemBarInsetWriter Writer { get; set; } = null!;
 
     public void Dispose()
     {
@@ -56,34 +54,11 @@ public sealed class SystemBarInsets : ComponentBase, IDisposable
     private async Task ApplyAsync()
     {
         var density = decor?.Resources?.DisplayMetrics?.Density ?? 0;
-        if (decor?.RootWindowInsets?.GetInsets(WindowInsets.Type.SystemBars() | WindowInsets.Type.DisplayCutout()) is not { } insets || density <= 0)
+        if (decor?.RootWindowInsets?.GetInsets(WindowInsets.Type.SystemBars() | WindowInsets.Type.DisplayCutout()) is { } insets)
         {
-            return;
-        }
-
-        (float Top, float Bottom) current = (insets.Top / density, insets.Bottom / density);
-        if (current == applied)
-        {
-            return;
-        }
-
-        try
-        {
-            await JS.InvokeVoidAsync("document.documentElement.style.setProperty", "--inset-top", Pixels(current.Top));
-            await JS.InvokeVoidAsync("document.documentElement.style.setProperty", "--inset-bottom", Pixels(current.Bottom));
-            applied = current;
-        }
-        catch (JSDisconnectedException)
-        {
-            // The page is gone, and its insets with it.
-        }
-        catch (JSException)
-        {
-            // Left unapplied, so the next layout tries again.
+            await Writer.ApplyAsync(insets.Top, insets.Bottom, density);
         }
     }
-
-    private static string Pixels(float value) => value.ToString(CultureInfo.InvariantCulture) + "px";
 
     private sealed class LayoutListener(Func<Task> laidOut) : Java.Lang.Object, ViewTreeObserver.IOnGlobalLayoutListener
     {
