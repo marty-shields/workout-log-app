@@ -1,5 +1,6 @@
 @using Microsoft.Extensions.Logging
 @using WorkoutLog.Core.Domain.Exercises
+@using WorkoutLog.Core.Domain.Workouts
 @using WorkoutLog.Core.Services
 @using WorkoutLog.UI.Components.Overlays
 @using WorkoutLog.UI.Components.Workout
@@ -114,13 +115,12 @@ else
     {
         var workoutId = WorkoutId;
         var result = await Workouts.GetAsync(workoutId);
-        if (result.Status != WorkoutLoad.Loaded)
+        if (result is not Workout workout)
         {
-            phase = result.Status == WorkoutLoad.NotFound ? EditPhase.NotFound : EditPhase.LoadFailed;
+            phase = result is WorkoutNotFound ? EditPhase.NotFound : EditPhase.LoadFailed;
             return;
         }
 
-        var workout = result.Workout!;
         var exercises = new List<ExerciseState>();
         foreach (var exercise in workout.Exercises)
         {

@@ -40,7 +40,7 @@ public sealed class SampleWorkoutService(TimeProvider time, IExerciseCatalog cat
 
     /// <inheritdoc />
     public Task<WorkoutResult> GetAsync(int workoutId) =>
-        Task.FromResult(new WorkoutResult(SampleData.SavedStrengthWorkout with { Id = workoutId }, WorkoutLoad.Loaded));
+        Task.FromResult<WorkoutResult>(SampleData.SavedStrengthWorkout with { Id = workoutId });
 
     /// <inheritdoc />
     public Task<SaveResult> SaveAsync(int workoutId, string? note, IReadOnlyList<WorkoutExercise> exercises)

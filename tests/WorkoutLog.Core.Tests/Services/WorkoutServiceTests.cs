@@ -302,10 +302,10 @@ public class WorkoutServiceTests
             await provider.GetRequiredService<IDatabaseInitializer>().InitializeAsync();
             var saving = provider.GetRequiredService<IWorkoutService>();
             var id = (await saving.SaveNewAsync(saving.StartNew(), "  Felt strong ", NotedExercises(Treadmill))).WorkoutId!.Value;
-            var added = (await saving.GetAsync(id)).Workout!;
+            var added = (Workout)(await saving.GetAsync(id)).Value!;
 
             var edit = await saving.SaveAsync(id, " ", [new StrengthExercise(Press, [new StrengthSet(10, 20m, null, null)]), new CardioExercise(Treadmill, Entry(), " Hills ")]);
-            var edited = (await saving.GetAsync(id)).Workout!;
+            var edited = (Workout)(await saving.GetAsync(id)).Value!;
 
             Assert.Multiple(() =>
             {
@@ -343,7 +343,7 @@ public class WorkoutServiceTests
 
             Assert.That(result.WorkoutId, Is.Null);
             Assert.That(result.Errors.Note, Is.EqualTo(NoteError.TooLong));
-            Assert.That((await saving.GetAsync(id)).Workout!.Note, Is.EqualTo("Felt strong"));
+            Assert.That(((Workout)(await saving.GetAsync(id)).Value!).Note, Is.EqualTo("Felt strong"));
         }
         finally
         {
@@ -432,7 +432,7 @@ public class WorkoutServiceTests
 
         var result = await service.GetAsync(7);
 
-        Assert.That(result, Is.EqualTo(new WorkoutResult(workout, WorkoutLoad.Loaded)));
+        Assert.That(result.Value, Is.EqualTo(workout));
         Assert.That(LoggedEvents.Of(logger), Is.EqualTo(new[] { (CoreEvent.WorkoutLoaded, LogLevel.Debug, "Workout 7 loaded with 2 exercises") }));
     }
 
@@ -443,7 +443,7 @@ public class WorkoutServiceTests
 
         var result = await service.GetAsync(7);
 
-        Assert.That(result, Is.EqualTo(new WorkoutResult(null, WorkoutLoad.NotFound)));
+        Assert.That(result.Value, Is.InstanceOf<WorkoutNotFound>());
         Assert.That(LoggedEvents.Of(logger), Is.EqualTo(new[] { (CoreEvent.WorkoutNotFound, LogLevel.Warning, "Workout 7 not found") }));
         Assert.That(logger.LatestRecord.Exception, Is.Null);
     }
@@ -456,7 +456,7 @@ public class WorkoutServiceTests
 
         var result = await service.GetAsync(7);
 
-        Assert.That(result, Is.EqualTo(new WorkoutResult(null, WorkoutLoad.Failed)));
+        Assert.That(result.Value, Is.InstanceOf<ReadFailed>());
         Assert.That(LoggedEvents.Of(logger), Is.EqualTo(new[] { (CoreEvent.WorkoutLoadFailed, LogLevel.Error, "Loading workout 7 failed") }));
         Assert.That(logger.LatestRecord.Exception, Is.SameAs(exception));
     }

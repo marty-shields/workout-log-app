@@ -72,17 +72,17 @@ internal sealed partial class WorkoutService(
         catch (Exception exception)
         {
             Log.LoadFailed(logger, workoutId, exception);
-            return new WorkoutResult(null, WorkoutLoad.Failed);
+            return new ReadFailed();
         }
 
         if (workout is null)
         {
             Log.NotFound(logger, workoutId);
-            return new WorkoutResult(null, WorkoutLoad.NotFound);
+            return new WorkoutNotFound();
         }
 
         Log.Loaded(logger, workoutId, workout.Exercises.Count);
-        return new WorkoutResult(workout, WorkoutLoad.Loaded);
+        return workout;
     }
 
     /// <inheritdoc />

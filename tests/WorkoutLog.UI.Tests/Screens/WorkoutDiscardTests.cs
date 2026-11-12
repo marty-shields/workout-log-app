@@ -281,7 +281,7 @@ public class WorkoutDiscardTests(WorkoutMode mode) : ComponentTestBase
             return Save?.Invoke() ?? inner.SaveNewAsync(draft, note, exercises);
         }
 
-        public Task<WorkoutResult> GetAsync(int workoutId) => Task.FromResult(new WorkoutResult(Saved, WorkoutLoad.Loaded));
+        public Task<WorkoutResult> GetAsync(int workoutId) => Task.FromResult<WorkoutResult>(Saved);
 
         public Task<SaveResult> SaveAsync(int workoutId, string? note, IReadOnlyList<WorkoutExercise> exercises)
         {
