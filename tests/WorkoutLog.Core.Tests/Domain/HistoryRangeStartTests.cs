@@ -59,4 +59,9 @@ public class HistoryRangeStartTests
     [Test]
     public void Includes_All_IncludesAVeryOldDate() =>
         Assert.That(HistoryRange.All.Includes(Today, new DateOnly(1900, 1, 1)), Is.True);
+
+    [TestCase(-1)]
+    [TestCase(1)]
+    public void Includes_UndefinedRange_Throws(int dayOffset) =>
+        Assert.That(() => ((HistoryRange)99).Includes(Today, Today.AddDays(dayOffset)), Throws.TypeOf<ArgumentOutOfRangeException>());
 }
