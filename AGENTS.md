@@ -30,7 +30,7 @@ Personal Android app (.NET 10 MAUI Blazor Hybrid). Setup: [docs/dev-setup-build.
 - No new packages without approval.
 - XML comments only when they add something the name and type don't (a unit, a range, what null means, an order, a why). Component parameters are the exception. Never restate the name. Build warnings no longer ask for them, and CI's `check-filler-comments.py` fails a `<summary>` or `<param>` that only restates the name (a real exception gets `/// <!-- filler-ok: why -->`).
 - Interfaces only where something else implements them, such as a test fake or the stories site. No interface for a single implementation nothing swaps.
-- Commit on a branch, push it and open a DRAFT PR when the work is done. Review happens on the draft PR, not before the commit. Merge only when the user says to, or in an autopilot run (below).
+- Commit on a branch, push it and open a ready (non-draft) PR when the work is done, so all CI runs. Merge only when the user says to, or in an autopilot run (below). `/build <plan-file>` runs this whole flow automatically: see [docs/factory/README.md](docs/factory/README.md).
 - PR titles are Conventional Commits with exactly one `semver:major|minor|patch` label (CI checks both).
 - A PR that changes the UI includes screenshots of the changed screens, posted as a PR comment or in the body, before it is marked ready.
 - A PR that changes how a screen in the README looks (its markup, CSS, tokens, or the sample data its story shows) retakes the README screenshots with `readme-screenshots.mjs` and commits them in the same PR. Run `--check` before marking it ready; never leave them stale for later.

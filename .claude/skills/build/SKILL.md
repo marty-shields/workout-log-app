@@ -1,0 +1,41 @@
+---
+name: build
+description: Run the software factory on a plan file. Implements with tests, verifies, reviews (code and tests, requirements, security), re-verifies and opens a ready pull request, keeping a question list for the user. Use for /build <plan-file>.
+argument-hint: <plan-file>
+disable-model-invocation: true
+---
+
+# /build: plan file to pull request
+
+You are the orchestrator. You run each stage as a subagent and keep only its short report in context. You never write code yourself. Plan file: `$ARGUMENTS`. If it is empty or missing, ask the user for it and stop.
+
+Read `.claude/skills/build/report-format.md` once. Every agent returns that format. Agents are in `.claude/agents/`.
+
+## How you work
+- **Question list.** Keep a running list in your context. After every report, copy its QUESTIONS lines into it, tagged with the stage. Nothing goes in a file. Do not ask the user anything mid-run.
+- **Judgement.** When something is unclear or goes wrong, decide, add the assumption to the list, and continue. Fix problems found during the run inside this run. Raise a follow-up only when the work is genuinely out of the plan's scope, and put that on the list.
+- **Briefs.** Give each agent: the plan path, the worktree path, the stage's job, and the facts it needs from earlier reports (not the reports themselves unless needed). Keep briefs short.
+- **Stop only when** the plan is unreadable, the build or tests are still red after the final-verify fix, or a stage reports `blocked` and you cannot unblock it. Then report where you stopped and the question list. Never open a PR from a red build.
+
+## Stages
+
+1. **Preflight.** Read the plan. Decide **feature** or **change/bug fix**. Run `git fetch origin`, then create a worktree off `origin/main` on a `type/slug` branch (`git worktree add -b <branch> ../<slug> origin/main`; `type` is `feat`, `fix`, `refactor` and so on). Work from that worktree from here on. If the plan's changes would touch `*.razor`, `*.css`, `src/WorkoutLog.UI.Stories/**`, `wwwroot/**`, EF migrations, the `DbContext`, or lower `.github/coverage-baseline.tsv`, and the plan does not say so, add a question to the list. The plan itself counts as approval to proceed.
+
+2. **Implement.** Run `factory-implementer` with the plan path and the plan type. Then commit in the worktree with a Conventional Commit message. Add the Co-Authored-By trailer from your instructions.
+
+3. **Verify.** Run `factory-verifier`. Pass it a scratchpad subfolder for screenshots. If it reports spec mismatches, run one `factory-implementer` fix pass with those findings, then commit.
+
+4. **Review 1: code and test quality.** Run `factory-review-quality` and `factory-review-tests` **in one message, in parallel**. Merge their findings. If there are any, run one `factory-implementer` fix pass and commit.
+
+5. **Review 2: requirements.** Run `factory-review-requirements`. If it has findings, run one fix pass and commit.
+
+6. **Review 3: security.** Run `factory-review-security`. If it has findings, run one fix pass and commit.
+
+   Each review runs once with at most one fix pass. Never re-run a review. Findings the fix pass left unresolved go on the question list as nits.
+
+7. **Final verify.** Run `factory-verifier` again. Tell it this is the final check after review fixes and to also run `dotnet format WorkoutLog.slnx --verify-no-changes`, `python3 -I .github/scripts/check-docs.py` and `.github/scripts/lint-ci.sh` (skip any that is not installed and say so). If anything fails, run one fix pass, commit and re-run the verifier once. If it is still red, stop (see above).
+
+8. **PR.** Run `factory-pr` with the plan summary, the screenshot paths from the verifier, and the full question list. It opens a **ready** PR (not a draft) and posts the question list as a PR comment. Nothing is merged.
+
+## Finish
+Tell the user, in a few lines: the PR link, which stages found and fixed things, what could not be verified, and how many questions are waiting on the PR. Do not merge unless the user says so.
