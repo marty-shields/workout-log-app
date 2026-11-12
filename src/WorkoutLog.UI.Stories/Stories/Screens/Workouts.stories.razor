@@ -16,6 +16,18 @@
         </Template>
     </Story>
 
+    <Story Name="With totals">
+        <Template>
+            <WorkoutsView History="History" Rows="SampleWorkoutHistory.In(History.Span(HistoryRange.ThreeMonths))" Totals="SampleWorkoutHistory.TotalsIn(History.Span(HistoryRange.ThreeMonths))" Dates="History.Span(HistoryRange.ThreeMonths)" OnOpen="(WorkoutsRow _) => { }" />
+        </Template>
+    </Story>
+
+    <Story Name="Totals unavailable">
+        <Template>
+            <WorkoutsView History="History" Rows="SampleWorkoutHistory.In(History.Span(HistoryRange.ThreeMonths))" Dates="History.Span(HistoryRange.ThreeMonths)" OnOpen="(WorkoutsRow _) => { }" />
+        </Template>
+    </Story>
+
     <Story Name="1Y">
         <Template>
             <WorkoutsView History="History" Rows="SampleWorkoutHistory.In(History.Span(HistoryRange.Year))" Dates="History.Span(HistoryRange.Year)" OnOpen="(WorkoutsRow _) => { }" />

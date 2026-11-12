@@ -99,6 +99,8 @@ public static class ScreenStates
 
         new("Screens/Workouts", "Empty", c => Workouts(c, WorkoutHistory.None, default, tappable: true)),
         new("Screens/Workouts", "With workouts", c => Workouts(c, WorkoutSamples, WorkoutSamples.Span(HistoryRange.ThreeMonths), tappable: true)),
+        new("Screens/Workouts", "With totals", c => Workouts(c, WorkoutSamples, WorkoutSamples.Span(HistoryRange.ThreeMonths), tappable: true, totals: true)),
+        new("Screens/Workouts", "Totals unavailable", c => Workouts(c, WorkoutSamples, WorkoutSamples.Span(HistoryRange.ThreeMonths), tappable: true)),
         new("Screens/Workouts", "1Y", c => Workouts(c, WorkoutSamples, WorkoutSamples.Span(HistoryRange.Year), tappable: true)),
         new("Screens/Workouts", "All", c => Workouts(c, WorkoutSamples, WorkoutSamples.Span(HistoryRange.All), tappable: true)),
         new("Screens/Workouts", "Dates picked", c => Workouts(c, WorkoutSamples, SampleWorkoutHistory.March2025, tappable: true)),
@@ -325,11 +327,12 @@ public static class ScreenStates
 
     private static IReadOnlyList<IElement> Workouts(
         BunitContext context, WorkoutHistory history, DateSpan dates, bool tappable, bool loading = false, bool failed = false,
-        bool expanded = false, bool months = false) =>
+        bool expanded = false, bool months = false, bool totals = false) =>
         context.Render<WorkoutsView>(p =>
         {
             p.Add(x => x.History, history)
                 .Add(x => x.Rows, history.IsEmpty ? [] : SampleWorkoutHistory.In(dates))
+                .Add(x => x.Totals, totals ? SampleWorkoutHistory.TotalsIn(dates) : null)
                 .Add(x => x.Dates, dates)
                 .Add(x => x.DatesChanged, (DateSpan _) => { })
                 .Add(x => x.Expanded, expanded)
