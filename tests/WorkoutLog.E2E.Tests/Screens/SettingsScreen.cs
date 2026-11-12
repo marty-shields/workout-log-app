@@ -22,6 +22,13 @@ public sealed class SettingsScreen(WebView web)
         web.Eventually(() => web.Find(radio).Selected, Is.True, $"{theme} theme selected");
     }
 
+    /// <summary>The version line at the bottom, once Settings has opened.</summary>
+    public string Version()
+    {
+        web.WaitUntil(() => web.Exists("app-version"), "Settings didn't show the version");
+        return web.Text("app-version");
+    }
+
     public bool ExportEnabled() => web.Find("export").Enabled;
 
     public void Export() => web.Tap("export");

@@ -47,6 +47,10 @@
                 }
             </section>
         }
+        @if (Version is not null)
+        {
+            <p class="version" data-testid="app-version">Version @Version</p>
+        }
     </div>
 </AppScreen>
 
@@ -86,6 +90,10 @@
     /// <summary>The chosen theme, shown selected in Appearance. System follows the phone.</summary>
     [Parameter]
     public ThemePreference Theme { get; set; }
+
+    /// <summary>The installed app version, shown at the bottom as "Version 1.4.2". Null shows nothing.</summary>
+    [Parameter]
+    public string? Version { get; set; }
 
     /// <summary>Raised with the theme tapped in Appearance.</summary>
     [Parameter]

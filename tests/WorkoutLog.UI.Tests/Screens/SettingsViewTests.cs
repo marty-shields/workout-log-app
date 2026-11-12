@@ -21,6 +21,22 @@ public class SettingsViewTests : ComponentTestBase
     }
 
     [Test]
+    public void Version_WhenSet_ShowsIt()
+    {
+        var cut = Context.Render<SettingsView>(p => p.Add(x => x.Version, "1.4.2").Add(x => x.OnBack, () => { }));
+
+        Assert.That(cut.Find("[data-testid=app-version]").TextContent, Is.EqualTo("Version 1.4.2"));
+    }
+
+    [Test]
+    public void Version_WhenNull_ShowsNothing()
+    {
+        var cut = Render();
+
+        Assert.That(cut.FindAll("[data-testid=app-version]"), Is.Empty);
+    }
+
+    [Test]
     public void Theme_ShowsTheChoiceSelected()
     {
         var cut = Context.Render<SettingsView>(p => p.Add(x => x.Theme, ThemePreference.Dark).Add(x => x.OnBack, () => { }));

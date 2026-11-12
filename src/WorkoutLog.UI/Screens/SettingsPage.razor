@@ -5,9 +5,11 @@
 @using WorkoutLog.UI.Models.Settings
 @using WorkoutLog.UI.Sharing
 @using WorkoutLog.UI.Theme
+@using WorkoutLog.UI.Versioning
 @implements IDisposable
 @inject IExportService Export
 @inject IFileShare FileShare
+@inject IAppVersion AppVersion
 @inject IImportFileOpener Opener
 @inject ImportSession Session
 @inject IAppStart AppStart
@@ -17,7 +19,7 @@
 <SettingsView Loading="phase == SettingsPhase.Loading" Failed="phase == SettingsPhase.LoadFailed" Count="count"
               Exporting="phase == SettingsPhase.Exporting" ExportMessage="message"
               Reading="phase == SettingsPhase.Reading" ImportFailed="phase == SettingsPhase.ImportFailed" Imported="imported"
-              Theme="theme" OnThemeChanged="SetThemeAsync"
+              Theme="theme" Version="@AppVersion.Current" OnThemeChanged="SetThemeAsync"
               OnRetry="LoadAsync" OnExport="ExportAsync" OnImport="ImportAsync" OnBack="OnBack" />
 
 @code {

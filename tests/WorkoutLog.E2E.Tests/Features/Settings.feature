@@ -6,6 +6,10 @@ Feature: Settings
     When I tap Settings on the Dashboard
     Then I am on Settings
 
+  Scenario: Settings shows the app version
+    Given I have opened Settings
+    Then Settings shows the app version
+
   Scenario Outline: Back returns to the Dashboard
     Given I have opened Settings
     When I go back with <how>

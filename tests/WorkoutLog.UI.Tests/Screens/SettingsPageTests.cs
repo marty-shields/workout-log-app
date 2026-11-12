@@ -11,6 +11,7 @@ using WorkoutLog.UI.Logging;
 using WorkoutLog.UI.Models.Settings;
 using WorkoutLog.UI.Screens;
 using WorkoutLog.UI.Sharing;
+using WorkoutLog.UI.Versioning;
 
 namespace WorkoutLog.UI.Tests.Screens;
 
@@ -34,6 +35,7 @@ public class SettingsPageTests : ComponentTestBase
         Context.Services.AddSingleton<IExportService>(export);
         share = new FakeFileShare();
         Context.Services.AddSingleton<IFileShare>(share);
+        Context.Services.AddSingleton<IAppVersion>(new FakeAppVersion());
         logger = new FakeLogger<SettingsPage>();
         Context.Services.AddSingleton<ILogger<SettingsPage>>(logger);
         lifecycle = new AppLifecycle(new FakeLogger<AppLifecycle>());
@@ -45,6 +47,14 @@ public class SettingsPageTests : ComponentTestBase
         savedTheme = "system";
         Context.JSInterop.Setup<string>("workoutLogTheme.get", _ => true).SetResult(savedTheme);
         Context.JSInterop.Setup<bool>("workoutLogTheme.set", _ => true).SetResult(true);
+    }
+
+    [Test]
+    public void Version_ShowsTheInstalledVersion()
+    {
+        var cut = Context.Render<SettingsPage>();
+
+        Assert.That(cut.Find("[data-testid=app-version]").TextContent, Is.EqualTo("Version 2.3.4"));
     }
 
     [Test]
@@ -707,6 +717,11 @@ public class SettingsPageTests : ComponentTestBase
 
         /// <summary>Completes the latest export.</summary>
         public void CompleteExport(ExportResult result) => export.SetResult(result);
+    }
+
+    private sealed class FakeAppVersion : IAppVersion
+    {
+        public string Current => "2.3.4";
     }
 
     /// <summary>Records each share; each waits until the test completes or fails it.</summary>
