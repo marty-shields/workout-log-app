@@ -17,7 +17,7 @@ namespace WorkoutLog.UI.Tests.Screens;
 public class SettingsPageTests : ComponentTestBase
 {
     private const string FilePath = "/cache/workout-log-2026-10-26-1805.json";
-    private static readonly ExportResult Exported = new(ExportStatus.Exported, FilePath);
+    private static readonly ExportResult Exported = new ExportedFile(FilePath);
 
     private FakeExportService export = null!;
     private FakeFileShare share = null!;
@@ -351,7 +351,7 @@ public class SettingsPageTests : ComponentTestBase
         var button = cut.Find("[data-testid=export]").GetAttribute("blazor:elementReference");
 
         cut.Find("[data-testid=export]").Click();
-        export.CompleteExport(new ExportResult(ExportStatus.Failed, null));
+        export.CompleteExport(new ExportFailed());
         await WaitForRendererAsync();
 
         cut.WaitForAssertion(() => Assert.That(cut.Find("[data-testid=export-error]").TextContent, Is.EqualTo("Couldn't export your workouts. Try again")));
@@ -370,7 +370,7 @@ public class SettingsPageTests : ComponentTestBase
         var cut = await LoadedAsync(3);
 
         cut.Find("[data-testid=export]").Click();
-        export.CompleteExport(new ExportResult(ExportStatus.TooLarge, null));
+        export.CompleteExport(new ExportTooLarge());
         await WaitForRendererAsync();
 
         cut.WaitForAssertion(() => Assert.That(cut.Find("[data-testid=export-error]").TextContent, Is.EqualTo("Too many workouts to export")));
@@ -670,7 +670,7 @@ public class SettingsPageTests : ComponentTestBase
     {
         var cut = await LoadedAsync(3);
         cut.Find("[data-testid=export]").Click();
-        export.CompleteExport(new ExportResult(ExportStatus.Failed, null));
+        export.CompleteExport(new ExportFailed());
         await WaitForRendererAsync();
         cut.WaitForAssertion(() => Assert.That(cut.FindAll("[data-testid=export-error]"), Has.Count.EqualTo(1)));
         return cut;

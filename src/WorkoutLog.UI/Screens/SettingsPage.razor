@@ -132,11 +132,11 @@
             return;
         }
 
-        if (result is { Status: ExportStatus.Exported, FilePath: { } path })
+        if (result is ExportedFile file)
         {
             try
             {
-                await FileShare.ShareAsync(path, "Export workouts");
+                await FileShare.ShareAsync(file.FilePath, "Export workouts");
             }
             catch (Exception exception)
             {
@@ -146,7 +146,7 @@
         }
         else
         {
-            message = result.Status == ExportStatus.TooLarge ? ExportMessage.TooLarge : ExportMessage.Failed;
+            message = result is ExportTooLarge ? ExportMessage.TooLarge : ExportMessage.Failed;
         }
 
         phase = SettingsPhase.Idle;

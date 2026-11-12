@@ -41,19 +41,19 @@ internal sealed partial class ExportService(
             if (bytes.Length > ExportFormat.MaxBytes)
             {
                 Log.TooLarge(logger, workouts.Count, bytes.Length);
-                return new ExportResult(ExportStatus.TooLarge, null);
+                return new ExportTooLarge();
             }
 
             var path = Path.Combine(environment.CacheFolder, ExportFormat.FileName(TimeZoneInfo.ConvertTime(now, time.LocalTimeZone)));
             await File.WriteAllBytesAsync(path, bytes);
             DeleteExportFiles(except: path);
             Log.Written(logger, workouts.Count);
-            return new ExportResult(ExportStatus.Exported, path);
+            return new ExportedFile(path);
         }
         catch (Exception exception)
         {
             Log.Failed(logger, exception);
-            return new ExportResult(ExportStatus.Failed, null);
+            return new ExportFailed();
         }
     }
 

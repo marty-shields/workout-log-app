@@ -18,7 +18,7 @@ Personal Android app (.NET 11 MAUI Blazor Hybrid). Setup: [docs/dev-setup-build.
 ## How the code fits
 - Projects: App → UI → Core; Stories → UI. `WorkoutLog.UI.Tests` reads the App's files because it can't reference it.
 - Screens: a `*Page` calls services, a `*View` takes parameters. `StoryCoverageTests` requires a screen story for every `*View`.
-- Services return a status (`ExportStatus`), not exceptions.
+- Services return a status (`ExportResult`), not exceptions.
 - Every database call goes through `DatabaseGate` (`DatabaseGateTests`).
 - Event ids: `CoreEvent` 1000s, `UiEvent` 2000s, `AppEvent` 5000s. `CoreEventTests` and `EventIdTests` fix the values and ranges.
 - Styling: tokens only, no literal colours or sizes (`TokensOnlyCssTests`).

@@ -308,7 +308,7 @@ public class ImportServiceTests
             environment.SetupGet(e => e.CacheFolder).Returns(folder.FullName);
             var exported = await new ExportService(repository, Catalog, environment.Object, TimeProvider.System, new FakeLogger<ExportService>()).ExportAsync();
 
-            await using var file = System.IO.File.OpenRead(exported.FilePath!);
+            await using var file = System.IO.File.OpenRead(((ExportedFile)exported.Value!).FilePath);
             var review = await service.ReadAsync(file, FileName);
 
             Assert.That(review with { Groups = ImportGroups.Empty }, Is.EqualTo(new ImportReview(FileName, 2, 0, 2, 0, 0, 2)));
