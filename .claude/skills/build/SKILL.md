@@ -35,7 +35,7 @@ Note the absolute path of `report-format.md` (next to this file) and read it onc
 
 4. **Review 1: code and test quality.** Run `factory-review-quality` and `factory-review-tests` **in one message, in parallel**. Merge their findings. If there are any, run one `factory-implementer` fix pass and commit.
 
-5. **Review 2: requirements.** Run `factory-review-requirements`. If it has findings, run one fix pass and commit.
+5. **Review 2: requirements.** Run `factory-review-requirements`, and give it the verifier's results from stages 3 and 4 in its brief. If it has findings, run one fix pass and commit.
 
 6. **Review 3: security.** Run `factory-review-security`. If it has findings, run one fix pass and commit.
 

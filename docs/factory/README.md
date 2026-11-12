@@ -18,8 +18,8 @@ The builder never merges. It opens a ready (not draft) PR so all CI runs.
 | `.claude/agents/factory-implementer.md` | Code and tests; also applies review fixes | sonnet |
 | `.claude/agents/factory-verifier.md` | Build, tests, emulator run, screenshots against the spec | sonnet |
 | `.claude/agents/factory-review-quality.md` | Code quality, via `/code-review` and the AGENTS.md rules | opus |
-| `.claude/agents/factory-review-tests.md` | Test quality | opus |
-| `.claude/agents/factory-review-requirements.md` | Diff against the plan's requirements | opus |
+| `.claude/agents/factory-review-tests.md` | Test quality, including a mutation check in a throwaway worktree | opus |
+| `.claude/agents/factory-review-requirements.md` | Requirements traced to code and to a test that asserts each, with a table | opus |
 | `.claude/agents/factory-review-security.md` | Security, via `/security-review` | opus |
 | `.claude/agents/factory-pr.md` | Push, open the PR, post the questions | sonnet |
 

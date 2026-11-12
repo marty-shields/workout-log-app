@@ -11,6 +11,7 @@ EVIDENCE: <tests run and result, screenshots taken and what they show, commands 
 QUESTIONS: <ambiguities you resolved by assuming, and what you assumed; open points the user should answer. "none" if none>
 ```
 
+- EVIDENCE may include one table of up to 15 lines (for example a requirements traceability table). Keep everything else short.
 - `pass`: nothing to fix. `fixed`: you changed code to resolve findings. `blocked`: you could not finish; say why under FINDINGS.
 - Reviewers report only real problems. No praise, no restating the diff, no style nits that the repo's formatter or CI already enforces.
 - Put an issue under QUESTIONS only when a person must decide. If you can decide, decide, state the assumption, and carry on.
