@@ -6,10 +6,7 @@ using WorkoutLog.Core.Logging;
 
 namespace WorkoutLog.Core.Services;
 
-/// <summary>
-/// Reads the workouts' tallies of a span through <see cref="IWorkoutRepository"/>, adds them up and logs the outcome. Days are turned into
-/// UTC bounds as <see cref="WorkoutsService"/> does.
-/// </summary>
+/// <summary>Days are turned into UTC bounds as <see cref="WorkoutsService"/> does.</summary>
 internal sealed partial class WorkoutTotalsService(IWorkoutRepository repository, TimeProvider clock, ILogger<WorkoutTotalsService> logger) : IWorkoutTotalsService
 {
     private const int DaysPerWeek = 7;
