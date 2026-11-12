@@ -155,8 +155,9 @@ public sealed class Native(WebView web)
     }
 
     /// <summary>
-    /// The colour of the status bar's icons over the app: dark when Android draws the status bar for a light surface
-    /// (LIGHT_STATUS_BARS), otherwise light.
+    /// The colour of the status bar's icons over the app: dark when a status bar appearance region in <c>dumpsys window</c>
+    /// asks for LIGHT_STATUS_BARS (icons for a light surface), otherwise light. Android prints the regions in every theme,
+    /// unlike <c>mLastAppearance</c>, which it leaves out when no flag is set; a dump without them is not read as light.
     /// </summary>
     public static string StatusBarIcons()
     {
@@ -166,9 +167,17 @@ public sealed class Native(WebView web)
             return "not over the app";
         }
 
-        return window.Split('\n').Any(line => line.Contains("mLastAppearance=", StringComparison.Ordinal) && line.Contains("LIGHT_STATUS_BARS", StringComparison.Ordinal))
-            ? "dark"
-            : "light";
+        var regions = window.Split('\n')
+            .SkipWhile(line => !line.Contains("mLastStatusBarAppearanceRegions=", StringComparison.Ordinal))
+            .Skip(1)
+            .TakeWhile(line => line.TrimStart().StartsWith("AppearanceRegion{", StringComparison.Ordinal))
+            .ToList();
+        if (regions.Count == 0)
+        {
+            return "unknown: dumpsys window has no status bar appearance regions";
+        }
+
+        return regions.Any(region => region.Contains("LIGHT_STATUS_BARS", StringComparison.Ordinal)) ? "dark" : "light";
     }
 
     /// <summary>Whether the app's window has the focus, in <c>dumpsys window</c>'s output.</summary>
