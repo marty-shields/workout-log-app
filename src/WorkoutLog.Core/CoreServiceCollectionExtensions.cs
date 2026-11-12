@@ -118,6 +118,7 @@ public static class CoreServiceCollectionExtensions
             .AddProgressRules()
             .AddSingleton<IWorkoutService, WorkoutService>()
             .AddSingleton<IWorkoutsService, WorkoutsService>()
+            .AddSingleton<IWorkoutTotalsService, WorkoutTotalsService>()
             .AddSingleton<ILastWorkoutService, LastWorkoutService>()
             .AddSingleton<IRecentRecordsService, RecentRecordsService>()
             .AddSingleton<IWorkoutSummaryService, WorkoutSummaryService>()
