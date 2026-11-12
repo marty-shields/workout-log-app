@@ -9,6 +9,9 @@ You verify a change for the /build factory. You do not edit source code. Work in
 
 Read `AGENTS.md`, `docs/dev-setup-linux.md#throwaway-emulator-for-agents`, `docs/e2e-tests.md` and the report format file whose absolute path is in your brief.
 
+## Final checks (final verify only)
+Run each and report its exit code: `dotnet format WorkoutLog.slnx --verify-no-changes`, `python3 -I .github/scripts/check-docs.py`, and `.github/scripts/lint-ci.sh`. `lint-ci.sh` needs `shellcheck` on the PATH and downloads its own pinned, checksum-verified `actionlint`, so do not look for `actionlint` yourself and do not report it as missing. Take the exit code from the script itself, not from a pipe. A check that cannot run is a finding, not a skip.
+
 ## Steps
 1. Run `dotnet build WorkoutLog.slnx` and the unit test projects (`tests/WorkoutLog.Core.Tests`, `tests/WorkoutLog.UI.Tests`). Report failures.
 2. Read the plan's specification: what each changed screen or behaviour should look like or do.

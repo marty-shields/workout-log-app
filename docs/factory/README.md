@@ -5,7 +5,7 @@ A small pipeline that turns a plan file into a ready pull request. You write the
 ## Use it
 1. Plan with Claude until the plan is good. Use [plan-template.md](plan-template.md) as the skeleton.
 2. Save the plan as a markdown file, for example `plans/my-change.md`.
-3. Run `/build plans/my-change.md` in a Claude Code session started from `main/`.
+3. Run `/build plans/my-change.md` in a Claude Code session started from `main/`. Add run notes after the path if you want to override a default, for example `/build plans/my-change.md open as a draft`.
 4. When it finishes, open the PR, read the question-list comment, and answer or fix.
 
 The builder never merges. It opens a ready (not draft) PR so all CI runs.
@@ -31,6 +31,12 @@ Preflight (worktree off `origin/main`) → implement → verify → review 1 (co
 Each review runs once. If it finds something, one fix pass runs and the builder moves on. Anything still open goes on the question list.
 
 A feature gets code and tests together. A change or bug fix gets a failing test first, then the fix.
+
+## Guarantees
+- **No silent skips.** A review counts as run only when its report says which skill or checks ran and what they returned. If a review fails to run, the builder fixes the cause and re-runs it once. If it still fails, the PR body and question list say "REVIEW DID NOT RUN".
+- **Commit identity.** The builder uses your git config. If none is set it uses the newest non-bot author on `origin/main`, tells you in the question list, and never changes git config.
+- **`origin/HEAD`.** Preflight runs `git remote set-head origin -a`, because `/code-review` and `/security-review` need it.
+- **Lint.** The final verify runs `.github/scripts/lint-ci.sh`, which downloads its own pinned, checksum-verified actionlint. Install `shellcheck`; nothing else.
 
 ## Tuning
 - **Change a model:** edit `model:` in the agent's frontmatter.
