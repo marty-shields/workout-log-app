@@ -30,6 +30,12 @@
         "resolved": "11.0.0",
         "contentHash": "Mc4ywjacnewbl9TPTfRaBxGpBJudLEHCpJrG4digzG5v32aJkC1PwCDHwSq0nPiuMftMVAqnlhl6nKZpW60Gwg=="
       },
+      "Microsoft.AspNetCore.Components.Gateway": {
+        "type": "Direct",
+        "requested": "[11.0.0, )",
+        "resolved": "11.0.0",
+        "contentHash": "i+8F5ZCvkZxBSNCQf6/QuJC32DGd4MrdqiHc4y/r0ggkhoncKuQq6xLIwapeu1sXm9TliKSVwD5mgcWykjscuQ=="
+      },
       "Microsoft.AspNetCore.Components.WebAssembly": {
         "type": "Direct",
         "requested": "[11.0.0, )",
@@ -44,12 +50,6 @@
           "Microsoft.Extensions.Logging": "11.0.0",
           "Microsoft.JSInterop.WebAssembly": "11.0.0"
         }
-      },
-      "Microsoft.AspNetCore.Components.WebAssembly.DevServer": {
-        "type": "Direct",
-        "requested": "[11.0.0, )",
-        "resolved": "11.0.0",
-        "contentHash": "S4Yd6xsYs/MgO3zD9yIxtJG7j5w8yK2lz8mxBCnhI8IUTJV0ZikqZFL57CEPNRFbIxOMfmzKcyACdKvvusahJw=="
       },
       "Microsoft.NET.ILLink.Tasks": {
         "type": "Direct",
