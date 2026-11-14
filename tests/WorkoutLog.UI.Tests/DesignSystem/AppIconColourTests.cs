@@ -23,8 +23,11 @@ public class AppIconColourTests
         var elements = XDocument.Load(file).Descendants().ToList();
         var gradientIds = elements
             .Where(e => e.Name.LocalName == "linearGradient")
-            .Select(e => (string?)e.Attribute("id"))
+            .Select(e => ((string?)e.Attribute("id"))?.ToLowerInvariant())
             .ToHashSet();
+        var stopsWithoutColour = elements
+            .Where(e => e.Name.LocalName == "stop" && e.Parent?.Name.LocalName == "linearGradient" && e.Attribute("stop-color") is null)
+            .ToList();
         var colours = elements
             .SelectMany(e => e.Attributes().Where(a => a.Name.LocalName is "fill" or "stroke" or "stop-color"))
             .Select(a => a.Value.ToLowerInvariant())
@@ -35,6 +38,7 @@ public class AppIconColourTests
         Assert.Multiple(() =>
         {
             Assert.That(elements.Where(e => e.Attribute("style") is not null), Is.Empty);
+            Assert.That(stopsWithoutColour, Is.Empty);
             Assert.That(solid, Is.Not.Empty);
             Assert.That(solid.Where(c => !Allowed.Contains(c)), Is.Empty);
             // Only a gradient defined in the same file; MAUI's rasteriser is not known to support other paint servers.
