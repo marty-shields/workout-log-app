@@ -46,6 +46,20 @@ public class AppIconColourTests
         });
     }
 
+    [TestCaseSource(nameof(ArtFiles))]
+    public void Svg_UsesOnlyElementsTheMauiRasteriserSupports(string file)
+    {
+        string[] supported = ["svg", "defs", "rect", "path", "g", "linearGradient", "stop", "clipPath"];
+        var elements = XDocument.Load(file).Descendants().ToList();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(elements.Select(e => e.Name.LocalName).Where(n => !supported.Contains(n)), Is.Empty);
+            Assert.That(elements.Where(e => e.Attribute("transform") is not null), Is.Empty);
+            Assert.That(elements.Where(e => e.Name.LocalName == "path" && (string?)e.Attribute("fill-rule") != "nonzero"), Is.Empty);
+        });
+    }
+
     [Test]
     public void AppProject_IconAndSplashColours_ArePaletteColours()
     {
