@@ -33,7 +33,7 @@ The stories need only the .NET SDK.
 | `exercise-lift` | `screens-exercise--lift-top-set` |
 | `exercise-cardio` | `screens-exercise--cardio-distance` |
 
-`icon.svg` is the app icon's foreground on its background with rounded corners. `node .github/scripts/app-icon.mjs` writes it with the rest of the icon and splash art ([App icon](../src/WorkoutLog.UI.Stories/Stories/Foundations/AppIcon.md)).
+`icon.svg` is the Volt dumbbell and its shadow on the icon background, clipped to rounded corners. `node .github/scripts/app-icon.mjs` writes it with the rest of the icon and splash art ([App icon](../src/WorkoutLog.UI.Stories/Stories/Foundations/AppIcon.md)).
 
 ## Phone setup (Android 16)
 1. Settings → About phone → tap **Build number** 7 times to enable Developer options.

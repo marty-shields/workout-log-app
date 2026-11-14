@@ -21,16 +21,42 @@ public class AppIconColourTests
     public void Svg_FillsOnlyWithPaletteColours(string file)
     {
         var elements = XDocument.Load(file).Descendants().ToList();
+        var gradientIds = elements
+            .Where(e => e.Name.LocalName == "linearGradient")
+            .Select(e => ((string?)e.Attribute("id"))?.ToLowerInvariant())
+            .ToHashSet();
+        var stopsWithoutColour = elements
+            .Where(e => e.Name.LocalName == "stop" && e.Parent?.Name.LocalName == "linearGradient" && e.Attribute("stop-color") is null)
+            .ToList();
         var colours = elements
-            .SelectMany(e => e.Attributes().Where(a => a.Name.LocalName is "fill" or "stroke"))
+            .SelectMany(e => e.Attributes().Where(a => a.Name.LocalName is "fill" or "stroke" or "stop-color"))
             .Select(a => a.Value.ToLowerInvariant())
             .ToList();
+        var references = colours.Where(c => c.StartsWith("url(", StringComparison.Ordinal)).ToList();
+        var solid = colours.Except(references).ToList();
 
         Assert.Multiple(() =>
         {
             Assert.That(elements.Where(e => e.Attribute("style") is not null), Is.Empty);
-            Assert.That(colours, Is.Not.Empty);
-            Assert.That(colours.Where(c => !Allowed.Contains(c)), Is.Empty);
+            Assert.That(stopsWithoutColour, Is.Empty);
+            Assert.That(solid, Is.Not.Empty);
+            Assert.That(solid.Where(c => !Allowed.Contains(c)), Is.Empty);
+            // Only a gradient defined in the same file; MAUI's rasteriser is not known to support other paint servers.
+            Assert.That(references.Where(r => !(r.StartsWith("url(#", StringComparison.Ordinal) && r.EndsWith(')') && gradientIds.Contains(r[5..^1]))), Is.Empty);
+        });
+    }
+
+    [TestCaseSource(nameof(ArtFiles))]
+    public void Svg_UsesOnlyElementsTheMauiRasteriserSupports(string file)
+    {
+        string[] supported = ["svg", "defs", "rect", "path", "g", "linearGradient", "stop", "clipPath"];
+        var elements = XDocument.Load(file).Descendants().ToList();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(elements.Select(e => e.Name.LocalName).Where(n => !supported.Contains(n)), Is.Empty);
+            Assert.That(elements.Where(e => e.Attribute("transform") is not null), Is.Empty);
+            Assert.That(elements.Where(e => e.Name.LocalName == "path" && (string?)e.Attribute("fill-rule") != "nonzero"), Is.Empty);
         });
     }
 
