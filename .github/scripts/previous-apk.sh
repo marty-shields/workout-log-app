@@ -34,7 +34,8 @@ case "$configuration" in
     cp "$app/bin/Debug/$net-android/uk.martinshields.workoutlog.debug-Signed.apk" "$out"
     ;;
   Release)
-    dotnet restore "$app" "${lenient[@]}" >&2
+    # Configuration=Release on the restore brings the ReadyToRun runtime pack the Release publish needs (NETSDK1094)
+    dotnet restore "$app" -p:Configuration=Release "${lenient[@]}" >&2
     dotnet publish "$app" -c Release -f "$net-android" -p:AndroidPackageFormat=apk -r android-x64 --no-restore \
       "${lenient[@]}" -o "$src/publish" >&2
     cp "$src/publish/uk.martinshields.workoutlog-Signed.apk" "$out"
