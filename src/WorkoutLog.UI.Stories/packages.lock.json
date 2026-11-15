@@ -4,15 +4,15 @@
     "net11.0": {
       "BlazingStory": {
         "type": "Direct",
-        "requested": "[1.0.0-preview.96, )",
-        "resolved": "1.0.0-preview.96",
-        "contentHash": "Fsj+SsCkq2uJzbfmznjUe3jK7UP3kCRq3siIeZmq8kcW+K20chd7dc22Rvj/bIdWjiWFKaAhXITImciuM2bcAw==",
+        "requested": "[1.0.0-preview.97, )",
+        "resolved": "1.0.0-preview.97",
+        "contentHash": "GAAiTHCvCSDL0wPBiZxMfyQlUZvTX1XBSrWURsgtKzmmTU11N9snvoSl/lkU/hDCQHLwi+pb2iJcMHuwwjQRMA==",
         "dependencies": {
-          "BlazingStory.Abstractions": "1.0.0-preview.96",
-          "BlazingStory.Addons": "1.0.0-preview.96",
-          "BlazingStory.Addons.BuiltIns": "1.0.0-preview.96",
-          "BlazingStory.ToolKit": "1.0.0-preview.96",
-          "Microsoft.AspNetCore.Components.Web": "11.0.0-rc.2.26504.105",
+          "BlazingStory.Abstractions": "1.0.0-preview.97",
+          "BlazingStory.Addons": "1.0.0-preview.97",
+          "BlazingStory.Addons.BuiltIns": "1.0.0-preview.97",
+          "BlazingStory.ToolKit": "1.0.0-preview.97",
+          "Microsoft.AspNetCore.Components.Web": "11.0.0",
           "Toolbelt.Blazor.HotKeys2": "6.1.0",
           "Toolbelt.Blazor.SplitContainer": "2.1.2",
           "Toolbelt.Web.CssClassInlineBuilder": "3.1.0.1"
@@ -65,39 +65,39 @@
       },
       "BlazingStory.Abstractions": {
         "type": "Transitive",
-        "resolved": "1.0.0-preview.96",
-        "contentHash": "2EXXzE65wX19fqZovoo1gvPVTjQm0ZXVtueczeY+oYc9CCw+FqA/PaoOKlc7cyRyFyXviCPoH0tImMyBf8hF8A==",
+        "resolved": "1.0.0-preview.97",
+        "contentHash": "TJFerd2sjSesRqcF7vTBbu9bCpZKRyQemTKGbApYzrvF6dIbvfXG8BB3qEAmRduf69lqxK4YJqUWQr8+9aYmeQ==",
         "dependencies": {
-          "Microsoft.AspNetCore.Components": "11.0.0-rc.2.26504.105"
+          "Microsoft.AspNetCore.Components": "11.0.0"
         }
       },
       "BlazingStory.Addons": {
         "type": "Transitive",
-        "resolved": "1.0.0-preview.96",
-        "contentHash": "HTYRE0Rgmal/Hkp/dwlKJ4uGNEPWP6Kc0WiYRjYSbisrKigFK/H/Sm3glnHZhlfKLOdAnz+AS9ZUaIqb5n3MAw==",
+        "resolved": "1.0.0-preview.97",
+        "contentHash": "P/7pymAx+8dytQXp3vMz0/en78tgevwgLoWBhnjpl3uYQOTO4aaMWXb2yjeSnzYsE1mjqs/U19Z3wErO1mkmWw==",
         "dependencies": {
-          "Microsoft.AspNetCore.Components.Web": "11.0.0-rc.2.26504.105"
+          "Microsoft.AspNetCore.Components.Web": "11.0.0"
         }
       },
       "BlazingStory.Addons.BuiltIns": {
         "type": "Transitive",
-        "resolved": "1.0.0-preview.96",
-        "contentHash": "ju1jG+Z+aCdYwfQirw2pd4ur82Em9ccuaNED7ShWlDs85fS1EBj8yH2N9wqaVUxdLukLlrEWW5blEsfzr7fyOQ==",
+        "resolved": "1.0.0-preview.97",
+        "contentHash": "SO9qCR7fE+eR6SYrBHPYs5+47Q3ZZ12SVVhecnJSZlVadG2xGx9DBNYPylshX//fi+i8IcuVAiXJbEIAlp9EvA==",
         "dependencies": {
-          "BlazingStory.Abstractions": "1.0.0-preview.96",
-          "BlazingStory.Addons": "1.0.0-preview.96",
-          "BlazingStory.ToolKit": "1.0.0-preview.96",
-          "Microsoft.AspNetCore.Components.Web": "11.0.0-rc.2.26504.105",
+          "BlazingStory.Abstractions": "1.0.0-preview.97",
+          "BlazingStory.Addons": "1.0.0-preview.97",
+          "BlazingStory.ToolKit": "1.0.0-preview.97",
+          "Microsoft.AspNetCore.Components.Web": "11.0.0",
           "Toolbelt.Web.CssClassInlineBuilder": "3.1.0.1"
         }
       },
       "BlazingStory.ToolKit": {
         "type": "Transitive",
-        "resolved": "1.0.0-preview.96",
-        "contentHash": "w549XI8JFIf2ph7XbXATI59fheNXuQ2DCf4994E7ZR3Lee3JWgDo5WhzgTwU0r62eTNlsppNsKZKkx+TEWiseQ==",
+        "resolved": "1.0.0-preview.97",
+        "contentHash": "QwtCPES0AIFw2o87VrZSkhW3/DJcbBMPyjpgAMIbn6uus6jCtjmBdxneFBG6Nrl5tMIZz3mkTt9J7NFdpfTmow==",
         "dependencies": {
-          "BlazingStory.Abstractions": "1.0.0-preview.96",
-          "Microsoft.AspNetCore.Components.Web": "11.0.0-rc.2.26504.105",
+          "BlazingStory.Abstractions": "1.0.0-preview.97",
+          "Microsoft.AspNetCore.Components.Web": "11.0.0",
           "Toolbelt.Blazor.HotKeys2": "6.1.0",
           "Toolbelt.Web.CssClassInlineBuilder": "3.1.0.1"
         }
