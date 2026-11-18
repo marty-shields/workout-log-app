@@ -126,6 +126,36 @@ internal enum CoreEvent
     /// <summary><see cref="Services.PeriodTotalsService"/>: reading the period limits failed.</summary>
     PeriodLimitsLoadFailed = 1457,
 
+    /// <summary><see cref="Services.PeriodTrainingService"/>: a period's records read.</summary>
+    PeriodRecordsLoaded = 1460,
+
+    /// <summary><see cref="Services.PeriodTrainingService"/>: reading a period's records failed.</summary>
+    PeriodRecordsLoadFailed = 1461,
+
+    /// <summary><see cref="Services.PeriodTrainingService"/>: a saved exercise id is not in the exercise list.</summary>
+    PeriodRecordsUnknownExercise = 1462,
+
+    /// <summary><see cref="Services.PeriodTrainingService"/>: finding one exercise's records failed.</summary>
+    PeriodRecordsExerciseFailed = 1463,
+
+    /// <summary><see cref="Services.PeriodTrainingService"/>: a period's sets per muscle group read.</summary>
+    PeriodMuscleSetsLoaded = 1464,
+
+    /// <summary><see cref="Services.PeriodTrainingService"/>: reading a period's sets per muscle group failed.</summary>
+    PeriodMuscleSetsLoadFailed = 1465,
+
+    /// <summary><see cref="Services.PeriodTrainingService"/>: a saved exercise id is not in the exercise list.</summary>
+    PeriodMuscleSetsUnknownExercise = 1466,
+
+    /// <summary><see cref="Services.PeriodTrainingService"/>: a period's most trained exercises read.</summary>
+    PeriodMostTrainedLoaded = 1467,
+
+    /// <summary><see cref="Services.PeriodTrainingService"/>: reading a period's most trained exercises failed.</summary>
+    PeriodMostTrainedLoadFailed = 1468,
+
+    /// <summary><see cref="Services.PeriodTrainingService"/>: a saved exercise id is not in the exercise list.</summary>
+    PeriodMostTrainedUnknownExercise = 1469,
+
     /// <summary><see cref="Services.WorkoutSummaryService"/>: a workout's summary read.</summary>
     WorkoutSummaryLoaded = 1530,
 

@@ -55,6 +55,7 @@ public class CoreServiceCollectionExtensionsTests
             (typeof(IPeriodTotalsService), typeof(PeriodTotalsService), ServiceLifetime.Singleton),
             (typeof(MuscleGroupMap), typeof(MuscleGroupMap), ServiceLifetime.Singleton),
             (typeof(IMuscleSetsService), typeof(MuscleSetsService), ServiceLifetime.Singleton),
+            (typeof(IPeriodTrainingService), typeof(PeriodTrainingService), ServiceLifetime.Singleton),
             (typeof(IWeightHistoryService), typeof(WeightHistoryService), ServiceLifetime.Singleton),
             (typeof(ILastSessionService), typeof(LastSessionService), ServiceLifetime.Singleton),
             (typeof(ILoggedExercisesService), typeof(LoggedExercisesService), ServiceLifetime.Singleton),
@@ -128,6 +129,7 @@ public class CoreServiceCollectionExtensionsTests
             Assert.That(provider.GetRequiredService<IConsistencyService>(), Is.InstanceOf<ConsistencyService>());
             Assert.That(provider.GetRequiredService<IPeriodTotalsService>(), Is.InstanceOf<PeriodTotalsService>());
             Assert.That(provider.GetRequiredService<IMuscleSetsService>(), Is.InstanceOf<MuscleSetsService>());
+            Assert.That(provider.GetRequiredService<IPeriodTrainingService>(), Is.InstanceOf<PeriodTrainingService>());
             Assert.That(provider.GetRequiredService<IWeightHistoryService>(), Is.InstanceOf<WeightHistoryService>());
             Assert.That(provider.GetRequiredService<ILastSessionService>(), Is.InstanceOf<LastSessionService>());
             Assert.That(provider.GetRequiredService<ILoggedExercisesService>(), Is.InstanceOf<LoggedExercisesService>());

@@ -2,6 +2,6 @@ using WorkoutLog.Core.Domain.Exercises;
 
 namespace WorkoutLog.Core.Services;
 
-/// <summary>A muscle group's strength sets in the last 7 days.</summary>
+/// <summary>A muscle group's strength sets in a period or the last 7 days.</summary>
 /// <param name="Sets">Sets of exercises whose primary muscle is in the group; 0 when not trained.</param>
 public sealed record MuscleGroupCount(MuscleGroup Group, int Sets);

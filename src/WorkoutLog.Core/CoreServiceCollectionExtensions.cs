@@ -130,6 +130,7 @@ public static class CoreServiceCollectionExtensions
             .AddSingleton<IPeriodTotalsService, PeriodTotalsService>()
             .AddSingleton<MuscleGroupMap>()
             .AddSingleton<IMuscleSetsService, MuscleSetsService>()
+            .AddSingleton<IPeriodTrainingService, PeriodTrainingService>()
             .AddSingleton<IWeightHistoryService, WeightHistoryService>()
             .AddSingleton<ILastSessionService, LastSessionService>()
             .AddSingleton<ILoggedExercisesService, LoggedExercisesService>()

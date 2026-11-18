@@ -2,7 +2,6 @@ using Microsoft.Extensions.Logging;
 using WorkoutLog.Core.Data;
 using WorkoutLog.Core.Domain.Exercises;
 using WorkoutLog.Core.Domain.Exercises.Bests;
-using WorkoutLog.Core.Domain.Workouts;
 using WorkoutLog.Core.Logging;
 
 namespace WorkoutLog.Core.Services;
@@ -33,28 +32,11 @@ internal sealed partial class RecentRecordsService(
             bool InWindow(DateTimeOffset startedAt) => startedAt <= now && LocalDate(startedAt, zone) >= from;
 
             var definitions = catalog.All.ToDictionary(e => e.Id);
-            var records = new List<(ExerciseRecord Record, string Name)>();
-            var sessions = workouts.SelectMany(w => w.Exercises.Select(e => new WorkoutSession(w.Id, w.StartedAt, e)));
-            foreach (var exercise in sessions.GroupBy(s => s.Exercise.ExerciseId))
-            {
-                if (!definitions.TryGetValue(exercise.Key, out var definition))
-                {
-                    Log.UnknownExercise(logger, exercise.Key);
-                    continue;
-                }
-
-                try
-                {
-                    if (recordCheck.Records(definition, exercise).LastOrDefault(r => InWindow(r.Session.StartedAt)) is { } latest)
-                    {
-                        records.Add((new ExerciseRecord(exercise.Key, latest.Session.StartedAt, latest.Best), definition.Name));
-                    }
-                }
-                catch (InvalidOperationException exception)
-                {
-                    Log.RecordCheckFailed(logger, exercise.Key, exception);
-                }
-            }
+            var records = RecordSearch.Find(workouts, definitions, recordCheck, id => Log.UnknownExercise(logger, id), (id, exception) => Log.RecordCheckFailed(logger, id, exception))
+                .Select(f => (Latest: f.Records.LastOrDefault(r => InWindow(r.Session.StartedAt)), f.Definition))
+                .Where(f => f.Latest is not null)
+                .Select(f => (Record: new ExerciseRecord(f.Definition.Id, f.Latest!.Session.StartedAt, f.Latest.Best), f.Definition.Name))
+                .ToList();
 
             var recent = records
                 .OrderByDescending(r => r.Record.StartedAt)
