@@ -36,7 +36,9 @@
                                    EmptyText="@($"No workouts {Name}")" TestId="trends-days-chart" />
                     </TrendCard>
                     <MuscleSetsCard Groups="Muscles" Period="@Name" TestId="trends-muscles" />
-                    <WeekRecordsCard Records="Records" Period="@Name" OnOpen="OnOpenRecord" TestId="trends-records" />
+                    <TrendCard Title="Records" Aside="@($"{Records.Count} {Name}")" TestId="trends-records">
+                        <RecordRows Records="Records" EmptyText="@($"No new records {Name}")" OnOpen="OnOpenRecord" TestId="trends-records" />
+                    </TrendCard>
                     <TrendCard Title="Last 12 weeks" Aside="@(Streak > 0 ? $"{Streak}-week streak" : null)" TestId="trends-recent-weeks">
                         <WeekBars Counts="RecentWeeks" TestId="trends-recent-weeks-chart" />
                     </TrendCard>
@@ -49,19 +51,21 @@
                     <TrendCard Title="Weeks" TestId="trends-weeks">
                         <MonthWeeks Weeks="Weeks" TestId="trends-weeks-rows" />
                     </TrendCard>
-                    <WeekRecordsCard Records="Records" Period="@Name" OnOpen="OnOpenRecord" TestId="trends-records" />
+                    <TrendCard Title="Records" Aside="@($"{Records.Count} {Name}")" TestId="trends-records">
+                        <RecordRows Records="Records" EmptyText="@($"No new records {Name}")" OnOpen="OnOpenRecord" TestId="trends-records" />
+                    </TrendCard>
                     <TrendCard Title="Most trained" Aside="sessions" TestId="trends-most-trained">
-                        <MeterRows Rows="MostTrained" Unit="sessions" Wide EmptyText="No exercises yet" TestId="trends-most-trained-rows" />
+                        <MeterRows Rows="MostTrained" Unit="sessions" Wide EmptyText="@($"No exercises {Name}")" TestId="trends-most-trained-rows" />
                     </TrendCard>
                 }
                 else
                 {
                     <TrendCard Title="Workouts by month" Aside="@(PerWeek > 0 ? $"{PerWeek.ToString("0.#", CultureInfo.InvariantCulture)} a week" : null)" TestId="trends-months">
-                        <TrendBars Bars="Months" AriaLabel="@($"Workouts in each month of {Label}")" EmptyText="No workouts this year" TestId="trends-months-chart" />
+                        <TrendBars Bars="Months" AriaLabel="@($"Workouts in each month of {Label}")" EmptyText="@($"No workouts {Name}")" TestId="trends-months-chart" />
                     </TrendCard>
                     <LongestStreakCard Weeks="LongestStreak" Running="StreakRunning" TestId="trends-streak" />
                     <TrendCard Title="Records by month" Aside="@($"{RecordsByMonth.Sum(m => m.Value)} {Name}")" TestId="trends-records-by-month">
-                        <MeterRows Rows="RecordsByMonth" Unit="records" EmptyText="No records yet" TestId="trends-records-by-month-rows" />
+                        <MeterRows Rows="RecordsByMonth" Unit="records" EmptyText="@($"No records {Name}")" TestId="trends-records-by-month-rows" />
                     </TrendCard>
                 }
             }

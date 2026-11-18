@@ -84,6 +84,19 @@ public class MonthCalendarTests : ComponentTestBase
     }
 
     [Test]
+    public void MonthAfterToday_HasEveryDayDimmedAndNoRing()
+    {
+        var cut = Render(new DateOnly(2026, 12, 1), []);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.FindAll(".day"), Has.Count.EqualTo(31));
+            Assert.That(cut.FindAll(".future"), Has.Count.EqualTo(31));
+            Assert.That(cut.FindAll(".today"), Is.Empty);
+        });
+    }
+
+    [Test]
     public void Legend_NamesTrainedNoWorkoutAndToday() =>
         Assert.That(Render(new DateOnly(2026, 11, 1), []).FindAll(".legend li").Select(li => li.TextContent),
             Is.EqualTo(new[] { "Trained", "No workout", "Today" }));

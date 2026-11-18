@@ -1,0 +1,23 @@
+@attribute [Stories("Components/Trends/RecordRows")]
+
+<Stories TComponent="RecordRows" Layout="typeof(ThemeLayout)">
+
+    <Story Name="Month">
+        <Template>
+            <RecordRows Records="SampleTrends.MonthRecords" EmptyText="No new records this month" OnOpen="(int _) => { }" TestId="records" />
+        </Template>
+    </Story>
+
+    <Story Name="More than five">
+        <Template>
+            <RecordRows Records="SampleThisWeek.ManyRecords" EmptyText="No new records this month" OnOpen="(int _) => { }" TestId="records" />
+        </Template>
+    </Story>
+
+    <Story Name="None">
+        <Template>
+            <RecordRows Records="[]" EmptyText="No new records that month" TestId="records" />
+        </Template>
+    </Story>
+
+</Stories>

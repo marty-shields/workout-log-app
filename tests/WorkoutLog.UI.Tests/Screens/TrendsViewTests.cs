@@ -179,6 +179,8 @@ public class TrendsViewTests : ComponentTestBase
             Assert.That(cut.Find("[data-testid=trends-muscles] .aside").TextContent, Is.EqualTo("that week"));
             Assert.That(cut.FindAll("[data-testid=trends-days-chart-legend] li").Select(li => li.TextContent), Is.EqualTo(new[] { "That week", "The week before" }));
             Assert.That(cut.Find("[data-testid=trends-tiles-against]").TextContent, Is.EqualTo("Against the week before"));
+            Assert.That(cut.Find("[data-testid=trends-days-chart]").GetAttribute("aria-label"),
+                Is.EqualTo("Time trained each day that week beside the same day the week before"));
         });
     }
 
@@ -234,7 +236,7 @@ public class TrendsViewTests : ComponentTestBase
             Assert.That(cut.FindAll("[data-testid=trends-calendar-days] .done"), Is.Empty);
             Assert.That(cut.FindAll("[data-testid=trends-weeks-rows] .totals").Select(t => t.TextContent), Is.All.EqualTo("0 workouts · 0m"));
             Assert.That(cut.Find("[data-testid=trends-records-none]").TextContent, Is.EqualTo("No new records that month"));
-            Assert.That(cut.Find("[data-testid=trends-most-trained-rows-none]").TextContent, Is.EqualTo("No exercises yet"));
+            Assert.That(cut.Find("[data-testid=trends-most-trained-rows-none]").TextContent, Is.EqualTo("No exercises that month"));
         });
     }
 
@@ -245,9 +247,9 @@ public class TrendsViewTests : ComponentTestBase
 
         Assert.Multiple(() =>
         {
-            Assert.That(cut.Find("[data-testid=trends-months-chart-none]").TextContent, Is.EqualTo("No workouts this year"));
-            Assert.That(cut.Find("[data-testid=trends-streak-row] .aside").TextContent, Is.EqualTo("None yet"));
-            Assert.That(cut.Find("[data-testid=trends-records-by-month-rows-none]").TextContent, Is.EqualTo("No records yet"));
+            Assert.That(cut.Find("[data-testid=trends-months-chart-none]").TextContent, Is.EqualTo("No workouts that year"));
+            Assert.That(cut.Find("[data-testid=trends-streak-row] .aside").TextContent, Is.EqualTo("None"));
+            Assert.That(cut.Find("[data-testid=trends-records-by-month-rows-none]").TextContent, Is.EqualTo("No records that year"));
         });
     }
 

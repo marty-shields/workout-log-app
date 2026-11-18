@@ -134,6 +134,35 @@ public class TrendBarsTests : ComponentTestBase
         });
     }
 
+    [Test]
+    public void LabelledBarAtZero_PrintsNoValueButANonZeroOneDoes()
+    {
+        TrendBar[] bars = [new("A", "April", 0, "no workouts", Current: true, Labelled: true), new("M", "May", 5, "5 workouts", Labelled: true)];
+
+        var cut = Context.Render<TrendBars>(p => p
+            .Add(x => x.Bars, bars)
+            .Add(x => x.AriaLabel, "Workouts")
+            .Add(x => x.EmptyText, "None")
+            .Add(x => x.TestId, "bars"));
+
+        Assert.That(cut.FindAll(".values .value").Select(v => v.TextContent), Is.EqualTo(new[] { "5" }));
+    }
+
+    [Test]
+    public void MaxOfZero_DrawsWithoutDividingByZero()
+    {
+        TrendBar[] bars = [new("A", "April", 3, "3 workouts")];
+
+        var cut = Context.Render<TrendBars>(p => p
+            .Add(x => x.Bars, bars)
+            .Add(x => x.Max, 0)
+            .Add(x => x.AriaLabel, "Workouts")
+            .Add(x => x.EmptyText, "None")
+            .Add(x => x.TestId, "bars"));
+
+        Assert.That(double.Parse(cut.Find(".bar").GetAttribute("height")!), Is.LessThanOrEqualTo(300).And.GreaterThan(0));
+    }
+
     private IRenderedComponent<TrendBars> RenderDays() =>
         Context.Render<TrendBars>(p => p
             .Add(x => x.Bars, SampleTrends.WeekDays)

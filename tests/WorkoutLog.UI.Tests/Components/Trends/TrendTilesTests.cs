@@ -86,6 +86,30 @@ public class TrendTilesTests : ComponentTestBase
     }
 
     [Test]
+    public void VolumeChangeThatRoundsToAWholePercentOfNothing_ShowsNoArrow()
+    {
+        var cut = Render(PeriodKind.Week, new TrendTotals(1, TimeSpan.Zero, 1, 10_040), new TrendTotals(1, TimeSpan.Zero, 1, 10_000));
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.FindAll("[data-testid=tiles-volume-change] .same"), Has.Count.EqualTo(1));
+            Assert.That(cut.FindAll("[data-testid=tiles-volume-change] svg"), Is.Empty);
+        });
+    }
+
+    [Test]
+    public void VolumeGainedThatRoundsToZeroTonnes_ShowsNoArrow()
+    {
+        var cut = Render(PeriodKind.Year, new TrendTotals(1, TimeSpan.Zero, 1, 400), SampleTrends.Nothing);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.FindAll("[data-testid=tiles-volume-change] .same"), Has.Count.EqualTo(1));
+            Assert.That(cut.FindAll("[data-testid=tiles-volume-change] svg"), Is.Empty);
+        });
+    }
+
+    [Test]
     public void NothingLogged_ShowsZeros()
     {
         var cut = Render(PeriodKind.Week, SampleTrends.Nothing, SampleTrends.Nothing);

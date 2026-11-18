@@ -4,16 +4,16 @@
             class="step previous"
             aria-label="@($"Previous {Unit}")"
             disabled="@(!CanGoPrevious)"
-            data-testid="@($"{TestId}-previous")"
+            data-testid="@(TestId is null ? null : $"{TestId}-previous")"
             @onclick="OnPrevious">
         <Icon Name="IconName.Chevron" />
     </button>
-    <span class="label" aria-live="polite" data-testid="@($"{TestId}-label")">@Label</span>
+    <span class="label" aria-live="polite" data-testid="@(TestId is null ? null : $"{TestId}-label")">@Label</span>
     <button type="button"
             class="step"
             aria-label="@($"Next {Unit}")"
             disabled="@(!CanGoNext)"
-            data-testid="@($"{TestId}-next")"
+            data-testid="@(TestId is null ? null : $"{TestId}-next")"
             @onclick="OnNext">
         <Icon Name="IconName.Chevron" />
     </button>

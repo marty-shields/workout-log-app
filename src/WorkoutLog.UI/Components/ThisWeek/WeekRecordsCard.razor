@@ -1,18 +1,8 @@
 <section class="card" data-testid="@TestId">
-    @if (Period is null)
-    {
-        <h2 class="title">Records this week</h2>
-    }
-    else
-    {
-        <div class="header">
-            <h2 class="title">Records</h2>
-            <span class="aside" data-testid="@($"{TestId}-aside")">@Records.Count @Period</span>
-        </div>
-    }
+    <h2 class="title">Records this week</h2>
     @if (Records.Count == 0)
     {
-        <p class="none" data-testid="@($"{TestId}-none")">No new records @(Period ?? "this week")</p>
+        <p class="none" data-testid="@($"{TestId}-none")">No new records this week</p>
     }
     else
     {
@@ -21,7 +11,7 @@
             {
                 <li>
                     <ListRow Text="@($"{record.Exercise} · {record.Best}")"
-                             Detail="@(record.When ?? record.Day.ToString())"
+                             Detail="@record.Day.ToString()"
                              OnClick="@(OnOpen.HasDelegate ? EventCallback.Factory.Create(this, () => OnOpen.InvokeAsync(record.ExerciseId)) : default)"
                              TestId="@($"{TestId}-row-{record.ExerciseId}")" />
                 </li>
@@ -41,18 +31,11 @@
     [Parameter, EditorRequired]
     public IReadOnlyList<WeekRecord> Records { get; set; } = [];
 
-    /// <summary>
-    /// Names the period for Trends, e.g. this month: the heading is then Records with "n this month" at its right, and the empty text says
-    /// "No new records this month". Null keeps This week's heading, Records this week.
-    /// </summary>
-    [Parameter]
-    public string? Period { get; set; }
-
     /// <summary>Raised with the exercise id when a row is tapped. Rows are not tappable when unset.</summary>
     [Parameter]
     public EventCallback<int> OnOpen { get; set; }
 
-    /// <summary>Value of the data-testid attribute, and the prefix of its parts': <c>{TestId}-row-{exercise id}</c>, <c>{TestId}-more</c>, <c>{TestId}-none</c>, and <c>{TestId}-aside</c> with <see cref="Period"/>.</summary>
+    /// <summary>Value of the data-testid attribute, and the prefix of its parts': <c>{TestId}-row-{exercise id}</c>, <c>{TestId}-more</c>, <c>{TestId}-none</c>.</summary>
     [Parameter]
     public string? TestId { get; set; }
 }

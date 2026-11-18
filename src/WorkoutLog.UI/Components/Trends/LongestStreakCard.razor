@@ -1,12 +1,12 @@
 <section class="card" data-testid="@TestId">
     <ListRow Text="Longest streak"
              Detail="@(Running ? "Still going" : null)"
-             Aside="@(Weeks == 0 ? "None yet" : Weeks == 1 ? "1 week" : $"{Weeks} weeks")"
+             Aside="@(Weeks == 0 ? "None" : Weeks == 1 ? "1 week" : $"{Weeks} weeks")"
              TestId="@(TestId is null ? null : $"{TestId}-row")" />
 </section>
 
 @code {
-    /// <summary>Consecutive weeks with a workout, the longest run starting in the year. 0 shows "None yet".</summary>
+    /// <summary>Consecutive weeks with a workout, the longest run starting in the year. 0 shows "None".</summary>
     [Parameter, EditorRequired]
     public int Weeks { get; set; }
 

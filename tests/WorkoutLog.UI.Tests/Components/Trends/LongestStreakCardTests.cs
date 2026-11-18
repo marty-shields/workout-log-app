@@ -35,7 +35,7 @@ public class LongestStreakCardTests : ComponentTestBase
 
     [Test]
     public void None_SaysNoneYet() =>
-        Assert.That(Render(0, running: false).Find(".aside").TextContent, Is.EqualTo("None yet"));
+        Assert.That(Render(0, running: false).Find(".aside").TextContent, Is.EqualTo("None"));
 
     [Test]
     public void Row_IsNotTappable() =>

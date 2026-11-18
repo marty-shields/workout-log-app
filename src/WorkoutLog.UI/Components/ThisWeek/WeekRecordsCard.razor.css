@@ -11,23 +11,6 @@
     font-weight: var(--font-weight-bold);
 }
 
-.header {
-    display: flex;
-    align-items: baseline;
-    justify-content: space-between;
-    gap: var(--space-2);
-    margin-bottom: var(--space-2);
-}
-
-.header .title {
-    margin: 0;
-}
-
-.aside {
-    color: var(--color-text-muted);
-    font-size: var(--font-size-sm);
-}
-
 .none {
     margin: 0;
     padding-bottom: var(--space-4);

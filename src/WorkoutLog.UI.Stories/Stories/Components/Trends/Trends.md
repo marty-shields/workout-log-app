@@ -4,7 +4,7 @@ $attribute: CustomPage("Components/Trends/Overview")
 
 # Trends
 
-Parts of the [Trends](./?path=/custom/screens-trends-overview) screen. Each takes display-ready values; the page will work them out. The design they follow is [docs/design/this-week-and-trends.html](https://github.com/marty-shields/workout-log-app/blob/main/docs/design/this-week-and-trends.html). The records and muscle group cards are the This week ones, with a `Period` that renames them: see [This week components](./?path=/custom/components-thisweek-overview).
+Parts of the [Trends](./?path=/custom/screens-trends-overview) screen. Each takes display-ready values; the page will work them out. The design they follow is [docs/design/this-week-and-trends.html](https://github.com/marty-shields/workout-log-app/blob/main/docs/design/this-week-and-trends.html). The muscle group card is the This week one, with a `Period` that renames it: see [This week components](./?path=/custom/components-thisweek-overview).
 
 ## `PeriodStepper`
 A previous arrow, the period's label and a next arrow in one row: *16 – 22 Nov*, *November 2026* or *2026*. The arrows are round buttons at `--touch-target` named by `Kind` (*Previous week*, *Next month*); the previous one is the chevron mirrored. An arrow is disabled (at `--opacity-disabled`) when its `CanGo` flag is false: previous at the period of the first workout, next at the period that holds today. The label is a polite live region, so a screen reader hears the new period.
@@ -37,8 +37,12 @@ A row per week of the month: its dates cut to the month at the left (e.g. *16 �
 Rows of a name, a bar as long as its number against the biggest and the number, as `MuscleSetsCard` draws its groups. `Wide` makes room for exercise names (*Overhead press*); without it the name column fits a month's three letters. `Unit` (e.g. *sessions*) is read by screen readers after each number. No rows, or all at 0, shows `EmptyText`.
 - `data-testid`: `TestId`, and as a prefix: `{TestId}-{label, lower case, dashes for spaces}`, `{TestId}-none`.
 
+## `RecordRows`
+The records of a period as `ListRow`s inside a `TrendCard` titled "Records" with "n this month" as its aside: exercise and best (e.g. *Bench press · 82.5kg × 5*) with the date under it (a `WeekRecord`'s `When`, e.g. *Wed 18 Nov*, else its weekday). Up to five rows, then a muted "n more". With `OnOpen` the rows are tappable and raise it with the exercise id. None shows `EmptyText`.
+- `data-testid`: as a prefix: `{TestId}-row-{exercise id}`, `{TestId}-more`, `{TestId}-none`.
+
 ## `LongestStreakCard`
-One row, *Longest streak*, with the weeks at the right (*23 weeks*, *1 week*, or *None yet* at 0) and, under it, *Still going* when the run reaches this week.
+One row, *Longest streak*, with the weeks at the right (*23 weeks*, *1 week*, or *None* at 0) and, under it, *Still going* when the run reaches this week.
 - `data-testid`: `TestId`, and `{TestId}-row`.
 
-Stories: [PeriodStepper](./?path=/docs/components-trends-periodstepper--docs) · [TrendCard](./?path=/docs/components-trends-trendcard--docs) · [TrendTiles](./?path=/docs/components-trends-trendtiles--docs) · [TrendBars](./?path=/docs/components-trends-trendbars--docs) · [MonthCalendar](./?path=/docs/components-trends-monthcalendar--docs) · [MonthWeeks](./?path=/docs/components-trends-monthweeks--docs) · [MeterRows](./?path=/docs/components-trends-meterrows--docs) · [LongestStreakCard](./?path=/docs/components-trends-longeststreakcard--docs)
+Stories: [PeriodStepper](./?path=/docs/components-trends-periodstepper--docs) · [TrendCard](./?path=/docs/components-trends-trendcard--docs) · [TrendTiles](./?path=/docs/components-trends-trendtiles--docs) · [TrendBars](./?path=/docs/components-trends-trendbars--docs) · [MonthCalendar](./?path=/docs/components-trends-monthcalendar--docs) · [MonthWeeks](./?path=/docs/components-trends-monthweeks--docs) · [MeterRows](./?path=/docs/components-trends-meterrows--docs) · [RecordRows](./?path=/docs/components-trends-recordrows--docs) · [LongestStreakCard](./?path=/docs/components-trends-longeststreakcard--docs)

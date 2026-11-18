@@ -108,7 +108,7 @@ else
 
     private double Gap => Slot * 0.04;
 
-    private double Top => Max ?? Math.Max(1, Bars.Max(bar => Math.Max(bar.Value, bar.Earlier)));
+    private double Top => Math.Max(1, Max ?? Bars.Max(bar => Math.Max(bar.Value, bar.Earlier)));
 
     private double Rise(double value) => value / Top * Height;
 

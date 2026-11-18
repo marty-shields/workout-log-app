@@ -16,7 +16,7 @@
             <li class="day @(trained ? "done" : null) @(today ? "today" : null) @(future ? "future" : null)"
                 style="@(day == 1 ? $"grid-column-start: {Column(date)}" : null)"
                 aria-current="@(today ? "date" : null)"
-                data-testid="@($"{TestId}-{day}")">
+                data-testid="@(TestId is null ? null : $"{TestId}-{day}")">
                 <span class="dot" aria-hidden="true">@day</span>
                 <span class="visually-hidden">@Describe(date, trained, today, future)</span>
             </li>
