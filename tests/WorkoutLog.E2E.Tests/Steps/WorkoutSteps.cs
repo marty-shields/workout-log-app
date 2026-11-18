@@ -75,19 +75,19 @@ public sealed class WorkoutSteps(WebView web, Native native, Journeys journeys, 
         }
         catch (OpenQA.Selenium.WebDriverException)
         {
-            // The Dashboard replaced the page before the second tap.
+            // This week replaced the page before the second tap.
         }
 
         journeys.WaitFor(Journeys.Screen.Summary);
         summary.Done();
-        journeys.WaitFor(Journeys.Screen.Dashboard);
+        journeys.WaitFor(Journeys.Screen.ThisWeek);
     }
 
     [When(@"^I discard the workout$")]
     public void WhenIDiscardTheWorkout()
     {
         journeys.Discard();
-        journeys.WaitFor(Journeys.Screen.Dashboard);
+        journeys.WaitFor(Journeys.Screen.ThisWeek);
     }
 
     [When(@"^I discard the changes$")]
@@ -115,7 +115,7 @@ public sealed class WorkoutSteps(WebView web, Native native, Journeys journeys, 
     public void ThenTheTitleIsToday()
     {
         var (from, to) = state.Started ?? throw new InvalidOperationException("No workout was started.");
-        Assert.That(workout.Title(), Is.AnyOf(DashboardSteps.Date(from), DashboardSteps.Date(to)));
+        Assert.That(workout.Title(), Is.AnyOf(ThisWeekSteps.Date(from), ThisWeekSteps.Date(to)));
     }
 
     [Then(@"^the timer shows ""Elapsed"" and counts up$")]

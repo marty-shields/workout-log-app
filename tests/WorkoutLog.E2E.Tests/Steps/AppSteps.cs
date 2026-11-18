@@ -10,21 +10,21 @@ namespace WorkoutLog.E2E.Tests.Steps;
 /// <summary>Where a scenario starts, the app's lifecycle, the soft keyboard and the app's log.</summary>
 [Binding]
 public sealed class AppSteps(
-    WebView web, Native native, AppLog log, Journeys journeys, SeedSteps seed, ScenarioState state, DashboardScreen dashboard,
+    WebView web, Native native, AppLog log, Journeys journeys, SeedSteps seed, ScenarioState state, ThisWeekScreen thisWeek,
     WorkoutScreen workout, AddExerciseScreen addExercise)
 {
-    [Given(@"^I am on (the Dashboard|Workouts|Exercises|the add-exercise list on Edit Workout)$")]
+    [Given(@"^I am on (This week|Workouts|Exercises|the add-exercise list on Edit Workout)$")]
     public async Task GivenIAmOn(string screen)
     {
-        if (screen is "the Dashboard" or "Workouts" or "Exercises")
+        if (screen is "This week" or "Workouts" or "Exercises")
         {
             if (!native.Launched)
             {
                 native.Launch();
             }
 
-            journeys.WaitFor(Journeys.Screen.Dashboard);
-            dashboard.LastWorkout();
+            journeys.WaitFor(Journeys.Screen.ThisWeek);
+            thisWeek.WaitUntilLoaded();
             if (screen == "Workouts")
             {
                 journeys.GoToWorkouts();
@@ -43,10 +43,10 @@ public sealed class AppSteps(
         state.LogAtStart = log.Read();
     }
 
-    [Given(@"^I have pressed Android back on the Dashboard$")]
-    public void GivenIHavePressedBackOnTheDashboard()
+    [Given(@"^I have pressed Android back on This week$")]
+    public void GivenIHavePressedBackOnThisWeek()
     {
-        journeys.WaitFor(Journeys.Screen.Dashboard);
+        journeys.WaitFor(Journeys.Screen.ThisWeek);
         native.BackKey();
         ThenTheAppIsInTheBackground();
     }
@@ -85,7 +85,7 @@ public sealed class AppSteps(
     {
         journeys.GoToWorkouts();
         native.BackKey();
-        journeys.WaitFor(Journeys.Screen.Dashboard);
+        journeys.WaitFor(Journeys.Screen.ThisWeek);
     }
 
     [When(@"^I close the keyboard$")]

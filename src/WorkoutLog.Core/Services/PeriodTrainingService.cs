@@ -24,6 +24,34 @@ internal sealed partial class PeriodTrainingService(
     private readonly Dictionary<int, ExerciseDefinition> definitions = catalog.All.ToDictionary(e => e.Id);
 
     /// <inheritdoc />
+    public async Task<ReadResult<IReadOnlyList<WorkoutOutline>>> GetWorkoutsAsync(Period period)
+    {
+        List<WorkoutOutline> result;
+        try
+        {
+            var now = time.GetUtcNow();
+            var zone = time.LocalTimeZone;
+            var workouts = (await repository.GetAllAsync()).Where(w => IsIn(period, w.StartedAt, now, zone)).OrderBy(w => w.StartedAt).ToList();
+            foreach (var unknown in workouts.SelectMany(w => w.Exercises).Select(e => e.ExerciseId).Where(id => !definitions.ContainsKey(id)).Distinct())
+            {
+                Log.WorkoutsUnknownExercise(logger, unknown);
+            }
+
+            result = workouts
+                .Select(w => new WorkoutOutline(w.Id, w.StartedAt, w.FinishedAt, w.Exercises.Select(e => e.ExerciseId).Where(definitions.ContainsKey).ToList()))
+                .ToList();
+        }
+        catch (Exception exception)
+        {
+            Log.WorkoutsLoadFailed(logger, exception, period.Kind, period.Start);
+            return new ReadFailed();
+        }
+
+        Log.WorkoutsLoaded(logger, result.Count, period.Kind, period.Start);
+        return new ReadResult<IReadOnlyList<WorkoutOutline>>(result);
+    }
+
+    /// <inheritdoc />
     public async Task<ReadResult<PeriodRecords>> GetRecordsAsync(Period period)
     {
         PeriodRecords result;
@@ -121,6 +149,15 @@ internal sealed partial class PeriodTrainingService(
 
     private static partial class Log
     {
+        [LoggerMessage((int)CoreEvent.PeriodWorkoutsLoaded, LogLevel.Information, "Loaded {Count} workouts for {Kind} from {Start:O}")]
+        public static partial void WorkoutsLoaded(ILogger logger, int count, PeriodKind kind, DateOnly start);
+
+        [LoggerMessage((int)CoreEvent.PeriodWorkoutsLoadFailed, LogLevel.Warning, "Loading the workouts for {Kind} from {Start:O} failed")]
+        public static partial void WorkoutsLoadFailed(ILogger logger, Exception exception, PeriodKind kind, DateOnly start);
+
+        [LoggerMessage((int)CoreEvent.PeriodWorkoutsUnknownExercise, LogLevel.Warning, "Exercise {ExerciseId} is not in the exercise list; left out")]
+        public static partial void WorkoutsUnknownExercise(ILogger logger, int exerciseId);
+
         [LoggerMessage((int)CoreEvent.PeriodRecordsLoaded, LogLevel.Information, "Loaded {Count} records for {Kind} from {Start:O}")]
         public static partial void RecordsLoaded(ILogger logger, int count, PeriodKind kind, DateOnly start);
 

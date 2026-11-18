@@ -6,7 +6,7 @@ namespace WorkoutLog.UI.Tests.DesignSystem;
 
 public partial class DesignSystemPageTests
 {
-    private static readonly Type[] UiTypes = typeof(DashboardView).Assembly.GetExportedTypes();
+    private static readonly Type[] UiTypes = typeof(ThisWeekView).Assembly.GetExportedTypes();
 
     private static IEnumerable<TestCaseData> Components() =>
         UiTypes

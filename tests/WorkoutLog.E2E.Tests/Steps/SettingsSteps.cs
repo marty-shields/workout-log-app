@@ -10,19 +10,19 @@ namespace WorkoutLog.E2E.Tests.Steps;
 
 [Binding]
 public sealed partial class SettingsSteps(
-    DashboardScreen dashboard, SettingsScreen settings, Journeys journeys, Native native, DeviceClock clock, ScenarioState state, WebView web)
+    ThisWeekScreen thisWeek, SettingsScreen settings, Journeys journeys, Native native, DeviceClock clock, ScenarioState state, WebView web)
 {
-    [When(@"^I tap Settings on the Dashboard$")]
-    public void WhenITapSettingsOnTheDashboard()
+    [When(@"^I tap Settings on This week$")]
+    public void WhenITapSettingsOnThisWeek()
     {
-        journeys.WaitFor(Journeys.Screen.Dashboard);
-        dashboard.OpenSettings();
+        journeys.WaitFor(Journeys.Screen.ThisWeek);
+        thisWeek.OpenSettings();
     }
 
     [Given(@"^I have opened Settings$")]
     public void GivenIHaveOpenedSettings()
     {
-        WhenITapSettingsOnTheDashboard();
+        WhenITapSettingsOnThisWeek();
         journeys.WaitFor(Journeys.Screen.Settings);
     }
 

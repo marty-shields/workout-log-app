@@ -73,7 +73,7 @@ Save runs `IWorkoutChecker.Check`: every set and entry, then the workout, its no
 - Focus moves to the first error in screen order: Add exercise for the workout error, otherwise the workout note when it has an error, otherwise the first exercise with an error, which takes it to its Add set or Remove, the first field at fault, or its note.
 - Once a set or entry fails a check, every change re-checks it until it passes Add set or opening another set, or the whole workout passes Save. Adding a set clears "Add at least one set"; adding an exercise clears the workout error. Cardio entries are first checked on Save.
 
-A valid Save calls `IWorkoutService.SaveNewAsync` with the workout note and `ISetChecker.Read`'s records, oldest first, each with its note, then raises `OnSaved`; the App goes to the Dashboard. If nothing was saved, the workout error shows "Couldn't save the workout. Try again", the workout and its notes stay and focus moves to Save. Taps on Save while a save runs are ignored.
+A valid Save calls `IWorkoutService.SaveNewAsync` with the workout note and `ISetChecker.Read`'s records, oldest first, each with its note, then raises `OnSaved`; the App goes to This week. If nothing was saved, the workout error shows "Couldn't save the workout. Try again", the workout and its notes stay and focus moves to Save. Taps on Save while a save runs are ignored.
 
 ## Haptics
 With the phone on a bench, a short buzz confirms the moments that matter (see [Haptics](./?path=/custom/foundations-haptics)):
@@ -84,7 +84,7 @@ With the phone on a bench, a short buzz confirms the moments that matter (see [H
 Nothing else buzzes: not typing, opening another set, adding or deleting an exercise or set, Undo, a failed write or Discard. Nothing buzzes when the phone's touch feedback is off.
 
 ## Back
-Back (arrow or Android) opens `ConfirmDialog` "Discard this workout?", even with no exercises. Cancel, or Android back, closes it and the workout stays. Discard logs Information 2701 "New workout discarded with {ExerciseCount} exercises" and raises `OnDiscarded`; the App goes to the Dashboard. Back is ignored while a save runs, after one succeeds and after a discard. Discard runs once; while a save runs or after one succeeds it closes the prompt and does nothing else.
+Back (arrow or Android) opens `ConfirmDialog` "Discard this workout?", even with no exercises. Cancel, or Android back, closes it and the workout stays. Discard logs Information 2701 "New workout discarded with {ExerciseCount} exercises" and raises `OnDiscarded`; the App goes to This week. Back is ignored while a save runs, after one succeeds and after a discard. Discard runs once; while a save runs or after one succeeds it closes the prompt and does nothing else.
 
 With the soft keyboard open, Android back only hides the keyboard.
 

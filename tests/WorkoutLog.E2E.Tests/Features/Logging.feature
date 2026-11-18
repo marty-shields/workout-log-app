@@ -14,7 +14,7 @@ Feature: Logging
     When I save the workout
     Then the log shows "New workout started"
     And the log shows "Workout 1 added with 2 exercises"
-    And the log shows "Consistency loaded: 1 workouts in the last 12 weeks"
+    And the log shows "Loaded 1 workouts for Week from"
 
   Scenario: Discarding a new workout is logged
     Given I have started a new workout

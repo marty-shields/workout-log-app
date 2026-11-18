@@ -41,6 +41,8 @@ public partial class EventIdTests
             [UiEvent.NewWorkoutDiscarded] = 2701,
             [UiEvent.EditWorkoutOpenFailed] = 2901,
             [UiEvent.EditsDiscarded] = 2902,
+            [UiEvent.ThisWeekLoadFailed] = 3101,
+            [UiEvent.ThisWeekRecordsFailed] = 3102,
             [UiEvent.AppStartHandlerFailed] = 3201,
             [UiEvent.LoadFailedFocusFailed] = 3301,
             [UiEvent.ShareFailed] = 3401,

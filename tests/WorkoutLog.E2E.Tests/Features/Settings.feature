@@ -1,19 +1,19 @@
 Feature: Settings
-  The gear on the Dashboard opens Settings; back returns to the Dashboard. The status bar keeps light icons over the top bar in every theme.
+  The gear on This week opens Settings; back returns to This week. The status bar keeps light icons over the top bar in every theme.
 
   @smoke @release
-  Scenario: The gear on the Dashboard opens Settings
-    When I tap Settings on the Dashboard
+  Scenario: The gear on This week opens Settings
+    When I tap Settings on This week
     Then I am on Settings
 
   Scenario: Settings shows the app version
     Given I have opened Settings
     Then the app version is listed on Settings
 
-  Scenario Outline: Back returns to the Dashboard
+  Scenario Outline: Back returns to This week
     Given I have opened Settings
     When I go back with <how>
-    Then I am on the Dashboard
+    Then I am on This week
     Examples:
       | how            |
       | the back arrow |

@@ -24,9 +24,9 @@ A Material Symbols Outlined icon (weight 400), drawn as an SVG and hidden from s
 - `Name`: an `IconName`.
 - `Tone`: `Default` takes the text colour; `Muted` uses `--color-text-muted`, `Success` `--color-success`, `Error` `--color-error`.
 - `Size`: `Default` is `--font-size-xl`, `Small` is `--font-size-lg`.
-- Chevron: the end of a tappable `ListRow`, carry `SetSummary` row and `LastWorkoutCard`, `Muted`.
+- Chevron: the end of a tappable `ListRow`, carry `SetSummary` row, `Muted`.
 - Search: the Exercises search box, `Muted`.
-- Up and Down: an increase (`Success`) or decrease (`Error`) in `WeekComparison`.
+- Up and Down: an increase (`Success`) or decrease (`Error`) in `WeekChange`.
 - Edit (pencil) and Check (tick): used by `IconButton`.
 - Record: a trophy (`emoji_events`), `Success`, in `RecordBadge` and beside each record on the Workout Summary.
 - Add (a plus, `add`) and BarChart (`bar_chart`): the New and Trends tabs of `MainTabBar`.
@@ -38,7 +38,7 @@ A button that shows an `Icon`, with a 48px touch target.
 
 | Icon | Use for |
 |---|---|
-| Settings | Opening Settings from the Dashboard top bar. |
+| Settings | Opening Settings from the This week top bar. |
 | Back | The back arrow in the top bar and on Add Exercise. |
 | Close | Removing a set: `Muted`, `Small`. |
 | Delete | Deleting the workout in the Edit Workout top bar; deleting an exercise from its card (`Muted`), after a confirm. |

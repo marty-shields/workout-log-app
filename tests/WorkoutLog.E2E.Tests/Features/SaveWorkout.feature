@@ -1,5 +1,5 @@
 Feature: Save a workout
-  Saving keeps the workout, records the finish time and returns to the Dashboard.
+  Saving keeps the workout, records the finish time and returns to This week.
 
   @smoke @release @today
   Scenario: Save a strength workout with two sets
@@ -7,8 +7,8 @@ Feature: Save a workout
     And I have added "Barbell Back Squat"
     And I have logged Barbell Back Squat sets: 8 reps 60 kg; 8 reps 62.5 kg
     When I save the workout
-    Then I am on the Dashboard
-    And the last workout shows today's date and day
+    Then I am on This week
+    And this week's newest workout is from today
     And this week shows 1 workout
     And Workouts lists 1 workout, today at the time I started
 

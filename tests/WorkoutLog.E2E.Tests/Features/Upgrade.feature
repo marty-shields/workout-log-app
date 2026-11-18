@@ -13,7 +13,7 @@ Feature: Upgrade
     And I enter "65" in Barbell Back Squat set 2 weight
     And I save the workout
     Then reopening workout 1 shows Barbell Back Squat set 2 at 65 kg
-    When I go back to the Dashboard
+    When I go back to This week
     And I open "Barbell Back Squat" on Exercises
     Then the Exercise sessions read:
       | day   | headline | sets        |

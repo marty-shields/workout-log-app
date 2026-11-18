@@ -51,7 +51,7 @@ public class WeekWorkoutsCardTests : ComponentTestBase
 
         Assert.Multiple(() =>
         {
-            Assert.That(cut.Find("[data-testid=workouts-none]").TextContent, Is.EqualTo("Nothing yet this week. Tap + to start one."));
+            Assert.That(cut.Find("[data-testid=workouts-none]").TextContent, Is.EqualTo("Nothing yet this week."));
             Assert.That(cut.FindAll("li"), Is.Empty);
         });
     }

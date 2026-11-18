@@ -3,7 +3,7 @@ namespace WorkoutLog.Core.Domain.Workouts.Consistency;
 /// <summary>Weeks from Monday 00:00 to Sunday 23:59:59 in a time zone.</summary>
 internal static class LocalWeek
 {
-    /// <summary>Weeks on the Dashboard's bars: this week and the 11 before it.</summary>
+    /// <summary>Weeks in the weekly counts: this week and the 11 before it.</summary>
     public const int Shown = 12;
 
     /// <summary>The Monday of the week <paramref name="day"/> is in.</summary>

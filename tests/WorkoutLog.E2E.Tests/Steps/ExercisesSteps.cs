@@ -7,7 +7,7 @@ using WorkoutLog.E2E.Tests.Support;
 
 namespace WorkoutLog.E2E.Tests.Steps;
 
-/// <summary>The Exercises list, opened from the Dashboard, and the last sessions on the add-exercise list.</summary>
+/// <summary>The Exercises list, opened from the navigation bar, and the last sessions on the add-exercise list.</summary>
 [Binding]
 public sealed class ExercisesSteps(WebView web, Native native, Journeys journeys, ExercisesScreen exercises, AddExerciseScreen addExercise, DeviceClock clock)
 {

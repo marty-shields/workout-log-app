@@ -19,7 +19,7 @@ Feature: Cardio entry
     Given I have added "Stair Climber"
     When I log Stair Climber: 0:15:00
     And I save the workout
-    Then I am on the Dashboard
+    Then I am on This week
 
   Scenario: A cardio exercise has exactly one entry
     When I add "Treadmill"

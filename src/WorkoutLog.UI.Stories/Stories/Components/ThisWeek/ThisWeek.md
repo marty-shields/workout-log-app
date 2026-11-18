@@ -24,11 +24,11 @@ Three tiles in a row: Workouts, Time (e.g. *2h 35m*) and Sets, each with its cha
 - `data-testid`: `TestId`, and as a prefix: `{TestId}-workouts`, `{TestId}-time`, `{TestId}-sets` (each with a `-change` part), `{TestId}-against`.
 
 ## `WeekWorkoutsCard`
-A card titled "This week's workouts" with a `ListRow` per workout, newest first: day and time (e.g. *Wed 18 Nov · 07:10*), the first two exercises and `+n` for the rest (e.g. *Squat, Leg press +2*) under it, and the duration as h:mm (e.g. *0:58*) at the right. With `OnOpen` the rows are tappable and raise it with the workout id. None shows "Nothing yet this week. Tap + to start one."
+A card titled "This week's workouts" with a `ListRow` per workout, newest first: day and time (e.g. *Wed 18 Nov · 07:10*), the first two exercises and `+n` for the rest (e.g. *Squat, Leg press +2*) under it, and the duration as h:mm (e.g. *0:58*) at the right. With `OnOpen` the rows are tappable and raise it with the workout id. None shows "Nothing yet this week."
 - `data-testid`: `TestId`, and as a prefix: `{TestId}-row-{workout id}`, `{TestId}-none`.
 
 ## `WeekRecordsCard`
-A card titled "Records this week" with a `ListRow` per record, as `RecentRecordsCard` shows them: exercise and best (e.g. *Bench press · 82.5kg × 5*) with the weekday under it (e.g. *Monday*). Up to five rows, then a muted "n more" (e.g. *2 more*). With `OnOpen` the rows are tappable and raise it with the exercise id. None shows "No new records this week".
+A card titled "Records this week" with a `ListRow` per record: exercise and best (e.g. *Bench press · 82.5kg × 5*) with the weekday under it (e.g. *Monday*). Up to five rows, then a muted "n more" (e.g. *2 more*). With `OnOpen` the rows are tappable and raise it with the exercise id. None shows "No new records this week".
 - `data-testid`: `TestId`, and as a prefix: `{TestId}-row-{exercise id}`, `{TestId}-more`, `{TestId}-none`.
 
 ## `MuscleSetsCard`

@@ -4,7 +4,7 @@ $attribute: CustomPage("Screens/Settings/Overview")
 
 # Settings
 
-Opened from the Dashboard gear. View: `SettingsView`; page: `SettingsPage`.
+Opened from the This week gear. View: `SettingsView`; page: `SettingsPage`.
 
 | Part | Content |
 |---|---|
@@ -30,7 +30,7 @@ Import opens Android's file picker (JSON files). Cancelling it leaves Settings a
 
 The messages under Export and Import clear on the next Export or Import tap and on any reload.
 
-Back: Dashboard. Import: Import Review.
+Back: This week. Import: Import Review.
 
 States: [With workouts](./?path=/story/screens-settings--with-workouts) · [Dark chosen](./?path=/story/screens-settings--dark-chosen) · [One workout](./?path=/story/screens-settings--one-workout) · [No workouts](./?path=/story/screens-settings--no-workouts) · [Loading](./?path=/story/screens-settings--loading) · [Load failed](./?path=/story/screens-settings--load-failed) · [Exporting](./?path=/story/screens-settings--exporting) · [Export failed](./?path=/story/screens-settings--export-failed) · [Too many workouts](./?path=/story/screens-settings--too-many-workouts) · [Reading](./?path=/story/screens-settings--reading) · [Import failed](./?path=/story/screens-settings--import-failed) · [Imported](./?path=/story/screens-settings--imported)
 

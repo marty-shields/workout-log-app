@@ -3,20 +3,19 @@ using WorkoutLog.E2E.Tests.Screens;
 
 namespace WorkoutLog.E2E.Tests.Support;
 
-/// <summary>What a user does across screens: start, log and save a workout, open Workouts, Exercises, Sets per muscle group or a saved workout, go back.</summary>
+/// <summary>What a user does across screens: start, log and save a workout, open Workouts, Exercises or a saved workout, go back.</summary>
 public sealed class Journeys(
     WebView web, Native native, DeviceClock clock, ScenarioState state,
-    DashboardScreen dashboard, WorkoutScreen workout, AddExerciseScreen addExercise, WorkoutsScreen workouts, ExercisesScreen exercises, MusclesScreen muscles,
+    ThisWeekScreen thisWeek, WorkoutScreen workout, AddExerciseScreen addExercise, WorkoutsScreen workouts, ExercisesScreen exercises,
     ConfirmDialog dialog, SummaryScreen summary, NavigationBar navigation)
 {
     private static readonly TimeSpan SaveGrace = TimeSpan.FromSeconds(3);
 
     public enum Screen
     {
-        Dashboard,
+        ThisWeek,
         Workouts,
         Exercises,
-        Muscles,
         Settings,
         ImportReview,
         Summary,
@@ -30,10 +29,9 @@ public sealed class Journeys(
         var title = web.Text("screen-title");
         return title switch
         {
-            DashboardScreen.Title => Screen.Dashboard,
+            ThisWeekScreen.Title => Screen.ThisWeek,
             WorkoutsScreen.Title => Screen.Workouts,
             ExercisesScreen.Title => Screen.Exercises,
-            MusclesScreen.Title => Screen.Muscles,
             SettingsScreen.Title => Screen.Settings,
             ImportReviewScreen.Title => Screen.ImportReview,
             SummaryScreen.Title => Screen.Summary,
@@ -47,9 +45,9 @@ public sealed class Journeys(
 
     public void StartNewWorkout()
     {
-        WaitFor(Screen.Dashboard);
+        WaitFor(Screen.ThisWeek);
         var from = clock.LocalNow();
-        dashboard.NewWorkout();
+        thisWeek.NewWorkout();
         WaitFor(Screen.Workout);
         state.Started = (from, clock.LocalNow());
     }
@@ -120,17 +118,17 @@ public sealed class Journeys(
         }
     }
 
-    /// <summary>Saves a valid workout, dismisses the Workout Summary a new one opens and waits for the Dashboard.</summary>
+    /// <summary>Saves a valid workout, dismisses the Workout Summary a new one opens and waits for This week.</summary>
     public void SaveAndWait()
     {
         workout.Save();
-        web.WaitUntil(() => Current() is Screen.Summary or Screen.Dashboard, "neither the Workout Summary nor the Dashboard showed");
+        web.WaitUntil(() => Current() is Screen.Summary or Screen.ThisWeek, "neither the Workout Summary nor This week showed");
         if (Current() == Screen.Summary)
         {
             summary.Done();
         }
 
-        WaitFor(Screen.Dashboard);
+        WaitFor(Screen.ThisWeek);
     }
 
     /// <summary>Starts, logs and saves a workout.</summary>
@@ -146,12 +144,12 @@ public sealed class Journeys(
         SaveAndWait();
     }
 
-    /// <summary>Goes to Workouts from the Dashboard, Workouts, Exercises or an unchanged workout.</summary>
+    /// <summary>Goes to Workouts from This week, Workouts, Exercises or an unchanged workout.</summary>
     public void GoToWorkouts()
     {
         switch (Current())
         {
-            case Screen.Dashboard or Screen.Exercises:
+            case Screen.ThisWeek or Screen.Exercises:
                 navigation.Open("Workouts");
                 break;
             case Screen.Workout:
@@ -163,32 +161,18 @@ public sealed class Journeys(
         workouts.Rows();
     }
 
-    /// <summary>Goes to Exercises from the Dashboard and waits for it to load.</summary>
+    /// <summary>Goes to Exercises from This week and waits for it to load.</summary>
     public void GoToExercises()
     {
-        WaitFor(Screen.Dashboard);
+        WaitFor(Screen.ThisWeek);
         navigation.Open("Exercises");
         WaitFor(Screen.Exercises);
         exercises.WaitUntilLoaded();
     }
 
-    /// <summary>Goes to Sets per muscle group from the Dashboard and waits for it to load.</summary>
-    public void GoToMuscles()
+    /// <summary>Goes to This week from Workouts or Exercises, or from an unchanged workout through Workouts.</summary>
+    public void GoToThisWeek()
     {
-        WaitFor(Screen.Dashboard);
-        dashboard.OpenMuscles();
-        WaitFor(Screen.Muscles);
-        muscles.WaitUntilLoaded();
-    }
-
-    /// <summary>Goes to the Dashboard from Workouts, Exercises or Sets per muscle group, or from an unchanged workout through Workouts.</summary>
-    public void GoToDashboard()
-    {
-        if (Current() == Screen.Muscles)
-        {
-            muscles.Back();
-        }
-
         if (Current() == Screen.Workout)
         {
             GoToWorkouts();
@@ -199,8 +183,8 @@ public sealed class Journeys(
             navigation.Open("Dashboard");
         }
 
-        WaitFor(Screen.Dashboard);
-        dashboard.LastWorkout();
+        WaitFor(Screen.ThisWeek);
+        thisWeek.WaitUntilLoaded();
     }
 
     /// <summary>Opens a saved workout from Workouts and waits for it to load.</summary>

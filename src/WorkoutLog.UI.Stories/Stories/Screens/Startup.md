@@ -4,7 +4,7 @@ $attribute: CustomPage("Screens/Startup/Overview")
 
 # Startup
 
-Shown while the app opens the database, before the Dashboard. View: `StartupView`, shown by `StartupGate`.
+Shown while the app opens the database, before This week. View: `StartupView`, shown by `StartupGate`.
 
 | Part | Content |
 |---|---|

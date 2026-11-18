@@ -49,6 +49,67 @@ public class PeriodTrainingServiceTests
     }
 
     [Test]
+    public async Task GetWorkoutsAsync_ReturnsThePeriodsWorkoutsOldestFirstWithTheirExerciseIdsInOrder()
+    {
+        var later = Workout(OctoberStart.AddDays(3), Sets(Curl, Set(10, 10m)));
+        var earlier = Workout(OctoberStart.AddDays(1), Sets(Squat, Set(5, 60m)), Entry(Run, TimeSpan.FromMinutes(30), 5m));
+        Setup(Workout(LongAgo, Sets(Squat, Set(5, 60m))), later, earlier, Workout(OctoberEnd, Sets(Squat, Set(5, 60m))));
+
+        var result = (await service.GetWorkoutsAsync(October)).Loaded();
+
+        Assert.That(result, Is.EqualTo(new[]
+        {
+            new WorkoutOutline(earlier.Id, earlier.StartedAt, earlier.FinishedAt, [Squat, Run]),
+            new WorkoutOutline(later.Id, later.StartedAt, later.FinishedAt, [Curl]),
+        }).UsingPropertiesComparer());
+        Assert.That(LoggedEvents.Of(logger), Is.EqualTo(new[] { (CoreEvent.PeriodWorkoutsLoaded, LogLevel.Information, "Loaded 2 workouts for Month from 2026-10-01") }));
+    }
+
+    [Test]
+    public async Task GetWorkoutsAsync_FirstAndLastMomentOfThePeriod_AreInAndAfterNowIsOut()
+    {
+        var thisMonth = Period.Containing(PeriodKind.Month, new DateOnly(2026, 11, 15));
+        var first = Workout(OctoberEnd, Sets(Squat, Set(5, 60m)));
+        Setup(Workout(OctoberEnd.AddTicks(-1), Sets(Squat, Set(5, 60m))), first, Workout(Now.AddMinutes(1), Sets(Curl, Set(10, 10m))));
+
+        var result = (await service.GetWorkoutsAsync(thisMonth)).Loaded();
+
+        Assert.That(result.Select(w => w.Id), Is.EqualTo(new[] { first.Id }));
+    }
+
+    [Test]
+    public async Task GetWorkoutsAsync_UnknownExercise_IsLeftOutAndLoggedOnce()
+    {
+        var workout = Workout(OctoberStart, Sets(UnknownId, Set(5, 60m)), Sets(Squat, Set(5, 60m)));
+        Setup(workout, Workout(OctoberStart.AddDays(1), Sets(UnknownId, Set(5, 60m))));
+
+        var result = (await service.GetWorkoutsAsync(October)).Loaded();
+
+        Assert.That(result.Select(w => w.ExerciseIds), Is.EqualTo(new[] { new[] { Squat }, Array.Empty<int>() }));
+        Assert.That(LoggedEvents.Of(logger), Is.EqualTo(new[]
+        {
+            (CoreEvent.PeriodWorkoutsUnknownExercise, LogLevel.Warning, $"Exercise {UnknownId} is not in the exercise list; left out"),
+            (CoreEvent.PeriodWorkoutsLoaded, LogLevel.Information, "Loaded 2 workouts for Month from 2026-10-01"),
+        }));
+    }
+
+    [Test]
+    public async Task GetWorkoutsAsync_ReadFails_ReturnsFailedAndLogsAWarningWithTheException()
+    {
+        var error = new InvalidOperationException("disk");
+        repository.Setup(r => r.GetAllAsync()).ThrowsAsync(error);
+
+        var result = await service.GetWorkoutsAsync(October);
+
+        Assert.That(result.Value, Is.InstanceOf<ReadFailed>());
+        Assert.Multiple(() =>
+        {
+            Assert.That(LoggedEvents.Of(logger), Is.EqualTo(new[] { (CoreEvent.PeriodWorkoutsLoadFailed, LogLevel.Warning, "Loading the workouts for Month from 2026-10-01 failed") }));
+            Assert.That(logger.LatestRecord.Exception, Is.SameAs(error));
+        });
+    }
+
+    [Test]
     public async Task GetRecordsAsync_NothingSaved_IsEmpty()
     {
         Setup();
