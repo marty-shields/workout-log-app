@@ -50,6 +50,7 @@ public class CoreServiceCollectionExtensionsTests
             (typeof(StreakRule), typeof(StreakRule), ServiceLifetime.Singleton),
             (typeof(PeriodComparisonRule), typeof(PeriodComparisonRule), ServiceLifetime.Singleton),
             (typeof(PeriodSeriesRule), typeof(PeriodSeriesRule), ServiceLifetime.Singleton),
+            (typeof(VolumeRule), typeof(VolumeRule), ServiceLifetime.Singleton),
             (typeof(LongestRunRule), typeof(LongestRunRule), ServiceLifetime.Singleton),
             (typeof(IConsistencyService), typeof(ConsistencyService), ServiceLifetime.Singleton),
             (typeof(IPeriodTotalsService), typeof(PeriodTotalsService), ServiceLifetime.Singleton),

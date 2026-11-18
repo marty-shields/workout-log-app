@@ -126,6 +126,12 @@ internal enum CoreEvent
     /// <summary><see cref="Services.PeriodTotalsService"/>: reading the period limits failed.</summary>
     PeriodLimitsLoadFailed = 1457,
 
+    /// <summary><see cref="Services.PeriodTotalsService"/>: reading a period's volume failed.</summary>
+    PeriodVolumeLoadFailed = 1458,
+
+    /// <summary><see cref="Services.PeriodTotalsService"/>: a saved exercise id is not in the exercise list.</summary>
+    PeriodVolumeUnknownExercise = 1459,
+
     /// <summary><see cref="Services.PeriodTrainingService"/>: a period's records read.</summary>
     PeriodRecordsLoaded = 1460,
 

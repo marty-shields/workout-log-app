@@ -110,6 +110,7 @@ public static class CoreServiceCollectionExtensions
             .AddSingleton<StreakRule>()
             .AddSingleton<PeriodComparisonRule>()
             .AddSingleton<PeriodSeriesRule>()
+            .AddSingleton<VolumeRule>()
             .AddSingleton<LongestRunRule>();
 
     private static IServiceCollection AddServices(this IServiceCollection services) =>

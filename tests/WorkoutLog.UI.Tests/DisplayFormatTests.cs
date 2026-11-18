@@ -1,4 +1,5 @@
 using System.Globalization;
+using WorkoutLog.Core.Domain.Workouts.Periods;
 using WorkoutLog.UI.Models.Workouts;
 
 namespace WorkoutLog.UI.Tests;
@@ -76,4 +77,47 @@ public class DisplayFormatTests
     [TestCase(1, "1 workout")]
     [TestCase(38, "38 workouts")]
     public void Workouts_IsSingularOnlyForOne(int count, string expected) => Assert.That(DisplayFormat.Workouts(count), Is.EqualTo(expected));
+
+    [TestCase("9840", PeriodKind.Week, "9,840 kg")]
+    [TestCase("1234567", PeriodKind.Month, "1,234,567 kg")]
+    [TestCase("0", PeriodKind.Week, "0 kg")]
+    [TestCase("999.5", PeriodKind.Month, "1,000 kg")]
+    [TestCase("999.4", PeriodKind.Month, "999 kg")]
+    public void Volume_WeekOrMonth_IsWholeKilogramsWithThousandsSeparator(string kg, PeriodKind kind, string expected) =>
+        Assert.That(DisplayFormat.Volume(decimal.Parse(kg, CultureInfo.InvariantCulture), kind), Is.EqualTo(expected));
+
+    [TestCase("548000", "548 t")]
+    [TestCase("548499", "548 t")]
+    [TestCase("548500", "549 t")]
+    [TestCase("1234567", "1,235 t")]
+    [TestCase("400", "0 t")]
+    public void Volume_Year_IsWholeTonnesRoundedHalfAwayFromZero(string kg, string expected) =>
+        Assert.That(DisplayFormat.Volume(decimal.Parse(kg, CultureInfo.InvariantCulture), PeriodKind.Year), Is.EqualTo(expected));
+
+    [Test]
+    public void Volume_IgnoresTheCurrentCulture()
+    {
+        var culture = CultureInfo.CurrentCulture;
+        try
+        {
+            CultureInfo.CurrentCulture = new CultureInfo("de-DE");
+            Assert.That(DisplayFormat.Volume(9840m, PeriodKind.Week), Is.EqualTo("9,840 kg"));
+        }
+        finally
+        {
+            CultureInfo.CurrentCulture = culture;
+        }
+    }
+
+    [TestCase("10600", "10000", "+6%")]
+    [TestCase("8800", "10000", "-12%")]
+    [TestCase("10050", "10000", "+1%")]
+    [TestCase("9950", "10000", "-1%")]
+    [TestCase("10004", "10000", "0%")]
+    [TestCase("5", "0", "—")]
+    [TestCase("0", "0", "—")]
+    [TestCase("700", "700", "—")]
+    [TestCase("0", "700", "-100%")]
+    public void PercentChange_IsSignedWholePercentOfTheEarlierFigure(string current, string earlier, string expected) =>
+        Assert.That(DisplayFormat.PercentChange(decimal.Parse(current, CultureInfo.InvariantCulture), decimal.Parse(earlier, CultureInfo.InvariantCulture)), Is.EqualTo(expected));
 }

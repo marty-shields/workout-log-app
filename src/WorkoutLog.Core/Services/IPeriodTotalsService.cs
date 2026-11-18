@@ -8,6 +8,9 @@ public interface IPeriodTotalsService
     /// <summary>Returns the period's totals against the period before, cut to the same point when the period holds today.</summary>
     Task<ReadResult<PeriodComparison>> GetComparisonAsync(Period period);
 
+    /// <summary>Returns the weight lifted in the period against the period before, cut to the same point when the period holds today.</summary>
+    Task<ReadResult<PeriodVolume>> GetVolumeAsync(Period period);
+
     /// <summary>Returns what the period's charts plot.</summary>
     Task<ReadResult<PeriodSeries>> GetSeriesAsync(Period period);
 

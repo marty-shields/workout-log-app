@@ -33,6 +33,8 @@ public class GatedWorkoutRepositoryMockTests
         inner.Setup(r => r.ListStartsAsync()).ReturnsAsync(starts);
         inner.Setup(r => r.GetLatestAsync()).ReturnsAsync(outline);
         inner.Setup(r => r.ListTalliesAsync(Start, Start.AddDays(1))).ReturnsAsync(tallies);
+        IReadOnlyList<LoggedSet> sets = [new LoggedSet(Start, 1, 5, 20m)];
+        inner.Setup(r => r.ListSetsAsync(Start, Start.AddDays(1))).ReturnsAsync(sets);
         inner.Setup(r => r.GetWeightsAsync(1, Start)).ReturnsAsync(weights);
         inner.Setup(r => r.GetLastSessionsAsync()).ReturnsAsync(sessions);
         inner.Setup(r => r.GetLastSessionOfAsync(1, Start)).ReturnsAsync(lastSession);
@@ -49,6 +51,7 @@ public class GatedWorkoutRepositoryMockTests
         Assert.That(await gated.ListStartsAsync(), Is.SameAs(starts));
         Assert.That(await gated.GetLatestAsync(), Is.SameAs(outline));
         Assert.That(await gated.ListTalliesAsync(Start, Start.AddDays(1)), Is.SameAs(tallies));
+        Assert.That(await gated.ListSetsAsync(Start, Start.AddDays(1)), Is.SameAs(sets));
         Assert.That(await gated.GetWeightsAsync(1, Start), Is.SameAs(weights));
         Assert.That(await gated.GetLastSessionsAsync(), Is.SameAs(sessions));
         Assert.That(await gated.GetLastSessionOfAsync(1, Start), Is.SameAs(lastSession));
@@ -67,6 +70,7 @@ public class GatedWorkoutRepositoryMockTests
     [TestCase("Starts", nameof(IWorkoutRepository.ListStartsAsync))]
     [TestCase("Latest", nameof(IWorkoutRepository.GetLatestAsync))]
     [TestCase("Tallies", nameof(IWorkoutRepository.ListTalliesAsync))]
+    [TestCase("Sets", nameof(IWorkoutRepository.ListSetsAsync))]
     [TestCase("Weights", nameof(IWorkoutRepository.GetWeightsAsync))]
     [TestCase("LastSessions", nameof(IWorkoutRepository.GetLastSessionsAsync))]
     [TestCase("LastSessionOf", nameof(IWorkoutRepository.GetLastSessionOfAsync))]
@@ -91,6 +95,7 @@ public class GatedWorkoutRepositoryMockTests
             "Starts" => gated.ListStartsAsync(),
             "Latest" => gated.GetLatestAsync(),
             "Tallies" => gated.ListTalliesAsync(Start, Start),
+            "Sets" => gated.ListSetsAsync(Start, Start),
             "Weights" => gated.GetWeightsAsync(1, null),
             "LastSessions" => gated.GetLastSessionsAsync(),
             "LastSessionOf" => gated.GetLastSessionOfAsync(1, null),

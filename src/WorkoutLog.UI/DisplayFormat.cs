@@ -1,5 +1,6 @@
 using System.Globalization;
 using WorkoutLog.Core.Domain.Exercises;
+using WorkoutLog.Core.Domain.Workouts.Periods;
 using WorkoutLog.UI.Models.Workouts;
 
 namespace WorkoutLog.UI;
@@ -75,4 +76,28 @@ internal static class DisplayFormat
     /// Weight rounded by <see cref="Decimals.Round2"/>, no trailing zeros and no space before the unit, e.g. 22.5kg; — when there is none.
     /// </summary>
     public static string Weight(decimal? kg) => kg is { } value ? $"{Decimals.Round2(value).ToString("0.##", CultureInfo.InvariantCulture)}kg" : "—";
+
+    /// <summary>
+    /// Volume for a week or month as whole kilograms with a comma between thousands, e.g. 9,840 kg; for a year as tonnes, e.g. 548 t.
+    /// Both round halves away from zero (kg to the nearest kg, tonnes to the nearest tonne, so 548,500 kg is 549 t).
+    /// </summary>
+    public static string Volume(decimal kg, PeriodKind kind) =>
+        kind == PeriodKind.Year
+            ? $"{Math.Round(kg / 1000m, MidpointRounding.AwayFromZero).ToString("N0", CultureInfo.InvariantCulture)} t"
+            : $"{Math.Round(kg, MidpointRounding.AwayFromZero).ToString("N0", CultureInfo.InvariantCulture)} kg";
+
+    /// <summary>
+    /// Change from <paramref name="earlier"/> to <paramref name="current"/> as a percentage of <paramref name="earlier"/>, rounded to a whole
+    /// percent with halves away from zero and signed, e.g. +6% or -12%; — when they are equal or <paramref name="earlier"/> is zero.
+    /// </summary>
+    public static string PercentChange(decimal current, decimal earlier)
+    {
+        if (current == earlier || earlier == 0)
+        {
+            return "—";
+        }
+
+        var percent = Math.Round((current - earlier) / earlier * 100m, MidpointRounding.AwayFromZero);
+        return percent > 0 ? $"+{percent.ToString("0", CultureInfo.InvariantCulture)}%" : $"{percent.ToString("0", CultureInfo.InvariantCulture)}%";
+    }
 }
