@@ -1,0 +1,130 @@
+@using WorkoutLog.UI.Components.Dashboard
+@using WorkoutLog.UI.Components.Feedback
+@using WorkoutLog.UI.Components.ThisWeek
+@using WorkoutLog.UI.Models.Muscles
+<AppScreen Title="Workout Log" OnRefresh="OnRefresh">
+    <Actions>
+        <IconButton Icon="IconName.Settings" AriaLabel="Settings" TestId="settings" OnClick="OnSettings" />
+    </Actions>
+    <ChildContent>
+        @if (Loading)
+        {
+            <div class="centre">
+                <Spinner Label="Loading…" TestId="this-week-loading" />
+            </div>
+        }
+        else if (Failed)
+        {
+            <LoadFailed Message="Couldn't load This week" OnRetry="OnRetry" TestId="this-week" />
+        }
+        else
+        {
+            <div class="cards">
+                <div class="dates">
+                    <h2 class="range" data-testid="this-week-dates">@DisplayFormat.WeekDates(Monday)</h2>
+                    @if (Streak > 0)
+                    {
+                        <span class="streak" data-testid="this-week-streak">@Streak-week streak</span>
+                    }
+                </div>
+                <DayStrip Monday="Monday" Today="Today" Trained="Trained" TestId="day-strip" />
+                <WeekTiles ThisWeek="ThisWeek" LastWeekToDate="LastWeekToDate" Today="Today.DayOfWeek" TestId="week-tiles" />
+                <WeekWorkoutsCard Workouts="Workouts" OnOpen="OnOpenWorkout" TestId="week-workouts" />
+                @if (Workouts.Count > 0)
+                {
+                    <WeekRecordsCard Records="Records" OnOpen="OnOpenRecord" TestId="week-records" />
+                    <MuscleSetsCard Groups="Muscles" TestId="week-muscles" />
+                }
+                else if (LastWeek is not null)
+                {
+                    <LastWeekCard Totals="LastWeek" OnOpen="OnOpenLastWeek" TestId="last-week" />
+                }
+            </div>
+        }
+    </ChildContent>
+    <Navigation>
+        <MainTabBar Current="MainTab.ThisWeek" OnNavigate="OnNavigate" OnNew="OnNew" />
+    </Navigation>
+</AppScreen>
+
+@code {
+    /// <summary>The week's Monday. The title row shows the week's dates and the strip starts here.</summary>
+    [Parameter, EditorRequired]
+    public DateOnly Monday { get; set; }
+
+    /// <summary>Today, in the phone's time zone.</summary>
+    [Parameter, EditorRequired]
+    public DateOnly Today { get; set; }
+
+    /// <summary>Days of this week with a workout.</summary>
+    [Parameter]
+    public IReadOnlyCollection<DateOnly> Trained { get; set; } = [];
+
+    /// <summary>Consecutive weeks with a workout; hidden at 0.</summary>
+    [Parameter]
+    public int Streak { get; set; }
+
+    /// <summary>This week so far.</summary>
+    [Parameter]
+    public WeekTotals ThisWeek { get; set; } = new(0, TimeSpan.Zero, 0);
+
+    /// <summary>Last week from Monday to the end of the same weekday as today.</summary>
+    [Parameter]
+    public WeekTotals LastWeekToDate { get; set; } = new(0, TimeSpan.Zero, 0);
+
+    /// <summary>This week's workouts. With none, the card says so and the records and muscle group cards are left out.</summary>
+    [Parameter]
+    public IReadOnlyList<WeekWorkout> Workouts { get; set; } = [];
+
+    /// <summary>Records set this week.</summary>
+    [Parameter]
+    public IReadOnlyList<WeekRecord> Records { get; set; } = [];
+
+    /// <summary>Sets per muscle group from Monday to today.</summary>
+    [Parameter]
+    public IReadOnlyList<MuscleGroupSets> Muscles { get; set; } = [];
+
+    /// <summary>Last week's whole-week totals, shown as a row while nothing is logged this week. Null when there was no last week to show.</summary>
+    [Parameter]
+    public WeekTotals? LastWeek { get; set; }
+
+    /// <summary>Shows a spinner instead of the week while it loads.</summary>
+    [Parameter]
+    public bool Loading { get; set; }
+
+    /// <summary>Shows the load error and Try again instead of the week, and moves focus to Try again.</summary>
+    [Parameter]
+    public bool Failed { get; set; }
+
+    /// <summary>Raised by Try again.</summary>
+    [Parameter]
+    public EventCallback OnRetry { get; set; }
+
+    /// <summary>Raised by pulling the content down, to load it again. No pull without it.</summary>
+    [Parameter]
+    public EventCallback OnRefresh { get; set; }
+
+    /// <summary>Raised by the Settings gear.</summary>
+    [Parameter]
+    public EventCallback OnSettings { get; set; }
+
+    /// <summary>Raised by the New button in the tab bar.</summary>
+    [Parameter]
+    public EventCallback OnNew { get; set; }
+
+    /// <summary>Raised with the tab tapped in the tab bar.</summary>
+    [Parameter]
+    public EventCallback<MainTab> OnNavigate { get; set; }
+
+    /// <summary>Raised with the workout id when a workout row is tapped. Rows are not tappable when unset.</summary>
+    [Parameter]
+    public EventCallback<int> OnOpenWorkout { get; set; }
+
+    /// <summary>Raised with the exercise id when a record row is tapped. Rows are not tappable when unset.</summary>
+    [Parameter]
+    public EventCallback<int> OnOpenRecord { get; set; }
+
+    /// <summary>Raised by the Last week row. The row is not tappable when unset.</summary>
+    [Parameter]
+    public EventCallback OnOpenLastWeek { get; set; }
+}

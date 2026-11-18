@@ -13,6 +13,25 @@ public class DisplayFormatTests
     public void Weight_RoundedTo2PlacesWithoutTrailingZeros(string kg, string expected) =>
         Assert.That(DisplayFormat.Weight(decimal.Parse(kg, CultureInfo.InvariantCulture)), Is.EqualTo(expected));
 
+    [TestCase(0, "0m")]
+    [TestCase(25, "25m")]
+    [TestCase(60, "1h 00m")]
+    [TestCase(185, "3h 05m")]
+    public void Minutes_AreHoursAndMinutesFromAnHour(int minutes, string expected) =>
+        Assert.That(DisplayFormat.Minutes(minutes), Is.EqualTo(expected));
+
+    [TestCase(0, 58, 0, "0:58")]
+    [TestCase(1, 2, 59, "1:02")]
+    [TestCase(10, 0, 0, "10:00")]
+    public void HoursMinutes_DropsSeconds(int hours, int minutes, int seconds, string expected) =>
+        Assert.That(DisplayFormat.HoursMinutes(new TimeSpan(hours, minutes, seconds)), Is.EqualTo(expected));
+
+    [TestCase(2026, 11, 16, "16 – 22 Nov")]
+    [TestCase(2026, 11, 30, "30 Nov – 6 Dec")]
+    [TestCase(2026, 12, 28, "28 Dec – 3 Jan")]
+    public void WeekDates_NameTheMonthOnceWhenTheWeekStaysInIt(int year, int month, int day, string expected) =>
+        Assert.That(DisplayFormat.WeekDates(new DateOnly(year, month, day)), Is.EqualTo(expected));
+
     [Test]
     public void Weight_None_IsADash() => Assert.That(DisplayFormat.Weight(null), Is.EqualTo("—"));
 

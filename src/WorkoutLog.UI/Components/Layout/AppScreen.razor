@@ -35,7 +35,7 @@
     <main @ref="content" class="content">
         @ChildContent
     </main>
-    @if (BottomBar is not null || Destination is not null)
+    @if (BottomBar is not null || Destination is not null || Navigation is not null)
     {
         <footer class="bottom">
             @if (Status is not null)
@@ -53,6 +53,10 @@
             @if (Destination is { } current)
             {
                 <BottomNav Current="current" OnNavigate="OnNavigate" />
+            }
+            else if (Navigation is not null)
+            {
+                @Navigation
             }
         </footer>
     }
@@ -89,6 +93,10 @@
     [Parameter]
     public EventCallback<NavDestination> OnNavigate { get; set; }
 
+    /// <summary>A navigation bar under the bottom bar, instead of the one <see cref="Destination"/> shows; used by screens that don't take part in <see cref="NavDestination"/>. It doesn't change Android back.</summary>
+    [Parameter]
+    public RenderFragment? Navigation { get; set; }
+
     /// <summary>Actions at the right of the top bar.</summary>
     [Parameter]
     public RenderFragment? Actions { get; set; }
@@ -110,7 +118,7 @@
 
     /// <summary>
     /// A snackbar just above the bottom bar, over the content. Its slot is a polite live region, there whenever this is set,
-    /// so a snackbar shown later is read out. Needs <see cref="BottomBar"/> or <see cref="Destination"/>.
+    /// so a snackbar shown later is read out. Needs <see cref="BottomBar"/>, <see cref="Destination"/> or <see cref="Navigation"/>.
     /// </summary>
     [Parameter]
     public RenderFragment? Status { get; set; }

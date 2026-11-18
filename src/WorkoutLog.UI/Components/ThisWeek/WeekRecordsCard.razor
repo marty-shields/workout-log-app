@@ -1,0 +1,41 @@
+<section class="card" data-testid="@TestId">
+    <h2 class="title">Records this week</h2>
+    @if (Records.Count == 0)
+    {
+        <p class="none" data-testid="@($"{TestId}-none")">No new records this week</p>
+    }
+    else
+    {
+        <ul class="rows">
+            @foreach (var record in Records.Take(MaxRows))
+            {
+                <li>
+                    <ListRow Text="@($"{record.Exercise} · {record.Best}")"
+                             Detail="@record.Day.ToString()"
+                             OnClick="@(OnOpen.HasDelegate ? EventCallback.Factory.Create(this, () => OnOpen.InvokeAsync(record.ExerciseId)) : default)"
+                             TestId="@($"{TestId}-row-{record.ExerciseId}")" />
+                </li>
+            }
+        </ul>
+        @if (Records.Count > MaxRows)
+        {
+            <p class="more" data-testid="@($"{TestId}-more")">@(Records.Count - MaxRows) more</p>
+        }
+    }
+</section>
+
+@code {
+    private const int MaxRows = 5;
+
+    /// <summary>Records set this week, newest first. Up to five show, then "n more".</summary>
+    [Parameter, EditorRequired]
+    public IReadOnlyList<WeekRecord> Records { get; set; } = [];
+
+    /// <summary>Raised with the exercise id when a row is tapped. Rows are not tappable when unset.</summary>
+    [Parameter]
+    public EventCallback<int> OnOpen { get; set; }
+
+    /// <summary>Value of the data-testid attribute, and the prefix of its parts': <c>{TestId}-row-{exercise id}</c>, <c>{TestId}-more</c>, <c>{TestId}-none</c>.</summary>
+    [Parameter]
+    public string? TestId { get; set; }
+}

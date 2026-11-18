@@ -40,6 +40,23 @@ public static class ScreenStates
         new("Screens/Dashboard", "Loading", c => DashboardLoad(c, loading: true)),
         new("Screens/Dashboard", "Load failed", c => DashboardLoad(c, failed: true)),
 
+        new("Screens/This week", "Mid-week", c => ThisWeek(c, p => p
+            .Add(x => x.Today, SampleThisWeek.Wednesday)
+            .Add(x => x.Trained, SampleThisWeek.TrainedDays)
+            .Add(x => x.Streak, 23)
+            .Add(x => x.ThisWeek, SampleThisWeek.ThisWeek)
+            .Add(x => x.LastWeekToDate, SampleThisWeek.LastWeekToDate)
+            .Add(x => x.Workouts, SampleThisWeek.Workouts)
+            .Add(x => x.Records, SampleThisWeek.Records)
+            .Add(x => x.Muscles, SampleThisWeek.Muscles))),
+        new("Screens/This week", "New week", c => ThisWeek(c, p => p
+            .Add(x => x.Today, SampleThisWeek.Monday)
+            .Add(x => x.Streak, 22)
+            .Add(x => x.LastWeek, SampleThisWeek.LastWeek))),
+        new("Screens/This week", "No workouts", c => ThisWeek(c, p => p.Add(x => x.Today, SampleThisWeek.Wednesday))),
+        new("Screens/This week", "Loading", c => ThisWeek(c, p => p.Add(x => x.Loading, true))),
+        new("Screens/This week", "Load failed", c => ThisWeek(c, p => p.Add(x => x.Failed, true))),
+
         new("Screens/Sets per muscle group", "Some trained", c => Muscles(c, SampleDashboard.SomeTrained)),
         new("Screens/Sets per muscle group", "All trained", c => Muscles(c, SampleDashboard.AllTrained)),
         new("Screens/Sets per muscle group", "None trained", c => Muscles(c, SampleDashboard.NoneTrained)),
@@ -239,6 +256,20 @@ public static class ScreenStates
             .Add(x => x.OnNewWorkout, () => { })
             .Add(x => x.OnNavigate, (NavDestination _) => { })
             .Add(x => x.OnSettings, () => { });
+
+    private static IReadOnlyList<IElement> ThisWeek(BunitContext context, Action<ComponentParameterCollectionBuilder<ThisWeekView>> state) =>
+        context.Render<ThisWeekView>(p =>
+        {
+            p.Add(x => x.Monday, SampleThisWeek.Monday)
+                .Add(x => x.OnRetry, () => { })
+                .Add(x => x.OnSettings, () => { })
+                .Add(x => x.OnNew, () => { })
+                .Add(x => x.OnNavigate, (MainTab _) => { })
+                .Add(x => x.OnOpenWorkout, (int _) => { })
+                .Add(x => x.OnOpenRecord, (int _) => { })
+                .Add(x => x.OnOpenLastWeek, () => { });
+            state(p);
+        }).FindAll("*");
 
     private static IReadOnlyList<IElement> Muscles(
         BunitContext context, IReadOnlyList<MuscleGroupSets> groups, bool loading = false, bool failed = false) =>

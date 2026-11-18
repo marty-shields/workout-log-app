@@ -83,6 +83,11 @@
     --nav-indicator-height: 2rem;
     --calendar-day-size: 2.25rem;
     --calendar-dot-size: 0.25rem;
+    --nav-new-size: 3.5rem;
+    --nav-new-raise: 1.5rem;
+    --meter-height: 0.625rem;
+    --meter-label-width: 4.5rem;
+    --meter-value-width: 6rem;
 }
 
 /* Forces a theme on an element and its children. */

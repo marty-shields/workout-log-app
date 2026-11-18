@@ -1,0 +1,44 @@
+@attribute [Stories("Screens/This week")]
+
+<Stories TComponent="ThisWeekView" Layout="typeof(PhoneLayout)">
+
+    <Story Name="Mid-week">
+        <Template>
+            <ThisWeekView Monday="SampleThisWeek.Monday" Today="SampleThisWeek.Wednesday" Trained="SampleThisWeek.TrainedDays" Streak="23"
+                          ThisWeek="SampleThisWeek.ThisWeek" LastWeekToDate="SampleThisWeek.LastWeekToDate"
+                          Workouts="SampleThisWeek.Workouts" Records="SampleThisWeek.Records" Muscles="SampleThisWeek.Muscles"
+                          OnSettings="() => { }" OnNew="() => { }" OnNavigate="(MainTab _) => { }"
+                          OnOpenWorkout="(int _) => { }" OnOpenRecord="(int _) => { }" />
+        </Template>
+    </Story>
+
+    <Story Name="New week">
+        <Template>
+            <ThisWeekView Monday="SampleThisWeek.Monday" Today="SampleThisWeek.Monday" Streak="22"
+                          ThisWeek="SampleThisWeek.Nothing" LastWeekToDate="SampleThisWeek.Nothing" LastWeek="SampleThisWeek.LastWeek"
+                          OnSettings="() => { }" OnNew="() => { }" OnNavigate="(MainTab _) => { }" OnOpenLastWeek="() => { }" />
+        </Template>
+    </Story>
+
+    <Story Name="No workouts">
+        <Template>
+            <ThisWeekView Monday="SampleThisWeek.Monday" Today="SampleThisWeek.Wednesday"
+                          OnSettings="() => { }" OnNew="() => { }" OnNavigate="(MainTab _) => { }" />
+        </Template>
+    </Story>
+
+    <Story Name="Loading">
+        <Template>
+            <ThisWeekView Loading Monday="SampleThisWeek.Monday" Today="SampleThisWeek.Wednesday"
+                          OnSettings="() => { }" OnNew="() => { }" OnNavigate="(MainTab _) => { }" />
+        </Template>
+    </Story>
+
+    <Story Name="Load failed">
+        <Template>
+            <ThisWeekView Failed Monday="SampleThisWeek.Monday" Today="SampleThisWeek.Wednesday" OnRetry="() => { }"
+                          OnSettings="() => { }" OnNew="() => { }" OnNavigate="(MainTab _) => { }" />
+        </Template>
+    </Story>
+
+</Stories>

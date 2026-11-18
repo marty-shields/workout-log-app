@@ -1,0 +1,29 @@
+@attribute [Stories("Components/ThisWeek/WeekRecordsCard")]
+
+<Stories TComponent="WeekRecordsCard" Layout="typeof(ThemeLayout)">
+
+    <Story Name="One record">
+        <Template>
+            <WeekRecordsCard Records="SampleThisWeek.Records" OnOpen="(int _) => { }" TestId="week-records" />
+        </Template>
+    </Story>
+
+    <Story Name="Five records">
+        <Template>
+            <WeekRecordsCard Records="SampleThisWeek.ManyRecords.Take(5).ToList()" OnOpen="(int _) => { }" TestId="week-records" />
+        </Template>
+    </Story>
+
+    <Story Name="More than five">
+        <Template>
+            <WeekRecordsCard Records="SampleThisWeek.ManyRecords" OnOpen="(int _) => { }" TestId="week-records" />
+        </Template>
+    </Story>
+
+    <Story Name="No records">
+        <Template>
+            <WeekRecordsCard Records="[]" TestId="week-records" />
+        </Template>
+    </Story>
+
+</Stories>

@@ -1,0 +1,39 @@
+@using WorkoutLog.UI.Models.Muscles
+<section class="card" data-testid="@TestId">
+    <div class="header">
+        <h2 class="title">Sets per muscle group</h2>
+        <span class="aside">this week</span>
+    </div>
+    <ul class="groups">
+        @foreach (var group in Groups.OrderByDescending(g => g.Sets))
+        {
+            <li class="group" data-testid="@($"{TestId}-{group.Group.ToLowerInvariant()}")">
+                <span class="name">@group.Group</span>
+                <span class="track" aria-hidden="true"><span class="fill" style="--share: @Share(group.Sets)"></span></span>
+                @if (group.Sets == 0)
+                {
+                    <span class="sets none">Not trained</span>
+                }
+                else
+                {
+                    <span class="sets">@group.Sets @(group.Sets == 1 ? "set" : "sets")</span>
+                }
+            </li>
+        }
+    </ul>
+</section>
+
+@code {
+    /// <summary>The muscle groups with their sets for the week. Shown most sets first, so the groups at zero come last.</summary>
+    [Parameter, EditorRequired]
+    public IReadOnlyList<MuscleGroupSets> Groups { get; set; } = [];
+
+    /// <summary>Value of the data-testid attribute, and the prefix of each group's: <c>{TestId}-{group, lower case}</c>.</summary>
+    [Parameter]
+    public string? TestId { get; set; }
+
+    /// <summary>A group's sets as a fraction of the busiest group's, 0 to 1, for the bar's length.</summary>
+    private string Share(int sets) =>
+        (Groups.Count == 0 || Groups.Max(g => g.Sets) == 0 ? 0 : (double)sets / Groups.Max(g => g.Sets))
+            .ToString("0.###", System.Globalization.CultureInfo.InvariantCulture);
+}

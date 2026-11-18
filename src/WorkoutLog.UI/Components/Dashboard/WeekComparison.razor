@@ -30,7 +30,7 @@
     private static readonly Row[] Rows =
     [
         new("Workouts", "workouts", w => w.Workouts, Count),
-        new("Time", "time", w => (int)w.Time.TotalMinutes, Minutes),
+        new("Time", "time", w => (int)w.Time.TotalMinutes, DisplayFormat.Minutes),
         new("Sets", "sets", w => w.Sets, Count),
     ];
 
@@ -54,9 +54,6 @@
     };
 
     private static string Count(int value) => value.ToString(CultureInfo.InvariantCulture);
-
-    /// <summary>Whole minutes as e.g. 3h 05m, or 25m under an hour.</summary>
-    private static string Minutes(int minutes) => minutes >= 60 ? $"{minutes / 60}h {minutes % 60:00}m" : $"{minutes}m";
 
     /// <summary>A compared total: its label, the testid suffix, its value in whole units and how to show it.</summary>
     private sealed record Row(string Label, string Key, Func<WeekTotals, int> Value, Func<int, string> Format);

@@ -29,6 +29,8 @@ A Material Symbols Outlined icon (weight 400), drawn as an SVG and hidden from s
 - Up and Down: an increase (`Success`) or decrease (`Error`) in `WeekComparison`.
 - Edit (pencil) and Check (tick): used by `IconButton`.
 - Record: a trophy (`emoji_events`), `Success`, in `RecordBadge` and beside each record on the Workout Summary.
+- Add (a plus, `add`) and BarChart (`bar_chart`): the New and Trends tabs of `MainTabBar`.
+- Calendar: the This week tab of `MainTabBar`.
 - Note: before a last note on an exercise card, `Muted`, `Small`; also the note `IconButton`.
 
 ## `IconButton`
