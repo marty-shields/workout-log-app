@@ -16,7 +16,7 @@ on:
       - .github/scripts/emulator-sdk.sh
       - .github/workflows/emulator-cache.yml
   pull_request:
-    branches: [main, "epic/**"]
+    branches: [main]
     paths:
       - .github/android-emulator.env
       - .github/scripts/emulator-sdk.sh
