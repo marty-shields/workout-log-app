@@ -1,0 +1,105 @@
+# Squash-merges Dependabot's minor and patch update PRs once every check that ran on them is green: the required ones,
+# the path-filtered ones (story-layout, Release E2E, Upgrade E2E, Emulator cache) and CodeQL. A major update, or a PR
+# with a failed or cancelled check, is left for a person.
+#
+# It runs when a PR workflow finishes, from the copy of this file on main, and never checks out the PR's code.
+name: Dependabot auto-merge
+
+on:
+  workflow_run:
+    workflows: ["PR build", "PR checks", "Release E2E", "Upgrade E2E", "Emulator cache", "CodeQL"]
+    types: [completed]
+
+permissions:
+  contents: read
+
+# One at a time per branch, in order: the run after the last workflow to finish is the one that merges.
+concurrency:
+  group: dependabot-auto-merge-${{ github.event.workflow_run.head_branch }}
+  cancel-in-progress: false
+
+jobs:
+  auto-merge:
+    if: >-
+      ${{ github.event.workflow_run.event == 'pull_request'
+      && github.event.workflow_run.conclusion == 'success'
+      && startsWith(github.event.workflow_run.head_branch, 'dependabot/') }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: write
+      pull-requests: write
+      checks: read
+      statuses: read
+    env:
+      # AUTO_MERGE_TOKEN is optional. Without it the workflow's own token is used, and a merge made with that token
+      # does not start the workflows that run on a push to main.
+      GH_TOKEN: ${{ secrets.AUTO_MERGE_TOKEN || github.token }}
+      GH_REPO: ${{ github.repository }}
+      # Read from the environment, never written into a script.
+      BRANCH: ${{ github.event.workflow_run.head_branch }}
+      SHA: ${{ github.event.workflow_run.head_sha }}
+    steps:
+      # The PR must be open, in this repository, written by Dependabot and still at the commit the workflow tested.
+      # A grouped PR is minor and patch by its group in dependabot.yml (the branch carries the group's name).
+      # An ungrouped one (the .NET SDK) says "from X to Y" in its title, so the major versions are compared.
+      - name: Minor or patch update from Dependabot
+        id: pr
+        run: |
+          pr=$(gh pr list --head "$BRANCH" --state open --json number,title,headRefOid,isCrossRepository,author \
+            --jq '[.[] | select(.isCrossRepository == false and .author.login == "app/dependabot")] | first // empty')
+          if [[ -z "$pr" ]]; then
+            echo "No open Dependabot PR for this branch."
+            exit 0
+          fi
+          if [[ "$(jq -r .headRefOid <<<"$pr")" != "$SHA" ]]; then
+            echo "The PR has moved on from $SHA; a later run will handle it."
+            exit 0
+          fi
+          title=$(jq -r .title <<<"$pr")
+          if [[ "$BRANCH" =~ ^dependabot/[^/]+/[a-z-]+-minor-patch- ]]; then
+            :
+          elif [[ "$title" =~ from\ v?([0-9]+)\.[0-9][^\ ]*\ to\ v?([0-9]+)\.[0-9] ]] && [[ "${BASH_REMATCH[1]}" == "${BASH_REMATCH[2]}" ]]; then
+            :
+          else
+            echo "::notice title=Not auto-merged::This is not a minor or patch update, so it waits for a person."
+            exit 0
+          fi
+          echo "number=$(jq -r .number <<<"$pr")" >> "$GITHUB_OUTPUT"
+
+      # Every check on the PR, required or not. Passed and skipped count as green; failed or cancelled stops it;
+      # while any is still running another workflow will finish later and start this again, so only a straggler
+      # that starts no workflow of its own (CodeQL) is waited for, up to 10 minutes.
+      - name: Every check is green
+        id: checks
+        if: ${{ steps.pr.outputs.number }}
+        env:
+          PR: ${{ steps.pr.outputs.number }}
+        run: |
+          for attempt in $(seq 1 20); do
+            checks=$(gh pr checks "$PR" --json name,bucket || true)
+            if [[ -z "$checks" || "$checks" == "[]" ]]; then
+              echo "::notice title=Not auto-merged::No checks were found."
+              exit 0
+            fi
+            bad=$(jq -r '[.[] | select(.bucket == "fail" or .bucket == "cancel") | .name] | join(", ")' <<<"$checks")
+            if [[ -n "$bad" ]]; then
+              echo "::notice title=Not auto-merged::Not green: $bad."
+              exit 0
+            fi
+            pending=$(jq -r '[.[] | select(.bucket == "pending") | .name] | join(", ")' <<<"$checks")
+            if [[ -z "$pending" ]]; then
+              echo "green=true" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+            echo "Still running ($attempt/20): $pending"
+            sleep 30
+          done
+          echo "Checks were still running after 10 minutes; the workflow that finishes last will start this again."
+
+      # --match-head-commit refuses the merge if the branch moved after the checks were read.
+      - name: Squash-merge
+        if: ${{ steps.checks.outputs.green == 'true' }}
+        env:
+          PR: ${{ steps.pr.outputs.number }}
+        run: gh pr merge "$PR" --squash --match-head-commit "$SHA"
