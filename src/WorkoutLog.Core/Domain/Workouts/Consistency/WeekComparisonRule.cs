@@ -28,7 +28,7 @@ internal sealed class WeekComparisonRule
         });
     }
 
-    private static WeekTally Tally(IEnumerable<WorkoutTally> inWindow)
+    internal static WeekTally Tally(IEnumerable<WorkoutTally> inWindow)
     {
         var workouts = inWindow.ToList();
         return new WeekTally(

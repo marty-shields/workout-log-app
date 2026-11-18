@@ -191,4 +191,28 @@ internal enum CoreEvent
 
     /// <summary><see cref="Services.CardioProgressService"/>: the exercise is not cardio.</summary>
     CardioProgressNotCardio = 1908,
+
+    /// <summary><see cref="Services.PeriodTotalsService"/>: a period's comparison read.</summary>
+    PeriodComparisonLoaded = 1911,
+
+    /// <summary><see cref="Services.PeriodTotalsService"/>: reading a period's comparison failed.</summary>
+    PeriodComparisonLoadFailed = 1912,
+
+    /// <summary><see cref="Services.PeriodTotalsService"/>: a period's series read.</summary>
+    PeriodSeriesLoaded = 1913,
+
+    /// <summary><see cref="Services.PeriodTotalsService"/>: reading a period's series failed.</summary>
+    PeriodSeriesLoadFailed = 1914,
+
+    /// <summary><see cref="Services.PeriodTotalsService"/>: the streaks read.</summary>
+    PeriodStreaksLoaded = 1915,
+
+    /// <summary><see cref="Services.PeriodTotalsService"/>: reading the streaks failed.</summary>
+    PeriodStreaksLoadFailed = 1916,
+
+    /// <summary><see cref="Services.PeriodTotalsService"/>: the period limits read.</summary>
+    PeriodLimitsLoaded = 1917,
+
+    /// <summary><see cref="Services.PeriodTotalsService"/>: reading the period limits failed.</summary>
+    PeriodLimitsLoadFailed = 1918,
 }

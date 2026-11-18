@@ -78,6 +78,14 @@ public class CoreEventTests
             [CoreEvent.CardioProgressLoadFailed] = 1906,
             [CoreEvent.CardioProgressUnknownExercise] = 1907,
             [CoreEvent.CardioProgressNotCardio] = 1908,
+            [CoreEvent.PeriodComparisonLoaded] = 1911,
+            [CoreEvent.PeriodComparisonLoadFailed] = 1912,
+            [CoreEvent.PeriodSeriesLoaded] = 1913,
+            [CoreEvent.PeriodSeriesLoadFailed] = 1914,
+            [CoreEvent.PeriodStreaksLoaded] = 1915,
+            [CoreEvent.PeriodStreaksLoadFailed] = 1916,
+            [CoreEvent.PeriodLimitsLoaded] = 1917,
+            [CoreEvent.PeriodLimitsLoadFailed] = 1918,
         }));
 
     [Test]
