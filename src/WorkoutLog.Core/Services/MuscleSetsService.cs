@@ -37,30 +37,9 @@ internal sealed partial class MuscleSetsService(
             return new ReadFailed();
         }
 
-        var sets = Enum.GetValues<MuscleGroup>().ToDictionary(g => g, _ => 0);
-        var unknown = new HashSet<int>();
-        var workouts = new HashSet<int>();
-        foreach (var count in counts)
-        {
-            if (!definitions.TryGetValue(count.ExerciseId, out var definition))
-            {
-                if (unknown.Add(count.ExerciseId))
-                {
-                    Log.UnknownExercise(logger, count.ExerciseId);
-                }
-
-                continue;
-            }
-
-            if (definition is { Type: ExerciseType.Strength, PrimaryMuscle: { } muscle })
-            {
-                sets[groups.GroupOf(muscle)] += count.Sets;
-                workouts.Add(count.WorkoutId);
-            }
-        }
-
-        Log.Loaded(logger, workouts.Count);
-        return Enum.GetValues<MuscleGroup>().Select(g => new MuscleGroupCount(g, sets[g])).ToList();
+        var (result, workouts) = MuscleSetTally.Count(counts, definitions, groups, id => Log.UnknownExercise(logger, id));
+        Log.Loaded(logger, workouts);
+        return result;
     }
 
     private static partial class Log
