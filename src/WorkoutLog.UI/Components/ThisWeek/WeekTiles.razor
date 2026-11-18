@@ -32,7 +32,5 @@
     [Parameter]
     public string? TestId { get; set; }
 
-    private string Against => Today == DayOfWeek.Monday
-        ? "Against Monday last week"
-        : $"Against Monday to {Today} last week";
+    private string Against => DisplayFormat.AgainstLastWeek(Today);
 }

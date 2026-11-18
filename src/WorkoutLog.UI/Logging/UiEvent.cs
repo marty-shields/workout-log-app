@@ -104,4 +104,10 @@ internal enum UiEvent
 
     /// <summary><see cref="Components.Layout.AppScreen"/>: setting up pull to refresh failed, so the screen can't be pulled.</summary>
     PullRefreshFailed = 4001,
+
+    /// <summary><see cref="Screens.TrendsPage"/>: reading the period failed, so the screen shows the error.</summary>
+    TrendsLoadFailed = 4101,
+
+    /// <summary><see cref="Screens.TrendsPage"/>: reading the period's records failed, so their card is empty.</summary>
+    TrendsRecordsFailed = 4102,
 }

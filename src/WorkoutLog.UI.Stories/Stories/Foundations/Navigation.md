@@ -6,7 +6,7 @@ $attribute: CustomPage("Foundations/Navigation")
 
 The app opens on [Startup](./?path=/custom/screens-startup-overview), then [This week](./?path=/custom/screens-this-week-overview). Add Exercise is an overlay on the workout screen, not a route.
 
-This week, Workouts and Exercises are the top-level screens: each shows the navigation bar ([`BottomNav`](./?path=/custom/components-layout-overview), its first item still labelled Dashboard) and has no back arrow. Android back from Workouts or Exercises goes to This week, and from This week leaves the app. The three-slot bar of This week, New and Trends replaces the navigation bar later.
+This week, Workouts and Exercises are the top-level screens: each shows the navigation bar ([`BottomNav`](./?path=/custom/components-layout-overview), its first item still labelled Dashboard) and has no back arrow. Android back from Workouts or Exercises goes to This week, and from This week leaves the app. The three-slot bar of This week, New and Trends replaces the navigation bar later. [Trends](./?path=/custom/screens-trends-overview) is reached by its route, `/trends`, until the bar gives it a tab.
 
 | From | Action | To |
 |---|---|---|
@@ -18,13 +18,19 @@ This week, Workouts and Exercises are the top-level screens: each shows the navi
 | This week | Tap a workout | Edit Workout |
 | This week | Last week row | Nothing yet |
 | This week | Back | Leaves the app |
+| Trends | Previous or next week | Trends, that week |
+| Trends | Tap a record | Exercise |
+| Trends | Settings gear | Settings |
+| Trends | New in the tab bar | New Workout |
+| Trends | This week in the tab bar | This week |
+| Trends | Back | Leaves the app |
 | Workouts | Tap a row | Edit Workout |
 | Workouts | Back, or Dashboard in the navigation bar | This week |
 | Workouts | Exercises in the navigation bar | Exercises |
 | Exercises | Tap a row | Exercise |
 | Exercises | Back, or Dashboard in the navigation bar | This week |
 | Exercises | Workouts in the navigation bar | Workouts |
-| Exercise | Back | Exercises, or This week when opened from it |
+| Exercise | Back | Exercises, This week when opened from it, or the Trends week when opened from there |
 | Settings | Back | This week |
 | Settings | Import, then pick a file | Import Review |
 | Import Review | Import, or Replace all then Replace | Settings |

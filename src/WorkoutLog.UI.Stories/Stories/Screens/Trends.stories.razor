@@ -10,6 +10,14 @@
         </Template>
     </Story>
 
+    <Story Name="Week only">
+        <Template>
+            <TrendsView @attributes="SampleTrends.WeekOnly"
+                        OnKindChanged="(PeriodKind _) => { }" OnPrevious="() => { }" OnNext="() => { }" OnRetry="() => { }"
+                        OnSettings="() => { }" OnNew="() => { }" OnNavigate="(MainTab _) => { }" OnOpenRecord="(int _) => { }" />
+        </Template>
+    </Story>
+
     <Story Name="Month">
         <Template>
             <TrendsView @attributes="SampleTrends.Month"

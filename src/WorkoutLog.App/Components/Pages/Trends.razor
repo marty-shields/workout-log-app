@@ -1,0 +1,20 @@
+@page "/trends"
+@using WorkoutLog.UI.Navigation
+@using WorkoutLog.UI.Screens
+@inject NavigationManager Navigation
+
+@* Back has no handler here, so it leaves the app. *@
+<TrendsPage KindQuery="Period" DateQuery="Date"
+            OnPeriodChanged="@(week => Navigation.GoTo(TrendsRoute.Week(week)))"
+            OnNew="@(() => Navigation.GoTo("workout/new"))"
+            OnNavigate="@(tab => { if (tab == MainTab.ThisWeek) { Navigation.GoTo(string.Empty); } })"
+            OnSettings="@(() => Navigation.GoTo("settings"))"
+            OnOpenExercise="@(opened => Navigation.GoTo($"exercises/{opened.ExerciseId}?from={Uri.EscapeDataString(Origin.Trends(opened.Week))}"))" />
+
+@code {
+    /// <summary>The kind of period to show: "week".</summary>
+    [SupplyParameterFromQuery] public string? Period { get; set; }
+
+    /// <summary>A day inside the period, as 2026-11-09. Missing, the period holding today.</summary>
+    [SupplyParameterFromQuery] public string? Date { get; set; }
+}
