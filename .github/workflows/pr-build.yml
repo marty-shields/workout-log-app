@@ -1,10 +1,10 @@
-# Runs on every PR to main that is not a draft (marking it ready starts the run): the dev pipeline, then the QA pipeline once the build and its tests pass.
+# Runs on every PR to main or to an epic branch (epic/**) that is not a draft (marking it ready starts the run): the dev pipeline, then the QA pipeline once the build and its tests pass.
 name: PR build
 
 on:
   pull_request:
     types: [opened, synchronize, reopened, ready_for_review]
-    branches: [main]
+    branches: [main, "epic/**"]
 
 permissions:
   contents: read

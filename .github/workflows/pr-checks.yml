@@ -1,9 +1,9 @@
-# Checks every PR to main: the title is a Conventional Commit, the PR has exactly one semver label and it adds no vulnerable dependency.
+# Checks every PR to main or to an epic branch (epic/**): the title is a Conventional Commit, the PR has exactly one semver label and it adds no vulnerable dependency.
 name: PR checks
 
 on:
   pull_request:
-    branches: [main]
+    branches: [main, "epic/**"]
     types: [opened, edited, synchronize, reopened, labeled, unlabeled]
 
 permissions:
