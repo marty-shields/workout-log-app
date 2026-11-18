@@ -166,6 +166,18 @@ public class ThisWeekPageTests : ComponentTestBase
     }
 
     [Test]
+    public void Loaded_RecordNearMidnightUtc_ShowsTheWeekdayInThePhonesZone()
+    {
+        MidWeek();
+        training.Records = new PeriodRecords(
+            [new ExerciseRecord(Squat, new DateTimeOffset(2026, 11, 17, 23, 30, 0, TimeSpan.Zero), new ExerciseBest(70m, 3, null, null))], []);
+
+        var cut = Context.Render<ThisWeekPage>();
+
+        cut.WaitForAssertion(() => Assert.That(cut.Find("[data-testid=week-records-row-6] .detail").TextContent, Is.EqualTo("Wednesday")));
+    }
+
+    [Test]
     public void Loaded_MoreThanFiveRecords_ShowsFiveThenHowManyMore()
     {
         MidWeek();
@@ -188,7 +200,7 @@ public class ThisWeekPageTests : ComponentTestBase
         cut.WaitForAssertion(() => Assert.That(cut.FindAll("[data-testid=last-week]"), Has.Count.EqualTo(1)));
         Assert.Multiple(() =>
         {
-            Assert.That(cut.Find("[data-testid=week-workouts-none]").TextContent, Is.EqualTo("Nothing yet this week. Tap + to start one."));
+            Assert.That(cut.Find("[data-testid=week-workouts-none]").TextContent, Is.EqualTo("Nothing yet this week."));
             Assert.That(cut.Find("[data-testid=last-week-row] .detail").TextContent, Is.EqualTo("4 workouts · 4h 10m · 67 sets"));
             Assert.That(cut.FindAll("button[data-testid=last-week-row]"), Is.Empty);
             Assert.That(cut.FindAll("[data-testid=week-records]"), Is.Empty);
@@ -396,9 +408,12 @@ public class ThisWeekPageTests : ComponentTestBase
         training.Hold = true;
         Context.Render<ThisWeekPage>();
 
-        await lifecycle.NotifyStartedAsync();
+        var started = lifecycle.NotifyStartedAsync();
+        await WaitForRendererAsync();
 
         Assert.That(training.WorkoutsReads, Has.Count.EqualTo(1));
+        training.Complete();
+        await started.WaitAsync(TimeSpan.FromSeconds(5));
     }
 
     [Test]
@@ -420,6 +435,7 @@ public class ThisWeekPageTests : ComponentTestBase
         Context.Render<ThisWeekPage>();
 
         await Context.DisposeComponentsAsync();
+        training.Workouts = new ReadFailed();
         training.Complete();
         await WaitForRendererAsync();
 
@@ -532,7 +548,7 @@ public class ThisWeekPageTests : ComponentTestBase
 
     private static ReadResult<PeriodComparison> Comparison(WeekTally totals, WeekTally earlier) => new PeriodComparison(Week, totals, earlier);
 
-    private static ReadResult<WeekStreaks> Streaks(int current) => new WeekStreaks(current, new int[12], new LongestRun(current, true));
+    private static ReadResult<WeekStreaks> Streaks(int current) => new WeekStreaks(current, new int[12], new LongestRun(current + 3, true));
 
     private async Task<IRenderedComponent<ThisWeekPage>> LoadedAsync()
     {

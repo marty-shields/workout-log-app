@@ -128,7 +128,8 @@
 
         trained = series is PeriodSeries daily ? daily.Buckets.Where(day => day.Workouts > 0).Select(day => day.Start).ToList() : [];
         streak = streaks is WeekStreaks read ? read.Current : 0;
-        workouts = outlines is IReadOnlyList<WorkoutOutline> saved ? saved.Select(Row).ToList() : [];
+        var names = Catalog.All.ToDictionary(e => e.Id, e => e.Name);
+        workouts = outlines is IReadOnlyList<WorkoutOutline> saved ? saved.Select(w => Row(w, names)).ToList() : [];
         muscles = counts is IReadOnlyList<MuscleGroupCount> groups ? groups.Select(g => new MuscleGroupSets(g.Group.ToString(), g.Sets)).ToList() : [];
         records = recent switch
         {
@@ -158,15 +159,12 @@
     }
 
     /// <summary>The workout's start on the phone's wall clock.</summary>
-    private WeekWorkout Row(WorkoutOutline workout)
-    {
-        var names = Catalog.All.ToDictionary(e => e.Id, e => e.Name);
-        return new WeekWorkout(
+    private WeekWorkout Row(WorkoutOutline workout, IReadOnlyDictionary<int, string> names) =>
+        new(
             workout.Id,
             TimeZoneInfo.ConvertTime(workout.StartedAt, Clock.LocalTimeZone).DateTime,
             workout.ExerciseIds.Select(id => names[id]).ToList(),
             workout.FinishedAt - workout.StartedAt);
-    }
 
     private static WeekTotals ToTotals(WeekTally tally) => new(tally.Workouts, tally.Time, tally.Sets);
 

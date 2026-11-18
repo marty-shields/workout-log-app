@@ -24,7 +24,7 @@ A Material Symbols Outlined icon (weight 400), drawn as an SVG and hidden from s
 - `Name`: an `IconName`.
 - `Tone`: `Default` takes the text colour; `Muted` uses `--color-text-muted`, `Success` `--color-success`, `Error` `--color-error`.
 - `Size`: `Default` is `--font-size-xl`, `Small` is `--font-size-lg`.
-- Chevron: the end of a tappable `ListRow`, carry `SetSummary` row and `LastWorkoutCard`, `Muted`.
+- Chevron: the end of a tappable `ListRow`, carry `SetSummary` row, `Muted`.
 - Search: the Exercises search box, `Muted`.
 - Up and Down: an increase (`Success`) or decrease (`Error`) in `WeekChange`.
 - Edit (pencil) and Check (tick): used by `IconButton`.

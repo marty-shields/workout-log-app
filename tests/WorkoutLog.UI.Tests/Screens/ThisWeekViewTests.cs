@@ -82,7 +82,7 @@ public class ThisWeekViewTests : ComponentTestBase
         Assert.Multiple(() =>
         {
             Assert.That(cut.FindAll(".tile .value").Select(v => v.TextContent), Is.EqualTo(new[] { "0", "0m", "0" }));
-            Assert.That(cut.Find("[data-testid=week-workouts-none]").TextContent, Is.EqualTo("Nothing yet this week. Tap + to start one."));
+            Assert.That(cut.Find("[data-testid=week-workouts-none]").TextContent, Is.EqualTo("Nothing yet this week."));
             Assert.That(cut.Find("[data-testid=last-week] .detail").TextContent, Is.EqualTo("4 workouts · 4h 10m · 67 sets"));
             Assert.That(cut.FindAll(Parts).Select(e => e.GetAttribute("data-testid")), Is.EqualTo(new[] { "day-strip", "week-tiles", "week-workouts", "last-week" }));
         });

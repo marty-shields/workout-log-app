@@ -10,7 +10,7 @@ namespace WorkoutLog.E2E.Tests.Steps;
 [Binding]
 public sealed class ThisWeekSteps(WebView web, ThisWeekScreen thisWeek, NavigationBar navigation, Journeys journeys, DeviceClock clock, ScenarioState state)
 {
-    private const string NoWorkoutsText = "Nothing yet this week. Tap + to start one.";
+    private const string NoWorkoutsText = "Nothing yet this week.";
 
     [Then(@"^I am on This week titled ""(.*)""$")]
     public void ThenOnThisWeekTitled(string title) => web.Eventually(() => web.Text("screen-title"), Is.EqualTo(title));

@@ -64,4 +64,16 @@ public class WeekRecordItemsTests
     [Test]
     public void Items_BestItCantShow_IsLeftOut() =>
         Assert.That(WeekRecordItems.Items([new ExerciseRecord(Squat, Now, new ExerciseBest(null, null, null, null))], Catalog, Zone), Is.Empty);
+
+    [Test]
+    public void Items_NewestRecordItCantShow_FallsBackToTheNextOneOfTheExercise()
+    {
+        var items = WeekRecordItems.Items(
+        [
+            new ExerciseRecord(Squat, Now, new ExerciseBest(null, null, null, null)),
+            new ExerciseRecord(Squat, Now.AddDays(-1), new ExerciseBest(70m, 3, null, null)),
+        ], Catalog, Zone);
+
+        Assert.That(items, Is.EqualTo(new[] { new WeekRecord(Squat, "Barbell Back Squat", "70kg × 3", DayOfWeek.Tuesday) }));
+    }
 }
