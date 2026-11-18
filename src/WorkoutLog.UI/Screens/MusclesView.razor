@@ -24,7 +24,7 @@
                     }
                     else
                     {
-                        <span class="sets">@group.Sets @(group.Sets == 1 ? "set" : "sets")</span>
+                        <span class="sets">@DisplayFormat.Sets(group.Sets)</span>
                     }
                 </li>
             }

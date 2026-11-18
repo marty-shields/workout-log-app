@@ -61,6 +61,9 @@ internal static class DisplayFormat
     /// <summary>A number of workouts, e.g. 1 workout or 38 workouts.</summary>
     public static string Workouts(int count) => count == 1 ? "1 workout" : $"{count} workouts";
 
+    /// <summary>A number of sets, e.g. 1 set or 12 sets.</summary>
+    public static string Sets(int count) => count == 1 ? "1 set" : $"{count} sets";
+
     /// <summary>Calendar days since a date: Today, Yesterday, or e.g. 3 days ago.</summary>
     public static string DaysAgo(int days) => days switch
     {
@@ -71,6 +74,20 @@ internal static class DisplayFormat
 
     /// <summary>Elapsed time as h:mm:ss.</summary>
     public static string Duration(TimeSpan value) => $"{(int)value.TotalHours}:{value.Minutes:00}:{value.Seconds:00}";
+
+    /// <summary>Whole minutes as e.g. 3h 05m, or 25m under an hour.</summary>
+    public static string Minutes(int minutes) => minutes >= 60 ? $"{minutes / 60}h {minutes % 60:00}m" : $"{minutes}m";
+
+    /// <summary>Elapsed time as h:mm, e.g. 0:58 or 1:02.</summary>
+    public static string HoursMinutes(TimeSpan value) => $"{(int)value.TotalHours}:{value.Minutes:00}";
+
+    /// <summary>A Monday to Sunday week, without the year: 16 – 22 Nov, or 28 Sep – 4 Oct across months.</summary>
+    public static string WeekDates(DateOnly monday)
+    {
+        var sunday = monday.AddDays(6);
+        var from = monday.ToString(monday.Month == sunday.Month ? "%d" : "d MMM", CultureInfo.InvariantCulture);
+        return $"{from} – {sunday.ToString("d MMM", CultureInfo.InvariantCulture)}";
+    }
 
     /// <summary>
     /// Weight rounded by <see cref="Decimals.Round2"/>, no trailing zeros and no space before the unit, e.g. 22.5kg; — when there is none.

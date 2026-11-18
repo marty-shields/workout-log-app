@@ -1,0 +1,39 @@
+<section class="card" data-testid="@TestId">
+    <h2 class="title">This week's workouts</h2>
+    @if (Workouts.Count == 0)
+    {
+        <p class="none" data-testid="@($"{TestId}-none")" data-wrap-ok>Nothing yet this week. Tap + to start one.</p>
+    }
+    else
+    {
+        <ul class="rows">
+            @foreach (var workout in Workouts.OrderByDescending(w => w.StartedAt))
+            {
+                <li>
+                    <ListRow Text="@DisplayFormat.DayAndTime(workout.StartedAt)"
+                             Detail="@Exercises(workout.Exercises)"
+                             Aside="@DisplayFormat.HoursMinutes(workout.Duration)"
+                             OnClick="@(OnOpen.HasDelegate ? EventCallback.Factory.Create(this, () => OnOpen.InvokeAsync(workout.Id)) : default)"
+                             TestId="@($"{TestId}-row-{workout.Id}")" />
+                </li>
+            }
+        </ul>
+    }
+</section>
+
+@code {
+    /// <summary>The week's workouts. Shown newest first whatever the order given.</summary>
+    [Parameter, EditorRequired]
+    public IReadOnlyList<WeekWorkout> Workouts { get; set; } = [];
+
+    /// <summary>Raised with the workout id when a row is tapped. Rows are not tappable when unset.</summary>
+    [Parameter]
+    public EventCallback<int> OnOpen { get; set; }
+
+    /// <summary>Value of the data-testid attribute, and the prefix of its parts': <c>{TestId}-row-{workout id}</c>, <c>{TestId}-none</c>.</summary>
+    [Parameter]
+    public string? TestId { get; set; }
+
+    private static string Exercises(IReadOnlyList<string> names) =>
+        names.Count > 2 ? $"{string.Join(", ", names.Take(2))} +{names.Count - 2}" : string.Join(", ", names);
+}

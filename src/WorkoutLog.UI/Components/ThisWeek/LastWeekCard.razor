@@ -1,0 +1,21 @@
+@using WorkoutLog.UI.Components.Dashboard
+<section class="card" data-testid="@TestId">
+    <ListRow Text="Last week"
+             Detail="@($"{DisplayFormat.Workouts(Totals.Workouts)} · {DisplayFormat.Minutes((int)Totals.Time.TotalMinutes)} · {DisplayFormat.Sets(Totals.Sets)}")"
+             OnClick="OnOpen"
+             TestId="@($"{TestId}-row")" />
+</section>
+
+@code {
+    /// <summary>Last week's whole-week totals.</summary>
+    [Parameter, EditorRequired]
+    public WeekTotals Totals { get; set; } = null!;
+
+    /// <summary>Raised when the row is tapped. The row is not tappable when unset.</summary>
+    [Parameter]
+    public EventCallback OnOpen { get; set; }
+
+    /// <summary>Value of the data-testid attribute, and <c>{TestId}-row</c> on the row.</summary>
+    [Parameter]
+    public string? TestId { get; set; }
+}

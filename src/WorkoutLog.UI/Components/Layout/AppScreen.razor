@@ -35,7 +35,7 @@
     <main @ref="content" class="content">
         @ChildContent
     </main>
-    @if (BottomBar is not null || Destination is not null)
+    @if (BottomBar is not null || Destination is not null || Navigation is not null)
     {
         <footer class="bottom">
             @if (Status is not null)
@@ -53,6 +53,10 @@
             @if (Destination is { } current)
             {
                 <BottomNav Current="current" OnNavigate="OnNavigate" />
+            }
+            else if (Navigation is not null)
+            {
+                @Navigation
             }
         </footer>
     }
@@ -88,6 +92,10 @@
     /// <summary>Raised with the destination tapped in the bottom navigation bar, or with <see cref="NavDestinations.Start"/> on Android back.</summary>
     [Parameter]
     public EventCallback<NavDestination> OnNavigate { get; set; }
+
+    /// <summary>A navigation bar under the bottom bar, instead of the one <see cref="Destination"/> shows; used by screens that don't take part in <see cref="NavDestination"/>. It doesn't change Android back.</summary>
+    [Parameter]
+    public RenderFragment? Navigation { get; set; }
 
     /// <summary>Actions at the right of the top bar.</summary>
     [Parameter]

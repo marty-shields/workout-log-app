@@ -1,0 +1,17 @@
+@attribute [Stories("Components/ThisWeek/LastWeekCard")]
+
+<Stories TComponent="LastWeekCard" Layout="typeof(ThemeLayout)">
+
+    <Story Name="With workouts">
+        <Template>
+            <LastWeekCard Totals="SampleThisWeek.LastWeek" OnOpen="() => { }" TestId="last-week" />
+        </Template>
+    </Story>
+
+    <Story Name="One workout">
+        <Template>
+            <LastWeekCard Totals="@(new WeekTotals(1, new TimeSpan(0, 45, 0), 1))" TestId="last-week" />
+        </Template>
+    </Story>
+
+</Stories>

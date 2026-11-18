@@ -1,0 +1,38 @@
+@using WorkoutLog.UI.Components.Dashboard
+<section class="tiles" data-testid="@TestId">
+    <div class="grid">
+        @foreach (var tile in WeekMetric.All)
+        {
+            var now = tile.Value(ThisWeek);
+            var before = tile.Value(LastWeekToDate);
+            <div class="tile" data-testid="@($"{TestId}-{tile.Key}")">
+                <span class="label">@tile.Label</span>
+                <span class="value">@tile.Format(now)</span>
+                <span class="change" data-testid="@($"{TestId}-{tile.Key}-change")"><WeekChange Difference="now - before" Format="tile.Format" /></span>
+            </div>
+        }
+    </div>
+    <p class="against" data-testid="@($"{TestId}-against")">@Against</p>
+</section>
+
+@code {
+    /// <summary>This week so far.</summary>
+    [Parameter, EditorRequired]
+    public WeekTotals ThisWeek { get; set; } = null!;
+
+    /// <summary>Last week's totals from Monday to the end of the same weekday as <see cref="Today"/>.</summary>
+    [Parameter, EditorRequired]
+    public WeekTotals LastWeekToDate { get; set; } = null!;
+
+    /// <summary>Today's weekday, named in the line under the tiles.</summary>
+    [Parameter, EditorRequired]
+    public DayOfWeek Today { get; set; }
+
+    /// <summary>Value of the data-testid attribute, and the prefix of its parts': <c>{TestId}-workouts</c>, <c>-time</c>, <c>-sets</c> (each with <c>-change</c>), <c>{TestId}-against</c>.</summary>
+    [Parameter]
+    public string? TestId { get; set; }
+
+    private string Against => Today == DayOfWeek.Monday
+        ? "Against Monday last week"
+        : $"Against Monday to {Today} last week";
+}

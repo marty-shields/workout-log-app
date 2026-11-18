@@ -49,4 +49,10 @@ public enum IconName
 
     /// <summary>Calendar page (<c>calendar_today</c>).</summary>
     Calendar,
+
+    /// <summary>Plus (<c>add</c>).</summary>
+    Add,
+
+    /// <summary>Three vertical bars of different heights (<c>bar_chart</c>).</summary>
+    BarChart,
 }

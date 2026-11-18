@@ -43,22 +43,10 @@ td {
     padding-left: var(--space-3);
 }
 
-.diff {
+.change ::deep .diff {
     display: flex;
     min-height: var(--font-size-xl);
     align-items: center;
     justify-content: flex-end;
     font-size: var(--font-size-sm);
-}
-
-.up {
-    color: var(--color-success);
-}
-
-.down {
-    color: var(--color-error);
-}
-
-.same {
-    color: var(--color-text-muted);
 }

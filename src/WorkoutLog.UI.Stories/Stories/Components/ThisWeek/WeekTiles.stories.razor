@@ -1,0 +1,29 @@
+@attribute [Stories("Components/ThisWeek/WeekTiles")]
+
+<Stories TComponent="WeekTiles" Layout="typeof(ThemeLayout)">
+
+    <Story Name="Up">
+        <Template>
+            <WeekTiles ThisWeek="SampleThisWeek.ThisWeek" LastWeekToDate="SampleThisWeek.LastWeekToDate" Today="DayOfWeek.Wednesday" TestId="week-tiles" />
+        </Template>
+    </Story>
+
+    <Story Name="Down">
+        <Template>
+            <WeekTiles ThisWeek="SampleThisWeek.LastWeekToDate" LastWeekToDate="SampleThisWeek.ThisWeek" Today="DayOfWeek.Wednesday" TestId="week-tiles" />
+        </Template>
+    </Story>
+
+    <Story Name="No change">
+        <Template>
+            <WeekTiles ThisWeek="SampleThisWeek.ThisWeek" LastWeekToDate="SampleThisWeek.ThisWeek" Today="DayOfWeek.Wednesday" TestId="week-tiles" />
+        </Template>
+    </Story>
+
+    <Story Name="Nothing logged">
+        <Template>
+            <WeekTiles ThisWeek="SampleThisWeek.Nothing" LastWeekToDate="SampleThisWeek.Nothing" Today="DayOfWeek.Monday" TestId="week-tiles" />
+        </Template>
+    </Story>
+
+</Stories>

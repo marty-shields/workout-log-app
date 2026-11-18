@@ -12,7 +12,7 @@ The frame of every screen:
 | Top bar | Back arrow `IconButton` (when `OnBack` is set; Android back raises `OnBack` too), title, subtitle, `Actions` on the right. Dark teal bar; sets text, muted text and focus to the on-bar colours. |
 | Content | Scrolls. 16px padding. |
 | Bottom bar | `BottomBar` actions, in thumb reach. Optional. |
-| Navigation bar | `BottomNav` under the bottom bar, when `Destination` is set. |
+| Navigation bar | `BottomNav` under the bottom bar, when `Destination` is set; else whatever `Navigation` holds, such as a `MainTabBar`. |
 | Status | `Status`, a `Snackbar` just above the bottom bar (or the navigation bar), over the content. Its slot is a polite live region (`role="status"`), there whenever `Status` is set, so a snackbar shown later is read out. While a snackbar shows, the content gets room at its foot (`2 × --touch-target` more) so its last controls scroll clear of it. Needs a bottom bar or a navigation bar. Optional. |
 
 - `Destination` makes the screen top-level: it shows the `BottomNav` with that item current and raises `OnNavigate` with the item tapped. A top-level screen sets no `OnBack`, so it has no back arrow. Android back raises `OnNavigate` with the Dashboard (`NavDestinations.Start`), except on the Dashboard, where it leaves the app.
@@ -36,6 +36,22 @@ The Material navigation bar for the top-level screens: Dashboard, Workouts and E
 - `data-testid`: `bottom-nav`, `dashboard-link`, `workouts-link`, `exercises-link`.
 
 Stories: [BottomNav](./?path=/docs/components-layout-bottomnav--docs)
+
+## `MainTabBar`
+The three-slot bar that will replace `BottomNav` when the app moves to This week and Trends. Not in use by the app yet: only [This week](./?path=/custom/screens-this-week-overview) shows it, through `AppScreen`'s `Navigation` slot. `BottomNav` and `Destination` are unchanged.
+
+| Part | Content |
+|---|---|
+| This week | Calendar icon over "This week", a third of the width, at least 48px tall. |
+| New | A raised square button in `--color-primary` with the Add (+) icon, `--nav-new-size` across and lifted `--nav-new-raise` above the bar's top edge, with "New" under it level with the other labels. Never the current page. |
+| Trends | Bar-chart icon over "Trends". |
+
+- Current tab (`Current`): a `--color-selected` pill behind the icon, the label and icon in the text colour and bold, `aria-current="page"`. The pill and bold mean it is not shown by colour alone.
+- Tapping a tab raises `OnNavigate` with it; tapping the current tab does nothing. New raises `OnNew`.
+- A `<nav>` labelled "Main"; each item is a button. A pressed tab shows the shared state layer on its pill, New on its button. Its bottom padding is the safe-area inset.
+- `data-testid`: `tab-bar`, `this-week-link`, `new-link`, `trends-link`.
+
+Stories: [MainTabBar](./?path=/docs/components-layout-maintabbar--docs)
 
 ## `StartupGate`
 Runs `Initialize` once at startup. Shows the [Startup](./?path=/custom/screens-startup-overview) screen while it runs or if it throws, then `ChildContent`.

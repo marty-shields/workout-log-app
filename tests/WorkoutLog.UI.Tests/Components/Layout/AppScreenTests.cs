@@ -29,6 +29,51 @@ public class AppScreenTests : ComponentTestBase
     }
 
     [Test]
+    public void Navigation_ShowsInTheFooterUnderTheBottomBar()
+    {
+        var cut = Context.Render<AppScreen>(p => p
+            .Add(x => x.Title, "Workout Log")
+            .Add<MainTabBar>(x => x.Navigation, bar => bar.Add(x => x.Current, MainTab.ThisWeek))
+            .Add(x => x.BottomBar, "<span data-testid=\"bar-content\"></span>"));
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.FindAll("footer [data-testid=bottom-bar], footer [data-testid=tab-bar]").Select(e => e.GetAttribute("data-testid")),
+                Is.EqualTo(new[] { "bottom-bar", "tab-bar" }));
+            Assert.That(cut.FindAll("[data-testid=bottom-nav]"), Is.Empty);
+        });
+    }
+
+    [Test]
+    public void Navigation_AloneShowsTheFooter_AndLeavesAndroidBackToTheApp()
+    {
+        var cut = Context.Render<AppScreen>(p => p
+            .Add(x => x.Title, "Workout Log")
+            .Add<MainTabBar>(x => x.Navigation, bar => bar.Add(x => x.Current, MainTab.Trends)));
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.FindAll("footer [data-testid=tab-bar]"), Has.Count.EqualTo(1));
+            Assert.That(BackButton.HasHandler, Is.False);
+        });
+    }
+
+    [Test]
+    public void Destination_WinsOverNavigation()
+    {
+        var cut = Context.Render<AppScreen>(p => p
+            .Add(x => x.Title, "Workout Log")
+            .Add(x => x.Destination, NavDestination.Dashboard)
+            .Add<MainTabBar>(x => x.Navigation, bar => bar.Add(x => x.Current, MainTab.ThisWeek)));
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.FindAll("[data-testid=bottom-nav]"), Has.Count.EqualTo(1));
+            Assert.That(cut.FindAll("[data-testid=tab-bar]"), Is.Empty);
+        });
+    }
+
+    [Test]
     public void NoOnBack_HidesBackArrow()
     {
         var cut = Context.Render<AppScreen>(p => p.Add(x => x.Title, "Workout Log"));
