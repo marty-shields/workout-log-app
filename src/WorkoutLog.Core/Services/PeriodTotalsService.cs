@@ -35,9 +35,8 @@ internal sealed partial class PeriodTotalsService(
         await ReadAsync(
             async (now, zone) =>
             {
-                var from = period.Previous().Start.AddDays(-1);
-                var to = LocalWeek.Start(period.End.AddDays(2), zone);
-                var sets = await repository.ListSetsAsync(LocalWeek.Start(from, zone), to < now ? to : now);
+                var (from, to) = ReadWindow(period.Previous().Start.AddDays(-1), period, now, zone);
+                var sets = await repository.ListSetsAsync(from, to);
                 return volumeRule.Compare(VolumesOf(sets), period, now, zone);
             },
             _ => { },
@@ -78,8 +77,14 @@ internal sealed partial class PeriodTotalsService(
     /// <summary>Workouts started from the start of <paramref name="from"/> to the end of the day after <paramref name="period"/> ends, up to <paramref name="now"/>; the extra days leave room for the zone's offsets.</summary>
     private Task<IReadOnlyList<WorkoutTally>> ListAsync(DateOnly from, Period period, DateTimeOffset now, TimeZoneInfo zone)
     {
+        var (start, end) = ReadWindow(from, period, now, zone);
+        return repository.ListTalliesAsync(start, end);
+    }
+
+    private static (DateTimeOffset From, DateTimeOffset To) ReadWindow(DateOnly from, Period period, DateTimeOffset now, TimeZoneInfo zone)
+    {
         var to = LocalWeek.Start(period.End.AddDays(2), zone);
-        return repository.ListTalliesAsync(LocalWeek.Start(from, zone), to < now ? to : now);
+        return (LocalWeek.Start(from, zone), to < now ? to : now);
     }
 
     /// <summary>What each set adds; a set of an exercise that is not in the catalogue adds nothing, and its id is logged once.</summary>

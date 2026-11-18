@@ -19,17 +19,10 @@ internal sealed class VolumeRule
     /// </summary>
     public PeriodVolume Compare(IReadOnlyList<SetVolume> sets, Period period, DateTimeOffset now, TimeZoneInfo zone)
     {
-        var today = DateOnly.FromDateTime(LocalWeek.Local(now, zone));
-        var earlier = period.Previous();
-        return period.Contains(today)
-            ? new PeriodVolume(period, Sum(sets, period.Start, today, zone), Sum(sets, earlier.Start, period.SamePointBefore(today), zone))
-            : new PeriodVolume(period, Sum(sets, period.Start, period.End, zone), Sum(sets, earlier.Start, earlier.End, zone));
+        var window = PeriodWindow.Of(period, DateOnly.FromDateTime(LocalWeek.Local(now, zone)));
+        return new PeriodVolume(period, Sum(sets, window.From, window.To, zone), Sum(sets, window.EarlierFrom, window.EarlierTo, zone));
     }
 
     private static decimal Sum(IReadOnlyList<SetVolume> sets, DateOnly from, DateOnly to, TimeZoneInfo zone) =>
-        sets.Where(s =>
-        {
-            var day = DateOnly.FromDateTime(LocalWeek.Local(s.StartedAt, zone));
-            return day >= from && day <= to;
-        }).Sum(s => s.Kg);
+        sets.Where(s => PeriodWindow.IsOn(s.StartedAt, from, to, zone)).Sum(s => s.Kg);
 }

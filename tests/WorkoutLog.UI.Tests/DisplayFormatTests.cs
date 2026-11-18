@@ -83,10 +83,14 @@ public class DisplayFormatTests
     [TestCase("0", PeriodKind.Week, "0 kg")]
     [TestCase("999.5", PeriodKind.Month, "1,000 kg")]
     [TestCase("999.4", PeriodKind.Month, "999 kg")]
+    [TestCase("998.5", PeriodKind.Week, "999 kg")]
+    [TestCase("1000.5", PeriodKind.Week, "1,001 kg")]
     public void Volume_WeekOrMonth_IsWholeKilogramsWithThousandsSeparator(string kg, PeriodKind kind, string expected) =>
         Assert.That(DisplayFormat.Volume(decimal.Parse(kg, CultureInfo.InvariantCulture), kind), Is.EqualTo(expected));
 
     [TestCase("548000", "548 t")]
+    [TestCase("2500", "3 t")]
+    [TestCase("3500", "4 t")]
     [TestCase("548499", "548 t")]
     [TestCase("548500", "549 t")]
     [TestCase("1234567", "1,235 t")]

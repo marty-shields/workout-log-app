@@ -23,6 +23,8 @@ public class VolumeRuleTests
     [TestCase(5, null)]
     [TestCase(5, "0")]
     [TestCase(null, null)]
+    [TestCase(5, "-20")]
+    [TestCase(-5, "100")]
     public void Of_ALiftMissingRepsOrWeight_AddsNothing(int? reps, string? kg) =>
         Assert.That(rule.Of(ExerciseCategory.Lift, reps, kg is null ? null : decimal.Parse(kg, System.Globalization.CultureInfo.InvariantCulture)), Is.Zero);
 
@@ -41,7 +43,7 @@ public class VolumeRuleTests
     public void Compare_WeekHoldingToday_CutsTheEarlierWeekAtTheSameWeekday()
     {
         var result = rule.Compare(
-            [Sv("2026-10-20T08:00", 100m), Sv("2026-10-21T23:00", 200m), Sv("2026-10-22T01:00", 400m), Sv("2026-10-26T09:00", 800m), Sv("2026-10-28T12:00", 1600m)],
+            [Sv("2026-10-20T08:00", 100m), Sv("2026-10-21T23:00", 200m), Sv("2026-10-22T01:00", 400m), Sv("2026-10-26T09:00", 800m), Sv("2026-10-28T12:00", 1600m), Sv("2026-10-30T09:00", 3200m)],
             Week(2026, 10, 28), At("2026-10-28T18:00"), TimeZoneInfo.Utc);
 
         Assert.That(result, Is.EqualTo(new PeriodVolume(Week(2026, 10, 28), 2400m, 300m)));

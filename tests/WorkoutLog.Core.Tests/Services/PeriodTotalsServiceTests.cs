@@ -280,7 +280,7 @@ public class PeriodTotalsServiceTests
             Set("2026-10-27T10:00", BestRuleCases.Squat, 5, 100m),
             Set("2026-10-27T10:00", BestRuleCases.PushUp, 10, 10m),
             Set("2026-10-27T10:00", BestRuleCases.AssistedPullUp, 10, 30m),
-            Set("2026-10-27T10:00", BestRuleCases.Plank, null, 20m),
+            Set("2026-10-27T10:00", BestRuleCases.Plank, 30, 20m),
             Set("2026-10-27T10:00", BestRuleCases.FarmersWalk, 1, 40m),
         ]);
 

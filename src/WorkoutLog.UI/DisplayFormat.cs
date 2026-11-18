@@ -83,8 +83,8 @@ internal static class DisplayFormat
     /// </summary>
     public static string Volume(decimal kg, PeriodKind kind) =>
         kind == PeriodKind.Year
-            ? $"{Math.Round(kg / 1000m, MidpointRounding.AwayFromZero).ToString("N0", CultureInfo.InvariantCulture)} t"
-            : $"{Math.Round(kg, MidpointRounding.AwayFromZero).ToString("N0", CultureInfo.InvariantCulture)} kg";
+            ? $"{(kg / 1000m).ToString("N0", CultureInfo.InvariantCulture)} t"
+            : $"{kg.ToString("N0", CultureInfo.InvariantCulture)} kg";
 
     /// <summary>
     /// Change from <paramref name="earlier"/> to <paramref name="current"/> as a percentage of <paramref name="earlier"/>, rounded to a whole
