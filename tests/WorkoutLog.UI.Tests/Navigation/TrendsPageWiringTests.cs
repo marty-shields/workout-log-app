@@ -13,6 +13,9 @@ public class TrendsPageWiringTests
     [TestCase("[SupplyParameterFromQuery]publicstring?Period{get;set;}")]
     [TestCase("[SupplyParameterFromQuery]publicstring?Date{get;set;}")]
     [TestCase("OnPeriodChanged=\"@(week=>Navigation.GoTo(TrendsRoute.Week(week)))\"")]
+    [TestCase("OnNew=\"@(() => Navigation.GoTo(\"workout/new\"))\"")]
+    [TestCase("OnNavigate=\"@(tab => { if (tab == MainTab.ThisWeek) { Navigation.GoTo(string.Empty); } })\"")]
+    [TestCase("OnSettings=\"@(() => Navigation.GoTo(\"settings\"))\"")]
     [TestCase("Navigation.GoTo($\"exercises/{opened.ExerciseId}?from={Uri.EscapeDataString(Origin.Trends(opened.Week))}\")")]
     public void TrendsPage_IsWiredToTheQueryTheUrlAndTheExercise(string markup) =>
         Assert.That(
