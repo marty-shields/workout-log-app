@@ -408,11 +408,11 @@ public class PeriodTrainingServiceTests
     [Test]
     public async Task GetMostTrainedAsync_Ties_AreByNameAToZ()
     {
-        Setup(Workout(OctoberStart, Sets(Squat, Set(5, 60m)), Sets(Curl, Set(10, 10m)), Sets(PushUp, Set(10, 0m))));
+        Setup(Workout(OctoberStart, Sets(PushUp, Set(10, 0m)), Sets(Squat, Set(5, 60m)), Sets(Curl, Set(10, 10m))));
 
-        var names = (await service.GetMostTrainedAsync(October)).Loaded().Select(e => Definition(e.ExerciseId).Name).ToList();
+        var result = (await service.GetMostTrainedAsync(October)).Loaded();
 
-        Assert.That(names, Is.EqualTo(names.OrderBy(n => n, StringComparer.OrdinalIgnoreCase)));
+        Assert.That(result, Is.EqualTo(new[] { new TrainedExercise(Squat, 1), new TrainedExercise(Curl, 1), new TrainedExercise(PushUp, 1) }));
     }
 
     [Test]
@@ -425,12 +425,14 @@ public class PeriodTrainingServiceTests
 
         var result = (await service.GetMostTrainedAsync(October)).Loaded();
 
-        Assert.Multiple(() =>
+        Assert.That(result, Is.EqualTo(new[]
         {
-            Assert.That(result, Has.Count.EqualTo(5));
-            Assert.That(result[0], Is.EqualTo(new TrainedExercise(FarmersWalk, 2)));
-            Assert.That(result.Select(e => e.Sessions).Skip(1), Is.All.EqualTo(1));
-        });
+            new TrainedExercise(FarmersWalk, 2),
+            new TrainedExercise(Squat, 1),
+            new TrainedExercise(Curl, 1),
+            new TrainedExercise(AssistedPullUp, 1),
+            new TrainedExercise(Plank, 1),
+        }));
     }
 
     [Test]

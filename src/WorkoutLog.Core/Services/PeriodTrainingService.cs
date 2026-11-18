@@ -85,12 +85,18 @@ internal sealed partial class PeriodTrainingService(
         {
             var now = time.GetUtcNow();
             var zone = time.LocalTimeZone;
-            var missing = new HashSet<int>();
             var workouts = (await repository.GetAllAsync()).Where(w => IsIn(period, w.StartedAt, now, zone)).ToList();
-            result = workouts
+            var counts = workouts
                 .SelectMany(w => w.Exercises.Select(e => e.ExerciseId))
                 .GroupBy(id => id)
-                .Where(g => definitions.ContainsKey(g.Key) || Unknown(missing, g.Key))
+                .ToList();
+            foreach (var unknown in counts.Where(g => !definitions.ContainsKey(g.Key)))
+            {
+                Log.MostTrainedUnknownExercise(logger, unknown.Key);
+            }
+
+            result = counts
+                .Where(g => definitions.ContainsKey(g.Key))
                 .Select(g => (Definition: definitions[g.Key], Sessions: g.Count()))
                 .OrderByDescending(e => e.Sessions)
                 .ThenBy(e => e.Definition.Name, StringComparer.OrdinalIgnoreCase)
@@ -106,16 +112,6 @@ internal sealed partial class PeriodTrainingService(
 
         Log.MostTrainedLoaded(logger, result.Count, period.Kind, period.Start);
         return new ReadResult<IReadOnlyList<TrainedExercise>>(result);
-    }
-
-    private bool Unknown(HashSet<int> seen, int exerciseId)
-    {
-        if (seen.Add(exerciseId))
-        {
-            Log.MostTrainedUnknownExercise(logger, exerciseId);
-        }
-
-        return false;
     }
 
     private static bool IsIn(Period period, DateTimeOffset startedAt, DateTimeOffset now, TimeZoneInfo zone) =>
