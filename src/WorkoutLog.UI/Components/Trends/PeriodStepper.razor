@@ -1,0 +1,52 @@
+@using WorkoutLog.Core.Domain.Workouts.Periods
+<div class="stepper" data-testid="@TestId">
+    <button type="button"
+            class="step previous"
+            aria-label="@($"Previous {Unit}")"
+            disabled="@(!CanGoPrevious)"
+            data-testid="@($"{TestId}-previous")"
+            @onclick="OnPrevious">
+        <Icon Name="IconName.Chevron" />
+    </button>
+    <span class="label" aria-live="polite" data-testid="@($"{TestId}-label")">@Label</span>
+    <button type="button"
+            class="step"
+            aria-label="@($"Next {Unit}")"
+            disabled="@(!CanGoNext)"
+            data-testid="@($"{TestId}-next")"
+            @onclick="OnNext">
+        <Icon Name="IconName.Chevron" />
+    </button>
+</div>
+
+@code {
+    /// <summary>Names the arrows: Previous week, Next month.</summary>
+    [Parameter, EditorRequired]
+    public PeriodKind Kind { get; set; }
+
+    /// <summary>The period's name, e.g. 16 – 22 Nov, November 2026 or 2026. Read out when it changes.</summary>
+    [Parameter, EditorRequired]
+    public string Label { get; set; } = "";
+
+    /// <summary>False disables the previous arrow, at the period of the first workout.</summary>
+    [Parameter]
+    public bool CanGoPrevious { get; set; }
+
+    /// <summary>False disables the next arrow, at the period that holds today.</summary>
+    [Parameter]
+    public bool CanGoNext { get; set; }
+
+    /// <summary>Raised by the previous arrow.</summary>
+    [Parameter]
+    public EventCallback OnPrevious { get; set; }
+
+    /// <summary>Raised by the next arrow.</summary>
+    [Parameter]
+    public EventCallback OnNext { get; set; }
+
+    /// <summary>Value of the data-testid attribute, and the prefix of its parts': <c>{TestId}-previous</c>, <c>{TestId}-label</c>, <c>{TestId}-next</c>.</summary>
+    [Parameter]
+    public string? TestId { get; set; }
+
+    private string Unit => Kind.ToString().ToLowerInvariant();
+}

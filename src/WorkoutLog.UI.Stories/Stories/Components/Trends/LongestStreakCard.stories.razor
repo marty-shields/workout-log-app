@@ -1,0 +1,29 @@
+@attribute [Stories("Components/Trends/LongestStreakCard")]
+
+<Stories TComponent="LongestStreakCard" Layout="typeof(ThemeLayout)">
+
+    <Story Name="Still going">
+        <Template>
+            <LongestStreakCard Weeks="23" Running TestId="streak" />
+        </Template>
+    </Story>
+
+    <Story Name="Ended">
+        <Template>
+            <LongestStreakCard Weeks="14" TestId="streak" />
+        </Template>
+    </Story>
+
+    <Story Name="One week">
+        <Template>
+            <LongestStreakCard Weeks="1" TestId="streak" />
+        </Template>
+    </Story>
+
+    <Story Name="None">
+        <Template>
+            <LongestStreakCard Weeks="0" TestId="streak" />
+        </Template>
+    </Story>
+
+</Stories>

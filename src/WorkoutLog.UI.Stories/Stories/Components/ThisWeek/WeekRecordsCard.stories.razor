@@ -26,4 +26,16 @@
         </Template>
     </Story>
 
+    <Story Name="In Trends, month">
+        <Template>
+            <WeekRecordsCard Records="SampleTrends.MonthRecords" Period="this month" OnOpen="(int _) => { }" TestId="week-records" />
+        </Template>
+    </Story>
+
+    <Story Name="In Trends, none">
+        <Template>
+            <WeekRecordsCard Records="[]" Period="this month" TestId="week-records" />
+        </Template>
+    </Story>
+
 </Stories>

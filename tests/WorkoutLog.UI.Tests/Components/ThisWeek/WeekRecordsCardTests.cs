@@ -75,6 +75,38 @@ public class WeekRecordsCardTests : ComponentTestBase
         Assert.That(cut.FindAll("button"), Is.Empty);
     }
 
+    [Test]
+    public void WithAPeriod_TheHeadingIsRecordsAndTheAsideCountsThem()
+    {
+        var cut = Context.Render<WeekRecordsCard>(p => p
+            .Add(x => x.Records, SampleTrends.MonthRecords)
+            .Add(x => x.Period, "this month")
+            .Add(x => x.TestId, "records"));
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.Find(".title").TextContent, Is.EqualTo("Records"));
+            Assert.That(cut.Find("[data-testid=records-aside]").TextContent, Is.EqualTo("4 this month"));
+            Assert.That(cut.FindAll(".detail").Select(d => d.TextContent), Is.EqualTo(new[] { "Wed 18 Nov", "Mon 16 Nov", "Sat 14 Nov", "Fri 6 Nov" }));
+        });
+    }
+
+    [Test]
+    public void WithAPeriodAndNoRecords_SaysSoForThePeriod()
+    {
+        var cut = Context.Render<WeekRecordsCard>(p => p.Add(x => x.Records, []).Add(x => x.Period, "that week").Add(x => x.TestId, "records"));
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.Find("[data-testid=records-none]").TextContent, Is.EqualTo("No new records that week"));
+            Assert.That(cut.Find("[data-testid=records-aside]").TextContent, Is.EqualTo("0 that week"));
+        });
+    }
+
+    [Test]
+    public void WithoutAPeriod_HasNoAside() =>
+        Assert.That(Render(SampleThisWeek.Records).FindAll("[data-testid=records-aside]"), Is.Empty);
+
     private IRenderedComponent<WeekRecordsCard> Render(IReadOnlyList<WeekRecord> records, Action<int>? onOpen = null) =>
         Context.Render<WeekRecordsCard>(p =>
         {

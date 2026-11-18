@@ -28,11 +28,11 @@ A card titled "This week's workouts" with a `ListRow` per workout, newest first:
 - `data-testid`: `TestId`, and as a prefix: `{TestId}-row-{workout id}`, `{TestId}-none`.
 
 ## `WeekRecordsCard`
-A card titled "Records this week" with a `ListRow` per record, as `RecentRecordsCard` shows them: exercise and best (e.g. *Bench press · 82.5kg × 5*) with the weekday under it (e.g. *Monday*). Up to five rows, then a muted "n more" (e.g. *2 more*). With `OnOpen` the rows are tappable and raise it with the exercise id. None shows "No new records this week".
+A card titled "Records this week" with a `ListRow` per record, as `RecentRecordsCard` shows them: exercise and best (e.g. *Bench press · 82.5kg × 5*) with the weekday under it (e.g. *Monday*). Up to five rows, then a muted "n more" (e.g. *2 more*). With `OnOpen` the rows are tappable and raise it with the exercise id. None shows "No new records this week". In Trends, `Period` (e.g. "this month") makes the heading "Records" with "n this month" at its right, and a `WeekRecord`'s `When` (e.g. *Wed 18 Nov*) replaces the weekday under a row.
 - `data-testid`: `TestId`, and as a prefix: `{TestId}-row-{exercise id}`, `{TestId}-more`, `{TestId}-none`.
 
 ## `MuscleSetsCard`
-A card titled "Sets per muscle group", "this week" at its right, with a bar for each group, most sets first: the name, a bar as long as its sets against the busiest group's in `--color-accent` on `--color-border`, and the sets (e.g. *14 sets*, *1 set*). A group at zero has no bar and a muted "Not trained"; the groups at zero come last.
+A card titled "Sets per muscle group", "this week" at its right (`Period` renames it, e.g. "this month" in Trends), with a bar for each group, most sets first: the name, a bar as long as its sets against the busiest group's in `--color-accent` on `--color-border`, and the sets (e.g. *14 sets*, *1 set*). A group at zero has no bar and a muted "Not trained"; the groups at zero come last.
 - `data-testid`: `TestId`, and as a prefix: `{TestId}-{group, lower case}`.
 
 ## `LastWeekCard`

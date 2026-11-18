@@ -1,0 +1,12 @@
+.cards {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+    padding-bottom: var(--nav-new-raise);
+}
+
+.centre {
+    display: grid;
+    place-items: center;
+    padding: var(--space-8) 0;
+}

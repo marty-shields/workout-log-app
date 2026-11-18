@@ -1,0 +1,28 @@
+<section class="card" data-testid="@TestId">
+    <div class="header">
+        <h2 class="title">@Title</h2>
+        @if (Aside is not null)
+        {
+            <span class="aside" data-testid="@(TestId is null ? null : $"{TestId}-aside")">@Aside</span>
+        }
+    </div>
+    @ChildContent
+</section>
+
+@code {
+    /// <summary>Heading of the card.</summary>
+    [Parameter, EditorRequired]
+    public string Title { get; set; } = "";
+
+    /// <summary>Muted text at the right of the heading, e.g. 1 this week. Null shows none.</summary>
+    [Parameter]
+    public string? Aside { get; set; }
+
+    /// <summary>What the card holds.</summary>
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    /// <summary>Value of the data-testid attribute, and <c>{TestId}-aside</c> on the aside.</summary>
+    [Parameter]
+    public string? TestId { get; set; }
+}

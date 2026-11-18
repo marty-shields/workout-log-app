@@ -1,0 +1,17 @@
+@attribute [Stories("Components/Trends/TrendCard")]
+
+<Stories TComponent="TrendCard" Layout="typeof(ThemeLayout)">
+
+    <Story Name="Title and aside">
+        <Template>
+            <TrendCard Title="Records" Aside="1 this week" TestId="card"><p>Content goes here.</p></TrendCard>
+        </Template>
+    </Story>
+
+    <Story Name="Title only">
+        <Template>
+            <TrendCard Title="Weeks" TestId="card"><p>Content goes here.</p></TrendCard>
+        </Template>
+    </Story>
+
+</Stories>

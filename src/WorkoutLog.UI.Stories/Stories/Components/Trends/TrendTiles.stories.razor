@@ -1,0 +1,47 @@
+@attribute [Stories("Components/Trends/TrendTiles")]
+
+<Stories TComponent="TrendTiles" Layout="typeof(ThemeLayout)">
+
+    <Story Name="Week up">
+        <Template>
+            <TrendTiles Kind="PeriodKind.Week" Totals="SampleTrends.WeekTotals" Earlier="SampleTrends.WeekEarlier" Against="Against Monday to Wednesday last week" TestId="tiles" />
+        </Template>
+    </Story>
+
+    <Story Name="Week down">
+        <Template>
+            <TrendTiles Kind="PeriodKind.Week" Totals="SampleTrends.WeekEarlier" Earlier="SampleTrends.WeekTotals" Against="Against Monday to Wednesday last week" TestId="tiles" />
+        </Template>
+    </Story>
+
+    <Story Name="Month">
+        <Template>
+            <TrendTiles Kind="PeriodKind.Month" Totals="SampleTrends.MonthTotals" Earlier="SampleTrends.MonthEarlier" Against="Against October to the 18th" TestId="tiles" />
+        </Template>
+    </Story>
+
+    <Story Name="Year in tonnes">
+        <Template>
+            <TrendTiles Kind="PeriodKind.Year" Totals="SampleTrends.YearTotals" Earlier="SampleTrends.YearEarlier" Against="Against 2025 to 18 Nov" TestId="tiles" />
+        </Template>
+    </Story>
+
+    <Story Name="No change">
+        <Template>
+            <TrendTiles Kind="PeriodKind.Week" Totals="SampleTrends.WeekTotals" Earlier="SampleTrends.WeekTotals" Against="Against the week before" TestId="tiles" />
+        </Template>
+    </Story>
+
+    <Story Name="Nothing before">
+        <Template>
+            <TrendTiles Kind="PeriodKind.Month" Totals="SampleTrends.MonthTotals" Earlier="SampleTrends.Nothing" Against="Against October" TestId="tiles" />
+        </Template>
+    </Story>
+
+    <Story Name="Nothing logged">
+        <Template>
+            <TrendTiles Kind="PeriodKind.Week" Totals="SampleTrends.Nothing" Earlier="SampleTrends.Nothing" Against="Against the week before" TestId="tiles" />
+        </Template>
+    </Story>
+
+</Stories>

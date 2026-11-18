@@ -1,0 +1,221 @@
+@using System.Globalization
+@using WorkoutLog.Core.Domain.Workouts.Periods
+@using WorkoutLog.UI.Components.Dashboard
+@using WorkoutLog.UI.Components.Feedback
+@using WorkoutLog.UI.Components.Inputs
+@using WorkoutLog.UI.Components.ThisWeek
+@using WorkoutLog.UI.Components.Trends
+@using WorkoutLog.UI.Models.Muscles
+<AppScreen Title="Trends" OnRefresh="OnRefresh">
+    <Actions>
+        <IconButton Icon="IconName.Settings" AriaLabel="Settings" TestId="settings" OnClick="OnSettings" />
+    </Actions>
+    <ChildContent>
+        <div class="cards">
+            <SegmentedControl TValue="PeriodKind" Label="Period" Options="Kinds" Value="Kind" ValueChanged="OnKindChanged" TestId="trends-kind" />
+            <PeriodStepper Kind="Kind" Label="@Label" CanGoPrevious="CanGoPrevious" CanGoNext="CanGoNext"
+                           OnPrevious="OnPrevious" OnNext="OnNext" TestId="trends-stepper" />
+            @if (Loading)
+            {
+                <div class="centre">
+                    <Spinner Label="Loading…" TestId="trends-loading" />
+                </div>
+            }
+            else if (Failed)
+            {
+                <LoadFailed Message="Couldn't load Trends" OnRetry="OnRetry" TestId="trends" />
+            }
+            else
+            {
+                <TrendTiles Kind="Kind" Totals="Totals" Earlier="Earlier" Against="@Against" TestId="trends-tiles" />
+                @if (Kind == PeriodKind.Week)
+                {
+                    <TrendCard Title="Time trained by day" TestId="trends-days">
+                        <TrendBars Bars="Days" NowLabel="@(Past ? "That week" : "This week")" EarlierLabel="@(Past ? "The week before" : "Last week")"
+                                   AriaLabel="@($"Time trained each day {Name} beside the same day {(Past ? "the week before" : "last week")}")"
+                                   EmptyText="@($"No workouts {Name}")" TestId="trends-days-chart" />
+                    </TrendCard>
+                    <MuscleSetsCard Groups="Muscles" Period="@Name" TestId="trends-muscles" />
+                    <WeekRecordsCard Records="Records" Period="@Name" OnOpen="OnOpenRecord" TestId="trends-records" />
+                    <TrendCard Title="Last 12 weeks" Aside="@(Streak > 0 ? $"{Streak}-week streak" : null)" TestId="trends-recent-weeks">
+                        <WeekBars Counts="RecentWeeks" TestId="trends-recent-weeks-chart" />
+                    </TrendCard>
+                }
+                else if (Kind == PeriodKind.Month)
+                {
+                    <TrendCard Title="Each day" TestId="trends-calendar">
+                        <MonthCalendar Month="Start" Today="Today" Trained="Trained" TestId="trends-calendar-days" />
+                    </TrendCard>
+                    <TrendCard Title="Weeks" TestId="trends-weeks">
+                        <MonthWeeks Weeks="Weeks" TestId="trends-weeks-rows" />
+                    </TrendCard>
+                    <WeekRecordsCard Records="Records" Period="@Name" OnOpen="OnOpenRecord" TestId="trends-records" />
+                    <TrendCard Title="Most trained" Aside="sessions" TestId="trends-most-trained">
+                        <MeterRows Rows="MostTrained" Unit="sessions" Wide EmptyText="No exercises yet" TestId="trends-most-trained-rows" />
+                    </TrendCard>
+                }
+                else
+                {
+                    <TrendCard Title="Workouts by month" Aside="@(PerWeek > 0 ? $"{PerWeek.ToString("0.#", CultureInfo.InvariantCulture)} a week" : null)" TestId="trends-months">
+                        <TrendBars Bars="Months" AriaLabel="@($"Workouts in each month of {Label}")" EmptyText="No workouts this year" TestId="trends-months-chart" />
+                    </TrendCard>
+                    <LongestStreakCard Weeks="LongestStreak" Running="StreakRunning" TestId="trends-streak" />
+                    <TrendCard Title="Records by month" Aside="@($"{RecordsByMonth.Sum(m => m.Value)} {Name}")" TestId="trends-records-by-month">
+                        <MeterRows Rows="RecordsByMonth" Unit="records" EmptyText="No records yet" TestId="trends-records-by-month-rows" />
+                    </TrendCard>
+                }
+            }
+        </div>
+    </ChildContent>
+    <Navigation>
+        <MainTabBar Current="MainTab.Trends" OnNavigate="OnNavigate" OnNew="OnNew" />
+    </Navigation>
+</AppScreen>
+
+@code {
+    private static readonly IReadOnlyList<RadioOption<PeriodKind>> Kinds =
+    [
+        new(PeriodKind.Week, "Week", "trends-week"),
+        new(PeriodKind.Month, "Month", "trends-month"),
+        new(PeriodKind.Year, "Year", "trends-year"),
+    ];
+
+    /// <summary>The period shown: the week, month or year.</summary>
+    [Parameter, EditorRequired]
+    public PeriodKind Kind { get; set; }
+
+    /// <summary>The period's name in the stepper: 16 – 22 Nov, November 2026 or 2026.</summary>
+    [Parameter, EditorRequired]
+    public string Label { get; set; } = "";
+
+    /// <summary>The period is over, so the cards say "that week" and the paired bars "the week before" in place of "this week" and "last week".</summary>
+    [Parameter]
+    public bool Past { get; set; }
+
+    /// <summary>False disables the previous arrow.</summary>
+    [Parameter]
+    public bool CanGoPrevious { get; set; }
+
+    /// <summary>False disables the next arrow.</summary>
+    [Parameter]
+    public bool CanGoNext { get; set; }
+
+    /// <summary>The period's totals, so far when it holds today.</summary>
+    [Parameter]
+    public TrendTotals Totals { get; set; } = new(0, TimeSpan.Zero, 0, 0);
+
+    /// <summary>The period before, up to the same point in it when this one holds today.</summary>
+    [Parameter]
+    public TrendTotals Earlier { get; set; } = new(0, TimeSpan.Zero, 0, 0);
+
+    /// <summary>What the tiles compare with, e.g. Against Monday to Wednesday last week.</summary>
+    [Parameter]
+    public string Against { get; set; } = "";
+
+    /// <summary>Week: time trained on each day, Monday to Sunday, with the same day the week before.</summary>
+    [Parameter]
+    public IReadOnlyList<TrendBar> Days { get; set; } = [];
+
+    /// <summary>Week: sets per muscle group.</summary>
+    [Parameter]
+    public IReadOnlyList<MuscleGroupSets> Muscles { get; set; } = [];
+
+    /// <summary>Week and month: records set in the period, newest first.</summary>
+    [Parameter]
+    public IReadOnlyList<WeekRecord> Records { get; set; } = [];
+
+    /// <summary>Week: workouts in each of the last 12 weeks, oldest first.</summary>
+    [Parameter]
+    public IReadOnlyList<int> RecentWeeks { get; set; } = [];
+
+    /// <summary>Week: consecutive weeks with a workout; hidden at 0.</summary>
+    [Parameter]
+    public int Streak { get; set; }
+
+    /// <summary>Month: any day of the month, for the calendar.</summary>
+    [Parameter]
+    public DateOnly Start { get; set; }
+
+    /// <summary>Month: today, in the phone's time zone.</summary>
+    [Parameter]
+    public DateOnly Today { get; set; }
+
+    /// <summary>Month: days with a workout.</summary>
+    [Parameter]
+    public IReadOnlyCollection<DateOnly> Trained { get; set; } = [];
+
+    /// <summary>Month: a row per week.</summary>
+    [Parameter]
+    public IReadOnlyList<MonthWeek> Weeks { get; set; } = [];
+
+    /// <summary>Month: the exercises done in most sessions, most first.</summary>
+    [Parameter]
+    public IReadOnlyList<MeterRow> MostTrained { get; set; } = [];
+
+    /// <summary>Year: workouts in each month, January to December.</summary>
+    [Parameter]
+    public IReadOnlyList<TrendBar> Months { get; set; } = [];
+
+    /// <summary>Year: workouts a week on average; hidden at 0.</summary>
+    [Parameter]
+    public double PerWeek { get; set; }
+
+    /// <summary>Year: the longest run of consecutive weeks with a workout.</summary>
+    [Parameter]
+    public int LongestStreak { get; set; }
+
+    /// <summary>Year: the longest run is still going.</summary>
+    [Parameter]
+    public bool StreakRunning { get; set; }
+
+    /// <summary>Year: records set in each month, January to December.</summary>
+    [Parameter]
+    public IReadOnlyList<MeterRow> RecordsByMonth { get; set; } = [];
+
+    /// <summary>Shows a spinner instead of the period's cards while it loads. The controls above stay.</summary>
+    [Parameter]
+    public bool Loading { get; set; }
+
+    /// <summary>Shows the load error and Try again instead of the period's cards, and moves focus to Try again.</summary>
+    [Parameter]
+    public bool Failed { get; set; }
+
+    /// <summary>Raised with the kind picked in the Week, Month, Year control.</summary>
+    [Parameter]
+    public EventCallback<PeriodKind> OnKindChanged { get; set; }
+
+    /// <summary>Raised by the previous arrow.</summary>
+    [Parameter]
+    public EventCallback OnPrevious { get; set; }
+
+    /// <summary>Raised by the next arrow.</summary>
+    [Parameter]
+    public EventCallback OnNext { get; set; }
+
+    /// <summary>Raised by Try again.</summary>
+    [Parameter]
+    public EventCallback OnRetry { get; set; }
+
+    /// <summary>Raised by pulling the content down, to load it again. No pull without it.</summary>
+    [Parameter]
+    public EventCallback OnRefresh { get; set; }
+
+    /// <summary>Raised by the Settings gear.</summary>
+    [Parameter]
+    public EventCallback OnSettings { get; set; }
+
+    /// <summary>Raised by the New button in the tab bar.</summary>
+    [Parameter]
+    public EventCallback OnNew { get; set; }
+
+    /// <summary>Raised with the tab tapped in the tab bar.</summary>
+    [Parameter]
+    public EventCallback<MainTab> OnNavigate { get; set; }
+
+    /// <summary>Raised with the exercise id when a record row is tapped. Rows are not tappable when unset.</summary>
+    [Parameter]
+    public EventCallback<int> OnOpenRecord { get; set; }
+
+    /// <summary>The period as it reads in the cards: this week, or that week once it is over.</summary>
+    private string Name => $"{(Past ? "that" : "this")} {Kind.ToString().ToLowerInvariant()}";
+}

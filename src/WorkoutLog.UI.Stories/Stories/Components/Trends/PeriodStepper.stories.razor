@@ -1,0 +1,29 @@
+@attribute [Stories("Components/Trends/PeriodStepper")]
+
+<Stories TComponent="PeriodStepper" Layout="typeof(ThemeLayout)">
+
+    <Story Name="Week">
+        <Template>
+            <PeriodStepper Kind="PeriodKind.Week" Label="16 – 22 Nov" CanGoPrevious CanGoNext OnPrevious="() => { }" OnNext="() => { }" TestId="stepper" />
+        </Template>
+    </Story>
+
+    <Story Name="Month, latest">
+        <Template>
+            <PeriodStepper Kind="PeriodKind.Month" Label="November 2026" CanGoPrevious OnPrevious="() => { }" TestId="stepper" />
+        </Template>
+    </Story>
+
+    <Story Name="Year, earliest">
+        <Template>
+            <PeriodStepper Kind="PeriodKind.Year" Label="2025" CanGoNext OnNext="() => { }" TestId="stepper" />
+        </Template>
+    </Story>
+
+    <Story Name="Only period">
+        <Template>
+            <PeriodStepper Kind="PeriodKind.Week" Label="16 – 22 Nov" TestId="stepper" />
+        </Template>
+    </Story>
+
+</Stories>
