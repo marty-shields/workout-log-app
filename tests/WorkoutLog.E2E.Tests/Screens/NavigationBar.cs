@@ -1,6 +1,6 @@
 namespace WorkoutLog.E2E.Tests.Screens;
 
-/// <summary>The navigation bar on the Dashboard, Workouts and Exercises. A destination is "Dashboard", "Workouts" or "Exercises".</summary>
+/// <summary>The navigation bar on This week, Workouts and Exercises. A destination is "Dashboard", "Workouts" or "Exercises".</summary>
 public sealed class NavigationBar(WebView web)
 {
     public void Open(string destination) => web.Tap(TestId(destination));

@@ -23,7 +23,7 @@ Feature: Edit a workout
   Scenario: Change a set and save
     When I enter "70" in Barbell Back Squat set 3 weight
     And I save the workout
-    Then I am on the Dashboard
+    Then I am on This week
     And reopening workout 1 shows Barbell Back Squat set 3 at 70 kg
 
   @smoke

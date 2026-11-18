@@ -47,6 +47,7 @@ public class NotesNotLoggedTests
             await totals.GetStreaksAsync(period.Start.Year);
             await totals.GetLimitsAsync(PeriodKind.Week);
             var training = provider.GetRequiredService<IPeriodTrainingService>();
+            await training.GetWorkoutsAsync(period);
             await training.GetRecordsAsync(period);
             await training.GetMuscleSetsAsync(period);
             await training.GetMostTrainedAsync(period);
@@ -68,7 +69,7 @@ public class NotesNotLoggedTests
                     CoreEvent.SchemaStepApplied, CoreEvent.WorkoutAdded, CoreEvent.WorkoutUpdated, CoreEvent.WorkoutAddFailed,
                     CoreEvent.ImportWorkoutSkipped, CoreEvent.ImportDone,
                     CoreEvent.PeriodComparisonLoaded, CoreEvent.PeriodSeriesLoaded, CoreEvent.PeriodStreaksLoaded, CoreEvent.PeriodLimitsLoaded,
-                    CoreEvent.PeriodRecordsLoaded, CoreEvent.PeriodMuscleSetsLoaded, CoreEvent.PeriodMostTrainedLoaded,
+                    CoreEvent.PeriodWorkoutsLoaded, CoreEvent.PeriodRecordsLoaded, CoreEvent.PeriodMuscleSetsLoaded, CoreEvent.PeriodMostTrainedLoaded,
                 }));
                 Assert.That(records.Where(r => r.Message.Contains(Sentinel, StringComparison.Ordinal) || r.Exception?.ToString().Contains(Sentinel, StringComparison.Ordinal) == true)
                     .Select(r => r.Message), Is.Empty);

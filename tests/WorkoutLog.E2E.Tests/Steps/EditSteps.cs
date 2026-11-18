@@ -27,7 +27,7 @@ public sealed class EditSteps(WebView web, Journeys journeys, WorkoutScreen work
 
     [Then(@"^the title is yesterday's date and day$")]
     public void ThenTheTitleIsYesterday() =>
-        web.Eventually(workout.Title, Is.EqualTo(DashboardSteps.Date(clock.LocalNow().Date.AddDays(-1))));
+        web.Eventually(workout.Title, Is.EqualTo(ThisWeekSteps.Date(clock.LocalNow().Date.AddDays(-1))));
 
     [Then(@"^the time shows ""(.*)"" and doesn't count up$")]
     public void ThenTheTimeShowsAndDoesNotCountUp(string text)

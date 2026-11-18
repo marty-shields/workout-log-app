@@ -3,9 +3,8 @@
 @inject NavigationManager Navigation
 
 @* Back has no handler here, so it leaves the app. *@
-<DashboardPage OnNewWorkout="@(() => Navigation.GoTo("workout/new"))"
-               OnNavigate="@(destination => Navigation.GoTo(destination))"
-               OnSettings="@(() => Navigation.GoTo("settings"))"
-               OnMuscles="@(() => Navigation.GoTo("muscles"))"
-               OnOpenWorkout="@(id => Navigation.GoTo($"workout/{id}?from=dashboard"))"
-               OnOpenExercise="@(id => Navigation.GoTo($"exercises/{id}?from=dashboard"))" />
+<ThisWeekPage OnNewWorkout="@(() => Navigation.GoTo("workout/new"))"
+              OnNavigate="@(destination => Navigation.GoTo(destination))"
+              OnSettings="@(() => Navigation.GoTo("settings"))"
+              OnOpenWorkout="@(id => Navigation.GoTo($"workout/{id}?from=dashboard"))"
+              OnOpenExercise="@(id => Navigation.GoTo($"exercises/{id}?from=dashboard"))" />

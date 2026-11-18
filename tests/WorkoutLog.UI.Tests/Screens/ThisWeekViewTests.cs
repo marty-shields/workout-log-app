@@ -1,4 +1,5 @@
 using WorkoutLog.UI.Components.Actions;
+using WorkoutLog.UI.Components.ThisWeek;
 using WorkoutLog.UI.Navigation;
 using WorkoutLog.UI.Screens;
 using WorkoutLog.UI.Stories.Samples;
@@ -196,6 +197,37 @@ public class ThisWeekViewTests : ComponentTestBase
     [Test]
     public void Settings_UsesTheGearIcon() =>
         Assert.That(MidWeek().FindComponents<IconButton>().Single().Instance.Icon, Is.EqualTo(IconName.Settings));
+
+    [Test]
+    public void RecordsNull_LeavesTheRecordsCardOutAndShowsTheRest()
+    {
+        var cut = Context.Render<ThisWeekView>(p => p
+            .Add(x => x.Monday, SampleThisWeek.Monday)
+            .Add(x => x.Today, SampleThisWeek.Wednesday)
+            .Add(x => x.Workouts, SampleThisWeek.Workouts)
+            .Add(x => x.Records, (IReadOnlyList<WeekRecord>?)null)
+            .Add(x => x.Muscles, SampleThisWeek.Muscles));
+
+        Assert.That(cut.FindAll(Parts).Select(e => e.GetAttribute("data-testid")),
+            Is.EqualTo(new[] { "day-strip", "week-tiles", "week-workouts", "week-muscles" }));
+    }
+
+    [Test]
+    public void NavigationAndBottomBar_ReplaceTheTabBar()
+    {
+        var cut = Context.Render<ThisWeekView>(p => p
+            .Add(x => x.Monday, SampleThisWeek.Monday)
+            .Add(x => x.Today, SampleThisWeek.Wednesday)
+            .Add(x => x.BottomBar, builder => builder.AddMarkupContent(0, "<button data-testid=\"above\"></button>"))
+            .Add(x => x.Navigation, builder => builder.AddMarkupContent(0, "<nav data-testid=\"other-bar\"></nav>")));
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.FindAll("[data-testid=tab-bar]"), Is.Empty);
+            Assert.That(cut.FindAll("[data-testid=other-bar]"), Has.Count.EqualTo(1));
+            Assert.That(cut.FindAll("[data-testid=above]"), Has.Count.EqualTo(1));
+        });
+    }
 
     private IRenderedComponent<ThisWeekView> MidWeek() =>
         Context.Render<ThisWeekView>(p => p

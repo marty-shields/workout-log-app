@@ -83,29 +83,6 @@ internal sealed class WorkoutRepository(SQLiteAsyncConnection connection, Workou
         [.. (await connection.QueryScalarsAsync<long>("SELECT StartedAt FROM Workout")).Select(ticks => new DateTimeOffset(ticks, TimeSpan.Zero))];
 
     /// <inheritdoc />
-    public async Task<WorkoutOutline?> GetLatestAsync()
-    {
-        const string sql = """
-            SELECT w.Id, w.StartedAt, w.FinishedAt, e.ExerciseId
-            FROM Workout w
-            LEFT JOIN WorkoutExercise e ON e.WorkoutId = w.Id
-            WHERE w.Id = (SELECT Id FROM Workout ORDER BY StartedAt DESC, Id DESC LIMIT 1)
-            ORDER BY e.Position
-            """;
-        var rows = await connection.QueryAsync<OutlineRow>(sql);
-        if (rows.Count == 0)
-        {
-            return null;
-        }
-
-        return new WorkoutOutline(
-            rows[0].Id,
-            new DateTimeOffset(rows[0].StartedAt, TimeSpan.Zero),
-            new DateTimeOffset(rows[0].FinishedAt, TimeSpan.Zero),
-            rows.Where(r => r.ExerciseId is not null).Select(r => r.ExerciseId!.Value).ToList());
-    }
-
-    /// <inheritdoc />
     public async Task<IReadOnlyList<WorkoutTally>> ListTalliesAsync(DateTimeOffset from, DateTimeOffset to)
     {
         const string sql = """
@@ -281,18 +258,6 @@ internal sealed class WorkoutRepository(SQLiteAsyncConnection connection, Workou
         public string? Note { get; set; }
 
         public double? WeightKg { get; set; }
-    }
-
-    /// <summary>A workout's times, in UTC ticks, with one of its exercise ids; null for a workout without exercises.</summary>
-    private sealed class OutlineRow
-    {
-        public int Id { get; set; }
-
-        public long StartedAt { get; set; }
-
-        public long FinishedAt { get; set; }
-
-        public int? ExerciseId { get; set; }
     }
 
     /// <summary>A workout's start and finish, in UTC ticks, and its strength set count.</summary>

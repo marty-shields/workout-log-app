@@ -44,9 +44,9 @@ Feature: Save checks
     And I have saved the workout
     When I log Plank set 1: 0:01:00
     And I save the workout
-    Then I am on the Dashboard
+    Then I am on This week
 
   Scenario: A blocked Save keeps nothing
     Given I have saved the workout
     When I discard the workout
-    Then the last workout shows "No workouts yet"
+    Then this week shows no workouts

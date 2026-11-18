@@ -121,11 +121,11 @@ It's built for one person and one phone: no accounts, no sign-up.
   </tr>
 </table>
 
-### Dashboard and data
+### This week and data
 
-- The Dashboard shows your last workout, this week so far against last week up to the end of the same day, a bar per week for the last 12 weeks and your weekly streak.
-- Recent records on the Dashboard shows the exercises you've beaten your best on in the last 30 days; tap one to open its progress.
-- Sets per muscle group shows each group's strength sets in the last 7 days and which you haven't trained.
+- This week is the home screen: which days you trained, this week so far against last week up to the end of the same weekday, your weekly streak, and the week's workouts. Tap a workout to edit it.
+- Records this week shows the exercises you've beaten your best on since Monday; tap one to open its progress.
+- Sets per muscle group shows each group's strength sets from Monday to today and which you haven't trained.
 - Export saves every workout, with its notes, to a JSON file you can share.
 - Import reads an exported file, shows what's new, already there or different, and adds or replaces them.
 - Android Auto Backup and a phone-to-phone transfer restore your workouts on a new phone. Only the database is included; the logs and exports are not.
@@ -135,8 +135,8 @@ It's built for one person and one phone: no accounts, no sign-up.
   <tr>
     <td align="center">
       <picture>
-        <source media="(prefers-color-scheme: dark)" srcset="docs/images/readme/dashboard-dark.png" />
-        <img src="docs/images/readme/dashboard-light.png" alt="Dashboard" width="230" />
+        <source media="(prefers-color-scheme: dark)" srcset="docs/images/readme/this-week-dark.png" />
+        <img src="docs/images/readme/this-week-light.png" alt="This week" width="230" />
       </picture>
     </td>
     <td align="center">
@@ -153,7 +153,7 @@ It's built for one person and one phone: no accounts, no sign-up.
     </td>
   </tr>
   <tr>
-    <td align="center"><sub><b>Dashboard</b></sub></td>
+    <td align="center"><sub><b>This week</b></sub></td>
     <td align="center"><sub><b>Workout summary</b></sub></td>
     <td align="center"><sub><b>Export and import</b></sub></td>
   </tr>

@@ -79,7 +79,7 @@ public sealed class BackSteps(WebView web, Native native, Journeys journeys, Wor
         journeys.Delete();
     }
 
-    [Then(@"^I am ((?:still )?)on (the Dashboard|Workouts|Exercises|Settings|New Workout|Edit Workout)$")]
+    [Then(@"^I am ((?:still )?)on (This week|Workouts|Exercises|Settings|New Workout|Edit Workout)$")]
     public void ThenIAmOn(string still, string screen)
     {
         if (still.Length > 0)
@@ -89,8 +89,8 @@ public sealed class BackSteps(WebView web, Native native, Journeys journeys, Wor
 
         switch (screen)
         {
-            case "the Dashboard":
-                journeys.WaitFor(Journeys.Screen.Dashboard);
+            case "This week":
+                journeys.WaitFor(Journeys.Screen.ThisWeek);
                 break;
             case "Workouts":
                 journeys.WaitFor(Journeys.Screen.Workouts);

@@ -54,6 +54,12 @@ internal enum UiEvent
     /// <summary><see cref="Screens.EditWorkoutPage"/>: edits discarded.</summary>
     EditsDiscarded = 2902,
 
+    /// <summary><see cref="Screens.ThisWeekPage"/>: reading the week failed, so the screen shows the error.</summary>
+    ThisWeekLoadFailed = 3101,
+
+    /// <summary><see cref="Screens.ThisWeekPage"/>: reading the week's records failed, so their card is left out.</summary>
+    ThisWeekRecordsFailed = 3102,
+
     /// <summary><see cref="Lifecycle.AppLifecycle"/>: an app start handler failed.</summary>
     AppStartHandlerFailed = 3201,
 

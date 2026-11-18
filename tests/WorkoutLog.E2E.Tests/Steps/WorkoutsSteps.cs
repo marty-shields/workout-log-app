@@ -87,7 +87,15 @@ public sealed class WorkoutsSteps(WebView web, Journeys journeys, WorkoutsScreen
     {
         journeys.WaitFor(Journeys.Screen.Workout);
         Assert.That(workout.IsEdit(), Is.True, "Edit Workout");
-        web.Eventually(workout.Title, Is.EqualTo(DashboardSteps.Date(clock.LocalNow().Date.AddDays(-1))));
+        web.Eventually(workout.Title, Is.EqualTo(ThisWeekSteps.Date(clock.LocalNow().Date.AddDays(-1))));
+    }
+
+    [Then(@"^I am on Edit Workout titled with today's date and day$")]
+    public void ThenOnEditWorkoutTitledToday()
+    {
+        journeys.WaitFor(Journeys.Screen.Workout);
+        Assert.That(workout.IsEdit(), Is.True, "Edit Workout");
+        web.Eventually(workout.Title, Is.EqualTo(ThisWeekSteps.Date(clock.LocalNow().Date)));
     }
 
     [When(@"^I tap (3M|6M|1Y|All) in Workouts$")]

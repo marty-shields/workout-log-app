@@ -21,7 +21,7 @@ The stories need only the .NET SDK.
 
 | File | Story id |
 |---|---|
-| `dashboard` | `screens-dashboard--with-workouts` |
+| `this-week` | `screens-this-week--mid-week` |
 | `workout-summary` | `screens-workout-summary--records-and-changes` |
 | `new-workout` | `screens-new-workout--strength` |
 | `cardio` | `screens-new-workout--cardio` |

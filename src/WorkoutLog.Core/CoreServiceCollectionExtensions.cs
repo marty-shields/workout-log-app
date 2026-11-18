@@ -102,7 +102,7 @@ public static class CoreServiceCollectionExtensions
             .AddSingleton<CardioSessionRule>()
             .AddSingleton<CardioRecordsRule>();
 
-    /// <summary>Registers the rules behind the Consistency card and the period totals.</summary>
+    /// <summary>Registers the rules behind the period totals.</summary>
     private static IServiceCollection AddConsistencyRules(this IServiceCollection services) =>
         services
             .AddSingleton<WeekComparisonRule>()
@@ -123,14 +123,10 @@ public static class CoreServiceCollectionExtensions
             .AddProgressRules()
             .AddSingleton<IWorkoutService, WorkoutService>()
             .AddSingleton<IWorkoutsService, WorkoutsService>()
-            .AddSingleton<ILastWorkoutService, LastWorkoutService>()
-            .AddSingleton<IRecentRecordsService, RecentRecordsService>()
             .AddSingleton<IWorkoutSummaryService, WorkoutSummaryService>()
             .AddConsistencyRules()
-            .AddSingleton<IConsistencyService, ConsistencyService>()
             .AddSingleton<IPeriodTotalsService, PeriodTotalsService>()
             .AddSingleton<MuscleGroupMap>()
-            .AddSingleton<IMuscleSetsService, MuscleSetsService>()
             .AddSingleton<IPeriodTrainingService, PeriodTrainingService>()
             .AddSingleton<IWeightHistoryService, WeightHistoryService>()
             .AddSingleton<ILastSessionService, LastSessionService>()

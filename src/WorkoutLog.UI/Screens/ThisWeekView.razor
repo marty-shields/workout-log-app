@@ -2,7 +2,7 @@
 @using WorkoutLog.UI.Components.Feedback
 @using WorkoutLog.UI.Components.ThisWeek
 @using WorkoutLog.UI.Models.Muscles
-<AppScreen Title="Workout Log" OnRefresh="OnRefresh">
+<AppScreen Title="Workout Log" OnRefresh="OnRefresh" BottomBar="BottomBar" Navigation="Navigation ?? TabBar">
     <Actions>
         <IconButton Icon="IconName.Settings" AriaLabel="Settings" TestId="settings" OnClick="OnSettings" />
     </Actions>
@@ -32,7 +32,10 @@
                 <WeekWorkoutsCard Workouts="Workouts" OnOpen="OnOpenWorkout" TestId="week-workouts" />
                 @if (Workouts.Count > 0)
                 {
-                    <WeekRecordsCard Records="Records" OnOpen="OnOpenRecord" TestId="week-records" />
+                    @if (Records is not null)
+                    {
+                        <WeekRecordsCard Records="Records" OnOpen="OnOpenRecord" TestId="week-records" />
+                    }
                     <MuscleSetsCard Groups="Muscles" TestId="week-muscles" />
                 }
                 else if (LastWeek is not null)
@@ -42,12 +45,11 @@
             </div>
         }
     </ChildContent>
-    <Navigation>
-        <MainTabBar Current="MainTab.ThisWeek" OnNavigate="OnNavigate" OnNew="OnNew" />
-    </Navigation>
 </AppScreen>
 
 @code {
+    private RenderFragment TabBar => @<MainTabBar Current="MainTab.ThisWeek" OnNavigate="OnNavigate" OnNew="OnNew" />;
+
     /// <summary>The week's Monday. The title row shows the week's dates and the strip starts here.</summary>
     [Parameter, EditorRequired]
     public DateOnly Monday { get; set; }
@@ -76,9 +78,9 @@
     [Parameter]
     public IReadOnlyList<WeekWorkout> Workouts { get; set; } = [];
 
-    /// <summary>Records set this week.</summary>
+    /// <summary>Records set this week. Null leaves the card out, for records that could not be read.</summary>
     [Parameter]
-    public IReadOnlyList<WeekRecord> Records { get; set; } = [];
+    public IReadOnlyList<WeekRecord>? Records { get; set; } = [];
 
     /// <summary>Sets per muscle group from Monday to today.</summary>
     [Parameter]
@@ -107,6 +109,14 @@
     /// <summary>Raised by the Settings gear.</summary>
     [Parameter]
     public EventCallback OnSettings { get; set; }
+
+    /// <summary>Replaces the tab bar. The app keeps its old bottom bar here until the tab bar replaces it.</summary>
+    [Parameter]
+    public RenderFragment? Navigation { get; set; }
+
+    /// <summary>Shown above the bottom bar.</summary>
+    [Parameter]
+    public RenderFragment? BottomBar { get; set; }
 
     /// <summary>Raised by the New button in the tab bar.</summary>
     [Parameter]

@@ -8,9 +8,9 @@ Feature: Back navigation
     Examples:
       | screen                               | result                                         |
       | the add-exercise list on Edit Workout | the add-exercise list is closed on Edit Workout |
-      | the Dashboard                        | the app is in the background                   |
+      | This week                        | the app is in the background                   |
 
-  Scenario: Leaving with back and coming back shows the Dashboard
-    Given I have pressed Android back on the Dashboard
+  Scenario: Leaving with back and coming back shows This week
+    Given I have pressed Android back on This week
     When I open the app again
-    Then I am on the Dashboard
+    Then I am on This week

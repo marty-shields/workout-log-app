@@ -36,18 +36,6 @@ public class CoreEventTests
             [CoreEvent.WorkoutsLoadFailed] = 1302,
             [CoreEvent.WorkoutDaysLoaded] = 1303,
             [CoreEvent.WorkoutDaysLoadFailed] = 1304,
-            [CoreEvent.LastWorkoutLoaded] = 1410,
-            [CoreEvent.LastWorkoutLoadFailed] = 1411,
-            [CoreEvent.LastWorkoutUnknownExercise] = 1412,
-            [CoreEvent.ConsistencyLoaded] = 1420,
-            [CoreEvent.ConsistencyLoadFailed] = 1421,
-            [CoreEvent.MuscleSetsLoaded] = 1430,
-            [CoreEvent.MuscleSetsLoadFailed] = 1431,
-            [CoreEvent.MuscleSetsUnknownExercise] = 1432,
-            [CoreEvent.RecentRecordsLoaded] = 1441,
-            [CoreEvent.RecentRecordsLoadFailed] = 1442,
-            [CoreEvent.RecentRecordsUnknownExercise] = 1443,
-            [CoreEvent.RecentRecordsExerciseFailed] = 1444,
             [CoreEvent.PeriodComparisonLoaded] = 1450,
             [CoreEvent.PeriodComparisonLoadFailed] = 1451,
             [CoreEvent.PeriodSeriesLoaded] = 1452,
@@ -68,6 +56,9 @@ public class CoreEventTests
             [CoreEvent.PeriodMostTrainedLoaded] = 1467,
             [CoreEvent.PeriodMostTrainedLoadFailed] = 1468,
             [CoreEvent.PeriodMostTrainedUnknownExercise] = 1469,
+            [CoreEvent.PeriodWorkoutsLoaded] = 1470,
+            [CoreEvent.PeriodWorkoutsLoadFailed] = 1471,
+            [CoreEvent.PeriodWorkoutsUnknownExercise] = 1472,
             [CoreEvent.WorkoutSummaryLoaded] = 1530,
             [CoreEvent.WorkoutSummaryLoadFailed] = 1531,
             [CoreEvent.WorkoutSummaryUnknownExercise] = 1532,
@@ -102,5 +93,5 @@ public class CoreEventTests
 
     [Test]
     public void Values_RetiredAreNotReused() =>
-        Assert.That(Enum.GetValues<CoreEvent>().Select(e => (int)e), Has.None.AnyOf(1205, 1401, 1402));
+        Assert.That(Enum.GetValues<CoreEvent>().Select(e => (int)e), Has.None.AnyOf(1205, 1401, 1402, 1410, 1411, 1412, 1420, 1421, 1430, 1431, 1432, 1441, 1442, 1443, 1444));
 }

@@ -62,4 +62,4 @@ Feature: Mark an exercise done
     And I have logged Barbell Back Squat set 1: 8 reps, 60 kg
     And I have marked Barbell Back Squat done
     When I save the workout
-    Then I am on the Dashboard
+    Then I am on This week

@@ -9,7 +9,7 @@ namespace WorkoutLog.E2E.Tests.Seeding;
 /// Seeds a build that <see cref="WorkoutSeeder"/> can't copy a database into (run-as works only on the debuggable Debug app):
 /// puts an export file in Downloads, imports it through Settings, then restarts the app. It takes only workouts Import accepts.
 /// </summary>
-public sealed class ImportSeeder(WebView web, Native native, Journeys journeys, DashboardScreen dashboard, SettingsScreen settings, ImportReviewScreen review)
+public sealed class ImportSeeder(WebView web, Native native, Journeys journeys, ThisWeekScreen thisWeek, SettingsScreen settings, ImportReviewScreen review)
 {
     private const string FileName = "e2e-seed.json";
 
@@ -20,8 +20,8 @@ public sealed class ImportSeeder(WebView web, Native native, Journeys journeys, 
         try
         {
             native.Launch();
-            journeys.WaitFor(Journeys.Screen.Dashboard);
-            dashboard.OpenSettings();
+            journeys.WaitFor(Journeys.Screen.ThisWeek);
+            thisWeek.OpenSettings();
             journeys.WaitFor(Journeys.Screen.Settings);
             settings.Import();
             native.PickFile(FileName);

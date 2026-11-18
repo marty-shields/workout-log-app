@@ -6,7 +6,7 @@ namespace WorkoutLog.UI.Tests.Stories;
 
 public partial class StoryCoverageTests
 {
-    private static readonly Type[] UiTypes = typeof(DashboardView).Assembly.GetExportedTypes();
+    private static readonly Type[] UiTypes = typeof(ThisWeekView).Assembly.GetExportedTypes();
 
     private static IEnumerable<TestCaseData> Components() =>
         UiTypes
