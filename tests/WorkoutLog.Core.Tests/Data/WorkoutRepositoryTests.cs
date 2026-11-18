@@ -324,6 +324,39 @@ public class WorkoutRepositoryTests
     }
 
     [Test]
+    public async Task ListSetsAsync_ReturnsEachStrengthSetInOrderLeavingOutCardio()
+    {
+        await repository.AddAsync(new NewWorkout(Start, Finish,
+        [
+            new StrengthExercise(2, [new StrengthSet(5, 60.1m, null, null), new StrengthSet(null, 0m, null, null)]),
+            new CardioExercise(300, Entry()),
+            new StrengthExercise(3, []),
+        ]));
+        await repository.AddAsync(new NewWorkout(Start.AddDays(1), Finish.AddDays(1), [new StrengthExercise(4, [new StrengthSet(8, 20m, null, null)])]));
+
+        Assert.That(await repository.ListSetsAsync(Start, Start.AddDays(1)), Is.EqualTo(new[]
+        {
+            new LoggedSet(Start, 2, 5, 60.1m),
+            new LoggedSet(Start, 2, null, 0m),
+            new LoggedSet(Start.AddDays(1), 4, 8, 20m),
+        }));
+    }
+
+    [Test]
+    public async Task ListSetsAsync_FromAndToAreInclusiveAndTimesReadBackAsUtc()
+    {
+        var sets = new[] { new StrengthSet(5, 60m, null, null) };
+        await repository.AddAsync(new NewWorkout(Start.ToOffset(TimeSpan.FromHours(1)), Finish, [new StrengthExercise(2, sets)]));
+        await repository.AddAsync(new NewWorkout(Start.AddDays(6), Finish.AddDays(6), [new StrengthExercise(2, sets)]));
+        await repository.AddAsync(new NewWorkout(Start.AddTicks(-1), Start.AddMinutes(1), [new StrengthExercise(2, sets)]));
+        await repository.AddAsync(new NewWorkout(Start.AddDays(6).AddTicks(1), Finish.AddDays(7), [new StrengthExercise(2, sets)]));
+
+        var read = await repository.ListSetsAsync(Start, Start.AddDays(6));
+
+        Assert.That(read.Select(s => (s.StartedAt, s.StartedAt.Offset)), Is.EqualTo(new[] { (Start, TimeSpan.Zero), (Start.AddDays(6), TimeSpan.Zero) }));
+    }
+
+    [Test]
     public async Task StartedAtIndex_ServesTheListOrderWithoutASort()
     {
         var plan = (await connection.QueryAsync<QueryPlanRow>(

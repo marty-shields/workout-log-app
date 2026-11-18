@@ -56,6 +56,8 @@ public class CoreEventTests
             [CoreEvent.PeriodStreaksLoadFailed] = 1455,
             [CoreEvent.PeriodLimitsLoaded] = 1456,
             [CoreEvent.PeriodLimitsLoadFailed] = 1457,
+            [CoreEvent.PeriodVolumeLoadFailed] = 1458,
+            [CoreEvent.PeriodVolumeUnknownExercise] = 1459,
             [CoreEvent.PeriodRecordsLoaded] = 1460,
             [CoreEvent.PeriodRecordsLoadFailed] = 1461,
             [CoreEvent.PeriodRecordsUnknownExercise] = 1462,

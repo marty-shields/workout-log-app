@@ -44,6 +44,7 @@ public class GatedWorkoutRepositoryTests
         Assert.That(await repository.ListAsync(null, null, 0), Is.Empty);
         Assert.That(await repository.GetLatestAsync(), Is.EqualTo(new WorkoutOutline(id, Start, Start.AddMinutes(30), [])).UsingPropertiesComparer());
         Assert.That(await repository.ListTalliesAsync(Start, Start), Is.EqualTo(new[] { new WorkoutTally(Start, Start.AddMinutes(30), 0) }));
+        Assert.That(await repository.ListSetsAsync(Start, Start), Is.Empty);
         Assert.That(await repository.GetWeightsAsync(1, null), Is.Empty);
         Assert.That(await repository.GetLastSessionsAsync(), Is.Empty);
         Assert.That(await repository.GetLastSessionOfAsync(1, null), Is.Null);
@@ -61,6 +62,7 @@ public class GatedWorkoutRepositoryTests
     [TestCase("List")]
     [TestCase("Latest")]
     [TestCase("Tallies")]
+    [TestCase("Sets")]
     [TestCase("Weights")]
     [TestCase("LastSessions")]
     [TestCase("LastSessionOf")]
@@ -81,6 +83,7 @@ public class GatedWorkoutRepositoryTests
             "List" => repository.ListAsync(),
             "Latest" => repository.GetLatestAsync(),
             "Tallies" => repository.ListTalliesAsync(Start, Start),
+            "Sets" => repository.ListSetsAsync(Start, Start),
             "Weights" => repository.GetWeightsAsync(1, null),
             "LastSessions" => repository.GetLastSessionsAsync(),
             "LastSessionOf" => repository.GetLastSessionOfAsync(1, null),

@@ -23,15 +23,10 @@ internal sealed class PeriodComparisonRule(WeekComparisonRule weekRule)
             return new PeriodComparison(period, weeks.ThisWeek, weeks.LastWeekToDate);
         }
 
-        return new PeriodComparison(period, Tally(workouts, period.Start, today, zone), Tally(workouts, period.Previous().Start, period.SamePointBefore(today), zone));
+        var window = PeriodWindow.Of(period, today);
+        return new PeriodComparison(period, Tally(workouts, window.From, window.To, zone), Tally(workouts, window.EarlierFrom, window.EarlierTo, zone));
     }
 
     private static WeekTally Tally(IReadOnlyList<WorkoutTally> workouts, DateOnly from, DateOnly to, TimeZoneInfo zone) =>
-        WeekComparisonRule.Tally(workouts.Where(w => IsOn(w, from, to, zone)));
-
-    private static bool IsOn(WorkoutTally workout, DateOnly from, DateOnly to, TimeZoneInfo zone)
-    {
-        var day = DateOnly.FromDateTime(LocalWeek.Local(workout.StartedAt, zone));
-        return day >= from && day <= to;
-    }
+        WeekComparisonRule.Tally(workouts.Where(w => PeriodWindow.IsOn(w.StartedAt, from, to, zone)));
 }

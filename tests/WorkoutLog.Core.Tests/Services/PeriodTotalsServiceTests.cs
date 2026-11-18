@@ -3,10 +3,13 @@ using Microsoft.Extensions.Logging.Testing;
 using Microsoft.Extensions.Time.Testing;
 using Moq;
 using WorkoutLog.Core.Data;
+using WorkoutLog.Core.Domain.Exercises;
+using WorkoutLog.Core.Domain.Workouts;
 using WorkoutLog.Core.Domain.Workouts.Consistency;
 using WorkoutLog.Core.Domain.Workouts.Periods;
 using WorkoutLog.Core.Logging;
 using WorkoutLog.Core.Services;
+using WorkoutLog.Core.Tests.Domain.Exercises.Bests;
 using WorkoutLog.Core.Tests.Domain.Workouts.Consistency;
 using static WorkoutLog.Core.Tests.Domain.Workouts.Periods.PeriodTestData;
 
@@ -30,7 +33,7 @@ public class PeriodTotalsServiceTests
     }
 
     private PeriodTotalsService Create(TimeProvider time) =>
-        new(repository.Object, new PeriodComparisonRule(new WeekComparisonRule()), new PeriodSeriesRule(), new LongestRunRule(), new WeekBarsRule(), new StreakRule(), time, logger);
+        new(repository.Object, new PeriodComparisonRule(new WeekComparisonRule()), new PeriodSeriesRule(), new VolumeRule(), new ExerciseCatalog(), new LongestRunRule(), new WeekBarsRule(), new StreakRule(), time, logger);
 
     [Test]
     public async Task GetComparisonAsync_ReadsOnlyTheNeededRangeAndSummarisesIt()
@@ -240,4 +243,99 @@ public class PeriodTotalsServiceTests
             Assert.That(logger.LatestRecord.Exception, Is.SameAs(exception));
         });
     }
+
+    private const int UnknownId = 9999;
+
+    [Test]
+    public async Task GetVolumeAsync_ReadsOnlyTheNeededRangeAndAddsUpEachPeriod()
+    {
+        repository.Setup(r => r.ListSetsAsync(At("2026-08-31T00:00"), Now)).ReturnsAsync(
+        [
+            Set("2026-09-10T10:00", BestRuleCases.Squat, 5, 100m),
+            Set("2026-09-20T10:00", BestRuleCases.Squat, 5, 100m),
+            Set("2026-10-02T10:00", BestRuleCases.Squat, 8, 62.5m),
+            Set("2026-10-02T10:00", BestRuleCases.Run, 8, 62.5m),
+        ]);
+
+        var result = await service.GetVolumeAsync(Month(2026, 10));
+
+        Assert.That(result.Loaded(), Is.EqualTo(new PeriodVolume(Month(2026, 10), 500m, 1000m)));
+    }
+
+    [Test]
+    public async Task GetVolumeAsync_PastPeriod_StopsTheReadShortOfNow()
+    {
+        repository.Setup(r => r.ListSetsAsync(At("2026-01-31T00:00"), At("2026-04-02T00:00"))).ReturnsAsync([]);
+
+        var result = await service.GetVolumeAsync(Month(2026, 3));
+
+        Assert.That(result.Loaded(), Is.EqualTo(new PeriodVolume(Month(2026, 3), 0m, 0m)));
+    }
+
+    [Test]
+    public async Task GetVolumeAsync_EachCategoryFollowsItsRule()
+    {
+        repository.Setup(r => r.ListSetsAsync(It.IsAny<DateTimeOffset>(), It.IsAny<DateTimeOffset>())).ReturnsAsync(
+        [
+            Set("2026-10-27T10:00", BestRuleCases.Squat, 5, 100m),
+            Set("2026-10-27T10:00", BestRuleCases.PushUp, 10, 10m),
+            Set("2026-10-27T10:00", BestRuleCases.AssistedPullUp, 10, 30m),
+            Set("2026-10-27T10:00", BestRuleCases.Plank, 30, 20m),
+            Set("2026-10-27T10:00", BestRuleCases.FarmersWalk, 1, 40m),
+        ]);
+
+        var result = await service.GetVolumeAsync(Week(2026, 10, 28));
+
+        Assert.That(result.Loaded().Volume, Is.EqualTo(600m));
+    }
+
+    [Test]
+    public async Task GetVolumeAsync_UnknownExercise_AddsNothingAndLogsItsIdOnce()
+    {
+        repository.Setup(r => r.ListSetsAsync(It.IsAny<DateTimeOffset>(), It.IsAny<DateTimeOffset>())).ReturnsAsync(
+        [
+            Set("2026-10-27T10:00", UnknownId, 5, 100m),
+            Set("2026-10-27T10:00", UnknownId, 5, 100m),
+            Set("2026-10-27T10:00", BestRuleCases.Squat, 1, 50m),
+        ]);
+
+        var result = await service.GetVolumeAsync(Week(2026, 10, 28));
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(result.Loaded().Volume, Is.EqualTo(50m));
+            Assert.That(LoggedEvents.Of(logger), Is.EqualTo(new[]
+            {
+                (CoreEvent.PeriodVolumeUnknownExercise, LogLevel.Warning, $"Exercise {UnknownId} is not in the exercise list; left out of the volume"),
+            }));
+        });
+    }
+
+    [Test]
+    public async Task GetVolumeAsync_EmptyPeriod_IsZero()
+    {
+        repository.Setup(r => r.ListSetsAsync(It.IsAny<DateTimeOffset>(), It.IsAny<DateTimeOffset>())).ReturnsAsync([]);
+
+        var result = await service.GetVolumeAsync(Year(2026));
+
+        Assert.That(result.Loaded(), Is.EqualTo(new PeriodVolume(Year(2026), 0m, 0m)));
+    }
+
+    [Test]
+    public async Task GetVolumeAsync_ReadThrows_ReturnsFailedAndLogsAWarning()
+    {
+        var exception = new InvalidOperationException("disk");
+        repository.Setup(r => r.ListSetsAsync(It.IsAny<DateTimeOffset>(), It.IsAny<DateTimeOffset>())).ThrowsAsync(exception);
+
+        var result = await service.GetVolumeAsync(Year(2026));
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(result.Value, Is.InstanceOf<ReadFailed>());
+            Assert.That(LoggedEvents.Of(logger), Is.EqualTo(new[] { (CoreEvent.PeriodVolumeLoadFailed, LogLevel.Warning, "Loading the period volume failed: Year from 2026-01-01") }));
+            Assert.That(logger.LatestRecord.Exception, Is.SameAs(exception));
+        });
+    }
+
+    private static LoggedSet Set(string utc, int exerciseId, int? reps, decimal? kg) => new(At(utc), exerciseId, reps, kg);
 }

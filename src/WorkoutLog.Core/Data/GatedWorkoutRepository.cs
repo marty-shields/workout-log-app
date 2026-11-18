@@ -33,6 +33,10 @@ internal sealed class GatedWorkoutRepository(IWorkoutRepository inner, DatabaseG
         gate.RunAsync(() => inner.ListTalliesAsync(from, to));
 
     /// <inheritdoc />
+    public Task<IReadOnlyList<LoggedSet>> ListSetsAsync(DateTimeOffset from, DateTimeOffset to) =>
+        gate.RunAsync(() => inner.ListSetsAsync(from, to));
+
+    /// <inheritdoc />
     public Task<IReadOnlyList<WorkoutWeights>> GetWeightsAsync(int exerciseId, DateTimeOffset? before) =>
         gate.RunAsync(() => inner.GetWeightsAsync(exerciseId, before));
 
