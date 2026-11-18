@@ -1,0 +1,54 @@
+# Turns on auto-merge for Dependabot's minor and patch update PRs. GitHub then squash-merges each one once the checks
+# the "Protect main" ruleset requires have passed. A major update, or anything else, is left for a person.
+name: Dependabot auto-merge
+
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, reopened]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: dependabot-auto-merge-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  auto-merge:
+    # The PR's author, not the actor: a person re-running the job must not change who it applies to.
+    if: ${{ github.event.pull_request.user.login == 'dependabot[bot]' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      # The branch and title are read from the environment, never written into the script.
+      # A grouped PR is minor and patch by its group in dependabot.yml (the branch carries the group's name).
+      # An ungrouped one (the .NET SDK) says "from X to Y" in its title, so the major versions are compared.
+      - name: Minor or patch update
+        id: kind
+        env:
+          BRANCH: ${{ github.event.pull_request.head.ref }}
+          TITLE: ${{ github.event.pull_request.title }}
+        run: |
+          eligible=false
+          if [[ "$BRANCH" =~ ^dependabot/[^/]+/[a-z-]+-minor-patch- ]]; then
+            eligible=true
+          elif [[ "$TITLE" =~ from\ v?([0-9]+)\.[0-9][^\ ]*\ to\ v?([0-9]+)\.[0-9] ]] && [[ "${BASH_REMATCH[1]}" == "${BASH_REMATCH[2]}" ]]; then
+            eligible=true
+          fi
+          echo "eligible=$eligible" >> "$GITHUB_OUTPUT"
+          if [[ "$eligible" == false ]]; then
+            echo "::notice title=Not auto-merged::This is not a minor or patch update, so it waits for a person."
+          fi
+
+      # AUTO_MERGE_TOKEN is an optional Dependabot secret. Without it the workflow's own token is used, and a merge made
+      # with that token does not start the workflows that run on a push to main.
+      - name: Turn on auto-merge
+        if: ${{ steps.kind.outputs.eligible == 'true' }}
+        env:
+          GH_TOKEN: ${{ secrets.AUTO_MERGE_TOKEN || github.token }}
+          PR_URL: ${{ github.event.pull_request.html_url }}
+        run: gh pr merge --auto --squash "$PR_URL"
