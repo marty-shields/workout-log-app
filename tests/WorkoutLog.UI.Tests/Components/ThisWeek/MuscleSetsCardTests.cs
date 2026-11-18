@@ -82,6 +82,18 @@ public class MuscleSetsCardTests : ComponentTestBase
         Assert.That(Render(SampleThisWeek.Muscles).FindAll(".group").Select(g => g.GetAttribute("data-testid")),
             Is.EqualTo(new[] { "muscles-legs", "muscles-chest", "muscles-shoulders", "muscles-arms", "muscles-core", "muscles-back" }));
 
+    [Test]
+    public void Aside_SaysThisWeekUnlessGivenAPeriod()
+    {
+        var withPeriod = Context.Render<MuscleSetsCard>(p => p.Add(x => x.Groups, SampleThisWeek.Muscles).Add(x => x.Period, "that month"));
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(Render(SampleThisWeek.Muscles).Find(".aside").TextContent, Is.EqualTo("this week"));
+            Assert.That(withPeriod.Find(".aside").TextContent, Is.EqualTo("that month"));
+        });
+    }
+
     private IRenderedComponent<MuscleSetsCard> Render(IReadOnlyList<MuscleGroupSets> groups) =>
         Context.Render<MuscleSetsCard>(p => p.Add(x => x.Groups, groups).Add(x => x.TestId, "muscles"));
 }

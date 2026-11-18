@@ -1,0 +1,20 @@
+<section class="card" data-testid="@TestId">
+    <ListRow Text="Longest streak"
+             Detail="@(Running ? "Still going" : null)"
+             Aside="@(Weeks == 0 ? "None" : Weeks == 1 ? "1 week" : $"{Weeks} weeks")"
+             TestId="@(TestId is null ? null : $"{TestId}-row")" />
+</section>
+
+@code {
+    /// <summary>Consecutive weeks with a workout, the longest run starting in the year. 0 shows "None".</summary>
+    [Parameter, EditorRequired]
+    public int Weeks { get; set; }
+
+    /// <summary>The run reaches this week, or last week while this one has no workout yet: the row says "Still going".</summary>
+    [Parameter]
+    public bool Running { get; set; }
+
+    /// <summary>Value of the data-testid attribute, and <c>{TestId}-row</c> on the row.</summary>
+    [Parameter]
+    public string? TestId { get; set; }
+}

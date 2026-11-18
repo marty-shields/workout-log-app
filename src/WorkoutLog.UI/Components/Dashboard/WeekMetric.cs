@@ -12,5 +12,5 @@ internal sealed record WeekMetric(string Label, string Key, Func<WeekTotals, int
         new("Sets", "sets", w => w.Sets, Count),
     ];
 
-    private static string Count(int value) => value.ToString(CultureInfo.InvariantCulture);
+    internal static string Count(int value) => value.ToString(CultureInfo.InvariantCulture);
 }

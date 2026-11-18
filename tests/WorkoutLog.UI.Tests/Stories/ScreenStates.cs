@@ -2,6 +2,7 @@ using AngleSharp.Dom;
 using Microsoft.Extensions.DependencyInjection;
 using WorkoutLog.Core.Domain;
 using WorkoutLog.Core.Domain.Exercises;
+using WorkoutLog.Core.Domain.Workouts.Periods;
 using WorkoutLog.Core.Services;
 using WorkoutLog.UI.Components.Dashboard;
 using WorkoutLog.UI.Components.Overlays;
@@ -56,6 +57,18 @@ public static class ScreenStates
         new("Screens/This week", "No workouts", c => ThisWeek(c, p => p.Add(x => x.Today, SampleThisWeek.Wednesday))),
         new("Screens/This week", "Loading", c => ThisWeek(c, p => p.Add(x => x.Loading, true))),
         new("Screens/This week", "Load failed", c => ThisWeek(c, p => p.Add(x => x.Failed, true))),
+
+        new("Screens/Trends", "Week", c => Trends(c, SampleTrends.Week)),
+        new("Screens/Trends", "Month", c => Trends(c, SampleTrends.Month)),
+        new("Screens/Trends", "Year", c => Trends(c, SampleTrends.Year)),
+        new("Screens/Trends", "Past week", c => Trends(c, SampleTrends.PastWeek)),
+        new("Screens/Trends", "Past month", c => Trends(c, SampleTrends.PastMonth)),
+        new("Screens/Trends", "Past year", c => Trends(c, SampleTrends.PastYear)),
+        new("Screens/Trends", "No workouts, week", c => Trends(c, SampleTrends.EmptyWeek)),
+        new("Screens/Trends", "No workouts, month", c => Trends(c, SampleTrends.EmptyMonth)),
+        new("Screens/Trends", "No workouts, year", c => Trends(c, SampleTrends.EmptyYear)),
+        new("Screens/Trends", "Loading", c => Trends(c, SampleTrends.Loading)),
+        new("Screens/Trends", "Load failed", c => Trends(c, SampleTrends.LoadFailed)),
 
         new("Screens/Sets per muscle group", "Some trained", c => Muscles(c, SampleDashboard.SomeTrained)),
         new("Screens/Sets per muscle group", "All trained", c => Muscles(c, SampleDashboard.AllTrained)),
@@ -270,6 +283,28 @@ public static class ScreenStates
                 .Add(x => x.OnOpenLastWeek, () => { });
             state(p);
         }).FindAll("*");
+
+    private static IReadOnlyList<IElement> Trends(BunitContext context, IReadOnlyDictionary<string, object?> state) =>
+        context.Render<TrendsView>(p => p.Sample(state)
+            .Add(x => x.OnKindChanged, (PeriodKind _) => { })
+            .Add(x => x.OnPrevious, () => { })
+            .Add(x => x.OnNext, () => { })
+            .Add(x => x.OnRetry, () => { })
+            .Add(x => x.OnSettings, () => { })
+            .Add(x => x.OnNew, () => { })
+            .Add(x => x.OnNavigate, (MainTab _) => { })
+            .Add(x => x.OnOpenRecord, (int _) => { })).FindAll("*");
+
+    /// <summary>Sets each parameter of a <see cref="SampleTrends"/> state on the view.</summary>
+    public static ComponentParameterCollectionBuilder<TrendsView> Sample(this ComponentParameterCollectionBuilder<TrendsView> parameters, IReadOnlyDictionary<string, object?> state)
+    {
+        foreach (var (name, value) in state)
+        {
+            parameters.TryAdd(name, value);
+        }
+
+        return parameters;
+    }
 
     private static IReadOnlyList<IElement> Muscles(
         BunitContext context, IReadOnlyList<MuscleGroupSets> groups, bool loading = false, bool failed = false) =>

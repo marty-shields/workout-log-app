@@ -1,0 +1,89 @@
+.calendar {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+}
+
+.heads,
+.days {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    justify-items: center;
+    gap: var(--space-1);
+}
+
+.heads {
+    color: var(--color-text-muted);
+    font-size: var(--font-size-sm);
+}
+
+.days {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.day {
+    color: var(--color-text-muted);
+    font-size: var(--font-size-sm);
+}
+
+.dot,
+.swatch {
+    display: inline-grid;
+    place-items: center;
+    border: var(--border-width) dashed var(--color-border-strong);
+    border-radius: var(--radius-round);
+}
+
+.dot {
+    width: var(--calendar-day-size);
+    height: var(--calendar-day-size);
+    font-variant-numeric: tabular-nums;
+}
+
+/* A trained day is solid; a day with no workout is dashed. */
+.done .dot,
+.swatch.trained {
+    border-style: solid;
+    border-color: var(--color-primary);
+    background-color: var(--color-primary);
+    color: var(--color-on-primary);
+}
+
+.today {
+    color: var(--color-text);
+    font-weight: var(--font-weight-bold);
+}
+
+.today .dot,
+.swatch.ring {
+    outline: var(--border-width-error) solid var(--color-text);
+    outline-offset: var(--focus-offset);
+}
+
+.future .dot {
+    opacity: var(--opacity-disabled);
+}
+
+.legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-4);
+    margin: var(--space-2) 0 0;
+    padding: 0;
+    color: var(--color-text-muted);
+    font-size: var(--font-size-sm);
+    list-style: none;
+}
+
+.legend li {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+}
+
+.swatch {
+    width: var(--legend-swatch-size);
+    height: var(--legend-swatch-size);
+}

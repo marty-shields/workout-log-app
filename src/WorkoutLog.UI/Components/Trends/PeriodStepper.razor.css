@@ -1,0 +1,36 @@
+.stepper {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-2);
+}
+
+.label {
+    font-size: var(--font-size-lg);
+    font-weight: var(--font-weight-bold);
+    font-variant-numeric: tabular-nums;
+}
+
+.step {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: var(--touch-target);
+    min-height: var(--touch-target);
+    padding: 0;
+    border: none;
+    border-radius: var(--radius-round);
+    background-color: transparent;
+    color: var(--color-text);
+    cursor: pointer;
+}
+
+.step:disabled {
+    opacity: var(--opacity-disabled);
+    cursor: default;
+}
+
+/* The one chevron points right; the previous arrow mirrors it. */
+.previous {
+    transform: scaleX(-1);
+}

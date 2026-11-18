@@ -1,0 +1,75 @@
+@using WorkoutLog.Core.Domain.Workouts.Periods
+@using WorkoutLog.UI.Components.Dashboard
+<section class="tiles" data-testid="@TestId">
+    <div class="grid">
+        <div class="tile" data-testid="@(TestId is null ? null : $"{TestId}-workouts")">
+            <span class="label">Workouts</span>
+            <span class="value">@Totals.Workouts</span>
+            <span class="change" data-testid="@(TestId is null ? null : $"{TestId}-workouts-change")"><WeekChange Difference="Totals.Workouts - Earlier.Workouts" Format="WeekMetric.Count" /></span>
+        </div>
+        <div class="tile" data-testid="@(TestId is null ? null : $"{TestId}-time")">
+            <span class="label">Time</span>
+            <span class="value">@DisplayFormat.Minutes((int)Totals.Time.TotalMinutes)</span>
+            <span class="change" data-testid="@(TestId is null ? null : $"{TestId}-time-change")"><WeekChange Difference="(int)Totals.Time.TotalMinutes - (int)Earlier.Time.TotalMinutes" Format="DisplayFormat.Minutes" /></span>
+        </div>
+        <div class="tile" data-testid="@(TestId is null ? null : $"{TestId}-sets")">
+            <span class="label">Sets</span>
+            <span class="value">@Totals.Sets</span>
+            <span class="change" data-testid="@(TestId is null ? null : $"{TestId}-sets-change")"><WeekChange Difference="Totals.Sets - Earlier.Sets" Format="WeekMetric.Count" /></span>
+        </div>
+        <div class="tile" data-testid="@(TestId is null ? null : $"{TestId}-volume")">
+            <span class="label">Volume</span>
+            <span class="value">@DisplayFormat.Volume(Totals.VolumeKg, Kind)</span>
+            <span class="change" data-testid="@(TestId is null ? null : $"{TestId}-volume-change")">
+                <WeekChange Difference="VolumeDirection" Format="VolumeChange" />
+                <span class="strength">strength</span>
+            </span>
+        </div>
+    </div>
+    <p class="against" data-testid="@(TestId is null ? null : $"{TestId}-against")">@Against</p>
+</section>
+
+@code {
+    /// <summary>Picks the unit of the volume: kilograms for a week or month, tonnes for a year.</summary>
+    [Parameter, EditorRequired]
+    public PeriodKind Kind { get; set; }
+
+    /// <summary>The period's totals, so far when it holds today.</summary>
+    [Parameter, EditorRequired]
+    public TrendTotals Totals { get; set; } = null!;
+
+    /// <summary>The period before, up to the same point in it when this one holds today.</summary>
+    [Parameter, EditorRequired]
+    public TrendTotals Earlier { get; set; } = null!;
+
+    /// <summary>What the changes are measured against, e.g. Against Monday to Wednesday last week.</summary>
+    [Parameter, EditorRequired]
+    public string Against { get; set; } = "";
+
+    /// <summary>Value of the data-testid attribute, and the prefix of its parts': <c>{TestId}-workouts</c>, <c>-time</c>, <c>-sets</c>, <c>-volume</c> (each with <c>-change</c>), <c>{TestId}-against</c>.</summary>
+    [Parameter]
+    public string? TestId { get; set; }
+
+    /// <summary>Which way the volume moved as the tile shows it: 0 when the figure shown rounds to nothing, so no arrow sits beside "0 t" or "0%".</summary>
+    private int VolumeDirection
+    {
+        get
+        {
+            var difference = Totals.VolumeKg - Earlier.VolumeKg;
+            var shown = Earlier.VolumeKg == 0
+                ? Math.Round(Math.Abs(difference) / (Kind == PeriodKind.Year ? 1000m : 1m), MidpointRounding.AwayFromZero)
+                : Math.Round(Math.Abs(difference) / Earlier.VolumeKg * 100m, MidpointRounding.AwayFromZero);
+            return shown == 0 ? 0 : decimal.ToInt32(decimal.Sign(difference));
+        }
+    }
+
+    /// <summary>The volume's change as a percentage of the earlier volume; with none earlier, as the volume gained, since a percentage of nothing is undefined.</summary>
+    private string VolumeChange(int _)
+    {
+        var current = Totals.VolumeKg;
+        var earlier = Earlier.VolumeKg;
+        return earlier == 0
+            ? DisplayFormat.Volume(Math.Abs(current - earlier), Kind)
+            : DisplayFormat.PercentChange(current, earlier).TrimStart('+', '-');
+    }
+}

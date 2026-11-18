@@ -2,7 +2,7 @@
 <section class="card" data-testid="@TestId">
     <div class="header">
         <h2 class="title">Sets per muscle group</h2>
-        <span class="aside">this week</span>
+        <span class="aside">@Period</span>
     </div>
     @{ var most = Groups.Count == 0 ? 0 : Groups.Max(g => g.Sets); }
     <ul class="groups">
@@ -28,6 +28,10 @@
     /// <summary>The muscle groups with their sets for the week. Shown most sets first, so the groups at zero come last.</summary>
     [Parameter, EditorRequired]
     public IReadOnlyList<MuscleGroupSets> Groups { get; set; } = [];
+
+    /// <summary>Names the period at the right of the title, e.g. this month.</summary>
+    [Parameter]
+    public string Period { get; set; } = "this week";
 
     /// <summary>Value of the data-testid attribute, and the prefix of each group's: <c>{TestId}-{group, lower case}</c>.</summary>
     [Parameter]

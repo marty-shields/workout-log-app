@@ -1,0 +1,27 @@
+@if (Weeks.Count == 0)
+{
+    <p class="none" data-testid="@(TestId is null ? null : $"{TestId}-none")">No weeks yet</p>
+}
+else
+{
+    <ul class="weeks" aria-label="Workouts and time for each week" data-testid="@TestId">
+        @for (var i = 0; i < Weeks.Count; i++)
+        {
+            var week = Weeks[i];
+            <li class="week" data-testid="@(TestId is null ? null : $"{TestId}-{i + 1}")">
+                <span class="dates">@week.Dates</span>
+                <span class="totals">@DisplayFormat.Workouts(week.Workouts) · @DisplayFormat.Minutes((int)week.Time.TotalMinutes)</span>
+            </li>
+        }
+    </ul>
+}
+
+@code {
+    /// <summary>The month's weeks, first to last: one row each.</summary>
+    [Parameter, EditorRequired]
+    public IReadOnlyList<MonthWeek> Weeks { get; set; } = [];
+
+    /// <summary>Value of the data-testid attribute, the prefix of each row's (<c>{TestId}-1</c> for the first) and <c>{TestId}-none</c>.</summary>
+    [Parameter]
+    public string? TestId { get; set; }
+}
