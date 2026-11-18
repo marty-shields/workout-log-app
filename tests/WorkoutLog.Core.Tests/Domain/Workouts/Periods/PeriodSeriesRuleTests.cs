@@ -72,6 +72,10 @@ public class PeriodSeriesRuleTests
     }
 
     [Test]
+    public void Build_Year_OnTheFirstDay_AveragesOverOneDay() =>
+        Assert.That(rule.Build([Workout("2026-01-01T08:00")], Year(2026), At("2026-01-01T12:00"), TimeZoneInfo.Utc).WorkoutsPerWeek, Is.EqualTo(7));
+
+    [Test]
     public void Build_FinishedYear_AveragesOverTheWholeYear()
     {
         var series = rule.Build([Workout("2025-05-05T10:00"), Workout("2025-06-05T10:00")], Year(2025), At("2026-03-08T12:00"), TimeZoneInfo.Utc);

@@ -50,8 +50,8 @@ internal sealed partial class PeriodTotalsService(
             async (now, zone) =>
             {
                 var latest = Period.Containing(kind, DateOnly.FromDateTime(LocalWeek.Local(now, zone)));
-                var tallies = await repository.ListTalliesAsync(DateTimeOffset.MinValue, now);
-                var earliest = tallies.Count == 0 ? latest : Period.Containing(kind, DateOnly.FromDateTime(LocalWeek.Local(tallies[0].StartedAt, zone)));
+                var starts = (await repository.ListStartsAsync()).Where(start => start <= now).ToList();
+                var earliest = starts.Count == 0 ? latest : Period.Containing(kind, DateOnly.FromDateTime(LocalWeek.Local(starts.Min(), zone)));
                 return new PeriodLimits(earliest, latest);
             },
             _ => Log.LimitsLoaded(logger, kind),

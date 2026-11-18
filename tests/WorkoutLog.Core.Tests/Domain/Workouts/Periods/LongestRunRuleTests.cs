@@ -21,6 +21,14 @@ public class LongestRunRuleTests
     }
 
     [Test]
+    public void Longest_AWeekWithoutAWorkout_BreaksTheRun()
+    {
+        var result = rule.Longest(Weeks("2026-03-02", "2026-03-09", "2026-03-23", "2026-03-30", "2026-04-06"), 2026, Now, TimeZoneInfo.Utc);
+
+        Assert.That(result, Is.EqualTo(new LongestRun(3, false)));
+    }
+
+    [Test]
     public void Longest_ManyWorkoutsInAWeek_CountOneWeek() =>
         Assert.That(rule.Longest([At("2026-03-02T09:00"), At("2026-03-04T09:00"), At("2026-03-06T09:00")], 2026, Now, TimeZoneInfo.Utc), Is.EqualTo(new LongestRun(1, false)));
 

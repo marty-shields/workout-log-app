@@ -54,7 +54,7 @@ internal sealed class PeriodSeriesRule
 
     private static PeriodBucket Bucket(List<(DateOnly Day, WorkoutTally Workout)> started, DateOnly from, DateOnly to)
     {
-        var inside = started.Where(s => s.Day >= from && s.Day <= to).Select(s => s.Workout).ToList();
-        return new PeriodBucket(from, to, inside.Count, inside.Aggregate(TimeSpan.Zero, (sum, w) => sum + (w.FinishedAt - w.StartedAt)));
+        var tally = WeekComparisonRule.Tally(started.Where(s => s.Day >= from && s.Day <= to).Select(s => s.Workout));
+        return new PeriodBucket(from, to, tally.Workouts, tally.Time);
     }
 }

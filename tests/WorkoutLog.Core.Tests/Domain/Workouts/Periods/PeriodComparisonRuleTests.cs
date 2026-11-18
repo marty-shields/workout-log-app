@@ -144,4 +144,30 @@ public class PeriodComparisonRuleTests
 
         Assert.That((result.Totals.Workouts, result.Earlier.Workouts), Is.EqualTo((1, 1)));
     }
+
+    [Test]
+    public void Compare_31MarchInALeapYear_CutsTheEarlierMonthAt29Feb()
+    {
+        var result = rule.Compare([Workout("2028-02-29T22:00"), Workout("2028-02-28T10:00")], Month(2028, 3), At("2028-03-31T12:00"), TimeZoneInfo.Utc);
+
+        Assert.That(result.Earlier.Workouts, Is.EqualTo(2));
+    }
+
+    [Test]
+    public void Compare_29FebInALeapYear_ComparesWith29Jan()
+    {
+        var result = rule.Compare([Workout("2028-01-29T22:00"), Workout("2028-01-30T10:00")], Month(2028, 2), At("2028-02-29T12:00"), TimeZoneInfo.Utc);
+
+        Assert.That(result.Earlier.Workouts, Is.EqualTo(1));
+    }
+
+    [TestCase("2026-10-25T23:30", 1)]
+    [TestCase("2026-10-26T00:30", 0)]
+    public void Compare_ClockGoingBack_CutsTheEarlierMonthOnTheLocalDay(string workout, int expectedEarlier)
+    {
+        // Today is 25 Nov, so the earlier month is cut at the end of 25 Oct; at 02:00 on the 25th the clocks go back from UTC+1 to UTC.
+        var result = rule.Compare([Workout(workout)], Month(2026, 11), At("2026-11-25T12:00"), ConsistencyZones.BackOn25Oct);
+
+        Assert.That(result.Earlier.Workouts, Is.EqualTo(expectedEarlier));
+    }
 }

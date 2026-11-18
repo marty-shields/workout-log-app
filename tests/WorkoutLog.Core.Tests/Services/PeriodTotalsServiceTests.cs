@@ -7,6 +7,7 @@ using WorkoutLog.Core.Domain.Workouts.Consistency;
 using WorkoutLog.Core.Domain.Workouts.Periods;
 using WorkoutLog.Core.Logging;
 using WorkoutLog.Core.Services;
+using WorkoutLog.Core.Tests.Domain.Workouts.Consistency;
 using static WorkoutLog.Core.Tests.Domain.Workouts.Periods.PeriodTestData;
 
 namespace WorkoutLog.Core.Tests.Services;
@@ -94,6 +95,16 @@ public class PeriodTotalsServiceTests
     }
 
     [Test]
+    public async Task GetSeriesAsync_Month_ReadsFromTheMonthStart()
+    {
+        repository.Setup(r => r.ListTalliesAsync(At("2026-09-30T00:00"), Now)).ReturnsAsync([Workout("2026-10-02T08:00")]);
+
+        var result = await service.GetSeriesAsync(Month(2026, 10));
+
+        Assert.That(result.Loaded().Buckets[1].Workouts, Is.EqualTo(1));
+    }
+
+    [Test]
     public async Task GetSeriesAsync_Year_ReadsFromTheYearStart()
     {
         repository.Setup(r => r.ListTalliesAsync(At("2025-12-31T00:00"), Now)).ReturnsAsync([Workout("2026-01-02T08:00")]);
@@ -157,7 +168,7 @@ public class PeriodTotalsServiceTests
     [TestCase(PeriodKind.Year, "2025-01-01", "2026-01-01")]
     public async Task GetLimitsAsync_IsTheFirstWorkoutsPeriodAndTodays(PeriodKind kind, string earliest, string latest)
     {
-        repository.Setup(r => r.ListTalliesAsync(DateTimeOffset.MinValue, Now)).ReturnsAsync([Workout("2025-12-31T23:30"), Workout("2026-03-05T10:00")]);
+        repository.Setup(r => r.ListStartsAsync()).ReturnsAsync([At("2026-03-05T10:00"), At("2025-12-31T23:30")]);
 
         var result = await service.GetLimitsAsync(kind);
 
@@ -167,7 +178,7 @@ public class PeriodTotalsServiceTests
     [Test]
     public async Task GetLimitsAsync_NoWorkouts_BothAreTodaysPeriod()
     {
-        repository.Setup(r => r.ListTalliesAsync(DateTimeOffset.MinValue, Now)).ReturnsAsync([]);
+        repository.Setup(r => r.ListStartsAsync()).ReturnsAsync([]);
 
         var result = await service.GetLimitsAsync(PeriodKind.Month);
 
@@ -178,9 +189,9 @@ public class PeriodTotalsServiceTests
     public async Task GetLimitsAsync_UsesTheLocalDayOfTheFirstWorkoutAndOfToday()
     {
         var time = new FakeTimeProvider(At("2026-10-31T15:30"));
-        time.SetLocalTimeZone(TimeZoneInfo.CreateCustomTimeZone("UTC+10", TimeSpan.FromHours(10), "UTC+10", "UTC+10"));
+        time.SetLocalTimeZone(ConsistencyZones.Plus10);
         service = Create(time);
-        repository.Setup(r => r.ListTalliesAsync(DateTimeOffset.MinValue, At("2026-10-31T15:30"))).ReturnsAsync([Workout("2026-09-30T14:30")]);
+        repository.Setup(r => r.ListStartsAsync()).ReturnsAsync([At("2026-09-30T14:30")]);
 
         var result = await service.GetLimitsAsync(PeriodKind.Month);
 
@@ -191,7 +202,7 @@ public class PeriodTotalsServiceTests
     public async Task GetLimitsAsync_ReadThrows_ReturnsFailedAndLogsAWarning()
     {
         var exception = new InvalidOperationException("disk");
-        repository.Setup(r => r.ListTalliesAsync(DateTimeOffset.MinValue, Now)).ThrowsAsync(exception);
+        repository.Setup(r => r.ListStartsAsync()).ThrowsAsync(exception);
 
         var result = await service.GetLimitsAsync(PeriodKind.Week);
 
@@ -206,7 +217,7 @@ public class PeriodTotalsServiceTests
     [Test]
     public async Task GetLimitsAsync_LogsAtInformation()
     {
-        repository.Setup(r => r.ListTalliesAsync(DateTimeOffset.MinValue, Now)).ReturnsAsync([]);
+        repository.Setup(r => r.ListStartsAsync()).ReturnsAsync([]);
 
         await service.GetLimitsAsync(PeriodKind.Year);
 
