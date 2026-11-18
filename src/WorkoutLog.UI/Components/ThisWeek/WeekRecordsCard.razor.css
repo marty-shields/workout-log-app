@@ -23,6 +23,11 @@
     list-style: none;
 }
 
+/* The last row is the card's last line, so it has no border below it. */
+.rows li:last-child ::deep .row {
+    border-bottom: none;
+}
+
 .more {
     margin: 0;
     padding: var(--space-3) var(--space-1);

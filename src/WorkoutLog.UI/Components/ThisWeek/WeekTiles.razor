@@ -1,15 +1,14 @@
 @using WorkoutLog.UI.Components.Dashboard
-@using System.Globalization
 <section class="tiles" data-testid="@TestId">
     <div class="grid">
-        @foreach (var tile in Tiles)
+        @foreach (var tile in WeekMetric.All)
         {
             var now = tile.Value(ThisWeek);
             var before = tile.Value(LastWeekToDate);
             <div class="tile" data-testid="@($"{TestId}-{tile.Key}")">
                 <span class="label">@tile.Label</span>
                 <span class="value">@tile.Format(now)</span>
-                <span class="change" data-testid="@($"{TestId}-{tile.Key}-change")">@Change(now - before, tile.Format)</span>
+                <span class="change" data-testid="@($"{TestId}-{tile.Key}-change")"><WeekChange Difference="now - before" Format="tile.Format" /></span>
             </div>
         }
     </div>
@@ -17,13 +16,6 @@
 </section>
 
 @code {
-    private static readonly Tile[] Tiles =
-    [
-        new("Workouts", "workouts", w => w.Workouts, Count),
-        new("Time", "time", w => (int)w.Time.TotalMinutes, DisplayFormat.Minutes),
-        new("Sets", "sets", w => w.Sets, Count),
-    ];
-
     /// <summary>This week so far.</summary>
     [Parameter, EditorRequired]
     public WeekTotals ThisWeek { get; set; } = null!;
@@ -43,16 +35,4 @@
     private string Against => Today == DayOfWeek.Monday
         ? "Against Monday last week"
         : $"Against Monday to {Today} last week";
-
-    private static RenderFragment Change(int difference, Func<int, string> format) => difference switch
-    {
-        > 0 => @<span class="diff up"><Icon Name="IconName.Up" Tone="IconTone.Success" /><span class="visually-hidden">up </span>@format(difference)</span>,
-        < 0 => @<span class="diff down"><Icon Name="IconName.Down" Tone="IconTone.Error" /><span class="visually-hidden">down </span>@format(-difference)</span>,
-        _ => @<span class="diff same"><span aria-hidden="true">—</span><span class="visually-hidden">no change</span></span>,
-    };
-
-    private static string Count(int value) => value.ToString(CultureInfo.InvariantCulture);
-
-    /// <summary>A tile: its label, the testid suffix, its value in whole units and how to show it.</summary>
-    private sealed record Tile(string Label, string Key, Func<WeekTotals, int> Value, Func<int, string> Format);
 }

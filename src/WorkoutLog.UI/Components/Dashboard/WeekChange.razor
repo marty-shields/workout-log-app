@@ -1,0 +1,22 @@
+@if (Difference > 0)
+{
+    <span class="diff up"><Icon Name="IconName.Up" Tone="IconTone.Success" /><span class="visually-hidden">up </span>@Format(Difference)</span>
+}
+else if (Difference < 0)
+{
+    <span class="diff down"><Icon Name="IconName.Down" Tone="IconTone.Error" /><span class="visually-hidden">down </span>@Format(-Difference)</span>
+}
+else
+{
+    <span class="diff same"><span aria-hidden="true">—</span><span class="visually-hidden">no change</span></span>
+}
+
+@code {
+    /// <summary>This week's total minus last week's. Positive shows up, negative down, zero no change.</summary>
+    [Parameter, EditorRequired]
+    public int Difference { get; set; }
+
+    /// <summary>Shows the size of the difference, always positive.</summary>
+    [Parameter, EditorRequired]
+    public Func<int, string> Format { get; set; } = null!;
+}

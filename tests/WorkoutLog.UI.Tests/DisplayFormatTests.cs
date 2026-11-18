@@ -143,4 +143,9 @@ public class DisplayFormatTests
     [TestCase("0", "700", "-100%")]
     public void PercentChange_IsSignedWholePercentOfTheEarlierFigure(string current, string earlier, string expected) =>
         Assert.That(DisplayFormat.PercentChange(decimal.Parse(current, CultureInfo.InvariantCulture), decimal.Parse(earlier, CultureInfo.InvariantCulture)), Is.EqualTo(expected));
+
+    [TestCase(0, "0 sets")]
+    [TestCase(1, "1 set")]
+    [TestCase(12, "12 sets")]
+    public void Sets_IsSingularOnlyForOne(int count, string expected) => Assert.That(DisplayFormat.Sets(count), Is.EqualTo(expected));
 }

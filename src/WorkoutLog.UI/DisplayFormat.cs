@@ -61,6 +61,9 @@ internal static class DisplayFormat
     /// <summary>A number of workouts, e.g. 1 workout or 38 workouts.</summary>
     public static string Workouts(int count) => count == 1 ? "1 workout" : $"{count} workouts";
 
+    /// <summary>A number of sets, e.g. 1 set or 12 sets.</summary>
+    public static string Sets(int count) => count == 1 ? "1 set" : $"{count} sets";
+
     /// <summary>Calendar days since a date: Today, Yesterday, or e.g. 3 days ago.</summary>
     public static string DaysAgo(int days) => days switch
     {

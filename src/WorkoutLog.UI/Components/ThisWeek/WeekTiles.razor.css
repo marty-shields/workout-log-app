@@ -34,17 +34,9 @@
     font-variant-numeric: tabular-nums;
 }
 
-.diff {
+.change ::deep .diff {
     display: inline-flex;
     align-items: center;
-}
-
-.up {
-    color: var(--color-success);
-}
-
-.down {
-    color: var(--color-error);
 }
 
 .against {

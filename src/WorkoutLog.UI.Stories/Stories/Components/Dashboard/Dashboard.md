@@ -14,6 +14,9 @@ A card labelled "Last workout": the date and day in bold (e.g. *Tue 27 Oct 2026*
 A table titled "This week vs last week" with This week and Last week columns (`ThisWeek` and `LastWeekToDate`) and the rows Workouts, Time (e.g. *3h 05m*, *25m*) and Sets. Each row ends in its change: an increase is the Up `Icon` and the difference in `--color-success`, a decrease the Down `Icon` and the difference in `--color-error`, no change a muted "—". Screen readers hear "up 25m", "down 1" or "no change". Time is compared in whole minutes.
 - `data-testid`: `TestId`, and as a prefix: `{TestId}-workouts`, `{TestId}-time`, `{TestId}-sets`.
 
+## `WeekChange`
+How a total moved between two weeks, shown by `WeekComparison` and the This week tiles: an increase is the Up `Icon` and the difference in `--color-success`, a decrease the Down `Icon` and the difference in `--color-error`, no change a muted "—". `Format` shows the size of the difference. Screen readers hear "up 25m", "down 1" or "no change".
+
 ## `WeekBars`
 One bar per week, oldest on the left, height in proportion to the busiest week, on a baseline. This week is the last bar, in `--color-accent`; the others are `--color-bar-past`. A week with no workouts has no bar. Muted labels under the baseline name the oldest week and This week. The figure is named "Workouts per week, last 12 weeks" and lists each week for screen readers, e.g. *11 weeks ago: 2 workouts* … *This week: 1 workout*. With no workouts in any week, a muted "No workouts in the last 12 weeks" replaces the chart.
 - `data-testid`: `TestId`; `{TestId}-values` on the list; `{TestId}-none` on the message.
@@ -26,4 +29,4 @@ A card with a `WeekComparison`, then "Last 12 weeks" with the streak at the righ
 A card titled "Recent records" with a `ListRow` per record: exercise and best (e.g. *Deadlift · 160kg × 3*) with how long ago under it (e.g. *2 days ago*). With `OnOpen` the rows are tappable and raise it with the exercise id. Shows the records it is given. None shows "No new records in the last 30 days".
 - `data-testid`: `TestId`, and as a prefix: `{TestId}-row-{exercise id}`, `{TestId}-none`.
 
-Stories: [LastWorkoutCard](./?path=/docs/components-dashboard-lastworkoutcard--docs) · [WeekComparison](./?path=/docs/components-dashboard-weekcomparison--docs) · [WeekBars](./?path=/docs/components-dashboard-weekbars--docs) · [ConsistencyCard](./?path=/docs/components-dashboard-consistencycard--docs) · [RecentRecordsCard](./?path=/docs/components-dashboard-recentrecordscard--docs)
+Stories: [LastWorkoutCard](./?path=/docs/components-dashboard-lastworkoutcard--docs) · [WeekComparison](./?path=/docs/components-dashboard-weekcomparison--docs) · [WeekChange](./?path=/docs/components-dashboard-weekchange--docs) · [WeekBars](./?path=/docs/components-dashboard-weekbars--docs) · [ConsistencyCard](./?path=/docs/components-dashboard-consistencycard--docs) · [RecentRecordsCard](./?path=/docs/components-dashboard-recentrecordscard--docs)

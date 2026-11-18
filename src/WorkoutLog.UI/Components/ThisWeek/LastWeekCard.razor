@@ -1,7 +1,7 @@
 @using WorkoutLog.UI.Components.Dashboard
 <section class="card" data-testid="@TestId">
     <ListRow Text="Last week"
-             Detail="@($"{DisplayFormat.Workouts(Totals.Workouts)} · {DisplayFormat.Minutes((int)Totals.Time.TotalMinutes)} · {Totals.Sets} {(Totals.Sets == 1 ? "set" : "sets")}")"
+             Detail="@($"{DisplayFormat.Workouts(Totals.Workouts)} · {DisplayFormat.Minutes((int)Totals.Time.TotalMinutes)} · {DisplayFormat.Sets(Totals.Sets)}")"
              OnClick="OnOpen"
              TestId="@($"{TestId}-row")" />
 </section>
