@@ -102,6 +102,30 @@ internal enum CoreEvent
     /// <summary><see cref="Services.RecentRecordsService"/>: finding one exercise's records failed.</summary>
     RecentRecordsExerciseFailed = 1444,
 
+    /// <summary><see cref="Services.PeriodTotalsService"/>: a period's comparison read.</summary>
+    PeriodComparisonLoaded = 1450,
+
+    /// <summary><see cref="Services.PeriodTotalsService"/>: reading a period's comparison failed.</summary>
+    PeriodComparisonLoadFailed = 1451,
+
+    /// <summary><see cref="Services.PeriodTotalsService"/>: a period's series read.</summary>
+    PeriodSeriesLoaded = 1452,
+
+    /// <summary><see cref="Services.PeriodTotalsService"/>: reading a period's series failed.</summary>
+    PeriodSeriesLoadFailed = 1453,
+
+    /// <summary><see cref="Services.PeriodTotalsService"/>: the streaks read.</summary>
+    PeriodStreaksLoaded = 1454,
+
+    /// <summary><see cref="Services.PeriodTotalsService"/>: reading the streaks failed.</summary>
+    PeriodStreaksLoadFailed = 1455,
+
+    /// <summary><see cref="Services.PeriodTotalsService"/>: the period limits read.</summary>
+    PeriodLimitsLoaded = 1456,
+
+    /// <summary><see cref="Services.PeriodTotalsService"/>: reading the period limits failed.</summary>
+    PeriodLimitsLoadFailed = 1457,
+
     /// <summary><see cref="Services.WorkoutSummaryService"/>: a workout's summary read.</summary>
     WorkoutSummaryLoaded = 1530,
 

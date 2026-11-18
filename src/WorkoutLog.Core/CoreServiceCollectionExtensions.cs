@@ -6,6 +6,7 @@ using WorkoutLog.Core.Domain.Exercises.Bests;
 using WorkoutLog.Core.Domain.Exercises.Progress;
 using WorkoutLog.Core.Domain.Workouts;
 using WorkoutLog.Core.Domain.Workouts.Consistency;
+using WorkoutLog.Core.Domain.Workouts.Periods;
 using WorkoutLog.Core.Domain.Workouts.Validation;
 using WorkoutLog.Core.Import;
 using WorkoutLog.Core.Import.Checks;
@@ -101,12 +102,15 @@ public static class CoreServiceCollectionExtensions
             .AddSingleton<CardioSessionRule>()
             .AddSingleton<CardioRecordsRule>();
 
-    /// <summary>Registers the Consistency card's rules.</summary>
+    /// <summary>Registers the rules behind the Consistency card and the period totals.</summary>
     private static IServiceCollection AddConsistencyRules(this IServiceCollection services) =>
         services
             .AddSingleton<WeekComparisonRule>()
             .AddSingleton<WeekBarsRule>()
-            .AddSingleton<StreakRule>();
+            .AddSingleton<StreakRule>()
+            .AddSingleton<PeriodComparisonRule>()
+            .AddSingleton<PeriodSeriesRule>()
+            .AddSingleton<LongestRunRule>();
 
     private static IServiceCollection AddServices(this IServiceCollection services) =>
         services
@@ -123,6 +127,7 @@ public static class CoreServiceCollectionExtensions
             .AddSingleton<IWorkoutSummaryService, WorkoutSummaryService>()
             .AddConsistencyRules()
             .AddSingleton<IConsistencyService, ConsistencyService>()
+            .AddSingleton<IPeriodTotalsService, PeriodTotalsService>()
             .AddSingleton<MuscleGroupMap>()
             .AddSingleton<IMuscleSetsService, MuscleSetsService>()
             .AddSingleton<IWeightHistoryService, WeightHistoryService>()
