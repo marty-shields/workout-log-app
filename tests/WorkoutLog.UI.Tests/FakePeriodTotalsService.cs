@@ -4,7 +4,7 @@ using WorkoutLog.Core.Services;
 namespace WorkoutLog.UI.Tests;
 
 /// <summary>
-/// <see cref="IPeriodTotalsService"/> for the tests: returns what the properties hold at once, <see cref="ThisWeek"/> for the period that holds today
+/// <see cref="IPeriodTotalsService"/> for the tests: returns what the properties hold at once (volume and limits too), <see cref="ThisWeek"/> for the period that holds today
 /// and <see cref="LastWeek"/> for any other. Records what each call asked for.
 /// </summary>
 public sealed class FakePeriodTotalsService(TimeProvider time) : IPeriodTotalsService
@@ -18,6 +18,14 @@ public sealed class FakePeriodTotalsService(TimeProvider time) : IPeriodTotalsSe
     public ReadResult<PeriodSeries> Series { get; set; } = new PeriodSeries(Week, [], [], [], 0);
 
     public ReadResult<WeekStreaks> Streaks { get; set; } = new WeekStreaks(0, new int[12], new LongestRun(0, false));
+
+    public ReadResult<PeriodVolume> Volume { get; set; } = new PeriodVolume(Week, 0, 0);
+
+    public ReadResult<PeriodLimits> Limits { get; set; } = new PeriodLimits(Week, Week);
+
+    public List<DateOnly> VolumeReads { get; } = [];
+
+    public int LimitReads { get; private set; }
 
     /// <summary>The start of each period <see cref="GetComparisonAsync"/> was asked for.</summary>
     public List<DateOnly> Comparisons { get; } = [];
@@ -48,8 +56,16 @@ public sealed class FakePeriodTotalsService(TimeProvider time) : IPeriodTotalsSe
     }
 
     /// <inheritdoc />
-    public Task<ReadResult<PeriodVolume>> GetVolumeAsync(Period period) => throw new NotSupportedException();
+    public Task<ReadResult<PeriodVolume>> GetVolumeAsync(Period period)
+    {
+        VolumeReads.Add(period.Start);
+        return Task.FromResult(Volume);
+    }
 
     /// <inheritdoc />
-    public Task<ReadResult<PeriodLimits>> GetLimitsAsync(PeriodKind kind) => throw new NotSupportedException();
+    public Task<ReadResult<PeriodLimits>> GetLimitsAsync(PeriodKind kind)
+    {
+        LimitReads++;
+        return Task.FromResult(Limits);
+    }
 }

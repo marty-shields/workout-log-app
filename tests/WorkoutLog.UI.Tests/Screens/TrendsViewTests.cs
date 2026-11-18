@@ -31,6 +31,18 @@ public class TrendsViewTests : ComponentTestBase
     }
 
     [Test]
+    public void Kinds_OnlyWeek_LeavesTheKindControlOut()
+    {
+        var cut = Render(SampleTrends.Week.Append(new KeyValuePair<string, object?>(nameof(TrendsView.Kinds), new[] { PeriodKind.Week })).ToDictionary());
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.FindAll("[data-testid=trends-kind]"), Is.Empty);
+            Assert.That(cut.FindAll("[data-testid=trends-stepper]"), Has.Count.EqualTo(1));
+        });
+    }
+
+    [Test]
     public void Week_ShowsTheTilesThenItsFourCardsInOrder()
     {
         var cut = Render(SampleTrends.Week);

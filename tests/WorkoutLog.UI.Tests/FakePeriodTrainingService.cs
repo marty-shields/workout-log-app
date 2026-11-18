@@ -7,11 +7,12 @@ namespace WorkoutLog.UI.Tests;
 
 /// <summary>
 /// <see cref="IPeriodTrainingService"/> for the tests: returns what the properties hold, nothing by default. With <see cref="Hold"/> set,
-/// each workouts read waits until the test calls <see cref="Complete"/>. Records the start of each period asked for.
+/// each workouts read waits until the test calls <see cref="Complete"/>, and with <see cref="HoldMuscles"/> each muscle group read waits for <see cref="CompleteMuscles"/>. Records the start of each period asked for.
 /// </summary>
 public sealed class FakePeriodTrainingService : IPeriodTrainingService
 {
     private readonly List<TaskCompletionSource<ReadResult<IReadOnlyList<WorkoutOutline>>>> pending = [];
+    private readonly List<TaskCompletionSource<ReadResult<IReadOnlyList<MuscleGroupCount>>>> pendingMuscles = [];
 
     public ReadResult<IReadOnlyList<WorkoutOutline>> Workouts { get; set; } = new ReadResult<IReadOnlyList<WorkoutOutline>>(Array.Empty<WorkoutOutline>());
 
@@ -22,6 +23,9 @@ public sealed class FakePeriodTrainingService : IPeriodTrainingService
 
     /// <summary>When true, workouts reads wait for <see cref="Complete"/>.</summary>
     public bool Hold { get; set; }
+
+    /// <summary>When true, muscle group reads wait for <see cref="CompleteMuscles"/>.</summary>
+    public bool HoldMuscles { get; set; }
 
     public List<DateOnly> WorkoutsReads { get; } = [];
 
@@ -57,8 +61,18 @@ public sealed class FakePeriodTrainingService : IPeriodTrainingService
     public Task<ReadResult<IReadOnlyList<MuscleGroupCount>>> GetMuscleSetsAsync(Period period)
     {
         MuscleReads.Add(period.Start);
-        return Task.FromResult(Muscles);
+        if (!HoldMuscles)
+        {
+            return Task.FromResult(Muscles);
+        }
+
+        var read = new TaskCompletionSource<ReadResult<IReadOnlyList<MuscleGroupCount>>>();
+        pendingMuscles.Add(read);
+        return read.Task;
     }
+
+    /// <summary>Completes the latest held muscle group read with <see cref="Muscles"/>.</summary>
+    public void CompleteMuscles() => pendingMuscles[^1].SetResult(Muscles);
 
     /// <inheritdoc />
     public Task<ReadResult<IReadOnlyList<TrainedExercise>>> GetMostTrainedAsync(Period period) => throw new NotSupportedException();

@@ -58,6 +58,8 @@ public partial class EventIdTests
             [UiEvent.UndoFocusFailed] = 3901,
             [UiEvent.UndoFocusCheckFailed] = 3902,
             [UiEvent.PullRefreshFailed] = 4001,
+            [UiEvent.TrendsLoadFailed] = 4101,
+            [UiEvent.TrendsRecordsFailed] = 4102,
         }));
 
     [Test]

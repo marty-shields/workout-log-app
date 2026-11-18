@@ -1,0 +1,262 @@
+@using Microsoft.Extensions.Logging
+@using WorkoutLog.Core.Domain.Exercises
+@using WorkoutLog.Core.Domain.Workouts.Consistency
+@using WorkoutLog.Core.Domain.Workouts.Periods
+@using WorkoutLog.Core.Services
+@using WorkoutLog.UI.Components.ThisWeek
+@using WorkoutLog.UI.Components.Trends
+@using WorkoutLog.UI.Lifecycle
+@using WorkoutLog.UI.Models.Muscles
+@using WorkoutLog.UI.Models.ThisWeek
+@using WorkoutLog.UI.Navigation
+@implements IDisposable
+@inject IPeriodTotalsService Periods
+@inject IPeriodTrainingService Training
+@inject IExerciseCatalog Catalog
+@inject TimeProvider Clock
+@inject IAppStart AppStart
+@inject ILogger<TrendsPage> Logger
+
+<TrendsView Kind="PeriodKind.Week" Kinds="OfferedKinds" Label="@label" Past="past" CanGoPrevious="CanGoPrevious" CanGoNext="CanGoNext"
+            Totals="totals" Earlier="earlier" Against="@against" Days="days" Muscles="muscles" Records="records" RecentWeeks="recentWeeks" Streak="streak"
+            Loading="loading" Failed="failed" OnRetry="() => LoadAsync()" OnRefresh="() => LoadAsync(PullRefresh.MinimumSpinner)"
+            OnPrevious="() => StepAsync(period.Previous())" OnNext="() => StepAsync(period.Next())"
+            OnSettings="OnSettings" OnNew="OnNew" OnNavigate="OnNavigate" OnOpenRecord="OpenRecordAsync" />
+
+@code {
+    private static readonly IReadOnlyList<PeriodKind> OfferedKinds = [PeriodKind.Week];
+    private static readonly TrendTotals NoTotals = new(0, TimeSpan.Zero, 0, 0);
+    private static readonly string[] DayNames = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+
+    private DateOnly today;
+    private Period period = Period.Containing(PeriodKind.Week, default);
+    private Period? earliest;
+    private (string? Kind, string? Date) requested;
+    private string label = "";
+    private bool past;
+    private TrendTotals totals = NoTotals;
+    private TrendTotals earlier = NoTotals;
+    private string against = "";
+    private IReadOnlyList<TrendBar> days = [];
+    private IReadOnlyList<MuscleGroupSets> muscles = [];
+    private IReadOnlyList<WeekRecord> records = [];
+    private IReadOnlyList<int> recentWeeks = [];
+    private int streak;
+    private bool loading;
+    private bool failed;
+    private int generation;
+    private IDisposable? registration;
+    private bool disposed;
+
+    /// <summary>The <c>period</c> query value. Only <c>week</c> is offered, so anything else shows the week.</summary>
+    [Parameter]
+    public string? KindQuery { get; set; }
+
+    /// <summary>The <c>date</c> query value, a day inside the week as 2026-11-09. Missing, invalid or after this week, it shows this week.</summary>
+    [Parameter]
+    public string? DateQuery { get; set; }
+
+    /// <summary>Raised with the first day of the week when the stepper moves to it, so the host can put it in the URL.</summary>
+    [Parameter]
+    public EventCallback<DateOnly> OnPeriodChanged { get; set; }
+
+    /// <summary>Raised by the Settings gear.</summary>
+    [Parameter]
+    public EventCallback OnSettings { get; set; }
+
+    /// <summary>Raised by the New button in the tab bar.</summary>
+    [Parameter]
+    public EventCallback OnNew { get; set; }
+
+    /// <summary>Raised with the tab tapped in the tab bar.</summary>
+    [Parameter]
+    public EventCallback<MainTab> OnNavigate { get; set; }
+
+    /// <summary>Raised when a record is tapped, with its exercise and the week shown, so back can return to that week.</summary>
+    [Parameter]
+    public EventCallback<RecordOpened> OnOpenExercise { get; set; }
+
+    private bool CanGoPrevious => earliest is { } first && period.Start > first.Start;
+
+    private bool CanGoNext => period.Start < Period.Containing(PeriodKind.Week, today).Start;
+
+    protected override Task OnInitializedAsync()
+    {
+        SetToday();
+        period = Requested();
+        requested = (KindQuery, DateQuery);
+        registration = AppStart.Register(() => InvokeAsync(ReloadAsync));
+        return LoadAsync();
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (generation == 0 || requested == (KindQuery, DateQuery))
+        {
+            return;
+        }
+
+        requested = (KindQuery, DateQuery);
+        var week = Requested();
+        if (week != period)
+        {
+            period = week;
+            await LoadAsync(force: true);
+        }
+    }
+
+    public void Dispose()
+    {
+        disposed = true;
+        registration?.Dispose();
+    }
+
+    private Period Requested()
+    {
+        var current = Period.Containing(PeriodKind.Week, today);
+        var week = TrendsRoute.ParseDate(DateQuery) is { } day ? Period.Containing(PeriodKind.Week, day) : current;
+        return week.Start > current.Start ? current : week;
+    }
+
+    private async Task StepAsync(Period week)
+    {
+        if ((week.Start < period.Start && !CanGoPrevious) || (week.Start > period.Start && !CanGoNext))
+        {
+            return;
+        }
+
+        period = week;
+        await OnPeriodChanged.InvokeAsync(week.Start);
+        await LoadAsync(force: true);
+    }
+
+    private Task OpenRecordAsync(int exerciseId) => OnOpenExercise.InvokeAsync(new RecordOpened(exerciseId, period.Start));
+
+    /// <summary>
+    /// Takes today afresh and reads the week, the week before, its volume, the muscle groups, the records, the streak and the stepper's limits
+    /// together. When it began on this week and a new week has begun since, it shows the new one. Records that fail to load leave their card empty; any other read that fails shows the error. Does nothing while a load runs,
+    /// unless <paramref name="force"/> (the stepper moved on, so the load running is for a week no longer shown and its result is dropped),
+    /// and nothing more once the page is disposed.
+    /// </summary>
+    private async Task LoadAsync(TimeSpan minimum = default, bool force = false)
+    {
+        if (loading && !force)
+        {
+            return;
+        }
+
+        var mine = ++generation;
+        loading = true;
+        StateHasChanged();
+        var wasCurrent = !CanGoNext;
+        SetToday();
+        var moved = wasCurrent && CanGoNext;
+        if (moved)
+        {
+            period = Period.Containing(PeriodKind.Week, today);
+            await OnPeriodChanged.InvokeAsync(period.Start);
+        }
+
+        var week = period;
+        var minimumElapsed = Task.Delay(minimum, Clock);
+        var comparisonLoad = Periods.GetComparisonAsync(week);
+        var volumeLoad = Periods.GetVolumeAsync(week);
+        var seriesLoad = Periods.GetSeriesAsync(week);
+        var streaksLoad = Periods.GetStreaksAsync(today.Year);
+        var limitsLoad = Periods.GetLimitsAsync(PeriodKind.Week);
+        var musclesLoad = Training.GetMuscleSetsAsync(week);
+        var recordsLoad = Training.GetRecordsAsync(week);
+        await Task.WhenAll(comparisonLoad, volumeLoad, seriesLoad, streaksLoad, limitsLoad, musclesLoad, recordsLoad);
+        var comparison = await comparisonLoad;
+        var volume = await volumeLoad;
+        var series = await seriesLoad;
+        var streaks = await streaksLoad;
+        var limits = await limitsLoad;
+        var counts = await musclesLoad;
+        var recent = await recordsLoad;
+        if (disposed || mine != generation)
+        {
+            return;
+        }
+
+        failed = comparison is not PeriodComparison || volume is not PeriodVolume || series is not PeriodSeries
+            || streaks is not WeekStreaks || limits is not PeriodLimits || counts is not IReadOnlyList<MuscleGroupCount>;
+        label = DisplayFormat.WeekDates(week.Start);
+        past = !week.Contains(today);
+        against = past ? "Against the week before" : AgainstToDate();
+        if (comparison is PeriodComparison read && volume is PeriodVolume lifted)
+        {
+            totals = ToTotals(read.Totals, lifted.Volume);
+            earlier = ToTotals(read.Earlier, lifted.Earlier);
+        }
+
+        days = series is PeriodSeries daily ? Days(week, daily) : [];
+        recentWeeks = streaks is WeekStreaks weekly ? weekly.WeekCounts : [];
+        streak = streaks is WeekStreaks counted ? counted.Current : 0;
+        earliest = limits is PeriodLimits reach ? reach.Earliest : earliest;
+        muscles = counts is IReadOnlyList<MuscleGroupCount> groups ? groups.Select(g => new MuscleGroupSets(g.Group.ToString(), g.Sets)).ToList() : [];
+        records = recent switch
+        {
+            PeriodRecords found => WeekRecordItems.Items(found.Records, Catalog, Clock.LocalTimeZone),
+            ReadFailed => [],
+        };
+        if (failed)
+        {
+            Log.LoadFailed(Logger);
+        }
+        else if (recent is ReadFailed)
+        {
+            Log.RecordsFailed(Logger);
+        }
+
+        await minimumElapsed;
+        if (!disposed && mine == generation)
+        {
+            loading = false;
+        }
+    }
+
+    private void SetToday() =>
+        today = DateOnly.FromDateTime(TimeZoneInfo.ConvertTime(Clock.GetUtcNow(), Clock.LocalTimeZone).DateTime);
+
+    private string AgainstToDate() => today.DayOfWeek == DayOfWeek.Monday
+        ? "Against Monday last week"
+        : $"Against Monday to {today.DayOfWeek} last week";
+
+    private static TrendTotals ToTotals(WeekTally tally, decimal volume) => new(tally.Workouts, tally.Time, tally.Sets, volume);
+
+    /// <summary>Monday to Sunday: minutes trained on each day beside the same day the week before.</summary>
+    private List<TrendBar> Days(Period week, PeriodSeries series) =>
+        [.. DayNames.Select((name, i) =>
+        {
+            var day = week.Start.AddDays(i);
+            var minutes = Minutes(series.Buckets, day);
+            var before = Minutes(series.Earlier, day.AddDays(-7));
+            return new TrendBar(
+                name[..3],
+                name,
+                minutes,
+                minutes > 0 ? DisplayFormat.Minutes(minutes) : day > today ? "still to come" : "rest day",
+                before,
+                before > 0 ? DisplayFormat.Minutes(before) : "rest day",
+                Current: day == today);
+        })];
+
+    private static int Minutes(IReadOnlyList<PeriodBucket> buckets, DateOnly day) =>
+        buckets.FirstOrDefault(b => b.Start == day) is { } bucket ? (int)bucket.Time.TotalMinutes : 0;
+
+    /// <summary>Loads again when the app comes back on screen. Does nothing once the page is disposed, before or during the load.</summary>
+    private async Task ReloadAsync()
+    {
+        if (disposed)
+        {
+            return;
+        }
+
+        await LoadAsync();
+        if (!disposed)
+        {
+            StateHasChanged();
+        }
+    }
+}
