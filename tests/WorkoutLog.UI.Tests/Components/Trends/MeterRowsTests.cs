@@ -50,6 +50,10 @@ public class MeterRowsTests : ComponentTestBase
         Assert.That(Render([new("Jan", 4), new("Feb", 0)], wide: false).FindAll(".fill")[1].GetAttribute("style")!.Trim().TrimEnd(';'), Is.EqualTo("--share: 0"));
 
     [Test]
+    public void List_HasAnAccessibleName() =>
+        Assert.That(Render(SampleTrends.MostTrained, wide: true).Find("ul.rows").GetAttribute("aria-label"), Is.EqualTo("Sessions of each exercise"));
+
+    [Test]
     public void Rows_HaveTestIdsFromTheirLabels() =>
         Assert.That(Render(SampleTrends.MostTrained, wide: true).FindAll(".row").Select(r => r.GetAttribute("data-testid")),
             Is.EqualTo(new[] { "meters-bench-press", "meters-squat", "meters-deadlift", "meters-treadmill-run", "meters-overhead-press" }));
@@ -74,6 +78,7 @@ public class MeterRowsTests : ComponentTestBase
         Context.Render<MeterRows>(p => p
             .Add(x => x.Rows, rows)
             .Add(x => x.Unit, "sessions")
+            .Add(x => x.AriaLabel, "Sessions of each exercise")
             .Add(x => x.EmptyText, "Nothing yet")
             .Add(x => x.Wide, wide)
             .Add(x => x.TestId, "meters"));

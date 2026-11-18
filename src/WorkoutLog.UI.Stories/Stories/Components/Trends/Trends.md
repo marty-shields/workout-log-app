@@ -34,7 +34,7 @@ A row per week of the month: its dates cut to the month at the left (e.g. *16 â€
 - `data-testid`: `TestId`, and as a prefix: `{TestId}-1` for the first row, `{TestId}-none`.
 
 ## `MeterRows`
-Rows of a name, a bar as long as its number against the biggest and the number, as `MuscleSetsCard` draws its groups. `Wide` makes room for exercise names (*Overhead press*); without it the name column fits a month's three letters. `Unit` (e.g. *sessions*) is read by screen readers after each number. No rows, or all at 0, shows `EmptyText`.
+Rows of a name, a bar as long as its number against the biggest and the number, as `MuscleSetsCard` draws its groups. `Wide` makes room for exercise names (*Overhead press*); without it the name column fits a month's three letters. `Unit` (e.g. *sessions*) is read by screen readers after each number, and `AriaLabel` names the list. No rows, or all at 0, shows `EmptyText`.
 - `data-testid`: `TestId`, and as a prefix: `{TestId}-{label, lower case, dashes for spaces}`, `{TestId}-none`.
 
 ## `RecordRows`

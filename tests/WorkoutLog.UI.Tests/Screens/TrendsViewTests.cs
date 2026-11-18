@@ -111,6 +111,7 @@ public class TrendsViewTests : ComponentTestBase
             Assert.That(cut.Find("[data-testid=trends-records-aside]").TextContent, Is.EqualTo("4 this month"));
             Assert.That(cut.Find("[data-testid=trends-most-trained-aside]").TextContent, Is.EqualTo("sessions"));
             Assert.That(cut.FindAll("[data-testid=trends-most-trained-rows] .row"), Has.Count.EqualTo(5));
+            Assert.That(cut.Find("[data-testid=trends-most-trained-rows]").GetAttribute("aria-label"), Is.EqualTo("Sessions of the most trained exercises this month"));
         });
     }
 
@@ -141,6 +142,7 @@ public class TrendsViewTests : ComponentTestBase
             Assert.That(cut.Find("[data-testid=trends-streak-row] .detail").TextContent, Is.EqualTo("Still going"));
             Assert.That(cut.Find("[data-testid=trends-records-by-month-aside]").TextContent, Is.EqualTo("37 this year"));
             Assert.That(cut.FindAll("[data-testid=trends-records-by-month-rows] .row"), Has.Count.EqualTo(11));
+            Assert.That(cut.Find("[data-testid=trends-records-by-month-rows]").GetAttribute("aria-label"), Is.EqualTo("Records set in each month of 2026"));
         });
     }
 

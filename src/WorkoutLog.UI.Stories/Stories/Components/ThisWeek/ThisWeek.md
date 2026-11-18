@@ -32,7 +32,7 @@ A card titled "Records this week" with a `ListRow` per record, as `RecentRecords
 - `data-testid`: `TestId`, and as a prefix: `{TestId}-row-{exercise id}`, `{TestId}-more`, `{TestId}-none`.
 
 ## `MuscleSetsCard`
-A card titled "Sets per muscle group", "this week" at its right (`Period` renames it, e.g. "this month" in Trends), with a bar for each group, most sets first: the name, a bar as long as its sets against the busiest group's in `--color-accent` on `--color-border`, and the sets (e.g. *14 sets*, *1 set*). A group at zero has no bar and a muted "Not trained"; the groups at zero come last.
+A card titled "Sets per muscle group", "this week" at its right (`Period` renames it, e.g. "that week" in Trends), with a bar for each group, most sets first: the name, a bar as long as its sets against the busiest group's in `--color-accent` on `--color-border`, and the sets (e.g. *14 sets*, *1 set*). A group at zero has no bar and a muted "Not trained"; the groups at zero come last.
 - `data-testid`: `TestId`, and as a prefix: `{TestId}-{group, lower case}`.
 
 ## `LastWeekCard`

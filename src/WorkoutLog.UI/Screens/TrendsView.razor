@@ -55,7 +55,7 @@
                         <RecordRows Records="Records" EmptyText="@($"No new records {Name}")" OnOpen="OnOpenRecord" TestId="trends-records" />
                     </TrendCard>
                     <TrendCard Title="Most trained" Aside="sessions" TestId="trends-most-trained">
-                        <MeterRows Rows="MostTrained" Unit="sessions" Wide EmptyText="@($"No exercises {Name}")" TestId="trends-most-trained-rows" />
+                        <MeterRows Rows="MostTrained" Unit="sessions" AriaLabel="@($"Sessions of the most trained exercises {Name}")" Wide EmptyText="@($"No exercises {Name}")" TestId="trends-most-trained-rows" />
                     </TrendCard>
                 }
                 else
@@ -65,7 +65,7 @@
                     </TrendCard>
                     <LongestStreakCard Weeks="LongestStreak" Running="StreakRunning" TestId="trends-streak" />
                     <TrendCard Title="Records by month" Aside="@($"{RecordsByMonth.Sum(m => m.Value)} {Name}")" TestId="trends-records-by-month">
-                        <MeterRows Rows="RecordsByMonth" Unit="records" EmptyText="@($"No records {Name}")" TestId="trends-records-by-month-rows" />
+                        <MeterRows Rows="RecordsByMonth" Unit="records" AriaLabel="@($"Records set in each month of {Label}")" EmptyText="@($"No records {Name}")" TestId="trends-records-by-month-rows" />
                     </TrendCard>
                 }
             }

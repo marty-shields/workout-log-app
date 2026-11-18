@@ -5,7 +5,7 @@
 else
 {
     var most = Rows.Max(row => row.Value);
-    <ul class="rows @(Wide ? "wide" : null)" data-testid="@TestId">
+    <ul class="rows @(Wide ? "wide" : null)" aria-label="@AriaLabel" data-testid="@TestId">
         @foreach (var row in Rows)
         {
             <li class="row" data-testid="@(TestId is null ? null : $"{TestId}-{Slug(row.Label)}")">
@@ -25,6 +25,10 @@ else
     /// <summary>What the numbers count, for screen readers, e.g. sessions.</summary>
     [Parameter, EditorRequired]
     public string Unit { get; set; } = "";
+
+    /// <summary>The accessible name of the list, e.g. Records set in each month of 2026.</summary>
+    [Parameter, EditorRequired]
+    public string AriaLabel { get; set; } = "";
 
     /// <summary>Shown in place of the rows when there are none or all are 0.</summary>
     [Parameter, EditorRequired]
