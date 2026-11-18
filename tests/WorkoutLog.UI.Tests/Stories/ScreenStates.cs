@@ -51,6 +51,7 @@ public static class ScreenStates
         new("Screens/This week", "Load failed", c => ThisWeek(c, p => p.Add(x => x.Failed, true))),
 
         new("Screens/Trends", "Week", c => Trends(c, SampleTrends.Week)),
+        new("Screens/Trends", "Week only", c => Trends(c, SampleTrends.WeekOnly)),
         new("Screens/Trends", "Month", c => Trends(c, SampleTrends.Month)),
         new("Screens/Trends", "Year", c => Trends(c, SampleTrends.Year)),
         new("Screens/Trends", "Past week", c => Trends(c, SampleTrends.PastWeek)),

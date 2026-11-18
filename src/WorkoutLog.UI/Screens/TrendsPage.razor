@@ -17,8 +17,8 @@
 @inject IAppStart AppStart
 @inject ILogger<TrendsPage> Logger
 
-<TrendsView Kind="PeriodKind.Week" Kinds="OfferedKinds" Label="@label" Past="past" CanGoPrevious="CanGoPrevious" CanGoNext="CanGoNext"
-            Totals="totals" Earlier="earlier" Against="@against" Days="days" Muscles="muscles" Records="records" RecentWeeks="recentWeeks" Streak="streak"
+<TrendsView Kind="PeriodKind.Week" Kinds="OfferedKinds" Label="@Label" Past="Past" CanGoPrevious="CanGoPrevious" CanGoNext="CanGoNext"
+            Totals="totals" Earlier="earlier" Against="@Against" Days="days" Muscles="muscles" Records="records" RecentWeeks="recentWeeks" Streak="streak"
             Loading="loading" Failed="failed" OnRetry="() => LoadAsync()" OnRefresh="() => LoadAsync(PullRefresh.MinimumSpinner)"
             OnPrevious="() => StepAsync(period.Previous())" OnNext="() => StepAsync(period.Next())"
             OnSettings="OnSettings" OnNew="OnNew" OnNavigate="OnNavigate" OnOpenRecord="OpenRecordAsync" />
@@ -32,11 +32,10 @@
     private Period period = Period.Containing(PeriodKind.Week, default);
     private Period? earliest;
     private (string? Kind, string? Date) requested;
-    private string label = "";
-    private bool past;
+    private WeekStreaks? streaks;
+    private PeriodLimits? limits;
     private TrendTotals totals = NoTotals;
     private TrendTotals earlier = NoTotals;
-    private string against = "";
     private IReadOnlyList<TrendBar> days = [];
     private IReadOnlyList<MuscleGroupSets> muscles = [];
     private IReadOnlyList<WeekRecord> records = [];
@@ -76,6 +75,12 @@
     [Parameter]
     public EventCallback<RecordOpened> OnOpenExercise { get; set; }
 
+    private string Label => DisplayFormat.WeekDates(period.Start);
+
+    private bool Past => !period.Contains(today);
+
+    private string Against => Past ? "Against the week before" : DisplayFormat.AgainstLastWeek(today.DayOfWeek);
+
     private bool CanGoPrevious => earliest is { } first && period.Start > first.Start;
 
     private bool CanGoNext => period.Start < Period.Containing(PeriodKind.Week, today).Start;
@@ -97,11 +102,12 @@
         }
 
         requested = (KindQuery, DateQuery);
+        SetToday();
         var week = Requested();
         if (week != period)
         {
             period = week;
-            await LoadAsync(force: true);
+            await LoadAsync(force: true, readReach: false);
         }
     }
 
@@ -127,7 +133,7 @@
 
         period = week;
         await OnPeriodChanged.InvokeAsync(week.Start);
-        await LoadAsync(force: true);
+        await LoadAsync(force: true, readReach: false);
     }
 
     private Task OpenRecordAsync(int exerciseId) => OnOpenExercise.InvokeAsync(new RecordOpened(exerciseId, period.Start));
@@ -136,9 +142,10 @@
     /// Takes today afresh and reads the week, the week before, its volume, the muscle groups, the records, the streak and the stepper's limits
     /// together. When it began on this week and a new week has begun since, it shows the new one. Records that fail to load leave their card empty; any other read that fails shows the error. Does nothing while a load runs,
     /// unless <paramref name="force"/> (the stepper moved on, so the load running is for a week no longer shown and its result is dropped),
-    /// and nothing more once the page is disposed.
+    /// and nothing more once the page is disposed. The streak and the limits do not depend on the week, so with <paramref name="readReach"/> false
+    /// a load keeps the last ones it read, if it read both. A week before the first workout moves to the first week and loads that.
     /// </summary>
-    private async Task LoadAsync(TimeSpan minimum = default, bool force = false)
+    private async Task LoadAsync(TimeSpan minimum = default, bool force = false, bool readReach = true)
     {
         if (loading && !force)
         {
@@ -162,16 +169,17 @@
         var comparisonLoad = Periods.GetComparisonAsync(week);
         var volumeLoad = Periods.GetVolumeAsync(week);
         var seriesLoad = Periods.GetSeriesAsync(week);
-        var streaksLoad = Periods.GetStreaksAsync(today.Year);
-        var limitsLoad = Periods.GetLimitsAsync(PeriodKind.Week);
+        readReach |= streaks is null || limits is null;
+        var streaksLoad = readReach ? Periods.GetStreaksAsync(today.Year) : Task.FromResult<ReadResult<WeekStreaks>>(streaks!);
+        var limitsLoad = readReach ? Periods.GetLimitsAsync(PeriodKind.Week) : Task.FromResult<ReadResult<PeriodLimits>>(limits!);
         var musclesLoad = Training.GetMuscleSetsAsync(week);
         var recordsLoad = Training.GetRecordsAsync(week);
         await Task.WhenAll(comparisonLoad, volumeLoad, seriesLoad, streaksLoad, limitsLoad, musclesLoad, recordsLoad);
         var comparison = await comparisonLoad;
         var volume = await volumeLoad;
         var series = await seriesLoad;
-        var streaks = await streaksLoad;
-        var limits = await limitsLoad;
+        var readStreaks = await streaksLoad;
+        var readLimits = await limitsLoad;
         var counts = await musclesLoad;
         var recent = await recordsLoad;
         if (disposed || mine != generation)
@@ -179,11 +187,19 @@
             return;
         }
 
+        streaks = readStreaks is WeekStreaks weekly ? weekly : null;
+        limits = readLimits is PeriodLimits known ? known : null;
+        earliest = limits?.Earliest ?? earliest;
+        if (limits is { } reach && week.Start < reach.Earliest.Start)
+        {
+            period = reach.Earliest;
+            await OnPeriodChanged.InvokeAsync(period.Start);
+            await LoadAsync(minimum, force: true, readReach: false);
+            return;
+        }
+
         failed = comparison is not PeriodComparison || volume is not PeriodVolume || series is not PeriodSeries
-            || streaks is not WeekStreaks || limits is not PeriodLimits || counts is not IReadOnlyList<MuscleGroupCount>;
-        label = DisplayFormat.WeekDates(week.Start);
-        past = !week.Contains(today);
-        against = past ? "Against the week before" : AgainstToDate();
+            || streaks is null || limits is null || counts is not IReadOnlyList<MuscleGroupCount>;
         if (comparison is PeriodComparison read && volume is PeriodVolume lifted)
         {
             totals = ToTotals(read.Totals, lifted.Volume);
@@ -191,9 +207,17 @@
         }
 
         days = series is PeriodSeries daily ? Days(week, daily) : [];
-        recentWeeks = streaks is WeekStreaks weekly ? weekly.WeekCounts : [];
-        streak = streaks is WeekStreaks counted ? counted.Current : 0;
-        earliest = limits is PeriodLimits reach ? reach.Earliest : earliest;
+        if (streaks is { } counted)
+        {
+            recentWeeks = counted.WeekCounts;
+            streak = counted.Current;
+        }
+        else
+        {
+            recentWeeks = [];
+            streak = 0;
+        }
+
         muscles = counts is IReadOnlyList<MuscleGroupCount> groups ? groups.Select(g => new MuscleGroupSets(g.Group.ToString(), g.Sets)).ToList() : [];
         records = recent switch
         {
@@ -218,10 +242,6 @@
 
     private void SetToday() =>
         today = DateOnly.FromDateTime(TimeZoneInfo.ConvertTime(Clock.GetUtcNow(), Clock.LocalTimeZone).DateTime);
-
-    private string AgainstToDate() => today.DayOfWeek == DayOfWeek.Monday
-        ? "Against Monday last week"
-        : $"Against Monday to {today.DayOfWeek} last week";
 
     private static TrendTotals ToTotals(WeekTally tally, decimal volume) => new(tally.Workouts, tally.Time, tally.Sets, volume);
 

@@ -65,6 +65,7 @@ public class TrendsPageTests : ComponentTestBase
             Assert.That(cut.FindAll("[data-testid=trends-loading]"), Has.Count.EqualTo(1));
             Assert.That(cut.FindAll("[data-testid=trends-tiles]"), Is.Empty);
             Assert.That(cut.Find("[data-testid=trends-stepper-next]").HasAttribute("disabled"), Is.True);
+            Assert.That(cut.Find("[data-testid=trends-stepper-label]").TextContent, Is.EqualTo("16 – 22 Nov"));
             Assert.That(cut.Find("[aria-current=page]").GetAttribute("data-testid"), Is.EqualTo("trends-link"));
         });
     }
@@ -186,6 +187,7 @@ public class TrendsPageTests : ComponentTestBase
     [Test]
     public void WeekWithNoWorkouts_ShowsZerosAndWhatIsMissing()
     {
+        totals.Limits = new PeriodLimits(Period.Containing(PeriodKind.Week, FirstMonday), Week);
         var cut = Context.Render<TrendsPage>(p => p.Add(x => x.DateQuery, "2026-11-02"));
 
         cut.WaitForAssertion(() => Assert.That(cut.FindAll("[data-testid=trends-tiles]"), Has.Count.EqualTo(1)));
@@ -364,20 +366,133 @@ public class TrendsPageTests : ComponentTestBase
     }
 
     [Test]
-    public void SteppingWhileLoading_ShowsTheLastWeekRequestedNotAnEarlierSlowerOne()
+    public async Task SteppingWhileLoading_ShowsTheLastWeekRequestedNotAnEarlierSlowerOne()
     {
         MidWeek();
         training.HoldMuscles = true;
         var cut = Context.Render<TrendsPage>(p => p.Add(x => x.DateQuery, "2026-11-09"));
         cut.WaitForAssertion(() => Assert.That(training.MuscleReads, Has.Count.EqualTo(1)));
-        totals.Limits = new PeriodLimits(Period.Containing(PeriodKind.Week, FirstMonday), Week);
 
         cut.Find("[data-testid=trends-stepper-next]").Click();
         Assert.That(training.MuscleReads, Is.EqualTo(new[] { LastMonday, Monday }));
-        training.CompleteMuscles();
-        cut.WaitForAssertion(() => Assert.That(cut.FindAll("[data-testid=trends-loading]"), Is.Empty));
-
         Assert.That(cut.Find("[data-testid=trends-stepper-label]").TextContent, Is.EqualTo("16 – 22 Nov"));
+        training.CompleteMuscles(1);
+        cut.WaitForAssertion(() => Assert.That(cut.FindAll("[data-testid=trends-loading]"), Is.Empty));
+        training.CompleteMuscles(0);
+        await WaitForRendererAsync();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.Find("[data-testid=trends-stepper-label]").TextContent, Is.EqualTo("16 – 22 Nov"));
+            Assert.That(cut.Find("[data-testid=trends-tiles-workouts] .value").TextContent, Is.EqualTo("2"));
+            Assert.That(cut.Find("[data-testid=trends-tiles-against]").TextContent, Is.EqualTo("Against Monday to Wednesday last week"));
+        });
+    }
+
+    [Test]
+    public void Stepping_ShowsTheNewWeeksLabelAtOnceWhileItLoads()
+    {
+        MidWeek();
+        var cut = Context.Render<TrendsPage>();
+        cut.WaitForAssertion(() => Assert.That(cut.Find("[data-testid=trends-stepper-previous]").HasAttribute("disabled"), Is.False));
+        training.HoldMuscles = true;
+
+        cut.Find("[data-testid=trends-stepper-previous]").Click();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.FindAll("[data-testid=trends-loading]"), Has.Count.EqualTo(1));
+            Assert.That(cut.Find("[data-testid=trends-stepper-label]").TextContent, Is.EqualTo("9 – 15 Nov"));
+        });
+    }
+
+    [Test]
+    public void Stepping_KeepsTheStreakAndLimitsItReadBefore()
+    {
+        MidWeek();
+        var cut = Context.Render<TrendsPage>();
+        cut.WaitForAssertion(() => Assert.That(cut.Find("[data-testid=trends-stepper-previous]").HasAttribute("disabled"), Is.False));
+
+        cut.Find("[data-testid=trends-stepper-previous]").Click();
+        cut.WaitForAssertion(() => Assert.That(cut.Find("[data-testid=trends-stepper-label]").TextContent, Is.EqualTo("9 – 15 Nov")));
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(totals.LimitReads, Is.EqualTo(1));
+            Assert.That(totals.StreakYears, Is.EqualTo(new[] { 2026 }));
+            Assert.That(cut.Find("[data-testid=trends-recent-weeks-aside]").TextContent, Is.EqualTo("5-week streak"));
+        });
+    }
+
+    [Test]
+    public async Task NextOnTheCurrentWeekAndPreviousOnTheFirst_DoNothing()
+    {
+        MidWeek();
+        var changed = new List<DateOnly>();
+        var cut = Context.Render<TrendsPage>(p => p.Add(x => x.OnPeriodChanged, changed.Add));
+        cut.WaitForAssertion(() => Assert.That(cut.FindAll("[data-testid=trends-tiles]"), Has.Count.EqualTo(1)));
+        var view = cut.FindComponent<TrendsView>().Instance;
+
+        await cut.InvokeAsync(view.OnNext.InvokeAsync);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(changed, Is.Empty);
+            Assert.That(totals.Comparisons, Has.Count.EqualTo(1));
+            Assert.That(training.MuscleReads, Has.Count.EqualTo(1));
+        });
+
+        var first = Context.Render<TrendsPage>(p => p.Add(x => x.DateQuery, "2026-10-28").Add(x => x.OnPeriodChanged, changed.Add));
+        first.WaitForAssertion(() => Assert.That(first.FindAll("[data-testid=trends-tiles]"), Has.Count.EqualTo(1)));
+        var reads = totals.Comparisons.Count;
+        var muscleReads = training.MuscleReads.Count;
+
+        await first.InvokeAsync(first.FindComponent<TrendsView>().Instance.OnPrevious.InvokeAsync);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(changed, Is.Empty);
+            Assert.That(totals.Comparisons, Has.Count.EqualTo(reads));
+            Assert.That(training.MuscleReads, Has.Count.EqualTo(muscleReads));
+            Assert.That(first.Find("[data-testid=trends-stepper-label]").TextContent, Is.EqualTo("26 Oct – 1 Nov"));
+        });
+    }
+
+    [Test]
+    public void TodayWithNoWorkout_IsARestDayAndMarkedAsToday()
+    {
+        MidWeek();
+        totals.Series = new PeriodSeries(Week, [new PeriodBucket(Monday, Monday, 1, TimeSpan.FromMinutes(30))], [], [], 0);
+
+        var cut = Context.Render<TrendsPage>();
+
+        cut.WaitForAssertion(() => Assert.That(cut.FindAll("[data-testid=trends-days-chart-values] li"), Has.Count.EqualTo(7)));
+        var values = cut.FindAll("[data-testid=trends-days-chart-values] li").Select(li => li.TextContent).ToList();
+        Assert.Multiple(() =>
+        {
+            Assert.That(values[2], Is.EqualTo("Wednesday: rest day (last week rest day)"));
+            Assert.That(values[3], Is.EqualTo("Thursday: still to come (last week rest day)"));
+            Assert.That(cut.FindAll("[data-testid=trends-days] span.current").Select(e => e.TextContent), Is.EqualTo(new[] { "Wed" }));
+        });
+    }
+
+    [Test]
+    public void OpenedOnAWeekBeforeTheFirstWorkout_ShowsTheFirstWeekAndRaisesIt()
+    {
+        MidWeek();
+        var changed = new List<DateOnly>();
+
+        var cut = Context.Render<TrendsPage>(p => p.Add(x => x.DateQuery, "2001-01-01").Add(x => x.OnPeriodChanged, changed.Add));
+
+        cut.WaitForAssertion(() => Assert.That(cut.Find("[data-testid=trends-stepper-label]").TextContent, Is.EqualTo("26 Oct – 1 Nov")));
+        cut.WaitForAssertion(() => Assert.That(cut.FindAll("[data-testid=trends-loading]"), Is.Empty));
+        Assert.Multiple(() =>
+        {
+            Assert.That(changed, Is.EqualTo(new[] { FirstMonday }));
+            Assert.That(totals.Comparisons.Last(), Is.EqualTo(FirstMonday));
+            Assert.That(totals.LimitReads, Is.EqualTo(1));
+            Assert.That(cut.Find("[data-testid=trends-stepper-previous]").HasAttribute("disabled"), Is.True);
+        });
     }
 
     [TestCase("2026-11-09", "9 – 15 Nov")]
@@ -423,6 +538,21 @@ public class TrendsPageTests : ComponentTestBase
         Assert.Multiple(() =>
         {
             Assert.That(totals.Comparisons, Is.EqualTo(new[] { LastMonday }));
+            Assert.That(totals.StreakYears, Is.EqualTo(new[] { 2026 }));
+        });
+    }
+
+    [Test]
+    public void OpenedOnADateFromAnEarlierYear_TheStreakRowStillReadsTheCurrentYear()
+    {
+        MidWeek();
+        totals.Limits = new PeriodLimits(Period.Containing(PeriodKind.Week, new DateOnly(2025, 12, 29)), Week);
+
+        Context.Render<TrendsPage>(p => p.Add(x => x.DateQuery, "2025-12-31"));
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(totals.Comparisons, Is.EqualTo(new[] { new DateOnly(2025, 12, 29) }));
             Assert.That(totals.StreakYears, Is.EqualTo(new[] { 2026 }));
         });
     }

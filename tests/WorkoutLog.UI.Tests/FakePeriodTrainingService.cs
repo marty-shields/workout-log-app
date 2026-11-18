@@ -7,7 +7,7 @@ namespace WorkoutLog.UI.Tests;
 
 /// <summary>
 /// <see cref="IPeriodTrainingService"/> for the tests: returns what the properties hold, nothing by default. With <see cref="Hold"/> set,
-/// each workouts read waits until the test calls <see cref="Complete"/>, and with <see cref="HoldMuscles"/> each muscle group read waits for <see cref="CompleteMuscles"/>. Records the start of each period asked for.
+/// each workouts read waits until the test calls <see cref="Complete"/>, and with <see cref="HoldMuscles"/> each muscle group read waits for <see cref="CompleteMuscles()"/>. Records the start of each period asked for.
 /// </summary>
 public sealed class FakePeriodTrainingService : IPeriodTrainingService
 {
@@ -24,7 +24,7 @@ public sealed class FakePeriodTrainingService : IPeriodTrainingService
     /// <summary>When true, workouts reads wait for <see cref="Complete"/>.</summary>
     public bool Hold { get; set; }
 
-    /// <summary>When true, muscle group reads wait for <see cref="CompleteMuscles"/>.</summary>
+    /// <summary>When true, muscle group reads wait for <see cref="CompleteMuscles()"/>.</summary>
     public bool HoldMuscles { get; set; }
 
     public List<DateOnly> WorkoutsReads { get; } = [];
@@ -72,7 +72,10 @@ public sealed class FakePeriodTrainingService : IPeriodTrainingService
     }
 
     /// <summary>Completes the latest held muscle group read with <see cref="Muscles"/>.</summary>
-    public void CompleteMuscles() => pendingMuscles[^1].SetResult(Muscles);
+    public void CompleteMuscles() => CompleteMuscles(pendingMuscles.Count - 1);
+
+    /// <summary>Completes the held muscle group read at <paramref name="index"/> (in the order they were asked for) with <see cref="Muscles"/>.</summary>
+    public void CompleteMuscles(int index) => pendingMuscles[index].SetResult(Muscles);
 
     /// <inheritdoc />
     public Task<ReadResult<IReadOnlyList<TrainedExercise>>> GetMostTrainedAsync(Period period) => throw new NotSupportedException();

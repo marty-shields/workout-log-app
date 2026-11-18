@@ -47,6 +47,12 @@ public static class SampleTrends
         p[nameof(TrendsView.Streak)] = 23;
     });
 
+    /// <summary>The current week as the page shows it: only Week offered, so the kind control is hidden.</summary>
+    public static IReadOnlyDictionary<string, object?> WeekOnly => new Dictionary<string, object?>(Week)
+    {
+        [nameof(TrendsView.Kinds)] = new[] { PeriodKind.Week },
+    };
+
     /// <summary>A finished week, 9 to 15 Nov.</summary>
     public static IReadOnlyDictionary<string, object?> PastWeek => State(PeriodKind.Week, "9 – 15 Nov", canGoPrevious: true, canGoNext: true, past: true, p =>
     {

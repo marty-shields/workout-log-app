@@ -81,6 +81,11 @@ internal static class DisplayFormat
     /// <summary>Elapsed time as h:mm, e.g. 0:58 or 1:02.</summary>
     public static string HoursMinutes(TimeSpan value) => $"{(int)value.TotalHours}:{value.Minutes:00}";
 
+    /// <summary>What this week so far is compared with: Against Monday last week on a Monday, otherwise Against Monday to Wednesday last week.</summary>
+    public static string AgainstLastWeek(DayOfWeek today) => today == DayOfWeek.Monday
+        ? "Against Monday last week"
+        : $"Against Monday to {today} last week";
+
     /// <summary>A Monday to Sunday week, without the year: 16 – 22 Nov, or 28 Sep – 4 Oct across months.</summary>
     public static string WeekDates(DateOnly monday)
     {
