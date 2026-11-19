@@ -12,7 +12,7 @@ public static class NavigationManagerExtensions
     public static void GoTo(this NavigationManager navigation, string uri) =>
         navigation.NavigateTo(uri, replace: true);
 
-    /// <summary>Opens a top-level screen, as <see cref="GoTo(NavigationManager, string)"/> does.</summary>
-    public static void GoTo(this NavigationManager navigation, NavDestination destination) =>
-        navigation.GoTo(NavDestinations.Of(destination).Route);
+    /// <summary>Opens a tab, as <see cref="GoTo(NavigationManager, string)"/> does.</summary>
+    public static void GoTo(this NavigationManager navigation, MainTab tab) =>
+        navigation.GoTo(MainTabs.Route(tab));
 }

@@ -9,6 +9,7 @@
 @using WorkoutLog.UI.Lifecycle
 @using WorkoutLog.UI.Models.Muscles
 @using WorkoutLog.UI.Models.ThisWeek
+@using WorkoutLog.UI.Models.Workouts
 @using WorkoutLog.UI.Navigation
 @implements IDisposable
 @inject IPeriodTotalsService Periods
@@ -24,7 +25,8 @@
             Months="months" PerWeek="perWeek" LongestStreak="longestStreak" StreakRunning="streakRunning" RecordsByMonth="recordsByMonth"
             Loading="loading" Failed="failed" OnRetry="() => LoadAsync()" OnRefresh="() => LoadAsync(PullRefresh.MinimumSpinner)"
             OnKindChanged="SwitchAsync" OnPrevious="() => StepAsync(period.Previous())" OnNext="() => StepAsync(period.Next())"
-            OnSettings="OnSettings" OnNew="OnNew" OnNavigate="OnNavigate" OnOpenRecord="OpenExerciseAsync" />
+            OnSettings="() => OnSettings.InvokeAsync(period)" OnNew="() => OnNew.InvokeAsync(period)" OnNavigate="OnNavigate"
+            OnOpenWorkouts="OpenWorkoutsAsync" OnOpenRecord="OpenExerciseAsync" />
 
 @code {
     private static readonly TrendTotals NoTotals = new(0, TimeSpan.Zero, 0, 0);
@@ -70,17 +72,21 @@
     [Parameter]
     public EventCallback<Period> OnPeriodChanged { get; set; }
 
-    /// <summary>Raised by the Settings gear.</summary>
+    /// <summary>Raised by the Settings gear with the period shown, so back can return to it.</summary>
     [Parameter]
-    public EventCallback OnSettings { get; set; }
+    public EventCallback<Period> OnSettings { get; set; }
 
-    /// <summary>Raised by the New button in the tab bar.</summary>
+    /// <summary>Raised by the New button in the tab bar with the period shown, so discarding can return to it.</summary>
     [Parameter]
-    public EventCallback OnNew { get; set; }
+    public EventCallback<Period> OnNew { get; set; }
 
     /// <summary>Raised with the tab tapped in the tab bar.</summary>
     [Parameter]
     public EventCallback<MainTab> OnNavigate { get; set; }
+
+    /// <summary>Raised when a day, week row or bar is tapped, with its days and the period shown, so back from Workouts can return to that period.</summary>
+    [Parameter]
+    public EventCallback<WorkoutsOpened> OnOpenWorkouts { get; set; }
 
     /// <summary>Raised when a record or a Most trained row is tapped, with its exercise and the period shown, so back can return to that period.</summary>
     [Parameter]
@@ -174,6 +180,8 @@
         await OnPeriodChanged.InvokeAsync(period);
         await LoadAsync(force: true, readReach: false);
     }
+
+    private Task OpenWorkoutsAsync(DateSpan dates) => OnOpenWorkouts.InvokeAsync(new WorkoutsOpened(dates, period));
 
     private Task OpenExerciseAsync(int exerciseId) => OnOpenExercise.InvokeAsync(new RecordOpened(exerciseId, period));
 
@@ -326,7 +334,8 @@
                 minutes > 0 ? DisplayFormat.Minutes(minutes) : day > today ? "still to come" : "rest day",
                 before,
                 before > 0 ? DisplayFormat.Minutes(before) : "rest day",
-                Current: day == today);
+                Current: day == today,
+                Span: new DateSpan(day, day));
         })];
 
     private static int Minutes(IReadOnlyList<PeriodBucket> buckets, DateOnly day) =>
@@ -339,7 +348,7 @@
             .Select(w =>
             {
                 var last = month.Contains(today) && w.End > today ? today : w.End;
-                return new MonthWeek(DisplayFormat.MonthWeekDates(w.Start, last), w.Workouts, w.Time);
+                return new MonthWeek(DisplayFormat.MonthWeekDates(w.Start, last), w.Workouts, w.Time, new DateSpan(w.Start, last));
             })];
 
     private List<MeterRow> MostTrainedRows(IReadOnlyList<TrainedExercise> top)
@@ -362,7 +371,8 @@
                 b.Workouts,
                 b.Workouts == 0 ? "no workouts" : DisplayFormat.Workouts(b.Workouts),
                 Current: current,
-                Labelled: current || (b.Workouts == highest && highest > 0));
+                Labelled: current || (b.Workouts == highest && highest > 0),
+                Span: new DateSpan(b.Start, b.End > today ? today : b.End));
         })];
     }
 

@@ -20,14 +20,8 @@
 <ThisWeekView Monday="monday" Today="today" Trained="trained" Streak="streak"
               ThisWeek="thisWeek" LastWeekToDate="lastWeekToDate" Workouts="workouts" Records="records" Muscles="muscles" LastWeek="lastWeek"
               Loading="loading" Failed="failed" OnRetry="() => LoadAsync()" OnRefresh="() => LoadAsync(PullRefresh.MinimumSpinner)"
-              OnSettings="OnSettings" OnOpenWorkout="OnOpenWorkout" OnOpenRecord="OnOpenExercise">
-    <BottomBar>
-        <AppButton FullWidth TestId="new-workout" OnClick="OnNewWorkout">New Workout</AppButton>
-    </BottomBar>
-    <Navigation>
-        <BottomNav Current="NavDestination.Dashboard" OnNavigate="OnNavigate" />
-    </Navigation>
-</ThisWeekView>
+              OnSettings="OnSettings" OnNew="OnNew" OnNavigate="OnNavigate" OnOpenWorkout="OnOpenWorkout" OnOpenRecord="OnOpenExercise"
+              OnOpenLastWeek="() => OnOpenLastWeek.InvokeAsync(Period.Containing(PeriodKind.Week, today).Previous())" />
 
 @code {
     private static readonly WeekTotals NoTotals = new(0, TimeSpan.Zero, 0);
@@ -47,13 +41,17 @@
     private IDisposable? registration;
     private bool disposed;
 
-    /// <summary>Raised by New Workout.</summary>
+    /// <summary>Raised by the New button in the tab bar.</summary>
     [Parameter]
-    public EventCallback OnNewWorkout { get; set; }
+    public EventCallback OnNew { get; set; }
 
-    /// <summary>Raised with the destination tapped in the bottom navigation bar.</summary>
+    /// <summary>Raised with the tab tapped in the tab bar.</summary>
     [Parameter]
-    public EventCallback<NavDestination> OnNavigate { get; set; }
+    public EventCallback<MainTab> OnNavigate { get; set; }
+
+    /// <summary>Raised with last week when the Last week row is tapped.</summary>
+    [Parameter]
+    public EventCallback<Period> OnOpenLastWeek { get; set; }
 
     /// <summary>Raised by the Settings gear.</summary>
     [Parameter]

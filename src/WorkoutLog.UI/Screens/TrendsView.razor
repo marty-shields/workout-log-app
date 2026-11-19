@@ -6,7 +6,8 @@
 @using WorkoutLog.UI.Components.ThisWeek
 @using WorkoutLog.UI.Components.Trends
 @using WorkoutLog.UI.Models.Muscles
-<AppScreen Title="Trends" OnRefresh="OnRefresh">
+@using WorkoutLog.UI.Models.Workouts
+<AppScreen Title="Trends" Tab="MainTab.Trends" OnNavigate="OnNavigate" OnNew="OnNew" OnRefresh="OnRefresh">
     <Actions>
         <IconButton Icon="IconName.Settings" AriaLabel="Settings" TestId="settings" OnClick="OnSettings" />
     </Actions>
@@ -36,7 +37,7 @@
                     <TrendCard Title="Time trained by day" TestId="trends-days">
                         <TrendBars Bars="Days" NowLabel="@(Past ? "That week" : "This week")" EarlierLabel="@(Past ? "The week before" : "Last week")"
                                    AriaLabel="@($"Time trained each day {Name} beside the same day {(Past ? "the week before" : "last week")}")"
-                                   EmptyText="@($"No workouts {Name}")" TestId="trends-days-chart" />
+                                   EmptyText="@($"No workouts {Name}")" OnOpen="OnOpenWorkouts" TestId="trends-days-chart" />
                     </TrendCard>
                     <MuscleSetsCard Groups="Muscles" Period="@Name" TestId="trends-muscles" />
                     <TrendCard Title="Records" Aside="@($"{Records.Count} {Name}")" TestId="trends-records">
@@ -49,10 +50,10 @@
                 else if (Kind == PeriodKind.Month)
                 {
                     <TrendCard Title="Each day" TestId="trends-calendar">
-                        <MonthCalendar Month="Start" Today="Today" Trained="Trained" TestId="trends-calendar-days" />
+                        <MonthCalendar Month="Start" Today="Today" Trained="Trained" OnOpenDay="OpenDay" TestId="trends-calendar-days" />
                     </TrendCard>
                     <TrendCard Title="Weeks" TestId="trends-weeks">
-                        <MonthWeeks Weeks="Weeks" TestId="trends-weeks-rows" />
+                        <MonthWeeks Weeks="Weeks" OnOpen="OnOpenWorkouts" TestId="trends-weeks-rows" />
                     </TrendCard>
                     <TrendCard Title="Records" Aside="@($"{Records.Count} {Name}")" TestId="trends-records">
                         <RecordRows Records="Records" EmptyText="@($"No new records {Name}")" OnOpen="OnOpenRecord" TestId="trends-records" />
@@ -64,7 +65,7 @@
                 else
                 {
                     <TrendCard Title="Workouts by month" Aside="@(PerWeek > 0 ? $"{PerWeek.ToString("0.#", CultureInfo.InvariantCulture)} a week" : null)" TestId="trends-months">
-                        <TrendBars Bars="Months" AriaLabel="@($"Workouts in each month of {Label}")" EmptyText="@($"No workouts {Name}")" TestId="trends-months-chart" />
+                        <TrendBars Bars="Months" AriaLabel="@($"Workouts in each month of {Label}")" EmptyText="@($"No workouts {Name}")" OnOpen="OnOpenWorkouts" TestId="trends-months-chart" />
                     </TrendCard>
                     <LongestStreakCard Weeks="LongestStreak" Running="StreakRunning" TestId="trends-streak" />
                     <TrendCard Title="Records by month" Aside="@($"{RecordsByMonth.Sum(m => m.Value)} {Name}")" TestId="trends-records-by-month">
@@ -74,9 +75,6 @@
             }
         </div>
     </ChildContent>
-    <Navigation>
-        <MainTabBar Current="MainTab.Trends" OnNavigate="OnNavigate" OnNew="OnNew" />
-    </Navigation>
 </AppScreen>
 
 @code {
@@ -225,9 +223,19 @@
     [Parameter]
     public EventCallback<MainTab> OnNavigate { get; set; }
 
+    /// <summary>
+    /// Raised with the days when a day with a workout in the month calendar, a week row, a day's column in the week view or a month's column in the year view is tapped.
+    /// Not tappable when unset.
+    /// </summary>
+    [Parameter]
+    public EventCallback<DateSpan> OnOpenWorkouts { get; set; }
+
     /// <summary>Raised with the exercise id when a record row, or in the month a Most trained row, is tapped. Rows are not tappable when unset.</summary>
     [Parameter]
     public EventCallback<int> OnOpenRecord { get; set; }
+
+    private EventCallback<DateOnly> OpenDay =>
+        OnOpenWorkouts.HasDelegate ? EventCallback.Factory.Create<DateOnly>(this, day => OnOpenWorkouts.InvokeAsync(new DateSpan(day, day))) : default;
 
     /// <summary>The period as it reads in the cards: this week, or that week once it is over.</summary>
     private string Name => $"{(Past ? "that" : "this")} {Kind.ToString().ToLowerInvariant()}";

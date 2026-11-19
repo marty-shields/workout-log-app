@@ -1,17 +1,16 @@
 Feature: Exercise page: cardio
   A cardio exercise's distance, duration, pace, floors and calories over time, with its records and sessions.
 
-  Scenario Outline: A cardio exercise opens its Exercise page and back returns to Exercises
+  Scenario Outline: A cardio exercise opens its Exercise page and back returns to Trends
     Given these saved workouts:
       | started          | exercises                                                  |
       | 3 days ago 18:05 | Outdoor Run: 0:30:00 5.2 km / Barbell Back Squat: 5 reps 60 kg |
-    And I have opened Exercises
-    Then the tappable rows on Exercises are: Barbell Back Squat, Outdoor Run
-    When I open "Outdoor Run" on Exercises
+    When I open "Outdoor Run" from Most trained on Trends
     Then the Exercise page is titled "Outdoor Run" with "Cardio"
     And the Exercise tabs are: Distance, Duration, Pace, Calories
     When I go back with <how>
-    Then I am on Exercises
+    Then I am on Trends
+    And Trends is on the Month view
     Examples:
       | how            |
       | the back arrow |

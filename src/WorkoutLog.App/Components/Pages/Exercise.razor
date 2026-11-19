@@ -3,11 +3,11 @@
 @using WorkoutLog.UI.Screens
 @inject NavigationManager Navigation
 
-<ExercisePage ExerciseId="Id" OnBack="@(() => Navigation.GoTo(Origin.Route(From, "exercises")))" />
+<ExercisePage ExerciseId="Id" OnBack="@(() => Navigation.GoTo(Origin.Route(From)))" />
 
 @code {
     [Parameter] public int Id { get; set; }
 
-    /// <summary>"dashboard" when opened from This week, or "trends:" and a week's Monday (2026-11-09) from Trends: back returns there instead of to Exercises.</summary>
+    /// <summary>"this-week" or "trends:" and the period (month:2026-11-01) it was opened from: back returns there. This week when missing.</summary>
     [SupplyParameterFromQuery] public string? From { get; set; }
 }

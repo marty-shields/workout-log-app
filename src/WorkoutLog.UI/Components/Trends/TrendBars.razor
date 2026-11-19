@@ -1,4 +1,5 @@
 @using System.Globalization
+@using WorkoutLog.UI.Models.Workouts
 @if (Bars.All(bar => bar.Value == 0 && bar.Earlier == 0))
 {
     <p class="none" data-testid="@(TestId is null ? null : $"{TestId}-none")">@EmptyText</p>
@@ -38,6 +39,23 @@ else
                 }
                 <line class="baseline" x1="0" x2="@Number(Width)" y1="@Number(Height)" y2="@Number(Height)" />
             </svg>
+            @if (OnOpen.HasDelegate)
+            {
+                <div class="taps" style="--count: @Bars.Count">
+                    @for (var i = 0; i < Bars.Count; i++)
+                    {
+                        var bar = Bars[i];
+                        <span class="slot">
+                            @if (bar.Span is { } span && bar.Value > 0)
+                            {
+                                <button type="button" class="tap" data-testid="@(TestId is null ? null : $"{TestId}-{i + 1}-open")" @onclick="() => OnOpen.InvokeAsync(span)">
+                                    <span class="visually-hidden">Open workouts, @bar.Name</span>
+                                </button>
+                            }
+                        </span>
+                    }
+                </div>
+            }
             <div class="values" style="--count: @Bars.Count" aria-hidden="true">
                 @foreach (var bar in Bars)
                 {
@@ -94,7 +112,11 @@ else
     [Parameter]
     public double? Max { get; set; }
 
-    /// <summary>Value of the data-testid attribute, <c>{TestId}-values</c> on the text alternative, <c>{TestId}-legend</c> and <c>{TestId}-none</c>.</summary>
+    /// <summary>Raised with the days of a column when the column of a bar with a value and a <see cref="TrendBar.Span"/> is tapped. Columns are not tappable when unset.</summary>
+    [Parameter]
+    public EventCallback<DateSpan> OnOpen { get; set; }
+
+    /// <summary>Value of the data-testid attribute, <c>{TestId}-values</c> on the text alternative, <c>{TestId}-legend</c>, <c>{TestId}-none</c> and <c>{TestId}-{column, from 1}-open</c> on a tappable column.</summary>
     [Parameter]
     public string? TestId { get; set; }
 

@@ -28,13 +28,13 @@ Feature: App lifecycle
     Then the log shows "Activity started" once more
     And the log shows "Counted" once more
 
-  Scenario: Exercises reloads when the app comes back
-    Given I am on Exercises
+  Scenario: Trends reloads when the app comes back
+    Given I am on Trends
     When I send the app to the background and bring it back
     Then the log shows "Activity started" once more
-    And the log shows "logged exercises" once more
+    And the log shows "records for Week from" once more
 
   Scenario: This week reloads each time it is shown
     Given I am on This week
-    When I open Workouts and go back
+    When I open Workouts and go back to This week
     Then the log shows "workouts for Week from" once more

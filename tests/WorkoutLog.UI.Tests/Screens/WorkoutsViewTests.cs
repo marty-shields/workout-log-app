@@ -156,7 +156,7 @@ public class WorkoutsViewTests : ComponentTestBase
         Assert.Multiple(() =>
         {
             Assert.That(cut.Find("[data-testid=workouts-empty]").TextContent, Does.Contain("No workouts yet"));
-            Assert.That(cut.Find("[data-testid=workouts-empty-hint]").TextContent, Is.EqualTo("Tap New Workout on the Dashboard to log one"));
+            Assert.That(cut.Find("[data-testid=workouts-empty-hint]").TextContent, Is.EqualTo("Tap + on This week to log one"));
         });
     }
 
@@ -183,7 +183,7 @@ public class WorkoutsViewTests : ComponentTestBase
             Assert.That(cut.FindAll("[data-testid=workouts-empty]"), Is.Empty);
             Assert.That(cut.FindAll("[data-testid=workouts-error]"), Is.Empty);
             Assert.That(cut.FindAll("[data-testid=workouts-dates]"), Is.Empty);
-            Assert.That(cut.FindAll("[data-testid=bottom-nav]"), Has.Count.EqualTo(1));
+            Assert.That(cut.FindAll("[data-testid=tab-bar]"), Is.Empty);
         });
     }
 
@@ -261,55 +261,59 @@ public class WorkoutsViewTests : ComponentTestBase
     }
 
     [Test]
-    public void IsTopLevel_WithNoBackArrowAndItsNavigationItemCurrent()
+    public void HasABackArrowAndNoTabBar()
     {
-        var cut = Render(ThreeMonths);
+        var cut = Render(ThreeMonths, p => p.Add(x => x.OnBack, () => { }));
 
         Assert.Multiple(() =>
         {
-            Assert.That(cut.FindAll("[data-testid=back]"), Is.Empty);
-            Assert.That(cut.Find("[aria-current=page]").GetAttribute("data-testid"), Is.EqualTo("workouts-link"));
+            Assert.That(cut.FindAll("[data-testid=back]"), Has.Count.EqualTo(1));
+            Assert.That(cut.FindAll("[data-testid=tab-bar]"), Is.Empty);
         });
     }
 
     [Test]
-    public async Task AndroidBack_NavigatesToTheDashboard()
+    public void NoOnBack_HasNoBackArrow() =>
+        Assert.That(Render(ThreeMonths).FindAll("[data-testid=back]"), Is.Empty);
+
+    [Test]
+    public void BackArrow_RaisesOnBack()
     {
-        var navigated = new List<NavDestination>();
-        var cut = Render(ThreeMonths, p => p.Add(x => x.OnNavigate, navigated.Add));
+        var back = 0;
+        var cut = Render(ThreeMonths, p => p.Add(x => x.OnBack, () => back++));
 
-        await cut.InvokeAsync(BackButton.HandleAsync);
+        cut.Find("[data-testid=back]").Click();
 
-        Assert.That(navigated, Is.EqualTo(new[] { NavDestination.Dashboard }));
+        Assert.That(back, Is.EqualTo(1));
     }
 
     [Test]
-    public void NavigationBar_RaisesOnNavigate()
+    public async Task AndroidBack_RaisesOnBack()
     {
-        var navigated = new List<NavDestination>();
-        var cut = Render(ThreeMonths, p => p.Add(x => x.OnNavigate, navigated.Add));
+        var back = 0;
+        var cut = Render(ThreeMonths, p => p.Add(x => x.OnBack, () => back++));
 
-        cut.Find("[data-testid=exercises-link]").Click();
+        await cut.InvokeAsync(BackButton.HandleAsync);
 
-        Assert.That(navigated, Is.EqualTo(new[] { NavDestination.Exercises }));
+        Assert.That(back, Is.EqualTo(1));
     }
 
     [Test]
     public async Task AndroidBack_WhileExpanded_ClosesTheCalendarAndStays()
     {
-        var navigated = new List<NavDestination>();
+        var back = 0;
         var expanded = new List<bool>();
         var cut = Render(ThreeMonths, p => p
             .Add(x => x.Expanded, true)
             .Add(x => x.ExpandedChanged, expanded.Add)
-            .Add(x => x.OnNavigate, navigated.Add));
+            .Add(x => x.OnBack, () => back++));
 
         await cut.InvokeAsync(BackButton.HandleAsync);
 
         Assert.Multiple(() =>
         {
             Assert.That(expanded, Is.EqualTo(new[] { false }));
-            Assert.That(navigated, Is.Empty);
+            Assert.That(back, Is.EqualTo(0));
         });
     }
 

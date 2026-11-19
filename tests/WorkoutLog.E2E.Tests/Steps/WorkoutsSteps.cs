@@ -17,13 +17,6 @@ public sealed class WorkoutsSteps(WebView web, Journeys journeys, WorkoutsScreen
     [Then(@"^Workouts shows ""(.*)""$")]
     public void ThenWorkoutsShows(string text) => web.Eventually(workouts.EmptyText, Is.EqualTo(text));
 
-    [Then(@"^Workouts is empty$")]
-    public void ThenWorkoutsIsEmpty()
-    {
-        journeys.GoToWorkouts();
-        ThenWorkoutsShows("No workouts yet");
-    }
-
     [Then(@"^the rows read, in order:$")]
     public void ThenTheRowsRead(DataTable rows)
     {
@@ -71,6 +64,13 @@ public sealed class WorkoutsSteps(WebView web, Journeys journeys, WorkoutsScreen
         var row = workouts.RowIds().ToList().IndexOf(id);
         Assert.That(row, Is.Not.Negative, $"no row for workout {id}");
         Assert.That(workouts.Rows()[row], Is.EqualTo(DateAndTime(SeedTime.Resolve(time, clock.LocalNow()))));
+    }
+
+    [When(@"^I go back from Workouts with (the back arrow|Android back)$")]
+    public void WhenIGoBackFromWorkouts(string how)
+    {
+        journeys.WaitFor(Journeys.Screen.Workouts);
+        journeys.Back(how);
     }
 
     [When(@"^I tap the row for (.+)$")]

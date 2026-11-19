@@ -42,6 +42,25 @@
     font-variant-numeric: tabular-nums;
 }
 
+/* The tap area is a touch target, drawn over the cells around it so the grid keeps its size. */
+.tap {
+    display: grid;
+    place-items: center;
+    min-width: var(--touch-target);
+    min-height: var(--touch-target);
+    margin: calc((var(--calendar-day-size) - var(--touch-target)) / 2);
+    padding: 0;
+    border: none;
+    background-color: transparent;
+    color: inherit;
+    font: inherit;
+    cursor: pointer;
+}
+
+.tap:active .dot {
+    background-image: linear-gradient(var(--state-pressed), var(--state-pressed));
+}
+
 /* A trained day is solid; a day with no workout is dashed. */
 .done .dot,
 .swatch.trained {

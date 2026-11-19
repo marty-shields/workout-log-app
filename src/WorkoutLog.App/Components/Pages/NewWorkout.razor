@@ -1,5 +1,11 @@
 @page "/workout/new"
+@using WorkoutLog.UI.Navigation
 @using WorkoutLog.UI.Screens
 @inject NavigationManager Navigation
 
-<NewWorkoutPage OnDiscarded="@(() => Navigation.GoTo(string.Empty))" OnSaved="@(id => Navigation.GoTo($"workout/{id}/summary"))" />
+<NewWorkoutPage OnDiscarded="@(() => Navigation.GoTo(Origin.Route(From)))" OnSaved="@(id => Navigation.GoTo($"workout/{id}/summary"))" />
+
+@code {
+    /// <summary>The tab the + was tapped on, "this-week" or "trends:" and its period: discarding returns there. This week when missing.</summary>
+    [SupplyParameterFromQuery] public string? From { get; set; }
+}

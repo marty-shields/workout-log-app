@@ -13,10 +13,10 @@ public sealed class AppSteps(
     WebView web, Native native, AppLog log, Journeys journeys, SeedSteps seed, ScenarioState state, ThisWeekScreen thisWeek,
     WorkoutScreen workout, AddExerciseScreen addExercise)
 {
-    [Given(@"^I am on (This week|Workouts|Exercises|the add-exercise list on Edit Workout)$")]
+    [Given(@"^I am on (This week|Trends|Workouts|the add-exercise list on Edit Workout)$")]
     public async Task GivenIAmOn(string screen)
     {
-        if (screen is "This week" or "Workouts" or "Exercises")
+        if (screen is "This week" or "Trends" or "Workouts")
         {
             if (!native.Launched)
             {
@@ -29,9 +29,9 @@ public sealed class AppSteps(
             {
                 journeys.GoToWorkouts();
             }
-            else if (screen == "Exercises")
+            else if (screen == "Trends")
             {
-                journeys.GoToExercises();
+                journeys.GoToTrends();
             }
         }
         else
@@ -80,10 +80,12 @@ public sealed class AppSteps(
     [When(@"^I pull down the list$")]
     public void WhenIPullDownTheList() => native.PullDown();
 
-    [When(@"^I open Workouts and go back$")]
+    [When(@"^I open Workouts and go back to This week$")]
     public void WhenIOpenWorkoutsAndGoBack()
     {
         journeys.GoToWorkouts();
+        native.BackKey();
+        journeys.WaitFor(Journeys.Screen.Trends);
         native.BackKey();
         journeys.WaitFor(Journeys.Screen.ThisWeek);
     }
@@ -106,7 +108,7 @@ public sealed class AppSteps(
             var edges = web.List(
                 "const dpr = devicePixelRatio;" +
                 "const title = document.querySelector('[data-testid=screen-title]').getBoundingClientRect().top;" +
-                "const tabs = Math.max(...[...document.querySelectorAll('.bottom-nav .label')].map(l => l.getBoundingClientRect().bottom));" +
+                "const tabs = Math.max(...[...document.querySelectorAll('.tab-bar .label')].map(l => l.getBoundingClientRect().bottom));" +
                 "return [title * dpr, tabs * dpr];");
             var (title, tabs) = (Convert.ToDouble(edges[0], CultureInfo.InvariantCulture), Convert.ToDouble(edges[1], CultureInfo.InvariantCulture));
             return title >= topEnd && tabs <= bottomStart

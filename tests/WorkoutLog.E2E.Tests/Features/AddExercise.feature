@@ -1,5 +1,5 @@
 Feature: Add exercise
-  I find exercises in the Exercises list over the workout and add them.
+  I find exercises in the Add exercise list over the workout and add them.
 
   Background:
     Given I have started a new workout

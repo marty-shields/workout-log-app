@@ -1,4 +1,5 @@
 using WorkoutLog.UI.Components.Trends;
+using WorkoutLog.UI.Models.Workouts;
 using WorkoutLog.UI.Stories.Samples;
 
 namespace WorkoutLog.UI.Tests.Components.Trends;
@@ -162,6 +163,38 @@ public class TrendBarsTests : ComponentTestBase
 
         Assert.That(double.Parse(cut.Find(".bar").GetAttribute("height")!), Is.LessThanOrEqualTo(300).And.GreaterThan(0));
     }
+
+    [Test]
+    public void NoOnOpen_NoColumnIsTappable() =>
+        Assert.That(RenderMonths([new TrendBar("J", "January", 3, "3 workouts", Span: Jan)]).FindAll("button"), Is.Empty);
+
+    [Test]
+    public void WithOnOpen_OnlyColumnsWithAValueAndDatesAreTappableAndRaiseTheirDates()
+    {
+        var opened = new List<DateSpan>();
+        var cut = Context.Render<TrendBars>(p => p
+            .Add(x => x.Bars, new[]
+            {
+                new TrendBar("J", "January", 3, "3 workouts", Span: Jan),
+                new TrendBar("F", "February", 0, "no workouts", Span: new DateSpan(new DateOnly(2026, 2, 1), new DateOnly(2026, 2, 28))),
+                new TrendBar("M", "March", 2, "2 workouts"),
+            })
+            .Add(x => x.AriaLabel, "Workouts in each month of 2026")
+            .Add(x => x.EmptyText, "No workouts this year")
+            .Add(x => x.OnOpen, opened.Add)
+            .Add(x => x.TestId, "bars"));
+
+        cut.Find("[data-testid=bars-1-open]").Click();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.FindAll("button").Select(b => b.GetAttribute("data-testid")), Is.EqualTo(new[] { "bars-1-open" }));
+            Assert.That(opened, Is.EqualTo(new[] { Jan }));
+            Assert.That(cut.Find("[data-testid=bars-1-open] .visually-hidden").TextContent, Is.EqualTo("Open workouts, January"));
+        });
+    }
+
+    private static readonly DateSpan Jan = new(new DateOnly(2026, 1, 1), new DateOnly(2026, 1, 31));
 
     private IRenderedComponent<TrendBars> RenderDays() =>
         Context.Render<TrendBars>(p => p

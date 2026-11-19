@@ -4,7 +4,7 @@ $attribute: CustomPage("Screens/Trends/Overview")
 
 # Trends
 
-How a week, a month or a year went: what you did, how it compares with the period before, and how the weeks and months added up. It will be the second tab of the bottom bar; until then it opens by its route, `/trends`, and nothing in the app links to it. View: `TrendsView`; page: `TrendsPage`. Design: [docs/design/this-week-and-trends.html](https://github.com/marty-shields/workout-log-app/blob/main/docs/design/this-week-and-trends.html).
+How a week, a month or a year went: what you did, how it compares with the period before, and how the weeks and months added up. It is the second tab of the tab bar, at `/trends`. View: `TrendsView`; page: `TrendsPage`. Design: [docs/design/this-week-and-trends.html](https://github.com/marty-shields/workout-log-app/blob/main/docs/design/this-week-and-trends.html).
 
 | Part | Content |
 |---|---|
@@ -12,7 +12,7 @@ How a week, a month or a year went: what you did, how it compares with the perio
 | Kind | A Week / Month / Year `SegmentedControl`. The page offers all three (`TrendsView`'s `Kinds` lists what is offered; one kind hides the control). |
 | Stepper | A `PeriodStepper`: previous arrow, the period's label, next arrow. Previous is disabled at the period of the first workout, next at the period that holds today. |
 | Tiles | `TrendTiles`: Workouts, Time, Sets and Volume (strength) against the period before, up to the same point in it while the period is still running. |
-| Tab bar | `MainTabBar` with Trends current, through `AppScreen`'s `Navigation` slot. |
+| Tab bar | `MainTabBar` with Trends current, through `AppScreen`'s `Tab`: This week opens [This week](./?path=/custom/screens-this-week-overview), + opens [New Workout](./?path=/custom/screens-new-workout-overview) with `from` the period shown, so discarding returns to it. |
 
 Under the tiles, each kind has its own cards, top to bottom:
 
@@ -54,8 +54,9 @@ Weeks run from Monday 00:00 to Sunday 23:59:59 in the phone's time zone, and tod
 - **Last 12 weeks** (Week) always ends at the current week, whichever week is shown.
 - **Load failed**: if the period, the one before, the volume, the series, the limits, or what the kind also reads (the muscle groups and streak for a week, the most trained for a month, the streak for a year) fail to read, the page shows the error and Try again. If only the records fail, their card reads "No new records" (the year's "No records") and the rest shows; the failure is logged either way, with no workout contents.
 - **Reloads** when the app comes back on screen and on pull to refresh (the spinner shows for at least half a second), whichever kind is shown. A reload that finds a new week, month or year has begun while the current one was shown moves to the new one.
-- **Records**, and in the month the Most trained rows, open their exercise; back from the exercise returns to the same kind and period (the link carries `from=trends:month:2026-11-01`; the older `trends:2026-11-09` still means the week holding it). Muscle group rows, and in the year the Records by month rows, do nothing. Days, week rows and month bars are not tappable yet.
-- **Back**: Android back has no handler, so it leaves the app, as on This week.
+- **Records**, and in the month the Most trained rows, open their exercise; back from the exercise returns to the same kind and period (the link carries `from=trends:month:2026-11-01`; the older `trends:2026-11-09` still means the week holding it). Muscle group rows, and in the year the Records by month rows, do nothing. Settings opened from the gear returns to the same period too (`/settings?from=trends:…`).
+- **Workouts**: a day with a workout in the month calendar, a Weeks row with workouts, a day's columns with a workout in the week view and a month's column with workouts in the year view are buttons (when `OnOpenWorkouts` is set) that open [Workouts](./?path=/custom/screens-workouts-overview) with those dates (`first` and `last`; a month's end is cut to today), and `from` the period shown, so back returns to it. A day, row or column with no workouts isn't tappable.
+- **Back**: Android back goes to This week (`AppScreen`'s `Tab`), whichever kind is shown.
 
 States: [Week](./?path=/story/screens-trends--week) · [Week only](./?path=/story/screens-trends--week-only) · [Month](./?path=/story/screens-trends--month) · [Year](./?path=/story/screens-trends--year) · [Past week](./?path=/story/screens-trends--past-week) · [Past month](./?path=/story/screens-trends--past-month) · [Past year](./?path=/story/screens-trends--past-year) · [No workouts, week](./?path=/story/screens-trends--no-workouts-week) · [No workouts, month](./?path=/story/screens-trends--no-workouts-month) · [No workouts, year](./?path=/story/screens-trends--no-workouts-year) · [Loading](./?path=/story/screens-trends--loading) · [Load failed](./?path=/story/screens-trends--load-failed)
 

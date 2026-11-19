@@ -157,14 +157,6 @@ public static class ScreenStates
 
         new("Screens/Error", "Error", c => c.Render<ErrorView>(p => p.Add(x => x.OnRestart, () => { })).FindAll("*")),
 
-        new("Screens/Exercises", "List", c => Exercises(c, SampleExercises.All)),
-        new("Screens/Exercises", "Strength", c => Exercises(c, SampleExercises.Strength, filter: ExerciseFilter.Strength)),
-        new("Screens/Exercises", "Cardio", c => Exercises(c, SampleExercises.Cardio, filter: ExerciseFilter.Cardio)),
-        new("Screens/Exercises", "No match", c => Exercises(c, [], query: "deadlift")),
-        new("Screens/Exercises", "Nothing logged yet", c => Exercises(c, [], nothingLogged: true)),
-        new("Screens/Exercises", "Loading", c => Exercises(c, [], nothingLogged: true, loading: true)),
-        new("Screens/Exercises", "Reloading", c => Exercises(c, SampleExercises.All, loading: true)),
-        new("Screens/Exercises", "Load failed", c => Exercises(c, [], failed: true)),
 
         new("Screens/Exercise", "Lift top set", c => ExercisePage(c, SampleExercises.LiftTopSet)),
         new("Screens/Exercise", "Lift e1RM", c => ExercisePage(c, SampleExercises.LiftE1rm)),
@@ -238,7 +230,8 @@ public static class ScreenStates
             .Add(x => x.OnSettings, () => { })
             .Add(x => x.OnNew, () => { })
             .Add(x => x.OnNavigate, (MainTab _) => { })
-            .Add(x => x.OnOpenRecord, (int _) => { })).FindAll("*");
+            .Add(x => x.OnOpenRecord, (int _) => { })
+            .Add(x => x.OnOpenWorkouts, (DateSpan _) => { })).FindAll("*");
 
     /// <summary>Sets each parameter of a <see cref="SampleTrends"/> state on the view.</summary>
     public static ComponentParameterCollectionBuilder<TrendsView> Sample(this ComponentParameterCollectionBuilder<TrendsView> parameters, IReadOnlyDictionary<string, object?> state)
@@ -338,7 +331,7 @@ public static class ScreenStates
                 .Add(x => x.Loading, loading)
                 .Add(x => x.Failed, failed)
                 .Add(x => x.OnRetry, () => { })
-                .Add(x => x.OnNavigate, (NavDestination _) => { });
+                .Add(x => x.OnBack, () => { });
             if (tappable)
             {
                 p.Add(x => x.OnOpen, (WorkoutsRow _) => { });
@@ -370,27 +363,6 @@ public static class ScreenStates
             .Add(x => x.OnExport, () => { })
             .Add(x => x.OnImport, () => { })
             .Add(x => x.OnBack, () => { }))
-            .FindAll("*");
-
-    private static IReadOnlyList<IElement> Exercises(
-        BunitContext context,
-        IReadOnlyList<ExerciseListItem> items,
-        string? query = null,
-        ExerciseFilter filter = ExerciseFilter.All,
-        bool nothingLogged = false,
-        bool loading = false,
-        bool failed = false) =>
-        context.Render<ExercisesView>(p => p
-            .Add(x => x.Items, items)
-            .Add(x => x.Query, query)
-            .Add(x => x.Filter, filter)
-            .Add(x => x.NothingLogged, nothingLogged)
-            .Add(x => x.Loading, loading)
-            .Add(x => x.Failed, failed)
-            .Add(x => x.QueryChanged, (string _) => { })
-            .Add(x => x.FilterChanged, (ExerciseFilter _) => { })
-            .Add(x => x.OnRetry, () => { })
-            .Add(x => x.OnNavigate, (NavDestination _) => { }))
             .FindAll("*");
 
     private static IReadOnlyList<IElement> AddExercise(

@@ -1,3 +1,5 @@
+using WorkoutLog.UI.Models.Workouts;
+
 namespace WorkoutLog.UI.Components.Trends;
 
 /// <summary>One column of <see cref="TrendBars"/>.</summary>
@@ -9,6 +11,7 @@ namespace WorkoutLog.UI.Components.Trends;
 /// <param name="EarlierText">The earlier value in words, e.g. 1h 05m or rest day.</param>
 /// <param name="Current">Marks the column for today or this month: its axis label is bold, and in a single chart its bar is in the accent colour.</param>
 /// <param name="Labelled">Prints <paramref name="Value"/> above the bar.</param>
+/// <param name="Span">The days the bar counts, so tapping its column can open their workouts; null makes the column not tappable.</param>
 public sealed record TrendBar(
     string Label,
     string Name,
@@ -17,4 +20,5 @@ public sealed record TrendBar(
     double Earlier = 0,
     string? EarlierText = null,
     bool Current = false,
-    bool Labelled = false);
+    bool Labelled = false,
+    DateSpan? Span = null);

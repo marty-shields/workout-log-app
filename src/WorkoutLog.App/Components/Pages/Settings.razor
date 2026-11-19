@@ -1,5 +1,11 @@
 @page "/settings"
+@using WorkoutLog.UI.Navigation
 @using WorkoutLog.UI.Screens
 @inject NavigationManager Navigation
 
-<SettingsPage OnBack="@(() => Navigation.GoTo(string.Empty))" OnImportReview="@(() => Navigation.GoTo("settings/import"))" />
+<SettingsPage OnBack="@(() => Navigation.GoTo(Origin.Route(From)))" OnImportReview="@(() => Navigation.GoTo(Origin.Link("settings/import", From)))" />
+
+@code {
+    /// <summary>"trends:" and the period (week:2026-11-09) when opened from Trends: back returns there. This week when missing.</summary>
+    [SupplyParameterFromQuery] public string? From { get; set; }
+}
