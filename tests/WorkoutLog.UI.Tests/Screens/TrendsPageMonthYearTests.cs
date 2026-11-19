@@ -476,6 +476,29 @@ public class TrendsPageMonthYearTests : ComponentTestBase
     }
 
     [Test]
+    public void Year_MonthColumns_AreOnlyTappableForMonthsThatHaveBegunAndHaveWorkouts()
+    {
+        FillYear();
+        totals.Series = new PeriodSeries(Year2026, [.. Enumerable.Range(1, 12).Select(m => Bucket(new DateOnly(2026, m, 1), m is 2 or 12 ? 0 : 3))], [], [], 3.2);
+        var cut = Context.Render<TrendsPage>(p => p.Add(x => x.KindQuery, "year"));
+
+        cut.WaitForElement("[data-testid=trends-months-chart-1-open]");
+        Assert.That(cut.FindAll("[data-testid^=trends-months-chart-][data-testid$=-open]").Select(b => b.GetAttribute("data-testid")),
+            Is.EqualTo(new[] { 1, 3, 4, 5, 6, 7, 8, 9, 10, 11 }.Select(m => $"trends-months-chart-{m}-open")));
+    }
+
+    [Test]
+    public void Year_FutureMonthWithWorkouts_HasNoSpan()
+    {
+        FillYear();
+        totals.Series = new PeriodSeries(Year2026, [.. Enumerable.Range(1, 12).Select(m => Bucket(new DateOnly(2026, m, 1), 3))], [], [], 3.2);
+        var cut = Context.Render<TrendsPage>(p => p.Add(x => x.KindQuery, "year"));
+
+        cut.WaitForElement("[data-testid=trends-months-chart-11-open]");
+        Assert.That(cut.FindAll("[data-testid=trends-months-chart-12-open]"), Is.Empty);
+    }
+
+    [Test]
     public void Year_Current_ShowsTheTilesAgainstTheSameDateLastYearAndEachCard()
     {
         FillYear();

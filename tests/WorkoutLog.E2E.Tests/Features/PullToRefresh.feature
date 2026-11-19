@@ -7,7 +7,8 @@ Feature: Pull to refresh
     Then the log shows "workouts for Week from" once more
 
   Scenario: Pulling down Workouts reloads it
-    Given I am on Workouts
+    Given I have saved a workout with Push-up: 10 reps
+    And I am on Workouts
     When I pull down the list
     Then the log shows "Counted" once more
 

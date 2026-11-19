@@ -252,7 +252,7 @@ public static class SampleTrends
         return parameters;
     }
 
-    /// <summary>Minutes trained each day of a week beside the same day the week before; <paramref name="today"/> is the index of today, or null for a finished week; each column opens that day of the week starting <paramref name="monday"/>.</summary>
+    /// <summary>Minutes trained each day of a week beside the same day the week before; <paramref name="today"/> is the index of today, or null for a finished week; each column with minutes opens that day of the week starting <paramref name="monday"/>.</summary>
     private static List<TrendBar> Days(int[] minutes, int[] earlier, int? today, DateOnly monday) =>
         [.. minutes.Select((value, i) => new TrendBar(
             DayNames[i][..3],
@@ -262,7 +262,7 @@ public static class SampleTrends
             earlier[i],
             earlier[i] > 0 ? Minutes(earlier[i]) : "rest day",
             Current: i == today,
-            Span: new DateSpan(monday.AddDays(i), monday.AddDays(i))))];
+            Span: value > 0 ? new DateSpan(monday.AddDays(i), monday.AddDays(i)) : null))];
 
     /// <summary>Workouts in each month; <paramref name="current"/> is the index of this month, or -1. The current and highest months show their value.</summary>
     private static List<TrendBar> Months(int[] workouts, int current, int year)
@@ -275,7 +275,7 @@ public static class SampleTrends
             value == 0 ? "no workouts" : Workouts(value),
             Current: i == current,
             Labelled: i == current || (value == highest && highest > 0),
-            Span: new DateSpan(new DateOnly(year, i + 1, 1), new DateOnly(year, i + 1, DateTime.DaysInMonth(year, i + 1)))))];
+            Span: value > 0 ? new DateSpan(new DateOnly(year, i + 1, 1), new DateOnly(year, i + 1, DateTime.DaysInMonth(year, i + 1))) : null))];
     }
 
     private static List<MeterRow> RecordMonths(int[] records) =>

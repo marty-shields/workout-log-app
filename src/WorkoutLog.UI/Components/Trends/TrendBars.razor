@@ -46,7 +46,7 @@ else
                     {
                         var bar = Bars[i];
                         <span class="slot">
-                            @if (bar.Span is { } span && bar.Value > 0)
+                            @if (bar.Span is { } span)
                             {
                                 <button type="button" class="tap" data-testid="@(TestId is null ? null : $"{TestId}-{i + 1}-open")" @onclick="() => OnOpen.InvokeAsync(span)">
                                     <span class="visually-hidden">Open workouts, @bar.Name</span>
@@ -112,7 +112,7 @@ else
     [Parameter]
     public double? Max { get; set; }
 
-    /// <summary>Raised with the days of a column when the column of a bar with a value and a <see cref="TrendBar.Span"/> is tapped. Columns are not tappable when unset.</summary>
+    /// <summary>Raised with the days of a column when the column of a bar with a <see cref="TrendBar.Span"/> is tapped. Columns are not tappable when unset.</summary>
     [Parameter]
     public EventCallback<DateSpan> OnOpen { get; set; }
 

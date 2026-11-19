@@ -169,15 +169,16 @@ public class TrendBarsTests : ComponentTestBase
         Assert.That(RenderMonths([new TrendBar("J", "January", 3, "3 workouts", Span: Jan)]).FindAll("button"), Is.Empty);
 
     [Test]
-    public void WithOnOpen_OnlyColumnsWithAValueAndDatesAreTappableAndRaiseTheirDates()
+    public void WithOnOpen_OnlyColumnsWithDatesAreTappableAndRaiseTheirDates()
     {
         var opened = new List<DateSpan>();
         var cut = Context.Render<TrendBars>(p => p
             .Add(x => x.Bars, new[]
             {
                 new TrendBar("J", "January", 3, "3 workouts", Span: Jan),
-                new TrendBar("F", "February", 0, "no workouts", Span: new DateSpan(new DateOnly(2026, 2, 1), new DateOnly(2026, 2, 28))),
+                new TrendBar("F", "February", 0, "no workouts"),
                 new TrendBar("M", "March", 2, "2 workouts"),
+                new TrendBar("A", "April", 0, "under a minute", Span: Apr),
             })
             .Add(x => x.AriaLabel, "Workouts in each month of 2026")
             .Add(x => x.EmptyText, "No workouts this year")
@@ -188,11 +189,13 @@ public class TrendBarsTests : ComponentTestBase
 
         Assert.Multiple(() =>
         {
-            Assert.That(cut.FindAll("button").Select(b => b.GetAttribute("data-testid")), Is.EqualTo(new[] { "bars-1-open" }));
+            Assert.That(cut.FindAll("button").Select(b => b.GetAttribute("data-testid")), Is.EqualTo(new[] { "bars-1-open", "bars-4-open" }));
             Assert.That(opened, Is.EqualTo(new[] { Jan }));
             Assert.That(cut.Find("[data-testid=bars-1-open] .visually-hidden").TextContent, Is.EqualTo("Open workouts, January"));
         });
     }
+
+    private static readonly DateSpan Apr = new(new DateOnly(2026, 4, 1), new DateOnly(2026, 4, 30));
 
     private static readonly DateSpan Jan = new(new DateOnly(2026, 1, 1), new DateOnly(2026, 1, 31));
 

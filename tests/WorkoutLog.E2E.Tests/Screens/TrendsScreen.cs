@@ -24,7 +24,11 @@ public sealed class TrendsScreen(WebView web)
         new[] { "Week", "Month", "Year" }.Single(k => web.Find($"trends-{k.ToLowerInvariant()}").Selected);
 
     /// <summary>Taps a view's segment: "Week", "Month" or "Year". The radio inside it is hidden, so its label is tapped.</summary>
-    public void ChooseKind(string kind) => web.Find($"trends-{kind.ToLowerInvariant()}").FindElement(By.XPath("..")).Click();
+    public void ChooseKind(string kind)
+    {
+        web.Find($"trends-{kind.ToLowerInvariant()}").FindElement(By.XPath("..")).Click();
+        web.WaitUntil(() => Kind() == kind && !web.Exists("trends-loading"), $"the {kind} view didn't show");
+    }
 
     public void Previous() => web.Tap("trends-stepper-previous");
 

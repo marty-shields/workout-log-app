@@ -649,12 +649,28 @@ public class TrendsPageTests : ComponentTestBase
     }
 
     [Test]
-    public void AndroidBack_GoesToThisWeek()
+    public void DayColumn_WithAWorkoutUnderAMinute_IsStillTappable()
+    {
+        MidWeek();
+        totals.Series = new PeriodSeries(
+            Week,
+            [new PeriodBucket(Monday, Monday, 1, TimeSpan.FromSeconds(40)), new PeriodBucket(Monday.AddDays(2), Monday.AddDays(2), 1, TimeSpan.FromHours(1))],
+            [],
+            [],
+            0);
+        var cut = Context.Render<TrendsPage>();
+
+        cut.WaitForElement("[data-testid=trends-days-chart-1-open]");
+        Assert.That(cut.FindAll("[data-testid=trends-days-chart-2-open]"), Is.Empty);
+    }
+
+    [Test]
+    public async Task AndroidBack_GoesToThisWeek()
     {
         var navigated = new List<MainTab>();
         var cut = Context.Render<TrendsPage>(p => p.Add(x => x.OnNavigate, navigated.Add));
 
-        cut.InvokeAsync(BackButton.HandleAsync).GetAwaiter().GetResult();
+        await cut.InvokeAsync(BackButton.HandleAsync);
 
         Assert.That(navigated, Is.EqualTo(new[] { MainTab.ThisWeek }));
     }

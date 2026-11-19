@@ -335,8 +335,11 @@
                 before,
                 before > 0 ? DisplayFormat.Minutes(before) : "rest day",
                 Current: day == today,
-                Span: new DateSpan(day, day));
+                Span: minutes > 0 || HasWorkouts(series.Buckets, day) ? new DateSpan(day, day) : null);
         })];
+
+    private static bool HasWorkouts(IReadOnlyList<PeriodBucket> buckets, DateOnly day) =>
+        buckets.Any(b => b.Start == day && b.Workouts > 0);
 
     private static int Minutes(IReadOnlyList<PeriodBucket> buckets, DateOnly day) =>
         buckets.FirstOrDefault(b => b.Start == day) is { } bucket ? (int)bucket.Time.TotalMinutes : 0;
@@ -372,7 +375,7 @@
                 b.Workouts == 0 ? "no workouts" : DisplayFormat.Workouts(b.Workouts),
                 Current: current,
                 Labelled: current || (b.Workouts == highest && highest > 0),
-                Span: new DateSpan(b.Start, b.End > today ? today : b.End));
+                Span: b.Workouts == 0 || b.Start > today ? null : new DateSpan(b.Start, b.End > today ? today : b.End));
         })];
     }
 

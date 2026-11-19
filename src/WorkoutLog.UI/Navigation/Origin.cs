@@ -58,8 +58,8 @@ public static class Origin
     private static (DateSpan Dates, string? From)? WorkoutsDates(string text)
     {
         var parts = text.Split(':', 3);
-        return parts.Length >= 2 && TrendsRoute.ParseDate(parts[0]) is { } first && TrendsRoute.ParseDate(parts[1]) is { } last && first <= last
-            ? (new DateSpan(first, last), parts.Length == 3 ? parts[2] : null)
+        return parts.Length >= 2 && WorkoutsRoute.ParseDates(parts[0], parts[1]) is { } dates
+            ? (dates, parts.Length == 3 ? parts[2] : null)
             : null;
     }
 }

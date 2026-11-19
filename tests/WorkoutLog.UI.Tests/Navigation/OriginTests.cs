@@ -76,6 +76,20 @@ public class OriginTests
         });
     }
 
+    [Test]
+    public void Workouts_OneDaySpan_IsKeptAndReadBack()
+    {
+        var day = new DateOnly(2026, 11, 4);
+        var trends = Origin.Trends(Period.Containing(PeriodKind.Week, day));
+        var from = Origin.Workouts(new DateSpan(day, day), trends);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(Origin.Route(from), Is.EqualTo("workouts?first=2026-11-04&last=2026-11-04&from=trends%3Aweek%3A2026-11-02"));
+            Assert.That(Origin.Route("workouts:2026-11-04:2026-11-04"), Is.EqualTo("workouts?first=2026-11-04&last=2026-11-04"));
+        });
+    }
+
     [TestCase("workouts:")]
     [TestCase("workouts:2026-11-02")]
     [TestCase("workouts:2026-11-02:soon")]

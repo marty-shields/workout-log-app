@@ -171,7 +171,7 @@ public sealed class Journeys(
 
     /// <summary>
     /// Goes to Workouts listing every saved workout: from Trends, a month with workouts of the Year view, then All. Does nothing on Workouts.
-    /// An unchanged workout goes back first. Fails when no workout is saved, as Workouts can't be opened then.
+    /// An unchanged workout goes back first. Fails when no workout is saved, as Workouts can't be opened then: a scenario saves one first.
     /// </summary>
     public void GoToWorkouts()
     {
