@@ -56,6 +56,41 @@ internal sealed class WorkoutRepository(SQLiteAsyncConnection connection, Workou
     }
 
     /// <inheritdoc />
+    public async Task<IReadOnlyList<Workout>> GetStartedBetweenAsync(DateTimeOffset from, DateTimeOffset to)
+    {
+        const string exercisesSql = """
+            SELECT e.*
+            FROM WorkoutExercise e
+            JOIN Workout w ON w.Id = e.WorkoutId
+            WHERE w.StartedAt >= ? AND w.StartedAt <= ?
+            ORDER BY e.Position
+            """;
+        const string setsSql = """
+            SELECT s.*
+            FROM StrengthSet s
+            JOIN WorkoutExercise e ON e.Id = s.WorkoutExerciseId
+            JOIN Workout w ON w.Id = e.WorkoutId
+            WHERE w.StartedAt >= ? AND w.StartedAt <= ?
+            ORDER BY s.Position
+            """;
+        const string entriesSql = """
+            SELECT c.*
+            FROM CardioEntry c
+            JOIN WorkoutExercise e ON e.Id = c.WorkoutExerciseId
+            JOIN Workout w ON w.Id = e.WorkoutId
+            WHERE w.StartedAt >= ? AND w.StartedAt <= ?
+            """;
+        var rows = await connection.Table<WorkoutRow>()
+            .Where(w => w.StartedAt >= from && w.StartedAt <= to).OrderBy(w => w.StartedAt).ToListAsync();
+        var exerciseRows = (await connection.QueryAsync<WorkoutExerciseRow>(exercisesSql, from.UtcTicks, to.UtcTicks)).ToLookup(e => e.WorkoutId);
+        var sets = (await connection.QueryAsync<StrengthSetRow>(setsSql, from.UtcTicks, to.UtcTicks)).ToLookup(s => s.WorkoutExerciseId);
+        var entries = (await connection.QueryAsync<CardioEntryRow>(entriesSql, from.UtcTicks, to.UtcTicks)).ToDictionary(c => c.WorkoutExerciseId);
+
+        return rows.Select(w => new Workout(w.Id, w.StartedAt, w.FinishedAt, ToExercises(exerciseRows[w.Id], sets, entries), w.Note))
+            .ToList();
+    }
+
+    /// <inheritdoc />
     public async Task<IReadOnlyList<WorkoutSummary>> ListAsync(DateTimeOffset? from, DateTimeOffset? to, int? limit)
     {
         var query = connection.Table<WorkoutRow>();

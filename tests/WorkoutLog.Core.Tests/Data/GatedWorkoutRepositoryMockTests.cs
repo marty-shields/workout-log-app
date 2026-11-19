@@ -15,6 +15,7 @@ public class GatedWorkoutRepositoryMockTests
         var workout = new NewWorkout(Start, Start.AddHours(1), Exercises);
         var stored = new Workout(3, Start, Start.AddHours(1), Exercises);
         IReadOnlyList<Workout> all = [stored];
+        IReadOnlyList<Workout> between = [stored];
         IReadOnlyList<WorkoutSummary> summaries = [new WorkoutSummary(3, Start)];
         IReadOnlyList<WorkoutTally> tallies = [new WorkoutTally(Start, Start.AddHours(1), 1)];
         IReadOnlyList<WorkoutWeights> weights = [new WorkoutWeights(3, [20m], "Felt strong")];
@@ -27,6 +28,7 @@ public class GatedWorkoutRepositoryMockTests
         inner.Setup(r => r.ReplaceAsync(3, "Felt strong", Exercises)).Returns(Task.CompletedTask);
         inner.Setup(r => r.GetAsync(3)).ReturnsAsync(stored);
         inner.Setup(r => r.GetAllAsync()).ReturnsAsync(all);
+        inner.Setup(r => r.GetStartedBetweenAsync(Start, Start.AddDays(1))).ReturnsAsync(between);
         inner.Setup(r => r.ListAsync(Start, Start, 5)).ReturnsAsync(summaries);
         IReadOnlyList<DateTimeOffset> starts = [Start];
         inner.Setup(r => r.ListStartsAsync()).ReturnsAsync(starts);
@@ -45,6 +47,7 @@ public class GatedWorkoutRepositoryMockTests
         await gated.ReplaceAsync(3, "Felt strong", Exercises);
         Assert.That(await gated.GetAsync(3), Is.SameAs(stored));
         Assert.That(await gated.GetAllAsync(), Is.SameAs(all));
+        Assert.That(await gated.GetStartedBetweenAsync(Start, Start.AddDays(1)), Is.SameAs(between));
         Assert.That(await gated.ListAsync(Start, Start, 5), Is.SameAs(summaries));
         Assert.That(await gated.ListStartsAsync(), Is.SameAs(starts));
         Assert.That(await gated.ListTalliesAsync(Start, Start.AddDays(1)), Is.SameAs(tallies));
@@ -71,6 +74,7 @@ public class GatedWorkoutRepositoryMockTests
     [TestCase("LastSessions", nameof(IWorkoutRepository.GetLastSessionsAsync))]
     [TestCase("LastSessionOf", nameof(IWorkoutRepository.GetLastSessionOfAsync))]
     [TestCase("Sessions", nameof(IWorkoutRepository.GetSessionsAsync))]
+    [TestCase("StartedBetween", nameof(IWorkoutRepository.GetStartedBetweenAsync))]
     [TestCase("SetCounts", nameof(IWorkoutRepository.GetSetCountsAsync))]
     [TestCase("Delete", nameof(IWorkoutRepository.DeleteAsync))]
     public async Task Call_WhileTheGateIsHeld_DoesNotReachTheInner(string call, string method)
@@ -95,6 +99,7 @@ public class GatedWorkoutRepositoryMockTests
             "LastSessions" => gated.GetLastSessionsAsync(),
             "LastSessionOf" => gated.GetLastSessionOfAsync(1, null),
             "Sessions" => gated.GetSessionsAsync(1),
+            "StartedBetween" => gated.GetStartedBetweenAsync(Start, Start),
             "SetCounts" => gated.GetSetCountsAsync(Start, Start),
             _ => gated.DeleteAsync(1),
         };

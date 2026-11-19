@@ -97,7 +97,7 @@ public class PeriodTrainingServiceTests
     public async Task GetWorkoutsAsync_ReadFails_ReturnsFailedAndLogsAWarningWithTheException()
     {
         var error = new InvalidOperationException("disk");
-        repository.Setup(r => r.GetAllAsync()).ThrowsAsync(error);
+        repository.Setup(r => r.GetStartedBetweenAsync(It.IsAny<DateTimeOffset>(), It.IsAny<DateTimeOffset>())).ThrowsAsync(error);
 
         var result = await service.GetWorkoutsAsync(October);
 
@@ -303,7 +303,7 @@ public class PeriodTrainingServiceTests
     public async Task GetRecordsAsync_ReadFails_ReturnsFailedAndLogsAWarningWithTheException()
     {
         var error = new InvalidOperationException("disk");
-        repository.Setup(r => r.GetAllAsync()).ThrowsAsync(error);
+        repository.Setup(r => r.GetStartedBetweenAsync(It.IsAny<DateTimeOffset>(), It.IsAny<DateTimeOffset>())).ThrowsAsync(error);
 
         var result = await service.GetRecordsAsync(October);
 
@@ -321,7 +321,7 @@ public class PeriodTrainingServiceTests
         var error = new InvalidOperationException("bad set");
         var recordCheck = new Mock<IRecordCheck>();
         recordCheck.Setup(c => c.Records(It.IsAny<ExerciseDefinition>(), It.IsAny<IEnumerable<WorkoutSession>>())).Throws(error);
-        service = new PeriodTrainingService(repository.Object, Catalog, recordCheck.Object, new MuscleGroupMap(), new FakeTimeProvider(Now), logger);
+        service = new PeriodTrainingService(repository.Object, Catalog, recordCheck.Object, new MuscleGroupMap(), new UnknownExerciseWarnings(), new FakeTimeProvider(Now), logger);
         Setup(Workout(OctoberStart, Sets(Squat, Set(5, 100m))));
 
         var result = await service.GetRecordsAsync(October);
@@ -537,7 +537,7 @@ public class PeriodTrainingServiceTests
     public async Task GetMostTrainedAsync_ReadFails_ReturnsFailedAndLogsAWarningWithTheException()
     {
         var error = new InvalidOperationException("disk");
-        repository.Setup(r => r.GetAllAsync()).ThrowsAsync(error);
+        repository.Setup(r => r.GetStartedBetweenAsync(It.IsAny<DateTimeOffset>(), It.IsAny<DateTimeOffset>())).ThrowsAsync(error);
 
         var result = await service.GetMostTrainedAsync(October);
 
@@ -550,11 +550,128 @@ public class PeriodTrainingServiceTests
     }
 
     [Test]
+    public async Task GetWorkoutsAsync_ReadsOnlyTheDaysAroundThePeriodUpToNow()
+    {
+        Setup();
+
+        await service.GetWorkoutsAsync(October);
+        await service.GetWorkoutsAsync(Period.Containing(PeriodKind.Month, new DateOnly(2026, 11, 15)));
+
+        repository.Verify(r => r.GetStartedBetweenAsync(OctoberStart.AddDays(-1), OctoberEnd.AddDays(1)), Times.Once);
+        repository.Verify(r => r.GetStartedBetweenAsync(OctoberEnd.AddDays(-1), Now), Times.Once);
+        repository.VerifyNoOtherCalls();
+    }
+
+    [Test]
+    public async Task GetMostTrainedAsync_ReadsOnlyTheDaysAroundThePeriodUpToNow()
+    {
+        Setup();
+
+        await service.GetMostTrainedAsync(October);
+
+        repository.Verify(r => r.GetStartedBetweenAsync(OctoberStart.AddDays(-1), OctoberEnd.AddDays(1)), Times.Once);
+        repository.VerifyNoOtherCalls();
+    }
+
+    [Test]
+    public async Task GetRecordsAsync_ReadsFromTheStartOfHistoryButNotPastThePeriodsEnd()
+    {
+        Setup();
+
+        await service.GetRecordsAsync(October);
+
+        repository.Verify(r => r.GetStartedBetweenAsync(DateTimeOffset.MinValue, OctoberEnd.AddDays(1)), Times.Once);
+        repository.VerifyNoOtherCalls();
+    }
+
+    [Test]
+    public async Task GetWorkoutsAsync_AWorkoutAcrossMidnightAtThePeriodsEdge_BelongsToTheDayItStarted()
+    {
+        var overnight = Workout(OctoberEnd.AddMinutes(-30), Sets(Squat, Set(5, 60m)));
+        var nextDay = Workout(OctoberEnd.AddMinutes(30), Sets(Squat, Set(5, 60m)));
+        Setup(overnight, nextDay);
+
+        var result = (await service.GetWorkoutsAsync(October)).Loaded();
+
+        Assert.That(result.Select(w => w.Id), Is.EqualTo(new[] { overnight.Id }));
+    }
+
+    [Test]
+    public async Task GetWorkoutsAsync_ADstZoneWhoseMidnightIsSkipped_KeepsTheFirstDayOfThePeriod()
+    {
+        UseClock(Now, ConsistencyZones.MidnightSkippedOn5Oct);
+        var monday = Period.Containing(PeriodKind.Week, new DateOnly(2026, 10, 5));
+        var first = Workout(new DateTimeOffset(2026, 10, 5, 2, 30, 0, TimeSpan.Zero), Sets(Squat, Set(5, 60m)));
+        Setup(Workout(first.StartedAt.AddTicks(-1), Sets(Squat, Set(5, 60m))), first);
+
+        var result = (await service.GetWorkoutsAsync(monday)).Loaded();
+
+        Assert.That(result.Select(w => w.Id), Is.EqualTo(new[] { first.Id }));
+    }
+
+    [Test]
+    public async Task GetWorkoutsAsync_UnknownExerciseOnEveryLoad_IsLoggedOncePerAppRun()
+    {
+        Setup(Workout(OctoberStart, Sets(UnknownId, Set(5, 60m))));
+
+        await service.GetWorkoutsAsync(October);
+        await service.GetWorkoutsAsync(October);
+
+        Assert.That(LoggedEvents.Of(logger).Select(e => e.Id), Is.EqualTo(new[]
+        {
+            CoreEvent.PeriodWorkoutsUnknownExercise, CoreEvent.PeriodWorkoutsLoaded, CoreEvent.PeriodWorkoutsLoaded,
+        }));
+    }
+
+    [Test]
+    public async Task GetRecordsAsync_UnknownExerciseOnEveryLoad_IsLoggedOncePerAppRun()
+    {
+        Setup(Workout(OctoberStart, Sets(UnknownId, Set(5, 60m))));
+
+        await service.GetRecordsAsync(October);
+        await service.GetRecordsAsync(October);
+
+        Assert.That(LoggedEvents.Of(logger).Select(e => e.Id), Is.EqualTo(new[]
+        {
+            CoreEvent.PeriodRecordsUnknownExercise, CoreEvent.PeriodRecordsLoaded, CoreEvent.PeriodRecordsLoaded,
+        }));
+    }
+
+    [Test]
+    public async Task GetMostTrainedAsync_UnknownExerciseOnEveryLoad_IsLoggedOncePerAppRun()
+    {
+        Setup(Workout(OctoberStart, Sets(UnknownId, Set(5, 60m))));
+
+        await service.GetMostTrainedAsync(October);
+        await service.GetMostTrainedAsync(October);
+
+        Assert.That(LoggedEvents.Of(logger).Select(e => e.Id), Is.EqualTo(new[]
+        {
+            CoreEvent.PeriodMostTrainedUnknownExercise, CoreEvent.PeriodMostTrainedLoaded, CoreEvent.PeriodMostTrainedLoaded,
+        }));
+    }
+
+    [Test]
+    public async Task GetMuscleSetsAsync_UnknownExerciseOnEveryLoad_IsLoggedOncePerAppRun()
+    {
+        repository.Setup(r => r.GetSetCountsAsync(It.IsAny<DateTimeOffset>(), It.IsAny<DateTimeOffset>()))
+            .ReturnsAsync([new ExerciseSetCount(1, UnknownId, 3)]);
+
+        await service.GetMuscleSetsAsync(October);
+        await service.GetMuscleSetsAsync(October);
+
+        Assert.That(LoggedEvents.Of(logger).Select(e => e.Id), Is.EqualTo(new[]
+        {
+            CoreEvent.PeriodMuscleSetsUnknownExercise, CoreEvent.PeriodMuscleSetsLoaded, CoreEvent.PeriodMuscleSetsLoaded,
+        }));
+    }
+
+    [Test]
     public async Task GetMostTrainedAsync_ReadsTheExerciseListOnce()
     {
         var catalog = new Mock<IExerciseCatalog>();
         catalog.Setup(c => c.All).Returns(Catalog.All);
-        service = new PeriodTrainingService(repository.Object, catalog.Object, Mock.Of<IRecordCheck>(), new MuscleGroupMap(), new FakeTimeProvider(Now), logger);
+        service = new PeriodTrainingService(repository.Object, catalog.Object, Mock.Of<IRecordCheck>(), new MuscleGroupMap(), new UnknownExerciseWarnings(), new FakeTimeProvider(Now), logger);
         Setup();
 
         await service.GetMostTrainedAsync(October);
@@ -572,14 +689,15 @@ public class PeriodTrainingServiceTests
             new LiftBestRule(new TopSetRule()), new BodyweightBestRule(new BodyweightRule(new TopSetRule(), new E1rmRule())), new AssistedBestRule(new LeastAssistRule()),
             new HoldBestRule(new HoldRule()), new CarryBestRule(new CarryRule()), new CardioBestRule(new CardioSessionRule()),
         ];
-        service = new PeriodTrainingService(repository.Object, Catalog, new RecordCheck(rules), new MuscleGroupMap(), clock, logger);
+        service = new PeriodTrainingService(repository.Object, Catalog, new RecordCheck(rules), new MuscleGroupMap(), new UnknownExerciseWarnings(), clock, logger);
     }
 
     private Workout Workout(DateTimeOffset startedAt, params WorkoutExercise[] exercises) =>
         new(++nextId, startedAt, startedAt.AddHours(1), exercises);
 
     private void Setup(params Workout[] workouts) =>
-        repository.Setup(r => r.GetAllAsync()).ReturnsAsync(workouts);
+        repository.Setup(r => r.GetStartedBetweenAsync(It.IsAny<DateTimeOffset>(), It.IsAny<DateTimeOffset>()))
+            .ReturnsAsync((DateTimeOffset from, DateTimeOffset to) => workouts.Where(w => w.StartedAt >= from && w.StartedAt <= to).OrderBy(w => w.StartedAt).ToList());
 
     private void SetUpCounts(DateTimeOffset from, DateTimeOffset to, params ExerciseSetCount[] counts) =>
         repository.Setup(r => r.GetSetCountsAsync(from, to)).ReturnsAsync(counts);

@@ -49,6 +49,7 @@ public class GatedWorkoutRepositoryTests
         Assert.That(await repository.GetLastSessionOfAsync(1, null), Is.Null);
         Assert.That(await repository.GetSessionsAsync(1), Is.Empty);
         Assert.That(await repository.GetSetCountsAsync(Start.AddTicks(1), Start.AddDays(1)), Is.Empty);
+        Assert.That((await repository.GetStartedBetweenAsync(Start, Start)).Select(w => w.Id), Is.EqualTo(new[] { id }));
 
         await repository.DeleteAsync(id);
 
@@ -65,6 +66,7 @@ public class GatedWorkoutRepositoryTests
     [TestCase("LastSessions")]
     [TestCase("LastSessionOf")]
     [TestCase("Sessions")]
+    [TestCase("StartedBetween")]
     [TestCase("SetCounts")]
     [TestCase("Delete")]
     public async Task Call_WhileTheGateIsHeld_WaitsForIt(string call)
@@ -85,6 +87,7 @@ public class GatedWorkoutRepositoryTests
             "LastSessions" => repository.GetLastSessionsAsync(),
             "LastSessionOf" => repository.GetLastSessionOfAsync(1, null),
             "Sessions" => repository.GetSessionsAsync(1),
+            "StartedBetween" => repository.GetStartedBetweenAsync(Start, Start),
             "SetCounts" => repository.GetSetCountsAsync(Start, Start),
             _ => repository.DeleteAsync(id),
         };
