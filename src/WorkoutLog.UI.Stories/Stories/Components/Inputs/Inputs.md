@@ -48,7 +48,7 @@ Picks one day or a span of days, from `Dates` when it opens. From and To boxes s
 - `data-testid`: `range-calendar`, `range-from`, `range-to`, `range-prev-month`, `range-month-name`, `range-next-month`, `range-day-{yyyy-MM-dd}`, `range-prev-year`, `range-year`, `range-next-year`, `range-month-{yyyy-MM}`, `range-hint`, `range-cancel`, `range-apply`.
 
 ## `FilterChips`
-A row of rounded chips; one is chosen and filled with `--color-selected`. For the Exercises list's All, Strength, Cardio. Each chip is a radio with a 48px touch target; `Label` names the group for screen readers only.
+A row of rounded chips; one is chosen and filled with `--color-selected`. For the Add Exercise list's All, Strength, Cardio. Each chip is a radio with a 48px touch target; `Label` names the group for screen readers only.
 - `data-testid`: `TestId` on the group; each option's `TestId` on its radio.
 
 Stories: [FieldInput](./?path=/docs/components-inputs-fieldinput--docs) · [NumberField](./?path=/docs/components-inputs-numberfield--docs) · [NoteField](./?path=/docs/components-inputs-notefield--docs) · [DurationField](./?path=/docs/components-inputs-durationfield--docs) · [RadioGroup](./?path=/docs/components-inputs-radiogroup--docs) · [SegmentedControl](./?path=/docs/components-inputs-segmentedcontrol--docs) · [DateRangeField](./?path=/docs/components-inputs-daterangefield--docs) · [RangeCalendar](./?path=/docs/components-inputs-rangecalendar--docs) · [FilterChips](./?path=/docs/components-inputs-filterchips--docs)

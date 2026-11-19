@@ -1,6 +1,6 @@
 namespace WorkoutLog.UI.Models.Exercises;
 
-/// <summary>Which exercises the Exercises list shows.</summary>
+/// <summary>Which exercises the add-exercise list shows.</summary>
 public enum ExerciseFilter
 {
     All,

@@ -83,7 +83,7 @@ It's built for one person and one phone: no accounts, no sign-up.
 
 ### Progress
 
-- Trends shows a week, a month or a year against the one before: workouts, time, sets and volume, with the days, weeks or months that made them up, your records and, for a month, the exercises you trained most.
+- Trends shows a week, a month or a year against the one before: workouts, time, sets and volume. A week adds the time trained each day beside the same day the week before, the sets per muscle group, your records and the last 12 weeks with your streak. A month adds a calendar of the days you trained, its weeks, your records and the exercises you trained most. A year adds the workouts in each month, your longest streak and the records by month. Previous and next step through the periods.
 - Tap a day with a workout in the month calendar, a week row, a day's bars in the week view or a month's bar in the year view to open Workouts for those dates, grouped by month. 3M, 6M, 1Y and All change the range in one tap, and the date field picks any day or span of days from a calendar. Open a workout to edit or delete it; back returns to where you were.
 - Tap a record, or an exercise in a month's Most trained, to open its chart, records and sessions over 3 months, 6 months, a year or all time:
   - lifts: top set and estimated one-rep max
@@ -92,6 +92,34 @@ It's built for one person and one phone: no accounts, no sign-up.
   - holds: duration and weight
   - carries: weight and distance
   - cardio: distance, duration, pace or speed, floors and calories
+
+<table align="center">
+  <tr>
+    <td align="center">
+      <picture>
+        <source media="(prefers-color-scheme: dark)" srcset="docs/images/readme/trends-week-dark.png" />
+        <img src="docs/images/readme/trends-week-light.png" alt="Trends, a week" width="230" />
+      </picture>
+    </td>
+    <td align="center">
+      <picture>
+        <source media="(prefers-color-scheme: dark)" srcset="docs/images/readme/trends-month-dark.png" />
+        <img src="docs/images/readme/trends-month-light.png" alt="Trends, a month" width="230" />
+      </picture>
+    </td>
+    <td align="center">
+      <picture>
+        <source media="(prefers-color-scheme: dark)" srcset="docs/images/readme/trends-year-dark.png" />
+        <img src="docs/images/readme/trends-year-light.png" alt="Trends, a year" width="230" />
+      </picture>
+    </td>
+  </tr>
+  <tr>
+    <td align="center"><sub><b>Trends: week</b></sub></td>
+    <td align="center"><sub><b>Trends: month</b></sub></td>
+    <td align="center"><sub><b>Trends: year</b></sub></td>
+  </tr>
+</table>
 
 <table align="center">
   <tr>
@@ -129,7 +157,7 @@ It's built for one person and one phone: no accounts, no sign-up.
 - Export saves every workout, with its notes, to a JSON file you can share.
 - Import reads an exported file, shows what's new, already there or different, and adds or replaces them.
 - Android Auto Backup and a phone-to-phone transfer restore your workouts on a new phone. Only the database is included; the logs and exports are not.
-- Light and dark themes follow the phone.
+- Light and dark themes follow the phone until Settings, Theme sets Light or Dark.
 
 <table align="center">
   <tr>

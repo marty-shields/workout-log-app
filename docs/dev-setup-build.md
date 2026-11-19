@@ -28,6 +28,9 @@ The stories need only the .NET SDK.
 | `last-time` | `screens-new-workout--last-time` |
 | `notes` | `screens-new-workout--notes` |
 | `add-exercise` | `screens-add-exercise--results` |
+| `trends-week` | `screens-trends--week` |
+| `trends-month` | `screens-trends--month` |
+| `trends-year` | `screens-trends--year` |
 | `workouts` | `screens-workouts--with-workouts` |
 | `settings` | `screens-settings--with-workouts` |
 | `exercise-lift` | `screens-exercise--lift-top-set` |

@@ -5,7 +5,7 @@ using WorkoutLog.UI.Models.Workout;
 
 namespace WorkoutLog.UI.Models.Exercises;
 
-/// <summary>Builds, searches and filters the rows of the Exercises list and the add-exercise list.</summary>
+/// <summary>Builds, searches and filters the rows of the add-exercise list.</summary>
 public static class ExerciseListItems
 {
     /// <summary>A row for the exercise, with its last session's date and best when it has one.</summary>

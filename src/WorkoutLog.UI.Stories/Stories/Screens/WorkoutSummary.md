@@ -26,7 +26,7 @@ The change is the exercise's best in this workout against its best in its last s
 | The same | A muted "—". Screen readers hear "no change". |
 | No earlier session | A muted "First time". |
 
-Better and worse follow the Exercises list's best: for an assisted exercise, less assist is better. Records follow the same rule as the Records on [This week](./?path=/custom/screens-this-week-overview) and the record badge on [New Workout](./?path=/custom/screens-new-workout-overview): an exercise's first session and a tie aren't records.
+Better and worse follow the add-exercise list's best: for an assisted exercise, less assist is better. Records follow the same rule as the Records on [This week](./?path=/custom/screens-this-week-overview) and the record badge on [New Workout](./?path=/custom/screens-new-workout-overview): an exercise's first session and a tie aren't records.
 
 Done and Android back return to This week; the workout is already saved.
 
