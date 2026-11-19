@@ -59,6 +59,7 @@ public class CoreEventTests
             [CoreEvent.PeriodWorkoutsLoaded] = 1470,
             [CoreEvent.PeriodWorkoutsLoadFailed] = 1471,
             [CoreEvent.PeriodWorkoutsUnknownExercise] = 1472,
+            [CoreEvent.PeriodVolumeLoaded] = 1473,
             [CoreEvent.WorkoutSummaryLoaded] = 1530,
             [CoreEvent.WorkoutSummaryLoadFailed] = 1531,
             [CoreEvent.WorkoutSummaryUnknownExercise] = 1532,

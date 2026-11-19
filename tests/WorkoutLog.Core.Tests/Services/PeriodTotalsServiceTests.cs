@@ -33,7 +33,7 @@ public class PeriodTotalsServiceTests
     }
 
     private PeriodTotalsService Create(TimeProvider time) =>
-        new(repository.Object, new PeriodComparisonRule(new WeekComparisonRule()), new PeriodSeriesRule(), new VolumeRule(), new ExerciseCatalog(), new LongestRunRule(), new WeekBarsRule(), new StreakRule(), time, logger);
+        new(repository.Object, new PeriodComparisonRule(new WeekComparisonRule()), new PeriodSeriesRule(), new VolumeRule(), new ExerciseCatalog(), new LongestRunRule(), new WeekBarsRule(), new StreakRule(), new UnknownExerciseWarnings(), time, logger);
 
     [Test]
     public async Task GetComparisonAsync_ReadsOnlyTheNeededRangeAndSummarisesIt()
@@ -307,8 +307,24 @@ public class PeriodTotalsServiceTests
             Assert.That(LoggedEvents.Of(logger), Is.EqualTo(new[]
             {
                 (CoreEvent.PeriodVolumeUnknownExercise, LogLevel.Warning, $"Exercise {UnknownId} is not in the exercise list; left out of the volume"),
+                (CoreEvent.PeriodVolumeLoaded, LogLevel.Information, "Period volume loaded: Week from 2026-10-26"),
             }));
         });
+    }
+
+    [Test]
+    public async Task GetVolumeAsync_UnknownExerciseOnEveryLoad_IsLoggedOncePerAppRun()
+    {
+        repository.Setup(r => r.ListSetsAsync(It.IsAny<DateTimeOffset>(), It.IsAny<DateTimeOffset>()))
+            .ReturnsAsync([Set("2026-10-27T10:00", UnknownId, 5, 100m)]);
+
+        await service.GetVolumeAsync(Week(2026, 10, 28));
+        await service.GetVolumeAsync(Week(2026, 10, 28));
+
+        Assert.That(LoggedEvents.Of(logger).Select(e => e.Id), Is.EqualTo(new[]
+        {
+            CoreEvent.PeriodVolumeUnknownExercise, CoreEvent.PeriodVolumeLoaded, CoreEvent.PeriodVolumeLoaded,
+        }));
     }
 
     [Test]

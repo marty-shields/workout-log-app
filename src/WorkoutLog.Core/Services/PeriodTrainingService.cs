@@ -15,6 +15,7 @@ internal sealed partial class PeriodTrainingService(
     IExerciseCatalog catalog,
     IRecordCheck recordCheck,
     MuscleGroupMap groups,
+    UnknownExerciseWarnings unknownWarnings,
     TimeProvider time,
     ILogger<PeriodTrainingService> logger) : IPeriodTrainingService
 {
@@ -31,10 +32,10 @@ internal sealed partial class PeriodTrainingService(
         {
             var now = time.GetUtcNow();
             var zone = time.LocalTimeZone;
-            var workouts = (await repository.GetAllAsync()).Where(w => IsIn(period, w.StartedAt, now, zone)).OrderBy(w => w.StartedAt).ToList();
+            var workouts = (await repository.GetStartedBetweenAsync(ReadStart(period, zone), PeriodReadEnd.Of(period, now, zone))).Where(w => IsIn(period, w.StartedAt, now, zone)).OrderBy(w => w.StartedAt).ToList();
             foreach (var unknown in workouts.SelectMany(w => w.Exercises).Select(e => e.ExerciseId).Where(id => !definitions.ContainsKey(id)).Distinct())
             {
-                Log.WorkoutsUnknownExercise(logger, unknown);
+                WarnOnce(CoreEvent.PeriodWorkoutsUnknownExercise, unknown, () => Log.WorkoutsUnknownExercise(logger, unknown));
             }
 
             result = workouts
@@ -59,8 +60,8 @@ internal sealed partial class PeriodTrainingService(
         {
             var now = time.GetUtcNow();
             var zone = time.LocalTimeZone;
-            var workouts = await repository.GetAllAsync();
-            var records = RecordSearch.Find(workouts, definitions, recordCheck, id => Log.RecordsUnknownExercise(logger, id), (id, exception) => Log.RecordsExerciseFailed(logger, id, exception))
+            var workouts = await repository.GetStartedBetweenAsync(DateTimeOffset.MinValue, PeriodReadEnd.Of(period, now, zone));
+            var records = RecordSearch.Find(workouts, definitions, recordCheck, id => WarnOnce(CoreEvent.PeriodRecordsUnknownExercise, id, () => Log.RecordsUnknownExercise(logger, id)), (id, exception) => Log.RecordsExerciseFailed(logger, id, exception))
                 .SelectMany(f => f.Records
                     .Where(r => IsIn(period, r.Session.StartedAt, now, zone))
                     .Select(r => (Record: new ExerciseRecord(f.Definition.Id, r.Session.StartedAt, r.Best), f.Definition.Name)))
@@ -100,7 +101,7 @@ internal sealed partial class PeriodTrainingService(
             return new ReadFailed();
         }
 
-        var (result, workouts) = MuscleSetTally.Count(counts, definitions, groups, id => Log.MuscleSetsUnknownExercise(logger, id));
+        var (result, workouts) = MuscleSetTally.Count(counts, definitions, groups, id => WarnOnce(CoreEvent.PeriodMuscleSetsUnknownExercise, id, () => Log.MuscleSetsUnknownExercise(logger, id)));
         Log.MuscleSetsLoaded(logger, workouts, period.Kind, period.Start);
         return new ReadResult<IReadOnlyList<MuscleGroupCount>>(result);
     }
@@ -113,14 +114,14 @@ internal sealed partial class PeriodTrainingService(
         {
             var now = time.GetUtcNow();
             var zone = time.LocalTimeZone;
-            var workouts = (await repository.GetAllAsync()).Where(w => IsIn(period, w.StartedAt, now, zone)).ToList();
+            var workouts = (await repository.GetStartedBetweenAsync(ReadStart(period, zone), PeriodReadEnd.Of(period, now, zone))).Where(w => IsIn(period, w.StartedAt, now, zone)).ToList();
             var counts = workouts
                 .SelectMany(w => w.Exercises.Select(e => e.ExerciseId))
                 .GroupBy(id => id)
                 .ToList();
             foreach (var unknown in counts.Where(g => !definitions.ContainsKey(g.Key)))
             {
-                Log.MostTrainedUnknownExercise(logger, unknown.Key);
+                WarnOnce(CoreEvent.PeriodMostTrainedUnknownExercise, unknown.Key, () => Log.MostTrainedUnknownExercise(logger, unknown.Key));
             }
 
             result = counts
@@ -140,6 +141,17 @@ internal sealed partial class PeriodTrainingService(
 
         Log.MostTrainedLoaded(logger, result.Count, period.Kind, period.Start);
         return new ReadResult<IReadOnlyList<TrainedExercise>>(result);
+    }
+
+    /// <summary>The start of the day before the period's first local day; the extra day leaves room for the zone's offsets, and <see cref="IsIn"/> trims the rest.</summary>
+    private static DateTimeOffset ReadStart(Period period, TimeZoneInfo zone) => LocalWeek.Start(period.Start.AddDays(-1), zone);
+
+    private void WarnOnce(CoreEvent warning, int exerciseId, Action log)
+    {
+        if (unknownWarnings.IsFirst(warning, exerciseId))
+        {
+            log();
+        }
     }
 
     private static bool IsIn(Period period, DateTimeOffset startedAt, DateTimeOffset now, TimeZoneInfo zone) =>

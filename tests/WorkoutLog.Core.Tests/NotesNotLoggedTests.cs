@@ -43,6 +43,7 @@ public class NotesNotLoggedTests
             var totals = provider.GetRequiredService<IPeriodTotalsService>();
             var period = Period.Containing(PeriodKind.Week, DateOnly.FromDateTime(time.GetUtcNow().UtcDateTime));
             await totals.GetComparisonAsync(period);
+            await totals.GetVolumeAsync(period);
             await totals.GetSeriesAsync(period);
             await totals.GetStreaksAsync(period.Start.Year);
             await totals.GetLimitsAsync(PeriodKind.Week);
@@ -68,7 +69,7 @@ public class NotesNotLoggedTests
                 {
                     CoreEvent.SchemaStepApplied, CoreEvent.WorkoutAdded, CoreEvent.WorkoutUpdated, CoreEvent.WorkoutAddFailed,
                     CoreEvent.ImportWorkoutSkipped, CoreEvent.ImportDone,
-                    CoreEvent.PeriodComparisonLoaded, CoreEvent.PeriodSeriesLoaded, CoreEvent.PeriodStreaksLoaded, CoreEvent.PeriodLimitsLoaded,
+                    CoreEvent.PeriodComparisonLoaded, CoreEvent.PeriodVolumeLoaded, CoreEvent.PeriodSeriesLoaded, CoreEvent.PeriodStreaksLoaded, CoreEvent.PeriodLimitsLoaded,
                     CoreEvent.PeriodWorkoutsLoaded, CoreEvent.PeriodRecordsLoaded, CoreEvent.PeriodMuscleSetsLoaded, CoreEvent.PeriodMostTrainedLoaded,
                 }));
                 Assert.That(records.Where(r => r.Message.Contains(Sentinel, StringComparison.Ordinal) || r.Exception?.ToString().Contains(Sentinel, StringComparison.Ordinal) == true)

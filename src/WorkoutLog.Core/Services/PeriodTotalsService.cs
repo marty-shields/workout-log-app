@@ -18,6 +18,7 @@ internal sealed partial class PeriodTotalsService(
     LongestRunRule longestRunRule,
     WeekBarsRule barsRule,
     StreakRule streakRule,
+    UnknownExerciseWarnings unknownWarnings,
     TimeProvider time,
     ILogger<PeriodTotalsService> logger) : IPeriodTotalsService
 {
@@ -39,7 +40,7 @@ internal sealed partial class PeriodTotalsService(
                 var sets = await repository.ListSetsAsync(from, to);
                 return volumeRule.Compare(VolumesOf(sets), period, now, zone);
             },
-            _ => { },
+            _ => Log.VolumeLoaded(logger, period.Kind, period.Start),
             exception => Log.VolumeLoadFailed(logger, exception, period.Kind, period.Start));
 
     /// <inheritdoc />
@@ -83,14 +84,12 @@ internal sealed partial class PeriodTotalsService(
 
     private static (DateTimeOffset From, DateTimeOffset To) ReadWindow(DateOnly from, Period period, DateTimeOffset now, TimeZoneInfo zone)
     {
-        var to = LocalWeek.Start(period.End.AddDays(2), zone);
-        return (LocalWeek.Start(from, zone), to < now ? to : now);
+        return (LocalWeek.Start(from, zone), PeriodReadEnd.Of(period, now, zone));
     }
 
-    /// <summary>What each set adds; a set of an exercise that is not in the catalogue adds nothing, and its id is logged once.</summary>
+    /// <summary>What each set adds; a set of an exercise that is not in the catalogue adds nothing, and its id is logged once per app run.</summary>
     private List<SetVolume> VolumesOf(IReadOnlyList<LoggedSet> sets)
     {
-        var unknown = new HashSet<int>();
         return sets.Select(set =>
         {
             if (definitions.TryGetValue(set.ExerciseId, out var definition))
@@ -98,7 +97,7 @@ internal sealed partial class PeriodTotalsService(
                 return new SetVolume(set.StartedAt, volumeRule.Of(definition.Category, set.Reps, set.WeightKg));
             }
 
-            if (unknown.Add(set.ExerciseId))
+            if (unknownWarnings.IsFirst(CoreEvent.PeriodVolumeUnknownExercise, set.ExerciseId))
             {
                 Log.VolumeUnknownExercise(logger, set.ExerciseId);
             }
@@ -131,6 +130,9 @@ internal sealed partial class PeriodTotalsService(
 
         [LoggerMessage((int)CoreEvent.PeriodComparisonLoadFailed, LogLevel.Warning, "Loading the period comparison failed: {Kind} from {Start:O}")]
         public static partial void ComparisonLoadFailed(ILogger logger, Exception exception, PeriodKind kind, DateOnly start);
+
+        [LoggerMessage((int)CoreEvent.PeriodVolumeLoaded, LogLevel.Information, "Period volume loaded: {Kind} from {Start:O}")]
+        public static partial void VolumeLoaded(ILogger logger, PeriodKind kind, DateOnly start);
 
         [LoggerMessage((int)CoreEvent.PeriodVolumeLoadFailed, LogLevel.Warning, "Loading the period volume failed: {Kind} from {Start:O}")]
         public static partial void VolumeLoadFailed(ILogger logger, Exception exception, PeriodKind kind, DateOnly start);

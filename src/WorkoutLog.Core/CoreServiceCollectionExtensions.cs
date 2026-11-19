@@ -125,6 +125,7 @@ public static class CoreServiceCollectionExtensions
             .AddSingleton<IWorkoutsService, WorkoutsService>()
             .AddSingleton<IWorkoutSummaryService, WorkoutSummaryService>()
             .AddConsistencyRules()
+            .AddSingleton<UnknownExerciseWarnings>()
             .AddSingleton<IPeriodTotalsService, PeriodTotalsService>()
             .AddSingleton<MuscleGroupMap>()
             .AddSingleton<IPeriodTrainingService, PeriodTrainingService>()

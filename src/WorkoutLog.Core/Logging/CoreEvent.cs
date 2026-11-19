@@ -135,6 +135,9 @@ internal enum CoreEvent
     /// <summary><see cref="Services.PeriodTrainingService"/>: a saved exercise id is not in the exercise list.</summary>
     PeriodWorkoutsUnknownExercise = 1472,
 
+    /// <summary><see cref="Services.PeriodTotalsService"/>: a period's volume read.</summary>
+    PeriodVolumeLoaded = 1473,
+
     /// <summary><see cref="Services.WorkoutSummaryService"/>: a workout's summary read.</summary>
     WorkoutSummaryLoaded = 1530,
 

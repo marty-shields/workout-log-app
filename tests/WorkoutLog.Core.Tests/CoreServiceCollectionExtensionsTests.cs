@@ -50,6 +50,7 @@ public class CoreServiceCollectionExtensionsTests
             (typeof(PeriodSeriesRule), typeof(PeriodSeriesRule), ServiceLifetime.Singleton),
             (typeof(VolumeRule), typeof(VolumeRule), ServiceLifetime.Singleton),
             (typeof(LongestRunRule), typeof(LongestRunRule), ServiceLifetime.Singleton),
+            (typeof(UnknownExerciseWarnings), typeof(UnknownExerciseWarnings), ServiceLifetime.Singleton),
             (typeof(IPeriodTotalsService), typeof(PeriodTotalsService), ServiceLifetime.Singleton),
             (typeof(MuscleGroupMap), typeof(MuscleGroupMap), ServiceLifetime.Singleton),
             (typeof(IPeriodTrainingService), typeof(PeriodTrainingService), ServiceLifetime.Singleton),
