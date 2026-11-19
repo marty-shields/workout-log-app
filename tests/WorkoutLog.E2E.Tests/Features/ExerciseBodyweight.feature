@@ -1,17 +1,16 @@
 Feature: Exercise page for bodyweight moves
   A bodyweight move's best set, total reps, top set and, on a loaded move, estimated one-rep max over time, with its records and sessions.
 
-  Scenario Outline: A bodyweight move opens its Exercise page and back returns to Exercises
+  Scenario Outline: A bodyweight move opens its Exercise page and back returns to Trends
     Given these saved workouts:
       | started          | exercises                                                          |
       | 3 days ago 18:05 | Barbell Back Squat: 5 reps 60 kg / Push-up: 20 reps 0 kg / Plank: 0:01:00 0 kg |
-    And I have opened Exercises
-    Then the tappable rows on Exercises are: Barbell Back Squat, Plank, Push-up
-    When I open "Push-up" on Exercises
+    When I open "Push-up" from Most trained on Trends
     Then the Exercise page is titled "Push-up" with "Chest"
     And the Exercise tabs are: Best set, Total, Top set
     When I go back with <how>
-    Then I am on Exercises
+    Then I am on Trends
+    And Trends is on the Month view
     Examples:
       | how            |
       | the back arrow |

@@ -1,0 +1,27 @@
+.none {
+    margin: 0;
+    color: var(--color-text-muted);
+}
+
+.rows {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.rows li:last-child ::deep .row {
+    border-bottom: none;
+}
+
+/* With no "n more" under it the last row is the card's last line, so the card's padding is the space below it. */
+.rows:last-child li:last-child ::deep .row {
+    padding-bottom: 0;
+}
+
+.more {
+    margin: 0;
+    padding: var(--space-3) var(--space-1) 0;
+    border-top: var(--border-width) solid var(--color-border);
+    color: var(--color-text-muted);
+    font-size: var(--font-size-sm);
+}

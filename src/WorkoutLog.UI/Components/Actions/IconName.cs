@@ -38,15 +38,12 @@ public enum IconName
     /// <summary>Sticky note (<c>sticky_note_2</c>).</summary>
     Note,
 
-    /// <summary>House (<c>home</c>).</summary>
-    Home,
-
-    /// <summary>Clock with a backward arrow (<c>history</c>).</summary>
-    History,
-
-    /// <summary>Dumbbell (<c>fitness_center</c>).</summary>
-    Exercise,
-
     /// <summary>Calendar page (<c>calendar_today</c>).</summary>
     Calendar,
+
+    /// <summary>Plus (<c>add</c>).</summary>
+    Add,
+
+    /// <summary>Three vertical bars of different heights (<c>bar_chart</c>).</summary>
+    BarChart,
 }

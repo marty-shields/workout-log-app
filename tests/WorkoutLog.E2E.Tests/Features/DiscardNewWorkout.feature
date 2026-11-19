@@ -25,9 +25,9 @@ Feature: Discard a new workout
   Scenario: Discard drops the workout
     Given I have gone back with Android back
     When I tap Discard
-    Then I am on the Dashboard
-    And the last workout shows "No workouts yet"
-    And Workouts is empty
+    Then I am on This week
+    And this week shows no workouts
+    And no workout is saved
 
   Scenario: Android back on the prompt cancels it
     Given I have gone back with the back arrow

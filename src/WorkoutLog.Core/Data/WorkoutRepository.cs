@@ -41,15 +41,38 @@ internal sealed class WorkoutRepository(SQLiteAsyncConnection connection, Workou
     }
 
     /// <inheritdoc />
-    public async Task<IReadOnlyList<Workout>> GetAllAsync()
+    public Task<IReadOnlyList<Workout>> GetAllAsync() => GetStartedBetweenAsync(DateTimeOffset.MinValue, DateTimeOffset.MaxValue);
+
+    /// <inheritdoc />
+    public async Task<IReadOnlyList<Workout>> GetStartedBetweenAsync(DateTimeOffset from, DateTimeOffset to)
     {
-        var rows = await connection.Table<WorkoutRow>().OrderBy(w => w.StartedAt).ToListAsync();
-        var exerciseRows = (await connection.Table<WorkoutExerciseRow>().OrderBy(e => e.Position).ToListAsync())
-            .ToLookup(e => e.WorkoutId);
-        var sets = (await connection.Table<StrengthSetRow>().OrderBy(s => s.Position).ToListAsync())
-            .ToLookup(s => s.WorkoutExerciseId);
-        var entries = (await connection.Table<CardioEntryRow>().ToListAsync())
-            .ToDictionary(c => c.WorkoutExerciseId);
+        const string exercisesSql = """
+            SELECT e.*
+            FROM WorkoutExercise e
+            JOIN Workout w ON w.Id = e.WorkoutId
+            WHERE w.StartedAt >= ? AND w.StartedAt <= ?
+            ORDER BY e.Position
+            """;
+        const string setsSql = """
+            SELECT s.*
+            FROM StrengthSet s
+            JOIN WorkoutExercise e ON e.Id = s.WorkoutExerciseId
+            JOIN Workout w ON w.Id = e.WorkoutId
+            WHERE w.StartedAt >= ? AND w.StartedAt <= ?
+            ORDER BY s.Position
+            """;
+        const string entriesSql = """
+            SELECT c.*
+            FROM CardioEntry c
+            JOIN WorkoutExercise e ON e.Id = c.WorkoutExerciseId
+            JOIN Workout w ON w.Id = e.WorkoutId
+            WHERE w.StartedAt >= ? AND w.StartedAt <= ?
+            """;
+        var rows = await connection.Table<WorkoutRow>()
+            .Where(w => w.StartedAt >= from && w.StartedAt <= to).OrderBy(w => w.StartedAt).ToListAsync();
+        var exerciseRows = (await connection.QueryAsync<WorkoutExerciseRow>(exercisesSql, from.UtcTicks, to.UtcTicks)).ToLookup(e => e.WorkoutId);
+        var sets = (await connection.QueryAsync<StrengthSetRow>(setsSql, from.UtcTicks, to.UtcTicks)).ToLookup(s => s.WorkoutExerciseId);
+        var entries = (await connection.QueryAsync<CardioEntryRow>(entriesSql, from.UtcTicks, to.UtcTicks)).ToDictionary(c => c.WorkoutExerciseId);
 
         return rows.Select(w => new Workout(w.Id, w.StartedAt, w.FinishedAt, ToExercises(exerciseRows[w.Id], sets, entries), w.Note))
             .ToList();
@@ -83,29 +106,6 @@ internal sealed class WorkoutRepository(SQLiteAsyncConnection connection, Workou
         [.. (await connection.QueryScalarsAsync<long>("SELECT StartedAt FROM Workout")).Select(ticks => new DateTimeOffset(ticks, TimeSpan.Zero))];
 
     /// <inheritdoc />
-    public async Task<WorkoutOutline?> GetLatestAsync()
-    {
-        const string sql = """
-            SELECT w.Id, w.StartedAt, w.FinishedAt, e.ExerciseId
-            FROM Workout w
-            LEFT JOIN WorkoutExercise e ON e.WorkoutId = w.Id
-            WHERE w.Id = (SELECT Id FROM Workout ORDER BY StartedAt DESC, Id DESC LIMIT 1)
-            ORDER BY e.Position
-            """;
-        var rows = await connection.QueryAsync<OutlineRow>(sql);
-        if (rows.Count == 0)
-        {
-            return null;
-        }
-
-        return new WorkoutOutline(
-            rows[0].Id,
-            new DateTimeOffset(rows[0].StartedAt, TimeSpan.Zero),
-            new DateTimeOffset(rows[0].FinishedAt, TimeSpan.Zero),
-            rows.Where(r => r.ExerciseId is not null).Select(r => r.ExerciseId!.Value).ToList());
-    }
-
-    /// <inheritdoc />
     public async Task<IReadOnlyList<WorkoutTally>> ListTalliesAsync(DateTimeOffset from, DateTimeOffset to)
     {
         const string sql = """
@@ -121,6 +121,21 @@ internal sealed class WorkoutRepository(SQLiteAsyncConnection connection, Workou
         return rows.Select(r => new WorkoutTally(
                 new DateTimeOffset(r.StartedAt, TimeSpan.Zero), new DateTimeOffset(r.FinishedAt, TimeSpan.Zero), r.Sets))
             .ToList();
+    }
+
+    /// <inheritdoc />
+    public async Task<IReadOnlyList<LoggedSet>> ListSetsAsync(DateTimeOffset from, DateTimeOffset to)
+    {
+        const string sql = """
+            SELECT w.StartedAt, e.ExerciseId, s.Reps, s.WeightKg
+            FROM Workout w
+            JOIN WorkoutExercise e ON e.WorkoutId = w.Id
+            JOIN StrengthSet s ON s.WorkoutExerciseId = e.Id
+            WHERE w.StartedAt >= ? AND w.StartedAt <= ?
+            ORDER BY w.StartedAt, e.Position, s.Position
+            """;
+        var rows = await connection.QueryAsync<LoggedSetRow>(sql, from.UtcTicks, to.UtcTicks);
+        return rows.Select(r => new LoggedSet(new DateTimeOffset(r.StartedAt, TimeSpan.Zero), r.ExerciseId, r.Reps, Real.ToDecimal(r.WeightKg))).ToList();
     }
 
     /// <inheritdoc />
@@ -268,18 +283,6 @@ internal sealed class WorkoutRepository(SQLiteAsyncConnection connection, Workou
         public double? WeightKg { get; set; }
     }
 
-    /// <summary>A workout's times, in UTC ticks, with one of its exercise ids; null for a workout without exercises.</summary>
-    private sealed class OutlineRow
-    {
-        public int Id { get; set; }
-
-        public long StartedAt { get; set; }
-
-        public long FinishedAt { get; set; }
-
-        public int? ExerciseId { get; set; }
-    }
-
     /// <summary>A workout's start and finish, in UTC ticks, and its strength set count.</summary>
     private sealed class TallyRow
     {
@@ -288,6 +291,18 @@ internal sealed class WorkoutRepository(SQLiteAsyncConnection connection, Workou
         public long FinishedAt { get; set; }
 
         public int Sets { get; set; }
+    }
+
+    /// <summary>One strength set with its workout's start, in UTC ticks.</summary>
+    private sealed class LoggedSetRow
+    {
+        public long StartedAt { get; set; }
+
+        public int ExerciseId { get; set; }
+
+        public int? Reps { get; set; }
+
+        public double? WeightKg { get; set; }
     }
 
     /// <summary>A workout exercise's number of strength sets.</summary>

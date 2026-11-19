@@ -1,0 +1,138 @@
+@using System.Globalization
+@using WorkoutLog.UI.Models.Workouts
+@if (Bars.All(bar => bar.Value == 0 && bar.Earlier == 0))
+{
+    <p class="none" data-testid="@(TestId is null ? null : $"{TestId}-none")">@EmptyText</p>
+}
+else
+{
+    <figure class="chart" aria-label="@AriaLabel" data-testid="@TestId">
+        @if (Paired)
+        {
+            <ul class="legend" data-testid="@(TestId is null ? null : $"{TestId}-legend")">
+                <li><i class="swatch now" aria-hidden="true"></i>@NowLabel</li>
+                <li><i class="swatch past" aria-hidden="true"></i>@EarlierLabel</li>
+            </ul>
+        }
+        <div class="plot">
+            <svg class="svg" viewBox="0 0 @Number(Width) @Number(Height)" aria-hidden="true" focusable="false">
+                @for (var i = 0; i < Bars.Count; i++)
+                {
+                    var bar = Bars[i];
+                    var centre = i * Slot + Slot / 2;
+                    if (Paired)
+                    {
+                        if (bar.Earlier > 0)
+                        {
+                            <rect class="bar past" x="@Number(centre - Gap / 2 - PairedWidth)" y="@Number(Height - Rise(bar.Earlier))" width="@Number(PairedWidth)" height="@Number(Rise(bar.Earlier))" rx="@Number(Corner)" />
+                        }
+
+                        if (bar.Value > 0)
+                        {
+                            <rect class="bar now" x="@Number(centre + Gap / 2)" y="@Number(Height - Rise(bar.Value))" width="@Number(PairedWidth)" height="@Number(Rise(bar.Value))" rx="@Number(Corner)" />
+                        }
+                    }
+                    else if (bar.Value > 0)
+                    {
+                        <rect class="@(bar.Current ? "bar now" : "bar past")" x="@Number(centre - SingleWidth / 2)" y="@Number(Height - Rise(bar.Value))" width="@Number(SingleWidth)" height="@Number(Rise(bar.Value))" rx="@Number(Corner)" />
+                    }
+                }
+                <line class="baseline" x1="0" x2="@Number(Width)" y1="@Number(Height)" y2="@Number(Height)" />
+            </svg>
+            @if (OnOpen.HasDelegate)
+            {
+                <div class="taps" style="--count: @Bars.Count">
+                    @for (var i = 0; i < Bars.Count; i++)
+                    {
+                        var bar = Bars[i];
+                        <span class="slot">
+                            @if (bar.Span is { } span)
+                            {
+                                <button type="button" class="tap" data-testid="@(TestId is null ? null : $"{TestId}-{i + 1}-open")" @onclick="() => OnOpen.InvokeAsync(span)">
+                                    <span class="visually-hidden">Open workouts, @bar.Name</span>
+                                </button>
+                            }
+                        </span>
+                    }
+                </div>
+            }
+            <div class="values" style="--count: @Bars.Count" aria-hidden="true">
+                @foreach (var bar in Bars)
+                {
+                    <span class="slot">
+                        @if (bar.Labelled && bar.Value > 0)
+                        {
+                            <span class="value" style="--share: @Number(bar.Value / Top)">@Number(bar.Value)</span>
+                        }
+                    </span>
+                }
+            </div>
+        </div>
+        <div class="axis" style="--count: @Bars.Count" aria-hidden="true">
+            @foreach (var bar in Bars)
+            {
+                <span class="@(bar.Current ? "current" : null)">@bar.Label</span>
+            }
+        </div>
+        <ul class="visually-hidden" data-testid="@(TestId is null ? null : $"{TestId}-values")">
+            @foreach (var bar in Bars)
+            {
+                <li>@bar.Name: @bar.ValueText@(Paired ? $" ({EarlierLabel!.ToLowerInvariant()} {bar.EarlierText})" : "")</li>
+            }
+        </ul>
+    </figure>
+}
+
+@code {
+    private const double Width = 280;
+    private const double Height = 100;
+    private const double Corner = 2;
+
+    /// <summary>The columns, left to right. All with no value (and no earlier one) shows <see cref="EmptyText"/> instead of the chart.</summary>
+    [Parameter, EditorRequired]
+    public IReadOnlyList<TrendBar> Bars { get; set; } = [];
+
+    /// <summary>What the chart shows, for screen readers: the period, the unit and the main figures, since nothing is read from the bars themselves.</summary>
+    [Parameter, EditorRequired]
+    public string AriaLabel { get; set; } = "";
+
+    /// <summary>Shown in place of the chart when every bar is empty.</summary>
+    [Parameter, EditorRequired]
+    public string EmptyText { get; set; } = "";
+
+    /// <summary>Legend text of the bars, e.g. This week. Used with <see cref="EarlierLabel"/>.</summary>
+    [Parameter]
+    public string? NowLabel { get; set; }
+
+    /// <summary>Legend text of the paired bars from the period before, e.g. Last week. Set, each column draws its earlier bar to the left of the main one, with a legend above; null draws one bar per column.</summary>
+    [Parameter]
+    public string? EarlierLabel { get; set; }
+
+    /// <summary>Value at the top of the plot. Null uses the biggest value shown.</summary>
+    [Parameter]
+    public double? Max { get; set; }
+
+    /// <summary>Raised with the days of a column when the column of a bar with a <see cref="TrendBar.Span"/> is tapped. Columns are not tappable when unset.</summary>
+    [Parameter]
+    public EventCallback<DateSpan> OnOpen { get; set; }
+
+    /// <summary>Value of the data-testid attribute, <c>{TestId}-values</c> on the text alternative, <c>{TestId}-legend</c>, <c>{TestId}-none</c> and <c>{TestId}-{column, from 1}-open</c> on a tappable column.</summary>
+    [Parameter]
+    public string? TestId { get; set; }
+
+    private bool Paired => EarlierLabel is not null;
+
+    private double Slot => Width / Bars.Count;
+
+    private double SingleWidth => Slot * 0.5;
+
+    private double PairedWidth => Slot * 0.32;
+
+    private double Gap => Slot * 0.04;
+
+    private double Top => Math.Max(1, Max ?? Bars.Max(bar => Math.Max(bar.Value, bar.Earlier)));
+
+    private double Rise(double value) => value / Top * Height;
+
+    private static string Number(double value) => value.ToString("0.##", CultureInfo.InvariantCulture);
+}

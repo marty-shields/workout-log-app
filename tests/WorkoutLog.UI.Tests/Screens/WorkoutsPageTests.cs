@@ -5,6 +5,7 @@ using WorkoutLog.Core.Domain.Workouts;
 using WorkoutLog.Core.Services;
 using WorkoutLog.UI.Components.Layout;
 using WorkoutLog.UI.Lifecycle;
+using WorkoutLog.UI.Models.Workouts;
 using WorkoutLog.UI.Navigation;
 using WorkoutLog.UI.Screens;
 
@@ -305,17 +306,17 @@ public class WorkoutsPageTests : ComponentTestBase
     }
 
     [Test]
-    public async Task TapRow_RaisesOnOpenWithTheWorkoutId()
+    public async Task TapRow_RaisesOnOpenWithTheWorkoutIdAndTheDatesShown()
     {
-        var opened = new List<int>();
-        var cut = Context.Render<WorkoutsPage>(p => p.Add(x => x.OnOpen, (int id) => opened.Add(id)));
+        var opened = new List<WorkoutOpened>();
+        var cut = Context.Render<WorkoutsPage>(p => p.Add(x => x.OnOpen, opened.Add));
         workouts.CompleteDays(TwoYears);
         await WaitForRendererAsync();
         await CompleteRangeAsync(cut, Recent);
 
         cut.Find("[data-testid=workouts-row-4]").Click();
 
-        Assert.That(opened, Is.EqualTo(new[] { 4 }));
+        Assert.That(opened, Is.EqualTo(new[] { new WorkoutOpened(4, new DateSpan(new DateOnly(2026, 8, 6), Today)) }));
     }
 
     [Test]
@@ -626,32 +627,32 @@ public class WorkoutsPageTests : ComponentTestBase
     }
 
     [Test]
-    public void NavigationBar_RaisesOnNavigate()
+    public async Task AndroidBack_RaisesOnBack()
     {
-        var navigated = new List<NavDestination>();
-        var cut = Context.Render<WorkoutsPage>(p => p.Add(x => x.OnNavigate, navigated.Add));
-
-        cut.Find("[data-testid=dashboard-link]").Click();
-
-        Assert.That(navigated, Is.EqualTo(new[] { NavDestination.Dashboard }));
-    }
-
-    [Test]
-    public async Task AndroidBack_NavigatesToTheDashboard()
-    {
-        var navigated = new List<NavDestination>();
-        var cut = Context.Render<WorkoutsPage>(p => p.Add(x => x.OnNavigate, navigated.Add));
+        var back = 0;
+        var cut = Context.Render<WorkoutsPage>(p => p.Add(x => x.OnBack, () => back++));
 
         await cut.InvokeAsync(BackButton.HandleAsync);
 
-        Assert.That(navigated, Is.EqualTo(new[] { NavDestination.Dashboard }));
+        Assert.That(back, Is.EqualTo(1));
     }
 
     [Test]
-    public async Task AndroidBack_WhileTheCalendarIsOpen_ClosesItThenGoesToTheDashboard()
+    public void BackArrow_RaisesOnBack()
     {
-        var navigated = new List<NavDestination>();
-        var cut = Context.Render<WorkoutsPage>(p => p.Add(x => x.OnNavigate, navigated.Add));
+        var back = 0;
+        var cut = Context.Render<WorkoutsPage>(p => p.Add(x => x.OnBack, () => back++));
+
+        cut.Find("[data-testid=back]").Click();
+
+        Assert.That(back, Is.EqualTo(1));
+    }
+
+    [Test]
+    public async Task AndroidBack_WhileTheCalendarIsOpen_ClosesItThenRaisesOnBack()
+    {
+        var back = 0;
+        var cut = Context.Render<WorkoutsPage>(p => p.Add(x => x.OnBack, () => back++));
         workouts.CompleteDays(TwoYears);
         await WaitForRendererAsync();
         await CompleteRangeAsync(cut, Recent);
@@ -662,12 +663,60 @@ public class WorkoutsPageTests : ComponentTestBase
         Assert.Multiple(() =>
         {
             Assert.That(cut.FindAll("[data-testid=range-calendar]"), Is.Empty);
-            Assert.That(navigated, Is.Empty);
+            Assert.That(back, Is.EqualTo(0));
         });
 
         await cut.InvokeAsync(BackButton.HandleAsync);
 
-        Assert.That(navigated, Is.EqualTo(new[] { NavDestination.Dashboard }));
+        Assert.That(back, Is.EqualTo(1));
+    }
+
+    [Test]
+    public async Task OpenedWithDates_ReadsThoseDatesInsteadOfTheLast3Months()
+    {
+        var cut = Context.Render<WorkoutsPage>(p => p.Add(x => x.FirstQuery, "2026-11-02").Add(x => x.LastQuery, "2026-11-08"));
+        workouts.CompleteDays(TwoYears);
+        await WaitForRendererAsync();
+
+        cut.WaitForAssertion(() => Assert.That(workouts.RangeReads, Has.Count.EqualTo(1)));
+        var read = workouts.RangeReads.Single();
+        Assert.Multiple(() =>
+        {
+            Assert.That(read.From, Is.EqualTo(new DateOnly(2026, 11, 2)));
+            Assert.That(read.To, Is.EqualTo(new DateOnly(2026, 11, 8)));
+            Assert.That(cut.FindAll("[data-testid=workouts-range] input[checked]"), Is.Empty);
+        });
+    }
+
+    [Test]
+    public async Task OpenedWithDates_TappingARowRaisesThemSoBackReturnsToThem()
+    {
+        var opened = new List<WorkoutOpened>();
+        var cut = Context.Render<WorkoutsPage>(p => p
+            .Add(x => x.FirstQuery, "2026-11-02")
+            .Add(x => x.LastQuery, "2026-11-08")
+            .Add(x => x.OnOpen, opened.Add));
+        workouts.CompleteDays(TwoYears);
+        await WaitForRendererAsync();
+        await CompleteRangeAsync(cut, Recent);
+
+        cut.Find("[data-testid=workouts-row-4]").Click();
+
+        Assert.That(opened, Is.EqualTo(new[] { new WorkoutOpened(4, new DateSpan(new DateOnly(2026, 11, 2), new DateOnly(2026, 11, 8))) }));
+    }
+
+    [TestCase(null, null)]
+    [TestCase("2026-11-02", null)]
+    [TestCase("2026-11-08", "2026-11-02")]
+    [TestCase("soon", "2026-11-08")]
+    public async Task OpenedWithMissingOrBadDates_ReadsTheLast3Months(string? first, string? last)
+    {
+        var cut = Context.Render<WorkoutsPage>(p => p.Add(x => x.FirstQuery, first).Add(x => x.LastQuery, last));
+        workouts.CompleteDays(TwoYears);
+        await WaitForRendererAsync();
+
+        cut.WaitForAssertion(() => Assert.That(workouts.RangeReads, Has.Count.EqualTo(1)));
+        Assert.That(cut.FindAll("[data-testid=workouts-range] input[checked]").Select(i => i.GetAttribute("data-testid")), Is.EqualTo(new[] { "workouts-range-3m" }));
     }
 
     private void Clock(DateTimeOffset now)

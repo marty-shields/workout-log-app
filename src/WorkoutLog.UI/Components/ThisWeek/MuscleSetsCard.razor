@@ -1,0 +1,44 @@
+@using WorkoutLog.UI.Models.Muscles
+<section class="card" data-testid="@TestId">
+    <div class="header">
+        <h2 class="title">Sets per muscle group</h2>
+        <span class="aside">@Period</span>
+    </div>
+    @{ var most = Groups.Count == 0 ? 0 : Groups.Max(g => g.Sets); }
+    <ul class="groups">
+        @foreach (var group in Groups.OrderByDescending(g => g.Sets))
+        {
+            <li class="group" data-testid="@($"{TestId}-{group.Group.ToLowerInvariant()}")">
+                <span class="name">@group.Group</span>
+                <span class="track" aria-hidden="true"><span class="fill" style="--share: @Share(group.Sets, most)"></span></span>
+                @if (group.Sets == 0)
+                {
+                    <span class="sets none">Not trained</span>
+                }
+                else
+                {
+                    <span class="sets">@DisplayFormat.Sets(group.Sets)</span>
+                }
+            </li>
+        }
+    </ul>
+</section>
+
+@code {
+    /// <summary>The muscle groups with their sets for the week. Shown most sets first, so the groups at zero come last.</summary>
+    [Parameter, EditorRequired]
+    public IReadOnlyList<MuscleGroupSets> Groups { get; set; } = [];
+
+    /// <summary>Names the period at the right of the title, e.g. this month.</summary>
+    [Parameter]
+    public string Period { get; set; } = "this week";
+
+    /// <summary>Value of the data-testid attribute, and the prefix of each group's: <c>{TestId}-{group, lower case}</c>.</summary>
+    [Parameter]
+    public string? TestId { get; set; }
+
+    /// <summary>A group's sets as a fraction of the busiest group's, 0 to 1, for the bar's length.</summary>
+    private static string Share(int sets, int most) =>
+        (most == 0 ? 0 : (double)sets / most)
+            .ToString("0.###", System.Globalization.CultureInfo.InvariantCulture);
+}

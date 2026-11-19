@@ -1,0 +1,21 @@
+@page "/trends"
+@using WorkoutLog.UI.Navigation
+@using WorkoutLog.UI.Screens
+@inject NavigationManager Navigation
+
+@* Android back goes to This week. *@
+<TrendsPage KindQuery="@Period" DateQuery="@Date"
+            OnPeriodChanged="@(period => Navigation.GoTo(TrendsRoute.To(period)))"
+            OnNew="@(period => Navigation.GoTo(Origin.Link("workout/new", Origin.Trends(period))))"
+            OnNavigate="@(tab => Navigation.GoTo(tab))"
+            OnSettings="@(period => Navigation.GoTo(Origin.Link("settings", Origin.Trends(period))))"
+            OnOpenWorkouts="@(opened => Navigation.GoTo(WorkoutsRoute.To(opened.Dates, Origin.Trends(opened.Period))))"
+            OnOpenExercise="@(opened => Navigation.GoTo(Origin.Link($"exercises/{opened.ExerciseId}", Origin.Trends(opened.Period))))" />
+
+@code {
+    /// <summary>The kind of period to show: "week", "month" or "year". Missing or anything else, the week.</summary>
+    [SupplyParameterFromQuery] public string? Period { get; set; }
+
+    /// <summary>A day inside the period, as 2026-11-09. Missing, the period holding today.</summary>
+    [SupplyParameterFromQuery] public string? Date { get; set; }
+}

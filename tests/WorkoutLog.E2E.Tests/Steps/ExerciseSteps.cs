@@ -7,26 +7,13 @@ using WorkoutLog.E2E.Tests.Support;
 
 namespace WorkoutLog.E2E.Tests.Steps;
 
-/// <summary>An exercise's Exercise page, opened from the Exercises list.</summary>
+/// <summary>An exercise's Exercise page, opened from Most trained on Trends or a record.</summary>
 [Binding]
-public sealed class ExerciseSteps(WebView web, Journeys journeys, ExercisesScreen exercises, ExerciseScreen exercise, DeviceClock clock)
+public sealed class ExerciseSteps(WebView web, Journeys journeys, ExerciseScreen exercise, DeviceClock clock)
 {
-    [Then(@"^the tappable rows on Exercises are: (.+)$")]
-    public void ThenTheTappableRowsAre(string names) => web.Eventually(exercises.TappableNames, Is.EqualTo(names.Split(", ")));
-
     [Given(@"^I have opened the Exercise page for ""(.*)""$")]
-    [When(@"^I open ""(.*)"" on Exercises$")]
-    public void OpenExercise(string name)
-    {
-        if (journeys.Current() != Journeys.Screen.Exercises)
-        {
-            journeys.GoToExercises();
-        }
-
-        exercises.Open(Exercises.Named(name).Id);
-        web.WaitUntil(exercise.IsShown, "the Exercise page didn't show");
-        exercise.WaitUntilLoaded();
-    }
+    [When(@"^I open ""(.*)"" from Most trained on Trends$")]
+    public void OpenExercise(string name) => journeys.OpenExercise(name);
 
     [Then(@"^the Exercise page is titled ""(.*)"" with ""(.*)""$")]
     public void ThenTheTitleIs(string title, string subtitle)

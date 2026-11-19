@@ -21,13 +21,16 @@ The stories need only the .NET SDK.
 
 | File | Story id |
 |---|---|
-| `dashboard` | `screens-dashboard--with-workouts` |
+| `this-week` | `screens-this-week--mid-week` |
 | `workout-summary` | `screens-workout-summary--records-and-changes` |
 | `new-workout` | `screens-new-workout--strength` |
 | `cardio` | `screens-new-workout--cardio` |
 | `last-time` | `screens-new-workout--last-time` |
 | `notes` | `screens-new-workout--notes` |
 | `add-exercise` | `screens-add-exercise--results` |
+| `trends-week` | `screens-trends--week` |
+| `trends-month` | `screens-trends--month` |
+| `trends-year` | `screens-trends--year` |
 | `workouts` | `screens-workouts--with-workouts` |
 | `settings` | `screens-settings--with-workouts` |
 | `exercise-lift` | `screens-exercise--lift-top-set` |

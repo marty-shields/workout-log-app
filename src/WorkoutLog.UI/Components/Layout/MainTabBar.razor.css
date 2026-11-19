@@ -1,0 +1,67 @@
+.tab-bar {
+    display: flex;
+    padding-bottom: var(--inset-bottom);
+}
+
+.item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-1);
+    min-width: 0;
+    min-height: var(--touch-target);
+    padding: var(--space-3) var(--space-1) var(--space-4);
+    border: none;
+    background-color: transparent;
+    color: var(--color-text-muted);
+    font-size: var(--font-size-sm);
+    cursor: pointer;
+}
+
+.indicator {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--nav-indicator-width);
+    height: var(--nav-indicator-height);
+    border-radius: calc(var(--nav-indicator-height) / 2);
+}
+
+.current {
+    color: var(--color-text);
+    font-weight: var(--font-weight-bold);
+}
+
+.current .indicator {
+    background-color: var(--color-selected);
+}
+
+.new {
+    color: var(--color-text);
+    font-weight: var(--font-weight-bold);
+}
+
+/* Lifts above the bar's top edge; its height less the lift is the indicator's, so the label stays level with the other two. */
+.fab {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--nav-new-size);
+    height: var(--nav-new-size);
+    margin-top: calc(-1 * var(--nav-new-raise));
+    border-radius: var(--radius-md);
+    background-color: var(--color-primary);
+    color: var(--color-on-primary);
+    box-shadow: var(--shadow-raised);
+}
+
+/* The pressed layer shows on the indicator pill or the New button, not across the whole item. */
+.item:active {
+    background-image: none;
+}
+
+.item:active .indicator,
+.item:active .fab {
+    background-image: linear-gradient(var(--state-pressed), var(--state-pressed));
+}

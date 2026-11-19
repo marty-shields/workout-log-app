@@ -1,5 +1,13 @@
 @page "/settings/import"
+@using WorkoutLog.UI.Navigation
 @using WorkoutLog.UI.Screens
 @inject NavigationManager Navigation
 
-<ImportReviewPage OnBack="@(() => Navigation.GoTo("settings"))" OnImported="@(() => Navigation.GoTo("settings"))" />
+<ImportReviewPage OnBack="@(() => Navigation.GoTo(SettingsRoute))" OnImported="@(() => Navigation.GoTo(SettingsRoute))" />
+
+@code {
+    /// <summary>Where Settings was opened from, passed back to it.</summary>
+    [SupplyParameterFromQuery] public string? From { get; set; }
+
+    private string SettingsRoute => Origin.Link("settings", From);
+}

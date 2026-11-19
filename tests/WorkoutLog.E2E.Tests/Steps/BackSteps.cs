@@ -7,7 +7,7 @@ namespace WorkoutLog.E2E.Tests.Steps;
 
 /// <summary>Back, prompts and which screen shows.</summary>
 [Binding]
-public sealed class BackSteps(WebView web, Native native, Journeys journeys, WorkoutScreen workout, ConfirmDialog dialog, NavigationBar navigation)
+public sealed class BackSteps(WebView web, Native native, Journeys journeys, WorkoutScreen workout, ConfirmDialog dialog, TabBar tabs)
 {
     private const string Way = "(the back arrow|Android back)";
 
@@ -18,8 +18,11 @@ public sealed class BackSteps(WebView web, Native native, Journeys journeys, Wor
     [When(@"^I press Android back$")]
     public void WhenIPressAndroidBack() => native.BackKey();
 
-    [When(@"^I tap (Dashboard|Workouts|Exercises) in the navigation bar$")]
-    public void WhenITapInTheNavigationBar(string destination) => navigation.Open(destination);
+    [When(@"^I tap (This week|Trends) in the tab bar$")]
+    public void WhenITapInTheTabBar(string tab) => tabs.Open(tab);
+
+    [When(@"^I tap \+ in the tab bar$")]
+    public void WhenITapPlusInTheTabBar() => tabs.New();
 
     [Then(@"^the prompt ""(.*)"" shows (Discard|Delete) and Cancel$")]
     public void ThenThePromptShows(string title, string confirm)
@@ -79,7 +82,7 @@ public sealed class BackSteps(WebView web, Native native, Journeys journeys, Wor
         journeys.Delete();
     }
 
-    [Then(@"^I am ((?:still )?)on (the Dashboard|Workouts|Exercises|Settings|New Workout|Edit Workout)$")]
+    [Then(@"^I am ((?:still )?)on (This week|Trends|Workouts|Settings|New Workout|Edit Workout)$")]
     public void ThenIAmOn(string still, string screen)
     {
         if (still.Length > 0)
@@ -89,14 +92,14 @@ public sealed class BackSteps(WebView web, Native native, Journeys journeys, Wor
 
         switch (screen)
         {
-            case "the Dashboard":
-                journeys.WaitFor(Journeys.Screen.Dashboard);
+            case "This week":
+                journeys.WaitFor(Journeys.Screen.ThisWeek);
+                break;
+            case "Trends":
+                journeys.WaitFor(Journeys.Screen.Trends);
                 break;
             case "Workouts":
                 journeys.WaitFor(Journeys.Screen.Workouts);
-                break;
-            case "Exercises":
-                journeys.WaitFor(Journeys.Screen.Exercises);
                 break;
             case "Settings":
                 journeys.WaitFor(Journeys.Screen.Settings);

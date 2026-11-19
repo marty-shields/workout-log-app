@@ -1,0 +1,29 @@
+@attribute [Stories("Components/ThisWeek/MuscleSetsCard")]
+
+<Stories TComponent="MuscleSetsCard" Layout="typeof(ThemeLayout)">
+
+    <Story Name="Some trained">
+        <Template>
+            <MuscleSetsCard Groups="SampleThisWeek.Muscles" TestId="week-muscles" />
+        </Template>
+    </Story>
+
+    <Story Name="All trained">
+        <Template>
+            <MuscleSetsCard Groups="SampleThisWeek.AllTrained" TestId="week-muscles" />
+        </Template>
+    </Story>
+
+    <Story Name="None trained">
+        <Template>
+            <MuscleSetsCard Groups="SampleThisWeek.NoneTrained" TestId="week-muscles" />
+        </Template>
+    </Story>
+
+    <Story Name="In Trends, past week">
+        <Template>
+            <MuscleSetsCard Groups="SampleThisWeek.Muscles" Period="that week" TestId="week-muscles" />
+        </Template>
+    </Story>
+
+</Stories>

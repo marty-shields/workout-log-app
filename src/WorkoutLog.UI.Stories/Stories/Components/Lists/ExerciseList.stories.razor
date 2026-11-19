@@ -5,19 +5,19 @@
 
     <Story Name="Logged">
         <Template>
-            <ExerciseList Items="SampleExercises.All.Take(4).ToList()" OnPick="(ExerciseListItem _) => { }" TestId="exercises" />
+            <ExerciseList Items="SampleExercises.All.Take(4).ToList()" OnPick="(ExerciseListItem _) => { }" TestId="add-exercise" />
         </Template>
     </Story>
 
     <Story Name="Tappable">
         <Template>
-            <ExerciseList Items="SampleData.AddExerciseItems(Catalog, null).Where(i => i.Id is 6 or 132 or 311 or 315).ToList()" OnPick="(ExerciseListItem _) => { }" TestId="exercises" />
+            <ExerciseList Items="SampleData.AddExerciseItems(Catalog, null).Where(i => i.Id is 6 or 132 or 311 or 315).ToList()" OnPick="(ExerciseListItem _) => { }" TestId="add-exercise" />
         </Template>
     </Story>
 
     <Story Name="No match">
         <Template>
-            <ExerciseList Items="[]" TestId="exercises" />
+            <ExerciseList Items="[]" TestId="add-exercise" />
         </Template>
     </Story>
 

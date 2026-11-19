@@ -19,6 +19,10 @@ internal sealed class GatedWorkoutRepository(IWorkoutRepository inner, DatabaseG
     public Task<IReadOnlyList<Workout>> GetAllAsync() => gate.RunAsync(inner.GetAllAsync);
 
     /// <inheritdoc />
+    public Task<IReadOnlyList<Workout>> GetStartedBetweenAsync(DateTimeOffset from, DateTimeOffset to) =>
+        gate.RunAsync(() => inner.GetStartedBetweenAsync(from, to));
+
+    /// <inheritdoc />
     public Task<IReadOnlyList<WorkoutSummary>> ListAsync(DateTimeOffset? from, DateTimeOffset? to, int? limit) =>
         gate.RunAsync(() => inner.ListAsync(from, to, limit));
 
@@ -26,11 +30,12 @@ internal sealed class GatedWorkoutRepository(IWorkoutRepository inner, DatabaseG
     public Task<IReadOnlyList<DateTimeOffset>> ListStartsAsync() => gate.RunAsync(inner.ListStartsAsync);
 
     /// <inheritdoc />
-    public Task<WorkoutOutline?> GetLatestAsync() => gate.RunAsync(inner.GetLatestAsync);
-
-    /// <inheritdoc />
     public Task<IReadOnlyList<WorkoutTally>> ListTalliesAsync(DateTimeOffset from, DateTimeOffset to) =>
         gate.RunAsync(() => inner.ListTalliesAsync(from, to));
+
+    /// <inheritdoc />
+    public Task<IReadOnlyList<LoggedSet>> ListSetsAsync(DateTimeOffset from, DateTimeOffset to) =>
+        gate.RunAsync(() => inner.ListSetsAsync(from, to));
 
     /// <inheritdoc />
     public Task<IReadOnlyList<WorkoutWeights>> GetWeightsAsync(int exerciseId, DateTimeOffset? before) =>

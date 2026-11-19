@@ -1,0 +1,183 @@
+@using Microsoft.Extensions.Logging
+@using WorkoutLog.Core.Domain.Exercises
+@using WorkoutLog.Core.Domain.Workouts
+@using WorkoutLog.Core.Domain.Workouts.Consistency
+@using WorkoutLog.Core.Domain.Workouts.Periods
+@using WorkoutLog.Core.Services
+@using WorkoutLog.UI.Components.Weekly
+@using WorkoutLog.UI.Components.ThisWeek
+@using WorkoutLog.UI.Lifecycle
+@using WorkoutLog.UI.Models.Muscles
+@using WorkoutLog.UI.Models.ThisWeek
+@implements IDisposable
+@inject IPeriodTotalsService Periods
+@inject IPeriodTrainingService Training
+@inject IExerciseCatalog Catalog
+@inject TimeProvider Clock
+@inject IAppStart AppStart
+@inject ILogger<ThisWeekPage> Logger
+
+<ThisWeekView Monday="monday" Today="today" Trained="trained" Streak="streak"
+              ThisWeek="thisWeek" LastWeekToDate="lastWeekToDate" Workouts="workouts" Records="records" Muscles="muscles" LastWeek="lastWeek"
+              Loading="loading" Failed="failed" OnRetry="() => LoadAsync()" OnRefresh="() => LoadAsync(PullRefresh.MinimumSpinner)"
+              OnSettings="OnSettings" OnNew="OnNew" OnNavigate="OnNavigate" OnOpenWorkout="OnOpenWorkout" OnOpenRecord="OnOpenExercise"
+              OnOpenLastWeek="() => OnOpenLastWeek.InvokeAsync(Period.Containing(PeriodKind.Week, today).Previous())" />
+
+@code {
+    private static readonly WeekTotals NoTotals = new(0, TimeSpan.Zero, 0);
+
+    private DateOnly monday;
+    private DateOnly today;
+    private IReadOnlyCollection<DateOnly> trained = [];
+    private int streak;
+    private WeekTotals thisWeek = NoTotals;
+    private WeekTotals lastWeekToDate = NoTotals;
+    private WeekTotals? lastWeek;
+    private IReadOnlyList<WeekWorkout> workouts = [];
+    private IReadOnlyList<WeekRecord>? records = [];
+    private IReadOnlyList<MuscleGroupSets> muscles = [];
+    private bool loading;
+    private bool failed;
+    private IDisposable? registration;
+    private bool disposed;
+
+    /// <summary>Raised by the New button in the tab bar.</summary>
+    [Parameter]
+    public EventCallback OnNew { get; set; }
+
+    /// <summary>Raised with the tab tapped in the tab bar.</summary>
+    [Parameter]
+    public EventCallback<MainTab> OnNavigate { get; set; }
+
+    /// <summary>Raised with last week when the Last week row is tapped.</summary>
+    [Parameter]
+    public EventCallback<Period> OnOpenLastWeek { get; set; }
+
+    /// <summary>Raised by the Settings gear.</summary>
+    [Parameter]
+    public EventCallback OnSettings { get; set; }
+
+    /// <summary>Raised with the workout id when a workout of the week is tapped.</summary>
+    [Parameter]
+    public EventCallback<int> OnOpenWorkout { get; set; }
+
+    /// <summary>Raised with the exercise id when a record is tapped.</summary>
+    [Parameter]
+    public EventCallback<int> OnOpenExercise { get; set; }
+
+    protected override Task OnInitializedAsync()
+    {
+        SetToday();
+        registration = AppStart.Register(() => InvokeAsync(ReloadAsync));
+        return LoadAsync();
+    }
+
+    public void Dispose()
+    {
+        disposed = true;
+        registration?.Dispose();
+    }
+
+    /// <summary>
+    /// Takes today afresh and reads the week, last week, the streak, the days trained, the workouts, the muscle groups and the records together.
+    /// Records that fail to load leave their card out; any other read that fails shows the error. Does nothing while a load runs,
+    /// and nothing more once the page is disposed.
+    /// </summary>
+    private async Task LoadAsync(TimeSpan minimum = default)
+    {
+        if (loading)
+        {
+            return;
+        }
+
+        loading = true;
+        StateHasChanged();
+        SetToday();
+        var week = Period.Containing(PeriodKind.Week, today);
+        var minimumElapsed = Task.Delay(minimum, Clock);
+        var comparisonLoad = Periods.GetComparisonAsync(week);
+        var lastWeekLoad = Periods.GetComparisonAsync(week.Previous());
+        var seriesLoad = Periods.GetSeriesAsync(week);
+        var streaksLoad = Periods.GetStreaksAsync(today.Year);
+        var workoutsLoad = Training.GetWorkoutsAsync(week);
+        var musclesLoad = Training.GetMuscleSetsAsync(week);
+        var recordsLoad = Training.GetRecordsAsync(week);
+        await Task.WhenAll(comparisonLoad, lastWeekLoad, seriesLoad, streaksLoad, workoutsLoad, musclesLoad, recordsLoad);
+        var comparison = await comparisonLoad;
+        var previous = await lastWeekLoad;
+        var series = await seriesLoad;
+        var streaks = await streaksLoad;
+        var outlines = await workoutsLoad;
+        var counts = await musclesLoad;
+        var recent = await recordsLoad;
+        if (disposed)
+        {
+            return;
+        }
+
+        failed = comparison is not PeriodComparison || previous is not PeriodComparison || series is not PeriodSeries
+            || streaks is not WeekStreaks || outlines is not IReadOnlyList<WorkoutOutline> || counts is not IReadOnlyList<MuscleGroupCount>;
+        if (comparison is PeriodComparison current && previous is PeriodComparison before)
+        {
+            thisWeek = ToTotals(current.Totals);
+            lastWeekToDate = ToTotals(current.Earlier);
+            lastWeek = before.Totals.Workouts > 0 ? ToTotals(before.Totals) : null;
+        }
+
+        trained = series is PeriodSeries daily ? daily.Buckets.Where(day => day.Workouts > 0).Select(day => day.Start).ToList() : [];
+        streak = streaks is WeekStreaks read ? read.Current : 0;
+        var names = Catalog.All.ToDictionary(e => e.Id, e => e.Name);
+        workouts = outlines is IReadOnlyList<WorkoutOutline> saved ? saved.Select(w => Row(w, names)).ToList() : [];
+        muscles = counts is IReadOnlyList<MuscleGroupCount> groups ? groups.Select(g => new MuscleGroupSets(g.Group.ToString(), g.Sets)).ToList() : [];
+        records = recent switch
+        {
+            PeriodRecords found => WeekRecordItems.Items(found.Records, Catalog, Clock.LocalTimeZone),
+            ReadFailed => null,
+        };
+        if (failed)
+        {
+            Log.LoadFailed(Logger);
+        }
+        else if (records is null)
+        {
+            Log.RecordsFailed(Logger);
+        }
+
+        await minimumElapsed;
+        if (!disposed)
+        {
+            loading = false;
+        }
+    }
+
+    private void SetToday()
+    {
+        today = DateOnly.FromDateTime(TimeZoneInfo.ConvertTime(Clock.GetUtcNow(), Clock.LocalTimeZone).DateTime);
+        monday = Period.Containing(PeriodKind.Week, today).Start;
+    }
+
+    /// <summary>The workout's start on the phone's wall clock.</summary>
+    private WeekWorkout Row(WorkoutOutline workout, IReadOnlyDictionary<int, string> names) =>
+        new(
+            workout.Id,
+            TimeZoneInfo.ConvertTime(workout.StartedAt, Clock.LocalTimeZone).DateTime,
+            workout.ExerciseIds.Select(id => names[id]).ToList(),
+            workout.FinishedAt - workout.StartedAt);
+
+    private static WeekTotals ToTotals(WeekTally tally) => new(tally.Workouts, tally.Time, tally.Sets);
+
+    /// <summary>Loads again when the app comes back on screen. Does nothing once the page is disposed, before or during the load.</summary>
+    private async Task ReloadAsync()
+    {
+        if (disposed)
+        {
+            return;
+        }
+
+        await LoadAsync();
+        if (!disposed)
+        {
+            StateHasChanged();
+        }
+    }
+}

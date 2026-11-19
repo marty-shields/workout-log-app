@@ -1,5 +1,19 @@
 @page "/workouts"
+@using WorkoutLog.UI.Navigation
 @using WorkoutLog.UI.Screens
 @inject NavigationManager Navigation
 
-<WorkoutsPage OnNavigate="@(destination => Navigation.GoTo(destination))" OnOpen="@(id => Navigation.GoTo($"workout/{id}"))" />
+<WorkoutsPage FirstQuery="@First" LastQuery="@Last"
+              OnBack="@(() => Navigation.GoTo(Origin.Route(From)))"
+              OnOpen="@(opened => Navigation.GoTo(Origin.Link($"workout/{opened.Id}", Origin.Workouts(opened.Dates, From))))" />
+
+@code {
+    /// <summary>The first day to show, as 2026-11-02. With a valid <c>last</c>, the list opens on those days instead of the last 3 months.</summary>
+    [SupplyParameterFromQuery] public string? First { get; set; }
+
+    /// <summary>The last day to show, as 2026-11-08.</summary>
+    [SupplyParameterFromQuery] public string? Last { get; set; }
+
+    /// <summary>Where Workouts was opened from, e.g. "trends:week:2026-11-02": back returns there, to This week when missing.</summary>
+    [SupplyParameterFromQuery] public string? From { get; set; }
+}

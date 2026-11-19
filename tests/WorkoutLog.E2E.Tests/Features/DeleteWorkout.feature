@@ -33,16 +33,18 @@ Feature: Delete a workout
     Then I am on Workouts
     And Workouts lists only workout 1
 
-  Scenario: Deleting the latest workout updates the Dashboard
+  Scenario: Deleting a workout removes it from This week
     Given I have deleted workout 2
-    When I go back to the Dashboard
-    Then the last workout shows the date and day of "3 days ago"
+    When I go back to This week
+    Then this week doesn't list the workout started "yesterday 18:05"
 
-  Scenario: Deleting the only workout empties Workouts and the Dashboard
+  Scenario: Deleting the only workout empties Workouts and This week
     Given I have deleted workout 2
     And I have deleted workout 1
     Then Workouts shows "No workouts yet"
-    And on the Dashboard the last workout shows "No workouts yet" and this week shows 0 workouts
+    When I go back to This week
+    Then this week shows no workouts
+    And this week shows 0 workouts
 
   Scenario: Android back on the prompt cancels it
     Given I have tapped Delete

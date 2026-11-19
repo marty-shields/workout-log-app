@@ -17,13 +17,6 @@ public sealed class WorkoutsSteps(WebView web, Journeys journeys, WorkoutsScreen
     [Then(@"^Workouts shows ""(.*)""$")]
     public void ThenWorkoutsShows(string text) => web.Eventually(workouts.EmptyText, Is.EqualTo(text));
 
-    [Then(@"^Workouts is empty$")]
-    public void ThenWorkoutsIsEmpty()
-    {
-        journeys.GoToWorkouts();
-        ThenWorkoutsShows("No workouts yet");
-    }
-
     [Then(@"^the rows read, in order:$")]
     public void ThenTheRowsRead(DataTable rows)
     {
@@ -73,6 +66,13 @@ public sealed class WorkoutsSteps(WebView web, Journeys journeys, WorkoutsScreen
         Assert.That(workouts.Rows()[row], Is.EqualTo(DateAndTime(SeedTime.Resolve(time, clock.LocalNow()))));
     }
 
+    [When(@"^I go back from Workouts with (the back arrow|Android back)$")]
+    public void WhenIGoBackFromWorkouts(string how)
+    {
+        journeys.WaitFor(Journeys.Screen.Workouts);
+        journeys.Back(how);
+    }
+
     [When(@"^I tap the row for (.+)$")]
     public void WhenITapTheRowFor(string time)
     {
@@ -87,7 +87,15 @@ public sealed class WorkoutsSteps(WebView web, Journeys journeys, WorkoutsScreen
     {
         journeys.WaitFor(Journeys.Screen.Workout);
         Assert.That(workout.IsEdit(), Is.True, "Edit Workout");
-        web.Eventually(workout.Title, Is.EqualTo(DashboardSteps.Date(clock.LocalNow().Date.AddDays(-1))));
+        web.Eventually(workout.Title, Is.EqualTo(ThisWeekSteps.Date(clock.LocalNow().Date.AddDays(-1))));
+    }
+
+    [Then(@"^I am on Edit Workout titled with today's date and day$")]
+    public void ThenOnEditWorkoutTitledToday()
+    {
+        journeys.WaitFor(Journeys.Screen.Workout);
+        Assert.That(workout.IsEdit(), Is.True, "Edit Workout");
+        web.Eventually(workout.Title, Is.EqualTo(ThisWeekSteps.Date(clock.LocalNow().Date)));
     }
 
     [When(@"^I tap (3M|6M|1Y|All) in Workouts$")]

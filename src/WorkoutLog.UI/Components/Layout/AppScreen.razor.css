@@ -121,3 +121,8 @@
 .screen:has(.snackbar-slot > *) .content {
     padding-bottom: calc(var(--space-4) + 2 * var(--touch-target));
 }
+
+/* The raised New button of the tab bar lifts above the bar's top edge; the snackbar sits above it. */
+.with-tabs .snackbar-slot {
+    bottom: calc(100% + var(--nav-new-raise));
+}

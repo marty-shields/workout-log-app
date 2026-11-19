@@ -1,0 +1,23 @@
+@attribute [Stories("Components/ThisWeek/WeekWorkoutsCard")]
+
+<Stories TComponent="WeekWorkoutsCard" Layout="typeof(ThemeLayout)">
+
+    <Story Name="Three workouts">
+        <Template>
+            <WeekWorkoutsCard Workouts="SampleThisWeek.Workouts" OnOpen="(int _) => { }" TestId="week-workouts" />
+        </Template>
+    </Story>
+
+    <Story Name="One workout">
+        <Template>
+            <WeekWorkoutsCard Workouts="SampleThisWeek.Workouts.Take(1).ToList()" OnOpen="(int _) => { }" TestId="week-workouts" />
+        </Template>
+    </Story>
+
+    <Story Name="Nothing yet">
+        <Template>
+            <WeekWorkoutsCard Workouts="[]" TestId="week-workouts" />
+        </Template>
+    </Story>
+
+</Stories>

@@ -4,7 +4,7 @@ $attribute: CustomPage("Screens/Workout Summary/Overview")
 
 # Workout Summary
 
-What you did and what improved, shown after saving a new workout. View: `WorkoutSummaryView`; page: `WorkoutSummaryPage`. Saving an edit goes to the [Dashboard](./?path=/custom/screens-dashboard-overview) as before.
+What you did and what improved, shown after saving a new workout. View: `WorkoutSummaryView`; page: `WorkoutSummaryPage`. Saving an edit goes straight back to where it was opened from, as on [Edit Workout](./?path=/custom/screens-edit-workout-overview#back).
 
 | Part | Content |
 |---|---|
@@ -26,9 +26,9 @@ The change is the exercise's best in this workout against its best in its last s
 | The same | A muted "—". Screen readers hear "no change". |
 | No earlier session | A muted "First time". |
 
-Better and worse follow the Exercises list's best: for an assisted exercise, less assist is better. Records follow the same rule as [Dashboard](./?path=/custom/screens-dashboard-overview) Recent records and the record badge on [New Workout](./?path=/custom/screens-new-workout-overview): an exercise's first session and a tie aren't records.
+Better and worse follow the add-exercise list's best: for an assisted exercise, less assist is better. Records follow the same rule as the Records on [This week](./?path=/custom/screens-this-week-overview) and the record badge on [New Workout](./?path=/custom/screens-new-workout-overview): an exercise's first session and a tie aren't records.
 
-Done and Android back return to the Dashboard; the workout is already saved.
+Done and Android back return to This week; the workout is already saved.
 
 States: [Records and changes](./?path=/story/screens-workout-summary--records-and-changes) · [No records](./?path=/story/screens-workout-summary--no-records) · [First workout](./?path=/story/screens-workout-summary--first-workout) · [All first time](./?path=/story/screens-workout-summary--all-first-time) · [Loading](./?path=/story/screens-workout-summary--loading) · [Load failed](./?path=/story/screens-workout-summary--load-failed)
 

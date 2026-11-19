@@ -24,6 +24,12 @@ internal interface IWorkoutRepository
     Task<IReadOnlyList<Workout>> GetAllAsync();
 
     /// <summary>
+    /// Returns the workouts started from <paramref name="from"/> to <paramref name="to"/>, both inclusive, with their exercises, by start time
+    /// oldest first. Exercises and sets are in position order.
+    /// </summary>
+    Task<IReadOnlyList<Workout>> GetStartedBetweenAsync(DateTimeOffset from, DateTimeOffset to);
+
+    /// <summary>
     /// Returns workouts without their exercises, by start time newest first.
     /// <paramref name="from"/> and <paramref name="to"/> limit the start time, both inclusive. <paramref name="limit"/> caps the number returned.
     /// </summary>
@@ -32,14 +38,17 @@ internal interface IWorkoutRepository
     /// <summary>Returns every saved workout's start time, UTC, in no particular order. Reads only the start column.</summary>
     Task<IReadOnlyList<DateTimeOffset>> ListStartsAsync();
 
-    /// <summary>Returns the workout with the latest start, with its exercise ids in position order, or null if there are none.</summary>
-    Task<WorkoutOutline?> GetLatestAsync();
-
     /// <summary>
     /// Returns the start, finish and strength set count of each workout started from <paramref name="from"/> to <paramref name="to"/>,
     /// both inclusive, by start time oldest first.
     /// </summary>
     Task<IReadOnlyList<WorkoutTally>> ListTalliesAsync(DateTimeOffset from, DateTimeOffset to);
+
+    /// <summary>
+    /// Returns every strength set of the workouts started from <paramref name="from"/> to <paramref name="to"/>, both inclusive, by start time
+    /// then position.
+    /// </summary>
+    Task<IReadOnlyList<LoggedSet>> ListSetsAsync(DateTimeOffset from, DateTimeOffset to);
 
     /// <summary>
     /// Returns the set weights and note of the exercise in each workout that has it, by start time newest first.

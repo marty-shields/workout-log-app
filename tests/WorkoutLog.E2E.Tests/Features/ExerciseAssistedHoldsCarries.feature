@@ -1,17 +1,16 @@
 Feature: Exercise page: assisted machines, holds and carries
   An assisted machine's least assist, a hold's duration and weight, and a carry's weight and distance over time, with their records and sessions.
 
-  Scenario Outline: An assisted machine, hold or carry opens its Exercise page and back returns to Exercises
+  Scenario Outline: An assisted machine, hold or carry opens its Exercise page and back returns to Trends
     Given these saved workouts:
       | started          | exercises    |
       | 3 days ago 18:05 | <exercise>   |
-    And I have opened Exercises
-    Then the tappable rows on Exercises are: <name>
-    When I open "<name>" on Exercises
+    When I open "<name>" from Most trained on Trends
     Then the Exercise page is titled "<name>" with "<subtitle>"
     And <tabs>
     When I go back with the back arrow
-    Then I am on Exercises
+    Then I am on Trends
+    And Trends is on the Month view
     Examples:
       | exercise                                  | name                     | subtitle          | tabs                                    |
       | Machine Assisted Pull-up: 8 reps 10 kg    | Machine Assisted Pull-up | Lats · Machine    | the Exercise page has no tab switcher   |

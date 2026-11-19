@@ -20,6 +20,22 @@ public partial class ReadmeDocsTests
     }
 
     [Test]
+    public void Screenshots_HaveALightAndADarkImage()
+    {
+        var names = ScreenshotRow().Matches(RepoFiles.Read("docs", "dev-setup-build.md")).Select(m => m.Groups[1].Value);
+
+        Assert.That(MissingImages(names, name => File.Exists(RepoFiles.PathOf("docs", "images", "readme", name))), Is.Empty);
+    }
+
+    [Test]
+    public void MissingImages_ListsAMissingDarkImage()
+    {
+        var present = new HashSet<string> { "home-light.png", "home-dark.png", "cardio-light.png" };
+
+        Assert.That(MissingImages(["home", "cardio"], present.Contains), Is.EqualTo(new[] { "cardio-dark.png" }));
+    }
+
+    [Test]
     public void SourceProjects_AreAllInTheProjectLayout()
     {
         var layout = LayoutEntry().Matches(Readme).Select(m => m.Groups[1].Value);
@@ -27,6 +43,9 @@ public partial class ReadmeDocsTests
 
         Assert.That(layout, Is.SupersetOf(projects));
     }
+
+    private static IEnumerable<string> MissingImages(IEnumerable<string> names, Func<string, bool> exists) =>
+        names.SelectMany(name => new[] { $"{name}-light.png", $"{name}-dark.png" }).Where(file => !exists(file));
 
     [GeneratedRegex(@"docs/images/readme/([a-z-]+)-light\.png")]
     private static partial Regex ReadmeScreenshot();

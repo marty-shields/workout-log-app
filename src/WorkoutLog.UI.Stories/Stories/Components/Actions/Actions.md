@@ -9,7 +9,7 @@ A button with a 48px touch target.
 
 | Variant | Use for |
 |---|---|
-| Primary | The main action on a screen: New Workout, Save. One per screen. |
+| Primary | The main action on a screen: Save. One per screen. |
 | Secondary | Other actions in the bottom bar or a card: Add exercise, Add set, Cancel in a confirm dialog. |
 | Danger | Confirming a destructive action: Discard, Delete. Filled red. |
 
@@ -24,11 +24,13 @@ A Material Symbols Outlined icon (weight 400), drawn as an SVG and hidden from s
 - `Name`: an `IconName`.
 - `Tone`: `Default` takes the text colour; `Muted` uses `--color-text-muted`, `Success` `--color-success`, `Error` `--color-error`.
 - `Size`: `Default` is `--font-size-xl`, `Small` is `--font-size-lg`.
-- Chevron: the end of a tappable `ListRow`, carry `SetSummary` row and `LastWorkoutCard`, `Muted`.
-- Search: the Exercises search box, `Muted`.
-- Up and Down: an increase (`Success`) or decrease (`Error`) in `WeekComparison`.
+- Chevron: the end of a tappable `ListRow`, carry `SetSummary` row, `Muted`.
+- Search: the Add Exercise list's search box, `Muted`.
+- Up and Down: an increase (`Success`) or decrease (`Error`) in `WeekChange`.
 - Edit (pencil) and Check (tick): used by `IconButton`.
 - Record: a trophy (`emoji_events`), `Success`, in `RecordBadge` and beside each record on the Workout Summary.
+- Add (a plus, `add`) and BarChart (`bar_chart`): the New and Trends tabs of `MainTabBar`.
+- Calendar: the This week tab of `MainTabBar`.
 - Note: before a last note on an exercise card, `Muted`, `Small`; also the note `IconButton`.
 
 ## `IconButton`
@@ -36,7 +38,7 @@ A button that shows an `Icon`, with a 48px touch target.
 
 | Icon | Use for |
 |---|---|
-| Settings | Opening Settings from the Dashboard top bar. |
+| Settings | Opening Settings from the This week top bar. |
 | Back | The back arrow in the top bar and on Add Exercise. |
 | Close | Removing a set: `Muted`, `Small`. |
 | Delete | Deleting the workout in the Edit Workout top bar; deleting an exercise from its card (`Muted`), after a confirm. |

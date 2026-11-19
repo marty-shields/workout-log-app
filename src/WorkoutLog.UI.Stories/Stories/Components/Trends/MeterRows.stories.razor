@@ -1,0 +1,29 @@
+@attribute [Stories("Components/Trends/MeterRows")]
+
+<Stories TComponent="MeterRows" Layout="typeof(ThemeLayout)">
+
+    <Story Name="Exercises">
+        <Template>
+            <MeterRows Rows="SampleTrends.MostTrained" Unit="sessions" AriaLabel="Sessions of the most trained exercises this month" Wide EmptyText="No exercises this month" TestId="meters" />
+        </Template>
+    </Story>
+
+    <Story Name="Tappable">
+        <Template>
+            <MeterRows Rows="SampleTrends.MostTrained" Unit="sessions" AriaLabel="Sessions of the most trained exercises this month" Wide OnOpen="(int _) => { }" EmptyText="No exercises this month" TestId="meters" />
+        </Template>
+    </Story>
+
+    <Story Name="Months">
+        <Template>
+            <MeterRows Rows="SampleTrends.YearRecordMonths" Unit="records" AriaLabel="Records set in each month of 2026" EmptyText="No records this year" TestId="meters" />
+        </Template>
+    </Story>
+
+    <Story Name="None">
+        <Template>
+            <MeterRows Rows="[]" Unit="sessions" AriaLabel="Sessions of the most trained exercises this month" Wide EmptyText="No exercises this month" TestId="meters" />
+        </Template>
+    </Story>
+
+</Stories>

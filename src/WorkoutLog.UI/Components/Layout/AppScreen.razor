@@ -35,9 +35,9 @@
     <main @ref="content" class="content">
         @ChildContent
     </main>
-    @if (BottomBar is not null || Destination is not null)
+    @if (BottomBar is not null || Tab is not null)
     {
-        <footer class="bottom">
+        <footer class="bottom @(Tab is not null ? "with-tabs" : null)">
             @if (Status is not null)
             {
                 <div class="snackbar-slot" role="status" aria-live="polite">
@@ -50,9 +50,9 @@
                     @BottomBar
                 </div>
             }
-            @if (Destination is { } current)
+            @if (Tab is { } current)
             {
-                <BottomNav Current="current" OnNavigate="OnNavigate" />
+                <MainTabBar Current="current" OnNavigate="OnNavigate" OnNew="OnNew" />
             }
         </footer>
     }
@@ -81,13 +81,17 @@
     [Parameter]
     public string BackTestId { get; set; } = "back";
 
-    /// <summary>Makes this a top-level screen: shows the bottom navigation bar with this item current. Android back then goes to <see cref="NavDestinations.Start"/>, or leaves the app from there.</summary>
+    /// <summary>Makes this a top-level screen: shows the tab bar with this tab current. Android back then goes to <see cref="MainTabs.Start"/>, or leaves the app from there.</summary>
     [Parameter]
-    public NavDestination? Destination { get; set; }
+    public MainTab? Tab { get; set; }
 
-    /// <summary>Raised with the destination tapped in the bottom navigation bar, or with <see cref="NavDestinations.Start"/> on Android back.</summary>
+    /// <summary>Raised with the tab tapped in the tab bar, or with <see cref="MainTabs.Start"/> on Android back.</summary>
     [Parameter]
-    public EventCallback<NavDestination> OnNavigate { get; set; }
+    public EventCallback<MainTab> OnNavigate { get; set; }
+
+    /// <summary>Raised by the raised New button in the tab bar.</summary>
+    [Parameter]
+    public EventCallback OnNew { get; set; }
 
     /// <summary>Actions at the right of the top bar.</summary>
     [Parameter]
@@ -110,7 +114,7 @@
 
     /// <summary>
     /// A snackbar just above the bottom bar, over the content. Its slot is a polite live region, there whenever this is set,
-    /// so a snackbar shown later is read out. Needs <see cref="BottomBar"/> or <see cref="Destination"/>.
+    /// so a snackbar shown later is read out. Needs <see cref="BottomBar"/> or <see cref="Tab"/>; above the tab bar it sits clear of the raised New button.
     /// </summary>
     [Parameter]
     public RenderFragment? Status { get; set; }
@@ -179,7 +183,7 @@
     }
 
     private EventCallback Back =>
-        Destination is { } current && current != NavDestinations.Start
-            ? EventCallback.Factory.Create(this, () => OnNavigate.InvokeAsync(NavDestinations.Start))
+        Tab is { } current && current != MainTabs.Start
+            ? EventCallback.Factory.Create(this, () => OnNavigate.InvokeAsync(MainTabs.Start))
             : OnBack;
 }

@@ -5,7 +5,7 @@ using WorkoutLog.UI.Models.Workout;
 
 namespace WorkoutLog.UI.Models.Exercises;
 
-/// <summary>Builds, searches and filters the rows of the Exercises list and the add-exercise list.</summary>
+/// <summary>Builds, searches and filters the rows of the add-exercise list.</summary>
 public static class ExerciseListItems
 {
     /// <summary>A row for the exercise, with its last session's date and best when it has one.</summary>
@@ -40,7 +40,7 @@ public static class ExerciseListItems
     /// The rows for <paramref name="query"/> and <paramref name="filter"/>: with search words, ranked as <see cref="IExerciseCatalog.Search"/>;
     /// otherwise in the order given.
     /// </summary>
-    public static IReadOnlyList<ExerciseListItem> Find(IReadOnlyList<ExerciseListItem> items, IExerciseCatalog catalog, string? query, ExerciseFilter filter)
+    public static IReadOnlyList<ExerciseListItem> Find(IReadOnlyList<ExerciseListItem> items, IExerciseCatalog catalog, string? query, AddExerciseFilter filter)
     {
         IEnumerable<ExerciseListItem> found = items;
         if (catalog.HasSearchWords(query))
@@ -51,8 +51,8 @@ public static class ExerciseListItems
 
         return found.Where(i => filter switch
             {
-                ExerciseFilter.Strength => i.Kind == ExerciseKind.Strength,
-                ExerciseFilter.Cardio => i.Kind == ExerciseKind.Cardio,
+                AddExerciseFilter.Strength => i.Kind == ExerciseKind.Strength,
+                AddExerciseFilter.Cardio => i.Kind == ExerciseKind.Cardio,
                 _ => true,
             })
             .ToList();

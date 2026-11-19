@@ -1,0 +1,38 @@
+<nav class="tab-bar" aria-label="Main" data-testid="tab-bar">
+    <button type="button"
+            class="item @(Current == MainTab.ThisWeek ? "current" : null)"
+            aria-current="@(Current == MainTab.ThisWeek ? "page" : null)"
+            data-testid="this-week-link"
+            @onclick="() => Navigate(MainTab.ThisWeek)">
+        <span class="indicator"><Icon Name="IconName.Calendar" /></span>
+        <span class="label">This week</span>
+    </button>
+    <button type="button" class="item new" data-testid="new-link" @onclick="OnNew">
+        <span class="fab"><Icon Name="IconName.Add" /></span>
+        <span class="label">New</span>
+    </button>
+    <button type="button"
+            class="item @(Current == MainTab.Trends ? "current" : null)"
+            aria-current="@(Current == MainTab.Trends ? "page" : null)"
+            data-testid="trends-link"
+            @onclick="() => Navigate(MainTab.Trends)">
+        <span class="indicator"><Icon Name="IconName.BarChart" /></span>
+        <span class="label">Trends</span>
+    </button>
+</nav>
+
+@code {
+    /// <summary>The screen showing; its tab is marked as the current page, in bold on a pill, not by colour alone.</summary>
+    [Parameter, EditorRequired]
+    public MainTab Current { get; set; }
+
+    /// <summary>Raised with the tapped tab. Not raised for the current one.</summary>
+    [Parameter]
+    public EventCallback<MainTab> OnNavigate { get; set; }
+
+    /// <summary>Raised by the raised New button in the middle, which is never the current page.</summary>
+    [Parameter]
+    public EventCallback OnNew { get; set; }
+
+    private Task Navigate(MainTab tab) => tab == Current ? Task.CompletedTask : OnNavigate.InvokeAsync(tab);
+}

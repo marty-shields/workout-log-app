@@ -1,0 +1,52 @@
+@using System.Globalization
+<div class="card" data-testid="@TestId">
+    <ul class="days" aria-label="Days this week">
+        @for (var i = 0; i < 7; i++)
+        {
+            var date = Monday.AddDays(i);
+            var trained = Trained.Contains(date);
+            var today = date == Today;
+            var future = date > Today;
+            <li class="day @(trained ? "done" : null) @(today ? "today" : null) @(future ? "future" : null)"
+                aria-current="@(today ? "date" : null)"
+                data-testid="@($"{TestId}-{date.DayOfWeek.ToString().ToLowerInvariant()}")">
+                <span class="name" aria-hidden="true">@date.ToString("ddd", CultureInfo.InvariantCulture)</span>
+                <span class="dot" aria-hidden="true">
+                    @if (trained)
+                    {
+                        <Icon Name="IconName.Check" />
+                    }
+                    else
+                    {
+                        @date.Day
+                    }
+                </span>
+                <span class="visually-hidden">@Describe(date, trained, today, future)</span>
+            </li>
+        }
+    </ul>
+</div>
+
+@code {
+    /// <summary>The week's Monday; the strip runs from it to Sunday.</summary>
+    [Parameter, EditorRequired]
+    public DateOnly Monday { get; set; }
+
+    /// <summary>Today: it gets a ring and the days after it are dimmed.</summary>
+    [Parameter, EditorRequired]
+    public DateOnly Today { get; set; }
+
+    /// <summary>Days with a workout; each shows a tick on the primary colour in place of its date.</summary>
+    [Parameter, EditorRequired]
+    public IReadOnlyCollection<DateOnly> Trained { get; set; } = [];
+
+    /// <summary>Value of the data-testid attribute, and the prefix of each day's: <c>{TestId}-monday</c> to <c>{TestId}-sunday</c>.</summary>
+    [Parameter]
+    public string? TestId { get; set; }
+
+    private static string Describe(DateOnly date, bool trained, bool today, bool future)
+    {
+        var state = trained ? "trained" : future ? "coming up" : "no workout";
+        return $"{date.ToString("dddd d MMMM", CultureInfo.InvariantCulture)}, {state}{(today ? ", today" : "")}";
+    }
+}

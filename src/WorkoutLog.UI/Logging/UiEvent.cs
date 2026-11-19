@@ -54,6 +54,12 @@ internal enum UiEvent
     /// <summary><see cref="Screens.EditWorkoutPage"/>: edits discarded.</summary>
     EditsDiscarded = 2902,
 
+    /// <summary><see cref="Screens.ThisWeekPage"/>: reading the week failed, so the screen shows the error.</summary>
+    ThisWeekLoadFailed = 3101,
+
+    /// <summary><see cref="Screens.ThisWeekPage"/>: reading the week's records failed, so their card is left out.</summary>
+    ThisWeekRecordsFailed = 3102,
+
     /// <summary><see cref="Lifecycle.AppLifecycle"/>: an app start handler failed.</summary>
     AppStartHandlerFailed = 3201,
 
@@ -98,4 +104,10 @@ internal enum UiEvent
 
     /// <summary><see cref="Components.Layout.AppScreen"/>: setting up pull to refresh failed, so the screen can't be pulled.</summary>
     PullRefreshFailed = 4001,
+
+    /// <summary><see cref="Screens.TrendsPage"/>: reading the period failed, so the screen shows the error.</summary>
+    TrendsLoadFailed = 4101,
+
+    /// <summary><see cref="Screens.TrendsPage"/>: reading the period's records failed, so their card is empty.</summary>
+    TrendsRecordsFailed = 4102,
 }

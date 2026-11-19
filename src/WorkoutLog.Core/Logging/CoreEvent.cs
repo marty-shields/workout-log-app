@@ -1,8 +1,8 @@
 namespace WorkoutLog.Core.Logging;
 
 /// <summary>
-/// Event ids of Core's log messages: 1000–1999, a block of 100 per type; the Dashboard services share 1400 and the Exercise page services share 1900.
-/// Ids never change and are never reused. Retired: 1205, 1401, 1402.
+/// Event ids of Core's log messages: 1000–1999, a block of 100 per type; the This week and Trends services share 1400 and the Exercise page services share 1900.
+/// Ids never change and are never reused. Retired: 1205, 1401, 1402, 1410-1412, 1420, 1421, 1430-1432, 1441-1444.
 /// </summary>
 internal enum CoreEvent
 {
@@ -66,41 +66,77 @@ internal enum CoreEvent
     /// <summary><see cref="Services.WorkoutsService"/>: reading the workouts per local day failed.</summary>
     WorkoutDaysLoadFailed = 1304,
 
-    /// <summary><see cref="Services.LastWorkoutService"/>: last workout read.</summary>
-    LastWorkoutLoaded = 1410,
+    /// <summary><see cref="Services.PeriodTotalsService"/>: a period's comparison read.</summary>
+    PeriodComparisonLoaded = 1450,
 
-    /// <summary><see cref="Services.LastWorkoutService"/>: reading the last workout failed.</summary>
-    LastWorkoutLoadFailed = 1411,
+    /// <summary><see cref="Services.PeriodTotalsService"/>: reading a period's comparison failed.</summary>
+    PeriodComparisonLoadFailed = 1451,
 
-    /// <summary><see cref="Services.LastWorkoutService"/>: a saved exercise id is not in the exercise list.</summary>
-    LastWorkoutUnknownExercise = 1412,
+    /// <summary><see cref="Services.PeriodTotalsService"/>: a period's series read.</summary>
+    PeriodSeriesLoaded = 1452,
 
-    /// <summary><see cref="Services.ConsistencyService"/>: Consistency card read.</summary>
-    ConsistencyLoaded = 1420,
+    /// <summary><see cref="Services.PeriodTotalsService"/>: reading a period's series failed.</summary>
+    PeriodSeriesLoadFailed = 1453,
 
-    /// <summary><see cref="Services.ConsistencyService"/>: reading the Consistency card failed.</summary>
-    ConsistencyLoadFailed = 1421,
+    /// <summary><see cref="Services.PeriodTotalsService"/>: the streaks read.</summary>
+    PeriodStreaksLoaded = 1454,
 
-    /// <summary><see cref="Services.MuscleSetsService"/>: sets per muscle group read.</summary>
-    MuscleSetsLoaded = 1430,
+    /// <summary><see cref="Services.PeriodTotalsService"/>: reading the streaks failed.</summary>
+    PeriodStreaksLoadFailed = 1455,
 
-    /// <summary><see cref="Services.MuscleSetsService"/>: reading the sets per muscle group failed.</summary>
-    MuscleSetsLoadFailed = 1431,
+    /// <summary><see cref="Services.PeriodTotalsService"/>: the period limits read.</summary>
+    PeriodLimitsLoaded = 1456,
 
-    /// <summary><see cref="Services.MuscleSetsService"/>: a saved exercise id is not in the exercise list.</summary>
-    MuscleSetsUnknownExercise = 1432,
+    /// <summary><see cref="Services.PeriodTotalsService"/>: reading the period limits failed.</summary>
+    PeriodLimitsLoadFailed = 1457,
 
-    /// <summary><see cref="Services.RecentRecordsService"/>: recent records read.</summary>
-    RecentRecordsLoaded = 1441,
+    /// <summary><see cref="Services.PeriodTotalsService"/>: reading a period's volume failed.</summary>
+    PeriodVolumeLoadFailed = 1458,
 
-    /// <summary><see cref="Services.RecentRecordsService"/>: reading the recent records failed.</summary>
-    RecentRecordsLoadFailed = 1442,
+    /// <summary><see cref="Services.PeriodTotalsService"/>: a saved exercise id is not in the exercise list.</summary>
+    PeriodVolumeUnknownExercise = 1459,
 
-    /// <summary><see cref="Services.RecentRecordsService"/>: a saved exercise id is not in the exercise list.</summary>
-    RecentRecordsUnknownExercise = 1443,
+    /// <summary><see cref="Services.PeriodTrainingService"/>: a period's records read.</summary>
+    PeriodRecordsLoaded = 1460,
 
-    /// <summary><see cref="Services.RecentRecordsService"/>: finding one exercise's records failed.</summary>
-    RecentRecordsExerciseFailed = 1444,
+    /// <summary><see cref="Services.PeriodTrainingService"/>: reading a period's records failed.</summary>
+    PeriodRecordsLoadFailed = 1461,
+
+    /// <summary><see cref="Services.PeriodTrainingService"/>: a saved exercise id is not in the exercise list.</summary>
+    PeriodRecordsUnknownExercise = 1462,
+
+    /// <summary><see cref="Services.PeriodTrainingService"/>: finding one exercise's records failed.</summary>
+    PeriodRecordsExerciseFailed = 1463,
+
+    /// <summary><see cref="Services.PeriodTrainingService"/>: a period's sets per muscle group read.</summary>
+    PeriodMuscleSetsLoaded = 1464,
+
+    /// <summary><see cref="Services.PeriodTrainingService"/>: reading a period's sets per muscle group failed.</summary>
+    PeriodMuscleSetsLoadFailed = 1465,
+
+    /// <summary><see cref="Services.PeriodTrainingService"/>: a saved exercise id is not in the exercise list.</summary>
+    PeriodMuscleSetsUnknownExercise = 1466,
+
+    /// <summary><see cref="Services.PeriodTrainingService"/>: a period's most trained exercises read.</summary>
+    PeriodMostTrainedLoaded = 1467,
+
+    /// <summary><see cref="Services.PeriodTrainingService"/>: reading a period's most trained exercises failed.</summary>
+    PeriodMostTrainedLoadFailed = 1468,
+
+    /// <summary><see cref="Services.PeriodTrainingService"/>: a saved exercise id is not in the exercise list.</summary>
+    PeriodMostTrainedUnknownExercise = 1469,
+
+    /// <summary><see cref="Services.PeriodTrainingService"/>: a period's workouts read.</summary>
+    PeriodWorkoutsLoaded = 1470,
+
+    /// <summary><see cref="Services.PeriodTrainingService"/>: reading a period's workouts failed.</summary>
+    PeriodWorkoutsLoadFailed = 1471,
+
+    /// <summary><see cref="Services.PeriodTrainingService"/>: a saved exercise id is not in the exercise list.</summary>
+    PeriodWorkoutsUnknownExercise = 1472,
+
+    /// <summary><see cref="Services.PeriodTotalsService"/>: a period's volume read.</summary>
+    PeriodVolumeLoaded = 1473,
 
     /// <summary><see cref="Services.WorkoutSummaryService"/>: a workout's summary read.</summary>
     WorkoutSummaryLoaded = 1530,

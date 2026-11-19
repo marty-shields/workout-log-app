@@ -1,0 +1,47 @@
+@using WorkoutLog.UI.Models.Workouts
+@if (Weeks.Count == 0)
+{
+    <p class="none" data-testid="@(TestId is null ? null : $"{TestId}-none")">No weeks yet</p>
+}
+else
+{
+    <ul class="weeks" aria-label="Workouts and time for each week" data-testid="@TestId">
+        @for (var i = 0; i < Weeks.Count; i++)
+        {
+            var week = Weeks[i];
+            <li class="week" data-testid="@(TestId is null ? null : $"{TestId}-{i + 1}")">
+                @if (week.Span is { } span && week.Workouts > 0 && OnOpen.HasDelegate)
+                {
+                    <button type="button" class="tap cells" data-testid="@(TestId is null ? null : $"{TestId}-{i + 1}-open")" @onclick="() => OnOpen.InvokeAsync(span)">
+                        @Cells(week)
+                        <Icon Name="IconName.Chevron" Tone="IconTone.Muted" />
+                    </button>
+                }
+                else
+                {
+                    <div class="cells">@Cells(week)</div>
+                }
+            </li>
+        }
+    </ul>
+}
+
+@code {
+    /// <summary>The month's weeks, first to last: one row each. A row with workouts and a <see cref="MonthWeek.Span"/> is tappable.</summary>
+    [Parameter, EditorRequired]
+    public IReadOnlyList<MonthWeek> Weeks { get; set; } = [];
+
+    /// <summary>Raised with the week's days when a tappable row is tapped. Rows are not tappable when unset.</summary>
+    [Parameter]
+    public EventCallback<DateSpan> OnOpen { get; set; }
+
+    /// <summary>Value of the data-testid attribute, the prefix of each row's (<c>{TestId}-1</c> for the first, <c>{TestId}-1-open</c> on its button) and <c>{TestId}-none</c>.</summary>
+    [Parameter]
+    public string? TestId { get; set; }
+
+    private static RenderFragment Cells(MonthWeek week) =>
+        @<text>
+            <span class="dates">@week.Dates</span>
+            <span class="totals">@DisplayFormat.Workouts(week.Workouts) · @DisplayFormat.Minutes((int)week.Time.TotalMinutes)</span>
+        </text>;
+}

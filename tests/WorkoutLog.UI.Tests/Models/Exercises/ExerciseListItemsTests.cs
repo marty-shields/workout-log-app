@@ -93,7 +93,7 @@ public class ExerciseListItemsTests
     {
         ExerciseListItem[] items = [Item(Run), Item(Squat), Item(Plank)];
 
-        Assert.That(ExerciseListItems.Find(items, Catalog, query, ExerciseFilter.All), Is.EqualTo(items));
+        Assert.That(ExerciseListItems.Find(items, Catalog, query, AddExerciseFilter.All), Is.EqualTo(items));
     }
 
     [Test]
@@ -101,18 +101,18 @@ public class ExerciseListItemsTests
     {
         ExerciseListItem[] items = [Item(Squat), Item(Run), Item(BodyweightSquat), Item(DumbbellCurl)];
 
-        Assert.That(ExerciseListItems.Find(items, Catalog, "squat", ExerciseFilter.All).Select(i => i.Id), Is.EqualTo(new[] { BodyweightSquat, Squat }));
+        Assert.That(ExerciseListItems.Find(items, Catalog, "squat", AddExerciseFilter.All).Select(i => i.Id), Is.EqualTo(new[] { BodyweightSquat, Squat }));
     }
 
-    [TestCase(ExerciseFilter.Strength, new[] { Squat, Plank })]
-    [TestCase(ExerciseFilter.Cardio, new[] { Run })]
-    [TestCase(ExerciseFilter.All, new[] { Run, Squat, Plank })]
-    public void Find_Filter_KeepsThatKind(ExerciseFilter filter, int[] expected) =>
+    [TestCase(AddExerciseFilter.Strength, new[] { Squat, Plank })]
+    [TestCase(AddExerciseFilter.Cardio, new[] { Run })]
+    [TestCase(AddExerciseFilter.All, new[] { Run, Squat, Plank })]
+    public void Find_Filter_KeepsThatKind(AddExerciseFilter filter, int[] expected) =>
         Assert.That(ExerciseListItems.Find([Item(Run), Item(Squat), Item(Plank)], Catalog, null, filter).Select(i => i.Id), Is.EqualTo(expected));
 
     [Test]
     public void Find_SearchAndFilter_Combine() =>
-        Assert.That(ExerciseListItems.Find(Catalog.Search(null).Select(e => Item(e.Id)).ToList(), Catalog, "row", ExerciseFilter.Strength).Select(i => i.Id),
+        Assert.That(ExerciseListItems.Find(Catalog.Search(null).Select(e => Item(e.Id)).ToList(), Catalog, "row", AddExerciseFilter.Strength).Select(i => i.Id),
             Is.EqualTo(Catalog.Search("row").Where(e => e.Type == ExerciseType.Strength).Select(e => e.Id)).And.Not.Empty);
 
     private static ExerciseDefinition Find(int id) => Catalog.All.Single(e => e.Id == id);
