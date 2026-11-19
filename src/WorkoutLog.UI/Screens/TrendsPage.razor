@@ -1,3 +1,4 @@
+@using System.Globalization
 @using Microsoft.Extensions.Logging
 @using WorkoutLog.Core.Domain.Exercises
 @using WorkoutLog.Core.Domain.Workouts.Consistency
@@ -89,7 +90,7 @@
     {
         PeriodKind.Week => DisplayFormat.WeekDates(period.Start),
         PeriodKind.Month => DisplayFormat.Month(period.Start.Year, period.Start.Month),
-        _ => period.Start.Year.ToString(System.Globalization.CultureInfo.InvariantCulture),
+        _ => DisplayFormat.Year(period.Start.Year),
     };
 
     private bool Past => !period.Contains(today);
@@ -97,7 +98,7 @@
     private string Against => period.Kind switch
     {
         PeriodKind.Week => Past ? "Against the week before" : DisplayFormat.AgainstLastWeek(today.DayOfWeek),
-        PeriodKind.Month => Past ? DisplayFormat.AgainstMonthBefore(period.Previous().Start, period.Start.Year) : DisplayFormat.AgainstLastMonth(period.SamePointBefore(today)),
+        PeriodKind.Month => Past ? DisplayFormat.AgainstMonthBefore(period.Previous().Start, period.Start.Year) : DisplayFormat.AgainstLastMonth(period.SamePointBefore(today), period.Start.Year),
         _ => Past ? $"Against {period.Previous().Start.Year}" : DisplayFormat.AgainstLastYear(period.SamePointBefore(today)),
     };
 
@@ -165,8 +166,9 @@
             return;
         }
 
+        var wasCurrent = period.Contains(today);
         SetToday();
-        var next = Period.Containing(kind, period.Contains(today) ? today : period.Start);
+        var next = Period.Containing(kind, wasCurrent ? today : period.Start);
         var current = Period.Containing(kind, today);
         period = next.Start > current.Start ? current : next;
         await OnPeriodChanged.InvokeAsync(period);
@@ -232,8 +234,12 @@
             return;
         }
 
-        streaks = readStreaks is WeekStreaks weekly ? weekly : null;
-        streaksYear = streakYear;
+        if (kind != PeriodKind.Month)
+        {
+            streaks = readStreaks is WeekStreaks weekly ? weekly : null;
+            streaksYear = streakYear;
+        }
+
         limits = readLimits is PeriodLimits known ? known : null;
         earliest = limits?.Earliest ?? (earliest?.Kind == kind ? earliest : null);
         if (limits is { } reach && shown.Start < reach.Earliest.Start)
@@ -333,10 +339,7 @@
             .Select(w =>
             {
                 var last = month.Contains(today) && w.End > today ? today : w.End;
-                var dates = last == w.Start
-                    ? w.Start.ToString("d MMM", System.Globalization.CultureInfo.InvariantCulture)
-                    : $"{w.Start.Day} – {last.ToString("d MMM", System.Globalization.CultureInfo.InvariantCulture)}";
-                return new MonthWeek(dates, w.Workouts, w.Time);
+                return new MonthWeek(DisplayFormat.MonthWeekDates(w.Start, last), w.Workouts, w.Time);
             })];
 
     private List<MeterRow> MostTrainedRows(IReadOnlyList<TrainedExercise> top)
@@ -351,7 +354,7 @@
         var highest = series.Buckets.Max(b => b.Workouts);
         return [.. series.Buckets.Select(b =>
         {
-            var name = b.Start.ToString("MMMM", System.Globalization.CultureInfo.InvariantCulture);
+            var name = b.Start.ToString("MMMM", CultureInfo.InvariantCulture);
             var current = b.Start <= today && today <= b.End;
             return new TrendBar(
                 name[..1],
@@ -367,7 +370,7 @@
     private List<MeterRow> RecordsByMonth(Period year, IReadOnlyList<int> perMonth) =>
         [.. perMonth.Select((count, i) => (Month: new DateOnly(year.Start.Year, i + 1, 1), Count: count))
             .Where(m => m.Month <= today)
-            .Select(m => new MeterRow(m.Month.ToString("MMM", System.Globalization.CultureInfo.InvariantCulture), m.Count))];
+            .Select(m => new MeterRow(m.Month.ToString("MMM", CultureInfo.InvariantCulture), m.Count))];
 
     /// <summary>Loads again when the app comes back on screen. Does nothing once the page is disposed, before or during the load.</summary>
     private async Task ReloadAsync()

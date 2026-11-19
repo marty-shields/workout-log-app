@@ -166,7 +166,22 @@ public class DisplayFormatTests
 
     [Test]
     public void AgainstLastMonth_NamesTheMonthAndTheDayReached() =>
-        Assert.That(DisplayFormat.AgainstLastMonth(new DateOnly(2026, 10, 18)), Is.EqualTo("Against October to the 18th"));
+        Assert.That(DisplayFormat.AgainstLastMonth(new DateOnly(2026, 10, 18), 2026), Is.EqualTo("Against October to the 18th"));
+
+    [Test]
+    public void AgainstLastMonth_InJanuary_AddsTheYearOfDecember() =>
+        Assert.That(DisplayFormat.AgainstLastMonth(new DateOnly(2025, 12, 18), 2026), Is.EqualTo("Against December 2025 to the 18th"));
+
+    [TestCase(2026, 11, 1, 2026, 11, 1, "1 Nov")]
+    [TestCase(2026, 11, 2, 2026, 11, 8, "2 – 8 Nov")]
+    [TestCase(2026, 11, 16, 2026, 11, 16, "16 Nov")]
+    [TestCase(2026, 9, 28, 2026, 9, 30, "28 – 30 Sep")]
+    public void MonthWeekDates_GiveTheFirstDayAndTheLastWhenThereAreSeveral(int year, int month, int day, int lastYear, int lastMonth, int lastDay, string expected) =>
+        Assert.That(DisplayFormat.MonthWeekDates(new DateOnly(year, month, day), new DateOnly(lastYear, lastMonth, lastDay)), Is.EqualTo(expected));
+
+    [Test]
+    public void Year_IsTheNumberWithoutSeparators() =>
+        Assert.That(DisplayFormat.Year(2026), Is.EqualTo("2026"));
 
     [Test]
     public void AgainstLastYear_NamesTheYearAndTheDateReached() =>

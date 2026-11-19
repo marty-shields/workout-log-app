@@ -43,7 +43,7 @@ public class OriginTests
     [TestCase("trends:decade:2026-11-09")]
     [TestCase("trends:month:")]
     [TestCase("trends:month:soon")]
-    [TestCase("trends:week:2026-11-09:x")]
+    [TestCase("trends:week:x:2026-11-09")]
     public void Route_ATrendsValueThatIsNotADate_IsTheList(string from) =>
         Assert.That(Origin.Route(from, "exercises"), Is.EqualTo("exercises"));
 }

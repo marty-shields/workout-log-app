@@ -192,7 +192,7 @@ public static class SampleTrends
 
     /// <summary>The five exercises done in most sessions in November.</summary>
     public static IReadOnlyList<MeterRow> MostTrained { get; } =
-        [new("Bench press", 5), new("Squat", 4), new("Deadlift", 3), new("Treadmill run", 3), new("Overhead press", 3)];
+        [new("Bench press", 5, 8), new("Squat", 4, 22), new("Deadlift", 3, 115), new("Treadmill run", 3, 41), new("Overhead press", 3, 9)];
 
     /// <summary>The current week's days, Monday to Sunday.</summary>
     public static IReadOnlyList<TrendBar> WeekDays => (IReadOnlyList<TrendBar>)Week[nameof(TrendsView.Days)]!;

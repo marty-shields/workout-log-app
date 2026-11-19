@@ -86,9 +86,12 @@ internal static class DisplayFormat
         ? "Against Monday last week"
         : $"Against Monday to {today} last week";
 
-    /// <summary>What this month so far is compared with, up to the same day of the month before: Against October to the 18th.</summary>
-    public static string AgainstLastMonth(DateOnly samePoint) =>
-        $"Against {samePoint.ToString("MMMM", CultureInfo.InvariantCulture)} to the {Ordinal(samePoint.Day)}";
+    /// <summary>
+    /// What this month so far is compared with, up to the same day of the month before: Against October to the 18th,
+    /// with the year when it is not <paramref name="year"/>: Against December 2025 to the 18th.
+    /// </summary>
+    public static string AgainstLastMonth(DateOnly samePoint, int year) =>
+        $"Against {samePoint.ToString(samePoint.Year == year ? "MMMM" : "MMMM yyyy", CultureInfo.InvariantCulture)} to the {Ordinal(samePoint.Day)}";
 
     /// <summary>What this year so far is compared with, up to the same date a year before: Against 2025 to 18 Nov.</summary>
     public static string AgainstLastYear(DateOnly samePoint) =>
@@ -114,6 +117,14 @@ internal static class DisplayFormat
         var from = monday.ToString(monday.Month == sunday.Month ? "%d" : "d MMM", CultureInfo.InvariantCulture);
         return $"{from} – {sunday.ToString("d MMM", CultureInfo.InvariantCulture)}";
     }
+
+    /// <summary>A week of a month cut to the month, without the year: 2 – 8 Nov, or just 1 Nov when it is one day.</summary>
+    public static string MonthWeekDates(DateOnly start, DateOnly last) => last == start
+        ? start.ToString("d MMM", CultureInfo.InvariantCulture)
+        : $"{start.Day} – {last.ToString("d MMM", CultureInfo.InvariantCulture)}";
+
+    /// <summary>A year as its number, 2026, whatever the culture.</summary>
+    public static string Year(int year) => year.ToString(CultureInfo.InvariantCulture);
 
     /// <summary>
     /// Weight rounded by <see cref="Decimals.Round2"/>, no trailing zeros and no space before the unit, e.g. 22.5kg; — when there is none.
