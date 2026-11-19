@@ -39,7 +39,7 @@
     <Overlay>
         @if (Editor.ListOpen)
         {
-            <ExercisesView Items="Editor.ListItems" Query="@Editor.Query" QueryChanged="Editor.Search" Filter="Editor.Filter" FilterChanged="Editor.FilterBy"
+            <AddExerciseView Items="Editor.ListItems" Query="@Editor.Query" QueryChanged="Editor.Search" Filter="Editor.Filter" FilterChanged="Editor.FilterBy"
                            Loading="Editor.ListLoading" OnPick="PickAsync" OnClose="Editor.CloseList" />
         }
         @if (Editor.DiscardOpen)

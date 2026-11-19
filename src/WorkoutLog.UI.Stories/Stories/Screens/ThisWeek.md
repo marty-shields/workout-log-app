@@ -16,6 +16,7 @@ Home screen: how the week is going. Which days you trained, how it compares with
 | Records this week | A `WeekRecordsCard`. |
 | Sets per muscle group | A `MuscleSetsCard`: Monday to today. |
 | Last week | A `LastWeekCard`, only while nothing is logged this week and last week is known. |
+| Records failed | The same week with its Records card left out, because the records could not be read. |
 | Loading | `Spinner` "Loading…" instead of the week. The top bar and tab bar work. |
 | Load failed | Error "Couldn't load This week" and a Secondary full-width **Try again** instead of the week. Focus moves to Try again. The top bar and tab bar work. |
 | Tab bar | `MainTabBar` with This week current, through `AppScreen`'s `Tab`: Trends opens [Trends](./?path=/custom/screens-trends-overview), + opens [New Workout](./?path=/custom/screens-new-workout-overview) (`/workout/new?from=this-week`, so discarding it returns here). |
@@ -30,7 +31,7 @@ A workout opens [Edit Workout](./?path=/custom/screens-edit-workout-overview) (`
 
 Loads each time it shows, and again when the app comes back on screen. [Pull down to refresh](./?path=/custom/components-layout-overview) loads it again the same way. Each load shows the spinner in place of the week, as on opening, then what was read, or the load error. After a pull the spinner stays up for at least half a second, so a fast reload doesn't blink. A failed load is logged without any workout contents.
 
-States: [Mid-week](./?path=/story/screens-this-week--mid-week) · [New week](./?path=/story/screens-this-week--new-week) · [No workouts](./?path=/story/screens-this-week--no-workouts) · [Loading](./?path=/story/screens-this-week--loading) · [Load failed](./?path=/story/screens-this-week--load-failed)
+States: [Mid-week](./?path=/story/screens-this-week--mid-week) · [New week](./?path=/story/screens-this-week--new-week) · [No workouts](./?path=/story/screens-this-week--no-workouts) · [Records failed](./?path=/story/screens-this-week--records-failed) · [Loading](./?path=/story/screens-this-week--loading) · [Load failed](./?path=/story/screens-this-week--load-failed)
 
 The parts are described on the [This week components](./?path=/custom/components-thisweek-overview) page.
 

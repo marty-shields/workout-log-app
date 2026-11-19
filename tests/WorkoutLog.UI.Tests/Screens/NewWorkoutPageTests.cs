@@ -280,10 +280,10 @@ public class NewWorkoutPageTests : ComponentTestBase
 
         Assert.Multiple(() =>
         {
-            Assert.That(cut.Find("[data-testid=exercises-search]").GetAttribute("value"), Is.Empty);
-            Assert.That(cut.Find("[data-testid=exercises-filter-all]").HasAttribute("checked"), Is.True);
-            Assert.That(cut.FindAll("[data-testid^=exercises-row-]").Select(r => r.GetAttribute("data-testid")),
-                Is.EqualTo(Catalog.Search(null).Select(e => $"exercises-row-{e.Id}")));
+            Assert.That(cut.Find("[data-testid=add-exercise-search]").GetAttribute("value"), Is.Empty);
+            Assert.That(cut.Find("[data-testid=add-exercise-filter-all]").HasAttribute("checked"), Is.True);
+            Assert.That(cut.FindAll("[data-testid^=add-exercise-row-]").Select(r => r.GetAttribute("data-testid")),
+                Is.EqualTo(Catalog.Search(null).Select(e => $"add-exercise-row-{e.Id}")));
         });
     }
 
@@ -298,16 +298,16 @@ public class NewWorkoutPageTests : ComponentTestBase
 
         Assert.Multiple(() =>
         {
-            Assert.That(cut.FindAll("[data-testid=exercises-loading]"), Has.Count.EqualTo(1));
-            Assert.That(cut.FindAll("[data-testid=exercises-search]"), Has.Count.EqualTo(1));
-            Assert.That(cut.FindAll("[data-testid^=exercises-row-]"), Is.Empty);
+            Assert.That(cut.FindAll("[data-testid=add-exercise-loading]"), Has.Count.EqualTo(1));
+            Assert.That(cut.FindAll("[data-testid=add-exercise-search]"), Has.Count.EqualTo(1));
+            Assert.That(cut.FindAll("[data-testid^=add-exercise-row-]"), Is.Empty);
         });
         LoggedExercises.Complete();
         cut.WaitForAssertion(() =>
         {
-            Assert.That(cut.FindAll("[data-testid=exercises-loading]"), Is.Empty);
-            Assert.That(cut.Find("[data-testid=exercises-row-6] .detail").TextContent, Does.StartWith("Last "));
-            Assert.That(cut.FindAll("[data-testid^=exercises-row-] .detail"), Has.Count.EqualTo(1));
+            Assert.That(cut.FindAll("[data-testid=add-exercise-loading]"), Is.Empty);
+            Assert.That(cut.Find("[data-testid=add-exercise-row-6] .detail").TextContent, Does.StartWith("Last "));
+            Assert.That(cut.FindAll("[data-testid^=add-exercise-row-] .detail"), Has.Count.EqualTo(1));
         });
     }
 
@@ -321,8 +321,8 @@ public class NewWorkoutPageTests : ComponentTestBase
 
         Assert.Multiple(() =>
         {
-            Assert.That(cut.FindAll("[data-testid^=exercises-row-]"), Has.Count.EqualTo(Catalog.All.Count));
-            Assert.That(cut.FindAll("[data-testid^=exercises-row-] .detail"), Is.Empty);
+            Assert.That(cut.FindAll("[data-testid^=add-exercise-row-]"), Has.Count.EqualTo(Catalog.All.Count));
+            Assert.That(cut.FindAll("[data-testid^=add-exercise-row-] .detail"), Is.Empty);
             Assert.That(cut.FindAll("[data-testid=exercises-error]"), Is.Empty);
         });
     }
@@ -332,7 +332,7 @@ public class NewWorkoutPageTests : ComponentTestBase
     {
         var cut = RenderPage();
         cut.Find("[data-testid=add-exercise]").Click();
-        cut.Find("[data-testid=exercises-back]").Click();
+        cut.Find("[data-testid=add-exercise-back]").Click();
 
         cut.Find("[data-testid=add-exercise]").Click();
 
@@ -345,10 +345,10 @@ public class NewWorkoutPageTests : ComponentTestBase
         var cut = RenderPage();
         cut.Find("[data-testid=add-exercise]").Click();
 
-        cut.Find("[data-testid=exercises-filter-cardio]").Change(true);
+        cut.Find("[data-testid=add-exercise-filter-cardio]").Change(true);
 
-        Assert.That(cut.FindAll("[data-testid^=exercises-row-]").Select(r => r.GetAttribute("data-testid")),
-            Is.EqualTo(Catalog.Search(null).Where(e => e.Type == ExerciseType.Cardio).Select(e => $"exercises-row-{e.Id}")));
+        Assert.That(cut.FindAll("[data-testid^=add-exercise-row-]").Select(r => r.GetAttribute("data-testid")),
+            Is.EqualTo(Catalog.Search(null).Where(e => e.Type == ExerciseType.Cardio).Select(e => $"add-exercise-row-{e.Id}")));
     }
 
     [Test]
@@ -357,9 +357,9 @@ public class NewWorkoutPageTests : ComponentTestBase
         var cut = RenderPage();
         cut.Find("[data-testid=add-exercise]").Click();
 
-        cut.Find("[data-testid=exercises-search]").Input("gravitron");
+        cut.Find("[data-testid=add-exercise-search]").Input("gravitron");
 
-        Assert.That(cut.FindAll("[data-testid^=exercises-row-]").Select(i => i.GetAttribute("data-testid")), Is.EqualTo(new[] { "exercises-row-218" }));
+        Assert.That(cut.FindAll("[data-testid^=add-exercise-row-]").Select(i => i.GetAttribute("data-testid")), Is.EqualTo(new[] { "add-exercise-row-218" }));
     }
 
     [Test]
@@ -375,7 +375,7 @@ public class NewWorkoutPageTests : ComponentTestBase
             Assert.That(Names(cut), Is.EqualTo(new[] { "Barbell Back Squat", "Dumbbell Curl" }));
             Assert.That(cut.FindAll("[data-testid^=exercise-1-set-][data-testid$=-reps]"), Has.Count.EqualTo(1));
             Assert.That(cut.Find("[data-testid=exercise-1-set-1-reps]").GetAttribute("value"), Is.Null.Or.Empty);
-            Assert.That(cut.FindAll("[data-testid=exercises-overlay]"), Is.Empty);
+            Assert.That(cut.FindAll("[data-testid=add-exercise-overlay]"), Is.Empty);
         });
     }
 
@@ -633,7 +633,7 @@ public class NewWorkoutPageTests : ComponentTestBase
         Remove(cut, 1);
 
         cut.Find("[data-testid=add-exercise]").Click();
-        cut.Find("[data-testid=exercises-back]").Click();
+        cut.Find("[data-testid=add-exercise-back]").Click();
         cut.Find("[data-testid=snackbar-undo]").Click();
 
         Assert.That(Names(cut), Is.EqualTo(new[] { "Dumbbell Curl" }));
@@ -1741,7 +1741,7 @@ public class NewWorkoutPageTests : ComponentTestBase
 
         Assert.Multiple(() =>
         {
-            Assert.That(cut.FindAll("[data-testid=exercises-overlay]"), Is.Empty);
+            Assert.That(cut.FindAll("[data-testid=add-exercise-overlay]"), Is.Empty);
             Assert.That(backs, Is.Zero);
         });
     }
@@ -1753,11 +1753,11 @@ public class NewWorkoutPageTests : ComponentTestBase
         var cut = RenderPage(() => backs++);
         cut.Find("[data-testid=add-exercise]").Click();
 
-        cut.Find("[data-testid=exercises-back]").Click();
+        cut.Find("[data-testid=add-exercise-back]").Click();
 
         Assert.Multiple(() =>
         {
-            Assert.That(cut.FindAll("[data-testid=exercises-overlay]"), Is.Empty);
+            Assert.That(cut.FindAll("[data-testid=add-exercise-overlay]"), Is.Empty);
             Assert.That(backs, Is.Zero);
         });
     }
@@ -1767,17 +1767,17 @@ public class NewWorkoutPageTests : ComponentTestBase
     {
         var cut = RenderPage();
         cut.Find("[data-testid=add-exercise]").Click();
-        cut.Find("[data-testid=exercises-search]").Input("zumba");
-        cut.Find("[data-testid=exercises-filter-cardio]").Change(true);
-        cut.Find("[data-testid=exercises-back]").Click();
+        cut.Find("[data-testid=add-exercise-search]").Input("zumba");
+        cut.Find("[data-testid=add-exercise-filter-cardio]").Change(true);
+        cut.Find("[data-testid=add-exercise-back]").Click();
 
         cut.Find("[data-testid=add-exercise]").Click();
 
         Assert.Multiple(() =>
         {
-            Assert.That(cut.Find("[data-testid=exercises-filter-all]").HasAttribute("checked"), Is.True);
-            Assert.That(cut.Find("[data-testid=exercises-search]").GetAttribute("value"), Is.Empty);
-            Assert.That(cut.FindAll("[data-testid^=exercises-row-]"), Has.Count.EqualTo(Catalog.All.Count));
+            Assert.That(cut.Find("[data-testid=add-exercise-filter-all]").HasAttribute("checked"), Is.True);
+            Assert.That(cut.Find("[data-testid=add-exercise-search]").GetAttribute("value"), Is.Empty);
+            Assert.That(cut.FindAll("[data-testid^=add-exercise-row-]"), Has.Count.EqualTo(Catalog.All.Count));
         });
     }
 
@@ -1788,7 +1788,7 @@ public class NewWorkoutPageTests : ComponentTestBase
         Context.Services.AddSingleton<IExerciseCatalog>(catalog);
         var cut = RenderPage();
         cut.Find("[data-testid=add-exercise]").Click();
-        cut.Find("[data-testid=exercises-search]").Input("curl");
+        cut.Find("[data-testid=add-exercise-search]").Input("curl");
         var searches = catalog.Searches;
 
         clock.Advance(TimeSpan.FromSeconds(3));
@@ -1804,12 +1804,12 @@ public class NewWorkoutPageTests : ComponentTestBase
         var cut = RenderPage();
         cut.Find("[data-testid=add-exercise]").Click();
 
-        cut.Find("[data-testid=exercises-search]").Input("pec" + new string('x', 100_000));
+        cut.Find("[data-testid=add-exercise-search]").Input("pec" + new string('x', 100_000));
 
         Assert.Multiple(() =>
         {
-            Assert.That(cut.Find("[data-testid=exercises-search]").GetAttribute("value"), Has.Length.EqualTo(ExerciseCatalog.MaxQueryLength));
-            Assert.That(cut.FindAll("[data-testid=exercises-none]"), Has.Count.EqualTo(1));
+            Assert.That(cut.Find("[data-testid=add-exercise-search]").GetAttribute("value"), Has.Length.EqualTo(ExerciseCatalog.MaxQueryLength));
+            Assert.That(cut.FindAll("[data-testid=add-exercise-none]"), Has.Count.EqualTo(1));
         });
     }
 
@@ -1874,8 +1874,8 @@ public class NewWorkoutPageTests : ComponentTestBase
     private static void Add(IRenderedComponent<NewWorkoutPage> cut, int exerciseId)
     {
         cut.Find("[data-testid=add-exercise]").Click();
-        cut.Find("[data-testid=exercises-search]").Input(Catalog.All.Single(e => e.Id == exerciseId).Name);
-        cut.Find($"[data-testid=exercises-row-{exerciseId}]").Click();
+        cut.Find("[data-testid=add-exercise-search]").Input(Catalog.All.Single(e => e.Id == exerciseId).Name);
+        cut.Find($"[data-testid=add-exercise-row-{exerciseId}]").Click();
     }
 
     /// <summary>Registers a workout service whose drafts start at <paramref name="draftClock"/>'s current time.</summary>

@@ -1,9 +1,5 @@
-Feature: Exercises
-  Exercises is no longer a screen of its own: the add-exercise list shows each logged exercise's last session, and an exercise's page opens from Trends.
-
-  Scenario: The tab bar has This week, + and Trends
-    Given I am on This week
-    Then I can open Trends and start a New Workout from the tab bar
+Feature: Add exercise last session
+  The add-exercise list shows each logged exercise's last session.
 
   Scenario: The add-exercise list shows each logged exercise's last session
     Given these saved workouts:

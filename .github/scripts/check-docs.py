@@ -2,8 +2,8 @@
 """Usage: check-docs.py [repo root]   (default: the current folder)
 
 Exits 1 and prints file:line for a relative link, image or `#anchor` in a tracked *.md that does not resolve, and for a
-docs/images/readme screenshot with no row in the README screenshots table of docs/dev-setup-build.md or a row whose
-image is missing. A `?query` on a link, as on the stories pages' `./?path=/story/...`, is not checked.
+docs/images/readme screenshot, light or dark, with no row in the README screenshots table of docs/dev-setup-build.md or a row whose
+light or dark image is missing. A `?query` on a link, as on the stories pages' `./?path=/story/...`, is not checked.
 """
 import pathlib
 import re
@@ -101,8 +101,8 @@ def check_screenshots(root):
         match = SCREENSHOT_ROW.match(line)
         if match:
             rows[match.group(1)] = number
-    images = {p.name[:-len('-light.png')] for p in (root / SCREENSHOT_DIR).glob('*-light.png')}
-    findings = [f'{SCREENSHOT_DOC}: no row for {SCREENSHOT_DIR}/{name}-light.png' for name in sorted(images - rows.keys())]
+    images = {(p.name[:-len(f'-{theme}.png')], theme) for theme in ('light', 'dark') for p in (root / SCREENSHOT_DIR).glob(f'*-{theme}.png')}
+    findings = [f'{SCREENSHOT_DOC}: no row for {SCREENSHOT_DIR}/{name}-{theme}.png' for name, theme in sorted(images) if name not in rows]
     for name, number in rows.items():
         for theme in ('light', 'dark'):
             if not (root / SCREENSHOT_DIR / f'{name}-{theme}.png').exists():

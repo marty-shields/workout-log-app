@@ -27,6 +27,17 @@
         </Template>
     </Story>
 
+    <Story Name="Records failed">
+        <Description>The records couldn't load: the Records card is left out and the rest of the week shows. Core logs a Warning.</Description>
+        <Template>
+            <ThisWeekView Monday="SampleThisWeek.Monday" Today="SampleThisWeek.Wednesday" Trained="SampleThisWeek.TrainedDays" Streak="23"
+                          ThisWeek="SampleThisWeek.ThisWeek" LastWeekToDate="SampleThisWeek.LastWeekToDate"
+                          Workouts="SampleThisWeek.Workouts" Records="null" Muscles="SampleThisWeek.Muscles"
+                          OnSettings="() => { }" OnNew="() => { }" OnNavigate="(MainTab _) => { }"
+                          OnOpenWorkout="(int _) => { }" />
+        </Template>
+    </Story>
+
     <Story Name="Loading">
         <Template>
             <ThisWeekView Loading Monday="SampleThisWeek.Monday" Today="SampleThisWeek.Wednesday"

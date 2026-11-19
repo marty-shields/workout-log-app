@@ -83,8 +83,8 @@ public class NotesWithCoreTests : ComponentTestBase
     private static void AddExercise(IRenderedComponent<NewWorkoutPage> cut, int exerciseId)
     {
         cut.Find("[data-testid=add-exercise]").Click();
-        cut.Find("[data-testid=exercises-search]").Input(Catalog.All.Single(e => e.Id == exerciseId).Name);
-        cut.Find($"[data-testid=exercises-row-{exerciseId}]").Click();
+        cut.Find("[data-testid=add-exercise-search]").Input(Catalog.All.Single(e => e.Id == exerciseId).Name);
+        cut.Find($"[data-testid=add-exercise-row-{exerciseId}]").Click();
     }
 
     private static void TypeNote(IRenderedComponent<NewWorkoutPage> cut, string addButton, string note, string text)

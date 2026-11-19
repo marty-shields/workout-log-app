@@ -9,7 +9,7 @@ namespace WorkoutLog.E2E.Tests.Steps;
 
 /// <summary>The last sessions on the add-exercise list.</summary>
 [Binding]
-public sealed class ExercisesSteps(WebView web, AddExerciseScreen addExercise, DeviceClock clock)
+public sealed class AddExerciseLastSessionSteps(WebView web, AddExerciseScreen addExercise, DeviceClock clock)
 {
     [Then(@"^the add-exercise row for ""(.*)"" reads Last (.+)$")]
     public void ThenTheAddExerciseRowReads(string name, string last) =>

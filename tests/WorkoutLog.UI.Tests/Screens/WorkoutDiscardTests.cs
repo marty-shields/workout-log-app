@@ -222,8 +222,8 @@ public class WorkoutDiscardTests(WorkoutMode mode) : ComponentTestBase
         if (mode == WorkoutMode.New)
         {
             cut.Find("[data-testid=add-exercise]").Click();
-            cut.Find("[data-testid=exercises-search]").Input(Catalog.All.Single(e => e.Id == 132).Name);
-            cut.Find("[data-testid=exercises-row-132]").Click();
+            cut.Find("[data-testid=add-exercise-search]").Input(Catalog.All.Single(e => e.Id == 132).Name);
+            cut.Find("[data-testid=add-exercise-row-132]").Click();
         }
         else
         {

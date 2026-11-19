@@ -1,15 +1,15 @@
 using System.Globalization;
-using WorkoutLog.UI.Components.Dashboard;
+using WorkoutLog.UI.Components.Weekly;
 using WorkoutLog.UI.Stories.Samples;
 
-namespace WorkoutLog.UI.Tests.Components.Dashboard;
+namespace WorkoutLog.UI.Tests.Components.Weekly;
 
 public class WeekBarsTests : ComponentTestBase
 {
     [Test]
     public void Figure_IsNamedAndTheDrawingHidden()
     {
-        var cut = Render(SampleDashboard.FullWeeks);
+        var cut = Render(SampleWeekly.FullWeeks);
 
         Assert.Multiple(() =>
         {
@@ -31,7 +31,7 @@ public class WeekBarsTests : ComponentTestBase
     [Test]
     public void Full_HasABarPerWeekWithThisWeekLastAndHighlighted()
     {
-        var cut = Render(SampleDashboard.FullWeeks);
+        var cut = Render(SampleWeekly.FullWeeks);
 
         var bars = cut.FindAll("rect");
 
@@ -45,7 +45,7 @@ public class WeekBarsTests : ComponentTestBase
     [Test]
     public void Gaps_EmptyWeeksHaveNoBar()
     {
-        var cut = Render(SampleDashboard.WeekCounts);
+        var cut = Render(SampleWeekly.WeekCounts);
 
         Assert.That(cut.FindAll("rect"), Has.Count.EqualTo(11));
     }
@@ -53,7 +53,7 @@ public class WeekBarsTests : ComponentTestBase
     [Test]
     public void AllEmpty_ShowsAMessageInsteadOfTheChart()
     {
-        var cut = Render(SampleDashboard.EmptyWeeks);
+        var cut = Render(SampleWeekly.EmptyWeeks);
 
         Assert.Multiple(() =>
         {
@@ -65,7 +65,7 @@ public class WeekBarsTests : ComponentTestBase
     [Test]
     public void OneWeek_HasOneFullHeightBar()
     {
-        var cut = Render(SampleDashboard.FirstWeekCounts);
+        var cut = Render(SampleWeekly.FirstWeekCounts);
 
         Assert.Multiple(() =>
         {

@@ -1,4 +1,4 @@
-@using WorkoutLog.UI.Components.Dashboard
+@using WorkoutLog.UI.Components.Weekly
 <section class="card" data-testid="@TestId">
     <ListRow Text="Last week"
              Detail="@($"{DisplayFormat.Workouts(Totals.Workouts)} · {DisplayFormat.Minutes((int)Totals.Time.TotalMinutes)} · {DisplayFormat.Sets(Totals.Sets)}")"

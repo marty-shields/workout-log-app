@@ -14,10 +14,10 @@
            data-testid="@($"{TestId}-search")"
            @oninput="OnInput" />
 </div>
-<FilterChips TValue="ExerciseFilter" Label="Type" Options="filters" Value="Filter" ValueChanged="FilterChanged" TestId="@($"{TestId}-filter")" />
+<FilterChips TValue="AddExerciseFilter" Label="Type" Options="filters" Value="Filter" ValueChanged="FilterChanged" TestId="@($"{TestId}-filter")" />
 
 @code {
-    private IReadOnlyList<RadioOption<ExerciseFilter>> filters = [];
+    private IReadOnlyList<RadioOption<AddExerciseFilter>> filters = [];
     private ElementReference search;
 
     /// <summary>Search text.</summary>
@@ -30,26 +30,26 @@
 
     /// <summary>Chosen chip.</summary>
     [Parameter]
-    public ExerciseFilter Filter { get; set; }
+    public AddExerciseFilter Filter { get; set; }
 
     /// <summary>Raised with the chip tapped.</summary>
     [Parameter]
-    public EventCallback<ExerciseFilter> FilterChanged { get; set; }
+    public EventCallback<AddExerciseFilter> FilterChanged { get; set; }
 
     /// <summary>Moves focus to the search box when first shown.</summary>
     [Parameter]
     public bool FocusSearch { get; set; }
 
-    /// <summary>Prefix of the data-testid attributes, e.g. exercises gives exercises-search and exercises-filter-all.</summary>
+    /// <summary>Prefix of the data-testid attributes, e.g. add-exercise gives add-exercise-search and add-exercise-filter-all.</summary>
     [Parameter, EditorRequired]
     public string TestId { get; set; } = "";
 
     protected override void OnInitialized() =>
         filters =
         [
-            new(ExerciseFilter.All, "All", $"{TestId}-filter-all"),
-            new(ExerciseFilter.Strength, "Strength", $"{TestId}-filter-strength"),
-            new(ExerciseFilter.Cardio, "Cardio", $"{TestId}-filter-cardio"),
+            new(AddExerciseFilter.All, "All", $"{TestId}-filter-all"),
+            new(AddExerciseFilter.Strength, "Strength", $"{TestId}-filter-strength"),
+            new(AddExerciseFilter.Cardio, "Cardio", $"{TestId}-filter-cardio"),
         ];
 
     protected override async Task OnAfterRenderAsync(bool firstRender)

@@ -81,10 +81,11 @@ run "a shorter fence does not close a longer one and a tilde fence takes a backt
 exit=1' long
 
 repo shot 'x'
-touch "$work/shot/docs/images/readme/extra-light.png"
+touch "$work/shot/docs/images/readme/extra-light.png" "$work/shot/docs/images/readme/lonely-dark.png"
 printf '| `home` | `a` |\n| `gone` | `b` |\n' >> "$work/shot/docs/dev-setup-build.md"
 rm "$work/shot/docs/images/readme/home-dark.png"
-run "a screenshot with no row, and rows with no image" 'docs/dev-setup-build.md: no row for docs/images/readme/extra-light.png
+run "a screenshot, light or dark, with no row, and rows with no image" 'docs/dev-setup-build.md: no row for docs/images/readme/extra-light.png
+docs/dev-setup-build.md: no row for docs/images/readme/lonely-dark.png
 docs/dev-setup-build.md:4: row `home` has no docs/images/readme/home-dark.png
 docs/dev-setup-build.md:5: row `gone` has no docs/images/readme/gone-light.png
 docs/dev-setup-build.md:5: row `gone` has no docs/images/readme/gone-dark.png
