@@ -86,6 +86,30 @@ internal static class DisplayFormat
         ? "Against Monday last week"
         : $"Against Monday to {today} last week";
 
+    /// <summary>
+    /// What this month so far is compared with, up to the same day of the month before: Against October to the 18th,
+    /// with the year when it is not <paramref name="year"/>: Against December 2025 to the 18th.
+    /// </summary>
+    public static string AgainstLastMonth(DateOnly samePoint, int year) =>
+        $"Against {samePoint.ToString(samePoint.Year == year ? "MMMM" : "MMMM yyyy", CultureInfo.InvariantCulture)} to the {Ordinal(samePoint.Day)}";
+
+    /// <summary>What this year so far is compared with, up to the same date a year before: Against 2025 to 18 Nov.</summary>
+    public static string AgainstLastYear(DateOnly samePoint) =>
+        $"Against {samePoint.Year} to {samePoint.ToString("d MMM", CultureInfo.InvariantCulture)}";
+
+    /// <summary>What a finished month is compared with: Against September, with the year when it is not <paramref name="year"/>.</summary>
+    public static string AgainstMonthBefore(DateOnly month, int year) =>
+        $"Against {month.ToString(month.Year == year ? "MMMM" : "MMMM yyyy", CultureInfo.InvariantCulture)}";
+
+    /// <summary>A day of the month with its ordinal suffix, e.g. 1st, 12th or 23rd.</summary>
+    public static string Ordinal(int day) => day + (day % 100 is >= 11 and <= 13 ? "th" : (day % 10) switch
+    {
+        1 => "st",
+        2 => "nd",
+        3 => "rd",
+        _ => "th",
+    });
+
     /// <summary>A Monday to Sunday week, without the year: 16 – 22 Nov, or 28 Sep – 4 Oct across months.</summary>
     public static string WeekDates(DateOnly monday)
     {
@@ -93,6 +117,14 @@ internal static class DisplayFormat
         var from = monday.ToString(monday.Month == sunday.Month ? "%d" : "d MMM", CultureInfo.InvariantCulture);
         return $"{from} – {sunday.ToString("d MMM", CultureInfo.InvariantCulture)}";
     }
+
+    /// <summary>A week of a month cut to the month, without the year: 2 – 8 Nov, or just 1 Nov when it is one day.</summary>
+    public static string MonthWeekDates(DateOnly start, DateOnly last) => last == start
+        ? start.ToString("d MMM", CultureInfo.InvariantCulture)
+        : $"{start.Day} – {last.ToString("d MMM", CultureInfo.InvariantCulture)}";
+
+    /// <summary>A year as its number, 2026, whatever the culture.</summary>
+    public static string Year(int year) => year.ToString(CultureInfo.InvariantCulture);
 
     /// <summary>
     /// Weight rounded by <see cref="Decimals.Round2"/>, no trailing zeros and no space before the unit, e.g. 22.5kg; — when there is none.

@@ -71,12 +71,16 @@ public class TrendsPageTests : ComponentTestBase
     }
 
     [Test]
-    public void OnlyWeekIsOffered_SoTheKindControlIsHidden()
+    public void WeekMonthAndYearAreOffered_WithTheWeekPickedByDefault()
     {
         var cut = Context.Render<TrendsPage>();
 
         cut.WaitForAssertion(() => Assert.That(cut.FindAll("[data-testid=trends-tiles]"), Has.Count.EqualTo(1)));
-        Assert.That(cut.FindAll("[data-testid=trends-kind]"), Is.Empty);
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.FindAll("[data-testid=trends-kind] input").Select(i => i.GetAttribute("data-testid")), Is.EqualTo(new[] { "trends-week", "trends-month", "trends-year" }));
+            Assert.That(cut.Find("[data-testid=trends-week]").HasAttribute("checked"), Is.True);
+        });
     }
 
     [Test]
@@ -328,7 +332,7 @@ public class TrendsPageTests : ComponentTestBase
     public void Previous_ShowsTheWeekBeforeAndRaisesItsMonday()
     {
         MidWeek();
-        var changed = new List<DateOnly>();
+        var changed = new List<Period>();
         var cut = Context.Render<TrendsPage>(p => p.Add(x => x.OnPeriodChanged, changed.Add));
         cut.WaitForAssertion(() => Assert.That(cut.Find("[data-testid=trends-stepper-previous]").HasAttribute("disabled"), Is.False));
 
@@ -337,7 +341,7 @@ public class TrendsPageTests : ComponentTestBase
         cut.WaitForAssertion(() => Assert.That(cut.Find("[data-testid=trends-stepper-label]").TextContent, Is.EqualTo("9 – 15 Nov")));
         Assert.Multiple(() =>
         {
-            Assert.That(changed, Is.EqualTo(new[] { LastMonday }));
+            Assert.That(changed, Is.EqualTo(new[] { Period.Containing(PeriodKind.Week, LastMonday) }));
             Assert.That(totals.Comparisons.Last(), Is.EqualTo(LastMonday));
             Assert.That(training.RecordReads.Last(), Is.EqualTo(LastMonday));
             Assert.That(cut.Find("[data-testid=trends-stepper-next]").HasAttribute("disabled"), Is.False);
@@ -351,7 +355,7 @@ public class TrendsPageTests : ComponentTestBase
     public void Next_ReturnsToTheCurrentWeekAndDisablesNext()
     {
         MidWeek();
-        var changed = new List<DateOnly>();
+        var changed = new List<Period>();
         var cut = Context.Render<TrendsPage>(p => p.Add(x => x.DateQuery, "2026-11-09").Add(x => x.OnPeriodChanged, changed.Add));
         cut.WaitForAssertion(() => Assert.That(cut.Find("[data-testid=trends-stepper-next]").HasAttribute("disabled"), Is.False));
 
@@ -360,7 +364,7 @@ public class TrendsPageTests : ComponentTestBase
         cut.WaitForAssertion(() => Assert.That(cut.Find("[data-testid=trends-stepper-label]").TextContent, Is.EqualTo("16 – 22 Nov")));
         Assert.Multiple(() =>
         {
-            Assert.That(changed, Is.EqualTo(new[] { Monday }));
+            Assert.That(changed, Is.EqualTo(new[] { Week }));
             Assert.That(cut.Find("[data-testid=trends-stepper-next]").HasAttribute("disabled"), Is.True);
         });
     }
@@ -428,7 +432,7 @@ public class TrendsPageTests : ComponentTestBase
     public async Task NextOnTheCurrentWeekAndPreviousOnTheFirst_DoNothing()
     {
         MidWeek();
-        var changed = new List<DateOnly>();
+        var changed = new List<Period>();
         var cut = Context.Render<TrendsPage>(p => p.Add(x => x.OnPeriodChanged, changed.Add));
         cut.WaitForAssertion(() => Assert.That(cut.FindAll("[data-testid=trends-tiles]"), Has.Count.EqualTo(1)));
         var view = cut.FindComponent<TrendsView>().Instance;
@@ -480,7 +484,7 @@ public class TrendsPageTests : ComponentTestBase
     public void OpenedOnAWeekBeforeTheFirstWorkout_ShowsTheFirstWeekAndRaisesIt()
     {
         MidWeek();
-        var changed = new List<DateOnly>();
+        var changed = new List<Period>();
 
         var cut = Context.Render<TrendsPage>(p => p.Add(x => x.DateQuery, "2001-01-01").Add(x => x.OnPeriodChanged, changed.Add));
 
@@ -488,7 +492,7 @@ public class TrendsPageTests : ComponentTestBase
         cut.WaitForAssertion(() => Assert.That(cut.FindAll("[data-testid=trends-loading]"), Is.Empty));
         Assert.Multiple(() =>
         {
-            Assert.That(changed, Is.EqualTo(new[] { FirstMonday }));
+            Assert.That(changed, Is.EqualTo(new[] { Period.Containing(PeriodKind.Week, FirstMonday) }));
             Assert.That(totals.Comparisons.Last(), Is.EqualTo(FirstMonday));
             Assert.That(totals.LimitReads, Is.EqualTo(1));
             Assert.That(cut.Find("[data-testid=trends-stepper-previous]").HasAttribute("disabled"), Is.True);
@@ -515,17 +519,16 @@ public class TrendsPageTests : ComponentTestBase
 
     [TestCase(null)]
     [TestCase("")]
-    [TestCase("month")]
-    [TestCase("year")]
+    [TestCase("Month")]
     [TestCase("nonsense")]
-    public void OpenedWithAnotherKind_ShowsTheWeek(string? kind)
+    public void OpenedWithNoKnownKind_ShowsTheWeek(string? kind)
     {
         MidWeek();
 
         var cut = Context.Render<TrendsPage>(p => p.Add(x => x.KindQuery, kind).Add(x => x.DateQuery, "2026-11-09"));
 
         cut.WaitForAssertion(() => Assert.That(cut.Find("[data-testid=trends-stepper-label]").TextContent, Is.EqualTo("9 – 15 Nov")));
-        Assert.That(cut.FindAll("[data-testid=trends-month]"), Is.Empty);
+        Assert.That(cut.Find("[data-testid=trends-week]").HasAttribute("checked"), Is.True);
     }
 
     [Test]
@@ -593,7 +596,7 @@ public class TrendsPageTests : ComponentTestBase
 
         cut.WaitForElement("button[data-testid=trends-records-row-311]").Click();
 
-        Assert.That(opened, Is.EqualTo(new[] { new RecordOpened(Run, LastMonday) }));
+        Assert.That(opened, Is.EqualTo(new[] { new RecordOpened(Run, Period.Containing(PeriodKind.Week, LastMonday)) }));
     }
 
     [Test]
@@ -651,21 +654,21 @@ public class TrendsPageTests : ComponentTestBase
     public async Task AppStarted_ShowingThisWeekAndANewWeekBegan_ShowsTheNewWeekAndRaisesIt()
     {
         MidWeek();
-        var changed = new List<DateOnly>();
+        var changed = new List<Period>();
         var cut = await LoadedAsync(p => p.Add(x => x.OnPeriodChanged, changed.Add));
         time.SetUtcNow(new DateTimeOffset(2026, 11, 22, 23, 30, 0, TimeSpan.Zero));
 
         await lifecycle.NotifyStartedAsync();
 
         cut.WaitForAssertion(() => Assert.That(cut.Find("[data-testid=trends-stepper-label]").TextContent, Is.EqualTo("23 – 29 Nov")));
-        Assert.That(changed, Is.EqualTo(new[] { new DateOnly(2026, 11, 23) }));
+        Assert.That(changed, Is.EqualTo(new[] { Period.Containing(PeriodKind.Week, new DateOnly(2026, 11, 23)) }));
     }
 
     [Test]
     public async Task AppStarted_ShowingAnEarlierWeekAndANewWeekBegan_StaysOnThatWeek()
     {
         MidWeek();
-        var changed = new List<DateOnly>();
+        var changed = new List<Period>();
         var cut = await LoadedAsync(p => p.Add(x => x.DateQuery, "2026-11-09").Add(x => x.OnPeriodChanged, changed.Add));
         time.SetUtcNow(new DateTimeOffset(2026, 11, 22, 23, 30, 0, TimeSpan.Zero));
 

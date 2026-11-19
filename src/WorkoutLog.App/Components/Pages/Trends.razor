@@ -5,14 +5,14 @@
 
 @* Back has no handler here, so it leaves the app. *@
 <TrendsPage KindQuery="Period" DateQuery="Date"
-            OnPeriodChanged="@(week => Navigation.GoTo(TrendsRoute.Week(week)))"
+            OnPeriodChanged="@(period => Navigation.GoTo(TrendsRoute.To(period)))"
             OnNew="@(() => Navigation.GoTo("workout/new"))"
             OnNavigate="@(tab => { if (tab == MainTab.ThisWeek) { Navigation.GoTo(string.Empty); } })"
             OnSettings="@(() => Navigation.GoTo("settings"))"
-            OnOpenExercise="@(opened => Navigation.GoTo($"exercises/{opened.ExerciseId}?from={Uri.EscapeDataString(Origin.Trends(opened.Week))}"))" />
+            OnOpenExercise="@(opened => Navigation.GoTo($"exercises/{opened.ExerciseId}?from={Uri.EscapeDataString(Origin.Trends(opened.Period))}"))" />
 
 @code {
-    /// <summary>The kind of period to show: "week".</summary>
+    /// <summary>The kind of period to show: "week", "month" or "year". Missing or anything else, the week.</summary>
     [SupplyParameterFromQuery] public string? Period { get; set; }
 
     /// <summary>A day inside the period, as 2026-11-09. Missing, the period holding today.</summary>

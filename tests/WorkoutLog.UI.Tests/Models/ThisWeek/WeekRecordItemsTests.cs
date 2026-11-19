@@ -37,6 +37,16 @@ public class WeekRecordItemsTests
         }));
     }
 
+    [Test]
+    public void Items_WithDates_AlsoGiveTheDateInTheZone()
+    {
+        var started = new DateTimeOffset(2026, 11, 17, 23, 30, 0, TimeSpan.Zero);
+
+        var items = WeekRecordItems.Items([new ExerciseRecord(Squat, started, new ExerciseBest(70m, 3, null, null))], Catalog, Zone, withDates: true);
+
+        Assert.That(items, Is.EqualTo(new[] { new WeekRecord(Squat, "Barbell Back Squat", "70kg × 3", DayOfWeek.Wednesday, "Wed 18 Nov") }));
+    }
+
     [TestCase(23, 0, DayOfWeek.Wednesday)]
     [TestCase(22, 59, DayOfWeek.Tuesday)]
     [TestCase(23, 59, DayOfWeek.Wednesday)]

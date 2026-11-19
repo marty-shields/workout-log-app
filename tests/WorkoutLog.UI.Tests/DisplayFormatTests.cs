@@ -148,4 +148,47 @@ public class DisplayFormatTests
     [TestCase(1, "1 set")]
     [TestCase(12, "12 sets")]
     public void Sets_IsSingularOnlyForOne(int count, string expected) => Assert.That(DisplayFormat.Sets(count), Is.EqualTo(expected));
+
+    [TestCase(1, "1st")]
+    [TestCase(2, "2nd")]
+    [TestCase(3, "3rd")]
+    [TestCase(4, "4th")]
+    [TestCase(11, "11th")]
+    [TestCase(12, "12th")]
+    [TestCase(13, "13th")]
+    [TestCase(18, "18th")]
+    [TestCase(21, "21st")]
+    [TestCase(22, "22nd")]
+    [TestCase(23, "23rd")]
+    [TestCase(30, "30th")]
+    [TestCase(31, "31st")]
+    public void Ordinal_FollowsEnglishSuffixes(int day, string expected) => Assert.That(DisplayFormat.Ordinal(day), Is.EqualTo(expected));
+
+    [Test]
+    public void AgainstLastMonth_NamesTheMonthAndTheDayReached() =>
+        Assert.That(DisplayFormat.AgainstLastMonth(new DateOnly(2026, 10, 18), 2026), Is.EqualTo("Against October to the 18th"));
+
+    [Test]
+    public void AgainstLastMonth_InJanuary_AddsTheYearOfDecember() =>
+        Assert.That(DisplayFormat.AgainstLastMonth(new DateOnly(2025, 12, 18), 2026), Is.EqualTo("Against December 2025 to the 18th"));
+
+    [TestCase(2026, 11, 1, 2026, 11, 1, "1 Nov")]
+    [TestCase(2026, 11, 2, 2026, 11, 8, "2 – 8 Nov")]
+    [TestCase(2026, 11, 16, 2026, 11, 16, "16 Nov")]
+    [TestCase(2026, 9, 28, 2026, 9, 30, "28 – 30 Sep")]
+    public void MonthWeekDates_GiveTheFirstDayAndTheLastWhenThereAreSeveral(int year, int month, int day, int lastYear, int lastMonth, int lastDay, string expected) =>
+        Assert.That(DisplayFormat.MonthWeekDates(new DateOnly(year, month, day), new DateOnly(lastYear, lastMonth, lastDay)), Is.EqualTo(expected));
+
+    [Test]
+    public void Year_IsTheNumberWithoutSeparators() =>
+        Assert.That(DisplayFormat.Year(2026), Is.EqualTo("2026"));
+
+    [Test]
+    public void AgainstLastYear_NamesTheYearAndTheDateReached() =>
+        Assert.That(DisplayFormat.AgainstLastYear(new DateOnly(2025, 11, 18)), Is.EqualTo("Against 2025 to 18 Nov"));
+
+    [TestCase(2026, 9, 2026, "Against September")]
+    [TestCase(2025, 12, 2026, "Against December 2025")]
+    public void AgainstMonthBefore_AddsTheYearOnlyWhenItDiffers(int year, int month, int shownYear, string expected) =>
+        Assert.That(DisplayFormat.AgainstMonthBefore(new DateOnly(year, month, 1), shownYear), Is.EqualTo(expected));
 }

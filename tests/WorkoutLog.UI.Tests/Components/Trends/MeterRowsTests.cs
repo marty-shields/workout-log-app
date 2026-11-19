@@ -74,6 +74,31 @@ public class MeterRowsTests : ComponentTestBase
     public void AllRowsAtZero_ShowTheMessage() =>
         Assert.That(Render([new("Jan", 0), new("Feb", 0)], wide: false).FindAll("[data-testid=meters-none]"), Has.Count.EqualTo(1));
 
+    [Test]
+    public void RowsWithAnExercise_AreTappableWhenOnOpenIsSetAndRaiseItsId()
+    {
+        var opened = new List<int>();
+        var cut = Context.Render<MeterRows>(p => p
+            .Add(x => x.Rows, [new MeterRow("Squat", 4, 6), new MeterRow("Jan", 2)])
+            .Add(x => x.Unit, "sessions")
+            .Add(x => x.AriaLabel, "Sessions of each exercise")
+            .Add(x => x.EmptyText, "Nothing yet")
+            .Add(x => x.OnOpen, opened.Add)
+            .Add(x => x.TestId, "meters"));
+
+        cut.Find("[data-testid=meters-squat] button").Click();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(opened, Is.EqualTo(new[] { 6 }));
+            Assert.That(cut.FindAll("button"), Has.Count.EqualTo(1));
+        });
+    }
+
+    [Test]
+    public void Rows_AreNotTappableWithoutOnOpen() =>
+        Assert.That(Render([new("Squat", 4, 6)], wide: true).FindAll("button"), Is.Empty);
+
     private IRenderedComponent<MeterRows> Render(IReadOnlyList<MeterRow> rows, bool wide) =>
         Context.Render<MeterRows>(p => p
             .Add(x => x.Rows, rows)

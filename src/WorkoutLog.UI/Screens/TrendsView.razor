@@ -58,7 +58,7 @@
                         <RecordRows Records="Records" EmptyText="@($"No new records {Name}")" OnOpen="OnOpenRecord" TestId="trends-records" />
                     </TrendCard>
                     <TrendCard Title="Most trained" Aside="sessions" TestId="trends-most-trained">
-                        <MeterRows Rows="MostTrained" Unit="sessions" AriaLabel="@($"Sessions of the most trained exercises {Name}")" Wide EmptyText="@($"No exercises {Name}")" TestId="trends-most-trained-rows" />
+                        <MeterRows Rows="MostTrained" Unit="sessions" AriaLabel="@($"Sessions of the most trained exercises {Name}")" Wide EmptyText="@($"No exercises {Name}")" OnOpen="OnOpenRecord" TestId="trends-most-trained-rows" />
                     </TrendCard>
                 }
                 else
@@ -225,7 +225,7 @@
     [Parameter]
     public EventCallback<MainTab> OnNavigate { get; set; }
 
-    /// <summary>Raised with the exercise id when a record row is tapped. Rows are not tappable when unset.</summary>
+    /// <summary>Raised with the exercise id when a record row, or in the month a Most trained row, is tapped. Rows are not tappable when unset.</summary>
     [Parameter]
     public EventCallback<int> OnOpenRecord { get; set; }
 

@@ -27,6 +27,16 @@ public sealed class FakePeriodTrainingService : IPeriodTrainingService
     /// <summary>When true, muscle group reads wait for <see cref="CompleteMuscles()"/>.</summary>
     public bool HoldMuscles { get; set; }
 
+    public ReadResult<IReadOnlyList<TrainedExercise>> MostTrained { get; set; } = new ReadResult<IReadOnlyList<TrainedExercise>>(Array.Empty<TrainedExercise>());
+
+    /// <summary>When set, most trained reads wait until it completes.</summary>
+    public TaskCompletionSource? MostTrainedGate { get; set; }
+
+    public List<DateOnly> MostTrainedReads { get; } = [];
+
+    /// <summary>Each period <see cref="GetRecordsAsync"/> was asked for.</summary>
+    public List<Period> RecordPeriods { get; } = [];
+
     public List<DateOnly> WorkoutsReads { get; } = [];
 
     public List<DateOnly> RecordReads { get; } = [];
@@ -54,6 +64,7 @@ public sealed class FakePeriodTrainingService : IPeriodTrainingService
     public Task<ReadResult<PeriodRecords>> GetRecordsAsync(Period period)
     {
         RecordReads.Add(period.Start);
+        RecordPeriods.Add(period);
         return Task.FromResult(Records);
     }
 
@@ -78,5 +89,9 @@ public sealed class FakePeriodTrainingService : IPeriodTrainingService
     public void CompleteMuscles(int index) => pendingMuscles[index].SetResult(Muscles);
 
     /// <inheritdoc />
-    public Task<ReadResult<IReadOnlyList<TrainedExercise>>> GetMostTrainedAsync(Period period) => throw new NotSupportedException();
+    public Task<ReadResult<IReadOnlyList<TrainedExercise>>> GetMostTrainedAsync(Period period)
+    {
+        MostTrainedReads.Add(period.Start);
+        return MostTrainedGate is { } gate ? gate.Task.ContinueWith(_ => MostTrained, TaskScheduler.Default) : Task.FromResult(MostTrained);
+    }
 }
