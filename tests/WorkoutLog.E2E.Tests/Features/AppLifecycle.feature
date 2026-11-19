@@ -20,7 +20,7 @@ Feature: App lifecycle
     Given I am on This week
     When I send the app to the background and bring it back
     Then the log shows "Activity started" once more
-    And the log shows "workouts for Week from" once more
+    And the log shows "Loaded 0 workouts for Week from" once more
 
   Scenario: Workouts reloads when the app comes back
     Given I have saved a workout with Push-up: 10 reps
@@ -39,4 +39,4 @@ Feature: App lifecycle
     Given I have saved a workout with Push-up: 10 reps
     And I am on This week
     When I open Workouts and go back to This week
-    Then the log shows "workouts for Week from" once more
+    Then the log shows "Loaded 1 workouts for Week from" once more

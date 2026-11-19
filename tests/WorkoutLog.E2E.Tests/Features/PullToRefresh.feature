@@ -4,7 +4,7 @@ Feature: Pull to refresh
   Scenario: Pulling down This week reloads it
     Given I am on This week
     When I pull down the list
-    Then the log shows "workouts for Week from" once more
+    Then the log shows "Loaded 0 workouts for Week from" once more
 
   Scenario: Pulling down Workouts reloads it
     Given I have saved a workout with Push-up: 10 reps

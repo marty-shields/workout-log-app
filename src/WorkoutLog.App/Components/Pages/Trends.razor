@@ -4,7 +4,7 @@
 @inject NavigationManager Navigation
 
 @* Android back goes to This week. *@
-<TrendsPage KindQuery="Period" DateQuery="Date"
+<TrendsPage KindQuery="@Period" DateQuery="@Date"
             OnPeriodChanged="@(period => Navigation.GoTo(TrendsRoute.To(period)))"
             OnNew="@(period => Navigation.GoTo(Origin.Link("workout/new", Origin.Trends(period))))"
             OnNavigate="@(tab => Navigation.GoTo(tab))"

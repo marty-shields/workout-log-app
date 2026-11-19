@@ -148,13 +148,17 @@ public sealed class TrendsSteps(WebView web, Journeys journeys, TrendsScreen tre
         trends.OpenSettings();
     }
 
-    /// <summary>Opens the Month view and steps back from this month to the month holding <paramref name="date"/>.</summary>
+    /// <summary>Opens the Month view and steps back from this month to the month holding <paramref name="date"/>; does not step when it already shows that month.</summary>
     private void OpenMonth(DateTime date)
     {
         var now = clock.LocalNow();
         trends.ChooseKind("Month");
         trends.WaitUntilLoaded();
-        trends.StepBack((now.Year - date.Year) * 12 + now.Month - date.Month);
+        if (trends.Label() != date.ToString("MMMM yyyy", CultureInfo.InvariantCulture))
+        {
+            trends.StepBack((now.Year - date.Year) * 12 + now.Month - date.Month);
+        }
+
         trends.WaitUntilLoaded();
     }
 
