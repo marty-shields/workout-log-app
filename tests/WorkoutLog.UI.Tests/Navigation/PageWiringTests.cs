@@ -6,7 +6,7 @@ namespace WorkoutLog.UI.Tests.Navigation;
 /// The App's pages carry where a screen was opened from in <c>?from=</c> and return there. The App can't be referenced, so its files are read.
 /// Whitespace is ignored.
 /// </summary>
-public class PageWiringTests
+public partial class PageWiringTests
 {
     [TestCase("Home.razor", "@page\"/\"")]
     [TestCase("Home.razor", "<ThisWeekPage")]
@@ -58,13 +58,16 @@ public class PageWiringTests
     public void QueryParameters_AreNotPassedAsText()
     {
         var pages = Directory.GetFiles(Path.Combine(RepoFiles.Root, "src", "WorkoutLog.App", "Components", "Pages"), "*.razor");
-        var literals = pages.SelectMany(page => Regex.Matches(File.ReadAllText(page), "\\b\\w+Query=\"[^@\"][^\"]*\"").Select(m => $"{Path.GetFileName(page)}: {m.Value}"));
+        var literals = pages.SelectMany(page => LiteralQuery().Matches(File.ReadAllText(page)).Select(m => $"{Path.GetFileName(page)}: {m.Value}"));
         Assert.That(literals, Is.Empty);
     }
 
     [Test]
     public void ThereIsNoExercisesListPage() =>
         Assert.That(File.Exists(Path.Combine(RepoFiles.Root, "src", "WorkoutLog.App", "Components", "Pages", "Exercises.razor")), Is.False);
+
+    [GeneratedRegex(@"\b\w+Query=""[^@""][^""]*""")]
+    private static partial Regex LiteralQuery();
 
     private static string WithoutWhitespace(string text) => string.Concat(text.Where(c => !char.IsWhiteSpace(c)));
 }

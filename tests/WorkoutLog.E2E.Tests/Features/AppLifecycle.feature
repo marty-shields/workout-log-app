@@ -35,6 +35,7 @@ Feature: App lifecycle
     Then the log shows "Activity started" once more
     And the log shows "records for Week from" once more
 
+  @today
   Scenario: This week reloads each time it is shown
     Given I have saved a workout with Push-up: 10 reps
     And I am on This week

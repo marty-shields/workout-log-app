@@ -120,7 +120,7 @@ public sealed class TrendsSteps(WebView web, Journeys journeys, TrendsScreen tre
         var date = SeedTime.ResolveDay(day, clock.LocalNow());
         trends.ChooseKind("Year");
         trends.WaitUntilLoaded();
-        trends.StepBack(clock.LocalNow().Year - date.Year);
+        trends.StepBack(int.Parse(trends.Label(), CultureInfo.InvariantCulture) - date.Year);
         trends.WaitUntilLoaded();
         trends.OpenMonthColumn(date.Month);
     }
@@ -148,20 +148,17 @@ public sealed class TrendsSteps(WebView web, Journeys journeys, TrendsScreen tre
         trends.OpenSettings();
     }
 
-    /// <summary>Opens the Month view and steps back from this month to the month holding <paramref name="date"/>; does not step when it already shows that month.</summary>
+    /// <summary>Opens the Month view and steps back from the month shown (the view keeps the period on screen) to the month holding <paramref name="date"/>.</summary>
     private void OpenMonth(DateTime date)
     {
-        var now = clock.LocalNow();
         trends.ChooseKind("Month");
         trends.WaitUntilLoaded();
-        if (trends.Label() != date.ToString("MMMM yyyy", CultureInfo.InvariantCulture))
-        {
-            trends.StepBack((now.Year - date.Year) * 12 + now.Month - date.Month);
-        }
-
+        var shown = DateTime.ParseExact(trends.Label(), "MMMM yyyy", CultureInfo.InvariantCulture);
+        trends.StepBack((shown.Year - date.Year) * 12 + shown.Month - date.Month);
         trends.WaitUntilLoaded();
     }
 
+    /// <summary>Steps back from <paramref name="current"/> to <paramref name="wanted"/>; the caller's <paramref name="current"/> must be the period on screen, which holds only when the scenario hasn't stepped Trends before (a week label is a date range, not parsed).</summary>
     private void Show(string kind, DateTime current, DateTime wanted, int daysPerStep)
     {
         trends.ChooseKind(kind);
