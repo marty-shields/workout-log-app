@@ -55,9 +55,9 @@ public class TrendsPageMonthYearTests : ComponentTestBase
     [Test]
     public void Month_ReadsEverythingItNeedsTogetherAndNothingForTheOtherKinds()
     {
-        training.MostTrainedGate = new TaskCompletionSource();
+        totals.SeriesGate = new TaskCompletionSource();
 
-        Context.Render<TrendsPage>(p => p.Add(x => x.KindQuery, "month"));
+        var cut = Context.Render<TrendsPage>(p => p.Add(x => x.KindQuery, "month"));
 
         Assert.Multiple(() =>
         {
@@ -70,22 +70,29 @@ public class TrendsPageMonthYearTests : ComponentTestBase
             Assert.That(training.MuscleReads, Is.Empty);
             Assert.That(totals.StreakYears, Is.Empty);
         });
+        totals.SeriesGate.SetResult();
+        cut.WaitForElement("[data-testid=trends-tiles]");
     }
 
     [Test]
     public void Year_ReadsEverythingItNeedsTogetherAndNothingForTheOtherKinds()
     {
-        Context.Render<TrendsPage>(p => p.Add(x => x.KindQuery, "year").Add(x => x.DateQuery, "2025-06-01"));
+        totals.SeriesGate = new TaskCompletionSource();
+
+        var cut = Context.Render<TrendsPage>(p => p.Add(x => x.KindQuery, "year").Add(x => x.DateQuery, "2025-06-01"));
 
         Assert.Multiple(() =>
         {
             Assert.That(totals.ComparisonPeriods, Is.EqualTo(new[] { Year2025 }));
+            Assert.That(totals.SeriesReads, Is.EqualTo(new[] { Year2025.Start }));
             Assert.That(totals.LimitKinds, Is.EqualTo(new[] { PeriodKind.Year }));
             Assert.That(totals.StreakYears, Is.EqualTo(new[] { 2025 }));
             Assert.That(training.RecordPeriods, Is.EqualTo(new[] { Year2025 }));
             Assert.That(training.MuscleReads, Is.Empty);
             Assert.That(training.MostTrainedReads, Is.Empty);
         });
+        totals.SeriesGate.SetResult();
+        cut.WaitForElement("[data-testid=trends-tiles]");
     }
 
     [Test]
@@ -287,6 +294,20 @@ public class TrendsPageMonthYearTests : ComponentTestBase
 
         late.WaitForAssertion(() => Assert.That(late.Find("[data-testid=trends-stepper-label]").TextContent, Is.EqualTo("November 2026")));
         Assert.That(changed, Is.EqualTo(new[] { September }));
+    }
+
+    [Test]
+    public void Year_OpenedBeforeTheFirstWorkoutOrAfterToday_ClampsLikeTheWeek()
+    {
+        var changed = new List<Period>();
+
+        var early = Context.Render<TrendsPage>(p => p.Add(x => x.KindQuery, "year").Add(x => x.DateQuery, "2001-01-01").Add(x => x.OnPeriodChanged, changed.Add));
+        early.WaitForAssertion(() => Assert.That(early.Find("[data-testid=trends-stepper-label]").TextContent, Is.EqualTo("2025")));
+        early.WaitForAssertion(() => Assert.That(early.FindAll("[data-testid=trends-loading]"), Is.Empty));
+        var late = Context.Render<TrendsPage>(p => p.Add(x => x.KindQuery, "year").Add(x => x.DateQuery, "2030-05-05"));
+
+        late.WaitForAssertion(() => Assert.That(late.Find("[data-testid=trends-stepper-label]").TextContent, Is.EqualTo("2026")));
+        Assert.That(changed, Is.EqualTo(new[] { Year2025 }));
     }
 
     [Test]
