@@ -32,13 +32,10 @@ internal sealed partial class PeriodTrainingService(
         {
             var now = time.GetUtcNow();
             var zone = time.LocalTimeZone;
-            var workouts = (await repository.GetStartedBetweenAsync(ReadStart(period, zone), ReadEnd(period, now, zone))).Where(w => IsIn(period, w.StartedAt, now, zone)).OrderBy(w => w.StartedAt).ToList();
+            var workouts = (await repository.GetStartedBetweenAsync(ReadStart(period, zone), PeriodReadEnd.Of(period, now, zone))).Where(w => IsIn(period, w.StartedAt, now, zone)).OrderBy(w => w.StartedAt).ToList();
             foreach (var unknown in workouts.SelectMany(w => w.Exercises).Select(e => e.ExerciseId).Where(id => !definitions.ContainsKey(id)).Distinct())
             {
-                if (unknownWarnings.IsFirst(CoreEvent.PeriodWorkoutsUnknownExercise, unknown))
-                {
-                    Log.WorkoutsUnknownExercise(logger, unknown);
-                }
+                WarnOnce(CoreEvent.PeriodWorkoutsUnknownExercise, unknown, () => Log.WorkoutsUnknownExercise(logger, unknown));
             }
 
             result = workouts
@@ -63,7 +60,7 @@ internal sealed partial class PeriodTrainingService(
         {
             var now = time.GetUtcNow();
             var zone = time.LocalTimeZone;
-            var workouts = await repository.GetStartedBetweenAsync(DateTimeOffset.MinValue, ReadEnd(period, now, zone));
+            var workouts = await repository.GetStartedBetweenAsync(DateTimeOffset.MinValue, PeriodReadEnd.Of(period, now, zone));
             var records = RecordSearch.Find(workouts, definitions, recordCheck, id => WarnOnce(CoreEvent.PeriodRecordsUnknownExercise, id, () => Log.RecordsUnknownExercise(logger, id)), (id, exception) => Log.RecordsExerciseFailed(logger, id, exception))
                 .SelectMany(f => f.Records
                     .Where(r => IsIn(period, r.Session.StartedAt, now, zone))
@@ -117,17 +114,14 @@ internal sealed partial class PeriodTrainingService(
         {
             var now = time.GetUtcNow();
             var zone = time.LocalTimeZone;
-            var workouts = (await repository.GetStartedBetweenAsync(ReadStart(period, zone), ReadEnd(period, now, zone))).Where(w => IsIn(period, w.StartedAt, now, zone)).ToList();
+            var workouts = (await repository.GetStartedBetweenAsync(ReadStart(period, zone), PeriodReadEnd.Of(period, now, zone))).Where(w => IsIn(period, w.StartedAt, now, zone)).ToList();
             var counts = workouts
                 .SelectMany(w => w.Exercises.Select(e => e.ExerciseId))
                 .GroupBy(id => id)
                 .ToList();
             foreach (var unknown in counts.Where(g => !definitions.ContainsKey(g.Key)))
             {
-                if (unknownWarnings.IsFirst(CoreEvent.PeriodMostTrainedUnknownExercise, unknown.Key))
-                {
-                    Log.MostTrainedUnknownExercise(logger, unknown.Key);
-                }
+                WarnOnce(CoreEvent.PeriodMostTrainedUnknownExercise, unknown.Key, () => Log.MostTrainedUnknownExercise(logger, unknown.Key));
             }
 
             result = counts
@@ -151,13 +145,6 @@ internal sealed partial class PeriodTrainingService(
 
     /// <summary>The start of the day before the period's first local day; the extra day leaves room for the zone's offsets, and <see cref="IsIn"/> trims the rest.</summary>
     private static DateTimeOffset ReadStart(Period period, TimeZoneInfo zone) => LocalWeek.Start(period.Start.AddDays(-1), zone);
-
-    /// <summary>The end of the day after the period's last local day, or <paramref name="now"/> if that is earlier.</summary>
-    private static DateTimeOffset ReadEnd(Period period, DateTimeOffset now, TimeZoneInfo zone)
-    {
-        var end = LocalWeek.Start(period.End.AddDays(2), zone);
-        return end < now ? end : now;
-    }
 
     private void WarnOnce(CoreEvent warning, int exerciseId, Action log)
     {

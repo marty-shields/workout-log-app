@@ -41,19 +41,7 @@ internal sealed class WorkoutRepository(SQLiteAsyncConnection connection, Workou
     }
 
     /// <inheritdoc />
-    public async Task<IReadOnlyList<Workout>> GetAllAsync()
-    {
-        var rows = await connection.Table<WorkoutRow>().OrderBy(w => w.StartedAt).ToListAsync();
-        var exerciseRows = (await connection.Table<WorkoutExerciseRow>().OrderBy(e => e.Position).ToListAsync())
-            .ToLookup(e => e.WorkoutId);
-        var sets = (await connection.Table<StrengthSetRow>().OrderBy(s => s.Position).ToListAsync())
-            .ToLookup(s => s.WorkoutExerciseId);
-        var entries = (await connection.Table<CardioEntryRow>().ToListAsync())
-            .ToDictionary(c => c.WorkoutExerciseId);
-
-        return rows.Select(w => new Workout(w.Id, w.StartedAt, w.FinishedAt, ToExercises(exerciseRows[w.Id], sets, entries), w.Note))
-            .ToList();
-    }
+    public Task<IReadOnlyList<Workout>> GetAllAsync() => GetStartedBetweenAsync(DateTimeOffset.MinValue, DateTimeOffset.MaxValue);
 
     /// <inheritdoc />
     public async Task<IReadOnlyList<Workout>> GetStartedBetweenAsync(DateTimeOffset from, DateTimeOffset to)

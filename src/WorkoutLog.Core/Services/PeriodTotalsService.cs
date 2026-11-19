@@ -84,8 +84,7 @@ internal sealed partial class PeriodTotalsService(
 
     private static (DateTimeOffset From, DateTimeOffset To) ReadWindow(DateOnly from, Period period, DateTimeOffset now, TimeZoneInfo zone)
     {
-        var to = LocalWeek.Start(period.End.AddDays(2), zone);
-        return (LocalWeek.Start(from, zone), to < now ? to : now);
+        return (LocalWeek.Start(from, zone), PeriodReadEnd.Of(period, now, zone));
     }
 
     /// <summary>What each set adds; a set of an exercise that is not in the catalogue adds nothing, and its id is logged once per app run.</summary>
