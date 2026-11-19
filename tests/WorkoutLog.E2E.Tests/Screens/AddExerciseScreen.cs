@@ -2,7 +2,7 @@ using OpenQA.Selenium;
 
 namespace WorkoutLog.E2E.Tests.Screens;
 
-/// <summary>The add-exercise list: the Exercises list as an overlay on the workout.</summary>
+/// <summary>The add-exercise list, an overlay on the workout.</summary>
 public sealed class AddExerciseScreen(WebView web)
 {
     private const string Overlay = "[data-testid=\"exercises-overlay\"]";
