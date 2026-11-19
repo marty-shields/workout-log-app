@@ -323,7 +323,7 @@ public class NewWorkoutPageTests : ComponentTestBase
         {
             Assert.That(cut.FindAll("[data-testid^=add-exercise-row-]"), Has.Count.EqualTo(Catalog.All.Count));
             Assert.That(cut.FindAll("[data-testid^=add-exercise-row-] .detail"), Is.Empty);
-            Assert.That(cut.FindAll("[data-testid=exercises-error]"), Is.Empty);
+            Assert.That(cut.FindAll("[role=alert]"), Is.Empty);
         });
     }
 
