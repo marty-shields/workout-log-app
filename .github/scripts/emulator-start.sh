@@ -28,7 +28,9 @@ mkdir -p "$ANDROID_AVD_HOME"
 echo "ANDROID_AVD_HOME=$ANDROID_AVD_HOME" >> "$GITHUB_ENV"
 
 echo "::group::Emulator libraries"
-sudo apt-get install -y --no-install-recommends libpulse0 > /dev/null
+# The runner's package mirror drops connections now and then: retry each download, then refresh the lists and try once more.
+install_libraries() { sudo apt-get -o Acquire::Retries=5 install -y --no-install-recommends libpulse0 > /dev/null; }
+install_libraries || { sudo apt-get -o Acquire::Retries=5 update > /dev/null && install_libraries; }
 echo "::endgroup::"
 
 echo "::group::Install the emulator and image"
