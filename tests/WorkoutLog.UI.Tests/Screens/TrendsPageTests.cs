@@ -10,6 +10,7 @@ using WorkoutLog.Core.Services;
 using WorkoutLog.UI.Components.Layout;
 using WorkoutLog.UI.Lifecycle;
 using WorkoutLog.UI.Logging;
+using WorkoutLog.UI.Models.Workouts;
 using WorkoutLog.UI.Navigation;
 using WorkoutLog.UI.Screens;
 
@@ -600,35 +601,78 @@ public class TrendsPageTests : ComponentTestBase
     }
 
     [Test]
-    public void Buttons_RaiseTheirCallbacks()
+    public void Buttons_RaiseTheirCallbacksWithThePeriodShown()
     {
-        var newWorkouts = 0;
+        MidWeek();
+        var newWorkouts = new List<Period>();
         var navigated = new List<MainTab>();
-        var settings = 0;
+        var settings = new List<Period>();
         var cut = Context.Render<TrendsPage>(p => p
-            .Add(x => x.OnNew, () => newWorkouts++)
+            .Add(x => x.DateQuery, "2026-11-11")
+            .Add(x => x.OnNew, newWorkouts.Add)
             .Add(x => x.OnNavigate, navigated.Add)
-            .Add(x => x.OnSettings, () => settings++));
+            .Add(x => x.OnSettings, settings.Add));
 
         cut.Find("[data-testid=new-link]").Click();
         cut.Find("[data-testid=this-week-link]").Click();
         cut.Find("[data-testid=trends-link]").Click();
         cut.Find("[data-testid=settings]").Click();
 
+        var lastWeek = Period.Containing(PeriodKind.Week, LastMonday);
         Assert.Multiple(() =>
         {
-            Assert.That(newWorkouts, Is.EqualTo(1));
+            Assert.That(newWorkouts, Is.EqualTo(new[] { lastWeek }));
             Assert.That(navigated, Is.EqualTo(new[] { MainTab.ThisWeek }));
-            Assert.That(settings, Is.EqualTo(1));
+            Assert.That(settings, Is.EqualTo(new[] { lastWeek }));
         });
     }
 
     [Test]
-    public void AndroidBack_HasNoHandler()
+    public void DayColumn_Tapped_RaisesOnOpenWorkoutsWithThatDayAndTheWeekShown()
     {
-        Context.Render<TrendsPage>();
+        MidWeek();
+        var opened = new List<WorkoutsOpened>();
+        var cut = Context.Render<TrendsPage>(p => p.Add(x => x.OnOpenWorkouts, opened.Add));
 
-        Assert.That(BackButton.HasHandler, Is.False);
+        cut.WaitForElement("[data-testid=trends-days-chart-1-open]").Click();
+        cut.Find("[data-testid=trends-days-chart-3-open]").Click();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(opened, Is.EqualTo(new[]
+            {
+                new WorkoutsOpened(new DateSpan(Monday, Monday), Week),
+                new WorkoutsOpened(new DateSpan(Monday.AddDays(2), Monday.AddDays(2)), Week),
+            }));
+            Assert.That(cut.FindAll("[data-testid=trends-days-chart-2-open]"), Is.Empty);
+        });
+    }
+
+    [Test]
+    public void DayColumn_WithAWorkoutUnderAMinute_IsStillTappable()
+    {
+        MidWeek();
+        totals.Series = new PeriodSeries(
+            Week,
+            [new PeriodBucket(Monday, Monday, 1, TimeSpan.FromSeconds(40)), new PeriodBucket(Monday.AddDays(2), Monday.AddDays(2), 1, TimeSpan.FromHours(1))],
+            [],
+            [],
+            0);
+        var cut = Context.Render<TrendsPage>();
+
+        cut.WaitForElement("[data-testid=trends-days-chart-1-open]");
+        Assert.That(cut.FindAll("[data-testid=trends-days-chart-2-open]"), Is.Empty);
+    }
+
+    [Test]
+    public async Task AndroidBack_GoesToThisWeek()
+    {
+        var navigated = new List<MainTab>();
+        var cut = Context.Render<TrendsPage>(p => p.Add(x => x.OnNavigate, navigated.Add));
+
+        await cut.InvokeAsync(BackButton.HandleAsync);
+
+        Assert.That(navigated, Is.EqualTo(new[] { MainTab.ThisWeek }));
     }
 
     [Test]

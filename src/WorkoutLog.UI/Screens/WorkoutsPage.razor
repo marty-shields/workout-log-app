@@ -9,7 +9,7 @@
 @inject IAppStart AppStart
 
 <WorkoutsView History="History" Rows="rows" Dates="dates" DatesChanged="ShowAsync" @bind-Expanded="expanded" Loading="loading" Failed="failure is not Failure.None"
-              OnRetry="RetryAsync" OnRefresh="() => LoadAsync(PullRefresh.MinimumSpinner)" OnOpen="row => OnOpen.InvokeAsync(row.Id)" OnNavigate="OnNavigate" />
+              OnRetry="RetryAsync" OnRefresh="() => LoadAsync(PullRefresh.MinimumSpinner)" OnOpen="row => OnOpen.InvokeAsync(new WorkoutOpened(row.Id, dates))" OnBack="OnBack" />
 
 @code {
     private enum Failure { None, Counts, Range }
@@ -21,21 +21,36 @@
     private bool loading;
     private Failure failure;
     private int query;
+    private bool requested;
     private IDisposable? registration;
     private bool disposed;
 
-    /// <summary>Raised with the workout id when a row is tapped.</summary>
+    /// <summary>The <c>first</c> query value, the first day to show as 2026-11-02. With a valid <see cref="LastQuery"/> too, the list opens on those days instead of the last 3 months.</summary>
     [Parameter]
-    public EventCallback<int> OnOpen { get; set; }
+    public string? FirstQuery { get; set; }
 
-    /// <summary>Raised with the destination tapped in the bottom navigation bar, and with the Dashboard on Android back.</summary>
+    /// <summary>The <c>last</c> query value, the last day to show as 2026-11-08.</summary>
     [Parameter]
-    public EventCallback<NavDestination> OnNavigate { get; set; }
+    public string? LastQuery { get; set; }
+
+    /// <summary>Raised with the workout and the days shown when a row is tapped, so back can return to them.</summary>
+    [Parameter]
+    public EventCallback<WorkoutOpened> OnOpen { get; set; }
+
+    /// <summary>Raised by the back arrow and Android back.</summary>
+    [Parameter]
+    public EventCallback OnBack { get; set; }
 
     private WorkoutHistory History => loaded ?? WorkoutHistory.None;
 
     protected override Task OnInitializedAsync()
     {
+        if (WorkoutsRoute.ParseDates(FirstQuery, LastQuery) is { } asked)
+        {
+            dates = asked;
+            requested = true;
+        }
+
         registration = AppStart.Register(() => InvokeAsync(ReloadAsync));
         return LoadAsync();
     }
@@ -77,7 +92,7 @@
             return;
         }
 
-        var range = loaded is null ? HistoryRange.ThreeMonths : loaded.RangeOf(dates);
+        var range = loaded is null ? (requested ? null : HistoryRange.ThreeMonths) : loaded.RangeOf(dates);
         loaded = new WorkoutHistory(perDay, DateOnly.FromDateTime(TimeZoneInfo.ConvertTime(Clock.GetUtcNow(), Clock.LocalTimeZone).DateTime));
         var shown = range is { } quick ? loaded.Span(quick) : dates;
         if (loaded.IsEmpty)

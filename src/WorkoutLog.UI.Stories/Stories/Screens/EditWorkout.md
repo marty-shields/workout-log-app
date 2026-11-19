@@ -18,17 +18,17 @@ Same layout and behaviour as [New Workout](./?path=/custom/screens-new-workout-o
 | Load failed | Error "Couldn't load the workout" and a Secondary **Try again** that reloads. Focus moves to Try again. An exercise missing from the list, or saved as the wrong kind, also shows this. |
 | Not found | "This workout no longer exists", no retry. |
 
-Save calls `IWorkoutService.SaveAsync` with the workout note and every exercise with its note, whether or not its card was opened, then the App goes to This week. Save is also ignored while a delete runs and after one succeeds.
+Save calls `IWorkoutService.SaveAsync` with the workout note and every exercise with its note, whether or not its card was opened, then the App goes back to where the workout was opened from (see Back). Save is also ignored while a delete runs and after one succeeds.
 
 Haptics are as on [New Workout](./?path=/custom/screens-new-workout-overview#haptics): Add set (or Enter in the last field), the tick and Save confirm, and a block by errors rejects. Delete, Discard and Undo don't buzz.
 
 ## Back
-While loading, after a failed load and when not found: Workouts. On a loaded workout with no changes: Workouts, no prompt. Opened from a workout on This week, back goes to This week instead.
+Back, Save and Delete all return to where the workout was opened from, carried in `?from=`: Workouts with the same dates (`workouts:…`), or This week (`this-week`, the default when it is missing). While loading, after a failed load and when not found: there. On a loaded workout with no changes: there, no prompt.
 
-After a change, back (arrow or Android) opens `ConfirmDialog` "Discard changes?". A change is a value or note typed, a set added or removed, or an exercise added, picked again or removed, even if later undone, Undo included. Opening a card with the pencil and marking it done again is not a change. Neither is opening a note field and leaving it without typing. Cancel, or Android back, closes it and the edits stay. Discard logs Information 2902 "Edits to workout {WorkoutId} discarded" and raises `OnBack`; the App goes to Workouts, or to This week when opened from it. Back is ignored while a save runs, after one succeeds and after a discard. Discard runs once; while a save runs or after one succeeds it closes the prompt and does nothing else.
+After a change, back (arrow or Android) opens `ConfirmDialog` "Discard changes?". A change is a value or note typed, a set added or removed, or an exercise added, picked again or removed, even if later undone, Undo included. Opening a card with the pencil and marking it done again is not a change. Neither is opening a note field and leaving it without typing. Cancel, or Android back, closes it and the edits stay. Discard logs Information 2902 "Edits to workout {WorkoutId} discarded" and raises `OnBack`; the App returns to where it was opened from. Back is ignored while a save runs, after one succeeds and after a discard. Discard runs once; while a save runs or after one succeeds it closes the prompt and does nothing else.
 
 ## Delete
-Delete opens `ConfirmDialog` "Delete this workout?", the same with or without changes. Cancel, or Android back, closes it. Delete removes the workout and raises `OnDeleted`; the App goes to Workouts, or to This week when opened from it. If the delete fails, the prompt closes, "Couldn't delete the workout. Try again" shows at the top, the workout and its edits stay, and focus moves to Delete.
+Delete opens `ConfirmDialog` "Delete this workout?", the same with or without changes. Cancel, or Android back, closes it. Delete removes the workout and raises `OnDeleted`; the App returns to where it was opened from. If the delete fails, the prompt closes, "Couldn't delete the workout. Try again" shows at the top, the workout and its edits stay, and focus moves to Delete.
 
 Delete is ignored while a save runs, after one succeeds and after a discard. While a delete runs and after one succeeds, Back, Save and Delete are ignored, the prompt's Cancel and Android back do nothing, and Discard closes its prompt. Confirm runs once; while a save runs or after one succeeds it closes the prompt and does nothing else.
 

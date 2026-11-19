@@ -137,10 +137,32 @@ Feature: This week
       | Arms      | Not trained |
       | Core      | Not trained |
 
-  Scenario Outline: This week links to Workouts and New Workout
-    When I tap <link> on This week
-    Then I am on <screen>
-    Examples:
-      | link        | screen      |
-      | Workouts    | Workouts    |
-      | New Workout | New Workout |
+  Scenario: + opens a new workout
+    When I tap + in the tab bar
+    Then I am on New Workout
+
+  Scenario: Trends in the tab bar opens Trends
+    When I tap Trends in the tab bar
+    Then I am on Trends
+
+  Scenario: The Last week row opens last week in Trends
+    Given these saved workouts:
+      | started          | finished         | exercises             |
+      | 7 days ago 10:00 | 7 days ago 10:25 | Push-up: 10 reps 0 kg |
+    When I tap the Last week row on This week
+    Then I am on Trends
+    And Trends is on the Week view
+    And Trends is on an earlier period
+    And Trends counts 1 workout
+    When I tap This week in the tab bar
+    Then I am on This week
+
+  @today
+  Scenario: Saving an edit opened from This week returns to This week
+    Given these saved workouts:
+      | started     | finished    | exercises             |
+      | today 00:00 | today 00:03 | Push-up: 10 reps 0 kg |
+    When I tap the newest workout on This week
+    And I enter "12" in Push-up set 1 reps
+    And I save the workout
+    Then I am on This week

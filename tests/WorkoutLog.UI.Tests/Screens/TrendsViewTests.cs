@@ -1,5 +1,6 @@
 using WorkoutLog.Core.Domain.Workouts.Periods;
 using WorkoutLog.UI.Components.Actions;
+using WorkoutLog.UI.Models.Workouts;
 using WorkoutLog.UI.Navigation;
 using WorkoutLog.UI.Screens;
 using WorkoutLog.UI.Stories.Samples;
@@ -332,6 +333,55 @@ public class TrendsViewTests : ComponentTestBase
     [Test]
     public void Settings_UsesTheGearIcon() =>
         Assert.That(Render(SampleTrends.Week).FindComponents<IconButton>().Single().Instance.Icon, Is.EqualTo(IconName.Settings));
+
+    [Test]
+    public void Week_DayColumn_RaisesOnOpenWorkoutsWithThatDay()
+    {
+        var opened = new List<DateSpan>();
+        var cut = Context.Render<TrendsView>(p => p.Sample(SampleTrends.Week).Add(x => x.OnOpenWorkouts, opened.Add));
+
+        cut.Find("[data-testid=trends-days-chart-3-open]").Click();
+
+        Assert.That(opened, Is.EqualTo(new[] { new DateSpan(new DateOnly(2026, 11, 18), new DateOnly(2026, 11, 18)) }));
+    }
+
+    [Test]
+    public void Month_CalendarDayAndWeekRow_RaiseOnOpenWorkoutsWithTheirDates()
+    {
+        var opened = new List<DateSpan>();
+        var cut = Context.Render<TrendsView>(p => p.Sample(SampleTrends.Month).Add(x => x.OnOpenWorkouts, opened.Add));
+
+        cut.Find("[data-testid=trends-calendar-days-4-open]").Click();
+        cut.Find("[data-testid=trends-weeks-rows-4-open]").Click();
+
+        Assert.That(opened, Is.EqualTo(new[]
+        {
+            new DateSpan(new DateOnly(2026, 11, 4), new DateOnly(2026, 11, 4)),
+            new DateSpan(new DateOnly(2026, 11, 16), new DateOnly(2026, 11, 18)),
+        }));
+    }
+
+    [Test]
+    public void Year_MonthColumn_RaisesOnOpenWorkoutsWithTheMonth()
+    {
+        var opened = new List<DateSpan>();
+        var cut = Context.Render<TrendsView>(p => p.Sample(SampleTrends.Year).Add(x => x.OnOpenWorkouts, opened.Add));
+
+        cut.Find("[data-testid=trends-months-chart-2-open]").Click();
+
+        Assert.That(opened, Is.EqualTo(new[] { new DateSpan(new DateOnly(2026, 2, 1), new DateOnly(2026, 2, 28)) }));
+    }
+
+    [Test]
+    public void NoOnOpenWorkouts_NothingInTheChartsCalendarOrWeeksIsTappable()
+    {
+        foreach (var state in new[] { SampleTrends.Week, SampleTrends.Month, SampleTrends.Year })
+        {
+            var cut = Render(state);
+
+            Assert.That(cut.FindAll("[data-testid$=-open]"), Is.Empty);
+        }
+    }
 
     private static Dictionary<string, object?> With(IReadOnlyDictionary<string, object?> state, string name, object value) =>
         new(state) { [name] = value };

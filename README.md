@@ -83,9 +83,9 @@ It's built for one person and one phone: no accounts, no sign-up.
 
 ### Progress
 
-- Workouts opens on the last 3 months, grouped by month. 3M, 6M, 1Y and All change the range in one tap, and the date field picks any day or span of days from a calendar. Open a workout to edit or delete it.
-- Exercises lists every exercise you've logged, with its last session and best.
-- Each exercise has a chart, records and its sessions over 3 months, 6 months, a year or all time:
+- Trends shows a week, a month or a year against the one before: workouts, time, sets and volume, with the days, weeks or months that made them up, your records and, for a month, the exercises you trained most.
+- Tap a day with a workout in the month calendar, a week row, a day's bars in the week view or a month's bar in the year view to open Workouts for those dates, grouped by month. 3M, 6M, 1Y and All change the range in one tap, and the date field picks any day or span of days from a calendar. Open a workout to edit or delete it; back returns to where you were.
+- Tap a record, or an exercise in a month's Most trained, to open its chart, records and sessions over 3 months, 6 months, a year or all time:
   - lifts: top set and estimated one-rep max
   - bodyweight moves: best set, total reps and top set
   - assisted machines: least assist
@@ -123,7 +123,7 @@ It's built for one person and one phone: no accounts, no sign-up.
 
 ### This week and data
 
-- This week is the home screen: which days you trained, this week so far against last week up to the end of the same weekday, your weekly streak, and the week's workouts. Tap a workout to edit it.
+- This week is the home screen: which days you trained, this week so far against last week up to the end of the same weekday, your weekly streak, and the week's workouts. Tap a workout to edit it. The bar at the bottom switches between This week and Trends, and + starts a workout from either.
 - Records this week shows the exercises you've beaten your best on since Monday; tap one to open its progress.
 - Sets per muscle group shows each group's strength sets from Monday to today and which you haven't trained.
 - Export saves every workout, with its notes, to a JSON file you can share.

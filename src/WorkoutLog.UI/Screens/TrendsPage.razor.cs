@@ -1,6 +1,7 @@
 using Microsoft.Extensions.Logging;
 using WorkoutLog.Core.Domain.Workouts.Periods;
 using WorkoutLog.UI.Logging;
+using WorkoutLog.UI.Models.Workouts;
 
 namespace WorkoutLog.UI.Screens;
 
@@ -8,6 +9,11 @@ namespace WorkoutLog.UI.Screens;
 /// <param name="ExerciseId">The exercise the record belongs to.</param>
 /// <param name="Period">The week, month or year shown, which back returns to.</param>
 public readonly record struct RecordOpened(int ExerciseId, Period Period);
+
+/// <summary>A day, week row or bar tapped on Trends.</summary>
+/// <param name="Dates">The days to show in Workouts.</param>
+/// <param name="Period">The week, month or year shown, which back returns to.</param>
+public readonly record struct WorkoutsOpened(DateSpan Dates, Period Period);
 
 /// <summary>Logs a load that failed, with no workout contents. Core logs which read failed and why.</summary>
 public partial class TrendsPage

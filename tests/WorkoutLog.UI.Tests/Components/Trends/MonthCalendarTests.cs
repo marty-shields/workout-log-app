@@ -101,6 +101,31 @@ public class MonthCalendarTests : ComponentTestBase
         Assert.That(Render(new DateOnly(2026, 11, 1), []).FindAll(".legend li").Select(li => li.TextContent),
             Is.EqualTo(new[] { "Trained", "No workout", "Today" }));
 
+    [Test]
+    public void NoOnOpenDay_NoDayIsTappable() =>
+        Assert.That(Render(new DateOnly(2026, 11, 1), [new DateOnly(2026, 11, 4)]).FindAll("button"), Is.Empty);
+
+    [Test]
+    public void WithOnOpenDay_OnlyDaysWithAWorkoutAreTappableAndTheyRaiseTheirDate()
+    {
+        var opened = new List<DateOnly>();
+        var cut = Context.Render<MonthCalendar>(p => p
+            .Add(x => x.Month, new DateOnly(2026, 11, 1))
+            .Add(x => x.Today, SampleTrends.Today)
+            .Add(x => x.Trained, new[] { new DateOnly(2026, 11, 4), new DateOnly(2026, 11, 6) })
+            .Add(x => x.OnOpenDay, opened.Add)
+            .Add(x => x.TestId, "cal"));
+
+        cut.Find("[data-testid=cal-6-open]").Click();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.FindAll("button").Select(b => b.GetAttribute("data-testid")), Is.EqualTo(new[] { "cal-4-open", "cal-6-open" }));
+            Assert.That(opened, Is.EqualTo(new[] { new DateOnly(2026, 11, 6) }));
+            Assert.That(cut.Find("[data-testid=cal-4-open] .visually-hidden").TextContent, Is.EqualTo("Wednesday 4 November, trained, open workouts"));
+        });
+    }
+
     private IRenderedComponent<MonthCalendar> Render(DateOnly month, IReadOnlyCollection<DateOnly> trained) =>
         Context.Render<MonthCalendar>(p => p
             .Add(x => x.Month, month)

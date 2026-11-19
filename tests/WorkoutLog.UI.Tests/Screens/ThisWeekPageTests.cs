@@ -53,7 +53,7 @@ public class ThisWeekPageTests : ComponentTestBase
     }
 
     [Test]
-    public void WhileLoading_ShowsTheSpinnerWithNewWorkoutAndTheNavigationBar()
+    public void WhileLoading_ShowsTheSpinnerWithTheTabBar()
     {
         training.Hold = true;
 
@@ -63,11 +63,10 @@ public class ThisWeekPageTests : ComponentTestBase
         {
             Assert.That(cut.FindAll("[data-testid=this-week-loading]"), Has.Count.EqualTo(1));
             Assert.That(cut.FindAll("[data-testid=week-tiles]"), Is.Empty);
-            Assert.That(cut.FindAll("[data-testid=new-workout]"), Has.Count.EqualTo(1));
-            Assert.That(cut.FindAll("[data-testid=dashboard-link]"), Has.Count.EqualTo(1));
-            Assert.That(cut.FindAll("[data-testid=workouts-link]"), Has.Count.EqualTo(1));
-            Assert.That(cut.FindAll("[data-testid=exercises-link]"), Has.Count.EqualTo(1));
-            Assert.That(cut.FindAll("[data-testid=tab-bar]"), Is.Empty);
+            Assert.That(cut.FindAll("[data-testid=tab-bar]"), Has.Count.EqualTo(1));
+            Assert.That(cut.Find("[aria-current=page]").GetAttribute("data-testid"), Is.EqualTo("this-week-link"));
+            Assert.That(cut.FindAll("[data-testid=new-workout]"), Is.Empty);
+            Assert.That(cut.FindAll("[data-testid=bottom-nav]"), Is.Empty);
         });
     }
 
@@ -191,7 +190,7 @@ public class ThisWeekPageTests : ComponentTestBase
     }
 
     [Test]
-    public void EmptyWeek_ShowsTheEmptyCardAndTheLastWeekRowThatDoesNothing()
+    public void EmptyWeek_ShowsTheEmptyCardAndTheLastWeekRow()
     {
         totals.LastWeek = Comparison(new WeekTally(4, new TimeSpan(4, 10, 0), 67), WeekTally.None);
 
@@ -200,9 +199,9 @@ public class ThisWeekPageTests : ComponentTestBase
         cut.WaitForAssertion(() => Assert.That(cut.FindAll("[data-testid=last-week]"), Has.Count.EqualTo(1)));
         Assert.Multiple(() =>
         {
-            Assert.That(cut.Find("[data-testid=week-workouts-none]").TextContent, Is.EqualTo("Nothing yet this week."));
+            Assert.That(cut.Find("[data-testid=week-workouts-none]").TextContent, Is.EqualTo("Nothing yet this week. Tap + to start one."));
             Assert.That(cut.Find("[data-testid=last-week-row] .detail").TextContent, Is.EqualTo("4 workouts · 4h 10m · 67 sets"));
-            Assert.That(cut.FindAll("button[data-testid=last-week-row]"), Is.Empty);
+            Assert.That(cut.FindAll("button[data-testid=last-week-row]"), Has.Count.EqualTo(1));
             Assert.That(cut.FindAll("[data-testid=week-records]"), Is.Empty);
             Assert.That(cut.FindAll("[data-testid=week-muscles]"), Is.Empty);
             Assert.That(cut.FindAll("[data-testid=this-week-streak]"), Is.Empty);
@@ -240,8 +239,8 @@ public class ThisWeekPageTests : ComponentTestBase
         Assert.Multiple(() =>
         {
             Assert.That(cut.FindAll("[data-testid=week-tiles]"), Is.Empty);
-            Assert.That(cut.FindAll("[data-testid=new-workout]"), Has.Count.EqualTo(1));
-            Assert.That(cut.FindAll("[data-testid=workouts-link]"), Has.Count.EqualTo(1));
+            Assert.That(cut.FindAll("[data-testid=new-link]"), Has.Count.EqualTo(1));
+            Assert.That(cut.FindAll("[data-testid=trends-link]"), Has.Count.EqualTo(1));
             Assert.That(LoggedEvents.Of(logger), Is.EqualTo(new[] { (UiEvent.ThisWeekLoadFailed, LogLevel.Warning, "Loading This week failed") }));
         });
     }
@@ -329,25 +328,36 @@ public class ThisWeekPageTests : ComponentTestBase
     [Test]
     public void Buttons_RaiseTheirCallbacks()
     {
-        var newWorkout = 0;
-        var navigated = new List<NavDestination>();
+        var added = 0;
+        var navigated = new List<MainTab>();
         var settings = 0;
         var cut = Context.Render<ThisWeekPage>(p => p
-            .Add(x => x.OnNewWorkout, () => newWorkout++)
+            .Add(x => x.OnNew, () => added++)
             .Add(x => x.OnNavigate, navigated.Add)
             .Add(x => x.OnSettings, () => settings++));
 
-        cut.Find("[data-testid=new-workout]").Click();
-        cut.Find("[data-testid=workouts-link]").Click();
-        cut.Find("[data-testid=exercises-link]").Click();
+        cut.Find("[data-testid=new-link]").Click();
+        cut.Find("[data-testid=trends-link]").Click();
         cut.Find("[data-testid=settings]").Click();
 
         Assert.Multiple(() =>
         {
-            Assert.That(newWorkout, Is.EqualTo(1));
-            Assert.That(navigated, Is.EqualTo(new[] { NavDestination.Workouts, NavDestination.Exercises }));
+            Assert.That(added, Is.EqualTo(1));
+            Assert.That(navigated, Is.EqualTo(new[] { MainTab.Trends }));
             Assert.That(settings, Is.EqualTo(1));
         });
+    }
+
+    [Test]
+    public void LastWeekRow_RaisesOnOpenLastWeekWithLastWeek()
+    {
+        totals.LastWeek = Comparison(new WeekTally(4, new TimeSpan(4, 10, 0), 67), WeekTally.None);
+        var opened = new List<Period>();
+        var cut = Context.Render<ThisWeekPage>(p => p.Add(x => x.OnOpenLastWeek, opened.Add));
+
+        cut.WaitForElement("button[data-testid=last-week-row]").Click();
+
+        Assert.That(opened, Is.EqualTo(new[] { Week.Previous() }));
     }
 
     [Test]

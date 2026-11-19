@@ -82,7 +82,7 @@ public class ThisWeekViewTests : ComponentTestBase
         Assert.Multiple(() =>
         {
             Assert.That(cut.FindAll(".tile .value").Select(v => v.TextContent), Is.EqualTo(new[] { "0", "0m", "0" }));
-            Assert.That(cut.Find("[data-testid=week-workouts-none]").TextContent, Is.EqualTo("Nothing yet this week."));
+            Assert.That(cut.Find("[data-testid=week-workouts-none]").TextContent, Is.EqualTo("Nothing yet this week. Tap + to start one."));
             Assert.That(cut.Find("[data-testid=last-week] .detail").TextContent, Is.EqualTo("4 workouts · 4h 10m · 67 sets"));
             Assert.That(cut.FindAll(Parts).Select(e => e.GetAttribute("data-testid")), Is.EqualTo(new[] { "day-strip", "week-tiles", "week-workouts", "last-week" }));
         });
@@ -213,21 +213,29 @@ public class ThisWeekViewTests : ComponentTestBase
     }
 
     [Test]
-    public void NavigationAndBottomBar_ReplaceTheTabBar()
+    public void TabBar_RaisesOnNavigateAndOnNew()
     {
+        var navigated = new List<MainTab>();
+        var added = 0;
         var cut = Context.Render<ThisWeekView>(p => p
             .Add(x => x.Monday, SampleThisWeek.Monday)
             .Add(x => x.Today, SampleThisWeek.Wednesday)
-            .Add(x => x.BottomBar, builder => builder.AddMarkupContent(0, "<button data-testid=\"above\"></button>"))
-            .Add(x => x.Navigation, builder => builder.AddMarkupContent(0, "<nav data-testid=\"other-bar\"></nav>")));
+            .Add(x => x.OnNavigate, navigated.Add)
+            .Add(x => x.OnNew, () => added++));
+
+        cut.Find("[data-testid=trends-link]").Click();
+        cut.Find("[data-testid=new-link]").Click();
 
         Assert.Multiple(() =>
         {
-            Assert.That(cut.FindAll("[data-testid=tab-bar]"), Is.Empty);
-            Assert.That(cut.FindAll("[data-testid=other-bar]"), Has.Count.EqualTo(1));
-            Assert.That(cut.FindAll("[data-testid=above]"), Has.Count.EqualTo(1));
+            Assert.That(navigated, Is.EqualTo(new[] { MainTab.Trends }));
+            Assert.That(added, Is.EqualTo(1));
         });
     }
+
+    [Test]
+    public void NoBottomBar_OnlyTheTabBarShows() =>
+        Assert.That(MidWeek().FindAll("footer > *").Select(e => e.GetAttribute("data-testid")), Is.EqualTo(new[] { "tab-bar" }));
 
     private IRenderedComponent<ThisWeekView> MidWeek() =>
         Context.Render<ThisWeekView>(p => p

@@ -3,13 +3,14 @@
 @using WorkoutLog.UI.Screens
 @inject NavigationManager Navigation
 
-@* Back has no handler here, so it leaves the app. *@
+@* Android back goes to This week. *@
 <TrendsPage KindQuery="Period" DateQuery="Date"
             OnPeriodChanged="@(period => Navigation.GoTo(TrendsRoute.To(period)))"
-            OnNew="@(() => Navigation.GoTo("workout/new"))"
-            OnNavigate="@(tab => { if (tab == MainTab.ThisWeek) { Navigation.GoTo(string.Empty); } })"
-            OnSettings="@(() => Navigation.GoTo("settings"))"
-            OnOpenExercise="@(opened => Navigation.GoTo($"exercises/{opened.ExerciseId}?from={Uri.EscapeDataString(Origin.Trends(opened.Period))}"))" />
+            OnNew="@(period => Navigation.GoTo(Origin.Link("workout/new", Origin.Trends(period))))"
+            OnNavigate="@(tab => Navigation.GoTo(tab))"
+            OnSettings="@(period => Navigation.GoTo(Origin.Link("settings", Origin.Trends(period))))"
+            OnOpenWorkouts="@(opened => Navigation.GoTo(WorkoutsRoute.To(opened.Dates, Origin.Trends(opened.Period))))"
+            OnOpenExercise="@(opened => Navigation.GoTo(Origin.Link($"exercises/{opened.ExerciseId}", Origin.Trends(opened.Period))))" />
 
 @code {
     /// <summary>The kind of period to show: "week", "month" or "year". Missing or anything else, the week.</summary>

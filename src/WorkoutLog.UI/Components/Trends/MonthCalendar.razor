@@ -17,8 +17,18 @@
                 style="@(day == 1 ? $"grid-column-start: {Column(date)}" : null)"
                 aria-current="@(today ? "date" : null)"
                 data-testid="@(TestId is null ? null : $"{TestId}-{day}")">
-                <span class="dot" aria-hidden="true">@day</span>
-                <span class="visually-hidden">@Describe(date, trained, today, future)</span>
+                @if (trained && OnOpenDay.HasDelegate)
+                {
+                    <button type="button" class="tap" data-testid="@(TestId is null ? null : $"{TestId}-{day}-open")" @onclick="() => OnOpenDay.InvokeAsync(date)">
+                        <span class="dot" aria-hidden="true">@day</span>
+                        <span class="visually-hidden">@Describe(date, trained, today, future), open workouts</span>
+                    </button>
+                }
+                else
+                {
+                    <span class="dot" aria-hidden="true">@day</span>
+                    <span class="visually-hidden">@Describe(date, trained, today, future)</span>
+                }
             </li>
         }
     </ul>
@@ -42,7 +52,11 @@
     [Parameter, EditorRequired]
     public IReadOnlyCollection<DateOnly> Trained { get; set; } = [];
 
-    /// <summary>Value of the data-testid attribute, and the prefix of each day's: <c>{TestId}-1</c> to <c>{TestId}-31</c>.</summary>
+    /// <summary>Raised with the day when a day with a workout is tapped. Days are not tappable when unset.</summary>
+    [Parameter]
+    public EventCallback<DateOnly> OnOpenDay { get; set; }
+
+    /// <summary>Value of the data-testid attribute, and the prefix of each day's: <c>{TestId}-1</c> to <c>{TestId}-31</c>, and <c>{TestId}-1-open</c> on the button of a tappable day.</summary>
     [Parameter]
     public string? TestId { get; set; }
 

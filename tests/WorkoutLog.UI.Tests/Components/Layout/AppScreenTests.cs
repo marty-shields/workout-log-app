@@ -29,51 +29,6 @@ public class AppScreenTests : ComponentTestBase
     }
 
     [Test]
-    public void Navigation_ShowsInTheFooterUnderTheBottomBar()
-    {
-        var cut = Context.Render<AppScreen>(p => p
-            .Add(x => x.Title, "Workout Log")
-            .Add<MainTabBar>(x => x.Navigation, bar => bar.Add(x => x.Current, MainTab.ThisWeek))
-            .Add(x => x.BottomBar, "<span data-testid=\"bar-content\"></span>"));
-
-        Assert.Multiple(() =>
-        {
-            Assert.That(cut.FindAll("footer [data-testid=bottom-bar], footer [data-testid=tab-bar]").Select(e => e.GetAttribute("data-testid")),
-                Is.EqualTo(new[] { "bottom-bar", "tab-bar" }));
-            Assert.That(cut.FindAll("[data-testid=bottom-nav]"), Is.Empty);
-        });
-    }
-
-    [Test]
-    public void Navigation_AloneShowsTheFooter_AndLeavesAndroidBackToTheApp()
-    {
-        var cut = Context.Render<AppScreen>(p => p
-            .Add(x => x.Title, "Workout Log")
-            .Add<MainTabBar>(x => x.Navigation, bar => bar.Add(x => x.Current, MainTab.Trends)));
-
-        Assert.Multiple(() =>
-        {
-            Assert.That(cut.FindAll("footer [data-testid=tab-bar]"), Has.Count.EqualTo(1));
-            Assert.That(BackButton.HasHandler, Is.False);
-        });
-    }
-
-    [Test]
-    public void Destination_WinsOverNavigation()
-    {
-        var cut = Context.Render<AppScreen>(p => p
-            .Add(x => x.Title, "Workout Log")
-            .Add(x => x.Destination, NavDestination.Dashboard)
-            .Add<MainTabBar>(x => x.Navigation, bar => bar.Add(x => x.Current, MainTab.ThisWeek)));
-
-        Assert.Multiple(() =>
-        {
-            Assert.That(cut.FindAll("[data-testid=bottom-nav]"), Has.Count.EqualTo(1));
-            Assert.That(cut.FindAll("[data-testid=tab-bar]"), Is.Empty);
-        });
-    }
-
-    [Test]
     public void NoOnBack_HidesBackArrow()
     {
         var cut = Context.Render<AppScreen>(p => p.Add(x => x.Title, "Workout Log"));
@@ -158,70 +113,107 @@ public class AppScreenTests : ComponentTestBase
     }
 
     [Test]
-    public void NoDestination_HidesTheNavigationBar()
+    public void NoTab_HidesTheTabBar()
     {
         var cut = Context.Render<AppScreen>(p => p.Add(x => x.Title, "Settings"));
 
-        Assert.That(cut.FindAll("[data-testid=bottom-nav]"), Is.Empty);
+        Assert.That(cut.FindAll("[data-testid=tab-bar]"), Is.Empty);
     }
 
     [Test]
-    public void Destination_ShowsTheNavigationBarUnderTheBottomBar()
+    public void Tab_ShowsTheTabBarUnderTheBottomBarWithItsTabCurrent()
     {
         var cut = Context.Render<AppScreen>(p => p
-            .Add(x => x.Title, "Workout Log")
-            .Add(x => x.Destination, NavDestination.Dashboard)
-            .Add(x => x.BottomBar, (RenderFragment)(b => b.AddContent(0, "New Workout"))));
+            .Add(x => x.Title, "Trends")
+            .Add(x => x.Tab, MainTab.Trends)
+            .Add(x => x.BottomBar, (RenderFragment)(b => b.AddContent(0, "Save"))));
 
         Assert.Multiple(() =>
         {
-            Assert.That(cut.FindAll("footer > *").Select(e => e.GetAttribute("data-testid")), Is.EqualTo(new[] { "bottom-bar", "bottom-nav" }));
-            Assert.That(cut.Find("[aria-current=page]").GetAttribute("data-testid"), Is.EqualTo("dashboard-link"));
+            Assert.That(cut.FindAll("footer > *").Select(e => e.GetAttribute("data-testid")), Is.EqualTo(new[] { "bottom-bar", "tab-bar" }));
+            Assert.That(cut.Find("[aria-current=page]").GetAttribute("data-testid"), Is.EqualTo("trends-link"));
         });
     }
 
     [Test]
-    public void NavigationBar_RaisesOnNavigate()
+    public void Tab_AloneShowsTheFooter()
     {
-        var navigated = new List<NavDestination>();
-        var cut = Context.Render<AppScreen>(p => p
-            .Add(x => x.Title, "Workout Log")
-            .Add(x => x.Destination, NavDestination.Dashboard)
-            .Add(x => x.OnNavigate, navigated.Add));
+        var cut = Context.Render<AppScreen>(p => p.Add(x => x.Title, "Workout Log").Add(x => x.Tab, MainTab.ThisWeek));
 
-        cut.Find("[data-testid=workouts-link]").Click();
-
-        Assert.That(navigated, Is.EqualTo(new[] { NavDestination.Workouts }));
+        Assert.That(cut.FindAll("footer [data-testid=tab-bar]"), Has.Count.EqualTo(1));
     }
 
-    [TestCase(NavDestination.Workouts)]
-    [TestCase(NavDestination.Exercises)]
-    public async Task AndroidBack_OnATopLevelScreen_NavigatesToTheDashboard(NavDestination destination)
+    [Test]
+    public void TabBar_RaisesOnNavigateAndOnNew()
     {
-        var navigated = new List<NavDestination>();
+        var navigated = new List<MainTab>();
+        var added = 0;
         var cut = Context.Render<AppScreen>(p => p
-            .Add(x => x.Title, "Workouts")
-            .Add(x => x.Destination, destination)
+            .Add(x => x.Title, "Workout Log")
+            .Add(x => x.Tab, MainTab.ThisWeek)
+            .Add(x => x.OnNavigate, navigated.Add)
+            .Add(x => x.OnNew, () => added++));
+
+        cut.Find("[data-testid=trends-link]").Click();
+        cut.Find("[data-testid=new-link]").Click();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(navigated, Is.EqualTo(new[] { MainTab.Trends }));
+            Assert.That(added, Is.EqualTo(1));
+        });
+    }
+
+    [Test]
+    public async Task AndroidBack_OnTrends_NavigatesToThisWeek()
+    {
+        var navigated = new List<MainTab>();
+        var cut = Context.Render<AppScreen>(p => p
+            .Add(x => x.Title, "Trends")
+            .Add(x => x.Tab, MainTab.Trends)
             .Add(x => x.OnNavigate, navigated.Add));
 
         await cut.InvokeAsync(BackButton.HandleAsync);
 
         Assert.Multiple(() =>
         {
-            Assert.That(navigated, Is.EqualTo(new[] { NavDestination.Dashboard }));
+            Assert.That(navigated, Is.EqualTo(new[] { MainTab.ThisWeek }));
             Assert.That(cut.FindAll("[data-testid=back]"), Is.Empty);
         });
     }
 
     [Test]
-    public void TheDashboard_DoesNotTakeAndroidBack()
+    public void ThisWeek_DoesNotTakeAndroidBack()
     {
         Context.Render<AppScreen>(p => p
             .Add(x => x.Title, "Workout Log")
-            .Add(x => x.Destination, NavDestination.Dashboard)
-            .Add(x => x.OnNavigate, (NavDestination _) => { }));
+            .Add(x => x.Tab, MainTab.ThisWeek)
+            .Add(x => x.OnNavigate, (MainTab _) => { }));
 
         Assert.That(BackButton.HasHandler, Is.False);
+    }
+
+    [Test]
+    public void Status_WithTheTabBar_IsAboveItInTheFooterAndMarkedToClearTheRaisedNewButton()
+    {
+        var cut = Context.Render<AppScreen>(p => p
+            .Add(x => x.Title, "Trends")
+            .Add(x => x.Tab, MainTab.Trends)
+            .Add(x => x.Status, "<p>Saved</p>"));
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.Find("footer").ClassList, Does.Contain("with-tabs"));
+            Assert.That(cut.Find("footer > [role=status]").NextElementSibling!.GetAttribute("data-testid"), Is.EqualTo("tab-bar"));
+        });
+    }
+
+    [Test]
+    public void NoTab_FooterIsNotMarkedWithTabs()
+    {
+        var cut = Context.Render<AppScreen>(p => p.Add(x => x.Title, "Workouts").Add(x => x.BottomBar, "<button>Save</button>"));
+
+        Assert.That(cut.Find("footer").ClassList, Does.Not.Contain("with-tabs"));
     }
 
     [Test]

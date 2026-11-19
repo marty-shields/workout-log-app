@@ -4,7 +4,7 @@ $attribute: CustomPage("Screens/Workout Summary/Overview")
 
 # Workout Summary
 
-What you did and what improved, shown after saving a new workout. View: `WorkoutSummaryView`; page: `WorkoutSummaryPage`. Saving an edit goes to [This week](./?path=/custom/screens-this-week-overview) as before.
+What you did and what improved, shown after saving a new workout. View: `WorkoutSummaryView`; page: `WorkoutSummaryPage`. Saving an edit goes straight back to where it was opened from, as on [Edit Workout](./?path=/custom/screens-edit-workout-overview#back).
 
 | Part | Content |
 |---|---|

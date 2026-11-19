@@ -8,9 +8,9 @@ using WorkoutLog.E2E.Tests.Support;
 namespace WorkoutLog.E2E.Tests.Steps;
 
 [Binding]
-public sealed class ThisWeekSteps(WebView web, ThisWeekScreen thisWeek, NavigationBar navigation, Journeys journeys, DeviceClock clock, ScenarioState state)
+public sealed class ThisWeekSteps(WebView web, ThisWeekScreen thisWeek, TabBar tabs, Journeys journeys, DeviceClock clock, ScenarioState state)
 {
-    private const string NoWorkoutsText = "Nothing yet this week.";
+    private const string NoWorkoutsText = "Nothing yet this week. Tap + to start one.";
 
     [Then(@"^I am on This week titled ""(.*)""$")]
     public void ThenOnThisWeekTitled(string title) => web.Eventually(() => web.Text("screen-title"), Is.EqualTo(title));
@@ -125,29 +125,24 @@ public sealed class ThisWeekSteps(WebView web, ThisWeekScreen thisWeek, Navigati
         web.Eventually(thisWeek.MuscleRows, Is.EqualTo(table.Rows.Select(r => (r["group"], r["sets"])).ToList()));
     }
 
-    [Then(@"^I can open Workouts and Exercises and start a New Workout$")]
-    public void ThenWorkoutsExercisesAndNewWorkoutShow() => Assert.Multiple(() =>
+    [Then(@"^I can open Trends and start a New Workout from the tab bar$")]
+    public void ThenTrendsAndNewShow() => Assert.Multiple(() =>
     {
-        Assert.That(navigation.Has("Workouts"), Is.True, "Workouts");
-        Assert.That(navigation.Has("Exercises"), Is.True, "Exercises");
-        Assert.That(thisWeek.HasNewWorkout(), Is.True, "New Workout");
+        Assert.That(tabs.Has("This week"), Is.True, "This week");
+        Assert.That(tabs.Has("Trends"), Is.True, "Trends");
+        Assert.That(tabs.HasPlus(), Is.True, "New");
+        Assert.That(tabs.Current(), Is.EqualTo("This week"), "current tab");
     });
 
     [Then(@"^no startup error is shown$")]
     public void ThenNoStartupError() => Assert.That(thisWeek.HasStartupError(), Is.False);
 
-    [When(@"^I tap (Workouts|New Workout) on This week$")]
-    public void WhenITapOnThisWeek(string link)
+    [When(@"^I tap the Last week row on This week$")]
+    public void WhenITapTheLastWeekRow()
     {
         journeys.WaitFor(Journeys.Screen.ThisWeek);
-        if (link == "Workouts")
-        {
-            navigation.Open("Workouts");
-        }
-        else
-        {
-            thisWeek.NewWorkout();
-        }
+        thisWeek.WaitUntilLoaded();
+        thisWeek.OpenLastWeek();
     }
 
     [When(@"^I go back to This week$")]

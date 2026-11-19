@@ -3,7 +3,7 @@ using OpenQA.Selenium;
 
 namespace WorkoutLog.E2E.Tests.Screens;
 
-/// <summary>This week: the day strip, the tiles against last week, the week's workouts, records and sets per muscle group, Workouts, Exercises, New Workout and the Settings gear.</summary>
+/// <summary>This week: the day strip, the tiles against last week, the week's workouts, records and sets per muscle group and the Settings gear.</summary>
 public sealed partial class ThisWeekScreen(WebView web)
 {
     public const string Title = "Workout Log";
@@ -62,13 +62,12 @@ public sealed partial class ThisWeekScreen(WebView web)
             .ToList();
     }
 
-    public bool HasNewWorkout() => web.Exists("new-workout");
-
     public bool HasStartupError() => web.Exists("startup-error");
 
     public void OpenSettings() => web.Tap("settings");
 
-    public void NewWorkout() => web.Tap("new-workout");
+    /// <summary>Taps the Last week row, which opens last week in Trends.</summary>
+    public void OpenLastWeek() => web.Tap("last-week-row");
 
     /// <summary>Each Records this week row's text and the weekday it was set, in order, once the card shows.</summary>
     public IReadOnlyList<(string Record, string Day)> Records()

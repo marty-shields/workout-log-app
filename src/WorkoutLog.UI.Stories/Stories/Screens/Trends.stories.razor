@@ -1,3 +1,4 @@
+@using WorkoutLog.UI.Models.Workouts
 @attribute [Stories("Screens/Trends")]
 
 <Stories TComponent="TrendsView" Layout="typeof(PhoneLayout)">
@@ -6,7 +7,7 @@
         <Template>
             <TrendsView @attributes="SampleTrends.Week"
                         OnKindChanged="(PeriodKind _) => { }" OnPrevious="() => { }" OnNext="() => { }" OnRetry="() => { }"
-                        OnSettings="() => { }" OnNew="() => { }" OnNavigate="(MainTab _) => { }" OnOpenRecord="(int _) => { }" />
+                        OnSettings="() => { }" OnNew="() => { }" OnNavigate="(MainTab _) => { }" OnOpenRecord="(int _) => { }" OnOpenWorkouts="(DateSpan _) => { }" />
         </Template>
     </Story>
 
@@ -14,7 +15,7 @@
         <Template>
             <TrendsView @attributes="SampleTrends.WeekOnly"
                         OnKindChanged="(PeriodKind _) => { }" OnPrevious="() => { }" OnNext="() => { }" OnRetry="() => { }"
-                        OnSettings="() => { }" OnNew="() => { }" OnNavigate="(MainTab _) => { }" OnOpenRecord="(int _) => { }" />
+                        OnSettings="() => { }" OnNew="() => { }" OnNavigate="(MainTab _) => { }" OnOpenRecord="(int _) => { }" OnOpenWorkouts="(DateSpan _) => { }" />
         </Template>
     </Story>
 
@@ -22,7 +23,7 @@
         <Template>
             <TrendsView @attributes="SampleTrends.Month"
                         OnKindChanged="(PeriodKind _) => { }" OnPrevious="() => { }" OnNext="() => { }" OnRetry="() => { }"
-                        OnSettings="() => { }" OnNew="() => { }" OnNavigate="(MainTab _) => { }" OnOpenRecord="(int _) => { }" />
+                        OnSettings="() => { }" OnNew="() => { }" OnNavigate="(MainTab _) => { }" OnOpenRecord="(int _) => { }" OnOpenWorkouts="(DateSpan _) => { }" />
         </Template>
     </Story>
 
@@ -30,7 +31,7 @@
         <Template>
             <TrendsView @attributes="SampleTrends.Year"
                         OnKindChanged="(PeriodKind _) => { }" OnPrevious="() => { }" OnNext="() => { }" OnRetry="() => { }"
-                        OnSettings="() => { }" OnNew="() => { }" OnNavigate="(MainTab _) => { }" OnOpenRecord="(int _) => { }" />
+                        OnSettings="() => { }" OnNew="() => { }" OnNavigate="(MainTab _) => { }" OnOpenRecord="(int _) => { }" OnOpenWorkouts="(DateSpan _) => { }" />
         </Template>
     </Story>
 
@@ -38,7 +39,7 @@
         <Template>
             <TrendsView @attributes="SampleTrends.PastWeek"
                         OnKindChanged="(PeriodKind _) => { }" OnPrevious="() => { }" OnNext="() => { }" OnRetry="() => { }"
-                        OnSettings="() => { }" OnNew="() => { }" OnNavigate="(MainTab _) => { }" OnOpenRecord="(int _) => { }" />
+                        OnSettings="() => { }" OnNew="() => { }" OnNavigate="(MainTab _) => { }" OnOpenRecord="(int _) => { }" OnOpenWorkouts="(DateSpan _) => { }" />
         </Template>
     </Story>
 
@@ -46,7 +47,7 @@
         <Template>
             <TrendsView @attributes="SampleTrends.PastMonth"
                         OnKindChanged="(PeriodKind _) => { }" OnPrevious="() => { }" OnNext="() => { }" OnRetry="() => { }"
-                        OnSettings="() => { }" OnNew="() => { }" OnNavigate="(MainTab _) => { }" OnOpenRecord="(int _) => { }" />
+                        OnSettings="() => { }" OnNew="() => { }" OnNavigate="(MainTab _) => { }" OnOpenRecord="(int _) => { }" OnOpenWorkouts="(DateSpan _) => { }" />
         </Template>
     </Story>
 
@@ -54,7 +55,7 @@
         <Template>
             <TrendsView @attributes="SampleTrends.PastYear"
                         OnKindChanged="(PeriodKind _) => { }" OnPrevious="() => { }" OnNext="() => { }" OnRetry="() => { }"
-                        OnSettings="() => { }" OnNew="() => { }" OnNavigate="(MainTab _) => { }" OnOpenRecord="(int _) => { }" />
+                        OnSettings="() => { }" OnNew="() => { }" OnNavigate="(MainTab _) => { }" OnOpenRecord="(int _) => { }" OnOpenWorkouts="(DateSpan _) => { }" />
         </Template>
     </Story>
 
@@ -62,7 +63,7 @@
         <Template>
             <TrendsView @attributes="SampleTrends.EmptyWeek"
                         OnKindChanged="(PeriodKind _) => { }" OnPrevious="() => { }" OnNext="() => { }" OnRetry="() => { }"
-                        OnSettings="() => { }" OnNew="() => { }" OnNavigate="(MainTab _) => { }" OnOpenRecord="(int _) => { }" />
+                        OnSettings="() => { }" OnNew="() => { }" OnNavigate="(MainTab _) => { }" OnOpenRecord="(int _) => { }" OnOpenWorkouts="(DateSpan _) => { }" />
         </Template>
     </Story>
 
@@ -70,7 +71,7 @@
         <Template>
             <TrendsView @attributes="SampleTrends.EmptyMonth"
                         OnKindChanged="(PeriodKind _) => { }" OnPrevious="() => { }" OnNext="() => { }" OnRetry="() => { }"
-                        OnSettings="() => { }" OnNew="() => { }" OnNavigate="(MainTab _) => { }" OnOpenRecord="(int _) => { }" />
+                        OnSettings="() => { }" OnNew="() => { }" OnNavigate="(MainTab _) => { }" OnOpenRecord="(int _) => { }" OnOpenWorkouts="(DateSpan _) => { }" />
         </Template>
     </Story>
 
@@ -78,7 +79,7 @@
         <Template>
             <TrendsView @attributes="SampleTrends.EmptyYear"
                         OnKindChanged="(PeriodKind _) => { }" OnPrevious="() => { }" OnNext="() => { }" OnRetry="() => { }"
-                        OnSettings="() => { }" OnNew="() => { }" OnNavigate="(MainTab _) => { }" OnOpenRecord="(int _) => { }" />
+                        OnSettings="() => { }" OnNew="() => { }" OnNavigate="(MainTab _) => { }" OnOpenRecord="(int _) => { }" OnOpenWorkouts="(DateSpan _) => { }" />
         </Template>
     </Story>
 
@@ -86,7 +87,7 @@
         <Template>
             <TrendsView @attributes="SampleTrends.Loading"
                         OnKindChanged="(PeriodKind _) => { }" OnPrevious="() => { }" OnNext="() => { }" OnRetry="() => { }"
-                        OnSettings="() => { }" OnNew="() => { }" OnNavigate="(MainTab _) => { }" OnOpenRecord="(int _) => { }" />
+                        OnSettings="() => { }" OnNew="() => { }" OnNavigate="(MainTab _) => { }" OnOpenRecord="(int _) => { }" OnOpenWorkouts="(DateSpan _) => { }" />
         </Template>
     </Story>
 
@@ -94,7 +95,7 @@
         <Template>
             <TrendsView @attributes="SampleTrends.LoadFailed"
                         OnKindChanged="(PeriodKind _) => { }" OnPrevious="() => { }" OnNext="() => { }" OnRetry="() => { }"
-                        OnSettings="() => { }" OnNew="() => { }" OnNavigate="(MainTab _) => { }" OnOpenRecord="(int _) => { }" />
+                        OnSettings="() => { }" OnNew="() => { }" OnNavigate="(MainTab _) => { }" OnOpenRecord="(int _) => { }" OnOpenWorkouts="(DateSpan _) => { }" />
         </Template>
     </Story>
 

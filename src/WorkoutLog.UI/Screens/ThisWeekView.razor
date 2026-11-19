@@ -2,7 +2,7 @@
 @using WorkoutLog.UI.Components.Feedback
 @using WorkoutLog.UI.Components.ThisWeek
 @using WorkoutLog.UI.Models.Muscles
-<AppScreen Title="Workout Log" OnRefresh="OnRefresh" BottomBar="BottomBar" Navigation="Navigation ?? TabBar">
+<AppScreen Title="Workout Log" Tab="MainTab.ThisWeek" OnNavigate="OnNavigate" OnNew="OnNew" OnRefresh="OnRefresh">
     <Actions>
         <IconButton Icon="IconName.Settings" AriaLabel="Settings" TestId="settings" OnClick="OnSettings" />
     </Actions>
@@ -48,8 +48,6 @@
 </AppScreen>
 
 @code {
-    private RenderFragment TabBar => @<MainTabBar Current="MainTab.ThisWeek" OnNavigate="OnNavigate" OnNew="OnNew" />;
-
     /// <summary>The week's Monday. The title row shows the week's dates and the strip starts here.</summary>
     [Parameter, EditorRequired]
     public DateOnly Monday { get; set; }
@@ -109,14 +107,6 @@
     /// <summary>Raised by the Settings gear.</summary>
     [Parameter]
     public EventCallback OnSettings { get; set; }
-
-    /// <summary>Replaces the tab bar. The app keeps its old bottom bar here until the tab bar replaces it.</summary>
-    [Parameter]
-    public RenderFragment? Navigation { get; set; }
-
-    /// <summary>Shown above the bottom bar.</summary>
-    [Parameter]
-    public RenderFragment? BottomBar { get; set; }
 
     /// <summary>Raised by the New button in the tab bar.</summary>
     [Parameter]

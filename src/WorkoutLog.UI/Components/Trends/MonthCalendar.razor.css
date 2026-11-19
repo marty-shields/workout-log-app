@@ -18,6 +18,8 @@
 }
 
 .days {
+    grid-auto-rows: var(--touch-target);
+    align-items: center;
     margin: 0;
     padding: 0;
     list-style: none;
@@ -40,6 +42,25 @@
     width: var(--calendar-day-size);
     height: var(--calendar-day-size);
     font-variant-numeric: tabular-nums;
+}
+
+/* The tap area fills its cell, a touch target tall, so neighbouring days never share a hit area. */
+.tap {
+    display: grid;
+    place-items: center;
+    width: 100%;
+    min-height: var(--touch-target);
+    margin: 0;
+    padding: 0;
+    border: none;
+    background-color: transparent;
+    color: inherit;
+    font: inherit;
+    cursor: pointer;
+}
+
+.tap:active .dot {
+    background-image: linear-gradient(var(--state-pressed), var(--state-pressed));
 }
 
 /* A trained day is solid; a day with no workout is dashed. */

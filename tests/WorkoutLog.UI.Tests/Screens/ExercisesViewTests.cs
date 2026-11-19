@@ -3,7 +3,6 @@ using WorkoutLog.Core.Domain.Exercises;
 using WorkoutLog.UI.Components.Actions;
 using WorkoutLog.UI.Components.Layout;
 using WorkoutLog.UI.Models.Exercises;
-using WorkoutLog.UI.Navigation;
 using WorkoutLog.UI.Screens;
 using WorkoutLog.UI.Stories.Samples;
 
@@ -14,7 +13,7 @@ public class ExercisesViewTests : ComponentTestBase
     [Test]
     public void List_ShowsSearchChipsAndARowPerExerciseWithItsLastSession()
     {
-        var cut = Context.Render<ExercisesView>(p => p.Add(x => x.Items, SampleExercises.All.Take(2).ToList()).Add(x => x.OnPick, (ExerciseListItem _) => { }));
+        var cut = RenderPicker(SampleExercises.All.Take(2).ToList());
 
         Assert.Multiple(() =>
         {
@@ -114,37 +113,6 @@ public class ExercisesViewTests : ComponentTestBase
     }
 
     [Test]
-    public void NothingLogged_ShowsTheMessageWithNoSearchOrChips()
-    {
-        var cut = Context.Render<ExercisesView>(p => p.Add(x => x.Items, []).Add(x => x.NothingLogged, true));
-
-        Assert.Multiple(() =>
-        {
-            Assert.That(TestText.Normalise(cut.Find("[data-testid=exercises-empty-message]").TextContent), Is.EqualTo("No exercises logged yet"));
-            Assert.That(cut.Find("[data-testid=exercises-empty-hint]").TextContent, Is.EqualTo("Exercises show here once you log them in a workout"));
-            Assert.That(cut.FindAll(".toolbar"), Is.Empty);
-            Assert.That(cut.FindAll("[data-testid=exercises-search]"), Is.Empty);
-            Assert.That(cut.FindAll("[data-testid=exercises-filter]"), Is.Empty);
-            Assert.That(cut.FindAll("[data-testid=exercises-none]"), Is.Empty);
-        });
-    }
-
-    [Test]
-    public void LoadingBeforeAnythingLoaded_ShowsTheSpinnerOnly()
-    {
-        var cut = Context.Render<ExercisesView>(p => p.Add(x => x.Items, []).Add(x => x.NothingLogged, true).Add(x => x.Loading, true));
-
-        Assert.Multiple(() =>
-        {
-            Assert.That(cut.Find("[data-testid=exercises-loading]").TextContent, Does.Contain("Loading…"));
-            Assert.That(cut.FindAll(".toolbar"), Is.Empty);
-            Assert.That(cut.FindAll("[data-testid=exercises-search]"), Is.Empty);
-            Assert.That(cut.FindAll("[data-testid=exercises-empty]"), Is.Empty);
-            Assert.That(cut.FindAll("[data-testid=bottom-nav]"), Has.Count.EqualTo(1));
-        });
-    }
-
-    [Test]
     public void Reloading_KeepsTheSearchAndChipsInTheToolbarWithTheSpinnerInPlaceOfTheRows()
     {
         var cut = Context.Render<ExercisesView>(p => p
@@ -164,88 +132,7 @@ public class ExercisesViewTests : ComponentTestBase
     }
 
     [Test]
-    public void Failed_ShowsTheErrorAndTryAgainInsteadOfTheContent()
-    {
-        var cut = Context.Render<ExercisesView>(p => p.Add(x => x.Items, SampleExercises.All).Add(x => x.Failed, true));
-
-        Assert.Multiple(() =>
-        {
-            Assert.That(cut.Find("[data-testid=exercises-error]").TextContent, Is.EqualTo("Couldn't load your exercises"));
-            Assert.That(cut.Find("[data-testid=exercises-retry]").TextContent.Trim(), Is.EqualTo("Try again"));
-            Assert.That(cut.FindAll(".toolbar"), Is.Empty);
-            Assert.That(cut.FindAll("[data-testid=exercises-search]"), Is.Empty);
-            Assert.That(cut.FindAll("[data-testid^=exercises-row-]"), Is.Empty);
-        });
-    }
-
-    [Test]
-    public void RetryingAfterAFailure_ShowsTheSpinnerOnly()
-    {
-        var cut = Context.Render<ExercisesView>(p => p.Add(x => x.Items, []).Add(x => x.Failed, true).Add(x => x.Loading, true));
-
-        Assert.Multiple(() =>
-        {
-            Assert.That(cut.FindAll("[data-testid=exercises-loading]"), Has.Count.EqualTo(1));
-            Assert.That(cut.FindAll(".toolbar"), Is.Empty);
-        });
-    }
-
-    [Test]
-    public void TryAgain_RaisesOnRetry()
-    {
-        var retries = 0;
-        var cut = Context.Render<ExercisesView>(p => p.Add(x => x.Items, []).Add(x => x.Failed, true).Add(x => x.OnRetry, () => retries++));
-
-        cut.Find("[data-testid=exercises-retry]").Click();
-
-        Assert.That(retries, Is.EqualTo(1));
-    }
-
-    [Test]
-    public void Failed_FocusesTryAgain()
-    {
-        var cut = Context.Render<ExercisesView>(p => p.Add(x => x.Items, []).Add(x => x.Failed, true));
-
-        cut.WaitForAssertion(() => Context.JSInterop.Invocations["Blazor._internal.domWrapper.focus"].Single().Arguments[0]
-            .ShouldBeElementReferenceTo(cut.Find("[data-testid=exercises-retry]")));
-    }
-
-    [Test]
-    public void IsTopLevel_WithNoBackArrowAndItsNavigationItemCurrent()
-    {
-        var cut = Context.Render<ExercisesView>(p => p.Add(x => x.Items, SampleExercises.All));
-
-        Assert.Multiple(() =>
-        {
-            Assert.That(cut.FindAll("[data-testid=back]"), Is.Empty);
-            Assert.That(cut.Find("[aria-current=page]").GetAttribute("data-testid"), Is.EqualTo("exercises-link"));
-        });
-    }
-
-    [Test]
-    public async Task AndroidBack_NavigatesToTheDashboard()
-    {
-        var navigated = new List<NavDestination>();
-        var cut = Context.Render<ExercisesView>(p => p.Add(x => x.Items, SampleExercises.All).Add(x => x.OnNavigate, navigated.Add));
-
-        await cut.InvokeAsync(BackButton.HandleAsync);
-
-        Assert.That(navigated, Is.EqualTo(new[] { NavDestination.Dashboard }));
-    }
-
-    [Test]
-    public void NavigationBar_RaisesOnNavigate()
-    {
-        var navigated = new List<NavDestination>();
-        var cut = Context.Render<ExercisesView>(p => p.Add(x => x.Items, SampleExercises.All).Add(x => x.OnNavigate, navigated.Add));
-
-        cut.Find("[data-testid=workouts-link]").Click();
-
-        Assert.That(navigated, Is.EqualTo(new[] { NavDestination.Workouts }));
-    }
-
-    [Test]
-    public void Picking_IsADialogOverTheWorkoutWithABackArrowAndNoNavigationBarOrPullToRefresh()
+    public void IsADialogOverTheWorkoutWithABackArrowAndNoTabBarOrPullToRefresh()
     {
         var cut = RenderPicker();
 
@@ -255,17 +142,9 @@ public class ExercisesViewTests : ComponentTestBase
             Assert.That(cut.Find("[data-testid=exercises-overlay] [data-testid=screen-title]").TextContent, Is.EqualTo("Exercises"));
             Assert.That(cut.FindAll("[data-testid=exercises-overlay] .toolbar [data-testid=exercises-search]"), Has.Count.EqualTo(1));
             Assert.That(cut.FindAll("button[data-testid^=exercises-row-]"), Has.Count.EqualTo(SampleExercises.All.Count));
-            Assert.That(cut.FindAll("[data-testid=bottom-nav]"), Is.Empty);
+            Assert.That(cut.FindAll("[data-testid=tab-bar]"), Is.Empty);
             Assert.That(cut.FindAll("[data-testid=pull-refresh]"), Is.Empty);
         });
-    }
-
-    [Test]
-    public void NotPicking_HasNoOverlay()
-    {
-        var cut = Context.Render<ExercisesView>(p => p.Add(x => x.Items, SampleExercises.All));
-
-        Assert.That(cut.FindAll("[data-testid=exercises-overlay]"), Is.Empty);
     }
 
     [Test]
@@ -353,9 +232,9 @@ public class ExercisesViewTests : ComponentTestBase
         });
     }
 
-    private IRenderedComponent<ExercisesView> RenderPicker() =>
+    private IRenderedComponent<ExercisesView> RenderPicker(IReadOnlyList<ExerciseListItem>? items = null) =>
         Context.Render<ExercisesView>(p => p
-            .Add(x => x.Items, SampleExercises.All)
+            .Add(x => x.Items, items ?? SampleExercises.All)
             .Add(x => x.OnPick, (ExerciseListItem _) => { })
             .Add(x => x.OnClose, () => { }));
 }

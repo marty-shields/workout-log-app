@@ -1,17 +1,16 @@
 Feature: Exercise page
   A lift's top set and estimated one-rep max over time, with its records and sessions.
 
-  Scenario Outline: A lift opens its Exercise page and back returns to Exercises
+  Scenario Outline: A lift opens its Exercise page and back returns to Trends
     Given these saved workouts:
       | started          | exercises                                       |
       | 3 days ago 18:05 | Barbell Back Squat: 5 reps 60 kg / Plank: 0:01:00 0 kg |
-    And I have opened Exercises
-    Then the tappable rows on Exercises are: Barbell Back Squat, Plank
-    When I open "Barbell Back Squat" on Exercises
+    When I open "Barbell Back Squat" from Most trained on Trends
     Then the Exercise page is titled "Barbell Back Squat" with "Quadriceps · Barbell"
     And the Exercise tabs are: Top set, e1RM
     When I go back with <how>
-    Then I am on Exercises
+    Then I am on Trends
+    And Trends is on the Month view
     Examples:
       | how            |
       | the back arrow |

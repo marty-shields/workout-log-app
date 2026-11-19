@@ -3,13 +3,13 @@
 @using WorkoutLog.UI.Screens
 @inject NavigationManager Navigation
 
-<EditWorkoutPage WorkoutId="Id" OnSaved="@(() => Navigation.GoTo(string.Empty))" OnBack="@(() => Navigation.GoTo(BackRoute))" OnDeleted="@(() => Navigation.GoTo(BackRoute))" />
+<EditWorkoutPage WorkoutId="Id" OnSaved="@(() => Navigation.GoTo(BackRoute))" OnBack="@(() => Navigation.GoTo(BackRoute))" OnDeleted="@(() => Navigation.GoTo(BackRoute))" />
 
 @code {
     [Parameter] public int Id { get; set; }
 
-    /// <summary>"dashboard" when opened from This week: back and delete return there instead of to Workouts.</summary>
+    /// <summary>"this-week" or "workouts:" and the dates it was opened from (2026-11-02:2026-11-08): back, save and delete return there. This week when missing.</summary>
     [SupplyParameterFromQuery] public string? From { get; set; }
 
-    private string BackRoute => Origin.Route(From, "workouts");
+    private string BackRoute => Origin.Route(From);
 }

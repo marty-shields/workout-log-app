@@ -1,5 +1,0 @@
-@page "/exercises"
-@using WorkoutLog.UI.Screens
-@inject NavigationManager Navigation
-
-<ExercisesPage OnNavigate="@(destination => Navigation.GoTo(destination))" OnOpen="@(id => Navigation.GoTo($"exercises/{id}"))" />

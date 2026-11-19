@@ -2,6 +2,7 @@ using System.Globalization;
 using WorkoutLog.Core.Domain.Workouts.Periods;
 using WorkoutLog.UI.Components.ThisWeek;
 using WorkoutLog.UI.Components.Trends;
+using WorkoutLog.UI.Models.Workouts;
 using WorkoutLog.UI.Screens;
 
 namespace WorkoutLog.UI.Stories.Samples;
@@ -40,7 +41,7 @@ public static class SampleTrends
         p[nameof(TrendsView.Totals)] = WeekTotals;
         p[nameof(TrendsView.Earlier)] = WeekEarlier;
         p[nameof(TrendsView.Against)] = "Against Monday to Wednesday last week";
-        p[nameof(TrendsView.Days)] = Days([62, 35, 58, 0, 0, 0, 0], [65, 0, 55, 0, 60, 70, 0], today: 2);
+        p[nameof(TrendsView.Days)] = Days([62, 35, 58, 0, 0, 0, 0], [65, 0, 55, 0, 60, 70, 0], today: 2, monday: new DateOnly(2026, 11, 16));
         p[nameof(TrendsView.Muscles)] = SampleThisWeek.Muscles;
         p[nameof(TrendsView.Records)] = SampleThisWeek.Records;
         p[nameof(TrendsView.RecentWeeks)] = RecentWeeks;
@@ -59,7 +60,7 @@ public static class SampleTrends
         p[nameof(TrendsView.Totals)] = new TrendTotals(4, new TimeSpan(4, 10, 0), 67, 12100);
         p[nameof(TrendsView.Earlier)] = new TrendTotals(5, new TimeSpan(5, 0, 0), 70, 12800);
         p[nameof(TrendsView.Against)] = "Against the week before";
-        p[nameof(TrendsView.Days)] = Days([65, 0, 55, 0, 60, 70, 0], [50, 40, 60, 0, 70, 80, 0], today: null);
+        p[nameof(TrendsView.Days)] = Days([65, 0, 55, 0, 60, 70, 0], [50, 40, 60, 0, 70, 80, 0], today: null, monday: new DateOnly(2026, 11, 9));
         p[nameof(TrendsView.Muscles)] = SampleThisWeek.AllTrained;
         p[nameof(TrendsView.Records)] = SampleThisWeek.ManyRecords.Take(2).ToList();
         p[nameof(TrendsView.RecentWeeks)] = RecentWeeks;
@@ -72,7 +73,7 @@ public static class SampleTrends
         p[nameof(TrendsView.Totals)] = Nothing;
         p[nameof(TrendsView.Earlier)] = Nothing;
         p[nameof(TrendsView.Against)] = "Against the week before";
-        p[nameof(TrendsView.Days)] = Days([0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0], today: null);
+        p[nameof(TrendsView.Days)] = Days([0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0], today: null, monday: new DateOnly(2026, 11, 2));
         p[nameof(TrendsView.Muscles)] = SampleThisWeek.NoneTrained;
         p[nameof(TrendsView.RecentWeeks)] = new int[12];
     });
@@ -88,10 +89,10 @@ public static class SampleTrends
         p[nameof(TrendsView.Trained)] = DayNumbers(2, 4, 6, 7, 9, 11, 13, 14, 16, 17, 18).Select(d => new DateOnly(2026, 11, d)).ToList();
         p[nameof(TrendsView.Weeks)] = new MonthWeek[]
         {
-            new("1 Nov", 0, TimeSpan.Zero),
-            new("2 – 8 Nov", 4, new TimeSpan(4, 10, 0)),
-            new("9 – 15 Nov", 4, new TimeSpan(4, 10, 0)),
-            new("16 – 18 Nov", 3, new TimeSpan(2, 35, 0)),
+            new("1 Nov", 0, TimeSpan.Zero, new DateSpan(new DateOnly(2026, 11, 1), new DateOnly(2026, 11, 1))),
+            new("2 – 8 Nov", 4, new TimeSpan(4, 10, 0), new DateSpan(new DateOnly(2026, 11, 2), new DateOnly(2026, 11, 8))),
+            new("9 – 15 Nov", 4, new TimeSpan(4, 10, 0), new DateSpan(new DateOnly(2026, 11, 9), new DateOnly(2026, 11, 15))),
+            new("16 – 18 Nov", 3, new TimeSpan(2, 35, 0), new DateSpan(new DateOnly(2026, 11, 16), new DateOnly(2026, 11, 18))),
         };
         p[nameof(TrendsView.Records)] = MonthRecords;
         p[nameof(TrendsView.MostTrained)] = MostTrained;
@@ -108,11 +109,11 @@ public static class SampleTrends
         p[nameof(TrendsView.Trained)] = DayNumbers(1, 3, 5, 7, 8, 10, 12, 14, 15, 17, 19, 22, 24, 27, 29).Select(d => new DateOnly(2026, 10, d)).ToList();
         p[nameof(TrendsView.Weeks)] = new MonthWeek[]
         {
-            new("1 – 4 Oct", 2, new TimeSpan(2, 0, 0)),
-            new("5 – 11 Oct", 4, new TimeSpan(4, 5, 0)),
-            new("12 – 18 Oct", 4, new TimeSpan(3, 55, 0)),
-            new("19 – 25 Oct", 3, new TimeSpan(2, 50, 0)),
-            new("26 – 31 Oct", 2, new TimeSpan(1, 30, 0)),
+            new("1 – 4 Oct", 2, new TimeSpan(2, 0, 0), new DateSpan(new DateOnly(2026, 10, 1), new DateOnly(2026, 10, 4))),
+            new("5 – 11 Oct", 4, new TimeSpan(4, 5, 0), new DateSpan(new DateOnly(2026, 10, 5), new DateOnly(2026, 10, 11))),
+            new("12 – 18 Oct", 4, new TimeSpan(3, 55, 0), new DateSpan(new DateOnly(2026, 10, 12), new DateOnly(2026, 10, 18))),
+            new("19 – 25 Oct", 3, new TimeSpan(2, 50, 0), new DateSpan(new DateOnly(2026, 10, 19), new DateOnly(2026, 10, 25))),
+            new("26 – 31 Oct", 2, new TimeSpan(1, 30, 0), new DateSpan(new DateOnly(2026, 10, 26), new DateOnly(2026, 10, 31))),
         };
         p[nameof(TrendsView.Records)] = MonthRecords.Take(2).ToList();
         p[nameof(TrendsView.MostTrained)] = MostTrained;
@@ -128,12 +129,12 @@ public static class SampleTrends
         p[nameof(TrendsView.Today)] = Today;
         p[nameof(TrendsView.Weeks)] = new MonthWeek[]
         {
-            new("1 – 2 Aug", 0, TimeSpan.Zero),
-            new("3 – 9 Aug", 0, TimeSpan.Zero),
-            new("10 – 16 Aug", 0, TimeSpan.Zero),
-            new("17 – 23 Aug", 0, TimeSpan.Zero),
-            new("24 – 30 Aug", 0, TimeSpan.Zero),
-            new("31 Aug", 0, TimeSpan.Zero),
+            new("1 – 2 Aug", 0, TimeSpan.Zero, new DateSpan(new DateOnly(2026, 8, 1), new DateOnly(2026, 8, 2))),
+            new("3 – 9 Aug", 0, TimeSpan.Zero, new DateSpan(new DateOnly(2026, 8, 3), new DateOnly(2026, 8, 9))),
+            new("10 – 16 Aug", 0, TimeSpan.Zero, new DateSpan(new DateOnly(2026, 8, 10), new DateOnly(2026, 8, 16))),
+            new("17 – 23 Aug", 0, TimeSpan.Zero, new DateSpan(new DateOnly(2026, 8, 17), new DateOnly(2026, 8, 23))),
+            new("24 – 30 Aug", 0, TimeSpan.Zero, new DateSpan(new DateOnly(2026, 8, 24), new DateOnly(2026, 8, 30))),
+            new("31 Aug", 0, TimeSpan.Zero, new DateSpan(new DateOnly(2026, 8, 31), new DateOnly(2026, 8, 31))),
         };
     });
 
@@ -143,7 +144,7 @@ public static class SampleTrends
         p[nameof(TrendsView.Totals)] = YearTotals;
         p[nameof(TrendsView.Earlier)] = YearEarlier;
         p[nameof(TrendsView.Against)] = "Against 2025 to 18 Nov";
-        p[nameof(TrendsView.Months)] = Months([14, 12, 16, 13, 17, 11, 15, 8, 14, 15, 11, 0], current: 10);
+        p[nameof(TrendsView.Months)] = Months([14, 12, 16, 13, 17, 11, 15, 8, 14, 15, 11, 0], current: 10, year: 2026);
         p[nameof(TrendsView.PerWeek)] = 3.2;
         p[nameof(TrendsView.LongestStreak)] = 23;
         p[nameof(TrendsView.StreakRunning)] = true;
@@ -156,7 +157,7 @@ public static class SampleTrends
         p[nameof(TrendsView.Totals)] = new TrendTotals(141, new TimeSpan(141, 0, 0), 2200, 520000);
         p[nameof(TrendsView.Earlier)] = new TrendTotals(120, new TimeSpan(130, 0, 0), 1900, 470000);
         p[nameof(TrendsView.Against)] = "Against 2024";
-        p[nameof(TrendsView.Months)] = Months([12, 10, 14, 11, 15, 9, 13, 10, 12, 13, 12, 10], current: -1);
+        p[nameof(TrendsView.Months)] = Months([12, 10, 14, 11, 15, 9, 13, 10, 12, 13, 12, 10], current: -1, year: 2025);
         p[nameof(TrendsView.PerWeek)] = 2.7;
         p[nameof(TrendsView.LongestStreak)] = 14;
         p[nameof(TrendsView.RecordsByMonth)] = RecordMonths([4, 3, 5, 2, 4, 1, 3, 2, 3, 2, 3, 1]);
@@ -168,7 +169,7 @@ public static class SampleTrends
         p[nameof(TrendsView.Totals)] = Nothing;
         p[nameof(TrendsView.Earlier)] = Nothing;
         p[nameof(TrendsView.Against)] = "Against 2023";
-        p[nameof(TrendsView.Months)] = Months(new int[12], current: -1);
+        p[nameof(TrendsView.Months)] = Months(new int[12], current: -1, year: 2024);
         p[nameof(TrendsView.RecordsByMonth)] = RecordMonths(new int[12]);
     });
 
@@ -251,8 +252,8 @@ public static class SampleTrends
         return parameters;
     }
 
-    /// <summary>Minutes trained each day of a week beside the same day the week before; <paramref name="today"/> is the index of today, or null for a finished week.</summary>
-    private static List<TrendBar> Days(int[] minutes, int[] earlier, int? today) =>
+    /// <summary>Minutes trained each day of a week beside the same day the week before; <paramref name="today"/> is the index of today, or null for a finished week; each column with minutes opens that day of the week starting <paramref name="monday"/>.</summary>
+    private static List<TrendBar> Days(int[] minutes, int[] earlier, int? today, DateOnly monday) =>
         [.. minutes.Select((value, i) => new TrendBar(
             DayNames[i][..3],
             DayNames[i],
@@ -260,10 +261,11 @@ public static class SampleTrends
             value > 0 ? Minutes(value) : today is { } t && i > t ? "still to come" : "rest day",
             earlier[i],
             earlier[i] > 0 ? Minutes(earlier[i]) : "rest day",
-            Current: i == today))];
+            Current: i == today,
+            Span: value > 0 ? new DateSpan(monday.AddDays(i), monday.AddDays(i)) : null))];
 
     /// <summary>Workouts in each month; <paramref name="current"/> is the index of this month, or -1. The current and highest months show their value.</summary>
-    private static List<TrendBar> Months(int[] workouts, int current)
+    private static List<TrendBar> Months(int[] workouts, int current, int year)
     {
         var highest = workouts.Max();
         return [.. workouts.Select((value, i) => new TrendBar(
@@ -272,7 +274,8 @@ public static class SampleTrends
             value,
             value == 0 ? "no workouts" : Workouts(value),
             Current: i == current,
-            Labelled: i == current || (value == highest && highest > 0)))];
+            Labelled: i == current || (value == highest && highest > 0),
+            Span: value > 0 ? new DateSpan(new DateOnly(year, i + 1, 1), new DateOnly(year, i + 1, DateTime.DaysInMonth(year, i + 1))) : null))];
     }
 
     private static List<MeterRow> RecordMonths(int[] records) =>

@@ -1,5 +1,5 @@
 Feature: Workout Summary
-  Saving a new workout shows what I did and what improved; Done or Android back returns to This week. Saving an edit goes straight to This week.
+  Saving a new workout shows what I did and what improved; Done or Android back returns to This week. Saving an edit goes straight back to where it was opened from.
 
   @smoke @release
   Scenario: Saving a new workout opens the summary and Done returns to This week
@@ -38,9 +38,9 @@ Feature: Workout Summary
     When I save the new workout
     Then the summary lists no record for "Push-up"
 
-  Scenario: Saving an edit goes to This week
+  Scenario: Saving an edit goes back to Workouts
     Given I have saved a workout with Push-up: 10 reps
     And I have opened workout 1 from Workouts
     When I enter "12" in Push-up set 1 reps
     And I save the workout
-    Then I am on This week
+    Then I am on Workouts

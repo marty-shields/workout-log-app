@@ -9,6 +9,7 @@ using WorkoutLog.Core.Services;
 using WorkoutLog.UI.Components.Layout;
 using WorkoutLog.UI.Lifecycle;
 using WorkoutLog.UI.Logging;
+using WorkoutLog.UI.Models.Workouts;
 using WorkoutLog.UI.Screens;
 
 namespace WorkoutLog.UI.Tests.Screens;
@@ -429,6 +430,72 @@ public class TrendsPageMonthYearTests : ComponentTestBase
 
         var october = Period.Containing(PeriodKind.Month, new DateOnly(2026, 10, 1));
         Assert.That(opened, Is.EqualTo(new[] { new RecordOpened(Run, october), new RecordOpened(Squat, october) }));
+    }
+
+    [Test]
+    public void Month_CalendarDayWithAWorkoutAndWeekRowWithWorkouts_RaiseOnOpenWorkoutsWithTheirDatesAndTheMonthShown()
+    {
+        var opened = new List<WorkoutsOpened>();
+        var cut = Context.Render<TrendsPage>(p => p.Add(x => x.KindQuery, "month").Add(x => x.OnOpenWorkouts, opened.Add));
+
+        cut.WaitForElement("[data-testid=trends-calendar-days-4-open]").Click();
+        cut.Find("[data-testid=trends-weeks-rows-2-open]").Click();
+        cut.Find("[data-testid=trends-weeks-rows-4-open]").Click();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(opened, Is.EqualTo(new[]
+            {
+                new WorkoutsOpened(new DateSpan(new DateOnly(2026, 11, 4), new DateOnly(2026, 11, 4)), November),
+                new WorkoutsOpened(new DateSpan(new DateOnly(2026, 11, 2), new DateOnly(2026, 11, 8)), November),
+                new WorkoutsOpened(new DateSpan(new DateOnly(2026, 11, 16), new DateOnly(2026, 11, 18)), November),
+            }));
+            Assert.That(cut.FindAll("[data-testid=trends-calendar-days-3-open]"), Is.Empty);
+        });
+    }
+
+    [Test]
+    public void Year_MonthColumn_RaisesOnOpenWorkoutsWithTheMonthsDaysCutToTodayAndTheYearShown()
+    {
+        FillYear();
+        var opened = new List<WorkoutsOpened>();
+        var cut = Context.Render<TrendsPage>(p => p.Add(x => x.KindQuery, "year").Add(x => x.OnOpenWorkouts, opened.Add));
+
+        cut.WaitForElement("[data-testid=trends-months-chart-1-open]").Click();
+        cut.Find("[data-testid=trends-months-chart-11-open]").Click();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(opened, Is.EqualTo(new[]
+            {
+                new WorkoutsOpened(new DateSpan(new DateOnly(2026, 1, 1), new DateOnly(2026, 1, 31)), Year2026),
+                new WorkoutsOpened(new DateSpan(new DateOnly(2026, 11, 1), new DateOnly(2026, 11, 18)), Year2026),
+            }));
+            Assert.That(cut.FindAll("[data-testid=trends-months-chart-12-open]"), Is.Empty);
+        });
+    }
+
+    [Test]
+    public void Year_MonthColumns_AreOnlyTappableForMonthsThatHaveBegunAndHaveWorkouts()
+    {
+        FillYear();
+        totals.Series = new PeriodSeries(Year2026, [.. Enumerable.Range(1, 12).Select(m => Bucket(new DateOnly(2026, m, 1), m is 2 or 12 ? 0 : 3))], [], [], 3.2);
+        var cut = Context.Render<TrendsPage>(p => p.Add(x => x.KindQuery, "year"));
+
+        cut.WaitForElement("[data-testid=trends-months-chart-1-open]");
+        Assert.That(cut.FindAll("[data-testid^=trends-months-chart-][data-testid$=-open]").Select(b => b.GetAttribute("data-testid")),
+            Is.EqualTo(new[] { 1, 3, 4, 5, 6, 7, 8, 9, 10, 11 }.Select(m => $"trends-months-chart-{m}-open")));
+    }
+
+    [Test]
+    public void Year_FutureMonthWithWorkouts_HasNoSpan()
+    {
+        FillYear();
+        totals.Series = new PeriodSeries(Year2026, [.. Enumerable.Range(1, 12).Select(m => Bucket(new DateOnly(2026, m, 1), 3))], [], [], 3.2);
+        var cut = Context.Render<TrendsPage>(p => p.Add(x => x.KindQuery, "year"));
+
+        cut.WaitForElement("[data-testid=trends-months-chart-11-open]");
+        Assert.That(cut.FindAll("[data-testid=trends-months-chart-12-open]"), Is.Empty);
     }
 
     [Test]

@@ -1,4 +1,5 @@
 using WorkoutLog.UI.Components.Trends;
+using WorkoutLog.UI.Models.Workouts;
 using WorkoutLog.UI.Stories.Samples;
 
 namespace WorkoutLog.UI.Tests.Components.Trends;
@@ -42,6 +43,36 @@ public class MonthWeeksTests : ComponentTestBase
             Assert.That(cut.FindAll("li"), Is.Empty);
         });
     }
+
+    [Test]
+    public void NoOnOpen_NoRowIsTappable() =>
+        Assert.That(Render([new MonthWeek("2 – 8 Nov", 3, new TimeSpan(2, 0, 0), Week)]).FindAll("button"), Is.Empty);
+
+    [Test]
+    public void WithOnOpen_OnlyRowsWithWorkoutsAndDatesAreTappableAndRaiseTheirDates()
+    {
+        var opened = new List<DateSpan>();
+        var cut = Context.Render<MonthWeeks>(p => p
+            .Add(x => x.Weeks, new[]
+            {
+                new MonthWeek("1 Nov", 0, TimeSpan.Zero, new DateSpan(new DateOnly(2026, 11, 1), new DateOnly(2026, 11, 1))),
+                new MonthWeek("2 – 8 Nov", 3, new TimeSpan(2, 0, 0), Week),
+                new MonthWeek("9 – 15 Nov", 2, new TimeSpan(1, 0, 0)),
+            })
+            .Add(x => x.OnOpen, opened.Add)
+            .Add(x => x.TestId, "weeks"));
+
+        cut.Find("[data-testid=weeks-2-open]").Click();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.FindAll("button").Select(b => b.GetAttribute("data-testid")), Is.EqualTo(new[] { "weeks-2-open" }));
+            Assert.That(opened, Is.EqualTo(new[] { Week }));
+            Assert.That(cut.Find("[data-testid=weeks-2-open] .dates").TextContent, Is.EqualTo("2 – 8 Nov"));
+        });
+    }
+
+    private static readonly DateSpan Week = new(new DateOnly(2026, 11, 2), new DateOnly(2026, 11, 8));
 
     private IRenderedComponent<MonthWeeks> Render(IReadOnlyList<MonthWeek> weeks) =>
         Context.Render<MonthWeeks>(p => p.Add(x => x.Weeks, weeks).Add(x => x.TestId, "weeks"));
