@@ -9,7 +9,7 @@ A button with a 48px touch target.
 
 | Variant | Use for |
 |---|---|
-| Primary | The main action on a screen: New Workout, Save. One per screen. |
+| Primary | The main action on a screen: Save. One per screen. |
 | Secondary | Other actions in the bottom bar or a card: Add exercise, Add set, Cancel in a confirm dialog. |
 | Danger | Confirming a destructive action: Discard, Delete. Filled red. |
 
@@ -25,7 +25,7 @@ A Material Symbols Outlined icon (weight 400), drawn as an SVG and hidden from s
 - `Tone`: `Default` takes the text colour; `Muted` uses `--color-text-muted`, `Success` `--color-success`, `Error` `--color-error`.
 - `Size`: `Default` is `--font-size-xl`, `Small` is `--font-size-lg`.
 - Chevron: the end of a tappable `ListRow`, carry `SetSummary` row, `Muted`.
-- Search: the Exercises search box, `Muted`.
+- Search: the Add Exercise list's search box, `Muted`.
 - Up and Down: an increase (`Success`) or decrease (`Error`) in `WeekChange`.
 - Edit (pencil) and Check (tick): used by `IconButton`.
 - Record: a trophy (`emoji_events`), `Success`, in `RecordBadge` and beside each record on the Workout Summary.

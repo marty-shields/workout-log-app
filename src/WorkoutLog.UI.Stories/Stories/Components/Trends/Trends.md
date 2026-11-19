@@ -4,7 +4,7 @@ $attribute: CustomPage("Components/Trends/Overview")
 
 # Trends
 
-Parts of the [Trends](./?path=/custom/screens-trends-overview) screen. Each takes display-ready values; the page will work them out. The design they follow is [docs/design/this-week-and-trends.html](https://github.com/marty-shields/workout-log-app/blob/main/docs/design/this-week-and-trends.html). The muscle group card is the This week one, with a `Period` that renames it: see [This week components](./?path=/custom/components-thisweek-overview).
+Parts of the [Trends](./?path=/custom/screens-trends-overview) screen. Each takes display-ready values; the page works them out. The design they started from is [docs/design/this-week-and-trends.html](https://github.com/marty-shields/workout-log-app/blob/main/docs/design/this-week-and-trends.html). The muscle group card is the This week one, with a `Period` that renames it: see [This week components](./?path=/custom/components-thisweek-overview).
 
 ## `PeriodStepper`
 A previous arrow, the period's label and a next arrow in one row: *16 – 22 Nov*, *November 2026* or *2026*. The arrows are round buttons at `--touch-target` named by `Kind` (*Previous week*, *Next month*); the previous one is the chevron mirrored. An arrow is disabled (at `--opacity-disabled`) when its `CanGo` flag is false: previous at the period of the first workout, next at the period that holds today. The label is a polite live region, so a screen reader hears the new period.

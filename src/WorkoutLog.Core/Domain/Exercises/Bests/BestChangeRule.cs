@@ -2,7 +2,7 @@ using WorkoutLog.Core.Domain.Workouts;
 
 namespace WorkoutLog.Core.Domain.Exercises.Bests;
 
-/// <summary>Finds the direction with the exercise's <see cref="IBestRule"/>, so it matches the Exercises list and the record check.</summary>
+/// <summary>Finds the direction with the exercise's <see cref="IBestRule"/>, so it matches the add-exercise list and the record check.</summary>
 internal sealed class BestChangeRule(IEnumerable<IBestRule> rules) : IBestChangeRule
 {
     private readonly IReadOnlyList<IBestRule> rules = rules.ToList();

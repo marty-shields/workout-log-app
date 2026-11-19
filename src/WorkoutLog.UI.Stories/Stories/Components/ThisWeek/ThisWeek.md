@@ -4,7 +4,7 @@ $attribute: CustomPage("Components/ThisWeek/Overview")
 
 # This week
 
-Parts of the [This week](./?path=/custom/screens-this-week-overview) screen. Each takes display-ready values; the page will work them out. The design they follow is [docs/design/this-week-and-trends.html](https://github.com/marty-shields/workout-log-app/blob/main/docs/design/this-week-and-trends.html).
+Parts of the [This week](./?path=/custom/screens-this-week-overview) screen. Each takes display-ready values; the page works them out. The design they started from is [docs/design/this-week-and-trends.html](https://github.com/marty-shields/workout-log-app/blob/main/docs/design/this-week-and-trends.html).
 
 ## `DayStrip`
 A card with the seven days of the week, Monday to Sunday: the weekday abbreviation over a circle.

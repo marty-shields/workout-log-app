@@ -4,7 +4,7 @@ $attribute: CustomPage("Components/Dashboard/Overview")
 
 # Dashboard
 
-The weekly figures the Dashboard used to show. The Dashboard itself is gone: [This week](./?path=/custom/screens-this-week-overview) is the home screen. `WeekBars` waits for the Trends screen.
+Weekly figures shared by two screens: `WeekChange` in the [This week](./?path=/custom/screens-this-week-overview) tiles, and `WeekBars` in the Last 12 weeks card of [Trends](./?path=/custom/screens-trends-overview) (week view). There is no Dashboard screen; the group keeps the name.
 
 ## `WeekChange`
 How a total moved between two weeks, shown by the This week tiles: an increase is the Up `Icon` and the difference in `--color-success`, a decrease the Down `Icon` and the difference in `--color-error`, no change a muted "—". `Format` shows the size of the difference. Screen readers hear "up 25m", "down 1" or "no change".

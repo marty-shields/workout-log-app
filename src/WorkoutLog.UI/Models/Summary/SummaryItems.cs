@@ -10,8 +10,8 @@ namespace WorkoutLog.UI.Models.Summary;
 public static class SummaryItems
 {
     /// <summary>
-    /// The totals, a record row for each record and a change row for each exercise, in the workout's order, with each best as on the Exercises list.
-    /// An exercise that isn't in the catalog or whose best the list can't show is left out. A workout with no earlier workout has no changes.
+    /// The totals, a record row for each record and a change row for each exercise, in the workout's order, with each best as on the add-exercise list.
+    /// An exercise that isn't in the catalog or whose best that list can't show is left out. A workout with no earlier workout has no changes.
     /// </summary>
     public static WorkoutSummary Summary(SavedWorkoutSummary saved, IExerciseCatalog catalog)
     {

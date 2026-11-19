@@ -9,9 +9,9 @@ namespace WorkoutLog.UI.Models.ThisWeek;
 public static class WeekRecordItems
 {
     /// <summary>
-    /// One row per exercise, in the order given: its name, its best as on the Exercises list, and the weekday of the session in <paramref name="zone"/>.
+    /// One row per exercise, in the order given: its name, its best as on the add-exercise list, and the weekday of the session in <paramref name="zone"/>.
     /// With <paramref name="withDates"/> it also gives that day's date, e.g. Wed 18 Nov, for a period longer than a week.
-    /// An exercise that set several records shows its first in <paramref name="records"/>, the newest. A record whose best the list can't show is left out, so the exercise shows its newest record that it can.
+    /// An exercise that set several records shows its first in <paramref name="records"/>, the newest. A record whose best the add-exercise list can't show is left out, so the exercise shows its newest record that it can.
     /// </summary>
     public static IReadOnlyList<WeekRecord> Items(IReadOnlyList<ExerciseRecord> records, IExerciseCatalog catalog, TimeZoneInfo zone, bool withDates = false)
     {
