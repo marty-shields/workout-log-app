@@ -18,8 +18,9 @@ This week, Workouts and Exercises are the top-level screens: each shows the navi
 | This week | Tap a workout | Edit Workout |
 | This week | Last week row | Nothing yet |
 | This week | Back | Leaves the app |
-| Trends | Previous or next week | Trends, that week |
-| Trends | Tap a record | Exercise |
+| Trends | Week, Month or Year in the kind control | Trends, the week, month or year holding the day shown |
+| Trends | Previous or next period | Trends, that week, month or year |
+| Trends | Tap a record, or a Most trained row (month) | Exercise |
 | Trends | Settings gear | Settings |
 | Trends | New in the tab bar | New Workout |
 | Trends | This week in the tab bar | This week |
@@ -30,7 +31,7 @@ This week, Workouts and Exercises are the top-level screens: each shows the navi
 | Exercises | Tap a row | Exercise |
 | Exercises | Back, or Dashboard in the navigation bar | This week |
 | Exercises | Workouts in the navigation bar | Workouts |
-| Exercise | Back | Exercises, This week when opened from it, or the Trends week when opened from there |
+| Exercise | Back | Exercises, This week when opened from it, or the Trends week, month or year when opened from there |
 | Settings | Back | This week |
 | Settings | Import, then pick a file | Import Review |
 | Import Review | Import, or Replace all then Replace | Settings |

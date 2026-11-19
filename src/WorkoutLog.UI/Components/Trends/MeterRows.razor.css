@@ -12,11 +12,23 @@
     --label-width: var(--meter-label-width-wide);
 }
 
-.row {
+.cells {
     display: grid;
     grid-template-columns: var(--label-width) 1fr var(--meter-value-width-narrow);
     align-items: center;
     gap: var(--space-2);
+}
+
+.tap {
+    width: 100%;
+    min-height: var(--touch-target);
+    padding: 0;
+    border: none;
+    background-color: transparent;
+    color: inherit;
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
 }
 
 .name {

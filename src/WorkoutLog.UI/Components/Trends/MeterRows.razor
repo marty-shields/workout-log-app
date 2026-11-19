@@ -8,10 +8,16 @@ else
     <ul class="rows @(Wide ? "wide" : null)" aria-label="@AriaLabel" data-testid="@TestId">
         @foreach (var row in Rows)
         {
+            var cells = Cells(row, most);
             <li class="row" data-testid="@(TestId is null ? null : $"{TestId}-{Slug(row.Label)}")">
-                <span class="name">@row.Label</span>
-                <span class="track" aria-hidden="true"><span class="fill" style="--share: @Share(row.Value, most)"></span></span>
-                <span class="count">@row.Value<span class="visually-hidden">@($" {Unit}")</span></span>
+                @if (row.ExerciseId is { } id && OnOpen.HasDelegate)
+                {
+                    <button type="button" class="tap cells" @onclick="() => OnOpen.InvokeAsync(id)">@cells</button>
+                }
+                else
+                {
+                    <div class="cells">@cells</div>
+                }
             </li>
         }
     </ul>
@@ -38,9 +44,20 @@ else
     [Parameter]
     public bool Wide { get; set; }
 
+    /// <summary>Raised with the exercise id when a row that has one is tapped. Rows are not tappable when unset.</summary>
+    [Parameter]
+    public EventCallback<int> OnOpen { get; set; }
+
     /// <summary>Value of the data-testid attribute, the prefix of each row's (<c>{TestId}-{label, lower case, dashes for spaces}</c>) and <c>{TestId}-none</c>.</summary>
     [Parameter]
     public string? TestId { get; set; }
+
+    private RenderFragment Cells(MeterRow row, int most) =>
+        @<text>
+            <span class="name">@row.Label</span>
+            <span class="track" aria-hidden="true"><span class="fill" style="--share: @Share(row.Value, most)"></span></span>
+            <span class="count">@row.Value<span class="visually-hidden">@($" {Unit}")</span></span>
+        </text>;
 
     private static string Slug(string label) => label.ToLowerInvariant().Replace(' ', '-');
 

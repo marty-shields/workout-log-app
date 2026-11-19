@@ -86,6 +86,27 @@ internal static class DisplayFormat
         ? "Against Monday last week"
         : $"Against Monday to {today} last week";
 
+    /// <summary>What this month so far is compared with, up to the same day of the month before: Against October to the 18th.</summary>
+    public static string AgainstLastMonth(DateOnly samePoint) =>
+        $"Against {samePoint.ToString("MMMM", CultureInfo.InvariantCulture)} to the {Ordinal(samePoint.Day)}";
+
+    /// <summary>What this year so far is compared with, up to the same date a year before: Against 2025 to 18 Nov.</summary>
+    public static string AgainstLastYear(DateOnly samePoint) =>
+        $"Against {samePoint.Year} to {samePoint.ToString("d MMM", CultureInfo.InvariantCulture)}";
+
+    /// <summary>What a finished month is compared with: Against September, with the year when it is not <paramref name="year"/>.</summary>
+    public static string AgainstMonthBefore(DateOnly month, int year) =>
+        $"Against {month.ToString(month.Year == year ? "MMMM" : "MMMM yyyy", CultureInfo.InvariantCulture)}";
+
+    /// <summary>A day of the month with its ordinal suffix, e.g. 1st, 12th or 23rd.</summary>
+    public static string Ordinal(int day) => day + (day % 100 is >= 11 and <= 13 ? "th" : (day % 10) switch
+    {
+        1 => "st",
+        2 => "nd",
+        3 => "rd",
+        _ => "th",
+    });
+
     /// <summary>A Monday to Sunday week, without the year: 16 – 22 Nov, or 28 Sep – 4 Oct across months.</summary>
     public static string WeekDates(DateOnly monday)
     {
