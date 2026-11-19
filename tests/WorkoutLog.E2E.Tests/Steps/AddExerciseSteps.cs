@@ -68,7 +68,7 @@ public sealed class AddExerciseSteps(WebView web, Native native, WorkoutScreen w
     [Then(@"^the search box is empty and focused$")]
     public void ThenTheSearchBoxIsEmptyAndFocused()
     {
-        web.Eventually(web.Focused, Is.EqualTo("exercises-search"), "focused element");
+        web.Eventually(web.Focused, Is.EqualTo("add-exercise-search"), "focused element");
         Assert.That(list.Query(), Is.Empty);
     }
 
@@ -117,7 +117,7 @@ public sealed class AddExerciseSteps(WebView web, Native native, WorkoutScreen w
     {
         web.Eventually(list.IsLoaded, Is.True, "list loaded");
         Assert.That(list.Query(), Is.Empty);
-        Assert.That(web.Find("exercises-filter-all").Selected, Is.True, "All chip");
+        Assert.That(web.Find("add-exercise-filter-all").Selected, Is.True, "All chip");
         web.Eventually(() => list.Names().Count, Is.EqualTo(Exercises.All.Count));
     }
 

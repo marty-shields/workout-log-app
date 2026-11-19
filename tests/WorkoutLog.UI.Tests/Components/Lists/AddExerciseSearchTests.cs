@@ -5,7 +5,7 @@ using WorkoutLog.UI.Models.Exercises;
 
 namespace WorkoutLog.UI.Tests.Components.Lists;
 
-public class ExerciseSearchTests : ComponentTestBase
+public class AddExerciseSearchTests : ComponentTestBase
 {
     [Test]
     public void ShowsTheSearchBoxThenTheChips()
@@ -29,7 +29,7 @@ public class ExerciseSearchTests : ComponentTestBase
     public void Typing_RaisesQueryChangedCutToTheLimit()
     {
         var queries = new List<string>();
-        var cut = Context.Render<ExerciseSearch>(p => p.Add(x => x.QueryChanged, (string q) => queries.Add(q)).Add(x => x.TestId, "list"));
+        var cut = Context.Render<AddExerciseSearch>(p => p.Add(x => x.QueryChanged, (string q) => queries.Add(q)).Add(x => x.TestId, "list"));
 
         cut.Find("[data-testid=list-search]").Input(new string('a', ExerciseCatalog.MaxQueryLength + 1));
 
@@ -39,18 +39,18 @@ public class ExerciseSearchTests : ComponentTestBase
     [Test]
     public void TappingAChip_RaisesFilterChanged()
     {
-        var changed = new List<ExerciseFilter>();
-        var cut = Context.Render<ExerciseSearch>(p => p.Add(x => x.FilterChanged, (ExerciseFilter f) => changed.Add(f)).Add(x => x.TestId, "list"));
+        var changed = new List<AddExerciseFilter>();
+        var cut = Context.Render<AddExerciseSearch>(p => p.Add(x => x.FilterChanged, (AddExerciseFilter f) => changed.Add(f)).Add(x => x.TestId, "list"));
 
         cut.Find("[data-testid=list-filter-strength]").Change(true);
 
-        Assert.That(changed, Is.EqualTo(new[] { ExerciseFilter.Strength }));
+        Assert.That(changed, Is.EqualTo(new[] { AddExerciseFilter.Strength }));
     }
 
     [Test]
     public void FocusSearch_FocusesTheSearchBox()
     {
-        var cut = Context.Render<ExerciseSearch>(p => p.Add(x => x.FocusSearch, true).Add(x => x.TestId, "list"));
+        var cut = Context.Render<AddExerciseSearch>(p => p.Add(x => x.FocusSearch, true).Add(x => x.TestId, "list"));
 
         Context.JSInterop.VerifyFocusAsyncInvoke().Arguments[0].ShouldBeElementReferenceTo(cut.Find("[data-testid=list-search]"));
     }
@@ -63,6 +63,6 @@ public class ExerciseSearchTests : ComponentTestBase
         Assert.That(Context.JSInterop.Invocations.Where(i => i.Identifier == "Blazor._internal.domWrapper.focus"), Is.Empty);
     }
 
-    private IRenderedComponent<ExerciseSearch> Render() =>
-        Context.Render<ExerciseSearch>(p => p.Add(x => x.TestId, "list"));
+    private IRenderedComponent<AddExerciseSearch> Render() =>
+        Context.Render<AddExerciseSearch>(p => p.Add(x => x.TestId, "list"));
 }

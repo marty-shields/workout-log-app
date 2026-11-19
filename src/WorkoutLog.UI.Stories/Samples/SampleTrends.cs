@@ -67,6 +67,17 @@ public static class SampleTrends
         p[nameof(TrendsView.Streak)] = 23;
     });
 
+    /// <summary>The first week with nothing logged ever: the current week, empty, with no week before it or after it to step to.</summary>
+    public static IReadOnlyDictionary<string, object?> NoWorkoutsEver => State(PeriodKind.Week, "16 – 22 Nov", canGoPrevious: false, p =>
+    {
+        p[nameof(TrendsView.Totals)] = Nothing;
+        p[nameof(TrendsView.Earlier)] = Nothing;
+        p[nameof(TrendsView.Against)] = "Against Monday to Wednesday last week";
+        p[nameof(TrendsView.Days)] = Days([0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0], today: 2, monday: new DateOnly(2026, 11, 16));
+        p[nameof(TrendsView.Muscles)] = SampleThisWeek.NoneTrained;
+        p[nameof(TrendsView.RecentWeeks)] = new int[12];
+    });
+
     /// <summary>A week with no workouts.</summary>
     public static IReadOnlyDictionary<string, object?> EmptyWeek => State(PeriodKind.Week, "2 – 8 Nov", canGoPrevious: false, canGoNext: true, past: true, p =>
     {
@@ -115,7 +126,7 @@ public static class SampleTrends
             new("19 – 25 Oct", 3, new TimeSpan(2, 50, 0), new DateSpan(new DateOnly(2026, 10, 19), new DateOnly(2026, 10, 25))),
             new("26 – 31 Oct", 2, new TimeSpan(1, 30, 0), new DateSpan(new DateOnly(2026, 10, 26), new DateOnly(2026, 10, 31))),
         };
-        p[nameof(TrendsView.Records)] = MonthRecords.Take(2).ToList();
+        p[nameof(TrendsView.Records)] = PastMonthRecords;
         p[nameof(TrendsView.MostTrained)] = MostTrained;
     });
 
@@ -189,6 +200,13 @@ public static class SampleTrends
         new(8, "Bench press", "82.5kg × 5", DayOfWeek.Monday, "Mon 16 Nov"),
         new(115, "Deadlift", "150kg × 3", DayOfWeek.Saturday, "Sat 14 Nov"),
         new(41, "Treadmill run", "5.2 km", DayOfWeek.Friday, "Fri 6 Nov"),
+    ];
+
+    /// <summary>Two records in October, newest first.</summary>
+    public static IReadOnlyList<WeekRecord> PastMonthRecords { get; } =
+    [
+        new(22, "Squat", "97.5kg × 5", DayOfWeek.Wednesday, "Wed 28 Oct"),
+        new(8, "Bench press", "80kg × 5", DayOfWeek.Monday, "Mon 19 Oct"),
     ];
 
     /// <summary>The five exercises done in most sessions in November.</summary>

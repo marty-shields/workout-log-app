@@ -1,6 +1,6 @@
 using System.Globalization;
 
-namespace WorkoutLog.UI.Components.Dashboard;
+namespace WorkoutLog.UI.Components.Weekly;
 
 /// <summary>A total compared between two weeks: its label, the testid suffix, its value in whole units and how to show it.</summary>
 internal sealed record WeekMetric(string Label, string Key, Func<WeekTotals, int> Value, Func<int, string> Format)

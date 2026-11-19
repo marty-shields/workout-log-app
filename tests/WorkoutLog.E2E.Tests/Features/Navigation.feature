@@ -1,6 +1,10 @@
 Feature: Navigation
   The tab bar has This week, + and Trends. Android back does what the on-screen back or Cancel does, and a screen returns to where it was opened from.
 
+  Scenario: The tab bar has This week, + and Trends
+    Given I am on This week
+    Then I can open Trends and start a New Workout from the tab bar
+
   Scenario: The tab bar switches between This week and Trends
     Given I am on This week
     When I tap Trends in the tab bar

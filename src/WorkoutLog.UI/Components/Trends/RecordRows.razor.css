@@ -13,6 +13,11 @@
     border-bottom: none;
 }
 
+/* With no "n more" under it the last row is the card's last line, so the card's padding is the space below it. */
+.rows:last-child li:last-child ::deep .row {
+    padding-bottom: 0;
+}
+
 .more {
     margin: 0;
     padding: var(--space-3) var(--space-1) 0;

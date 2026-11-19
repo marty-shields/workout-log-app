@@ -47,6 +47,15 @@ public static class ScreenStates
             .Add(x => x.Streak, 22)
             .Add(x => x.LastWeek, SampleThisWeek.LastWeek))),
         new("Screens/This week", "No workouts", c => ThisWeek(c, p => p.Add(x => x.Today, SampleThisWeek.Wednesday))),
+        new("Screens/This week", "Records failed", c => ThisWeek(c, p => p
+            .Add(x => x.Today, SampleThisWeek.Wednesday)
+            .Add(x => x.Trained, SampleThisWeek.TrainedDays)
+            .Add(x => x.Streak, 23)
+            .Add(x => x.ThisWeek, SampleThisWeek.ThisWeek)
+            .Add(x => x.LastWeekToDate, SampleThisWeek.LastWeekToDate)
+            .Add(x => x.Workouts, SampleThisWeek.Workouts)
+            .Add(x => x.Records, null)
+            .Add(x => x.Muscles, SampleThisWeek.Muscles))),
         new("Screens/This week", "Loading", c => ThisWeek(c, p => p.Add(x => x.Loading, true))),
         new("Screens/This week", "Load failed", c => ThisWeek(c, p => p.Add(x => x.Failed, true))),
 
@@ -57,6 +66,7 @@ public static class ScreenStates
         new("Screens/Trends", "Past week", c => Trends(c, SampleTrends.PastWeek)),
         new("Screens/Trends", "Past month", c => Trends(c, SampleTrends.PastMonth)),
         new("Screens/Trends", "Past year", c => Trends(c, SampleTrends.PastYear)),
+        new("Screens/Trends", "No workouts ever", c => Trends(c, SampleTrends.NoWorkoutsEver)),
         new("Screens/Trends", "No workouts, week", c => Trends(c, SampleTrends.EmptyWeek)),
         new("Screens/Trends", "No workouts, month", c => Trends(c, SampleTrends.EmptyMonth)),
         new("Screens/Trends", "No workouts, year", c => Trends(c, SampleTrends.EmptyYear)),
@@ -107,8 +117,8 @@ public static class ScreenStates
         new("Screens/Workout Summary", "Load failed", c => Summary(c, null, failed: true)),
 
         new("Screens/Add Exercise", "No search text", c => AddExercise(c, null)),
-        new("Screens/Add Exercise", "Strength", c => AddExercise(c, null, ExerciseFilter.Strength)),
-        new("Screens/Add Exercise", "Cardio", c => AddExercise(c, null, ExerciseFilter.Cardio)),
+        new("Screens/Add Exercise", "Strength", c => AddExercise(c, null, AddExerciseFilter.Strength)),
+        new("Screens/Add Exercise", "Cardio", c => AddExercise(c, null, AddExerciseFilter.Cardio)),
         new("Screens/Add Exercise", "Results", c => AddExercise(c, "run")),
         new("Screens/Add Exercise", "No match", c => AddExercise(c, "zumba")),
         new("Screens/Add Exercise", "Loading", c => AddExercise(c, null, loading: true)),
@@ -366,14 +376,14 @@ public static class ScreenStates
             .FindAll("*");
 
     private static IReadOnlyList<IElement> AddExercise(
-        BunitContext context, string? query, ExerciseFilter filter = ExerciseFilter.All, bool loading = false, bool withLast = true) =>
-        context.Render<ExercisesView>(p => p
+        BunitContext context, string? query, AddExerciseFilter filter = AddExerciseFilter.All, bool loading = false, bool withLast = true) =>
+        context.Render<AddExerciseView>(p => p
             .Add(x => x.Items, loading ? [] : SampleData.AddExerciseItems(Catalog(context), query, filter, withLast))
             .Add(x => x.Query, query)
             .Add(x => x.Filter, filter)
             .Add(x => x.Loading, loading)
             .Add(x => x.QueryChanged, (string _) => { })
-            .Add(x => x.FilterChanged, (ExerciseFilter _) => { })
+            .Add(x => x.FilterChanged, (AddExerciseFilter _) => { })
             .Add(x => x.OnPick, (ExerciseListItem _) => { })
             .Add(x => x.OnClose, () => { }))
             .FindAll("*");

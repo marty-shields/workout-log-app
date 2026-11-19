@@ -1,5 +1,5 @@
-using WorkoutLog.UI.Components.Dashboard;
 using WorkoutLog.UI.Components.ThisWeek;
+using WorkoutLog.UI.Components.Weekly;
 using WorkoutLog.UI.Models.Muscles;
 
 namespace WorkoutLog.UI.Stories.Samples;

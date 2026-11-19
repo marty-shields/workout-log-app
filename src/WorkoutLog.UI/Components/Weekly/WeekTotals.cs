@@ -1,4 +1,4 @@
-namespace WorkoutLog.UI.Components.Dashboard;
+namespace WorkoutLog.UI.Components.Weekly;
 
 /// <summary>One week's totals in the <see cref="ThisWeek.WeekTiles"/>.</summary>
 /// <param name="Workouts">Workouts started.</param>

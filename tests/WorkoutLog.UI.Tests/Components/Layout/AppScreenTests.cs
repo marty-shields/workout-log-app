@@ -67,11 +67,11 @@ public class AppScreenTests : ComponentTestBase
         var cut = Context.Render<AppScreen>(p => p
             .Add(x => x.Title, "Exercises")
             .Add(x => x.OnBack, () => { })
-            .Add(x => x.BackTestId, "exercises-back"));
+            .Add(x => x.BackTestId, "add-exercise-back"));
 
         Assert.Multiple(() =>
         {
-            Assert.That(cut.FindAll("[data-testid=exercises-back]"), Has.Count.EqualTo(1));
+            Assert.That(cut.FindAll("[data-testid=add-exercise-back]"), Has.Count.EqualTo(1));
             Assert.That(cut.FindAll("[data-testid=back]"), Is.Empty);
         });
     }

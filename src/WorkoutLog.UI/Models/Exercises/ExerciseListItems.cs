@@ -40,7 +40,7 @@ public static class ExerciseListItems
     /// The rows for <paramref name="query"/> and <paramref name="filter"/>: with search words, ranked as <see cref="IExerciseCatalog.Search"/>;
     /// otherwise in the order given.
     /// </summary>
-    public static IReadOnlyList<ExerciseListItem> Find(IReadOnlyList<ExerciseListItem> items, IExerciseCatalog catalog, string? query, ExerciseFilter filter)
+    public static IReadOnlyList<ExerciseListItem> Find(IReadOnlyList<ExerciseListItem> items, IExerciseCatalog catalog, string? query, AddExerciseFilter filter)
     {
         IEnumerable<ExerciseListItem> found = items;
         if (catalog.HasSearchWords(query))
@@ -51,8 +51,8 @@ public static class ExerciseListItems
 
         return found.Where(i => filter switch
             {
-                ExerciseFilter.Strength => i.Kind == ExerciseKind.Strength,
-                ExerciseFilter.Cardio => i.Kind == ExerciseKind.Cardio,
+                AddExerciseFilter.Strength => i.Kind == ExerciseKind.Strength,
+                AddExerciseFilter.Cardio => i.Kind == ExerciseKind.Cardio,
                 _ => true,
             })
             .ToList();

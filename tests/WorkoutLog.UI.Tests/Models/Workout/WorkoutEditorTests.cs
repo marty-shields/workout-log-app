@@ -55,7 +55,7 @@ public class WorkoutEditorTests
     {
         await editor.OpenListAsync();
         editor.Search("squat");
-        editor.FilterBy(ExerciseFilter.Cardio);
+        editor.FilterBy(AddExerciseFilter.Cardio);
 
         await editor.OpenListAsync();
 
@@ -64,7 +64,7 @@ public class WorkoutEditorTests
             Assert.That(editor.ListOpen, Is.True);
             Assert.That(editor.ListLoading, Is.False);
             Assert.That(editor.Query, Is.Empty);
-            Assert.That(editor.Filter, Is.EqualTo(ExerciseFilter.All));
+            Assert.That(editor.Filter, Is.EqualTo(AddExerciseFilter.All));
             Assert.That(editor.ListItems.Select(i => i.Id), Is.EqualTo(Catalog.Search(null).Select(e => e.Id)));
             Assert.That(editor.ListItems.Select(i => i.Last), Is.All.Null);
         });
@@ -120,14 +120,14 @@ public class WorkoutEditorTests
         var open = editor.OpenListAsync();
 
         editor.Search("bench");
-        editor.FilterBy(ExerciseFilter.Strength);
+        editor.FilterBy(AddExerciseFilter.Strength);
         loggedExercises.Complete();
         await open;
 
         Assert.Multiple(() =>
         {
             Assert.That(editor.Query, Is.EqualTo("bench"));
-            Assert.That(editor.Filter, Is.EqualTo(ExerciseFilter.Strength));
+            Assert.That(editor.Filter, Is.EqualTo(AddExerciseFilter.Strength));
             Assert.That(editor.ListItems.Select(i => i.Id),
                 Is.EqualTo(Catalog.Search("bench").Where(e => e.Type == ExerciseType.Strength).Select(e => e.Id)).And.Not.Empty);
         });
@@ -201,7 +201,7 @@ public class WorkoutEditorTests
     {
         await editor.OpenListAsync();
 
-        editor.FilterBy(ExerciseFilter.Cardio);
+        editor.FilterBy(AddExerciseFilter.Cardio);
         var cardio = editor.ListItems;
         editor.Search("row");
 
@@ -877,7 +877,7 @@ public class WorkoutEditorTests
             Assert.That(editor.Exercises, Is.EqualTo(new[] { squat }));
             Assert.That(editor.ListOpen, Is.False);
             Assert.That(editor.Query, Is.Empty);
-            Assert.That(editor.Filter, Is.EqualTo(ExerciseFilter.All));
+            Assert.That(editor.Filter, Is.EqualTo(AddExerciseFilter.All));
             Assert.That(editor.ListLoading, Is.False);
             Assert.That(editor.ListItems, Is.Empty);
             Assert.That(editor.Focus, Is.Null);

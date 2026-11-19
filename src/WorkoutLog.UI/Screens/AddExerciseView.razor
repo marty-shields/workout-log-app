@@ -1,16 +1,16 @@
 @using WorkoutLog.UI.Components.Feedback
 @using WorkoutLog.UI.Models.Exercises
-<div class="picker" role="dialog" aria-modal="true" aria-label="Add exercise" data-testid="exercises-overlay">
-    <AppScreen Title="Exercises" OnBack="OnClose" BackTestId="exercises-back" Toolbar="Tools">
+<div class="picker" role="dialog" aria-modal="true" aria-label="Add exercise" data-testid="add-exercise-overlay">
+    <AppScreen Title="Exercises" OnBack="OnClose" BackTestId="add-exercise-back" Toolbar="Tools">
         @if (Loading)
         {
             <div class="centre">
-                <Spinner Label="Loading…" TestId="exercises-loading" />
+                <Spinner Label="Loading…" TestId="add-exercise-loading" />
             </div>
         }
         else
         {
-            <ExerciseList Items="Items" OnPick="OnPick" TestId="exercises" />
+            <ExerciseList Items="Items" OnPick="OnPick" TestId="add-exercise" />
         }
     </AppScreen>
 </div>
@@ -30,11 +30,11 @@
 
     /// <summary>Chosen chip.</summary>
     [Parameter]
-    public ExerciseFilter Filter { get; set; }
+    public AddExerciseFilter Filter { get; set; }
 
     /// <summary>Raised with the chip tapped.</summary>
     [Parameter]
-    public EventCallback<ExerciseFilter> FilterChanged { get; set; }
+    public EventCallback<AddExerciseFilter> FilterChanged { get; set; }
 
     /// <summary>Shows a spinner instead of the rows while the exercises load. The search and chips stay.</summary>
     [Parameter]
@@ -50,6 +50,6 @@
 
     private RenderFragment Tools =>
         @<div class="tools">
-            <ExerciseSearch Query="@Query" QueryChanged="QueryChanged" Filter="Filter" FilterChanged="FilterChanged" FocusSearch="true" TestId="exercises" />
+            <AddExerciseSearch Query="@Query" QueryChanged="QueryChanged" Filter="Filter" FilterChanged="FilterChanged" FocusSearch="true" TestId="add-exercise" />
         </div>;
 }

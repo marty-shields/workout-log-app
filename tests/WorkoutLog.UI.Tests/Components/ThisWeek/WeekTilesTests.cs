@@ -1,6 +1,6 @@
 using WorkoutLog.UI.Components.Actions;
-using WorkoutLog.UI.Components.Dashboard;
 using WorkoutLog.UI.Components.ThisWeek;
+using WorkoutLog.UI.Components.Weekly;
 using WorkoutLog.UI.Stories.Samples;
 
 namespace WorkoutLog.UI.Tests.Components.ThisWeek;

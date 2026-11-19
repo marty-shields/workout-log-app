@@ -39,7 +39,7 @@ public sealed class WorkoutEditor(
     public string Query { get; private set; } = "";
 
     /// <summary>The add-exercise list's chip.</summary>
-    public ExerciseFilter Filter { get; private set; }
+    public AddExerciseFilter Filter { get; private set; }
 
     /// <summary>The add-exercise list's rows for <see cref="Query"/> and <see cref="Filter"/>.</summary>
     public IReadOnlyList<ExerciseListItem> ListItems { get; private set; } = [];
@@ -88,7 +88,7 @@ public sealed class WorkoutEditor(
         ListOpen = false;
         ListLoading = false;
         Query = "";
-        Filter = ExerciseFilter.All;
+        Filter = AddExerciseFilter.All;
         listItems = [];
         ListItems = [];
         Focus = null;
@@ -146,7 +146,7 @@ public sealed class WorkoutEditor(
         ListLoading = true;
         ListItems = [];
         Query = "";
-        Filter = ExerciseFilter.All;
+        Filter = AddExerciseFilter.All;
         var result = await loggedExercises.GetAsync();
         if (open != listOpens || !ListOpen)
         {
@@ -175,7 +175,7 @@ public sealed class WorkoutEditor(
     }
 
     /// <summary>Sets the chip and the rows.</summary>
-    public void FilterBy(ExerciseFilter filter)
+    public void FilterBy(AddExerciseFilter filter)
     {
         Filter = filter;
         Find();

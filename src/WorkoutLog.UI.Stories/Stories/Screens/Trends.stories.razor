@@ -59,6 +59,14 @@
         </Template>
     </Story>
 
+    <Story Name="No workouts ever">
+        <Template>
+            <TrendsView @attributes="SampleTrends.NoWorkoutsEver"
+                        OnKindChanged="(PeriodKind _) => { }" OnPrevious="() => { }" OnNext="() => { }" OnRetry="() => { }"
+                        OnSettings="() => { }" OnNew="() => { }" OnNavigate="(MainTab _) => { }" OnOpenRecord="(int _) => { }" OnOpenWorkouts="(DateSpan _) => { }" />
+        </Template>
+    </Story>
+
     <Story Name="No workouts, week">
         <Template>
             <TrendsView @attributes="SampleTrends.EmptyWeek"

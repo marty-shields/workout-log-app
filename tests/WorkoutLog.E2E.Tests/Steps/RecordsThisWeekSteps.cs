@@ -7,7 +7,7 @@ namespace WorkoutLog.E2E.Tests.Steps;
 
 /// <summary>The Records this week card on This week.</summary>
 [Binding]
-public sealed class RecentRecordsSteps(WebView web, Journeys journeys, ThisWeekScreen thisWeek, ExerciseScreen exercise, DeviceClock clock)
+public sealed class RecordsThisWeekSteps(WebView web, Journeys journeys, ThisWeekScreen thisWeek, ExerciseScreen exercise, DeviceClock clock)
 {
     /// <summary>Rows with columns record and day; "today" is the weekday of the device's today.</summary>
     [Then(@"^Records this week reads, in order:$")]

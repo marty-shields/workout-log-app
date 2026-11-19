@@ -516,6 +516,7 @@ public class EditWorkoutPageTests : ComponentTestBase
 
         await cut.InvokeAsync(BackButton.HandleAsync);
 
+        cut.WaitForElement("[data-testid=confirm-dialog]");
         Assert.Multiple(() =>
         {
             Assert.That(cut.FindAll("[data-testid=confirm-dialog]"), Has.Count.EqualTo(1));
@@ -533,7 +534,7 @@ public class EditWorkoutPageTests : ComponentTestBase
         {
             case "add-exercise list opened and closed":
                 cut.Find("[data-testid=add-exercise]").Click();
-                cut.Find("[data-testid=exercises-search]").Input("curl");
+                cut.Find("[data-testid=add-exercise-search]").Input("curl");
                 await cut.InvokeAsync(BackButton.HandleAsync);
                 break;
             case "save failed":
@@ -1242,7 +1243,7 @@ public class EditWorkoutPageTests : ComponentTestBase
         {
             Assert.That(Names(cut), Is.EqualTo(new[] { "Dumbbell Curl", "Treadmill", "Farmer's Walk", "Barbell Back Squat" }));
             Assert.That(Value(cut, "exercise-1-set-1-reps"), Is.Null.Or.Empty);
-            Assert.That(cut.FindAll("[data-testid=exercises-overlay]"), Is.Empty);
+            Assert.That(cut.FindAll("[data-testid=add-exercise-overlay]"), Is.Empty);
         });
     }
 
@@ -1391,7 +1392,7 @@ public class EditWorkoutPageTests : ComponentTestBase
 
         Assert.Multiple(() =>
         {
-            Assert.That(cut.FindAll("[data-testid=exercises-overlay]"), Is.Empty);
+            Assert.That(cut.FindAll("[data-testid=add-exercise-overlay]"), Is.Empty);
             Assert.That(Names(cut), Has.Count.EqualTo(3));
             Assert.That(backs, Is.Zero);
         });
@@ -1773,8 +1774,8 @@ public class EditWorkoutPageTests : ComponentTestBase
     private static void Add(IRenderedComponent<EditWorkoutPage> cut, int exerciseId)
     {
         cut.Find("[data-testid=add-exercise]").Click();
-        cut.Find("[data-testid=exercises-search]").Input(Catalog.All.Single(e => e.Id == exerciseId).Name);
-        cut.Find($"[data-testid=exercises-row-{exerciseId}]").Click();
+        cut.Find("[data-testid=add-exercise-search]").Input(Catalog.All.Single(e => e.Id == exerciseId).Name);
+        cut.Find($"[data-testid=add-exercise-row-{exerciseId}]").Click();
     }
 
     /// <summary>Checks with the inner service. Each load waits until the test completes it; saves and deletes are recorded.</summary>
