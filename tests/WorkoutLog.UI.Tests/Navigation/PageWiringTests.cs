@@ -1,10 +1,12 @@
+using System.Text.RegularExpressions;
+
 namespace WorkoutLog.UI.Tests.Navigation;
 
 /// <summary>
 /// The App's pages carry where a screen was opened from in <c>?from=</c> and return there. The App can't be referenced, so its files are read.
 /// Whitespace is ignored.
 /// </summary>
-public class PageWiringTests
+public partial class PageWiringTests
 {
     [TestCase("Home.razor", "@page\"/\"")]
     [TestCase("Home.razor", "<ThisWeekPage")]
@@ -16,8 +18,8 @@ public class PageWiringTests
     [TestCase("Home.razor", "OnSettings=\"@(()=>Navigation.GoTo(\"settings\"))\"")]
     [TestCase("Trends.razor", "@page\"/trends\"")]
     [TestCase("Trends.razor", "<TrendsPage")]
-    [TestCase("Trends.razor", "KindQuery=\"Period\"")]
-    [TestCase("Trends.razor", "DateQuery=\"Date\"")]
+    [TestCase("Trends.razor", "KindQuery=\"@Period\"")]
+    [TestCase("Trends.razor", "DateQuery=\"@Date\"")]
     [TestCase("Trends.razor", "[SupplyParameterFromQuery]publicstring?Period{get;set;}")]
     [TestCase("Trends.razor", "[SupplyParameterFromQuery]publicstring?Date{get;set;}")]
     [TestCase("Trends.razor", "OnPeriodChanged=\"@(period=>Navigation.GoTo(TrendsRoute.To(period)))\"")]
@@ -27,7 +29,7 @@ public class PageWiringTests
     [TestCase("Trends.razor", "OnOpenWorkouts=\"@(opened=>Navigation.GoTo(WorkoutsRoute.To(opened.Dates,Origin.Trends(opened.Period))))\"")]
     [TestCase("Trends.razor", "OnOpenExercise=\"@(opened=>Navigation.GoTo(Origin.Link($\"exercises/{opened.ExerciseId}\",Origin.Trends(opened.Period))))\"")]
     [TestCase("Workouts.razor", "@page\"/workouts\"")]
-    [TestCase("Workouts.razor", "<WorkoutsPageFirstQuery=\"First\"LastQuery=\"Last\"")]
+    [TestCase("Workouts.razor", "<WorkoutsPageFirstQuery=\"@First\"LastQuery=\"@Last\"")]
     [TestCase("Workouts.razor", "[SupplyParameterFromQuery]publicstring?First{get;set;}")]
     [TestCase("Workouts.razor", "[SupplyParameterFromQuery]publicstring?Last{get;set;}")]
     [TestCase("Workouts.razor", "[SupplyParameterFromQuery]publicstring?From{get;set;}")]
@@ -51,9 +53,21 @@ public class PageWiringTests
             WithoutWhitespace(RepoFiles.Read("src", "WorkoutLog.App", "Components", "Pages", file)),
             Does.Contain(WithoutWhitespace(markup)));
 
+    /// <summary>A string parameter written <c>KindQuery="Period"</c> receives the text "Period", not the property; it needs <c>@Period</c>.</summary>
+    [Test]
+    public void QueryParameters_AreNotPassedAsText()
+    {
+        var pages = Directory.GetFiles(Path.Combine(RepoFiles.Root, "src", "WorkoutLog.App", "Components", "Pages"), "*.razor");
+        var literals = pages.SelectMany(page => LiteralQuery().Matches(File.ReadAllText(page)).Select(m => $"{Path.GetFileName(page)}: {m.Value}"));
+        Assert.That(literals, Is.Empty);
+    }
+
     [Test]
     public void ThereIsNoExercisesListPage() =>
         Assert.That(File.Exists(Path.Combine(RepoFiles.Root, "src", "WorkoutLog.App", "Components", "Pages", "Exercises.razor")), Is.False);
+
+    [GeneratedRegex(@"\b\w+Query=""[^@""][^""]*""")]
+    private static partial Regex LiteralQuery();
 
     private static string WithoutWhitespace(string text) => string.Concat(text.Where(c => !char.IsWhiteSpace(c)));
 }

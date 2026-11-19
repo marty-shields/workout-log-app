@@ -7,7 +7,10 @@ Feature: Trends
     And Trends is on the current period
 
   Scenario: The arrows step back and forward
-    Given I have opened Trends
+    Given these saved workouts:
+      | started          | exercises             |
+      | 7 days ago 10:00 | Push-up: 10 reps 0 kg |
+    And I have opened Trends
     And I have noted the period shown on Trends
     When I step back 1 period on Trends
     Then Trends is on a different period than the one I noted

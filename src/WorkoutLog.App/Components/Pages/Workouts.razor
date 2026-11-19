@@ -3,7 +3,7 @@
 @using WorkoutLog.UI.Screens
 @inject NavigationManager Navigation
 
-<WorkoutsPage FirstQuery="First" LastQuery="Last"
+<WorkoutsPage FirstQuery="@First" LastQuery="@Last"
               OnBack="@(() => Navigation.GoTo(Origin.Route(From)))"
               OnOpen="@(opened => Navigation.GoTo(Origin.Link($"workout/{opened.Id}", Origin.Workouts(opened.Dates, From))))" />
 

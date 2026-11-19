@@ -50,8 +50,8 @@ public sealed partial class ThisWeekScreen(WebView web)
     /// <summary>The streak, e.g. "6-week streak", or null when hidden.</summary>
     public string? Streak() => Read("this-week-streak");
 
-    /// <summary>The Last week row's totals, e.g. "1 workout · 25m · 1 set", or null when the row isn't shown.</summary>
-    public string? LastWeek() => Read("last-week-row");
+    /// <summary>The Last week row's totals under its label, e.g. "1 workout · 25m · 1 set", or null when the row isn't shown.</summary>
+    public string? LastWeek() => web.Exists("last-week-row") ? Part(web.Find("last-week-row"), ".detail") : null;
 
     /// <summary>Each muscle group's name and sets, in order, once loaded.</summary>
     public IReadOnlyList<(string Group, string Sets)> MuscleRows()
