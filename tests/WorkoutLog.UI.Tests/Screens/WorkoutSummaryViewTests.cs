@@ -1,4 +1,4 @@
-using WorkoutLog.UI.Components.Actions;
+using Shields.UI.Components.Actions;
 using WorkoutLog.UI.Models.Summary;
 using WorkoutLog.UI.Screens;
 using WorkoutLog.UI.Stories.Samples;

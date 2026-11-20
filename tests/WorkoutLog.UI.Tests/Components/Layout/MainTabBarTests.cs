@@ -1,4 +1,4 @@
-using WorkoutLog.UI.Components.Actions;
+using Shields.UI.Components.Actions;
 using WorkoutLog.UI.Components.Layout;
 using WorkoutLog.UI.Navigation;
 
@@ -18,7 +18,7 @@ public class MainTabBarTests : ComponentTestBase
         {
             Assert.That(cut.Find("nav").GetAttribute("aria-label"), Is.EqualTo("Main"));
             Assert.That(items, Is.EqualTo(new[] { ("this-week-link", "This week", 1), ("new-link", "New", 1), ("trends-link", "Trends", 1) }));
-            Assert.That(icons, Is.EqualTo(new[] { IconName.Calendar, IconName.Add, IconName.BarChart }));
+            Assert.That(icons, Is.EqualTo(new[] { IconName.Calendar, IconName.Plus, IconName.BarChart }));
         });
     }
 

@@ -33,21 +33,31 @@ public partial class TouchTargetTests
     }
 
     [Test]
-    public void CompactIconButton_IsTheCompactTouchTargetAndNoSmaller()
+    public void Kit_DefinesTheTouchTargets()
     {
-        var root = RepoFiles.Find("*.razor", "src", "WorkoutLog.UI").Single(f => f.EndsWith("IconButton.razor"));
-        var declarations = Rules(File.ReadAllText(root + ".css"))
-            .Where(r => r.Selectors.Contains(".compact"))
-            .SelectMany(r => r.Declarations)
-            .ToList();
-
         Assert.Multiple(() =>
         {
-            Assert.That(declarations, Has.Member("min-width: var(--touch-target-compact)"));
-            Assert.That(declarations, Has.Member("min-height: var(--touch-target-compact)"));
+            Assert.That(DesignTokens.KitTokensCss, Does.Contain("--touch-target: 48px;"));
             Assert.That(DesignTokens.KitTokensCss, Does.Contain("--touch-target-compact: 40px;"));
         });
     }
+
+    [Test]
+    public void KitCompactIconButton_IsTheCompactTouchTarget()
+    {
+        var css = KitAssets.ReadScopedBundle();
+        var rule = CompactRule().Match(css);
+
+        Assert.That(rule.Success, Is.True, "Kit IconButton has no .compact rule");
+        Assert.Multiple(() =>
+        {
+            Assert.That(rule.Groups[1].Value, Does.Contain("min-width: var(--touch-target-compact)"));
+            Assert.That(rule.Groups[1].Value, Does.Contain("min-height: var(--touch-target-compact)"));
+        });
+    }
+
+    [GeneratedRegex(@"\.compact\[b-[a-z0-9]+\]\s*\{([^}]*)\}")]
+    private static partial Regex CompactRule();
 
     private static string? FirstClass(string attributes) =>
         Class().Match(attributes) is { Success: true } m
