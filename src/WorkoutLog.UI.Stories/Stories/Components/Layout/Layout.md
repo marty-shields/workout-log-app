@@ -11,7 +11,7 @@ The frame of every screen:
 |---|---|
 | Top bar | Back arrow `IconButton` (when `OnBack` is set; Android back raises `OnBack` too), title, subtitle, `Actions` on the right. Dark teal bar; sets text, muted text and focus to the on-bar colours. |
 | Content | Scrolls. 16px padding. |
-| Bottom bar | `BottomBar` actions, in thumb reach. Optional. |
+| Bottom bar | `BottomBar` actions, in thumb reach. Optional. Buttons are full width: the one main action (Save) is a primary `AppButton`, one per screen; others (Add exercise, Add set) are secondary. |
 | Tab bar | `MainTabBar` under the bottom bar, when `Tab` is set. |
 | Status | `Status`, a `Snackbar` just above the bottom bar (or the tab bar, clear of the raised New button), over the content. Its slot is a polite live region (`role="status"`), there whenever `Status` is set, so a snackbar shown later is read out. While a snackbar shows, the content gets room at its foot (`2 × --touch-target` more) so its last controls scroll clear of it. Needs a bottom bar or a tab bar. Optional. |
 

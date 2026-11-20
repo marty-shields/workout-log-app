@@ -27,6 +27,20 @@ public class SetSummaryTests : ComponentTestBase
     }
 
     [Test]
+    public void EditAndDelete_AreMutedCompactIconButtons()
+    {
+        var cut = Context.Render<SetSummary>(p => p
+            .Add(x => x.Number, 1)
+            .Add(x => x.Fields, Carry)
+            .Add(x => x.Entry, Entry(("distance", "40")))
+            .Add(x => x.TestId, "set-1"));
+
+        var buttons = cut.FindComponents<IconButton>().Select(b => (b.Instance.TestId, b.Instance.Icon, b.Instance.Muted, b.Instance.Compact));
+
+        Assert.That(buttons, Is.EqualTo(new[] { ("set-1-edit", IconName.Edit, true, true), ("set-1-remove", IconName.Delete, true, true) }));
+    }
+
+    [Test]
     public void FilledSet_ShowsValuesWithUnitsAndDuration()
     {
         var cut = Context.Render<SetSummary>(p => p

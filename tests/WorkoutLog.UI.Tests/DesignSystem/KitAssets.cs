@@ -10,6 +10,14 @@ internal static class KitAssets
     /// <summary>Text of a kit asset, such as <c>css/tokens.css</c>.</summary>
     public static string Read(string relativePath) => File.ReadAllText(PathOf(relativePath));
 
+    /// <summary>Text of the kit's scoped CSS bundle, whose file name carries a fingerprint.</summary>
+    public static string ReadScopedBundle()
+    {
+        var kit = Manifest.GetProperty("Root").GetProperty("Children").GetProperty("_content").GetProperty("Children").GetProperty("Shields.UI").GetProperty("Children");
+        var name = kit.EnumerateObject().Single(c => c.Name.EndsWith(".bundle.scp.css", StringComparison.Ordinal)).Name;
+        return Read(name);
+    }
+
     private static string PathOf(string relativePath)
     {
         var node = relativePath.Split('/').Aggregate(Manifest.GetProperty("Root").GetProperty("Children").GetProperty("_content").GetProperty("Children").GetProperty("Shields.UI"),

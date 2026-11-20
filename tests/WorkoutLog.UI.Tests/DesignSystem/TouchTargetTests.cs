@@ -32,6 +32,33 @@ public partial class TouchTargetTests
         });
     }
 
+    [Test]
+    public void Kit_DefinesTheTouchTargets()
+    {
+        Assert.Multiple(() =>
+        {
+            Assert.That(DesignTokens.KitTokensCss, Does.Contain("--touch-target: 48px;"));
+            Assert.That(DesignTokens.KitTokensCss, Does.Contain("--touch-target-compact: 40px;"));
+        });
+    }
+
+    [Test]
+    public void KitCompactIconButton_IsTheCompactTouchTarget()
+    {
+        var css = KitAssets.ReadScopedBundle();
+        var rule = CompactRule().Match(css);
+
+        Assert.That(rule.Success, Is.True, "Kit IconButton has no .compact rule");
+        Assert.Multiple(() =>
+        {
+            Assert.That(rule.Groups[1].Value, Does.Contain("min-width: var(--touch-target-compact)"));
+            Assert.That(rule.Groups[1].Value, Does.Contain("min-height: var(--touch-target-compact)"));
+        });
+    }
+
+    [GeneratedRegex(@"\.compact\[b-[a-z0-9]+\]\s*\{([^}]*)\}")]
+    private static partial Regex CompactRule();
+
     private static string? FirstClass(string attributes) =>
         Class().Match(attributes) is { Success: true } m
             ? m.Groups[1].Value.Split(' ', StringSplitOptions.RemoveEmptyEntries).FirstOrDefault(c => !c.StartsWith('@'))
