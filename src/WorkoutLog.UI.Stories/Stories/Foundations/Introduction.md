@@ -9,7 +9,7 @@ Tokens, components, screens and their behaviour for the Workout Log app.
 ## Where it lives
 | Item | Location |
 |---|---|
-| Tokens | `src/WorkoutLog.UI/wwwroot/css/tokens.css` (CSS custom properties) |
+| Tokens | The Shields.UI kit's `css/tokens.css` (shared, with its base styles and theme script), then `src/WorkoutLog.UI/wwwroot/css/tokens.css` for this app's own (CSS custom properties) |
 | Components | `src/WorkoutLog.UI/Components/` (Razor components with scoped `.razor.css`) |
 | Screens | `src/WorkoutLog.UI/Screens/` (`*View` components, and `*Page` components that call services) |
 | Stories and these pages | `src/WorkoutLog.UI.Stories/Stories/`: `Foundations/`, `Components/<Group>/`, `Screens/` |
@@ -29,7 +29,7 @@ Tokens, components, screens and their behaviour for the Workout Log app.
 - Interactive elements have a `data-testid`.
 
 ## Tokens
-Defined in `tokens.css`; the [Tokens](./?path=/story/foundations-tokens--all-tokens) story shows each one in light and dark.
+Defined in the kit's `tokens.css` and this app's `tokens.css`; the [Tokens](./?path=/story/foundations-tokens--all-tokens) story shows each one in light and dark.
 
 ### Palette
 Five colours. Light uses them directly; dark keeps aqua for primary buttons and uses neutral, low-tint colours for everything else so text, accents and surfaces read apart:
@@ -38,7 +38,7 @@ Five colours. Light uses them directly; dark keeps aqua for primary buttons and 
 |---|---|---|
 | Dark teal `#305252` | Top bar, primary buttons, text on secondary buttons | — |
 | Aqua `#b7d5d4` | Secondary buttons, open set, card borders, top-bar subtitle | Primary buttons |
-| Teal `#488286` | Focus, stat numbers | — |
+| Teal `#488286` | Focus | — |
 | Charcoal `#373e40` | Text | — |
 | Grey `#77878b` | Input borders | — |
 
@@ -57,8 +57,10 @@ Derived from the palette:
 | Text on primary buttons | `#ffffff` | `#173535` |
 | Secondary buttons and open set | Aqua `#b7d5d4` | `#2b4444` |
 | Text on secondary buttons | Dark teal `#305252` | `#d4e8e7` |
-| Focus and stat numbers | Teal `#488286` | `#8cc4c1` |
-| Errors and danger buttons | `#a8231c` | `#f2b8b5` |
+| Focus | Teal `#488286` | `#8cc4c1` |
+| Accent: stat numbers, current-week bars, meter fills | `#29494c` | `#acd5d2` |
+| Errors | `#841c16` | `#f4c1be` |
+| Danger buttons | `#a8231c` | `#f2b8b5` |
 | Increases and records | `#2e7d32` | `#a5d6a7` |
 | Past weeks in the weekly chart | Grey `#77878b` | `#7d8a8c` |
 
@@ -66,7 +68,7 @@ Text and controls meet WCAG AA in both themes.
 
 ### Other tokens
 - Most colour tokens are `light-dark()` pairs. `data-theme="light"` or `"dark"` forces a theme on an element; component and screen stories have a System / Light / Dark switch.
-- Danger buttons are filled red, the same red as errors.
+- Danger buttons are filled red, a lighter red than error text.
 - System font; body 16px, number and duration inputs 20px; radius 8 / 12 / 20px, plus round; spacing 4–32px.
 - Some components override tokens inside them: the top bar sets text, muted text and focus; the Add Exercise bar sets text, muted text and focus; the open set sets muted text, input border and focus to the text colour.
 

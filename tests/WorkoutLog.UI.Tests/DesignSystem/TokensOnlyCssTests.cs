@@ -4,7 +4,7 @@ namespace WorkoutLog.UI.Tests.DesignSystem;
 
 public partial class TokensOnlyCssTests
 {
-    // Literal values allowed outside tokens.css: the safe-area fallbacks and the visually-hidden helper.
+    // Literal values allowed outside tokens.css: the safe-area fallbacks and the visually-hidden helper, both in the kit's base.css.
     private static readonly HashSet<string> Allowed =
     [
         "base.css: --inset-top: env(safe-area-inset-top, 0px);",
@@ -14,22 +14,24 @@ public partial class TokensOnlyCssTests
         "base.css: margin: -1px;",
     ];
 
+    // This app's component styles, and the kit's base.css (its tokens.css is where literals belong).
     private static IEnumerable<TestCaseData> StyleFiles() =>
         RepoFiles.Find("*.css", "src", "WorkoutLog.UI")
             .Where(f => Path.GetFileName(f) != "tokens.css")
-            .Select(f => new TestCaseData(f).SetArgDisplayNames(Path.GetFileName(f)));
+            .Select(f => new TestCaseData(File.ReadAllText(f), Path.GetFileName(f)).SetArgDisplayNames(Path.GetFileName(f)))
+            .Append(new TestCaseData(KitAssets.Read("css/base.css"), "base.css").SetArgDisplayNames("base.css (kit)"));
 
     private static IEnumerable<TestCaseData> MarkupFiles() =>
         RepoFiles.Find("*.razor", "src", "WorkoutLog.UI")
             .Select(f => new TestCaseData(f).SetArgDisplayNames(Path.GetFileName(f)));
 
     [TestCaseSource(nameof(StyleFiles))]
-    public void Css_HasNoLiteralColoursOrSizes(string file)
+    public void Css_HasNoLiteralColoursOrSizes(string css, string name)
     {
-        var literals = StripComments(File.ReadAllText(file)).Split('\n')
+        var literals = StripComments(css).Split('\n')
             .Select(line => line.Trim())
             .Where(line => Literal().IsMatch(line))
-            .Select(line => $"{Path.GetFileName(file)}: {line}")
+            .Select(line => $"{name}: {line}")
             .Where(line => !Allowed.Contains(line));
 
         Assert.That(literals, Is.Empty);
@@ -46,23 +48,21 @@ public partial class TokensOnlyCssTests
     }
 
     [TestCaseSource(nameof(StyleFiles))]
-    public void Css_UsesOnlyDeclaredTokens(string file)
+    public void Css_UsesOnlyDeclaredTokens(string css, string name)
     {
-        var css = File.ReadAllText(file);
-
         var unknown = DesignTokens.Uses(css).Except(DesignTokens.Names).Except(DesignTokens.Declares(css));
 
-        Assert.That(unknown, Is.Empty);
+        Assert.That(unknown, Is.Empty, name);
     }
 
     [TestCaseSource(nameof(StyleFiles))]
-    public void Css_FillsWithBackgroundColor_SoThePressedLayerShows(string file)
+    public void Css_FillsWithBackgroundColor_SoThePressedLayerShows(string css, string name)
     {
-        var shorthands = StripComments(File.ReadAllText(file)).Split('\n')
+        var shorthands = StripComments(css).Split('\n')
             .Select(line => line.Trim())
             .Where(line => BackgroundShorthand().IsMatch(line));
 
-        Assert.That(shorthands, Is.Empty, "base.css's pressed layer is a background-image, which the background shorthand resets");
+        Assert.That(shorthands, Is.Empty, $"{name}: base.css's pressed layer is a background-image, which the background shorthand resets");
     }
 
     private static string StripComments(string css) => Comment().Replace(css, "");

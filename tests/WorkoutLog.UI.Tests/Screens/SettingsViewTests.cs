@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Testing;
 using Microsoft.JSInterop;
+using Shields.UI.Theme;
 using WorkoutLog.Core.Services;
 using WorkoutLog.UI.Logging;
 using WorkoutLog.UI.Models.Settings;

@@ -14,7 +14,6 @@ builder.RootComponents.Add<HeadOutlet>("head::after");
 
 builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
 builder.Services.AddUi();
-builder.Services.AddSingleton(TimeProvider.System);
 builder.Services.AddSingleton<IWorkoutService, SampleWorkoutService>();
 builder.Services.AddSingleton<IExerciseCatalog, ExerciseCatalog>();
 builder.Services.AddSingleton<IImportService, SampleImportService>();

@@ -1,5 +1,6 @@
 using AngleSharp.Dom;
 using Microsoft.Extensions.DependencyInjection;
+using Shields.UI.Theme;
 using WorkoutLog.Core.Domain;
 using WorkoutLog.Core.Domain.Exercises;
 using WorkoutLog.Core.Domain.Workouts.Periods;
