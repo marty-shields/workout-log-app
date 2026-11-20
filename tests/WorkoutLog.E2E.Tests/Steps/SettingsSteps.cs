@@ -46,6 +46,20 @@ public sealed partial class SettingsSteps(
     [When(@"^I choose the (System|Light|Dark) theme$")]
     public void WhenIChooseTheTheme(string theme) => settings.ChooseTheme(theme.ToLowerInvariant());
 
+    [Given(@"^an earlier version saved the (Light|Dark) theme$")]
+    public void GivenAnEarlierVersionSavedTheTheme(string theme) => settings.StoreThemeAsEarlierVersion(theme.ToLowerInvariant());
+
+    [Then(@"^the (Light|Dark) theme is applied$")]
+    public void ThenTheThemeIsApplied(string theme) =>
+        web.Eventually(settings.AppliedTheme, Is.EqualTo(theme.ToLowerInvariant()), "theme applied to the page");
+
+    [Then(@"^the (Light|Dark) theme is selected in Settings$")]
+    public void ThenTheThemeIsSelectedInSettings(string theme)
+    {
+        journeys.WaitFor(Journeys.Screen.Settings);
+        web.Eventually(() => settings.ThemeSelected(theme.ToLowerInvariant()), Is.True, $"{theme} theme selected");
+    }
+
     [Then(@"^the status bar icons are light$")]
     public void ThenTheStatusBarIconsAreLight() => web.Eventually(Native.StatusBarIcons, Is.EqualTo("light"), "status bar icons");
 

@@ -127,6 +127,9 @@ public sealed class WebView
     public bool AtBottom() =>
         App.ExecuteScript("const c = document.querySelector('main.content'); return c.scrollTop > 0 && c.scrollTop + c.clientHeight >= c.scrollHeight - 1;") is true;
 
+    /// <summary>Runs a script in the page and returns what it returns.</summary>
+    public object? Run(string script) => App.ExecuteScript(script);
+
     /// <summary>Runs a script that returns an array, as a list.</summary>
     public IReadOnlyList<object> List(string script) => (ReadOnlyCollection<object>)App.ExecuteScript(script)!;
 

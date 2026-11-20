@@ -22,6 +22,17 @@ public sealed class SettingsScreen(WebView web)
         web.Eventually(() => web.Find(radio).Selected, Is.True, $"{theme} theme selected");
     }
 
+    /// <summary>Stores a theme under the key an earlier version wrote, as that version wrote it: the bare word.</summary>
+    public void StoreThemeAsEarlierVersion(string theme) =>
+        web.Run($"localStorage.setItem('workoutlog.theme', '{theme}');");
+
+    /// <summary>The theme the page applies: the root element's <c>data-theme</c>, empty when it follows the phone.</summary>
+    public string AppliedTheme() =>
+        web.Run("return document.documentElement.getAttribute('data-theme') ?? '';") as string ?? "";
+
+    /// <summary>Whether the theme's radio in Appearance is selected.</summary>
+    public bool ThemeSelected(string theme) => web.Find($"settings-theme-{theme}").Selected;
+
     /// <summary>The version line at the bottom, once Settings has opened.</summary>
     public string Version()
     {
