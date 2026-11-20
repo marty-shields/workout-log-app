@@ -1,5 +1,5 @@
+using Shields.UI.Components.Actions;
 using WorkoutLog.Core.Domain.Exercises;
-using WorkoutLog.UI.Components.Actions;
 using WorkoutLog.UI.Components.Workout;
 using WorkoutLog.UI.Models.Fields;
 using WorkoutLog.UI.Models.Workout;

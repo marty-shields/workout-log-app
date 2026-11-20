@@ -1,4 +1,4 @@
-using WorkoutLog.UI.Components.Actions;
+using Shields.UI.Components.Actions;
 using WorkoutLog.UI.Components.ThisWeek;
 using WorkoutLog.UI.Components.Weekly;
 using WorkoutLog.UI.Stories.Samples;

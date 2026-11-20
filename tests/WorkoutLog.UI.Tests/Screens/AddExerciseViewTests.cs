@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Components;
+using Shields.UI.Components.Actions;
 using WorkoutLog.Core.Domain.Exercises;
-using WorkoutLog.UI.Components.Actions;
 using WorkoutLog.UI.Components.Layout;
 using WorkoutLog.UI.Models.Exercises;
 using WorkoutLog.UI.Screens;

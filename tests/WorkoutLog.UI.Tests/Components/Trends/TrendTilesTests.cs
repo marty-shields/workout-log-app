@@ -1,5 +1,5 @@
+using Shields.UI.Components.Actions;
 using WorkoutLog.Core.Domain.Workouts.Periods;
-using WorkoutLog.UI.Components.Actions;
 using WorkoutLog.UI.Components.Trends;
 using WorkoutLog.UI.Stories.Samples;
 

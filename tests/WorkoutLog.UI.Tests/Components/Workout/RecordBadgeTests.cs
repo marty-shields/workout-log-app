@@ -1,4 +1,4 @@
-using WorkoutLog.UI.Components.Actions;
+using Shields.UI.Components.Actions;
 using WorkoutLog.UI.Components.Workout;
 
 namespace WorkoutLog.UI.Tests.Components.Workout;
