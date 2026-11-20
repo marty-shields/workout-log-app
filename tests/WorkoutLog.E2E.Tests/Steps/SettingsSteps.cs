@@ -46,6 +46,37 @@ public sealed partial class SettingsSteps(
     [When(@"^I choose the (System|Light|Dark) theme$")]
     public void WhenIChooseTheTheme(string theme) => settings.ChooseTheme(theme.ToLowerInvariant());
 
+    [Given(@"^an earlier version saved the (Light|Dark) theme$")]
+    public void GivenAnEarlierVersionSavedTheTheme(string theme)
+    {
+        var marker = Guid.NewGuid().ToString("N");
+        settings.StoreThemeAsEarlierVersion(theme.ToLowerInvariant(), marker);
+
+        // The WebView writes localStorage to disk seconds later, and a closed app loses what it hasn't written.
+        var app = AppiumSetup.App;
+        // grep exits 1 when nothing matches yet; a run-as or su failure exits higher and throws.
+        web.WaitUntil(() => AppiumSetup.Adb.AppShell(app, "grep", "-rlF", marker, $"{app.DataFolder}/app_webview", ";", "[", "$?", "-le", "1", "]") != "",
+            "the WebView didn't write the seeded theme to disk", TimeSpan.FromSeconds(30));
+    }
+
+    [Then(@"^the (Light|Dark) theme is applied$")]
+    public void ThenTheThemeIsApplied(string theme)
+    {
+        var expected = theme.ToLowerInvariant();
+        journeys.WaitFor(Journeys.Screen.ThisWeek);
+        if (!web.Holds(() => settings.AppliedTheme() == expected, TimeSpan.FromSeconds(10)))
+        {
+            Assert.That(settings.AppliedTheme(), Is.EqualTo(expected), $"theme applied to the page (stored theme: {settings.StoredTheme() ?? "none"})");
+        }
+    }
+
+    [Then(@"^the (Light|Dark) theme is selected in Settings$")]
+    public void ThenTheThemeIsSelectedInSettings(string theme)
+    {
+        journeys.WaitFor(Journeys.Screen.Settings);
+        web.Eventually(() => settings.ThemeSelected(theme.ToLowerInvariant()), Is.True, $"{theme} theme selected");
+    }
+
     [Then(@"^the status bar icons are light$")]
     public void ThenTheStatusBarIconsAreLight() => web.Eventually(Native.StatusBarIcons, Is.EqualTo("light"), "status bar icons");
 

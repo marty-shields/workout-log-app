@@ -22,7 +22,12 @@ public class ContrastTests
         ("--color-on-primary", "--color-primary", Text),
         ("--color-on-secondary", "--color-secondary", Text),
         ("--color-on-danger", "--color-danger", Text),
+        ("--color-error", "--color-selected", Text),
+        ("--color-accent", "--color-bg", LargeTextOrControl),
         ("--color-accent", "--color-surface", LargeTextOrControl),
+        // Calendar dots on range days, and the meter fills on their tracks.
+        ("--color-accent", "--color-selected", LargeTextOrControl),
+        ("--color-accent", "--color-border", LargeTextOrControl),
         ("--color-border-strong", "--color-bg", LargeTextOrControl),
         ("--color-border-strong", "--color-surface", LargeTextOrControl),
         ("--color-bar-past", "--color-bg", LargeTextOrControl),
@@ -30,6 +35,10 @@ public class ContrastTests
         ("--color-focus", "--color-bg", LargeTextOrControl),
         ("--color-focus", "--color-surface", LargeTextOrControl),
     ];
+
+    // The kit's darker accent against --color-bar-past: 2.6:1 in light and 2.2:1 in dark, short of the 3:1 the issue asks for
+    // (it was 1.2:1 and 1.8:1 with the old accent). No colour keeps 3:1 against both the page and the accent, so this guards
+    // against a regression until the owner decides; the bars are also told apart by position and the legend.
 
     private static IEnumerable<TestCaseData> Cases() =>
         Pairs.SelectMany(p => new[] { "light", "dark" }.Select(theme =>
@@ -43,6 +52,16 @@ public class ContrastTests
         var bg = Pick(DesignTokens.Colour(background), theme);
 
         Assert.That(Rgb.Contrast(fg, bg), Is.GreaterThanOrEqualTo(minimum), $"{fg} on {bg}");
+    }
+
+    [TestCase("light", 2.6)]
+    [TestCase("dark", 2.2)]
+    public void AccentBar_BesideThePastBars_StaysAsDistinctAsItIsToday(string theme, double floor)
+    {
+        var accent = Pick(DesignTokens.Colour("--color-accent"), theme);
+        var past = Pick(DesignTokens.Colour("--color-bar-past"), theme);
+
+        Assert.That(Rgb.Contrast(accent, past), Is.GreaterThanOrEqualTo(floor), $"{accent} beside {past}");
     }
 
     // The App keeps the status bar's icons light (StatusBarTheme.Dark in App.xaml.cs) in both themes, and Android draws them

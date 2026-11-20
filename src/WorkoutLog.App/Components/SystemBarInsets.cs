@@ -1,6 +1,6 @@
 using Android.Views;
 using Microsoft.AspNetCore.Components;
-using WorkoutLog.UI.Theme;
+using Shields.UI.Theme;
 using View = Android.Views.View;
 
 namespace WorkoutLog.App.Components;

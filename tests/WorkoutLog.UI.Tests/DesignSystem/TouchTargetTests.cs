@@ -40,13 +40,12 @@ public partial class TouchTargetTests
             .Where(r => r.Selectors.Contains(".compact"))
             .SelectMany(r => r.Declarations)
             .ToList();
-        var tokens = File.ReadAllText(RepoFiles.Find("tokens.css", "src", "WorkoutLog.UI").Single());
 
         Assert.Multiple(() =>
         {
             Assert.That(declarations, Has.Member("min-width: var(--touch-target-compact)"));
             Assert.That(declarations, Has.Member("min-height: var(--touch-target-compact)"));
-            Assert.That(tokens, Does.Contain("--touch-target-compact: 40px;"));
+            Assert.That(DesignTokens.KitTokensCss, Does.Contain("--touch-target-compact: 40px;"));
         });
     }
 

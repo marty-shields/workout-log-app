@@ -3,20 +3,29 @@ using System.Text.RegularExpressions;
 
 namespace WorkoutLog.UI.Tests.DesignSystem;
 
-/// <summary>Custom properties declared in tokens.css and base.css.</summary>
+/// <summary>Custom properties declared in the kit's tokens.css and base.css and in this app's own tokens.css.</summary>
 internal static partial class DesignTokens
 {
-    private static readonly string TokensCss = RepoFiles.Read("src", "WorkoutLog.UI", "wwwroot", "css", "tokens.css");
-    private static readonly string BaseCss = RepoFiles.Read("src", "WorkoutLog.UI", "wwwroot", "css", "base.css");
+    /// <summary>The kit's tokens.css.</summary>
+    public static string KitTokensCss { get; } = KitAssets.Read("css/tokens.css");
 
-    /// <summary>Names of every custom property declared in tokens.css and base.css.</summary>
+    /// <summary>This app's own tokens.css, loaded after the kit's.</summary>
+    public static string AppTokensCss { get; } = RepoFiles.Read("src", "WorkoutLog.UI", "wwwroot", "css", "tokens.css");
+
+    private static readonly string KitBaseCss = KitAssets.Read("css/base.css");
+
+    /// <summary>Names of every custom property the kit's tokens.css and this app's tokens.css declare.</summary>
+    public static IReadOnlySet<string> TokenNames { get; } =
+        Declares(KitTokensCss + AppTokensCss).ToHashSet();
+
+    /// <summary>Names of every custom property declared in the kit's tokens.css and base.css and this app's tokens.css.</summary>
     public static IReadOnlySet<string> Names { get; } =
-        Declaration().Matches(TokensCss + BaseCss).Select(m => m.Groups[1].Value).ToHashSet();
+        Declares(KitTokensCss + KitBaseCss + AppTokensCss).ToHashSet();
 
     /// <summary>Light and dark value of a colour token: a <c>light-dark()</c> pair or one hex value for both.</summary>
     public static (Rgb Light, Rgb Dark) Colour(string name)
     {
-        var value = Declaration().Matches(TokensCss).Single(m => m.Groups[1].Value == name).Groups[2].Value.Trim();
+        var value = Declaration().Matches(KitTokensCss + AppTokensCss).Single(m => m.Groups[1].Value == name).Groups[2].Value.Trim();
         var hexes = Hex().Matches(value).Select(m => Rgb.Parse(m.Value)).ToList();
         return hexes.Count == 1 ? (hexes[0], hexes[0]) : (hexes[0], hexes[1]);
     }
