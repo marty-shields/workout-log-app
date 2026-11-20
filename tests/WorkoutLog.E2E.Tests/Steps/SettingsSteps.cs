@@ -47,11 +47,23 @@ public sealed partial class SettingsSteps(
     public void WhenIChooseTheTheme(string theme) => settings.ChooseTheme(theme.ToLowerInvariant());
 
     [Given(@"^an earlier version saved the (Light|Dark) theme$")]
-    public void GivenAnEarlierVersionSavedTheTheme(string theme) => settings.StoreThemeAsEarlierVersion(theme.ToLowerInvariant());
+    public void GivenAnEarlierVersionSavedTheTheme(string theme)
+    {
+        var marker = Guid.NewGuid().ToString("N");
+        settings.StoreThemeAsEarlierVersion(theme.ToLowerInvariant(), marker);
+
+        // The WebView writes localStorage to disk seconds later, and a closed app loses what it hasn't written.
+        var app = AppiumSetup.App;
+        web.WaitUntil(() => AppiumSetup.Adb.AppShell(app, "grep", "-rlF", marker, $"{app.DataFolder}/app_webview", "||", "true") != "",
+            "the WebView didn't write the seeded theme to disk", TimeSpan.FromSeconds(30));
+    }
 
     [Then(@"^the (Light|Dark) theme is applied$")]
-    public void ThenTheThemeIsApplied(string theme) =>
-        web.Eventually(settings.AppliedTheme, Is.EqualTo(theme.ToLowerInvariant()), "theme applied to the page");
+    public void ThenTheThemeIsApplied(string theme)
+    {
+        var stored = settings.StoredTheme();
+        web.Eventually(settings.AppliedTheme, Is.EqualTo(theme.ToLowerInvariant()), $"theme applied to the page (stored theme: {stored ?? "none"})");
+    }
 
     [Then(@"^the (Light|Dark) theme is selected in Settings$")]
     public void ThenTheThemeIsSelectedInSettings(string theme)
