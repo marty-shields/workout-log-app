@@ -44,7 +44,6 @@ public partial class EventIdTests
             [UiEvent.ThisWeekLoadFailed] = 3101,
             [UiEvent.ThisWeekRecordsFailed] = 3102,
             [UiEvent.AppStartHandlerFailed] = 3201,
-            [UiEvent.LoadFailedFocusFailed] = 3301,
             [UiEvent.ShareFailed] = 3401,
             [UiEvent.SettingsPickFailed] = 3402,
             [UiEvent.ThemeLoadFailed] = 3403,
@@ -55,8 +54,6 @@ public partial class EventIdTests
             [UiEvent.ReviewImportFocusFailed] = 3601,
             [UiEvent.ReviewPickFailed] = 3701,
             [UiEvent.ImportFileTooLarge] = 3801,
-            [UiEvent.UndoFocusFailed] = 3901,
-            [UiEvent.UndoFocusCheckFailed] = 3902,
             [UiEvent.PullRefreshFailed] = 4001,
             [UiEvent.TrendsLoadFailed] = 4101,
             [UiEvent.TrendsRecordsFailed] = 4102,
@@ -64,7 +61,7 @@ public partial class EventIdTests
 
     [Test]
     public void UiEvent_RetiredValuesAreNotReused() =>
-        Assert.That(Enum.GetValues<UiEvent>().Select(e => (int)e), Has.None.AnyOf(2801, 3001));
+        Assert.That(Enum.GetValues<UiEvent>().Select(e => (int)e), Has.None.AnyOf(2801, 3001, 3301, 3901, 3902));
 
     [Test]
     public void AppEvent_ValuesAreUniqueAndInTheAppsRange()

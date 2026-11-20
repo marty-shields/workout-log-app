@@ -3,12 +3,12 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Testing;
 using Microsoft.Extensions.Time.Testing;
+using Shields.UI.Components.Feedback;
 using WorkoutLog.Core.Domain.Exercises;
 using WorkoutLog.Core.Domain.Exercises.Progress;
 using WorkoutLog.Core.Domain.Workouts;
 using WorkoutLog.Core.Domain.Workouts.Validation;
 using WorkoutLog.Core.Services;
-using WorkoutLog.UI.Components.Feedback;
 using WorkoutLog.UI.Components.Layout;
 using WorkoutLog.UI.Haptics;
 using WorkoutLog.UI.Logging;
@@ -514,7 +514,7 @@ public class NewWorkoutPageTests : ComponentTestBase
         Add(cut, 6);
         cut.Find("[data-testid=exercise-2-remove]").Click();
 
-        cut.Find("[data-testid=snackbar-undo]").Click();
+        cut.Find("[data-testid=snackbar-action]").Click();
 
         Assert.That(Haptics.Played, Is.Empty);
     }
@@ -530,7 +530,7 @@ public class NewWorkoutPageTests : ComponentTestBase
         Add(cut, 6);
         cut.Find("[data-testid=exercise-2-remove]").Click();
 
-        cut.Find("[data-testid=snackbar-undo]").Click();
+        cut.Find("[data-testid=snackbar-action]").Click();
 
         cut.WaitForAssertion(() => Assert.Multiple(() =>
         {
@@ -549,7 +549,7 @@ public class NewWorkoutPageTests : ComponentTestBase
         cut.Find("[data-testid=save-workout]").Click();
         var shown = cut.Find("[data-testid=workout-error]").TextContent;
 
-        cut.Find("[data-testid=snackbar-undo]").Click();
+        cut.Find("[data-testid=snackbar-action]").Click();
 
         Assert.Multiple(() =>
         {
@@ -569,7 +569,7 @@ public class NewWorkoutPageTests : ComponentTestBase
         cut.Find("[data-testid=save-workout]").Click();
         var shown = cut.Find("[data-testid=exercise-1-error]").TextContent;
 
-        cut.Find("[data-testid=snackbar-undo]").Click();
+        cut.Find("[data-testid=snackbar-action]").Click();
 
         Assert.Multiple(() =>
         {
@@ -587,7 +587,7 @@ public class NewWorkoutPageTests : ComponentTestBase
         Remove(cut, 1);
 
         Remove(cut, 1);
-        cut.Find("[data-testid=snackbar-undo]").Click();
+        cut.Find("[data-testid=snackbar-action]").Click();
 
         cut.WaitForAssertion(() => Assert.Multiple(() =>
         {
@@ -603,7 +603,7 @@ public class NewWorkoutPageTests : ComponentTestBase
         Add(cut, 132);
         Remove(cut, 1);
 
-        clock.Advance(Snackbar.Duration);
+        clock.Advance(Snackbar.DefaultDuration);
         await WaitForRendererAsync();
 
         Assert.Multiple(() =>
@@ -634,7 +634,7 @@ public class NewWorkoutPageTests : ComponentTestBase
 
         cut.Find("[data-testid=add-exercise]").Click();
         cut.Find("[data-testid=add-exercise-back]").Click();
-        cut.Find("[data-testid=snackbar-undo]").Click();
+        cut.Find("[data-testid=snackbar-action]").Click();
 
         Assert.That(Names(cut), Is.EqualTo(new[] { "Dumbbell Curl" }));
     }
@@ -1108,7 +1108,7 @@ public class NewWorkoutPageTests : ComponentTestBase
 
         cut.Find("[data-testid=exercise-1-set-1-remove]").Click();
 
-        LastFocus().Arguments[0].ShouldBeElementReferenceTo(cut.Find("[data-testid=snackbar-undo]"));
+        LastFocus().Arguments[0].ShouldBeElementReferenceTo(cut.Find("[data-testid=snackbar-action]"));
     }
 
     [Test]
@@ -1119,7 +1119,7 @@ public class NewWorkoutPageTests : ComponentTestBase
 
         Remove(cut, 1);
 
-        LastFocus().Arguments[0].ShouldBeElementReferenceTo(cut.Find("[data-testid=snackbar-undo]"));
+        LastFocus().Arguments[0].ShouldBeElementReferenceTo(cut.Find("[data-testid=snackbar-action]"));
     }
 
     [Test]
@@ -1131,7 +1131,7 @@ public class NewWorkoutPageTests : ComponentTestBase
         var before = cut.Find("[data-testid=exercise-1-set-1] .text").TextContent;
         cut.Find("[data-testid=exercise-1-set-1-remove]").Click();
 
-        cut.Find("[data-testid=snackbar-undo]").Click();
+        cut.Find("[data-testid=snackbar-action]").Click();
 
         Assert.Multiple(() =>
         {
@@ -1150,7 +1150,7 @@ public class NewWorkoutPageTests : ComponentTestBase
         AddSets(cut, 1, 3);
         cut.Find("[data-testid=exercise-1-set-2-remove]").Click();
 
-        cut.Find("[data-testid=snackbar-undo]").Click();
+        cut.Find("[data-testid=snackbar-action]").Click();
 
         cut.WaitForAssertion(() => LastFocus().Arguments[0].ShouldBeElementReferenceTo(cut.Find("[data-testid=exercise-1-set-2-edit]")));
     }
@@ -1163,7 +1163,7 @@ public class NewWorkoutPageTests : ComponentTestBase
         Add(cut, 6);
         Remove(cut, 2);
 
-        cut.Find("[data-testid=snackbar-undo]").Click();
+        cut.Find("[data-testid=snackbar-action]").Click();
 
         cut.WaitForAssertion(() => LastFocus().Arguments[0].ShouldBeElementReferenceTo(cut.Find("[data-testid=exercise-2-done]")));
     }
@@ -1179,7 +1179,7 @@ public class NewWorkoutPageTests : ComponentTestBase
         cut.Find("[data-testid=exercise-1-set-1-reps]").Input("5");
         cut.Find("[data-testid=exercise-1-done]").Click();
 
-        cut.Find("[data-testid=snackbar-undo]").Click();
+        cut.Find("[data-testid=snackbar-action]").Click();
 
         cut.WaitForAssertion(() => LastFocus().Arguments[0].ShouldBeElementReferenceTo(cut.Find("[data-testid=exercise-1-edit]")));
     }

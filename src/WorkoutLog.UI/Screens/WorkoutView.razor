@@ -3,7 +3,7 @@
 @using WorkoutLog.UI.Components.Inputs
 @using WorkoutLog.UI.Components.Workout
 @inject ILogger<WorkoutView> Logger
-@using WorkoutLog.UI.Components.Feedback
+@using Shields.UI.Components.Feedback
 <AppScreen Title="@DisplayFormat.Date(StartedAt)" Subtitle="@TimeText" OnBack="OnBack">
     <Actions>
         <IconButton Icon="IconName.Note" AriaLabel="@(HasNote ? "Edit note" : "Add note")" TestId="workout-note-add" OnClick="OpenNote" />
@@ -51,7 +51,7 @@
     <Status>
         @if (Undo is { } undo)
         {
-            <Snackbar @key="undo" Message="@undo.Message" TakeFocus="@(!ReferenceEquals(undo, announced))" OnUndo="OnUndo" OnTimeout="() => OnUndoTimeout.InvokeAsync(undo)" />
+            <Snackbar @key="undo" Message="@undo.Message" TakeFocus="@(!ReferenceEquals(undo, announced))" ActionLabel="Undo" OnAction="OnUndo" OnTimeout="() => OnUndoTimeout.InvokeAsync(undo)" />
         }
     </Status>
 </AppScreen>

@@ -173,7 +173,7 @@ public class EditWorkoutPageTests : ComponentTestBase
         var before = cut.Find("[data-testid=exercise-3-set-1] .text").TextContent;
         cut.Find("[data-testid=exercise-3-set-1-remove]").Click();
 
-        cut.Find("[data-testid=snackbar-undo]").Click();
+        cut.Find("[data-testid=snackbar-action]").Click();
 
         Assert.Multiple(() =>
         {
@@ -276,7 +276,7 @@ public class EditWorkoutPageTests : ComponentTestBase
         var cut = await RenderLoadedAsync();
         cut.Find("[data-testid=exercise-2-remove]").Click();
 
-        cut.Find("[data-testid=snackbar-undo]").Click();
+        cut.Find("[data-testid=snackbar-action]").Click();
 
         Assert.Multiple(() =>
         {
@@ -292,7 +292,7 @@ public class EditWorkoutPageTests : ComponentTestBase
         var backs = 0;
         var cut = await RenderLoadedAsync(onBack: () => backs++);
         cut.Find("[data-testid=exercise-2-remove]").Click();
-        cut.Find("[data-testid=snackbar-undo]").Click();
+        cut.Find("[data-testid=snackbar-action]").Click();
 
         await cut.InvokeAsync(BackButton.HandleAsync);
 

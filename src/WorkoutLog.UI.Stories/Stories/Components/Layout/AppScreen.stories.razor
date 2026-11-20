@@ -1,4 +1,4 @@
-@using WorkoutLog.UI.Components.Feedback
+@using Shields.UI.Components.Feedback
 @using WorkoutLog.UI.Components.Layout
 @attribute [Stories("Components/Layout/AppScreen")]
 
@@ -57,7 +57,7 @@
                     <AppButton FullWidth>Main action</AppButton>
                 </BottomBar>
                 <Status>
-                    <Snackbar Message="Barbell Back Squat set 2 deleted" />
+                    <Snackbar Message="Barbell Back Squat set 2 deleted" ActionLabel="Undo" OnAction="() => { }" />
                 </Status>
             </AppScreen>
         </Template>
@@ -70,7 +70,7 @@
                     <p>Scrolling content.</p>
                 </ChildContent>
                 <Status>
-                    <Snackbar Message="Barbell Back Squat set 2 deleted" />
+                    <Snackbar Message="Barbell Back Squat set 2 deleted" ActionLabel="Undo" OnAction="() => { }" />
                 </Status>
             </AppScreen>
         </Template>
