@@ -54,15 +54,20 @@ public sealed partial class SettingsSteps(
 
         // The WebView writes localStorage to disk seconds later, and a closed app loses what it hasn't written.
         var app = AppiumSetup.App;
-        web.WaitUntil(() => AppiumSetup.Adb.AppShell(app, "grep", "-rlF", marker, $"{app.DataFolder}/app_webview", "||", "true") != "",
+        // grep exits 1 when nothing matches yet; a run-as or su failure exits higher and throws.
+        web.WaitUntil(() => AppiumSetup.Adb.AppShell(app, "grep", "-rlF", marker, $"{app.DataFolder}/app_webview", ";", "[", "$?", "-le", "1", "]") != "",
             "the WebView didn't write the seeded theme to disk", TimeSpan.FromSeconds(30));
     }
 
     [Then(@"^the (Light|Dark) theme is applied$")]
     public void ThenTheThemeIsApplied(string theme)
     {
-        var stored = settings.StoredTheme();
-        web.Eventually(settings.AppliedTheme, Is.EqualTo(theme.ToLowerInvariant()), $"theme applied to the page (stored theme: {stored ?? "none"})");
+        var expected = theme.ToLowerInvariant();
+        journeys.WaitFor(Journeys.Screen.ThisWeek);
+        if (!web.Holds(() => settings.AppliedTheme() == expected, TimeSpan.FromSeconds(10)))
+        {
+            Assert.That(settings.AppliedTheme(), Is.EqualTo(expected), $"theme applied to the page (stored theme: {settings.StoredTheme() ?? "none"})");
+        }
     }
 
     [Then(@"^the (Light|Dark) theme is selected in Settings$")]
