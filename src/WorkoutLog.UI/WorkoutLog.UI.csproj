@@ -13,6 +13,15 @@
     <PackageReference Include="Microsoft.AspNetCore.Components.Web" />
   </ItemGroup>
 
+  <!-- The Shields.UI kit comes from NuGet; -p:UseKitSource=true builds against the kit's source at KitPath instead. -->
+  <ItemGroup Condition="'$(UseKitSource)' != 'true'">
+    <PackageReference Include="Shields.UI" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(UseKitSource)' == 'true'">
+    <ProjectReference Include="$(KitPath)/src/Shields.UI/Shields.UI.csproj" />
+  </ItemGroup>
+
   <ItemGroup>
     <InternalsVisibleTo Include="WorkoutLog.UI.Tests" />
   </ItemGroup>

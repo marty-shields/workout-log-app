@@ -4,6 +4,7 @@ Personal Android app (.NET 11 MAUI Blazor Hybrid). Setup: [docs/dev-setup-build.
 
 ## Commands
 - Build: `dotnet build WorkoutLog.slnx` (warnings fail the build)
+- Try a UI kit change locally: `dotnet build WorkoutLog.slnx -p:UseKitSource=true -p:KitPath=<kit clone>` builds `WorkoutLog.UI` against the kit source instead of the Shields.UI package (`KitPath` defaults to `../app-ui-kit`; the committed lock files are left alone then)
 - Code style: `dotnet format WorkoutLog.slnx --verify-no-changes` (CI runs it; drop `--verify-no-changes` to apply the fixes)
 - Test: `dotnet test tests/WorkoutLog.Core.Tests` and `dotnet test tests/WorkoutLog.UI.Tests`
 - E2E (needs a device; a plain `dotnet test` skips them): build the App, then `dotnet test tests/WorkoutLog.E2E.Tests --filter "Category=smoke"`

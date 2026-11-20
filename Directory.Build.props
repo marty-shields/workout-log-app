@@ -25,6 +25,15 @@
     <RestoreLockedMode Condition="'$(CI)' != ''">true</RestoreLockedMode>
   </PropertyGroup>
 
+  <!-- Building against the kit's source (-p:UseKitSource=true, see AGENTS.md) changes the dependency graph, so the lock file moves to obj (ignored by git) and is not enforced, so the committed ones stay untouched; CI never sets it. -->
+  <PropertyGroup>
+    <KitPath Condition="'$(KitPath)' == ''">$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)../app-ui-kit'))</KitPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(UseKitSource)' == 'true'">
+    <RestoreLockFilePath>$(MSBuildProjectDirectory)/obj/kit-source.packages.lock.json</RestoreLockFilePath>
+    <RestoreLockedMode>false</RestoreLockedMode>
+  </PropertyGroup>
+
   <!-- Test projects (*.Tests): NUnit. -->
   <ItemGroup Condition="$(MSBuildProjectName.EndsWith('.Tests'))">
     <PackageReference Include="Microsoft.NET.Test.Sdk" />
