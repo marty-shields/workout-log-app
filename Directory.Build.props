@@ -27,10 +27,12 @@
 
   <!-- Building against the kit's source (-p:UseKitSource=true, see AGENTS.md) changes the dependency graph, so the lock file moves to obj (ignored by git) and is not enforced, so the committed ones stay untouched; CI never sets it. -->
   <PropertyGroup>
-    <KitPath Condition="'$(KitPath)' == ''">$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)../app-ui-kit'))</KitPath>
+    <KitPath Condition="'$(KitPath)' == ''">../app-ui-kit</KitPath>
+    <!-- KitPath may be a command-line value, which props cannot change, so the resolved folder is a separate property: a relative KitPath is taken from this folder, an absolute one is kept. -->
+    <KitSourcePath>$([System.IO.Path]::GetFullPath($([System.IO.Path]::Combine('$(MSBuildThisFileDirectory)', '$(KitPath)'))))</KitSourcePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(UseKitSource)' == 'true'">
-    <RestoreLockFilePath>$(MSBuildProjectDirectory)/obj/kit-source.packages.lock.json</RestoreLockFilePath>
+    <NuGetLockFilePath>$(MSBuildProjectDirectory)/obj/kit-source.packages.lock.json</NuGetLockFilePath>
     <RestoreLockedMode>false</RestoreLockedMode>
   </PropertyGroup>
 
