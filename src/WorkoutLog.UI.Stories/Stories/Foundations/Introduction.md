@@ -68,7 +68,7 @@ Text and controls meet WCAG AA in both themes.
 
 ### Other tokens
 - Most colour tokens are `light-dark()` pairs. `data-theme="light"` or `"dark"` forces a theme on an element; component and screen stories have a System / Light / Dark switch.
-- Danger buttons are filled red, a lighter red than error text.
+- Danger buttons are filled red (`#a8231c` light, `#f2b8b5` dark), a slightly different red from the error text (`#841c16`, `#f4c1be`): lighter in light theme, darker in dark.
 - System font; body 16px, number and duration inputs 20px; radius 8 / 12 / 20px, plus round; spacing 4–32px.
 - Some components override tokens inside them: the top bar sets text, muted text and focus; the Add Exercise bar sets text, muted text and focus; the open set sets muted text, input border and focus to the text colour.
 

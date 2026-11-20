@@ -19,7 +19,7 @@ internal static class KitAssets
         return Path.Combine(root, asset.GetProperty("SubPath").GetString()!);
     }
 
-    // The stories project is the manifest in the test output that lists Shields.UI's assets; WorkoutLog.UI.Tests has none of its own.
+    // This test project's own manifest lists Shields.UI's assets through its reference to WorkoutLog.UI.
     private static JsonElement LoadManifest() =>
-        JsonElement.Parse(File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "WorkoutLog.UI.Stories.staticwebassets.runtime.json")));
+        JsonElement.Parse(File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "WorkoutLog.UI.Tests.staticwebassets.runtime.json")));
 }

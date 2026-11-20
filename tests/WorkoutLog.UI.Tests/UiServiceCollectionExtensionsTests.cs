@@ -49,6 +49,7 @@ public class UiServiceCollectionExtensionsTests
         {
             Assert.That(scope.ServiceProvider.GetRequiredService<ThemeService>(), Is.Not.Null);
             Assert.That(scope.ServiceProvider.GetRequiredService<SystemBarInsetWriter>(), Is.Not.Null);
+            Assert.That(scope.ServiceProvider.GetRequiredService<TimeProvider>(), Is.SameAs(TimeProvider.System));
         });
     }
 
