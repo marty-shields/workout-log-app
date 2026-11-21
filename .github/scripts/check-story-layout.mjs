@@ -8,7 +8,7 @@ import { fileURLToPath } from 'node:url';
 
 const [baseUrl, chromePath, ...prefixes] = process.argv.slice(2);
 if (!baseUrl || !chromePath) {
-  console.error('Usage: check-story-layout.mjs <stories-url> <chrome-path> [title-prefix ...]');
+  console.error('Usage: check-story-layout.mjs <stories-url> <chrome-path> [title-prefix ...]  (a prefix without the story prefix gets it prepended, e.g. Screens/)');
   process.exit(64);
 }
 
@@ -22,7 +22,7 @@ const library = resolve(dirname(fileURLToPath(import.meta.url)), '../../src/Work
 const root = join(library, 'Stories');
 const storyPrefix = /Prefix = "([^"]+)"/.exec(readFileSync(join(library, 'StoryTitles.cs'), 'utf8'))?.[1];
 if (!storyPrefix) throw new Error('StoryTitles.Prefix not found in StoryTitles.cs');
-const scopes = prefixes.length ? prefixes : [`${storyPrefix}/Components/Workout/`];
+const scopes = prefixes.length ? prefixes.map((p) => (p.startsWith(`${storyPrefix}/`) ? p : `${storyPrefix}/${p}`)) : [`${storyPrefix}/Components/Workout/`];
 
 const slug = (text) => text.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
 

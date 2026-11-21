@@ -8,9 +8,8 @@ public partial class ScreenStoryTests
     public void ScreenStories_DeclareEveryScreenState()
     {
         var declared = RepoFiles.Find("*.stories.razor", "src", "WorkoutLog.UI.Stories", "Stories", "Screens")
-            .Select(File.ReadAllText)
-            .SelectMany(source => StoryName().Matches(source)
-                .Select(m => $"{StoryFiles.Title(source)}/{m.Groups[1].Value}"));
+            .SelectMany(file => StoryName().Matches(File.ReadAllText(file))
+                .Select(m => $"{StoryFiles.Title(file)}/{m.Groups[1].Value}"));
 
         Assert.That(declared, Is.EquivalentTo(ScreenStates.All.Select(s => s.ToString())));
     }

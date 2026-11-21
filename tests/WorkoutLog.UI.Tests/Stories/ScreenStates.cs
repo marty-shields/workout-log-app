@@ -19,7 +19,7 @@ using WorkoutLog.UI.Stories.Samples;
 namespace WorkoutLog.UI.Tests.Stories;
 
 /// <summary>A screen state: its stories section and story name, and how to render it.</summary>
-/// <param name="Section">Stories title, e.g. "Screens/New Workout".</param>
+/// <param name="Section">Stories title after <see cref="StoryTitles.Prefix"/>, e.g. "Screens/New Workout".</param>
 /// <param name="Name">Story name.</param>
 /// <param name="Render">Renders the state with every callback set and returns its elements.</param>
 public sealed record ScreenState(string Section, string Name, Func<BunitContext, IReadOnlyList<IElement>> Render)

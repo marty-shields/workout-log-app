@@ -73,11 +73,11 @@ public partial class StoryCoverageTests
     /// </summary>
     private static IEnumerable<(string Title, string Component, IReadOnlyList<string> Shown)> StoriesFiles(string folder) =>
         RepoFiles.Find("*.stories.razor", "src", "WorkoutLog.UI.Stories", "Stories", folder)
-            .Select(File.ReadAllText)
-            .Select(source => (
-                StoryFiles.Title(source),
-                TComponent().Match(source).Groups[1].Value,
-                (IReadOnlyList<string>)Shown().Matches(source).Concat(ShownOver().Matches(source)).Select(m => m.Groups[1].Value).ToList()));
+            .Select(file => (file, source: File.ReadAllText(file)))
+            .Select(f => (
+                StoryFiles.Title(f.file),
+                TComponent().Match(f.source).Groups[1].Value,
+                (IReadOnlyList<string>)Shown().Matches(f.source).Concat(ShownOver().Matches(f.source)).Select(m => m.Groups[1].Value).ToList()));
 
     [GeneratedRegex(@"<Stories TComponent=""([A-Za-z]+)(?:<[^""]*>)?""")]
     private static partial Regex TComponent();
