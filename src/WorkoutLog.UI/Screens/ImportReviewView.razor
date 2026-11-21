@@ -21,10 +21,10 @@
             else
             {
                 <div class="tiles">
-                    <StatTile Label="New" Value="@Review.New.ToString()" TestId="review-new" />
-                    <StatTile Label="Already on this phone" Value="@Review.Already.ToString()" TestId="review-already" />
-                    <StatTile Label="Different on this phone" Value="@Review.Different.ToString()" TestId="review-different" />
-                    <StatTile Label="Can't be imported" Value="@Review.Skipped.ToString()" TestId="review-skipped" />
+                    <StatTile Label="New" Value="@Count(Review.New)" TestId="review-new" />
+                    <StatTile Label="Already on this phone" Value="@Count(Review.Already)" TestId="review-already" />
+                    <StatTile Label="Different on this phone" Value="@Count(Review.Different)" TestId="review-different" />
+                    <StatTile Label="Can't be imported" Value="@Count(Review.Skipped)" TestId="review-skipped" />
                 </div>
                 <RadioGroup TValue="ImportMode" Label="How to import" Options="ModeOptions" Value="Mode" ValueChanged="ModeChanged"
                             Disabled="Importing" TestId="review-mode" />
@@ -178,6 +178,8 @@
             ImportError.TooLarge => "This file is too large to import",
             _ => "Couldn't import your workouts. Try again",
         };
+
+    private static string Count(int count) => count.ToString("N0", CultureInfo.InvariantCulture);
 
     private static string Workouts(int count) =>
         string.Create(CultureInfo.InvariantCulture, $"{count:N0} {(count == 1 ? "workout" : "workouts")}");

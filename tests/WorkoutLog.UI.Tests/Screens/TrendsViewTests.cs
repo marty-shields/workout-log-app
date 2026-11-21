@@ -301,6 +301,26 @@ public class TrendsViewTests : ComponentTestBase
         });
     }
 
+    [TestCase("Week", "week")]
+    [TestCase("Month", "month")]
+    [TestCase("Year", "year")]
+    public void Stepper_NamesItsArrowsAfterTheKind(string sample, string unit)
+    {
+        var state = sample switch
+        {
+            "Week" => SampleTrends.Week,
+            "Month" => SampleTrends.Month,
+            _ => SampleTrends.Year,
+        };
+        var cut = Render(state);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.Find("[data-testid=trends-stepper-previous]").GetAttribute("aria-label"), Is.EqualTo($"Previous {unit}"));
+            Assert.That(cut.Find("[data-testid=trends-stepper-next]").GetAttribute("aria-label"), Is.EqualTo($"Next {unit}"));
+        });
+    }
+
     [Test]
     public void Callbacks_AreRaised()
     {

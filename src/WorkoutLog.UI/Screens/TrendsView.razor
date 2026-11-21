@@ -92,7 +92,8 @@
     {
         PeriodKind.Week => Shields.UI.Components.Navigation.PeriodKind.Week,
         PeriodKind.Month => Shields.UI.Components.Navigation.PeriodKind.Month,
-        _ => Shields.UI.Components.Navigation.PeriodKind.Year,
+        PeriodKind.Year => Shields.UI.Components.Navigation.PeriodKind.Year,
+        _ => throw new ArgumentOutOfRangeException(nameof(Kind), Kind, null),
     };
 
     private IReadOnlyList<RadioOption<PeriodKind>> KindOptions => [.. AllKindOptions.Where(o => Kinds.Contains(o.Value))];

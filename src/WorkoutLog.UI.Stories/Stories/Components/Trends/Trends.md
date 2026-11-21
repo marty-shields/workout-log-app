@@ -12,7 +12,7 @@ A card with a bold title, an optional muted aside at the right (e.g. *1 this wee
 
 ## `TrendTiles`
 Workouts, Time, Sets and Volume in a two-by-two grid, kit `StatTile`s, each with its change on the period before, drawn as in `WeekTiles`: Up `Icon` and the difference in `--color-success`, Down `Icon` in `--color-error`, or a muted "—"; screen readers hear "up 35m", "down 1" or "no change". Time is compared in whole minutes. Volume is in kg for a week or month and in tonnes for a year (`DisplayFormat.Volume`), has the caption "strength", and its change is a percentage of the earlier volume (`DisplayFormat.PercentChange`); with nothing earlier, a percentage is undefined, so it shows the volume gained. Under the tiles: the `Against` line, e.g. *Against Monday to Wednesday last week*.
-- `data-testid`: `TestId`, and as a prefix: `{TestId}-workouts`, `{TestId}-time`, `{TestId}-sets`, `{TestId}-volume` (each with a `-change` part), `{TestId}-against`.
+- `data-testid`: `TestId`, and as a prefix: `{TestId}-workouts`, `{TestId}-time`, `{TestId}-sets`, `{TestId}-volume` (each tile with `-value`, `-label`, `-caption` and `-change` parts), `{TestId}-against`.
 
 ## `TrendBars`
 A hand-drawn SVG bar chart that fills its width, one column per `TrendBar`. Its `AriaLabel` says what it shows and a visually hidden list gives each column's name and value in words (e.g. *Monday: 1h 02m (last week 1h 05m)*), so no figure depends on colour or on seeing the bars.

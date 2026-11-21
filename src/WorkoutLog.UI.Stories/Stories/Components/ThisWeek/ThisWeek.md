@@ -21,7 +21,7 @@ Colour is never the only sign: the tick, the dashed or solid outline, the ring a
 
 ## `WeekTiles`
 Three kit `StatTile`s in a row: Workouts, Time (e.g. *2h 35m*) and Sets, each with its change on last week from Monday to the same weekday: an increase is the Up `Icon` and the difference in `--color-success`, a decrease the Down `Icon` and the difference in `--color-error`, no change a muted "—". Screen readers hear "up 35m", "down 1" or "no change". Time is compared in whole minutes. Under the tiles: "Against Monday to Wednesday last week" (on a Monday, "Against Monday last week").
-- `data-testid`: `TestId`, and as a prefix: `{TestId}-workouts`, `{TestId}-time`, `{TestId}-sets` (each with a `-change` part), `{TestId}-against`.
+- `data-testid`: `TestId`, and as a prefix: `{TestId}-workouts`, `{TestId}-time`, `{TestId}-sets` (each tile with `-value`, `-label`, `-caption` and `-change` parts), `{TestId}-against`.
 
 ## `WeekWorkoutsCard`
 A card titled "This week's workouts" with a `ListRow` per workout, newest first: day and time (e.g. *Wed 18 Nov · 07:10*), the first two exercises and `+n` for the rest (e.g. *Squat, Leg press +2*) under it, and the duration as h:mm (e.g. *0:58*) at the right. With `OnOpen` the rows are tappable and raise it with the workout id. None shows "Nothing yet this week. Tap + to start one."

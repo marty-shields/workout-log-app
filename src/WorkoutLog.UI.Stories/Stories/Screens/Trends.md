@@ -10,7 +10,7 @@ How a week, a month or a year went: what you did, how it compares with the perio
 |---|---|
 | Top bar | Title "Trends"; Settings gear (`IconButton`) on the right in every state. No back arrow. |
 | Kind | A Week / Month / Year `SegmentedControl`. The page offers all three (`TrendsView`'s `Kinds` lists what is offered; one kind hides the control). |
-| Stepper | A `PeriodStepper`: previous arrow, the period's label, next arrow. Previous is disabled at the period of the first workout, next at the period that holds today. |
+| Stepper | A kit `PeriodStepper`: previous arrow, the period's label, next arrow. Previous is disabled at the period of the first workout, next at the period that holds today. |
 | Tiles | `TrendTiles`: Workouts, Time, Sets and Volume (strength) against the period before, up to the same point in it while the period is still running. |
 | Tab bar | `MainTabBar` with Trends current, through `AppScreen`'s `Tab`: This week opens [This week](./?path=/custom/screens-this-week-overview), + opens [New Workout](./?path=/custom/screens-new-workout-overview) with `from` the period shown, so discarding returns to it. |
 
