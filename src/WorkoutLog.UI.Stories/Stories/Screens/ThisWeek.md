@@ -19,7 +19,7 @@ Home screen: how the week is going. Which days you trained, how it compares with
 | Records failed | The same week with its Records card left out, because the records could not be read. |
 | Loading | `Spinner` "Loading…" instead of the week. The top bar and tab bar work. |
 | Load failed | Error "Couldn't load This week" and the kit's `LoadFailed` **Try again** button instead of the week. Focus moves to Try again. The top bar and tab bar work. |
-| Tab bar | `MainTabBar` with This week current, through `AppScreen`'s `Tab`: Trends opens [Trends](./?path=/custom/screens-trends-overview), + opens [New Workout](./?path=/custom/screens-new-workout-overview) (`/workout/new?from=this-week`, so discarding it returns here). |
+| Bottom navigation | The kit's `BottomNav` with This week current, through `AppScreen`'s `NavItems` (from `MainTabs`): Trends opens [Trends](./?path=/custom/screens-trends-overview), + opens [New Workout](./?path=/custom/screens-new-workout-overview) (`/workout/new?from=this-week`, so discarding it returns here). |
 
 The parts run top to bottom in that order. With no workouts this week the Records and muscle group cards are left out: the workouts card says "Nothing yet this week. Tap + to start one.", the tiles show zeros against last week, and a Last week row shows last week's workouts, time and sets. The row shows only when last week had a workout, so before the first workout ever there is none. Tapping it opens last week in [Trends](./?path=/custom/screens-trends-overview) (`OnOpenLastWeek` raises that week).
 
@@ -29,10 +29,10 @@ A record is a session whose best beats the exercise's best in every earlier sess
 
 A workout opens [Edit Workout](./?path=/custom/screens-edit-workout-overview) (`/workout/{id}?from=this-week`) and a record its [Exercise](./?path=/custom/screens-exercise-overview) page (`/exercises/{id}?from=this-week`); back, or on a workout Save or Delete, returns to This week. Android back leaves the app.
 
-Loads each time it shows, and again when the app comes back on screen. [Pull down to refresh](./?path=/custom/components-layout-overview) loads it again the same way. Each load shows the spinner in place of the week, as on opening, then what was read, or the load error. After a pull the spinner stays up for at least half a second, so a fast reload doesn't blink. A failed load is logged without any workout contents.
+Loads each time it shows, and again when the app comes back on screen. [Pull down to refresh](./?path=/docs/components-layout-appscreen--docs) loads it again the same way. Each load shows the spinner in place of the week, as on opening, then what was read, or the load error. After a pull the spinner stays up for at least half a second, so a fast reload doesn't blink. A failed load is logged without any workout contents.
 
 States: [Mid-week](./?path=/story/screens-this-week--mid-week) · [New week](./?path=/story/screens-this-week--new-week) · [No workouts](./?path=/story/screens-this-week--no-workouts) · [Records failed](./?path=/story/screens-this-week--records-failed) · [Loading](./?path=/story/screens-this-week--loading) · [Load failed](./?path=/story/screens-this-week--load-failed)
 
 The parts are described on the [This week components](./?path=/custom/components-thisweek-overview) page.
 
-`data-testid`: `this-week-dates`, `this-week-streak`, `day-strip`, `week-tiles`, `week-workouts`, `week-records`, `week-muscles`, `last-week` (with the parts' own as prefixes), `tab-bar` with `this-week-link`, `new-link` and `trends-link`, `settings`, `this-week-loading`, `this-week-error`, `this-week-retry`.
+`data-testid`: `this-week-dates`, `this-week-streak`, `day-strip`, `week-tiles`, `week-workouts`, `week-records`, `week-muscles`, `last-week` (with the parts' own as prefixes), `bottom-nav` with `this-week-link`, `add-button` and `trends-link`, `settings`, `this-week-loading`, `this-week-error`, `this-week-retry`.

@@ -1,10 +1,10 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging.Testing;
 using Microsoft.Extensions.Time.Testing;
+using Shields.UI.Components.Layout;
 using Shields.UI.Lifecycle;
 using WorkoutLog.Core.Domain.Workouts;
 using WorkoutLog.Core.Services;
-using WorkoutLog.UI.Components.Layout;
 using WorkoutLog.UI.Models.Workouts;
 using WorkoutLog.UI.Screens;
 

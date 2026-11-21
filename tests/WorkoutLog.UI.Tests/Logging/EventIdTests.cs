@@ -47,14 +47,13 @@ public partial class EventIdTests
             [UiEvent.ReviewImportFocusFailed] = 3601,
             [UiEvent.ReviewPickFailed] = 3701,
             [UiEvent.ImportFileTooLarge] = 3801,
-            [UiEvent.PullRefreshFailed] = 4001,
             [UiEvent.TrendsLoadFailed] = 4101,
             [UiEvent.TrendsRecordsFailed] = 4102,
         }));
 
     [Test]
     public void UiEvent_RetiredValuesAreNotReused() =>
-        Assert.That(Enum.GetValues<UiEvent>().Select(e => (int)e), Has.None.AnyOf(2001, 2002, 2101, 2201, 2202, 2203, 2801, 3001, 3201, 3301, 3901, 3902));
+        Assert.That(Enum.GetValues<UiEvent>().Select(e => (int)e), Has.None.AnyOf(2001, 2002, 2101, 2201, 2202, 2203, 2801, 3001, 3201, 3301, 3901, 3902, 4001));
 
     [Test]
     public void AppEvent_ValuesAreUniqueAndInTheAppsRange()

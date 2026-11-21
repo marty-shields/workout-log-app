@@ -2,13 +2,13 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Testing;
 using Microsoft.Extensions.Time.Testing;
+using Shields.UI.Components.Layout;
 using Shields.UI.Lifecycle;
 using WorkoutLog.Core.Domain.Exercises;
 using WorkoutLog.Core.Domain.Exercises.Bests;
 using WorkoutLog.Core.Domain.Workouts.Consistency;
 using WorkoutLog.Core.Domain.Workouts.Periods;
 using WorkoutLog.Core.Services;
-using WorkoutLog.UI.Components.Layout;
 using WorkoutLog.UI.Logging;
 using WorkoutLog.UI.Models.Workouts;
 using WorkoutLog.UI.Navigation;
@@ -240,7 +240,7 @@ public class TrendsPageTests : ComponentTestBase
         {
             Assert.That(cut.FindAll("[data-testid=trends-tiles]"), Is.Empty);
             Assert.That(cut.FindAll("[data-testid=trends-stepper]"), Has.Count.EqualTo(1));
-            Assert.That(cut.FindAll("[data-testid=tab-bar]"), Has.Count.EqualTo(1));
+            Assert.That(cut.FindAll("[data-testid=bottom-nav]"), Has.Count.EqualTo(1));
             Assert.That(LoggedEvents.Of(logger), Is.EqualTo(new[] { (UiEvent.TrendsLoadFailed, LogLevel.Warning, "Loading Trends failed") }));
         });
     }
@@ -613,7 +613,7 @@ public class TrendsPageTests : ComponentTestBase
             .Add(x => x.OnNavigate, navigated.Add)
             .Add(x => x.OnSettings, settings.Add));
 
-        cut.Find("[data-testid=new-link]").Click();
+        cut.Find("[data-testid=add-button]").Click();
         cut.Find("[data-testid=this-week-link]").Click();
         cut.Find("[data-testid=trends-link]").Click();
         cut.Find("[data-testid=settings]").Click();
