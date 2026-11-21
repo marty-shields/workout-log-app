@@ -24,7 +24,7 @@ public partial class TouchTargetTests
     [Test]
     public void KitCompactIconButton_IsTheCompactTouchTarget()
     {
-        var css = KitAssets.ReadScopedBundle();
+        var css = KitCss.Bundle;
         var rule = CompactRule().Match(css);
 
         Assert.That(rule.Success, Is.True, "Kit IconButton has no .compact rule");

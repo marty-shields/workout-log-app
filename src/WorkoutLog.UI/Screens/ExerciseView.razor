@@ -29,12 +29,14 @@
                     }
                     else
                     {
-                        <p class="no-data" data-testid="exercise-chart-empty">@(Sessions.Count > 0 && NoDataMessage is not null ? NoDataMessage : NoSessionsMessage)</p>
+                        <div class="no-data">
+                            <Typography Variant="TextVariant.Muted" As="TextElement.P" TestId="exercise-chart-empty">@(Sessions.Count > 0 && NoDataMessage is not null ? NoDataMessage : NoSessionsMessage)</Typography>
+                        </div>
                     }
                     <SegmentedControl TValue="HistoryRange" Label="Range" Options="Ranges" Value="Range" ValueChanged="RangeChanged" TestId="exercise-range" />
                     @if (Caption is not null)
                     {
-                        <p class="caption" data-testid="exercise-chart-caption">@Caption</p>
+                        <Typography Variant="TextVariant.MutedSmall" As="TextElement.P" TestId="exercise-chart-caption">@Caption</Typography>
                     }
                 </div>
             </Card>
@@ -42,7 +44,7 @@
             @if (Sessions.Count > 0)
             {
                 <section>
-                    <h2 class="heading">Sessions</h2>
+                    <Typography Variant="TextVariant.Label" As="TextElement.H2" class="heading">Sessions</Typography>
                     <ul class="sessions">
                         @foreach (var session in Sessions)
                         {

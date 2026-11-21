@@ -18,12 +18,12 @@ Personal Android app (.NET 11 MAUI Blazor Hybrid). Setup: [docs/dev-setup-build.
 
 ## How the code fits
 - Projects: App → UI → Core; Stories.Host → Stories → UI. `WorkoutLog.UI.Tests` reads the App's files because it can't reference it.
-- The shared kit (app-ui-kit: `Shields.UI`, `Shields.UI.Stories`, `Shields.UI.Testing`, one pinned version in `Directory.Packages.props`) holds general components, tokens, base styles, the stories shell and the design checks. This repo holds screens and app-only components. A general component or token is added to app-ui-kit, not here; `KitDuplicateTests` fails on a `*.razor` file or `ComponentBase` class in `WorkoutLog.UI` or `WorkoutLog.App`, or a token here, with the name of a kit one. Try a kit change before it is released with `UseKitSource` (see Commands).
+- **This repo holds no custom UI elements.** Every general component, style and token comes from the shared kit ([app-ui-kit](https://github.com/marty-shields/app-ui-kit): `Shields.UI`, `Shields.UI.Stories`, `Shields.UI.Testing`, one pinned version in `Directory.Packages.props`); the app holds screens and the few app-only components on the allow-list. A missing component, style or token is requested in the kit (open an issue there), not built here. Guards: `AppComponentAllowListTests` fails on a `*.razor` file or `ComponentBase` class not on its list (each with a one-line reason); `LayoutOnlyCssTests` allows app CSS to lay out only (no colour, background, border, shadow, outline, font); `NoAppTokensTests` fails on an app `tokens.css` or any `--x:` declaration; `KitDuplicateTests` fails on a component sharing a name with a kit one. Try a kit change before it is released with `UseKitSource` (see Commands).
 - Screens: a `*Page` calls services, a `*View` takes parameters. `StoryCoverageTests` requires a screen story for every `*View`.
 - Services return a status (`ExportResult`), not exceptions.
 - Every database call goes through `DatabaseGate` (`DatabaseGateTests`).
 - Event ids: `CoreEvent` 1000s, `UiEvent` 2000s, `AppEvent` 5000s. `CoreEventTests` and `EventIdTests` fix the values and ranges.
-- Styling: tokens only, no literal colours or sizes (`TokensOnlyCssTests`, `ContrastTests` and `TouchTargetTests` run the kit's `Shields.UI.Testing` checks over this app's CSS and markup).
+- Styling: kit tokens only, no literal colours or sizes, no custom properties of our own (`TokensOnlyCssTests`, `ContrastTests` and `TouchTargetTests` run the kit's `Shields.UI.Testing` checks over this app's CSS and markup).
 - Logs never hold workout contents (`NotesNotLoggedTests`, `Logging.feature`).
 - Docs: `ReadmeDocsTests` checks the README's screenshot table and Project layout.
 

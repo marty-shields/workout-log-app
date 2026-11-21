@@ -219,7 +219,7 @@ Workout Log is sideloaded: it isn't on Google Play.
 ```
 src/
   WorkoutLog.App/              MAUI Blazor Hybrid host (Android): startup, DI, routing
-  WorkoutLog.UI/               Razor class library: screens and app-only components, tokens the kit lacks (the shared kit is the Shields.UI package)
+  WorkoutLog.UI/               Razor class library: screens and the few app-only components; no custom UI elements, the shared kit is the Shields.UI package
   WorkoutLog.UI.Stories/       Razor class library: the BlazingStory stories, story pages and sample data (the shell is the Shields.UI.Stories package)
   WorkoutLog.UI.Stories.Host/  BlazingStory site that serves the stories
   WorkoutLog.Core/             Domain rules, SQLite data, services, import and export

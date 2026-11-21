@@ -1,15 +1,7 @@
-.panel {
-    --color-text-muted: var(--color-text);
-    --color-border-strong: var(--color-text);
-    --color-focus: var(--color-text);
-    /* The success green is under 4.5:1 on the light open-set background. */
-    --color-success: var(--color-text);
+.body {
     display: flex;
     flex-direction: column;
     gap: var(--space-3);
-    padding: var(--space-3);
-    border-radius: var(--radius-md);
-    background-color: var(--color-selected);
 }
 
 .panel-header {
@@ -29,12 +21,6 @@
     margin: 0;
     font-size: var(--font-size-md);
     font-weight: var(--font-weight-bold);
-}
-
-.last {
-    margin: calc(-1 * var(--space-2)) 0 0;
-    font-size: var(--font-size-sm);
-    font-variant-numeric: tabular-nums;
 }
 
 .fields {

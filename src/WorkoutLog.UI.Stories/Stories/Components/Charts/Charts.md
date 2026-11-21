@@ -14,7 +14,7 @@ An SVG line chart that fills its width. Each `ChartPoint` has a date, a value an
 - A point with no value is skipped; the line joins across. One point draws a single dot.
 - The x-axis shows the first and last dates.
 - `Name` is the accessible name; a visually hidden list gives each date and value.
-- Line and points `--color-accent` at `--chart-stroke-width`, the best ring at `--border-width`; grid `--color-border`; text `--color-text-muted`.
+- Line and points `--color-accent` at `--focus-width`, the best ring at `--border-width`; grid `--color-border`; text `--color-text-muted`.
 - `data-testid`: `TestId`; `{TestId}-values` on the list.
 
 Stories: [Chart](./?path=/docs/workout-log-components-charts-chart--docs) · [Best beside latest](./?path=/story/workout-log-components-charts-chart--best-beside-latest) · [Best beside latest at the bottom](./?path=/story/workout-log-components-charts-chart--best-beside-latest-at-the-bottom)

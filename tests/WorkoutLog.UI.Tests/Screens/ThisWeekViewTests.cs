@@ -112,7 +112,7 @@ public class ThisWeekViewTests : ComponentTestBase
 
         Assert.Multiple(() =>
         {
-            Assert.That(cut.Find("[data-testid=this-week-error]").TextContent, Is.EqualTo("Couldn't load This week"));
+            Assert.That(cut.Find("[data-testid=this-week-error]").TextContent.Trim(), Is.EqualTo("Couldn't load This week"));
             Assert.That(cut.FindAll(Parts), Is.Empty);
             Assert.That(cut.FindAll("[data-testid=settings], [data-testid=bottom-nav]"), Has.Count.EqualTo(2));
             Assert.That(retried, Is.EqualTo(1));

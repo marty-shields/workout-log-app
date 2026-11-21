@@ -193,7 +193,7 @@ public class ExercisePageCardioTests : ComponentTestBase
     {
         progress.Result = new ReadFailed();
         var cut = Render(Run);
-        Assume.That(cut.Find("[data-testid=exercise-error]").TextContent, Is.EqualTo("Couldn't load this exercise"));
+        Assume.That(cut.Find("[data-testid=exercise-error]").TextContent.Trim(), Is.EqualTo("Couldn't load this exercise"));
         progress.Result = new ReadResult<IReadOnlyList<CardioSession>>([Short, Long]);
 
         cut.Find("[data-testid=exercise-retry]").Click();

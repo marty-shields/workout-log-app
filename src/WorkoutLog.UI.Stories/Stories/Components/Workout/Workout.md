@@ -38,8 +38,8 @@ One set on one row: number, a box per field, remove (`IconButton` Close, muted, 
 - `data-testid`: `TestId`, `{TestId}-last`, `{TestId}-{field}`, `{TestId}-remove`, `{TestId}-record`, `{TestId}-error`.
 
 ## `SetPanel`
-The open set of a carry: number, remove (`IconButton` Close, muted, small), every field labelled, duration full width. Aqua background; sets muted text, input border and focus to the text colour. With `IsRecord`, a `RecordBadge` shows next to the title, in the text colour.
-- With `Last`, a line under the title: *Last time 32kg · 40m · 0:45*. Small, in the panel's text colour. Null (last time had no set with that number) leaves it out.
+The open set of a carry: number as an h3, remove (`IconButton` Close, muted, small), every field labelled, duration full width, in a kit `Card` (surface and border). With `IsRecord`, a `RecordBadge` shows next to the title. The old aqua "open set" tint is gone: the kit fields take their muted text, input border and focus colours from tokens that only a custom property could override on that tint, and the app declares none. A muted *Last time* line shows under the title.
+- With `Last`, a line under the title: *Last time 32kg · 40m · 0:45*. Small and muted. Null (last time had no set with that number) leaves it out.
 - `data-testid`: `TestId`, `{TestId}-last`, `{TestId}-{field}`, `{TestId}-remove`, `{TestId}-record`, `{TestId}-error`.
 
 ## `SetSummary`

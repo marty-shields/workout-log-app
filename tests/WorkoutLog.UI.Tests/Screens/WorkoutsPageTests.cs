@@ -221,7 +221,7 @@ public class WorkoutsPageTests : ComponentTestBase
         workouts.CompleteDays(new ReadFailed());
         await WaitForRendererAsync();
         cut.WaitForAssertion(() => Focuses().Single().Arguments[0].ShouldBeElementReferenceTo(cut.Find("[data-testid=workouts-retry]")));
-        Assert.That(cut.Find("[data-testid=workouts-error]").TextContent, Is.EqualTo("Couldn't load your workouts"));
+        Assert.That(cut.Find("[data-testid=workouts-error]").TextContent.Trim(), Is.EqualTo("Couldn't load your workouts"));
 
         cut.Find("[data-testid=workouts-retry]").Click();
 

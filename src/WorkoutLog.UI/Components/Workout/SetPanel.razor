@@ -1,36 +1,42 @@
 @using WorkoutLog.UI.Models.Fields
 <section class="panel" data-testid="@TestId">
-    <header class="panel-header">
-        <div class="heading">
-            <h3 class="title">Set @Number</h3>
-            @if (IsRecord)
-            {
-                <RecordBadge TestId="@($"{TestId}-record")" />
-            }
-        </div>
-        <IconButton Icon="IconName.Close" AriaLabel="@RemoveLabel" TestId="@($"{TestId}-remove")" Muted Size="IconSize.Small" OnClick="OnRemove" />
-    </header>
-    @if (Last is not null)
-    {
-        <p class="last" data-testid="@($"{TestId}-last")">Last time @Last</p>
-    }
-    <div class="fields">
-        @foreach (var field in Fields)
-        {
-            <div class="@(field.Kind == FieldKind.Duration ? "wide" : null)">
-                <ValueField @ref="fields[field.Key]"
-                            Kind="field.ValueKind"
-                            Label="@field.DisplayLabel"
-                            Required="field.Required"
-                            Invalid="Entry.Errors.ContainsKey(field.Key)"
-                            Value="@Entry.Values.GetValueOrDefault(field.Key)"
-                            ValueChanged="value => Change(field, value)"
-                            OnEnter="@(field == Fields[^1] ? OnEnterLast : default)"
-                            TestId="@($"{TestId}-{field.Key}")" />
+    <Card>
+        <ChildContent>
+            <div class="body">
+                <header class="panel-header">
+                    <div class="heading">
+                        <h3 class="title">Set @Number</h3>
+                        @if (IsRecord)
+                        {
+                            <RecordBadge TestId="@($"{TestId}-record")" />
+                        }
+                    </div>
+                    <IconButton Icon="IconName.Close" AriaLabel="@RemoveLabel" TestId="@($"{TestId}-remove")" Muted Size="IconSize.Small" OnClick="OnRemove" />
+                </header>
+                @if (Last is not null)
+                {
+                    <Typography Variant="TextVariant.MutedSmall" As="TextElement.P" class="last" TestId="@($"{TestId}-last")">Last time @Last</Typography>
+                }
+                <div class="fields">
+                    @foreach (var field in Fields)
+                    {
+                        <div class="@(field.Kind == FieldKind.Duration ? "wide" : null)">
+                            <ValueField @ref="fields[field.Key]"
+                                        Kind="field.ValueKind"
+                                        Label="@field.DisplayLabel"
+                                        Required="field.Required"
+                                        Invalid="Entry.Errors.ContainsKey(field.Key)"
+                                        Value="@Entry.Values.GetValueOrDefault(field.Key)"
+                                        ValueChanged="value => Change(field, value)"
+                                        OnEnter="@(field == Fields[^1] ? OnEnterLast : default)"
+                                        TestId="@($"{TestId}-{field.Key}")" />
+                        </div>
+                    }
+                </div>
+                <EntryErrors Fields="Fields" Entry="Entry" TestId="@($"{TestId}-error")" />
             </div>
-        }
-    </div>
-    <EntryErrors Fields="Fields" Entry="Entry" TestId="@($"{TestId}-error")" />
+        </ChildContent>
+    </Card>
 </section>
 
 @code {

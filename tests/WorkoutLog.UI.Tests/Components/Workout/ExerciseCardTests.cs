@@ -387,7 +387,7 @@ public class ExerciseCardTests : ComponentTestBase
         var cut = Context.Render<ExerciseCard>(p => p.Add(x => x.Exercise, exercise));
 
         Assert.That(cut.Find(".set-header").GetAttribute("style"),
-            Is.EqualTo("grid-template-columns: var(--set-number-width) minmax(0, 1fr) minmax(0, 3fr) var(--touch-target)"));
+            Is.EqualTo("grid-template-columns: var(--entry-grid-index-width) minmax(0, 1fr) minmax(0, 1fr) var(--touch-target)"));
     }
 
     [Test]
@@ -815,7 +815,7 @@ public class ExerciseCardTests : ComponentTestBase
         Assert.Multiple(() =>
         {
             Assert.That(cut.FindAll(".set-row").Select(r => r.GetAttribute("data-testid")), Is.EqualTo(new[] { "exercise-1-set-2" }));
-            Assert.That(cut.Find("[data-testid=exercise-1-set-2-error]").TextContent, Does.Contain("Enter reps"));
+            Assert.That(cut.Find("[data-testid=exercise-1-set-2-error]").TextContent.Trim(), Does.Contain("Enter reps"));
             Assert.That(cut.FindAll(".summary [data-testid$=-error]"), Is.Empty);
         });
     }
@@ -893,6 +893,37 @@ public class ExerciseCardTests : ComponentTestBase
     }
 
     [Test]
+    public void DoneCard_HasNoBodyAtAll_SoTheKitDropsTheHeadersBottomSpace()
+    {
+        var exercise = Strength(1);
+        exercise.IsDone = true;
+
+        var cut = Context.Render<ExerciseCard>(p => p
+            .Add(x => x.Exercise, exercise)
+            .Add(x => x.TestId, "exercise-1"));
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.Find("[data-testid=exercise-1]").ClassList, Does.Contain("no-body"));
+            Assert.That(cut.FindAll(".body"), Is.Empty);
+        });
+    }
+
+    [Test]
+    public void OpenCard_HasABody()
+    {
+        var cut = Context.Render<ExerciseCard>(p => p
+            .Add(x => x.Exercise, Strength(1))
+            .Add(x => x.TestId, "exercise-1"));
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.Find("[data-testid=exercise-1]").ClassList, Does.Not.Contain("no-body"));
+            Assert.That(cut.FindAll(".body"), Has.Count.EqualTo(1));
+        });
+    }
+
+    [Test]
     public void Exercise_AlreadyDone_StartsCollapsed()
     {
         var exercise = Strength(1);
@@ -921,7 +952,7 @@ public class ExerciseCardTests : ComponentTestBase
         exercise.Error = "Add at least one set";
         cut.Render();
 
-        Assert.That(cut.Find("[data-testid=exercise-1-error]").TextContent, Does.Contain("Add at least one set"));
+        Assert.That(cut.Find("[data-testid=exercise-1-error]").TextContent.Trim(), Does.Contain("Add at least one set"));
     }
 
     [Test]
@@ -959,7 +990,7 @@ public class ExerciseCardTests : ComponentTestBase
         {
             Assert.That(exercise.IsDone, Is.False);
             Assert.That(cut.FindAll("[data-testid=exercise-1-add-set]"), Has.Count.EqualTo(1));
-            Assert.That(cut.Find("[data-testid=exercise-1-set-1-error]").TextContent, Does.Contain("Enter reps"));
+            Assert.That(cut.Find("[data-testid=exercise-1-set-1-error]").TextContent.Trim(), Does.Contain("Enter reps"));
         });
         cut.WaitForAssertion(() => Assert.That(FocusedId(), Is.EqualTo(reps)));
     }
@@ -986,7 +1017,7 @@ public class ExerciseCardTests : ComponentTestBase
         {
             Assert.That(exercise.IsDone, Is.False);
             Assert.That(cut.FindAll("[data-testid=exercise-1-set-1-reps]"), Has.Count.EqualTo(1));
-            Assert.That(cut.Find("[data-testid=exercise-1-set-1-error]").TextContent, Does.Contain("Reps must be a number"));
+            Assert.That(cut.Find("[data-testid=exercise-1-set-1-error]").TextContent.Trim(), Does.Contain("Reps must be a number"));
         });
     }
 
@@ -1007,7 +1038,7 @@ public class ExerciseCardTests : ComponentTestBase
         Assert.Multiple(() =>
         {
             Assert.That(cut.FindAll("[data-testid=exercise-1-set-1-reps]"), Has.Count.EqualTo(1));
-            Assert.That(cut.Find("[data-testid=exercise-1-set-1-error]").TextContent, Does.Contain("Reps must be a number"));
+            Assert.That(cut.Find("[data-testid=exercise-1-set-1-error]").TextContent.Trim(), Does.Contain("Reps must be a number"));
         });
     }
 
@@ -1414,7 +1445,7 @@ public class ExerciseCardTests : ComponentTestBase
             Assert.That(LastColumn(cut), Is.EqualTo(new[] { "Last time 62.5×6" }));
             Assert.That(cut.Find("[data-testid=exercise-1-set-3-last]").TextContent, Is.EqualTo("Last time 62.5×6"));
             Assert.That(cut.Find(".set-header").GetAttribute("style"),
-                Is.EqualTo("grid-template-columns: var(--set-number-width) var(--set-last-width) minmax(0, 1fr) minmax(0, 1fr) var(--touch-target)"));
+                Is.EqualTo("grid-template-columns: var(--entry-grid-index-width) var(--entry-grid-aside-width) minmax(0, 1fr) minmax(0, 1fr) var(--touch-target)"));
         });
     }
 
@@ -1560,7 +1591,7 @@ public class ExerciseCardTests : ComponentTestBase
         {
             Assert.That(cut.FindAll(".set-header span").Select(s => s.TextContent), Is.EqualTo(new[] { "Set", "Duration\u00a0*", "Weight", "" }));
             Assert.That(cut.Find(".set-header").GetAttribute("style"),
-                Is.EqualTo("grid-template-columns: var(--set-number-width) minmax(0, 3fr) minmax(0, 1fr) var(--touch-target)"));
+                Is.EqualTo("grid-template-columns: var(--entry-grid-index-width) minmax(0, 1fr) minmax(0, 1fr) var(--touch-target)"));
             Assert.That(cut.FindAll(".set-row .last"), Is.Empty);
             Assert.That(cut.FindAll(".set-row + .last-line"), Has.Count.EqualTo(1));
             Assert.That(cut.FindAll("[data-testid=exercise-1-set-1-last]"), Is.Empty);
@@ -2047,7 +2078,7 @@ public class ExerciseCardTests : ComponentTestBase
 
         Assert.Multiple(() =>
         {
-            Assert.That(cut.Find("[data-testid=exercise-1-note-error]").TextContent, Is.EqualTo("Note must be 500 characters or less"));
+            Assert.That(cut.Find("[data-testid=exercise-1-note-error]").TextContent.Trim(), Is.EqualTo("Note must be 500 characters or less"));
             Assert.That(cut.Find("[data-testid=exercise-1-note-open]").ClassList, Does.Contain("invalid"));
             Assert.That(cut.FindAll("[data-testid=exercise-1-error]"), Is.Empty);
         });

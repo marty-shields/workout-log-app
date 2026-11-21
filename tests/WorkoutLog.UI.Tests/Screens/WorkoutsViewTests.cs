@@ -228,7 +228,7 @@ public class WorkoutsViewTests : ComponentTestBase
 
         Assert.Multiple(() =>
         {
-            Assert.That(cut.Find("[data-testid=workouts-error]").TextContent, Is.EqualTo("Couldn't load your workouts"));
+            Assert.That(cut.Find("[data-testid=workouts-error]").TextContent.Trim(), Is.EqualTo("Couldn't load your workouts"));
             Assert.That(cut.Find("[data-testid=workouts-error]").GetAttribute("role"), Is.EqualTo("alert"));
             Assert.That(cut.Find("[data-testid=workouts-retry]").TextContent.Trim(), Is.EqualTo("Try again"));
             Assert.That(cut.FindAll("[data-testid=workouts-empty]"), Is.Empty);

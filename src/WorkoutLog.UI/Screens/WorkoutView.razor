@@ -15,7 +15,7 @@
         <div class="exercises">
             @if (Error is not null)
             {
-                <p class="error" role="alert" data-testid="workout-error">@Error</p>
+                <InlineAlert Message="@Error" TestId="workout-error" />
             }
             <NoteField @ref="noteField" Label="Workout note" Value="@Note" ValueChanged="NoteChanged" @bind-Editing="editingNote" Error="@NoteError" TestId="workout-note" />
             @if (Exercises.Count == 0)
@@ -39,7 +39,9 @@
             }
             @if (ExercisesFull)
             {
-                <p class="note" data-testid="exercises-full">At most @WorkoutLimits.MaxExercises exercises</p>
+                <div class="note">
+                    <Typography Variant="TextVariant.MutedSmall" As="TextElement.P" TestId="exercises-full">At most @WorkoutLimits.MaxExercises exercises</Typography>
+                </div>
             }
         </div>
     </ChildContent>

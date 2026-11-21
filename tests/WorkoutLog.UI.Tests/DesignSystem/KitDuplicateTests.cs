@@ -1,33 +1,18 @@
-using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.Components;
 using Shields.UI.Testing;
 
 namespace WorkoutLog.UI.Tests.DesignSystem;
 
 /// <summary>
-/// A general component or token belongs in the Shields.UI kit (app-ui-kit), not in this app. These tests fail when the app declares
-/// a component or a custom property under the same name as one the kit has, so a local copy cannot creep back in.
+/// A general component belongs in the Shields.UI kit (app-ui-kit), not in this app. These tests fail when the app declares
+/// a component under the same name as one the kit has, so a local copy cannot creep back in. <see cref="NoAppTokensTests"/> covers tokens.
 /// </summary>
-public partial class KitDuplicateTests
+public class KitDuplicateTests
 {
-    private static readonly string[] AppProjects = ["WorkoutLog.UI", "WorkoutLog.App"];
-
     [Test]
     public void AppComponents_DoNotShareANameWithAKitComponent()
     {
-        Assert.That(Shared(AppComponentNames(), KitComponents()), Is.Empty, "move the component to app-ui-kit or rename it");
-    }
-
-    [Test]
-    public void AppComponentNames_CoverBothProjectsAndBothKindsOfComponent()
-    {
-        Assert.That(AppComponentNames(), Is.SupersetOf(new[] { "Chart", "Routes", "SystemBarInsets" }));
-    }
-
-    [Test]
-    public void AppTokens_DoNotShareANameWithAKitToken()
-    {
-        Assert.That(Shared(AppTokens.Names, DesignTokens.Names), Is.Empty, "use the kit's token or give this one an app-specific name");
+        Assert.That(Shared(AppComponents.Names(), KitComponents()), Is.Empty, "move the component to app-ui-kit or rename it");
     }
 
     [Test]
@@ -49,14 +34,6 @@ public partial class KitDuplicateTests
     }
 
     [Test]
-    public void ComponentNames_AreTheFileNamesWithoutTheExtensionAndFolder()
-    {
-        Assert.That(
-            ComponentNames(["/src/WorkoutLog.UI/Components/Spinner.razor", "/src/WorkoutLog.UI/Components/Lists/Row.razor"]),
-            Is.EqualTo(new[] { "Spinner", "Row" }));
-    }
-
-    [Test]
     public void TypeName_DropsTheGenericArity()
     {
         Assert.That(TypeName(typeof(Shields.UI.Components.Inputs.SegmentedControl<>)), Is.EqualTo("SegmentedControl"));
@@ -65,16 +42,6 @@ public partial class KitDuplicateTests
     private static string[] Shared(IEnumerable<string> app, IEnumerable<string> kit) =>
         app.Intersect(kit).Order().ToArray();
 
-    // A *.razor file, or a C# class deriving ComponentBase, in either project.
-    private static IReadOnlySet<string> AppComponentNames() =>
-        ComponentNames(AppProjects.SelectMany(project => RepoFiles.Find("*.razor", "src", project)))
-            .Concat(AppProjects.SelectMany(project => RepoFiles.Find("*.cs", "src", project))
-                .SelectMany(file => ComponentClass().Matches(File.ReadAllText(file)).Select(m => m.Groups[1].Value)))
-            .ToHashSet();
-
-    private static IEnumerable<string> ComponentNames(IEnumerable<string> razorFiles) =>
-        razorFiles.Select(Path.GetFileNameWithoutExtension)!;
-
     private static IReadOnlySet<string> KitComponents() =>
         typeof(Shields.UI.Components.Inputs.SegmentedControl<>).Assembly.GetTypes()
             .Where(type => type is { IsAbstract: false, IsPublic: true } && type.IsAssignableTo(typeof(ComponentBase)))
@@ -82,7 +49,4 @@ public partial class KitDuplicateTests
             .ToHashSet();
 
     private static string TypeName(Type type) => type.Name.Split('`')[0];
-
-    [GeneratedRegex(@"\bclass\s+(\w+)\s*:\s*ComponentBase\b")]
-    private static partial Regex ComponentClass();
 }

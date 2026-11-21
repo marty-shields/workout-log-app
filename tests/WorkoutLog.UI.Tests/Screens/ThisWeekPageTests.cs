@@ -234,7 +234,7 @@ public class ThisWeekPageTests : ComponentTestBase
 
         var cut = Context.Render<ThisWeekPage>();
 
-        cut.WaitForAssertion(() => Assert.That(cut.Find("[data-testid=this-week-error]").TextContent, Is.EqualTo("Couldn't load This week")));
+        cut.WaitForAssertion(() => Assert.That(cut.Find("[data-testid=this-week-error]").TextContent.Trim(), Is.EqualTo("Couldn't load This week")));
         Assert.Multiple(() =>
         {
             Assert.That(cut.FindAll("[data-testid=week-tiles]"), Is.Empty);

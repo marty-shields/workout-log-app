@@ -208,7 +208,7 @@ public class WorkoutSummaryViewTests : ComponentTestBase
 
         Assert.Multiple(() =>
         {
-            Assert.That(cut.Find("[data-testid=summary-error]").TextContent, Is.EqualTo("Couldn't load the summary"));
+            Assert.That(cut.Find("[data-testid=summary-error]").TextContent.Trim(), Is.EqualTo("Couldn't load the summary"));
             Assert.That(cut.Find("[data-testid=summary-error]").GetAttribute("role"), Is.EqualTo("alert"));
             Assert.That(cut.Find("[data-testid=summary-retry]").TextContent.Trim(), Is.EqualTo("Try again"));
             Assert.That(cut.FindAll("[data-testid=summary-stats]"), Is.Empty);

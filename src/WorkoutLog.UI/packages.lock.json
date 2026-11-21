@@ -16,9 +16,9 @@
       },
       "Shields.UI": {
         "type": "Direct",
-        "requested": "[1.0.0-pr.19.32, )",
-        "resolved": "1.0.0-pr.19.32",
-        "contentHash": "My7PvqE6X9O+0LoB/2Kt3OYw4dzVgMOLMAOsZun23f6AEZc776ogrzODJO7KoNpDHxUbXCl9TeglD3WGFFN9OA==",
+        "requested": "[1.0.0-pr.19.36, )",
+        "resolved": "1.0.0-pr.19.36",
+        "contentHash": "APYUnCIuRQSEyGqts1O/iTwNmbKixD69proOBL1sPAvY6mIe+on5//MVnUR7rtEVD8mp7CufnAVHdj+qBhG+EA==",
         "dependencies": {
           "Microsoft.AspNetCore.Components.Web": "11.0.0"
         }

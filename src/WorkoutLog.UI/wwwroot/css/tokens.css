@@ -1,8 +1,0 @@
-/* This app's own tokens. The shared ones come from the Shields.UI kit (_content/Shields.UI/css/tokens.css), loaded before this file. */
-:root {
-    --color-bar-past: light-dark(#77878b, #7d8a8c);
-
-    --chart-stroke-width: 2px;
-    --set-number-width: 2rem;
-    --set-last-width: 3.5rem;
-}

@@ -1,7 +1,9 @@
 @using WorkoutLog.UI.Models.Exercises
 @if (Items.Count == 0)
 {
-    <p class="none" data-testid="@($"{TestId}-none")">No exercises match</p>
+    <div class="none">
+        <Typography Variant="TextVariant.Muted" As="TextElement.P" TestId="@($"{TestId}-none")">No exercises match</Typography>
+    </div>
 }
 else
 {

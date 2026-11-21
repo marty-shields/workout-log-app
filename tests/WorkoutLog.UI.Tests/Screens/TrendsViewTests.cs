@@ -355,7 +355,7 @@ public class TrendsViewTests : ComponentTestBase
 
         Assert.Multiple(() =>
         {
-            Assert.That(cut.Find("[data-testid=trends-error]").TextContent, Is.EqualTo("Couldn't load Trends"));
+            Assert.That(cut.Find("[data-testid=trends-error]").TextContent.Trim(), Is.EqualTo("Couldn't load Trends"));
             Assert.That(cut.FindAll(Cards), Is.Empty);
             Assert.That(cut.FindAll("[data-testid=trends-loading]"), Is.Empty);
             Assert.That(cut.FindAll("[data-testid=trends-kind]"), Has.Count.EqualTo(1));

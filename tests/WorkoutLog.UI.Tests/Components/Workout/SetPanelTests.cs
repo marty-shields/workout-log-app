@@ -170,7 +170,7 @@ public class SetPanelTests : ComponentTestBase
         Assert.Multiple(() =>
         {
             Assert.That(cut.Find("[data-testid=set-2-record]").TextContent.Trim(), Is.EqualTo("Record"));
-            Assert.That(cut.Find("[data-testid=set-2-record]").ParentElement!, Is.SameAs(cut.Find(".title").ParentElement));
+            Assert.That(cut.Find("[data-testid=set-2-record]").ParentElement, Is.SameAs(cut.Find(".title").ParentElement));
         });
     }
 

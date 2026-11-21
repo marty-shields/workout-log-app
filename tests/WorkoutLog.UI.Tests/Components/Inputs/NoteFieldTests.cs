@@ -231,7 +231,7 @@ public class NoteFieldTests : ComponentTestBase
         Assert.Multiple(() =>
         {
             Assert.That(cut.Find("[data-testid=note-open]").ClassList, Does.Contain("invalid"));
-            Assert.That(cut.Find("[data-testid=note-error]").TextContent, Is.EqualTo("Note must be 500 characters or less"));
+            Assert.That(cut.Find("[data-testid=note-error]").TextContent.Trim(), Is.EqualTo("Note must be 500 characters or less"));
         });
     }
 
