@@ -23,11 +23,16 @@ public class StoriesProjectsTests
         Assert.That(Sdk(Library), Is.EqualTo("Microsoft.NET.Sdk.Razor"));
     }
 
-    [TestCase("Program.cs")]
-    [TestCase("App.razor")]
-    [TestCase("wwwroot/index.html")]
-    [TestCase("wwwroot/iframe.html")]
-    [TestCase("Properties/launchSettings.json")]
+    private static readonly string[] HostFiles =
+    [
+        "Program.cs",
+        "App.razor",
+        "wwwroot/index.html",
+        "wwwroot/iframe.html",
+        "Properties/launchSettings.json",
+    ];
+
+    [TestCaseSource(nameof(HostFiles))]
     public void Library_HoldsNoHostFile(string file)
     {
         Assert.That(File.Exists(RepoFiles.PathOf("src", Library, file)), Is.False);
@@ -42,7 +47,7 @@ public class StoriesProjectsTests
         Assert.That(
             project.Descendants("ProjectReference").Select(r => (string?)r.Attribute("Include")),
             Is.EqualTo(new[] { @"..\WorkoutLog.UI.Stories\WorkoutLog.UI.Stories.csproj" }));
-        foreach (var file in new[] { "Program.cs", "App.razor", "wwwroot/index.html", "wwwroot/iframe.html", "Properties/launchSettings.json" })
+        foreach (var file in HostFiles)
         {
             Assert.That(File.Exists(RepoFiles.PathOf("src", Host, file)), Is.True, file);
         }
@@ -64,7 +69,7 @@ public class StoriesProjectsTests
     }
 
     [Test]
-    public void Library_TakesTheShellAndNothingFromTheHostIsADirectKitReference()
+    public void Host_HasNoDirectKitPackageReference()
     {
         var hostPackages = Project(Host).Descendants("PackageReference").Select(r => (string?)r.Attribute("Include"));
 
@@ -80,6 +85,7 @@ public class StoriesProjectsTests
 
         Assert.Multiple(() =>
         {
+            Assert.That(services.Where(d => d.ServiceType != typeof(TimeProvider)).Select(d => d.Lifetime), Has.All.EqualTo(ServiceLifetime.Singleton));
             Assert.That(provider.GetRequiredService<IWorkoutService>(), Is.TypeOf<SampleWorkoutService>());
             Assert.That(provider.GetRequiredService<IExerciseCatalog>(), Is.TypeOf<ExerciseCatalog>());
             Assert.That(provider.GetRequiredService<IImportService>(), Is.TypeOf<SampleImportService>());

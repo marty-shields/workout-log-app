@@ -17,7 +17,7 @@ Personal Android app (.NET 11 MAUI Blazor Hybrid). Setup: [docs/dev-setup-build.
 - Design system: `dotnet run --project src/WorkoutLog.UI.Stories.Host` → http://localhost:5056
 
 ## How the code fits
-- Projects: App → UI → Core; Stories → UI. `WorkoutLog.UI.Tests` reads the App's files because it can't reference it.
+- Projects: App → UI → Core; Stories.Host → Stories → UI. `WorkoutLog.UI.Tests` reads the App's files because it can't reference it.
 - Screens: a `*Page` calls services, a `*View` takes parameters. `StoryCoverageTests` requires a screen story for every `*View`.
 - Services return a status (`ExportResult`), not exceptions.
 - Every database call goes through `DatabaseGate` (`DatabaseGateTests`).
