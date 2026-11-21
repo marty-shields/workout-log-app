@@ -33,6 +33,15 @@ public class ImportReviewViewTests : ComponentTestBase
         Assert.That(Render(Review(fresh: total)).Find("[data-testid=review-total]").TextContent, Is.EqualTo(text));
 
     [Test]
+    public void Counts_ShowTheLabelBeforeTheValue()
+    {
+        var cut = Render(Review(3, 38, 2, 1));
+
+        Assert.That(cut.Find("[data-testid=review-new]").Children.Select(c => c.GetAttribute("data-testid")),
+            Is.EqualTo(new[] { "review-new-label", "review-new-value" }));
+    }
+
+    [Test]
     public void Counts_ShowEachGroup()
     {
         var cut = Render(Review(3, 38, 2, 1));
@@ -404,7 +413,7 @@ public class ImportReviewViewTests : ComponentTestBase
         new(FileName, fresh + already + different + skipped, fresh, already, different, skipped, PhoneCount: 41);
 
     private static (string Value, string Label) Tile(IRenderedComponent<ImportReviewView> cut, string testId) =>
-        (cut.Find($"[data-testid={testId}] .value").TextContent, cut.Find($"[data-testid={testId}] .label").TextContent);
+        (cut.Find($"[data-testid={testId}-value]").TextContent, cut.Find($"[data-testid={testId}-label]").TextContent);
 
     private IRenderedComponent<ImportReviewView> Render(
         ImportReview review, ImportMode mode = ImportMode.Add, DifferentChoice different = DifferentChoice.KeepPhones, bool failed = false) =>

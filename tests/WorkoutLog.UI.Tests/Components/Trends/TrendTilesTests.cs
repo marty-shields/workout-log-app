@@ -1,4 +1,5 @@
 using Shields.UI.Components.Actions;
+using Shields.UI.Components.Lists;
 using WorkoutLog.Core.Domain.Workouts.Periods;
 using WorkoutLog.UI.Components.Trends;
 using WorkoutLog.UI.Stories.Samples;
@@ -12,7 +13,7 @@ public class TrendTilesTests : ComponentTestBase
     {
         var cut = Render(PeriodKind.Week, SampleTrends.WeekTotals, SampleTrends.WeekEarlier);
 
-        var tiles = cut.FindAll(".tile").Select(t => (t.QuerySelector(".label")!.TextContent, t.QuerySelector(".value")!.TextContent));
+        var tiles = cut.FindComponents<StatTile>().Select(t => (t.Instance.Label, t.Instance.Value));
 
         Assert.That(tiles, Is.EqualTo(new[] { ("Workouts", "3"), ("Time", "2h 35m"), ("Sets", "34"), ("Volume", "9,840 kg") }));
     }
@@ -45,11 +46,12 @@ public class TrendTilesTests : ComponentTestBase
     }
 
     [Test]
-    public void Volume_ChangesByPercentAndCarriesTheWordStrength()
+    public void Volume_ChangesByPercentAndCarriesTheWordStrengthAsItsCaption()
     {
         var cut = Render(PeriodKind.Week, SampleTrends.WeekTotals, SampleTrends.WeekEarlier);
 
-        Assert.That(TestText.Normalise(cut.Find("[data-testid=tiles-volume-change]").TextContent), Is.EqualTo("up 6% strength"));
+        Assert.That(cut.Find("[data-testid=tiles-volume-caption]").TextContent, Is.EqualTo("strength"));
+        Assert.That(TestText.Normalise(cut.Find("[data-testid=tiles-volume-change]").TextContent), Is.EqualTo("up 6%"));
     }
 
     [Test]
@@ -59,8 +61,8 @@ public class TrendTilesTests : ComponentTestBase
 
         Assert.Multiple(() =>
         {
-            Assert.That(cut.Find("[data-testid=tiles-volume] .value").TextContent, Is.EqualTo("548 t"));
-            Assert.That(TestText.Normalise(cut.Find("[data-testid=tiles-volume-change]").TextContent), Is.EqualTo("up 9% strength"));
+            Assert.That(cut.Find("[data-testid=tiles-volume-value]").TextContent, Is.EqualTo("548 t"));
+            Assert.That(TestText.Normalise(cut.Find("[data-testid=tiles-volume-change]").TextContent), Is.EqualTo("up 9%"));
         });
     }
 
@@ -69,7 +71,7 @@ public class TrendTilesTests : ComponentTestBase
     {
         var cut = Render(PeriodKind.Month, SampleTrends.MonthTotals, SampleTrends.Nothing);
 
-        Assert.That(TestText.Normalise(cut.Find("[data-testid=tiles-volume-change]").TextContent), Is.EqualTo("up 41,200 kg strength"));
+        Assert.That(TestText.Normalise(cut.Find("[data-testid=tiles-volume-change]").TextContent), Is.EqualTo("up 41,200 kg"));
     }
 
     [Test]
@@ -81,7 +83,7 @@ public class TrendTilesTests : ComponentTestBase
         {
             Assert.That(cut.FindAll(".same"), Has.Count.EqualTo(4));
             Assert.That(cut.FindAll("svg"), Is.Empty);
-            Assert.That(TestText.Normalise(cut.Find("[data-testid=tiles-volume-change]").TextContent), Is.EqualTo("—no change strength"));
+            Assert.That(TestText.Normalise(cut.Find("[data-testid=tiles-volume-change]").TextContent), Is.EqualTo("— no change"));
         });
     }
 
@@ -92,7 +94,7 @@ public class TrendTilesTests : ComponentTestBase
 
         Assert.Multiple(() =>
         {
-            Assert.That(cut.FindAll("[data-testid=tiles-volume-change] .same"), Has.Count.EqualTo(1));
+            Assert.That(cut.FindAll("[data-testid=tiles-volume-change].same"), Has.Count.EqualTo(1));
             Assert.That(cut.FindAll("[data-testid=tiles-volume-change] svg"), Is.Empty);
         });
     }
@@ -104,7 +106,7 @@ public class TrendTilesTests : ComponentTestBase
 
         Assert.Multiple(() =>
         {
-            Assert.That(cut.FindAll("[data-testid=tiles-volume-change] .same"), Has.Count.EqualTo(1));
+            Assert.That(cut.FindAll("[data-testid=tiles-volume-change].same"), Has.Count.EqualTo(1));
             Assert.That(cut.FindAll("[data-testid=tiles-volume-change] svg"), Is.Empty);
         });
     }
@@ -114,7 +116,7 @@ public class TrendTilesTests : ComponentTestBase
     {
         var cut = Render(PeriodKind.Week, SampleTrends.Nothing, SampleTrends.Nothing);
 
-        Assert.That(cut.FindAll(".value").Select(v => v.TextContent), Is.EqualTo(new[] { "0", "0m", "0", "0 kg" }));
+        Assert.That(cut.FindAll("[data-testid$=-value]").Select(v => v.TextContent), Is.EqualTo(new[] { "0", "0m", "0", "0 kg" }));
     }
 
     [Test]

@@ -332,7 +332,7 @@ public class TrendsViewTests : ComponentTestBase
 
     [Test]
     public void Settings_UsesTheGearIcon() =>
-        Assert.That(Render(SampleTrends.Week).FindComponents<IconButton>().Single().Instance.Icon, Is.EqualTo(IconName.Settings));
+        Assert.That(Render(SampleTrends.Week).FindComponents<IconButton>().Single(b => b.Instance.TestId == "settings").Instance.Icon, Is.EqualTo(IconName.Settings));
 
     [Test]
     public void Week_DayColumn_RaisesOnOpenWorkoutsWithThatDay()

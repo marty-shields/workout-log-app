@@ -16,8 +16,8 @@
             {
                 <SegmentedControl TValue="PeriodKind" Label="Period" Options="KindOptions" Value="Kind" ValueChanged="OnKindChanged" TestId="trends-kind" />
             }
-            <PeriodStepper Kind="Kind" Label="@Label" CanGoPrevious="CanGoPrevious" CanGoNext="CanGoNext"
-                           OnPrevious="OnPrevious" OnNext="OnNext" TestId="trends-stepper" />
+            <Shields.UI.Components.Navigation.PeriodStepper Kind="StepperKind" Label="@Label" CanGoPrevious="CanGoPrevious" CanGoNext="CanGoNext"
+                                                           OnPrevious="OnPrevious" OnNext="OnNext" TestId="trends-stepper" />
             @if (Loading)
             {
                 <div class="centre">
@@ -87,6 +87,13 @@
     /// <summary>The kinds offered, in the order of the control. The control is left out when there is only one.</summary>
     [Parameter]
     public IReadOnlyList<PeriodKind> Kinds { get; set; } = [PeriodKind.Week, PeriodKind.Month, PeriodKind.Year];
+
+    private Shields.UI.Components.Navigation.PeriodKind StepperKind => Kind switch
+    {
+        PeriodKind.Week => Shields.UI.Components.Navigation.PeriodKind.Week,
+        PeriodKind.Month => Shields.UI.Components.Navigation.PeriodKind.Month,
+        _ => Shields.UI.Components.Navigation.PeriodKind.Year,
+    };
 
     private IReadOnlyList<RadioOption<PeriodKind>> KindOptions => [.. AllKindOptions.Where(o => Kinds.Contains(o.Value))];
 

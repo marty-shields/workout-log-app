@@ -9,10 +9,7 @@ else
     <figure class="chart" aria-label="@AriaLabel" data-testid="@TestId">
         @if (Paired)
         {
-            <ul class="legend" data-testid="@(TestId is null ? null : $"{TestId}-legend")">
-                <li><i class="swatch now" aria-hidden="true"></i>@NowLabel</li>
-                <li><i class="swatch past" aria-hidden="true"></i>@EarlierLabel</li>
-            </ul>
+            <ChartLegend Items="Legend" TestId="@(TestId is null ? null : $"{TestId}-legend")" />
         }
         <div class="plot">
             <svg class="svg" viewBox="0 0 @Number(Width) @Number(Height)" aria-hidden="true" focusable="false">
@@ -119,6 +116,12 @@ else
     /// <summary>Value of the data-testid attribute, <c>{TestId}-values</c> on the text alternative, <c>{TestId}-legend</c>, <c>{TestId}-none</c> and <c>{TestId}-{column, from 1}-open</c> on a tappable column.</summary>
     [Parameter]
     public string? TestId { get; set; }
+
+    private IReadOnlyList<LegendItem> Legend =>
+    [
+        new(LegendSwatch.Accent, NowLabel!),
+        new(LegendSwatch.Chip, EarlierLabel!),
+    ];
 
     private bool Paired => EarlierLabel is not null;
 

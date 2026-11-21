@@ -10,7 +10,7 @@ Opened from Settings after a file is picked and read. View: `ImportReviewView`; 
 |---|---|
 | Top bar | Back arrow; title "Import workouts". |
 | File | The file name, then "44 workouts in the file" ("1 workout in the file"), grouped from 1,000. |
-| Counts | Four `StatTile`s: New, Already on this phone, Different on this phone, Can't be imported. |
+| Counts | Four kit `StatTile`s, label first: New, Already on this phone, Different on this phone, Can't be imported. |
 | How to import | `RadioGroup`: **Add to my workouts** (chosen first; adds New, never deletes) and **Replace all my workouts**, with the hint "Deletes the 41 on this phone" ("Deletes the 1 on this phone"; with none, "No workouts on this phone to delete"). |
 | Different workouts | Add only, when there are any: **Keep this phone's** (chosen first) or **Use the file's**, which replaces the phone workout's finish time, exercises, sets and entries. |
 | Can't be imported | "4 workouts can't be imported and will be skipped" ("1 workout…"), when there are any. A workout whose start or finish is after now counts here. |

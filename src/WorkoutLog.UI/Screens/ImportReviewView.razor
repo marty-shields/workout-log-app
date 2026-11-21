@@ -21,10 +21,10 @@
             else
             {
                 <div class="tiles">
-                    <StatTile Label="New" Value="Review.New" TestId="review-new" />
-                    <StatTile Label="Already on this phone" Value="Review.Already" TestId="review-already" />
-                    <StatTile Label="Different on this phone" Value="Review.Different" TestId="review-different" />
-                    <StatTile Label="Can't be imported" Value="Review.Skipped" TestId="review-skipped" />
+                    <StatTile Label="New" Value="@Review.New.ToString()" TestId="review-new" />
+                    <StatTile Label="Already on this phone" Value="@Review.Already.ToString()" TestId="review-already" />
+                    <StatTile Label="Different on this phone" Value="@Review.Different.ToString()" TestId="review-different" />
+                    <StatTile Label="Can't be imported" Value="@Review.Skipped.ToString()" TestId="review-skipped" />
                 </div>
                 <RadioGroup TValue="ImportMode" Label="How to import" Options="ModeOptions" Value="Mode" ValueChanged="ModeChanged"
                             Disabled="Importing" TestId="review-mode" />
