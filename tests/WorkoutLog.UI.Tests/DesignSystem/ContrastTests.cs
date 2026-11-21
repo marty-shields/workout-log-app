@@ -35,9 +35,8 @@ public class ContrastTests
         ("--color-focus", "--color-surface", ContrastCheck.LargeTextOrControl),
     ];
 
-    // The kit's darker accent against --color-chart-past: 2.6:1 in light and 2.2:1 in dark, short of the 3:1 the issue asks for
-    // (it was 1.2:1 and 1.8:1 with the old accent). No colour keeps 3:1 against both the page and the accent, so this guards
-    // against a regression until the owner decides; the bars are also told apart by position and the legend.
+    // The kit's retuned --color-chart-past against the accent beside it: 3.01:1 in light and 3.07:1 in dark, measured, so the issue's 3:1
+    // is met. The floors are the measurements rounded down.
 
     private static IEnumerable<TestCaseData> Cases() =>
         Pairs.SelectMany(p => Enum.GetValues<ColourScheme>().Select(scheme =>
@@ -52,9 +51,9 @@ public class ContrastTests
         Assert.That(result.Passes, Is.True, result.ToString());
     }
 
-    [TestCase(ColourScheme.Light, 2.6)]
-    [TestCase(ColourScheme.Dark, 2.2)]
-    public void AccentBar_BesideThePastBars_StaysAsDistinctAsItIsToday(ColourScheme scheme, double floor)
+    [TestCase(ColourScheme.Light, 3.0)]
+    [TestCase(ColourScheme.Dark, 3.0)]
+    public void AccentBar_BesideThePastBars_MeetsTheIssuesThreeToOne(ColourScheme scheme, double floor)
     {
         var result = Measure("--color-accent", "--color-chart-past", floor, scheme);
 

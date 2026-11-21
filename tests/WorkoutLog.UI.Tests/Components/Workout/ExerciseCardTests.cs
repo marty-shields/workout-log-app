@@ -893,6 +893,37 @@ public class ExerciseCardTests : ComponentTestBase
     }
 
     [Test]
+    public void DoneCard_HasNoBodyAtAll_SoTheKitDropsTheHeadersBottomSpace()
+    {
+        var exercise = Strength(1);
+        exercise.IsDone = true;
+
+        var cut = Context.Render<ExerciseCard>(p => p
+            .Add(x => x.Exercise, exercise)
+            .Add(x => x.TestId, "exercise-1"));
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.Find("[data-testid=exercise-1]").ClassList, Does.Contain("no-body"));
+            Assert.That(cut.FindAll(".body"), Is.Empty);
+        });
+    }
+
+    [Test]
+    public void OpenCard_HasABody()
+    {
+        var cut = Context.Render<ExerciseCard>(p => p
+            .Add(x => x.Exercise, Strength(1))
+            .Add(x => x.TestId, "exercise-1"));
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.Find("[data-testid=exercise-1]").ClassList, Does.Not.Contain("no-body"));
+            Assert.That(cut.FindAll(".body"), Has.Count.EqualTo(1));
+        });
+    }
+
+    [Test]
     public void Exercise_AlreadyDone_StartsCollapsed()
     {
         var exercise = Strength(1);
@@ -1161,7 +1192,7 @@ public class ExerciseCardTests : ComponentTestBase
 
         Assert.Multiple(() =>
         {
-            Assert.That(cut.Find("[data-testid=exercise-1-error]").TextContent.Trim().Trim(), Is.EqualTo("Add at least one set"));
+            Assert.That(cut.Find("[data-testid=exercise-1-error]").TextContent.Trim(), Is.EqualTo("Add at least one set"));
             Assert.That(cut.FindComponent<Card>().Instance.Error, Is.True);
             Assert.That(cut.Find("section.card").ClassList, Does.Contain("error"));
         });
@@ -1218,7 +1249,7 @@ public class ExerciseCardTests : ComponentTestBase
 
         cut.Find("[data-testid=exercise-1-set-1-reps]").Input("");
 
-        Assert.That(cut.Find("[data-testid=exercise-1-set-1-error]").TextContent.Trim().Trim(), Is.EqualTo("Enter reps"));
+        Assert.That(cut.Find("[data-testid=exercise-1-set-1-error]").TextContent.Trim(), Is.EqualTo("Enter reps"));
     }
 
     [Test]
@@ -1249,7 +1280,7 @@ public class ExerciseCardTests : ComponentTestBase
         cut.Find("[data-testid=exercise-1-set-1-reps]").Input("8");
         cut.Find("[data-testid=exercise-1-set-1-reps]").Input("8.");
 
-        Assert.That(cut.Find("[data-testid=exercise-1-set-1-error]").TextContent.Trim().Trim(), Is.EqualTo("Reps must be a number"));
+        Assert.That(cut.Find("[data-testid=exercise-1-set-1-error]").TextContent.Trim(), Is.EqualTo("Reps must be a number"));
     }
 
     [Test]
@@ -1265,7 +1296,7 @@ public class ExerciseCardTests : ComponentTestBase
         cut.Find("[data-testid=exercise-1-set-1-reps]").Input("8");
         cut.Find("[data-testid=exercise-1-set-1-reps]").Input("8.");
 
-        Assert.That(cut.Find("[data-testid=exercise-1-set-1-error]").TextContent.Trim().Trim(), Is.EqualTo("Reps must be a number"));
+        Assert.That(cut.Find("[data-testid=exercise-1-set-1-error]").TextContent.Trim(), Is.EqualTo("Reps must be a number"));
     }
 
     [Test]

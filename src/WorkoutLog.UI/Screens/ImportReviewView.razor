@@ -8,7 +8,9 @@
     <ChildContent>
         <div class="content">
             <div class="file">
-                <Typography Variant="TextVariant.Strong" As="TextElement.P" class="name" TestId="review-file-name">@Review.FileName</Typography>
+                <div class="name">
+                    <Typography Variant="TextVariant.Strong" As="TextElement.P" TestId="review-file-name">@Review.FileName</Typography>
+                </div>
                 @if (Review.Error == ImportError.None)
                 {
                     <Typography Variant="TextVariant.Muted" As="TextElement.P" TestId="review-total">@Workouts(Review.Total) in the file</Typography>

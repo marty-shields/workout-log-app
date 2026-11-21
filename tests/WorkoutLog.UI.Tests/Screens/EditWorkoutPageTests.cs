@@ -1675,7 +1675,7 @@ public class EditWorkoutPageTests : ComponentTestBase
     }
 
     private static IReadOnlyList<string> Names(IRenderedComponent<EditWorkoutPage> cut) =>
-        cut.FindAll(".card .title").Select(n => n.TextContent).ToList();
+        cut.FindAll(".card > .header > .title").Select(n => n.TextContent).ToList();
 
     /// <summary>
     /// Types the text into the note of the workout (<paramref name="number"/> null) or the numbered exercise and leaves the field. Opens the

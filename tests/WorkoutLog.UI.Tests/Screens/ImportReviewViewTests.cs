@@ -26,6 +26,14 @@ public class ImportReviewViewTests : ComponentTestBase
         });
     }
 
+    [Test]
+    public void FileName_IsInTheWrappingElement_SoALongNameBreaks()
+    {
+        var cut = Render(Review(3, 38, 2, 1));
+
+        Assert.That(cut.Find("[data-testid=review-file-name]").ParentElement!.ClassList, Does.Contain("name"));
+    }
+
     [TestCase(1, "1 workout in the file")]
     [TestCase(2, "2 workouts in the file")]
     [TestCase(1042, "1,042 workouts in the file")]

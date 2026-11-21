@@ -1,15 +1,18 @@
 @using WorkoutLog.UI.Models.Fields
 <section class="panel" data-testid="@TestId">
-    <Card Title="@($"Set {Number}")">
-        <HeaderActions>
-            @if (IsRecord)
-            {
-                <RecordBadge TestId="@($"{TestId}-record")" />
-            }
-            <IconButton Icon="IconName.Close" AriaLabel="@RemoveLabel" TestId="@($"{TestId}-remove")" Muted Size="IconSize.Small" OnClick="OnRemove" />
-        </HeaderActions>
+    <Card>
         <ChildContent>
             <div class="body">
+                <header class="panel-header">
+                    <div class="heading">
+                        <h3 class="title">Set @Number</h3>
+                        @if (IsRecord)
+                        {
+                            <RecordBadge TestId="@($"{TestId}-record")" />
+                        }
+                    </div>
+                    <IconButton Icon="IconName.Close" AriaLabel="@RemoveLabel" TestId="@($"{TestId}-remove")" Muted Size="IconSize.Small" OnClick="OnRemove" />
+                </header>
                 @if (Last is not null)
                 {
                     <Typography Variant="TextVariant.MutedSmall" As="TextElement.P" class="last" TestId="@($"{TestId}-last")">Last time @Last</Typography>

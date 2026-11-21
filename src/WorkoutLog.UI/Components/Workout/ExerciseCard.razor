@@ -7,7 +7,7 @@
 @implements IDisposable
 @inject ILogger<ExerciseCard> Logger
 @inject IHaptics Haptics
-<Card Title="@Exercise.Name" Error="Exercise.Error is not null" TestId="@TestId">
+<Card Title="@Exercise.Name" Error="Exercise.Error is not null" ChildContent="@(HasBody ? RenderBody() : null)" TestId="@TestId">
     <HeaderActions>
         @if (Exercise.IsDone)
         {
@@ -19,147 +19,147 @@
         }
         <IconButton @ref="remove" Icon="IconName.Delete" AriaLabel="@($"Delete {Exercise.Name}")" TestId="@($"{TestId}-remove")" Muted OnClick="OnRemove" />
     </HeaderActions>
-    <ChildContent>
-        @if (!Exercise.IsDone || Exercise.Error is not null)
-        {
-            <div class="body">
-                @if (!Exercise.IsDone && Exercise.BestKg is { } best)
-                {
-                    <p class="weights" data-testid="@($"{TestId}-weights")"><span>Last @DisplayFormat.Weight(Exercise.LastKg)</span> <span aria-hidden="true">·</span> <span>PB @DisplayFormat.Weight(best)</span></p>
-                }
-                @if (!Exercise.IsDone && !string.IsNullOrWhiteSpace(Exercise.LastNote))
-                {
-                    <LastNote Text="@Exercise.LastNote" TestId="@($"{TestId}-last-note")" />
-                }
-                <InlineAlert Message="@Exercise.Error" TestId="@($"{TestId}-error")" />
-                @if (!Exercise.IsDone)
-                {
-                    @if (Exercise.Kind == ExerciseKind.Strength)
-                    {
-                        <div class="sets">
-                            @for (var i = 0; i < Exercise.Entries.Count; i++)
-                            {
-                                var entry = Exercise.Entries[i];
-                                var number = i + 1;
-                                if (entry != open)
-                                {
-                                    <SetSummary @key="entry"
-                                                @ref="summaries[entry]"
-                                                Number="number"
-                                                ExerciseName="@Exercise.Name"
-                                                Fields="Exercise.Fields"
-                                                Entry="entry"
-                                                IsRecord="entry == Exercise.RecordEntry"
-                                                OnOpen="() => OpenSet(entry)"
-                                                OnRemove="() => OnRemoveClosedSet.InvokeAsync(entry)"
-                                                TestId="@($"{TestId}-set-{number}")" />
-                                }
-                                else if (SetGrid.OpensAsPanel(Exercise.Fields))
-                                {
-                                    <SetPanel @key="entry"
-                                              @ref="openPanel"
-                                              Number="number"
-                                              ExerciseName="@Exercise.Name"
-                                              Fields="Exercise.Fields"
-                                              Entry="entry"
-                                              Last="@(Exercise.LastTime?.EntryOrNull(number))"
-                                              IsRecord="entry == Exercise.RecordEntry"
-                                              OnChanged="() => EntryChanged(entry)"
-                                              OnEnterLast="AddSetFromEnter"
-                                              OnRemove="() => RemoveSet(entry)"
-                                              TestId="@($"{TestId}-set-{number}")" />
-                                }
-                                else
-                                {
-                                    var hasLast = Exercise.LastTime is not null;
-                                    var shortHeaders = SetGrid.ShortHeaders(Exercise.Fields, hasLast);
-                                    <div class="set-header" style="grid-template-columns: @SetGrid.Columns(Exercise.Fields, hasLast)" aria-hidden="true">
-                                        <span>Set</span>
-                                        @if (SetGrid.LastColumn(Exercise.Fields, hasLast))
-                                        {
-                                            <span>Last</span>
-                                        }
-                                        @foreach (var field in Exercise.Fields)
-                                        {
-                                            <span>@(shortHeaders ? field.Label : field.DisplayLabel)@(field.Required ? "\u00a0*" : null)</span>
-                                        }
-                                        <span></span>
-                                    </div>
-                                    <SetRow @key="entry"
-                                            @ref="openRow"
-                                            Number="number"
-                                            ExerciseName="@Exercise.Name"
-                                            Fields="Exercise.Fields"
-                                            Entry="entry"
-                                            Last="@LastText(number)"
-                                            IsRecord="entry == Exercise.RecordEntry"
-                                            OnChanged="() => EntryChanged(entry)"
-                                            OnEnterLast="AddSetFromEnter"
-                                            OnRemove="() => RemoveSet(entry)"
-                                            TestId="@($"{TestId}-set-{number}")" />
-                                }
-                            }
-                        </div>
-                        <div class="add-row">
-                            <div class="add-set">
-                                <AppButton @ref="addSet" Variant="ButtonVariant.Secondary" FullWidth Disabled="Exercise.SetsFull" TestId="@($"{TestId}-add-set")" OnClick="AddSet">Add set</AppButton>
-                            </div>
-                            <IconButton Icon="IconName.Note" AriaLabel="@NoteLabel" TestId="@($"{TestId}-add-note")" Muted="!HasNote" Active="HasNote" OnClick="OpenNote" />
-                        </div>
-                        @if (Exercise.SetsFull)
-                        {
-                            <p class="note" data-testid="@($"{TestId}-sets-full")">At most @WorkoutLimits.MaxSets sets</p>
-                        }
-                    }
-                    else if (Exercise.Entries.Count > 0)
-                    {
-                        var entry = Exercise.Entries[0];
-                        if (Exercise.LastTime?.EntryOrNull(1) is { } last)
-                        {
-                            <p class="last-time" data-wrap-ok data-testid="@($"{TestId}-last")">Last time @last</p>
-                        }
-                        <div class="cardio">
-                            @foreach (var field in Exercise.Fields)
-                            {
-                                <ValueField @ref="cardioFields[field.Key]"
-                                            Kind="field.ValueKind"
-                                            Label="@field.DisplayLabel"
-                                            Required="field.Required"
-                                            Invalid="entry.Errors.ContainsKey(field.Key)"
-                                            Value="@entry.Values.GetValueOrDefault(field.Key)"
-                                            ValueChanged="value => EntryChanged(entry, field, value)"
-                                            TestId="@($"{TestId}-{field.Key}")" />
-                            }
-                        </div>
-                        @if (entry == Exercise.RecordEntry)
-                        {
-                            <RecordBadge TestId="@($"{TestId}-record")" />
-                        }
-                        <EntryErrors Fields="Exercise.Fields" Entry="entry" TestId="@($"{TestId}-entry-error")" />
-                        <div class="footer">
-                            @if (ExerciseFields.WorkedOutText(Exercise, entry) is { } workedOut)
-                            {
-                                <p class="note" data-testid="@($"{TestId}-worked-out")">@workedOut</p>
-                            }
-                            <div class="note-button">
-                                <IconButton Icon="IconName.Note" AriaLabel="@NoteLabel" TestId="@($"{TestId}-add-note")" Muted="!HasNote" Active="HasNote" OnClick="OpenNote" />
-                            </div>
-                        </div>
-                    }
-                    <NoteField @ref="noteField"
-                               Label="Note"
-                               Value="@Exercise.Note"
-                               ValueChanged="NoteChanged"
-                               @bind-Editing="editingNote"
-                               Error="@Exercise.NoteError"
-                               TestId="@($"{TestId}-note")" />
-                }
-            </div>
-        }
-    </ChildContent>
 </Card>
 
 @code {
+    // A done card with no error has no body at all: the kit drops a header-only card's bottom margin, and an @if inside its tags would still count as a body.
+    private bool HasBody => !Exercise.IsDone || Exercise.Error is not null;
+
+    private RenderFragment RenderBody() =>
+        @<div class="body">
+        @if (!Exercise.IsDone && Exercise.BestKg is { } best)
+        {
+            <p class="weights" data-testid="@($"{TestId}-weights")"><span>Last @DisplayFormat.Weight(Exercise.LastKg)</span> <span aria-hidden="true">·</span> <span>PB @DisplayFormat.Weight(best)</span></p>
+        }
+        @if (!Exercise.IsDone && !string.IsNullOrWhiteSpace(Exercise.LastNote))
+        {
+            <LastNote Text="@Exercise.LastNote" TestId="@($"{TestId}-last-note")" />
+        }
+        <InlineAlert Message="@Exercise.Error" TestId="@($"{TestId}-error")" />
+        @if (!Exercise.IsDone)
+        {
+            @if (Exercise.Kind == ExerciseKind.Strength)
+            {
+                <div class="sets">
+                    @for (var i = 0; i < Exercise.Entries.Count; i++)
+                    {
+                        var entry = Exercise.Entries[i];
+                        var number = i + 1;
+                        if (entry != open)
+                        {
+                            <SetSummary @key="entry"
+                                        @ref="summaries[entry]"
+                                        Number="number"
+                                        ExerciseName="@Exercise.Name"
+                                        Fields="Exercise.Fields"
+                                        Entry="entry"
+                                        IsRecord="entry == Exercise.RecordEntry"
+                                        OnOpen="() => OpenSet(entry)"
+                                        OnRemove="() => OnRemoveClosedSet.InvokeAsync(entry)"
+                                        TestId="@($"{TestId}-set-{number}")" />
+                        }
+                        else if (SetGrid.OpensAsPanel(Exercise.Fields))
+                        {
+                            <SetPanel @key="entry"
+                                      @ref="openPanel"
+                                      Number="number"
+                                      ExerciseName="@Exercise.Name"
+                                      Fields="Exercise.Fields"
+                                      Entry="entry"
+                                      Last="@(Exercise.LastTime?.EntryOrNull(number))"
+                                      IsRecord="entry == Exercise.RecordEntry"
+                                      OnChanged="() => EntryChanged(entry)"
+                                      OnEnterLast="AddSetFromEnter"
+                                      OnRemove="() => RemoveSet(entry)"
+                                      TestId="@($"{TestId}-set-{number}")" />
+                        }
+                        else
+                        {
+                            var hasLast = Exercise.LastTime is not null;
+                            var shortHeaders = SetGrid.ShortHeaders(Exercise.Fields, hasLast);
+                            <div class="set-header" style="grid-template-columns: @SetGrid.Columns(Exercise.Fields, hasLast)" aria-hidden="true">
+                                <span>Set</span>
+                                @if (SetGrid.LastColumn(Exercise.Fields, hasLast))
+                                {
+                                    <span>Last</span>
+                                }
+                                @foreach (var field in Exercise.Fields)
+                                {
+                                    <span>@(shortHeaders ? field.Label : field.DisplayLabel)@(field.Required ? "\u00a0*" : null)</span>
+                                }
+                                <span></span>
+                            </div>
+                            <SetRow @key="entry"
+                                    @ref="openRow"
+                                    Number="number"
+                                    ExerciseName="@Exercise.Name"
+                                    Fields="Exercise.Fields"
+                                    Entry="entry"
+                                    Last="@LastText(number)"
+                                    IsRecord="entry == Exercise.RecordEntry"
+                                    OnChanged="() => EntryChanged(entry)"
+                                    OnEnterLast="AddSetFromEnter"
+                                    OnRemove="() => RemoveSet(entry)"
+                                    TestId="@($"{TestId}-set-{number}")" />
+                        }
+                    }
+                </div>
+                <div class="add-row">
+                    <div class="add-set">
+                        <AppButton @ref="addSet" Variant="ButtonVariant.Secondary" FullWidth Disabled="Exercise.SetsFull" TestId="@($"{TestId}-add-set")" OnClick="AddSet">Add set</AppButton>
+                    </div>
+                    <IconButton Icon="IconName.Note" AriaLabel="@NoteLabel" TestId="@($"{TestId}-add-note")" Muted="!HasNote" Active="HasNote" OnClick="OpenNote" />
+                </div>
+                @if (Exercise.SetsFull)
+                {
+                    <p class="note" data-testid="@($"{TestId}-sets-full")">At most @WorkoutLimits.MaxSets sets</p>
+                }
+            }
+            else if (Exercise.Entries.Count > 0)
+            {
+                var entry = Exercise.Entries[0];
+                if (Exercise.LastTime?.EntryOrNull(1) is { } last)
+                {
+                    <p class="last-time" data-wrap-ok data-testid="@($"{TestId}-last")">Last time @last</p>
+                }
+                <div class="cardio">
+                    @foreach (var field in Exercise.Fields)
+                    {
+                        <ValueField @ref="cardioFields[field.Key]"
+                                    Kind="field.ValueKind"
+                                    Label="@field.DisplayLabel"
+                                    Required="field.Required"
+                                    Invalid="entry.Errors.ContainsKey(field.Key)"
+                                    Value="@entry.Values.GetValueOrDefault(field.Key)"
+                                    ValueChanged="value => EntryChanged(entry, field, value)"
+                                    TestId="@($"{TestId}-{field.Key}")" />
+                    }
+                </div>
+                @if (entry == Exercise.RecordEntry)
+                {
+                    <RecordBadge TestId="@($"{TestId}-record")" />
+                }
+                <EntryErrors Fields="Exercise.Fields" Entry="entry" TestId="@($"{TestId}-entry-error")" />
+                <div class="footer">
+                    @if (ExerciseFields.WorkedOutText(Exercise, entry) is { } workedOut)
+                    {
+                        <p class="note" data-testid="@($"{TestId}-worked-out")">@workedOut</p>
+                    }
+                    <div class="note-button">
+                        <IconButton Icon="IconName.Note" AriaLabel="@NoteLabel" TestId="@($"{TestId}-add-note")" Muted="!HasNote" Active="HasNote" OnClick="OpenNote" />
+                    </div>
+                </div>
+            }
+            <NoteField @ref="noteField"
+                       Label="Note"
+                       Value="@Exercise.Note"
+                       ValueChanged="NoteChanged"
+                       @bind-Editing="editingNote"
+                       Error="@Exercise.NoteError"
+                       TestId="@($"{TestId}-note")" />
+        }
+    </div>;
+
     /// <summary>The exercise and its sets or entry. Adding and removing sets changes it directly.</summary>
     [Parameter, EditorRequired]
     public ExerciseState Exercise { get; set; } = null!;

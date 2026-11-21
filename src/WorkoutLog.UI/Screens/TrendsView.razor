@@ -284,7 +284,13 @@
 
     private EventCallback<DateOnly> Open(IReadOnlyList<TrendBar> bars) =>
         OnOpenWorkouts.HasDelegate
-            ? EventCallback.Factory.Create<DateOnly>(this, date => OnOpenWorkouts.InvokeAsync(bars.First(bar => bar.Date == date).Span!.Value))
+            ? EventCallback.Factory.Create<DateOnly>(this, async date =>
+            {
+                if (bars.First(bar => bar.Date == date).Span is { } span)
+                {
+                    await OnOpenWorkouts.InvokeAsync(span);
+                }
+            })
             : default;
 
     private static IReadOnlyList<BarListItem> Items(IReadOnlyList<MeterRow> rows) =>

@@ -27,7 +27,7 @@ public class WeekTilesTests : ComponentTestBase
     }
 
     [Test]
-    public void Increase_ShowsTheUpIconInMutedAndTheDifference()
+    public void Increase_ShowsTheUpIconInGreenAndTheDifference()
     {
         var cut = Render(SampleThisWeek.ThisWeek, SampleThisWeek.LastWeekToDate, DayOfWeek.Wednesday);
 
@@ -38,12 +38,12 @@ public class WeekTilesTests : ComponentTestBase
         {
             Assert.That(TestText.Normalise(change.TextContent), Is.EqualTo("up 35m"));
             Assert.That(change.ClassList, Does.Contain("up"));
-            Assert.That(icon.Tone, Is.EqualTo(IconTone.Muted));
+            Assert.That(icon.Tone, Is.EqualTo(IconTone.Success));
         });
     }
 
     [Test]
-    public void Decrease_ShowsTheDownIconInMutedAndTheDifference()
+    public void Decrease_ShowsTheDownIconInRedAndTheDifference()
     {
         var cut = Render(SampleThisWeek.LastWeekToDate, SampleThisWeek.ThisWeek, DayOfWeek.Wednesday);
 
@@ -54,7 +54,7 @@ public class WeekTilesTests : ComponentTestBase
         {
             Assert.That(TestText.Normalise(change.TextContent), Is.EqualTo("down 1"));
             Assert.That(change.ClassList, Does.Contain("down"));
-            Assert.That(icon.Tone, Is.EqualTo(IconTone.Muted));
+            Assert.That(icon.Tone, Is.EqualTo(IconTone.Error));
         });
     }
 

@@ -1,5 +1,3 @@
-using System.Text.RegularExpressions;
-
 namespace WorkoutLog.UI.Tests.DesignSystem;
 
 /// <summary>
@@ -8,10 +6,8 @@ namespace WorkoutLog.UI.Tests.DesignSystem;
 /// WorkoutLog.App fails until it is on the list, and a listed component that is gone fails too, so the list stays exact.
 /// A reason starting "kit gap" names what the kit lacks and what the app does meanwhile.
 /// </summary>
-public partial class AppComponentAllowListTests
+public class AppComponentAllowListTests
 {
-    private static readonly string[] AppProjects = ["WorkoutLog.UI", "WorkoutLog.App"];
-
     private const string Rule = "This repo holds no custom UI elements: use a kit component, or ask for one in https://github.com/marty-shields/app-ui-kit "
         + "(see AGENTS.md and docs/dev-setup-build.md, 'No custom UI elements'). Only a screen or a truly app-only component goes on the allow-list, with a one-line reason.";
 
@@ -80,13 +76,13 @@ public partial class AppComponentAllowListTests
     [Test]
     public void EveryAppComponent_IsOnTheAllowList()
     {
-        Assert.That(Found().Except(Allowed.Keys).Order(), Is.Empty, Rule);
+        Assert.That(Names().Except(Allowed.Keys).Order(), Is.Empty, Rule);
     }
 
     [Test]
     public void EveryAllowListEntry_IsAComponentThatExists()
     {
-        Assert.That(Allowed.Keys.Except(Found()).Order(), Is.Empty, "remove the entry: the component is gone");
+        Assert.That(Allowed.Keys.Except(Names()).Order(), Is.Empty, "remove the entry: the component is gone");
     }
 
     [Test]
@@ -96,25 +92,13 @@ public partial class AppComponentAllowListTests
     }
 
     [Test]
-    public void Found_CoversBothProjectsAndBothKindsOfComponent()
+    public void NoTwoComponentsShareAName_SoTheListKeysAreUnambiguous()
     {
-        Assert.That(Found(), Is.SupersetOf(new[] { "Chart", "Routes", "SystemBarInsets" }));
+        var repeated = AppComponents.Found().GroupBy(component => component.Name).Where(group => group.Count() > 1)
+            .Select(group => $"{group.Key}: {string.Join(", ", group.Select(component => component.Path))}");
+
+        Assert.That(repeated, Is.Empty, "rename one: the allow-list is keyed by component name");
     }
 
-    [Test]
-    public void Found_LeavesOutImportsFiles()
-    {
-        Assert.That(Found(), Has.None.EqualTo("_Imports"));
-    }
-
-    private static IReadOnlySet<string> Found() =>
-        AppProjects.SelectMany(project => RepoFiles.Find("*.razor", "src", project))
-            .Select(file => Path.GetFileNameWithoutExtension(file))
-            .Where(name => name != "_Imports")
-            .Concat(AppProjects.SelectMany(project => RepoFiles.Find("*.cs", "src", project))
-                .SelectMany(file => ComponentClass().Matches(File.ReadAllText(file)).Select(m => m.Groups[1].Value)))
-            .ToHashSet();
-
-    [GeneratedRegex(@"\bclass\s+(\w+)\s*:\s*ComponentBase\b")]
-    private static partial Regex ComponentClass();
+    private static IEnumerable<string> Names() => AppComponents.Found().Select(component => component.Name);
 }

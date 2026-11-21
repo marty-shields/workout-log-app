@@ -1,14 +1,12 @@
-using System.Text.RegularExpressions;
-
 namespace WorkoutLog.UI.Tests.DesignSystem;
 
 /// <summary>This repo declares no custom properties: every token comes from the Shields.UI kit (app-ui-kit), so a missing one is requested there.</summary>
-public partial class NoAppTokensTests
+public class NoAppTokensTests
 {
     [Test]
-    public void AppCss_DeclaresNoCustomProperty()
+    public void AppStyles_DeclareNoCustomProperty()
     {
-        Assert.That(Declared(AppCss.Files()), Is.Empty, "no app tokens: use a kit token, or ask for one in https://github.com/marty-shields/app-ui-kit (AGENTS.md, 'No custom UI elements')");
+        Assert.That(Custom(AppCss.All()), Is.Empty, "no app tokens: use a kit token, or ask for one in https://github.com/marty-shields/app-ui-kit (AGENTS.md, 'No custom UI elements')");
     }
 
     [Test]
@@ -18,32 +16,37 @@ public partial class NoAppTokensTests
     }
 
     [Test]
-    public void AppCss_CoversEveryProjectsStyles()
+    public void AppCss_ScansTheStoriesProjectsAndMarkupToo()
     {
-        Assert.That(AppCss.Files().Select(AppCss.Name), Does.Contain("src/WorkoutLog.UI/Components/Charts/Chart.razor.css"));
+        Assert.Multiple(() =>
+        {
+            Assert.That(AppCss.Projects, Is.SupersetOf(new[] { "WorkoutLog.UI.Stories", "WorkoutLog.UI.Stories.Host" }));
+            Assert.That(AppCss.MarkupFiles().Select(AppCss.Name), Does.Contain("src/WorkoutLog.UI.Stories.Host/wwwroot/iframe.html")
+                .And.Contain("src/WorkoutLog.App/wwwroot/index.html").And.Contain("src/WorkoutLog.UI/Components/Workout/SetRow.razor"));
+            Assert.That(AppCss.Files().Select(AppCss.Name), Does.Contain("src/WorkoutLog.UI/Components/Charts/Chart.razor.css"));
+        });
+    }
+
+    [TestCase(".a { --x: 1px; color: var(--y); }", ExpectedResult = "--x")]
+    [TestCase(".a { --X-Y : 1px }", ExpectedResult = "--x-y")]
+    [TestCase(".a { margin: 0;\n    --x: 1px; }", ExpectedResult = "--x")]
+    public string Declared_FindsACustomPropertyInAStylesheet(string css) =>
+        string.Join(',', Custom(AppCss.InCss("a.css", css)).Select(d => d.Split(": ")[^1]));
+
+    [Test]
+    public void Declared_FindsACustomPropertyInAnInlineStyleAndAStyleBlock()
+    {
+        var markup = "<div style=\"--x: 1px; margin: 0\"></div><style>.a { --y: 2px; }</style>";
+
+        Assert.That(Custom(AppCss.InMarkup("a.razor", markup)), Is.EqualTo(new[] { "a.razor: .a: --y", "a.razor: style=\"\": --x" }));
     }
 
     [Test]
-    public void Declared_FindsACustomPropertyButNotItsUse()
+    public void Declared_IgnoresAComment_AndAUse()
     {
-        Assert.That(DeclaredIn("a { --x: 1px; color: var(--y); }"), Is.EqualTo(new[] { "--x" }));
+        Assert.That(Custom(AppCss.InCss("a.css", ".a { /* --x: 1px; */ margin: var(--y); }")), Is.Empty);
     }
 
-    [Test]
-    public void Declared_IgnoresAComment()
-    {
-        Assert.That(DeclaredIn("a { /* --x: 1px; */ margin: 0; }"), Is.Empty);
-    }
-
-    private static IEnumerable<string> Declared(IEnumerable<string> files) =>
-        files.SelectMany(file => DeclaredIn(File.ReadAllText(file)).Select(name => $"{AppCss.Name(file)}: {name}"));
-
-    private static IEnumerable<string> DeclaredIn(string css) =>
-        Declaration().Matches(Comment().Replace(css, "")).Select(m => m.Groups[1].Value);
-
-    [GeneratedRegex(@"(?<=[{;]\s*)(--[\w-]+)\s*:")]
-    private static partial Regex Declaration();
-
-    [GeneratedRegex(@"/\*.*?\*/", RegexOptions.Singleline)]
-    private static partial Regex Comment();
+    private static IEnumerable<string> Custom(IEnumerable<AppCss.Declaration> declarations) =>
+        declarations.Where(d => d.Property.StartsWith("--", StringComparison.Ordinal)).Select(d => $"{d.File}: {d.Selector}: {d.Property}");
 }

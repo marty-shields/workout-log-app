@@ -570,7 +570,7 @@ public class NewWorkoutPageTests : ComponentTestBase
         cut.Find("[data-testid=exercise-1-set-2-remove]").Click();
         cut.Find("[data-testid=exercise-1-set-1-remove]").Click();
         cut.Find("[data-testid=save-workout]").Click();
-        var shown = cut.Find("[data-testid=exercise-1-error]").TextContent.Trim().Trim();
+        var shown = cut.Find("[data-testid=exercise-1-error]").TextContent.Trim();
 
         cut.Find("[data-testid=snackbar-action]").Click();
 
@@ -1401,7 +1401,7 @@ public class NewWorkoutPageTests : ComponentTestBase
 
         cut.Find("[data-testid=save-workout]").Click();
 
-        Assert.That(cut.Find("[data-testid=exercise-1-error]").TextContent.Trim().Trim(), Is.EqualTo("Add at least one set"));
+        Assert.That(cut.Find("[data-testid=exercise-1-error]").TextContent.Trim(), Is.EqualTo("Add at least one set"));
         cut.WaitForAssertion(() => Assert.That(((ElementReference)LastFocus().Arguments[0]!).Id, Is.EqualTo(addSet)));
     }
 
@@ -1867,7 +1867,7 @@ public class NewWorkoutPageTests : ComponentTestBase
 
     private static string Subtitle(IRenderedComponent<NewWorkoutPage> cut) => cut.Find("[data-testid=screen-subtitle]").TextContent;
 
-    private static IEnumerable<string> Names(IRenderedComponent<NewWorkoutPage> cut) => cut.FindAll(".card .title").Select(n => n.TextContent);
+    private static IEnumerable<string> Names(IRenderedComponent<NewWorkoutPage> cut) => cut.FindAll(".card > .header > .title").Select(n => n.TextContent);
 
     /// <summary>The latest focus call; the list search and added exercises each take focus.</summary>
     private JSRuntimeInvocation LastFocus() => Context.JSInterop.Invocations["Blazor._internal.domWrapper.focus"][^1];

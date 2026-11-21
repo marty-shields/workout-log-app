@@ -170,7 +170,7 @@ public class SetPanelTests : ComponentTestBase
         Assert.Multiple(() =>
         {
             Assert.That(cut.Find("[data-testid=set-2-record]").TextContent.Trim(), Is.EqualTo("Record"));
-            Assert.That(cut.Find("[data-testid=set-2-record]").ParentElement!.ParentElement, Is.SameAs(cut.Find(".title").ParentElement));
+            Assert.That(cut.Find("[data-testid=set-2-record]").ParentElement, Is.SameAs(cut.Find(".title").ParentElement));
         });
     }
 
@@ -212,7 +212,7 @@ public class SetPanelTests : ComponentTestBase
         Assert.Multiple(() =>
         {
             Assert.That(cut.Find("[data-testid=set-1-last]").TextContent, Is.EqualTo($"Last time {last}"));
-            Assert.That(cut.FindAll(".last + .fields"), Has.Count.EqualTo(1));
+            Assert.That(cut.FindAll(".panel-header + .last + .fields"), Has.Count.EqualTo(1));
             Assert.That(entry.Values, Is.Empty);
         });
     }

@@ -240,6 +240,36 @@ public class SetRowTests : ComponentTestBase
     }
 
     [Test]
+    public async Task Focus_DurationFirst_FocusesTheDurationsFirstBox()
+    {
+        var cut = Context.Render<SetRow>(p => p
+            .Add(x => x.Number, 1)
+            .Add(x => x.Fields, HoldFields)
+            .Add(x => x.Entry, new EntryState())
+            .Add(x => x.TestId, "set-1"));
+
+        await cut.InvokeAsync(() => cut.Instance.FocusAsync().AsTask());
+
+        Context.JSInterop.VerifyFocusAsyncInvoke().Arguments[0].ShouldBeElementReferenceTo(cut.Find("[data-testid=set-1-duration-h]"));
+    }
+
+    [Test]
+    public async Task Focus_ErrorOnTheDuration_FocusesTheDurationsFirstBox()
+    {
+        var entry = new EntryState();
+        entry.Errors["duration"] = "Enter a duration";
+        var cut = Context.Render<SetRow>(p => p
+            .Add(x => x.Number, 1)
+            .Add(x => x.Fields, [HoldFields[1], HoldFields[0]])
+            .Add(x => x.Entry, entry)
+            .Add(x => x.TestId, "set-1"));
+
+        await cut.InvokeAsync(() => cut.Instance.FocusAsync().AsTask());
+
+        Context.JSInterop.VerifyFocusAsyncInvoke().Arguments[0].ShouldBeElementReferenceTo(cut.Find("[data-testid=set-1-duration-h]"));
+    }
+
+    [Test]
     public async Task Focus_WithErrors_FocusesTheFirstFieldAtFault()
     {
         var entry = new EntryState();

@@ -1,6 +1,7 @@
 @using Microsoft.AspNetCore.Components.Routing
 @using WorkoutLog.Core.Data
 @using WorkoutLog.Core.Services
+@using Shields.UI.Components.Actions
 @using Shields.UI.Components.Layout
 @inject IDatabaseInitializer DatabaseInitializer
 @inject IExportService ExportService
@@ -8,7 +9,7 @@
 
 <HostBridges />
 <SystemBarInsets />
-<StartupGate Initialize="InitializeAsync" Title="Workout Log" FailedMessage="Couldn't open the workout database">
+<StartupGate Initialize="InitializeAsync" Title="Workout Log" FailedMessage="Couldn't open the workout database" RetryVariant="ButtonVariant.Secondary">
     <AppErrorBoundary Title="Workout Log" OnRestart="() => Navigation.GoTo(string.Empty)">
         <Router AppAssembly="typeof(MauiProgram).Assembly">
             <Found Context="routeData">
