@@ -1,4 +1,5 @@
 using System.Text.RegularExpressions;
+using Shields.UI.Testing;
 
 namespace WorkoutLog.UI.Tests.DesignSystem;
 
@@ -54,7 +55,7 @@ public partial class KitCardTests
         {
             Assert.That(title.Success, Is.True, "no Card .title rule in the kit's bundle");
             Assert.That(title.Groups[1].Value, Does.Contain("font-size: var(--font-size-md)"));
-            Assert.That(Regex.Match(DesignTokens.KitTokensCss, @"--font-size-md:\s*([^;]+);").Groups[1].Value, Is.EqualTo("1rem"));
+            Assert.That(DesignTokens.Value("--font-size-md"), Is.EqualTo("1rem"));
         });
     }
 

@@ -4,8 +4,8 @@ using System.Xml.Linq;
 namespace WorkoutLog.UI.Tests;
 
 /// <summary>
-/// WorkoutLog.UI takes the Shields.UI kit, and the WorkoutLog.UI.Stories library the Shields.UI.Stories shell, from NuGet or from the kit's
-/// source with -p:UseKitSource=true. The project files are read to check both references.
+/// WorkoutLog.UI takes the Shields.UI kit, the WorkoutLog.UI.Stories library the Shields.UI.Stories shell and these tests the
+/// Shields.UI.Testing design checks, from NuGet or from the kit's source with -p:UseKitSource=true. The project files are read to check the references.
 /// </summary>
 public class KitReferenceTests
 {
@@ -67,6 +67,39 @@ public class KitReferenceTests
     }
 
     [Test]
+    public void DesignChecksPackage_IsReferencedUnlessUsingKitSource()
+    {
+        var references = TestProjectItemGroupsWhen(PackageCondition).Elements("PackageReference");
+
+        Assert.That(references.Select(r => (string?)r.Attribute("Include")), Is.EqualTo(new[] { "Shields.UI.Testing" }));
+    }
+
+    [Test]
+    public void DesignChecksProject_IsReferencedWhenUsingKitSource()
+    {
+        var references = TestProjectItemGroupsWhen(SourceCondition).Elements("ProjectReference");
+
+        Assert.That(
+            references.Select(r => (string?)r.Attribute("Include")),
+            Is.EqualTo(new[] { "$(KitSourcePath)/src/Shields.UI.Testing/Shields.UI.Testing.csproj" }));
+    }
+
+    [Test]
+    public void DesignChecksPackageVersion_MatchesTheTestProjectsLockFile()
+    {
+        var props = XDocument.Parse(RepoFiles.Read("Directory.Packages.props"));
+        var version = props.Descendants("PackageVersion")
+            .Single(p => (string?)p.Attribute("Include") == "Shields.UI.Testing")
+            .Attribute("Version")?.Value;
+        var lockFile = JsonDocument.Parse(RepoFiles.Read("tests", "WorkoutLog.UI.Tests", "packages.lock.json"));
+        var locked = lockFile.RootElement.GetProperty("dependencies").EnumerateObject().First()
+            .Value.GetProperty("Shields.UI.Testing").GetProperty("resolved").GetString();
+
+        Assert.That(version, Is.Not.Null.And.Not.Empty);
+        Assert.That(locked, Is.EqualTo(version));
+    }
+
+    [Test]
     public void KitPackages_ShareOneVersion()
     {
         var props = XDocument.Parse(RepoFiles.Read("Directory.Packages.props"));
@@ -74,6 +107,7 @@ public class KitReferenceTests
             .Single(p => (string?)p.Attribute("Include") == package).Attribute("Version")?.Value;
 
         Assert.That(Version("Shields.UI.Stories"), Is.EqualTo(Version("Shields.UI")));
+        Assert.That(Version("Shields.UI.Testing"), Is.EqualTo(Version("Shields.UI")));
     }
 
     [Test]
@@ -112,6 +146,11 @@ public class KitReferenceTests
 
     private static IEnumerable<XElement> BuildPropsGroups() =>
         XDocument.Parse(RepoFiles.Read("Directory.Build.props")).Root!.Elements("PropertyGroup");
+
+    private static IEnumerable<XElement> TestProjectItemGroupsWhen(string condition) =>
+        XDocument.Parse(RepoFiles.Read("tests", "WorkoutLog.UI.Tests", "WorkoutLog.UI.Tests.csproj")).Root!
+            .Elements("ItemGroup")
+            .Where(group => (string?)group.Attribute("Condition") == condition);
 
     private static IEnumerable<XElement> ItemGroupsWhen(string condition) => ItemGroupsWhen("WorkoutLog.UI", condition);
 

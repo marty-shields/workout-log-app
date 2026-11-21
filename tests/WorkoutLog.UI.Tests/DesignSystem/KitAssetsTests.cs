@@ -1,4 +1,5 @@
 using System.Text.RegularExpressions;
+using Shields.UI.Testing;
 
 namespace WorkoutLog.UI.Tests.DesignSystem;
 
@@ -76,18 +77,10 @@ public partial class KitAssetsTests
     {
         Assert.Multiple(() =>
         {
-            Assert.That(DesignTokens.KitTokensCss, Does.Contain("--color-accent"));
+            Assert.That(KitCss.Tokens, Does.Contain("--color-accent"));
             Assert.That(KitAssets.Read("css/base.css"), Does.Contain("--inset-top"));
             Assert.That(KitAssets.Read("theme.js"), Does.Contain("shieldsTheme"));
         });
-    }
-
-    [Test]
-    public void AppTokens_DeclareNoTokenTheKitDeclares()
-    {
-        var duplicates = DesignTokens.Declares(DesignTokens.AppTokensCss).Intersect(DesignTokens.Declares(DesignTokens.KitTokensCss));
-
-        Assert.That(duplicates, Is.Empty);
     }
 
     [Test]
