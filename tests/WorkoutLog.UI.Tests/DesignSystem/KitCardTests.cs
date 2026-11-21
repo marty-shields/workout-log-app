@@ -15,7 +15,7 @@ public partial class KitCardTests
     ];
 
     [TestCaseSource(nameof(CardStyles))]
-    public void CardStyles_LeaveBorderCornersSurfacePaddingAndTitleToTheKit(string file)
+    public void CardStyles_LeaveBorderCornersSurfaceAndTitleToTheKit(string file)
     {
         var css = File.ReadAllText(RepoFiles.PathOf("src", "WorkoutLog.UI", file));
 
@@ -25,8 +25,25 @@ public partial class KitCardTests
             Assert.That(css, Does.Not.Contain(".title"));
             Assert.That(css, Does.Not.Contain("--color-surface"));
             Assert.That(css, Does.Not.Contain("--radius-lg"));
+            Assert.That(css, Does.Not.Contain("--radius-md"));
+            Assert.That(css, Does.Not.Match(BorderShorthand()));
         });
     }
+
+    [TestCase("Components/ThisWeek/LastWeekCard.razor.css")]
+    [TestCase("Components/Trends/LongestStreakCard.razor.css")]
+    public void SingleRowCards_DropTheRowsBottomBorder(string file)
+    {
+        var css = File.ReadAllText(RepoFiles.PathOf("src", "WorkoutLog.UI", file));
+
+        Assert.That(css, Does.Match(SingleRowBorderRule()));
+    }
+
+    [GeneratedRegex(@"(^|[;{\s])border\s*:")]
+    private static partial Regex BorderShorthand();
+
+    [GeneratedRegex(@"\.single ::deep \.row\s*\{[^}]*border-bottom:\s*none")]
+    private static partial Regex SingleRowBorderRule();
 
     [Test]
     public void KitCardTitle_IsTheMediumFontSize_Of16Pixels()
