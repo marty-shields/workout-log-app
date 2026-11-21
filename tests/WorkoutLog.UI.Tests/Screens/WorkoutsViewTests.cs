@@ -83,16 +83,37 @@ public class WorkoutsViewTests : ComponentTestBase
             Is.EqualTo(new[] { "Last 3 months", "Last 6 months", "Last year", null }));
     }
 
-    [Test]
-    public void TappingASegment_RaisesDatesChangedWithItsRangeUpToToday()
+    [TestCase("workouts-range-1y", 2025, 11, 6)]
+    [TestCase("workouts-range-all", 2025, 3, 12)]
+    public void TappingASegment_RaisesDatesChangedWithItsRangeUpToToday(string testId, int year, int month, int day)
     {
         var changed = new List<DateSpan>();
         var cut = Render(ThreeMonths, p => p.Add(x => x.DatesChanged, (DateSpan d) => changed.Add(d)));
 
+        cut.Find($"[data-testid={testId}]").Change(true);
+
+        Assert.That(changed, Is.EqualTo(new[] { new DateSpan(new(year, month, day), Today) }));
+    }
+
+    [Test]
+    public void TappingTwoSegmentsInARow_RaisesBothWhenTheHostTakesTheDates()
+    {
+        var changed = new List<DateSpan>();
+        IRenderedComponent<WorkoutsView>? cut = null;
+        cut = Render(ThreeMonths, p => p.Add(x => x.DatesChanged, (DateSpan d) =>
+        {
+            changed.Add(d);
+            cut!.Render(q => q.Add(x => x.Dates, d));
+        }));
+
         cut.Find("[data-testid=workouts-range-1y]").Change(true);
         cut.Find("[data-testid=workouts-range-all]").Change(true);
 
-        Assert.That(changed, Is.EqualTo(new[] { new DateSpan(new(2025, 11, 6), Today), new DateSpan(new(2025, 3, 12), Today) }));
+        Assert.That(changed, Is.EqualTo(new[]
+        {
+            new DateSpan(new(2025, 11, 6), Today),
+            new DateSpan(new(2025, 3, 12), Today),
+        }));
     }
 
     [Test]

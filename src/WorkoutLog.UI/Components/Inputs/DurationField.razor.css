@@ -22,10 +22,11 @@
     min-height: var(--touch-target);
     padding: 0;
     border: var(--border-width) solid var(--color-border-strong);
-    border-radius: var(--radius-sm);
-    background-color: var(--color-bg);
+    border-radius: var(--radius-md);
+    background-color: var(--color-surface);
     color: var(--color-text);
     font-size: var(--font-size-input);
+    font-weight: var(--font-weight-bold);
     text-align: center;
     font-variant-numeric: tabular-nums;
 }
@@ -35,7 +36,8 @@
 }
 
 .invalid {
-    border: var(--border-width-error) solid var(--color-error);
+    border-color: var(--color-error);
+    box-shadow: inset 0 0 0 calc(var(--border-width-error) - var(--border-width)) var(--color-error);
 }
 
 .separator {

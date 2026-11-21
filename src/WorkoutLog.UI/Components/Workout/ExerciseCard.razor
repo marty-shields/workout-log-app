@@ -120,7 +120,7 @@
             <div class="cardio">
                 @foreach (var field in Exercise.Fields)
                 {
-                    <FieldInput @ref="cardioFields[field.Key]" Field="field" Entry="entry" OnChanged="() => EntryChanged(entry)" TestId="@($"{TestId}-{field.Key}")" />
+                    <EntryField @ref="cardioFields[field.Key]" Field="field" Entry="entry" OnChanged="() => EntryChanged(entry)" TestId="@($"{TestId}-{field.Key}")" />
                 }
             </div>
             @if (entry == Exercise.RecordEntry)
@@ -184,7 +184,7 @@
     private ExerciseState? shown;
     private EntryState? open;
     private SetRow? openRow;
-    private readonly Dictionary<string, FieldInput> cardioFields = new();
+    private readonly Dictionary<string, EntryField> cardioFields = new();
     private SetPanel? openPanel;
     private IconButton? first;
     private IconButton? remove;
