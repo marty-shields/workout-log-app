@@ -150,7 +150,7 @@ public class WorkoutsViewTests : ComponentTestBase
         Assert.Multiple(() =>
         {
             Assert.That(cut.Find("[data-testid=workouts-dates]").GetAttribute("aria-expanded"), Is.EqualTo("true"));
-            Assert.That(cut.FindAll("[data-testid=range-calendar]"), Has.Count.EqualTo(1));
+            Assert.That(cut.FindAll("[data-testid=range]"), Has.Count.EqualTo(1));
             Assert.That(cut.FindAll("[data-testid=workouts-range]"), Is.Empty);
             Assert.That(cut.FindAll(".rows"), Is.Empty);
         });

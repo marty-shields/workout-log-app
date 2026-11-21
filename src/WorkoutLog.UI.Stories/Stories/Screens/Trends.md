@@ -19,7 +19,7 @@ Under the tiles, each kind has its own cards, top to bottom:
 | Kind | Cards |
 |---|---|
 | Week | **Time trained by day**: `TrendBars` paired, this week beside the same day last week, with a legend. **Sets per muscle group**: `MuscleSetsCard`. **Records**: `WeekRecordsCard`, "n this week". **Last 12 weeks**: `WeekBars` with the streak at the right (e.g. *23-week streak*, hidden at 0). |
-| Month | **Each day**: `MonthCalendar`. **Weeks**: `MonthWeeks`. **Records**: `RecordRows`, "n this month", each dated (e.g. *Wed 18 Nov*). **Most trained**: `MeterRows` of the top five exercises by sessions. |
+| Month | **Each day**: the kit's `MonthCalendar` (marks style) and a legend. **Weeks**: `MonthWeeks`. **Records**: `RecordRows`, "n this month", each dated (e.g. *Wed 18 Nov*). **Most trained**: `MeterRows` of the top five exercises by sessions. |
 | Year | **Workouts by month**: single `TrendBars`, "3.2 a week" at the right (hidden at 0). **Longest streak**: `LongestStreakCard`. **Records by month**: `MeterRows`, "n this year". |
 
 Every chart has an accessible name saying what it shows and a hidden list of its values; none tells a state by colour alone (see [Trends components](./?path=/custom/workout-log-components-trends-overview)).

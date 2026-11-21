@@ -31,10 +31,6 @@ One exercise in a workout: name, Done, Remove, and its sets (strength) or entry 
 The note an exercise had in the last saved workout with it: one muted line, the note `Icon` (`Muted`, `Small`) and the text. Cut with … when long; tap to show the whole note, tap again to cut it. Read-only. Screen readers hear "Last note:" before the text.
 - `data-testid`: `TestId`.
 
-## `EntryField`
-The input for one field of a set or cardio entry, picked from its kind: the kit's `NumberField` for whole and decimal numbers (numeric or decimal keyboard), `DurationField` for durations. Reads and writes the field's text in the `EntryState` and shows the box invalid when the entry has an error for the field. Enter raises `OnEnter` from a number box. `FocusAsync` focuses the box, or the first box of a duration.
-- `data-testid`: `TestId`, passed to the input it picks.
-
 ## `SetRow`
 One set on one row: number, a box per field, remove (`IconButton` Close, muted, small). Column headers come from the card. With `IsRecord`, a `RecordBadge` shows under the row, in line with the fields.
 - With `Last`, a muted small text after the number in a Last column the width of a field box: last time's set as the Exercise page writes it, e.g. *60×8*, *25kg×10*; *—* when last time had no set with that number (the caller passes it). Read out as "Last time 60×8".
@@ -61,4 +57,4 @@ The Record `Icon` (`Success`, small) and "Record" in bold small text, in `--colo
 One message per faulty field under a set or entry, in field order.
 - `data-testid`: `TestId`.
 
-Stories: [EntryField](./?path=/docs/workout-log-components-workout-entryfield--docs) · [ExerciseCard](./?path=/docs/workout-log-components-workout-exercisecard--docs) · [LastNote](./?path=/docs/workout-log-components-workout-lastnote--docs) · [SetRow](./?path=/docs/workout-log-components-workout-setrow--docs) · [SetPanel](./?path=/docs/workout-log-components-workout-setpanel--docs) · [SetSummary](./?path=/docs/workout-log-components-workout-setsummary--docs) · [RecordBadge](./?path=/docs/workout-log-components-workout-recordbadge--docs) · [EntryErrors](./?path=/docs/workout-log-components-workout-entryerrors--docs).
+Stories: [ExerciseCard](./?path=/docs/workout-log-components-workout-exercisecard--docs) · [LastNote](./?path=/docs/workout-log-components-workout-lastnote--docs) · [SetRow](./?path=/docs/workout-log-components-workout-setrow--docs) · [SetPanel](./?path=/docs/workout-log-components-workout-setpanel--docs) · [SetSummary](./?path=/docs/workout-log-components-workout-setsummary--docs) · [RecordBadge](./?path=/docs/workout-log-components-workout-recordbadge--docs) · [EntryErrors](./?path=/docs/workout-log-components-workout-entryerrors--docs).

@@ -4,12 +4,6 @@
     gap: var(--space-2);
 }
 
-/* TEMP (epic #262): remove when the kit's compact NumberField lands.
-   The kit's number box pads 12px a side; at the narrowest card that leaves a weight like 62.5 clipped. */
-.set-row ::deep .box {
-    padding-inline: var(--space-1);
-}
-
 .number {
     color: var(--color-text-muted);
     font-variant-numeric: tabular-nums;

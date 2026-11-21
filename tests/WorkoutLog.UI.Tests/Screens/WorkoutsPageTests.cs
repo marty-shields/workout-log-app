@@ -162,7 +162,7 @@ public class WorkoutsPageTests : ComponentTestBase
         {
             Assert.That(workouts.RangeReads[^1], Is.EqualTo((new DateOnly(2025, 3, 12), new DateOnly(2025, 3, 12))));
             Assert.That(cut.Find("[data-testid=workouts-dates-dates]").TextContent, Is.EqualTo("Wed\u00A012\u00A0Mar\u00A02025"));
-            Assert.That(cut.FindAll("[data-testid=range-calendar]"), Is.Empty);
+            Assert.That(cut.FindAll("[data-testid=range]"), Is.Empty);
             Assert.That(Shown(cut), Is.EqualTo(new[] { "workouts-row-1" }));
             Assert.That(Checked(cut), Is.Empty);
         });
@@ -271,7 +271,7 @@ public class WorkoutsPageTests : ComponentTestBase
 
         Assert.Multiple(() =>
         {
-            Assert.That(cut.FindAll("[data-testid=range-calendar]"), Has.Count.EqualTo(1));
+            Assert.That(cut.FindAll("[data-testid=range]"), Has.Count.EqualTo(1));
             Assert.That(cut.FindAll("[data-testid=workouts-loading]"), Is.Empty);
         });
 
@@ -283,7 +283,7 @@ public class WorkoutsPageTests : ComponentTestBase
 
         Assert.Multiple(() =>
         {
-            Assert.That(cut.FindAll("[data-testid=range-calendar]"), Is.Empty);
+            Assert.That(cut.FindAll("[data-testid=range]"), Is.Empty);
             Assert.That(Shown(cut), Is.EqualTo(new[] { "workouts-row-4" }));
         });
     }
@@ -661,7 +661,7 @@ public class WorkoutsPageTests : ComponentTestBase
 
         Assert.Multiple(() =>
         {
-            Assert.That(cut.FindAll("[data-testid=range-calendar]"), Is.Empty);
+            Assert.That(cut.FindAll("[data-testid=range]"), Is.Empty);
             Assert.That(back, Is.EqualTo(0));
         });
 

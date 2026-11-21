@@ -92,7 +92,7 @@ public sealed class TrendsSteps(WebView web, Journeys journeys, TrendsScreen tre
     {
         var date = SeedTime.ResolveDay(day, clock.LocalNow());
         OpenMonth(date);
-        trends.OpenDay(date.Day);
+        trends.OpenDay(DateOnly.FromDateTime(date));
     }
 
     /// <summary>Taps the row of the Weeks card that holds the day, stepping back to its month first.</summary>

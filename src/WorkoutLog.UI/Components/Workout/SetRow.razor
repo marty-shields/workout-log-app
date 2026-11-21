@@ -1,4 +1,3 @@
-@using WorkoutLog.UI.Components.Inputs
 @using WorkoutLog.UI.Models.Fields
 <div class="set-row" style="grid-template-columns: @SetGrid.Columns(Fields, Last is not null)" data-testid="@TestId">
     <span class="number">@Number</span>
@@ -8,7 +7,17 @@
     }
     @foreach (var field in Fields)
     {
-        <EntryField @ref="fields[field.Key]" Field="field" Entry="Entry" ShowLabel="false" OnChanged="OnChanged" OnEnter="@(field == Fields[^1] ? OnEnterLast : default)" TestId="@($"{TestId}-{field.Key}")" />
+        <ValueField @ref="fields[field.Key]"
+                    Kind="field.ValueKind"
+                    Label="@field.DisplayLabel"
+                    ShowLabel="false"
+                    Required="field.Required"
+                    Invalid="Entry.Errors.ContainsKey(field.Key)"
+                    Compact
+                    Value="@Entry.Values.GetValueOrDefault(field.Key)"
+                    ValueChanged="value => Change(field, value)"
+                    OnEnter="@(field == Fields[^1] ? OnEnterLast : default)"
+                    TestId="@($"{TestId}-{field.Key}")" />
     }
     <IconButton Icon="IconName.Close" AriaLabel="@RemoveLabel" TestId="@($"{TestId}-remove")" Muted Size="IconSize.Small" OnClick="OnRemove" />
 </div>
@@ -70,13 +79,19 @@
     [Parameter]
     public string? TestId { get; set; }
 
-    private readonly Dictionary<string, EntryField> fields = new();
+    private readonly Dictionary<string, ValueField> fields = new();
 
     /// <summary>Moves focus to the first field with an error, or the first field.</summary>
     public ValueTask FocusAsync() =>
         (Fields.FirstOrDefault(f => Entry.Errors.ContainsKey(f.Key)) ?? Fields.FirstOrDefault()) is { } field && fields.TryGetValue(field.Key, out var input)
             ? input.FocusAsync()
             : ValueTask.CompletedTask;
+
+    private Task Change(FieldSpec field, string? value)
+    {
+        Entry.Values[field.Key] = value;
+        return OnChanged.InvokeAsync();
+    }
 
     private string RemoveLabel => ExerciseName is null ? $"Remove set {Number}" : $"Remove {ExerciseName} set {Number}";
 }

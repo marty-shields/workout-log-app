@@ -50,7 +50,8 @@
                 else if (Kind == PeriodKind.Month)
                 {
                     <Card Title="Each day" TestId="trends-calendar">
-                        <MonthCalendar Month="Start" Today="Today" Trained="Trained" OnOpenDay="OpenDay" TestId="trends-calendar-days" />
+                        <MonthCalendar Month="Start" Today="Today" Days="TrainedDays" DayNames="DayInitials" Style="CalendarStyle.Marks" OnSelect="OpenDay" TestId="trends-calendar-days" />
+                        <ChartLegend Items="CalendarLegend" TestId="trends-calendar-days-legend" />
                     </Card>
                     <Card Title="Weeks" TestId="trends-weeks">
                         <MonthWeeks Weeks="Weeks" OnOpen="OnOpenWorkouts" TestId="trends-weeks-rows" />
@@ -241,6 +242,18 @@
     /// <summary>Raised with the exercise id when a record row, or in the month a Most trained row, is tapped. Rows are not tappable when unset.</summary>
     [Parameter]
     public EventCallback<int> OnOpenRecord { get; set; }
+
+    private static readonly IReadOnlyList<LegendItem> CalendarLegend =
+    [
+        new(LegendSwatch.Primary, "Trained"),
+        new(LegendSwatch.Outline, "No workout"),
+        new(LegendSwatch.Today, "Today"),
+    ];
+
+    /// <summary>Sunday first, as the kit's <c>DayNames</c> expects; the calendar starts on Monday.</summary>
+    private static readonly IReadOnlyList<string> DayInitials = ["S", "M", "T", "W", "T", "F", "S"];
+
+    private IReadOnlyList<CalendarDay> TrainedDays => Trained.Select(day => new CalendarDay(day, 1)).ToList();
 
     private EventCallback<DateOnly> OpenDay =>
         OnOpenWorkouts.HasDelegate ? EventCallback.Factory.Create<DateOnly>(this, day => OnOpenWorkouts.InvokeAsync(new DateSpan(day, day))) : default;
