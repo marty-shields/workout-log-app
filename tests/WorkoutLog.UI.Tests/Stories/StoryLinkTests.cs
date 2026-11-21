@@ -50,7 +50,7 @@ public partial class StoryLinkTests
 
     private static string Slug(string text) => NotAlphanumeric().Replace(text.ToLowerInvariant(), "-").Trim('-');
 
-    [GeneratedRegex(@"\]\(\./\?path=/(story|docs|custom)/([a-z0-9-]+)(?:#[^)]*)?\)")]
+    [GeneratedRegex(@"\]\(\./\?path=/(story|docs|custom)/([^)#\s]+)(?:#[^)]*)?\)")]
     private static partial Regex Link();
 
     [GeneratedRegex("""<Story Name="([^"]+)">""")]

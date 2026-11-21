@@ -125,6 +125,23 @@ public class DurationFieldTests : ComponentTestBase
     }
 
     [Test]
+    public async Task FocusEntersThenLeavesPartlyFilledField_FillsIn()
+    {
+        string? raised = null;
+        var cut = Context.Render<DurationField>(p => p
+            .Add(x => x.Label, "Duration")
+            .Add(x => x.Value, "1::")
+            .Add(x => x.ValueChanged, (string? v) => raised = v));
+
+        await cut.Find(".field").FocusInAsync(new FocusEventArgs());
+        var leaving = cut.Find(".field").FocusOutAsync(new FocusEventArgs());
+        PassFocusMoveWait();
+        await leaving;
+
+        Assert.That(raised, Is.EqualTo("1:00:00"));
+    }
+
+    [Test]
     public async Task FocusMovesToAnotherBox_DoesNotFillIn()
     {
         string? raised = null;
@@ -150,5 +167,5 @@ public class DurationFieldTests : ComponentTestBase
     }
 
     // The component waits on the context's FakeTimeProvider, which only moves here, so no test depends on real time.
-    private void PassFocusMoveWait() => ((FakeTimeProvider)Context.Services.GetRequiredService<TimeProvider>()).Advance(TimeSpan.FromMilliseconds(10));
+    private void PassFocusMoveWait() => ((FakeTimeProvider)Context.Services.GetRequiredService<TimeProvider>()).Advance(DurationField.FocusMoveWait);
 }

@@ -63,7 +63,7 @@
     [Parameter]
     public string? TestId { get; set; }
 
-    private static readonly TimeSpan FocusMoveWait = TimeSpan.FromMilliseconds(10);
+    internal static readonly TimeSpan FocusMoveWait = TimeSpan.FromMilliseconds(10);
 
     private bool focused;
     private readonly ElementReference[] boxes = new ElementReference[Parts.Length];
