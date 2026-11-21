@@ -19,6 +19,17 @@ public class WorkoutHistoryTests
     public void Earliest_IsTheFirstWorkoutsDay() => Assert.That(History.Earliest, Is.EqualTo(new DateOnly(2026, 8, 5)));
 
     [Test]
+    public void PerDay_CountsWorkoutsOnEachDayAndLeavesOutOtherDays()
+    {
+        Assert.That(History.PerDay, Is.EquivalentTo(new Dictionary<DateOnly, int>
+        {
+            [new(2026, 11, 6)] = 1,
+            [new(2026, 8, 6)] = 1,
+            [new(2026, 8, 5)] = 2,
+        }));
+    }
+
+    [Test]
     public void NoWorkouts_IsEmptyWithTodayAsEarliest()
     {
         var history = new WorkoutHistory(new Dictionary<DateOnly, int>(), Today);

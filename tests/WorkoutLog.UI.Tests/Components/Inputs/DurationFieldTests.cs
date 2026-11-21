@@ -5,6 +5,7 @@ using Shields.UI.Components.Inputs;
 
 namespace WorkoutLog.UI.Tests.Components.Inputs;
 
+[CancelAfter(10_000)]
 public class DurationFieldTests : ComponentTestBase
 {
 
@@ -119,8 +120,8 @@ public class DurationFieldTests : ComponentTestBase
         Assert.That(raised, Is.Null);
     }
 
-    // The kit keeps its wait private; its own tests advance by the same 10 ms.
-    private static readonly TimeSpan FocusMoveWait = TimeSpan.FromMilliseconds(10);
+    // The kit keeps its wait private (10 ms). Advancing well past it keeps these tests valid if the kit lengthens it.
+    private static readonly TimeSpan FocusMoveWait = TimeSpan.FromSeconds(1);
 
     // The component waits on the context's FakeTimeProvider, which only moves here, so no test depends on real time.
     private void PassFocusMoveWait() => ((FakeTimeProvider)Context.Services.GetRequiredService<TimeProvider>()).Advance(FocusMoveWait);

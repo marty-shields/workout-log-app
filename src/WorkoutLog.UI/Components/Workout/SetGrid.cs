@@ -21,7 +21,7 @@ internal static class SetGrid
     public static string Columns(IReadOnlyList<FieldSpec> fields, bool hasLast)
     {
         var lastColumn = LastColumn(fields, hasLast);
-        var fieldColumns = fields.Select(field => field.Kind == FieldKind.Duration ? "minmax(0, 2fr)" : lastColumn ? "minmax(0, 2fr)" : "minmax(0, 1fr)");
+        var fieldColumns = fields.Select(field => field.Kind == FieldKind.Duration ? "minmax(0, 2fr)" : "minmax(0, 1fr)");
         var last = lastColumn ? "var(--set-last-width) " : null;
         return $"var(--set-number-width) {last}{string.Join(' ', fieldColumns)} var(--touch-target)";
     }

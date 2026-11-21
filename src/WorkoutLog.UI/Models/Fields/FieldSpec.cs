@@ -20,7 +20,8 @@ public sealed record FieldSpec(
     {
         FieldKind.Whole => ValueKind.Whole,
         FieldKind.Decimal => ValueKind.Fractional,
-        _ => ValueKind.Duration,
+        FieldKind.Duration => ValueKind.Duration,
+        _ => throw new ArgumentOutOfRangeException(nameof(Kind), Kind, null),
     };
 
     /// <summary>Label with the unit, e.g. Weight (kg).</summary>

@@ -60,6 +60,66 @@ public class DateRangeFieldTests : ComponentTestBase
     }
 
     [Test]
+    public void Expanded_ShowsTheCurrentDatesInTheFromAndToBoxes()
+    {
+        var cut = Render(new DateSpan(new(2026, 8, 6), Today), expanded: true);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.Find("[data-testid=range-from-value]").TextContent, Is.EqualTo("Thu 6 Aug 26"));
+            Assert.That(cut.Find("[data-testid=range-to-value]").TextContent, Is.EqualTo("Fri 6 Nov 26"));
+        });
+    }
+
+    [Test]
+    public void Expanded_DisablesDaysBeforeTheFirstWorkoutAndAfterToday()
+    {
+        var cut = Render(new DateSpan(new(2026, 11, 1), Today), expanded: true);
+
+        cut.Find("[data-testid=range-month-name]").Click();
+        cut.Find("[data-testid=range-prev-year]").Click();
+        cut.Find("[data-testid=range-month-2025-03]").Click();
+        var before = cut.Find("[data-testid=range-day-2025-03-11]").HasAttribute("disabled");
+        var first = cut.Find("[data-testid=range-day-2025-03-12]").HasAttribute("disabled");
+        cut.Find("[data-testid=range-month-name]").Click();
+        cut.Find("[data-testid=range-next-year]").Click();
+        cut.Find("[data-testid=range-month-2026-11]").Click();
+        var today = cut.Find("[data-testid=range-day-2026-11-06]").HasAttribute("disabled");
+        var after = cut.Find("[data-testid=range-day-2026-11-07]").HasAttribute("disabled");
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(before, Is.True, "the day before the first workout");
+            Assert.That(first, Is.False, "the first workout's day");
+            Assert.That(today, Is.False, "today");
+            Assert.That(after, Is.True, "the day after today");
+        });
+    }
+
+    [Test]
+    public void Expanded_MarksAWorkoutDayAndCountsTheMonthsWorkouts()
+    {
+        var cut = Render(new DateSpan(new(2025, 3, 1), new(2025, 3, 31)), expanded: true);
+
+        cut.Find("[data-testid=range-month-name]").Click();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.Find("[data-testid=range-month-2025-03]").GetAttribute("aria-label"), Is.EqualTo("March 2025, 1 workout"));
+            Assert.That(cut.Find("[data-testid=range-month-count-2025-03]").TextContent, Is.EqualTo("1"));
+            Assert.That(cut.Find("[data-testid=range-month-count-2025-04]").TextContent, Is.EqualTo("0"));
+        });
+
+        cut.Find("[data-testid=range-month-2025-03]").Click();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.Find("[data-testid=range-day-2025-03-12] .visually-hidden").TextContent, Does.Contain("workout logged"));
+            Assert.That(cut.Find("[data-testid=range-day-2025-03-13] .visually-hidden").TextContent, Does.Not.Contain("workout logged"));
+        });
+    }
+
+    [Test]
     public void ShowWorkouts_ClosesThenRaisesDatesChanged()
     {
         var events = new List<string>();

@@ -71,7 +71,7 @@ public class SetRowTests : ComponentTestBase
             Assert.That(cut.Find("[data-testid=set-1-last]").TextContent, Is.EqualTo($"Last time {last}"));
             Assert.That(cut.Find(".last .visually-hidden").TextContent, Is.EqualTo("Last time "));
             Assert.That(cut.Find(".set-row").GetAttribute("style"),
-                Is.EqualTo("grid-template-columns: var(--set-number-width) var(--set-last-width) minmax(0, 2fr) minmax(0, 2fr) var(--touch-target)"));
+                Is.EqualTo("grid-template-columns: var(--set-number-width) var(--set-last-width) minmax(0, 1fr) minmax(0, 1fr) var(--touch-target)"));
         });
     }
 
@@ -359,6 +359,29 @@ public class SetRowTests : ComponentTestBase
             Assert.That(entry.Values["weight"], Is.EqualTo(typed));
             Assert.That(cut.Find("[data-testid=set-1-weight]").GetAttribute("value"), Is.EqualTo(typed));
         });
+    }
+
+    [TestCase("1.")]
+    [TestCase("1,5")]
+    [TestCase("abc")]
+    [TestCase("-")]
+    [TestCase(" 5")]
+    [TestCase(".5")]
+    [TestCase("007")]
+    public void TypedText_SurvivesARedrawFromTheEntry(string typed)
+    {
+        var entry = new EntryState();
+        var cut = Context.Render<SetRow>(p => p
+            .Add(x => x.Number, 1)
+            .Add(x => x.Fields, Fields)
+            .Add(x => x.Entry, entry)
+            .Add(x => x.TestId, "set-1"));
+        cut.Find("[data-testid=set-1-weight]").Input(typed);
+
+        entry.Errors["weight"] = "Weight must be a number";
+        cut.Render();
+
+        Assert.That(cut.Find("[data-testid=set-1-weight]").GetAttribute("value"), Is.EqualTo(typed));
     }
 
     [TestCase("22,75")]

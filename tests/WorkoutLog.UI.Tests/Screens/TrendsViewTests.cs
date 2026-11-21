@@ -113,6 +113,49 @@ public class TrendsViewTests : ComponentTestBase
     }
 
     [Test]
+    public void Month_CalendarLegend_NamesTrainedNoWorkoutAndToday()
+    {
+        var cut = Render(SampleTrends.Month);
+
+        var items = cut.FindAll("[data-testid=trends-calendar-days-legend] .item");
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(items.Select(i => i.QuerySelector(".text")!.TextContent), Is.EqualTo(new[] { "Trained", "No workout", "Today" }));
+            Assert.That(items.Select(i => i.QuerySelector(".swatch")!.ClassList.Contains(i.QuerySelector(".text")!.TextContent switch
+            {
+                "Trained" => "primary",
+                "No workout" => "outline",
+                _ => "today",
+            })), Is.All.True);
+        });
+    }
+
+    [Test]
+    public void Month_CalendarWeekdayInitials_AreMondayFirstInEnglish()
+    {
+        var cut = Render(SampleTrends.Month);
+
+        Assert.That(cut.FindAll("[data-testid=trends-calendar-days] .weekdays span").Select(d => d.TextContent),
+            Is.EqualTo(new[] { "M", "T", "W", "T", "F", "S", "S" }));
+    }
+
+    [Test]
+    public void Month_TrainedDay_IsRecordedAndAnUntrainedDayIsNot()
+    {
+        var cut = Render(SampleTrends.Month);
+
+        var trained = cut.Find("[data-testid=trends-calendar-days-day-2026-11-04] .visually-hidden").TextContent;
+        var untrained = cut.Find("[data-testid=trends-calendar-days-day-2026-11-03] .visually-hidden").TextContent;
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(trained, Does.StartWith("Wed 4 Nov").And.EndWith("recorded"));
+            Assert.That(untrained, Is.EqualTo("Tue 3 Nov, not recorded"));
+        });
+    }
+
+    [Test]
     public void Month_ShowsTheCalendarWeeksRecordsAndMostTrained()
     {
         var cut = Render(SampleTrends.Month);

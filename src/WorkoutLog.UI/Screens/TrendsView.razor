@@ -50,7 +50,7 @@
                 else if (Kind == PeriodKind.Month)
                 {
                     <Card Title="Each day" TestId="trends-calendar">
-                        <MonthCalendar Month="Start" Today="Today" Days="TrainedDays" Style="CalendarStyle.Marks" OnSelect="OpenDay" TestId="trends-calendar-days" />
+                        <MonthCalendar Month="Start" Today="Today" Days="TrainedDays" DayNames="DayInitials" Style="CalendarStyle.Marks" OnSelect="OpenDay" TestId="trends-calendar-days" />
                         <ChartLegend Items="CalendarLegend" TestId="trends-calendar-days-legend" />
                     </Card>
                     <Card Title="Weeks" TestId="trends-weeks">
@@ -249,6 +249,9 @@
         new(LegendSwatch.Outline, "No workout"),
         new(LegendSwatch.Today, "Today"),
     ];
+
+    /// <summary>Sunday first, as the kit's <c>DayNames</c> expects; the calendar starts on Monday.</summary>
+    private static readonly IReadOnlyList<string> DayInitials = ["S", "M", "T", "W", "T", "F", "S"];
 
     private IReadOnlyList<CalendarDay> TrainedDays => Trained.Select(day => new CalendarDay(day, 1)).ToList();
 
