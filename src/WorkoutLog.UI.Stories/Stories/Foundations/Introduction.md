@@ -10,7 +10,7 @@ Tokens, components, screens and their behaviour for the Workout Log app.
 | Item | Location |
 |---|---|
 | Tokens | The Shields.UI kit's `css/tokens.css` (shared, with its base styles and theme script), then `src/WorkoutLog.UI/wwwroot/css/tokens.css` for this app's own (CSS custom properties) |
-| Components | `src/WorkoutLog.UI/Components/` (Razor components with scoped `.razor.css`); `AppButton`, `Icon` and `IconButton` come from the Shields.UI kit and are documented in the kit's stories |
+| Components | `src/WorkoutLog.UI/Components/` (Razor components with scoped `.razor.css`); `AppButton`, `Icon`, `IconButton`, `Spinner`, `LoadFailed` and `Snackbar` come from the Shields.UI kit and are documented in the kit's stories (see its Actions, Feedback and Icons stories) |
 | Screens | `src/WorkoutLog.UI/Screens/` (`*View` components, and `*Page` components that call services) |
 | Stories and these pages | `src/WorkoutLog.UI.Stories/Stories/`: `Foundations/`, `Components/<Group>/`, `Screens/` |
 

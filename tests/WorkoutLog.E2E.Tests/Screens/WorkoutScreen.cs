@@ -277,9 +277,9 @@ public sealed partial class WorkoutScreen(WebView web, Native native)
     /// <summary>The snackbar's message, or null when none shows.</summary>
     public string? Snackbar() => web.Exists("snackbar-message") ? web.Text("snackbar-message") : null;
 
-    public string UndoText() => web.Text("snackbar-undo");
+    public string UndoText() => web.Text("snackbar-action");
 
-    public void Undo() => TapButton("snackbar-undo");
+    public void Undo() => TapButton("snackbar-action");
 
     public bool HasRemove(string name) => web.Exists($"{Card(name)}-remove");
 

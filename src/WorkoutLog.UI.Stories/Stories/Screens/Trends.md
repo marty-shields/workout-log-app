@@ -32,7 +32,7 @@ Every chart has an accessible name saying what it shows and a hidden list of its
 - **No workouts**: a period with none. The tiles show zeros and "—", each chart says what is missing instead (e.g. *No workouts that week*), the records cards say "No new records that week" and the muscle groups all read "Not trained". The previous arrow is disabled when it is the first period.
 - **No workouts ever**: the current week with nothing logged yet, so both arrows are disabled and the cards read as an empty week.
 - **Loading**: `Spinner` "Loading…" in place of the cards. The kind control, stepper and tab bar work.
-- **Load failed**: error "Couldn't load Trends" and a Secondary full-width **Try again** in place of the cards. Focus moves to Try again. The kind control, stepper and tab bar work.
+- **Load failed**: error "Couldn't load Trends" and the kit's `LoadFailed` **Try again** button in place of the cards. Focus moves to Try again. The kind control, stepper and tab bar work.
 
 `TrendsView` takes every value as a parameter, with those of the kinds not shown ignored. A change of kind or period is raised (`OnKindChanged`, `OnPrevious`, `OnNext`) and the page answers by loading the period and passing it back.
 

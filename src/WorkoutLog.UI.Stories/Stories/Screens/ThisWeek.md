@@ -18,7 +18,7 @@ Home screen: how the week is going. Which days you trained, how it compares with
 | Last week | A `LastWeekCard`, only while nothing is logged this week and last week is known. |
 | Records failed | The same week with its Records card left out, because the records could not be read. |
 | Loading | `Spinner` "Loading…" instead of the week. The top bar and tab bar work. |
-| Load failed | Error "Couldn't load This week" and a Secondary full-width **Try again** instead of the week. Focus moves to Try again. The top bar and tab bar work. |
+| Load failed | Error "Couldn't load This week" and the kit's `LoadFailed` **Try again** button instead of the week. Focus moves to Try again. The top bar and tab bar work. |
 | Tab bar | `MainTabBar` with This week current, through `AppScreen`'s `Tab`: Trends opens [Trends](./?path=/custom/screens-trends-overview), + opens [New Workout](./?path=/custom/screens-new-workout-overview) (`/workout/new?from=this-week`, so discarding it returns here). |
 
 The parts run top to bottom in that order. With no workouts this week the Records and muscle group cards are left out: the workouts card says "Nothing yet this week. Tap + to start one.", the tiles show zeros against last week, and a Last week row shows last week's workouts, time and sets. The row shows only when last week had a workout, so before the first workout ever there is none. Tapping it opens last week in [Trends](./?path=/custom/screens-trends-overview) (`OnOpenLastWeek` raises that week).

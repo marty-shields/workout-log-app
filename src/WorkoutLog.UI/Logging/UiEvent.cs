@@ -2,7 +2,7 @@ namespace WorkoutLog.UI.Logging;
 
 /// <summary>
 /// Event ids of the UI's log messages: 2000–4999, a block of 100 per type. Values never change once logged.
-/// Retired, never reused: 2801, 3001.
+/// Retired, never reused: 2801, 3001, 3301, 3901, 3902 (the last three now belong to the kit, which logs them as 9401, 9501 and 9502).
 /// </summary>
 internal enum UiEvent
 {
@@ -63,9 +63,6 @@ internal enum UiEvent
     /// <summary><see cref="Lifecycle.AppLifecycle"/>: an app start handler failed.</summary>
     AppStartHandlerFailed = 3201,
 
-    /// <summary><see cref="Components.Feedback.LoadFailed"/>: focusing Try again failed.</summary>
-    LoadFailedFocusFailed = 3301,
-
     /// <summary><see cref="Screens.SettingsPage"/>: opening the share sheet failed.</summary>
     ShareFailed = 3401,
 
@@ -95,12 +92,6 @@ internal enum UiEvent
 
     /// <summary><see cref="Import.ImportFileOpener"/>: the picked file is over the size limit.</summary>
     ImportFileTooLarge = 3801,
-
-    /// <summary><see cref="Components.Feedback.Snackbar"/>: focusing Undo failed.</summary>
-    UndoFocusFailed = 3901,
-
-    /// <summary><see cref="Components.Feedback.Snackbar"/>: checking Undo for keyboard focus failed, so the timer runs on.</summary>
-    UndoFocusCheckFailed = 3902,
 
     /// <summary><see cref="Components.Layout.AppScreen"/>: setting up pull to refresh failed, so the screen can't be pulled.</summary>
     PullRefreshFailed = 4001,

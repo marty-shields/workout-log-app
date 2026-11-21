@@ -16,7 +16,7 @@ One exercise's progress: a chart, its records and its sessions. View: `ExerciseV
 | Records | `RecordsCard` titled with the range, e.g. "Records · last 3 months". |
 | Sessions | Heading "Sessions" and a `SessionRow` per session in the range, newest first. Hidden when there are none. |
 | Loading | `Spinner` "Loading…" centred; the top bar shows the name. |
-| Load failed | Error "Couldn't load this exercise" and a Secondary **Try again**. Focus moves to Try again. |
+| Load failed | Error "Couldn't load this exercise" and the kit's `LoadFailed` **Try again** button. Focus moves to Try again. |
 
 | Exercise type | Tabs | Caption |
 |---|---|---|
