@@ -14,7 +14,7 @@
     }
     else if (Failed)
     {
-        <LoadFailed Message="Couldn't load your workouts" OnRetry="OnRetry" TestId="workouts" />
+        <LoadFailed RetryVariant="ButtonVariant.Secondary" Message="Couldn't load your workouts" OnRetry="OnRetry" TestId="workouts" />
     }
     else if (History.IsEmpty)
     {

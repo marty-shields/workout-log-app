@@ -1,4 +1,4 @@
-<Card Title="This week's workouts" TestId="@TestId">
+<Card Title="This week's workouts" Compact="@(Workouts.Count > 0)" TestId="@TestId">
     @if (Workouts.Count == 0)
     {
         <p class="none" data-testid="@($"{TestId}-none")" data-wrap-ok>Nothing yet this week. Tap + to start one.</p>

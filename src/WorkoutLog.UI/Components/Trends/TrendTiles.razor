@@ -2,10 +2,10 @@
 @using WorkoutLog.UI.Components.Weekly
 <section class="tiles" data-testid="@TestId">
     <div class="grid">
-        <StatTile Label="Workouts" Value="@WeekMetric.Count(Totals.Workouts)" Change="WeekMetric.Change(Totals.Workouts - Earlier.Workouts, WeekMetric.Count)" TestId="@Id("workouts")" />
-        <StatTile Label="Time" Value="@DisplayFormat.Minutes(Minutes(Totals))" Change="WeekMetric.Change(Minutes(Totals) - Minutes(Earlier), DisplayFormat.Minutes)" TestId="@Id("time")" />
-        <StatTile Label="Sets" Value="@WeekMetric.Count(Totals.Sets)" Change="WeekMetric.Change(Totals.Sets - Earlier.Sets, WeekMetric.Count)" TestId="@Id("sets")" />
-        <StatTile Label="Volume" Value="@DisplayFormat.Volume(Totals.VolumeKg, Kind)" Change="WeekMetric.Change(VolumeDirection, VolumeChange)" Caption="strength" TestId="@Id("volume")" />
+        <StatTile Compact Label="Workouts" Value="@WeekMetric.Count(Totals.Workouts)" Change="WeekMetric.Change(Totals.Workouts - Earlier.Workouts, WeekMetric.Count)" TestId="@Id("workouts")" />
+        <StatTile Compact Label="Time" Value="@DisplayFormat.Minutes(Minutes(Totals))" Change="WeekMetric.Change(Minutes(Totals) - Minutes(Earlier), DisplayFormat.Minutes)" TestId="@Id("time")" />
+        <StatTile Compact Label="Sets" Value="@WeekMetric.Count(Totals.Sets)" Change="WeekMetric.Change(Totals.Sets - Earlier.Sets, WeekMetric.Count)" TestId="@Id("sets")" />
+        <StatTile Compact Label="Volume" Value="@DisplayFormat.Volume(Totals.VolumeKg, Kind)" Change="WeekMetric.Change(VolumeDirection, VolumeChange)" Caption="strength" TestId="@Id("volume")" />
     </div>
     <p class="against" data-testid="@(TestId is null ? null : $"{TestId}-against")">@Against</p>
 </section>

@@ -19,7 +19,15 @@ public class WeekTilesTests : ComponentTestBase
     }
 
     [Test]
-    public void Increase_ShowsTheUpIconInSuccessAndTheDifference()
+    public void Tiles_AreCompact()
+    {
+        var cut = Render(SampleThisWeek.ThisWeek, SampleThisWeek.LastWeekToDate, DayOfWeek.Wednesday);
+
+        Assert.That(cut.FindComponents<StatTile>().Select(t => t.Instance.Compact), Is.All.True);
+    }
+
+    [Test]
+    public void Increase_ShowsTheUpIconInMutedAndTheDifference()
     {
         var cut = Render(SampleThisWeek.ThisWeek, SampleThisWeek.LastWeekToDate, DayOfWeek.Wednesday);
 
@@ -30,12 +38,12 @@ public class WeekTilesTests : ComponentTestBase
         {
             Assert.That(TestText.Normalise(change.TextContent), Is.EqualTo("up 35m"));
             Assert.That(change.ClassList, Does.Contain("up"));
-            Assert.That(icon.Tone, Is.EqualTo(IconTone.Success));
+            Assert.That(icon.Tone, Is.EqualTo(IconTone.Muted));
         });
     }
 
     [Test]
-    public void Decrease_ShowsTheDownIconInErrorAndTheDifference()
+    public void Decrease_ShowsTheDownIconInMutedAndTheDifference()
     {
         var cut = Render(SampleThisWeek.LastWeekToDate, SampleThisWeek.ThisWeek, DayOfWeek.Wednesday);
 
@@ -46,7 +54,7 @@ public class WeekTilesTests : ComponentTestBase
         {
             Assert.That(TestText.Normalise(change.TextContent), Is.EqualTo("down 1"));
             Assert.That(change.ClassList, Does.Contain("down"));
-            Assert.That(icon.Tone, Is.EqualTo(IconTone.Error));
+            Assert.That(icon.Tone, Is.EqualTo(IconTone.Muted));
         });
     }
 

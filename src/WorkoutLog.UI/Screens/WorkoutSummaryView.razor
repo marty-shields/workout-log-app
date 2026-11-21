@@ -11,7 +11,7 @@
         }
         else if (Failed)
         {
-            <LoadFailed Message="Couldn't load the summary" OnRetry="OnRetry" TestId="summary" />
+            <LoadFailed RetryVariant="ButtonVariant.Secondary" Message="Couldn't load the summary" OnRetry="OnRetry" TestId="summary" />
         }
         else if (Summary is { } summary)
         {
@@ -40,7 +40,7 @@
                 }
                 else
                 {
-                    <Card Title="Records" TestId="summary-records">
+                    <Card Title="Records" Compact="@(summary.Records.Count > 0)" TestId="summary-records">
                         @if (summary.Records.Count == 0)
                         {
                             <p class="none" data-testid="summary-records-none">No records this time</p>
@@ -60,7 +60,7 @@
                     </Card>
                     @if (summary.Changes.Count > 0)
                     {
-                        <Card Title="Since last time" TestId="summary-changes">
+                        <Card Title="Since last time" Compact TestId="summary-changes">
                             <ul class="rows">
                                 @foreach (var change in summary.Changes)
                                 {

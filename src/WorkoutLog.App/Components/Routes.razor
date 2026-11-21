@@ -6,7 +6,7 @@
 @inject IExportService ExportService
 @inject NavigationManager Navigation
 
-<ActivityBridge />
+<HostBridges />
 <SystemBarInsets />
 <StartupGate Initialize="InitializeAsync" Title="Workout Log" FailedMessage="Couldn't open the workout database">
     <AppErrorBoundary Title="Workout Log" OnRestart="() => Navigation.GoTo(string.Empty)">
