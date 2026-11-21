@@ -9,7 +9,7 @@
 }
 
 .bar {
-    fill: var(--color-bar-past);
+    fill: var(--color-chart-past);
 }
 
 .this-week {

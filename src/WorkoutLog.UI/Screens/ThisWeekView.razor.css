@@ -17,11 +17,6 @@
     font-weight: var(--font-weight-bold);
 }
 
-.streak {
-    color: var(--color-text-muted);
-    font-size: var(--font-size-sm);
-}
-
 .centre {
     display: grid;
     place-items: center;

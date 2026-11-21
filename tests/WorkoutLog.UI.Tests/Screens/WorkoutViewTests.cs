@@ -175,7 +175,7 @@ public class WorkoutViewTests : ComponentTestBase
             .Add(x => x.Exercises, [])
             .Add(x => x.Error, "Add at least one exercise"));
 
-        Assert.That(cut.Find("[data-testid=workout-error]").TextContent, Is.EqualTo("Add at least one exercise"));
+        Assert.That(cut.Find("[data-testid=workout-error]").TextContent.Trim(), Is.EqualTo("Add at least one exercise"));
     }
 
     [Test]
@@ -822,7 +822,7 @@ public class WorkoutViewTests : ComponentTestBase
 
         Assert.Multiple(() =>
         {
-            Assert.That(cut.Find("[data-testid=workout-note-error]").TextContent, Is.EqualTo("Note must be 500 characters or less"));
+            Assert.That(cut.Find("[data-testid=workout-note-error]").TextContent.Trim(), Is.EqualTo("Note must be 500 characters or less"));
             Assert.That(cut.Find("[data-testid=workout-note-open]").ClassList, Does.Contain("invalid"));
             Assert.That(cut.FindAll("[data-testid=workout-error]"), Is.Empty);
         });

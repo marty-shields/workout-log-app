@@ -550,7 +550,7 @@ public class NewWorkoutPageTests : ComponentTestBase
         Add(cut, 132);
         Remove(cut, 1);
         cut.Find("[data-testid=save-workout]").Click();
-        var shown = cut.Find("[data-testid=workout-error]").TextContent;
+        var shown = cut.Find("[data-testid=workout-error]").TextContent.Trim();
 
         cut.Find("[data-testid=snackbar-action]").Click();
 
@@ -570,7 +570,7 @@ public class NewWorkoutPageTests : ComponentTestBase
         cut.Find("[data-testid=exercise-1-set-2-remove]").Click();
         cut.Find("[data-testid=exercise-1-set-1-remove]").Click();
         cut.Find("[data-testid=save-workout]").Click();
-        var shown = cut.Find("[data-testid=exercise-1-error]").TextContent.Trim();
+        var shown = cut.Find("[data-testid=exercise-1-error]").TextContent.Trim().Trim();
 
         cut.Find("[data-testid=snackbar-action]").Click();
 
@@ -720,7 +720,7 @@ public class NewWorkoutPageTests : ComponentTestBase
         Assert.Multiple(() =>
         {
             Assert.That(cut.FindAll("[data-testid=exercise-1-edit]"), Is.Empty);
-            Assert.That(cut.Find("[data-testid=exercise-1-set-1-error]").TextContent, Does.Contain("Enter reps"));
+            Assert.That(cut.Find("[data-testid=exercise-1-set-1-error]").TextContent.Trim(), Does.Contain("Enter reps"));
         });
     }
 
@@ -913,7 +913,7 @@ public class NewWorkoutPageTests : ComponentTestBase
 
         cut.Find("[data-testid=save-workout]").Click();
 
-        Assert.That(cut.Find("[data-testid=workout-error]").TextContent, Is.EqualTo("Add at least one exercise"));
+        Assert.That(cut.Find("[data-testid=workout-error]").TextContent.Trim(), Is.EqualTo("Add at least one exercise"));
         cut.WaitForAssertion(() => Assert.That(((ElementReference)LastFocus().Arguments[0]!).Id, Is.EqualTo(addExercise)));
     }
 
@@ -1401,7 +1401,7 @@ public class NewWorkoutPageTests : ComponentTestBase
 
         cut.Find("[data-testid=save-workout]").Click();
 
-        Assert.That(cut.Find("[data-testid=exercise-1-error]").TextContent.Trim(), Is.EqualTo("Add at least one set"));
+        Assert.That(cut.Find("[data-testid=exercise-1-error]").TextContent.Trim().Trim(), Is.EqualTo("Add at least one set"));
         cut.WaitForAssertion(() => Assert.That(((ElementReference)LastFocus().Arguments[0]!).Id, Is.EqualTo(addSet)));
     }
 
@@ -1542,7 +1542,7 @@ public class NewWorkoutPageTests : ComponentTestBase
 
         Assert.Multiple(() =>
         {
-            Assert.That(cut.Find("[data-testid=workout-note-error]").TextContent, Is.EqualTo("Note must be 500 characters or less"));
+            Assert.That(cut.Find("[data-testid=workout-note-error]").TextContent.Trim(), Is.EqualTo("Note must be 500 characters or less"));
             Assert.That(cut.FindAll("[data-testid=workout-error]"), Is.Empty);
             Assert.That(workouts.Saves, Is.Empty);
         });
@@ -1567,7 +1567,7 @@ public class NewWorkoutPageTests : ComponentTestBase
 
         Assert.Multiple(() =>
         {
-            Assert.That(cut.Find("[data-testid=exercise-1-note-error]").TextContent, Is.EqualTo("Note must be 500 characters or less"));
+            Assert.That(cut.Find("[data-testid=exercise-1-note-error]").TextContent.Trim(), Is.EqualTo("Note must be 500 characters or less"));
             Assert.That(workouts.Saves, Is.Empty);
         });
 
@@ -1593,7 +1593,7 @@ public class NewWorkoutPageTests : ComponentTestBase
 
         Assert.Multiple(() =>
         {
-            Assert.That(cut.Find("[data-testid=workout-error]").TextContent, Is.EqualTo("Couldn't save the workout. Try again"));
+            Assert.That(cut.Find("[data-testid=workout-error]").TextContent.Trim(), Is.EqualTo("Couldn't save the workout. Try again"));
             Assert.That(cut.Find("[data-testid=workout-note-open] .text").TextContent, Is.EqualTo("Slept badly"));
             Assert.That(cut.Find("[data-testid=exercise-1-note-open] .text").TextContent, Is.EqualTo("Left knee twinge"));
             Assert.That(cut.FindAll("[data-testid$=-note-error]"), Is.Empty);
@@ -1631,7 +1631,7 @@ public class NewWorkoutPageTests : ComponentTestBase
 
         Assert.Multiple(() =>
         {
-            Assert.That(cut.Find("[data-testid=workout-error]").TextContent, Is.EqualTo("Couldn't save the workout. Try again"));
+            Assert.That(cut.Find("[data-testid=workout-error]").TextContent.Trim(), Is.EqualTo("Couldn't save the workout. Try again"));
             Assert.That(Names(cut), Is.EqualTo(new[] { "Dumbbell Curl" }));
             Assert.That(cut.Find("[data-testid=exercise-1-set-1-reps]").GetAttribute("value"), Is.EqualTo("8"));
             Assert.That(saved, Is.Zero);
@@ -1650,7 +1650,7 @@ public class NewWorkoutPageTests : ComponentTestBase
 
         cut.Find("[data-testid=save-workout]").Click();
 
-        Assert.That(cut.Find("[data-testid=workout-error]").TextContent, Is.EqualTo("Couldn't save the workout. Try again"));
+        Assert.That(cut.Find("[data-testid=workout-error]").TextContent.Trim(), Is.EqualTo("Couldn't save the workout. Try again"));
     }
 
     [Test]

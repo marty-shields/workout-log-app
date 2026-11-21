@@ -249,7 +249,7 @@ public class SettingsPageTests : ComponentTestBase
         var cut = Context.Render<SettingsPage>();
         export.CompleteCount(new ReadFailed());
         await WaitForRendererAsync();
-        cut.WaitForAssertion(() => Assert.That(cut.Find("[data-testid=settings-error]").TextContent, Is.EqualTo("Couldn't load your workouts")));
+        cut.WaitForAssertion(() => Assert.That(cut.Find("[data-testid=settings-error]").TextContent.Trim(), Is.EqualTo("Couldn't load your workouts")));
 
         cut.Find("[data-testid=settings-retry]").Click();
 
@@ -363,7 +363,7 @@ public class SettingsPageTests : ComponentTestBase
         export.CompleteExport(new ExportFailed());
         await WaitForRendererAsync();
 
-        cut.WaitForAssertion(() => Assert.That(cut.Find("[data-testid=export-error]").TextContent, Is.EqualTo("Couldn't export your workouts. Try again")));
+        cut.WaitForAssertion(() => Assert.That(cut.Find("[data-testid=export-error]").TextContent.Trim(), Is.EqualTo("Couldn't export your workouts. Try again")));
         Assert.Multiple(() =>
         {
             Assert.That(share.Calls, Is.Empty);
@@ -382,7 +382,7 @@ public class SettingsPageTests : ComponentTestBase
         export.CompleteExport(new ExportTooLarge());
         await WaitForRendererAsync();
 
-        cut.WaitForAssertion(() => Assert.That(cut.Find("[data-testid=export-error]").TextContent, Is.EqualTo("Too many workouts to export")));
+        cut.WaitForAssertion(() => Assert.That(cut.Find("[data-testid=export-error]").TextContent.Trim(), Is.EqualTo("Too many workouts to export")));
         Assert.That(share.Calls, Is.Empty);
     }
 
@@ -399,7 +399,7 @@ public class SettingsPageTests : ComponentTestBase
         share.Fail(exception);
         await WaitForRendererAsync();
 
-        cut.WaitForAssertion(() => Assert.That(cut.Find("[data-testid=export-error]").TextContent, Is.EqualTo("Couldn't export your workouts. Try again")));
+        cut.WaitForAssertion(() => Assert.That(cut.Find("[data-testid=export-error]").TextContent.Trim(), Is.EqualTo("Couldn't export your workouts. Try again")));
         Assert.Multiple(() =>
         {
             Assert.That(LoggedEvents.Of(logger), Is.EqualTo(new[] { (UiEvent.ShareFailed, LogLevel.Error, "Opening the share sheet failed") }));
@@ -513,7 +513,7 @@ public class SettingsPageTests : ComponentTestBase
         opener.Fail(exception);
         await WaitForRendererAsync();
 
-        cut.WaitForAssertion(() => Assert.That(cut.Find("[data-testid=import-error]").TextContent, Is.EqualTo("Couldn't import your workouts. Try again")));
+        cut.WaitForAssertion(() => Assert.That(cut.Find("[data-testid=import-error]").TextContent.Trim(), Is.EqualTo("Couldn't import your workouts. Try again")));
         Assert.Multiple(() =>
         {
             Assert.That(reviews, Is.Zero);

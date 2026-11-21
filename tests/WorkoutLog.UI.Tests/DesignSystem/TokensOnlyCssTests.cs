@@ -8,10 +8,9 @@ public class TokensOnlyCssTests
     /// <summary>The folder every style and touch-target check scans: the whole project.</summary>
     internal static readonly string UiFolder = RepoFiles.PathOf("src", "WorkoutLog.UI");
 
-    // This app's component styles; its tokens.css is where literals belong.
+    // This app's component styles; it keeps no tokens file, so every stylesheet is checked.
     private static IEnumerable<TestCaseData> StyleFiles() =>
         RepoFiles.Find("*.css", "src", "WorkoutLog.UI")
-            .Where(f => Path.GetFileName(f) != "tokens.css")
             .Select(f => new TestCaseData(File.ReadAllText(f), Path.GetFileName(f)).SetArgDisplayNames(Path.GetFileName(f)));
 
     [Test]
@@ -37,7 +36,7 @@ public class TokensOnlyCssTests
     [TestCaseSource(nameof(StyleFiles))]
     public void Css_UsesOnlyDeclaredTokens(string css, string name)
     {
-        Assert.That(TokensOnlyCheck.UnknownTokens(css, AppTokens.Names), Is.Empty, name);
+        Assert.That(TokensOnlyCheck.UnknownTokens(css), Is.Empty, name);
     }
 
     [TestCaseSource(nameof(StyleFiles))]

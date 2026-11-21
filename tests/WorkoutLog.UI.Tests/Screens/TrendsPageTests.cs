@@ -231,7 +231,7 @@ public class TrendsPageTests : ComponentTestBase
 
         var cut = Context.Render<TrendsPage>();
 
-        cut.WaitForAssertion(() => Assert.That(cut.Find("[data-testid=trends-error]").TextContent, Is.EqualTo("Couldn't load Trends")));
+        cut.WaitForAssertion(() => Assert.That(cut.Find("[data-testid=trends-error]").TextContent.Trim(), Is.EqualTo("Couldn't load Trends")));
         Assert.Multiple(() =>
         {
             Assert.That(cut.FindAll("[data-testid=trends-tiles]"), Is.Empty);

@@ -50,7 +50,7 @@ public class SetRowTests : ComponentTestBase
         {
             Assert.That(cut.FindAll(".last"), Is.Empty);
             Assert.That(cut.Find(".set-row").GetAttribute("style"),
-                Is.EqualTo("grid-template-columns: var(--set-number-width) minmax(0, 1fr) minmax(0, 1fr) var(--touch-target)"));
+                Is.EqualTo("grid-template-columns: var(--entry-grid-index-width) minmax(0, 1fr) minmax(0, 1fr) var(--touch-target)"));
         });
     }
 
@@ -71,7 +71,7 @@ public class SetRowTests : ComponentTestBase
             Assert.That(cut.Find("[data-testid=set-1-last]").TextContent, Is.EqualTo($"Last time {last}"));
             Assert.That(cut.Find(".last .visually-hidden").TextContent, Is.EqualTo("Last time "));
             Assert.That(cut.Find(".set-row").GetAttribute("style"),
-                Is.EqualTo("grid-template-columns: var(--set-number-width) var(--set-last-width) minmax(0, 1fr) minmax(0, 1fr) var(--touch-target)"));
+                Is.EqualTo("grid-template-columns: var(--entry-grid-index-width) var(--entry-grid-aside-width) minmax(0, 1fr) minmax(0, 1fr) var(--touch-target)"));
         });
     }
 
@@ -92,7 +92,7 @@ public class SetRowTests : ComponentTestBase
             Assert.That(cut.FindAll(".set-row + .last-line"), Has.Count.EqualTo(1));
             Assert.That(cut.Find("[data-testid=set-1-last]").TextContent, Is.EqualTo(text));
             Assert.That(cut.Find(".set-row").GetAttribute("style"),
-                Is.EqualTo("grid-template-columns: var(--set-number-width) minmax(0, 3fr) minmax(0, 1fr) var(--touch-target)"));
+                Is.EqualTo("grid-template-columns: var(--entry-grid-index-width) minmax(0, 1fr) minmax(0, 1fr) var(--touch-target)"));
         });
     }
 
@@ -180,7 +180,7 @@ public class SetRowTests : ComponentTestBase
             .Add(x => x.Entry, new EntryState { Errors = { ["reps"] = "Enter reps" } })
             .Add(x => x.TestId, "set-1"));
 
-        Assert.That(TestText.Normalise(cut.Find("[data-testid=set-1-error]").TextContent), Is.EqualTo("Enter reps"));
+        Assert.That(TestText.Normalise(cut.Find("[data-testid=set-1-error]").TextContent.Trim()), Is.EqualTo("Enter reps"));
     }
 
     [Test]
@@ -447,5 +447,17 @@ public class SetRowTests : ComponentTestBase
         cut.Find("[data-testid=set-1-duration-mm]").Input("45");
 
         Assert.That(entry.Values["duration"], Is.EqualTo(":45:"));
+    }
+
+    [Test]
+    public void DurationField_IsTheKitsCompactOne_SoThreeBoxesFitAnEqualColumn()
+    {
+        var cut = Context.Render<SetRow>(p => p
+            .Add(x => x.Number, 1)
+            .Add(x => x.Fields, HoldFields)
+            .Add(x => x.Entry, new EntryState())
+            .Add(x => x.TestId, "set-1"));
+
+        Assert.That(cut.Find(".set-row .parts").ClassList, Does.Contain("compact"));
     }
 }

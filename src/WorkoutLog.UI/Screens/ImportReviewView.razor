@@ -8,15 +8,15 @@
     <ChildContent>
         <div class="content">
             <div class="file">
-                <p class="name" data-testid="review-file-name">@Review.FileName</p>
+                <Typography Variant="TextVariant.Strong" As="TextElement.P" class="name" TestId="review-file-name">@Review.FileName</Typography>
                 @if (Review.Error == ImportError.None)
                 {
-                    <p class="total" data-testid="review-total">@Workouts(Review.Total) in the file</p>
+                    <Typography Variant="TextVariant.Muted" As="TextElement.P" TestId="review-total">@Workouts(Review.Total) in the file</Typography>
                 }
             </div>
             @if (Review.Error != ImportError.None)
             {
-                <p class="error" role="alert" data-testid="review-error">@ErrorText</p>
+                <InlineAlert Message="@ErrorText" TestId="review-error" />
             }
             else
             {
@@ -43,7 +43,7 @@
                 }
                 @if (Failed)
                 {
-                    <p class="error" role="alert" data-testid="review-failed">Couldn't import your workouts. Try again</p>
+                    <InlineAlert Message="Couldn't import your workouts. Try again" TestId="review-failed" />
                 }
             }
         </div>

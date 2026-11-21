@@ -5,8 +5,8 @@ using Shields.UI.Testing;
 namespace WorkoutLog.UI.Tests.DesignSystem;
 
 /// <summary>
-/// A general component or token belongs in the Shields.UI kit (app-ui-kit), not in this app. These tests fail when the app declares
-/// a component or a custom property under the same name as one the kit has, so a local copy cannot creep back in.
+/// A general component belongs in the Shields.UI kit (app-ui-kit), not in this app. These tests fail when the app declares
+/// a component under the same name as one the kit has, so a local copy cannot creep back in. <see cref="NoAppTokensTests"/> covers tokens.
 /// </summary>
 public partial class KitDuplicateTests
 {
@@ -22,12 +22,6 @@ public partial class KitDuplicateTests
     public void AppComponentNames_CoverBothProjectsAndBothKindsOfComponent()
     {
         Assert.That(AppComponentNames(), Is.SupersetOf(new[] { "Chart", "Routes", "SystemBarInsets" }));
-    }
-
-    [Test]
-    public void AppTokens_DoNotShareANameWithAKitToken()
-    {
-        Assert.That(Shared(AppTokens.Names, DesignTokens.Names), Is.Empty, "use the kit's token or give this one an app-specific name");
     }
 
     [Test]

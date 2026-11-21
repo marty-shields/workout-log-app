@@ -38,7 +38,7 @@ One set on one row: number, a box per field, remove (`IconButton` Close, muted, 
 - `data-testid`: `TestId`, `{TestId}-last`, `{TestId}-{field}`, `{TestId}-remove`, `{TestId}-record`, `{TestId}-error`.
 
 ## `SetPanel`
-The open set of a carry: number, remove (`IconButton` Close, muted, small), every field labelled, duration full width. Aqua background; sets muted text, input border and focus to the text colour. With `IsRecord`, a `RecordBadge` shows next to the title, in the text colour.
+The open set of a carry: number, remove (`IconButton` Close, muted, small), every field labelled, duration full width. A kit `Card` titled with the set number; the remove button and badge are its header actions. With `IsRecord`, a `RecordBadge` shows next to the title, in the text colour.
 - With `Last`, a line under the title: *Last time 32kg · 40m · 0:45*. Small, in the panel's text colour. Null (last time had no set with that number) leaves it out.
 - `data-testid`: `TestId`, `{TestId}-last`, `{TestId}-{field}`, `{TestId}-remove`, `{TestId}-record`, `{TestId}-error`.
 

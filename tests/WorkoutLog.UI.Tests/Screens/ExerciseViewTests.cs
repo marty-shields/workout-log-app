@@ -234,7 +234,7 @@ public class ExerciseViewTests : ComponentTestBase
         Assert.Multiple(() =>
         {
             Assert.That(cut.Find("[data-testid=screen-title]").TextContent, Is.EqualTo("Barbell Back Squat"));
-            Assert.That(cut.Find("[data-testid=exercise-error]").TextContent, Is.EqualTo("Couldn't load this exercise"));
+            Assert.That(cut.Find("[data-testid=exercise-error]").TextContent.Trim(), Is.EqualTo("Couldn't load this exercise"));
             Assert.That(cut.Find("[data-testid=exercise-retry]").TextContent.Trim(), Is.EqualTo("Try again"));
             Assert.That(cut.FindAll("[data-testid=exercise-chart-card]"), Is.Empty);
         });

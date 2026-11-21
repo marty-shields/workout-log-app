@@ -24,7 +24,7 @@
                     <h2 class="range" data-testid="this-week-dates">@DisplayFormat.WeekDates(Monday)</h2>
                     @if (Streak > 0)
                     {
-                        <span class="streak" data-testid="this-week-streak">@Streak-week streak</span>
+                        <Typography Variant="TextVariant.MutedSmall" TestId="this-week-streak">@Streak-week streak</Typography>
                     }
                 </div>
                 <DayStrip Monday="Monday" Today="Today" Trained="Trained" TestId="day-strip" />

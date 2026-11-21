@@ -42,9 +42,6 @@ public partial class KitCardTests
         [(Path.Combine("Components", "Inputs", "NoteField.razor.css"), ".summary.invalid")] = "the note summary button's error outline",
         [(Path.Combine("Components", "Lists", "AddExerciseSearch.razor.css"), ".search-input")] = "the search input box",
         [(Path.Combine("Components", "ThisWeek", "DayStrip.razor.css"), ".dot")] = "a day's dashed circle",
-        [(Path.Combine("Screens", "ImportReviewView.razor.css"), ".error")] = "an error message, outlined in the error colour, with no surface",
-        [(Path.Combine("Screens", "SettingsView.razor.css"), ".error")] = "an error message, outlined in the error colour, with no surface",
-        [(Path.Combine("Screens", "WorkoutView.razor.css"), ".error")] = "an error message, outlined in the error colour, with no surface",
     };
 
     private static IEnumerable<string> UiStyleSheets() =>
@@ -109,7 +106,7 @@ public partial class KitCardTests
     [Test]
     public void KitCardTitle_IsTheMediumFontSize_Of16Pixels()
     {
-        var title = TitleRule().Match(KitAssets.ReadScopedBundle());
+        var title = TitleRule().Match(KitCss.Bundle);
 
         Assert.Multiple(() =>
         {

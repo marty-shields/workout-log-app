@@ -154,7 +154,7 @@ public class SettingsViewTests : ComponentTestBase
         cut.WaitForAssertion(() => Focuses().Single().Arguments[0].ShouldBeElementReferenceTo(cut.Find("[data-testid=settings-retry]")));
         Assert.Multiple(() =>
         {
-            Assert.That(cut.Find("[data-testid=settings-error]").TextContent, Is.EqualTo("Couldn't load your workouts"));
+            Assert.That(cut.Find("[data-testid=settings-error]").TextContent.Trim(), Is.EqualTo("Couldn't load your workouts"));
             Assert.That(cut.FindAll("[data-testid=export]"), Is.Empty);
         });
     }
@@ -218,7 +218,7 @@ public class SettingsViewTests : ComponentTestBase
         var error = cut.Find("[data-testid=export-error]");
         Assert.Multiple(() =>
         {
-            Assert.That(error.TextContent, Is.EqualTo(text));
+            Assert.That(error.TextContent.Trim(), Is.EqualTo(text));
             Assert.That(error.GetAttribute("role"), Is.EqualTo("alert"));
             Assert.That(error.PreviousElementSibling!.GetAttribute("data-testid"), Is.EqualTo("export"));
         });
@@ -348,7 +348,7 @@ public class SettingsViewTests : ComponentTestBase
         var error = cut.Find("[data-testid=import-error]");
         Assert.Multiple(() =>
         {
-            Assert.That(error.TextContent, Is.EqualTo("Couldn't import your workouts. Try again"));
+            Assert.That(error.TextContent.Trim(), Is.EqualTo("Couldn't import your workouts. Try again"));
             Assert.That(error.GetAttribute("role"), Is.EqualTo("alert"));
             Assert.That(error.PreviousElementSibling!.GetAttribute("data-testid"), Is.EqualTo("import"));
         });

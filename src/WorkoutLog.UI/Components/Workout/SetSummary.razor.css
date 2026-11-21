@@ -22,7 +22,7 @@
 
 .number {
     display: inline-block;
-    width: var(--set-number-width);
+    width: var(--entry-grid-index-width);
     color: var(--color-text-muted);
     text-align: center;
 }

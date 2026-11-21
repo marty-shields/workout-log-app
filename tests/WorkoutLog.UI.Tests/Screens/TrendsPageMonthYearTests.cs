@@ -237,7 +237,7 @@ public class TrendsPageMonthYearTests : ComponentTestBase
 
         var cut = Context.Render<TrendsPage>(p => p.Add(x => x.KindQuery, "month"));
 
-        cut.WaitForAssertion(() => Assert.That(cut.Find("[data-testid=trends-error]").TextContent, Is.EqualTo("Couldn't load Trends")));
+        cut.WaitForAssertion(() => Assert.That(cut.Find("[data-testid=trends-error]").TextContent.Trim(), Is.EqualTo("Couldn't load Trends")));
         Assert.Multiple(() =>
         {
             Assert.That(cut.FindAll("[data-testid=trends-tiles]"), Is.Empty);
@@ -648,7 +648,7 @@ public class TrendsPageMonthYearTests : ComponentTestBase
 
         var cut = Context.Render<TrendsPage>(p => p.Add(x => x.KindQuery, "year"));
 
-        cut.WaitForAssertion(() => Assert.That(cut.Find("[data-testid=trends-error]").TextContent, Is.EqualTo("Couldn't load Trends")));
+        cut.WaitForAssertion(() => Assert.That(cut.Find("[data-testid=trends-error]").TextContent.Trim(), Is.EqualTo("Couldn't load Trends")));
         Assert.Multiple(() =>
         {
             Assert.That(cut.FindAll("[data-testid=trends-tiles]"), Is.Empty);

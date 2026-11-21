@@ -7,17 +7,33 @@
     }
     @foreach (var field in Fields)
     {
-        <ValueField @ref="fields[field.Key]"
-                    Kind="field.ValueKind"
-                    Label="@field.DisplayLabel"
-                    ShowLabel="false"
-                    Required="field.Required"
-                    Invalid="Entry.Errors.ContainsKey(field.Key)"
-                    Compact
-                    Value="@Entry.Values.GetValueOrDefault(field.Key)"
-                    ValueChanged="value => Change(field, value)"
-                    OnEnter="@(field == Fields[^1] ? OnEnterLast : default)"
-                    TestId="@($"{TestId}-{field.Key}")" />
+        @* A kit gap: ValueField ignores Compact for a duration, so the compact boxes are the kit's DurationField itself. *@
+        @if (field.Kind == FieldKind.Duration)
+        {
+            <DurationField @ref="durations[field.Key]"
+                           Label="@field.DisplayLabel"
+                           ShowLabel="false"
+                           Required="field.Required"
+                           Invalid="Entry.Errors.ContainsKey(field.Key)"
+                           Compact
+                           Value="@Entry.Values.GetValueOrDefault(field.Key)"
+                           ValueChanged="value => Change(field, value)"
+                           TestId="@($"{TestId}-{field.Key}")" />
+        }
+        else
+        {
+            <ValueField @ref="fields[field.Key]"
+                        Kind="field.ValueKind"
+                        Label="@field.DisplayLabel"
+                        ShowLabel="false"
+                        Required="field.Required"
+                        Invalid="Entry.Errors.ContainsKey(field.Key)"
+                        Compact
+                        Value="@Entry.Values.GetValueOrDefault(field.Key)"
+                        ValueChanged="value => Change(field, value)"
+                        OnEnter="@(field == Fields[^1] ? OnEnterLast : default)"
+                        TestId="@($"{TestId}-{field.Key}")" />
+        }
     }
     <IconButton Icon="IconName.Close" AriaLabel="@RemoveLabel" TestId="@($"{TestId}-remove")" Muted Size="IconSize.Small" OnClick="OnRemove" />
 </div>
@@ -80,11 +96,13 @@
     public string? TestId { get; set; }
 
     private readonly Dictionary<string, ValueField> fields = new();
+    private readonly Dictionary<string, DurationField> durations = new();
 
     /// <summary>Moves focus to the first field with an error, or the first field.</summary>
     public ValueTask FocusAsync() =>
-        (Fields.FirstOrDefault(f => Entry.Errors.ContainsKey(f.Key)) ?? Fields.FirstOrDefault()) is { } field && fields.TryGetValue(field.Key, out var input)
-            ? input.FocusAsync()
+        (Fields.FirstOrDefault(f => Entry.Errors.ContainsKey(f.Key)) ?? Fields.FirstOrDefault()) is not { } field ? ValueTask.CompletedTask
+            : durations.TryGetValue(field.Key, out var duration) ? duration.FocusAsync()
+            : fields.TryGetValue(field.Key, out var input) ? input.FocusAsync()
             : ValueTask.CompletedTask;
 
     private Task Change(FieldSpec field, string? value)
