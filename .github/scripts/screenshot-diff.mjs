@@ -2,9 +2,12 @@
 // (it is sent as source text: keep it free of imports and outer names).
 
 // Colour distance (summed absolute RGBA channel difference) a pixel must exceed to count as changed.
-export const PIXEL_DISTANCE = 48;
+export const PIXEL_DISTANCE = 24;
 // Share of pixels that may change before --check calls a screenshot stale.
 export const STALE_RATIO = 0.0001;
+
+// True when a compare() result has more changed pixels than STALE_RATIO allows.
+export const isStale = (result) => result.ratio > STALE_RATIO;
 
 // compare(expected, actual, pixelDistance) -> { differing, total, ratio, maxDistance } for two RGBA byte arrays of equal length.
 export function compare(expected, actual, pixelDistance) {

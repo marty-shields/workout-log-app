@@ -10,7 +10,7 @@ import { readFileSync, writeFileSync, mkdtempSync, existsSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { compare, PIXEL_DISTANCE, STALE_RATIO } from './screenshot-diff.mjs';
+import { compare, isStale, PIXEL_DISTANCE } from './screenshot-diff.mjs';
 
 const [baseUrl, chromePath, ...flags] = process.argv.slice(2);
 if (!baseUrl || !chromePath) {
@@ -111,7 +111,8 @@ async function difference(a, b) {
       const [p, q] = [pixels(x), pixels(y)];
       return (${compare})(p, q, ${PIXEL_DISTANCE});
     })()`;
-    const { result } = await run('Runtime.evaluate', { expression, awaitPromise: true, returnByValue: true });
+    const { result, exceptionDetails } = await run('Runtime.evaluate', { expression, awaitPromise: true, returnByValue: true });
+    if (exceptionDetails) throw new Error(`Comparing screenshots failed: ${exceptionDetails.exception?.description ?? exceptionDetails.text}`);
     return result.value;
   });
 }
@@ -136,7 +137,7 @@ try {
       }
       const result = await difference(readFileSync(path), fresh);
       if (typeof result === 'string') stale.push(`${file}-${theme}.png ${result} (${story})`);
-      else if (result.ratio > STALE_RATIO) stale.push(`${file}-${theme}.png (${result.differing} of ${result.total} pixels, ${(result.ratio * 100).toFixed(2)}%, differ from ${story})`);
+      else if (isStale(result)) stale.push(`${file}-${theme}.png (${result.differing} of ${result.total} pixels, ${(result.ratio * 100).toFixed(2)}%, max colour distance ${result.maxDistance}, differ from ${story})`);
     }
   }
 } catch (error) {
