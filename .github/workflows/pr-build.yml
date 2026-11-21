@@ -32,12 +32,12 @@ jobs:
       - uses: ./.github/actions/setup-maui
 
       - name: Build the stories
-        run: dotnet build src/WorkoutLog.UI.Stories
+        run: dotnet build src/WorkoutLog.UI.Stories.Host
 
       - name: Check the story layout
         run: |
           trap 'kill "$SERVER_PID" 2>/dev/null || true' EXIT
-          dotnet run --project src/WorkoutLog.UI.Stories --no-build --urls http://localhost:5056 > "$RUNNER_TEMP/stories.log" 2>&1 &
+          dotnet run --project src/WorkoutLog.UI.Stories.Host --no-build --urls http://localhost:5056 > "$RUNNER_TEMP/stories.log" 2>&1 &
           SERVER_PID=$!
           ready=false
           for _ in $(seq 60); do

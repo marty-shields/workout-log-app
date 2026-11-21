@@ -1,0 +1,27 @@
+<Project Sdk="Microsoft.NET.Sdk.BlazorWebAssembly">
+
+  <PropertyGroup>
+    <OverrideHtmlAssetPlaceholders>true</OverrideHtmlAssetPlaceholders>
+    <!-- The Gateway that `dotnet run` starts serves index.html for / and any other path that isn't a file, as in the .NET 11 Blazor WebAssembly template. -->
+    <StaticWebAssetSpaFallbackEnabled>true</StaticWebAssetSpaFallbackEnabled>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="BlazingStory" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.Gateway" PrivateAssets="all" />
+  </ItemGroup>
+
+  <!-- The library brings Shields.UI.Stories (the shell, from NuGet or from the kit's source with -p:UseKitSource=true) and Shields.UI through WorkoutLog.UI. -->
+  <ItemGroup>
+    <ProjectReference Include="..\WorkoutLog.UI.Stories\WorkoutLog.UI.Stories.csproj" />
+  </ItemGroup>
+
+  <!-- Removes the native SQLite file that Core brings in. -->
+  <Target Name="RemoveSqliteNativeReference" BeforeTargets="_CheckBrowserWorkloadNeededButNotAvailable">
+    <ItemGroup>
+      <NativeFileReference Remove="@(NativeFileReference)" Condition="'%(Filename)' == 'e_sqlite3'" />
+    </ItemGroup>
+  </Target>
+
+</Project>

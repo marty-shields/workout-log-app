@@ -22,7 +22,7 @@ public partial class KitAssetsTests
     private static IEnumerable<TestCaseData> Pages() =>
     [
         new TestCaseData(RepoFiles.Read("src", "WorkoutLog.App", "wwwroot", "index.html")).SetArgDisplayNames("App index.html"),
-        new TestCaseData(RepoFiles.Read("src", "WorkoutLog.UI.Stories", "wwwroot", "iframe.html")).SetArgDisplayNames("Stories iframe.html"),
+        new TestCaseData(RepoFiles.Read("src", "WorkoutLog.UI.Stories.Host", "wwwroot", "iframe.html")).SetArgDisplayNames("Stories iframe.html"),
     ];
 
     private static IEnumerable<string> Loaded(string html) =>
@@ -47,7 +47,7 @@ public partial class KitAssetsTests
     [Test]
     public void StoriesIframe_LoadsTheStoriesShellCssAndItsTokensAfterTheKitsTokens()
     {
-        var loaded = Loaded(RepoFiles.Read("src", "WorkoutLog.UI.Stories", "wwwroot", "iframe.html")).ToList();
+        var loaded = Loaded(RepoFiles.Read("src", "WorkoutLog.UI.Stories.Host", "wwwroot", "iframe.html")).ToList();
 
         Assert.That(loaded.IndexOf(StoriesCss), Is.GreaterThanOrEqualTo(0));
         Assert.That(loaded.IndexOf(StoriesTokens), Is.GreaterThan(loaded.IndexOf("_content/Shields.UI/css/tokens.css")));
@@ -56,7 +56,7 @@ public partial class KitAssetsTests
     [Test]
     public void StoriesIndex_LoadsTheStoriesShellCssAndItsTokensAfterTheKitsTokens()
     {
-        var loaded = Loaded(RepoFiles.Read("src", "WorkoutLog.UI.Stories", "wwwroot", "index.html")).ToList();
+        var loaded = Loaded(RepoFiles.Read("src", "WorkoutLog.UI.Stories.Host", "wwwroot", "index.html")).ToList();
 
         Assert.That(loaded, Is.SupersetOf(new[] { StoriesCss, StoriesTokens, KitTokens }));
         Assert.That(loaded.IndexOf(StoriesTokens), Is.GreaterThan(loaded.IndexOf(KitTokens)));

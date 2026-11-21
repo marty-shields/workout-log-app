@@ -1,7 +1,8 @@
-﻿@using static BlazingStory.Types.NavigationTreeOrderBuilder
+@using WorkoutLog.UI.Stories.Samples
+@using static BlazingStory.Types.NavigationTreeOrderBuilder
 
 <BlazingStoryApp Title="Workout Log"
-                 Assemblies="[typeof(App).Assembly]"
+                 Assemblies="[typeof(StorySampleServices).Assembly]"
                  DefaultLayout="typeof(DefaultLayout)"
                  NavigationTreeOrder="@N["Foundations", N["Introduction", "Tokens", "Navigation", "App Icon"],
                                          "Components", N["Inputs", "Lists", "Workout"],

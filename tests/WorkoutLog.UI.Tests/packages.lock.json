@@ -450,7 +450,6 @@
         "type": "Project",
         "dependencies": {
           "BlazingStory": "[1.0.0-preview.97, )",
-          "Microsoft.AspNetCore.Components.WebAssembly": "[11.0.0, )",
           "Shields.UI.Stories": "[1.0.0-pr.19.9, )",
           "WorkoutLog.UI": "[1.0.0, )"
         }
