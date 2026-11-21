@@ -13,7 +13,7 @@ Saved workouts in a span of dates, newest first, opened from [Trends](./?path=/c
 | Content | The workouts in the dates, under sticky month headers such as *November 2026* with *4 workouts*. One `ListRow` per workout: day, date and start time without the year, e.g. *Thu 5 Nov · 18:05*. The list ends at the last row, with no note about workouts outside the dates. |
 | Nothing in the dates | `EmptyState` *No workouts between these dates*, or *No workout on this day* for one day, with the hint "Choose different dates or a quick range above". |
 | No workouts | `EmptyState` "No workouts yet", hint "Tap + on This week to log one". Reached only by deleting the last workout while Workouts shows, as Trends has nothing to tap before the first workout. |
-| Calendar | Tapping the date field opens a `RangeCalendar` under it, in place of the segments and the list. Cancel or Android back closes it and keeps the dates; Show workouts shows the dates picked. |
+| Calendar | Tapping the date field opens the kit's `RangeCalendar` under it, in place of the segments and the list. Cancel or Android back closes it and keeps the dates; Show workouts shows the dates picked. |
 | Loading | `Spinner` "Loading…" centred until the workouts load. When the dates change, the date field and segments stay and the spinner replaces the list. |
 | Load failed | Error "Couldn't load your workouts" and the kit's `LoadFailed` **Try again** button that reads the counts and dates again when the counts read failed, on opening or on a reload, else only the dates shown. Focus moves to Try again. |
 

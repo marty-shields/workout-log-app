@@ -1,24 +1,12 @@
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Time.Testing;
-using WorkoutLog.UI.Components.Inputs;
+using Shields.UI.Components.Inputs;
 
 namespace WorkoutLog.UI.Tests.Components.Inputs;
 
 public class DurationFieldTests : ComponentTestBase
 {
-    [Test]
-    public void Render_ShowsHoursMinutesSeconds()
-    {
-        var cut = Context.Render<DurationField>(p => p
-            .Add(x => x.Label, "Duration")
-            .Add(x => x.TestId, "duration"));
-
-        var boxes = cut.FindAll("input").Select(i => i.GetAttribute("data-testid"));
-
-        Assert.That(boxes, Is.EqualTo(new[] { "duration-h", "duration-mm", "duration-ss" }));
-    }
-
 
     [Test]
     public void Value_FillsBoxes()
@@ -62,33 +50,6 @@ public class DurationFieldTests : ComponentTestBase
         Assert.That(value, Is.Null);
     }
 
-    [Test]
-    public void Invalid_MarksEveryBox()
-    {
-        var cut = Context.Render<DurationField>(p => p
-            .Add(x => x.Label, "Duration")
-            .Add(x => x.Invalid, true));
-
-        var boxes = cut.FindAll("input");
-
-        Assert.Multiple(() =>
-        {
-            Assert.That(boxes.Select(i => i.ClassList.Contains("invalid")), Is.All.True);
-            Assert.That(boxes.Select(i => i.GetAttribute("aria-invalid")), Is.All.EqualTo("true"));
-        });
-    }
-
-    [TestCase(true, "true")]
-    [TestCase(false, null)]
-    public void Required_MarksEveryBox(bool required, string? expected)
-    {
-        var cut = Context.Render<DurationField>(p => p
-            .Add(x => x.Label, "Duration")
-            .Add(x => x.Required, required));
-
-        Assert.That(cut.FindAll("input").Select(i => i.GetAttribute("aria-required")), Is.All.EqualTo(expected));
-    }
-
     [TestCase("1::", "1:00:00")]
     [TestCase("::22", "0:00:22")]
     [TestCase("1:5:3", "1:05:03")]
@@ -100,7 +61,7 @@ public class DurationFieldTests : ComponentTestBase
             .Add(x => x.Value, value)
             .Add(x => x.ValueChanged, (string? v) => raised = v));
 
-        var leaving = cut.Find(".field").FocusOutAsync(new FocusEventArgs());
+        var leaving = cut.Find("[role=group]").FocusOutAsync(new FocusEventArgs());
         PassFocusMoveWait();
         await leaving;
 
@@ -117,7 +78,7 @@ public class DurationFieldTests : ComponentTestBase
             .Add(x => x.Value, value)
             .Add(x => x.ValueChanged, (string? _) => raised = true));
 
-        var leaving = cut.Find(".field").FocusOutAsync(new FocusEventArgs());
+        var leaving = cut.Find("[role=group]").FocusOutAsync(new FocusEventArgs());
         PassFocusMoveWait();
         await leaving;
 
@@ -133,8 +94,8 @@ public class DurationFieldTests : ComponentTestBase
             .Add(x => x.Value, "1::")
             .Add(x => x.ValueChanged, (string? v) => raised = v));
 
-        await cut.Find(".field").FocusInAsync(new FocusEventArgs());
-        var leaving = cut.Find(".field").FocusOutAsync(new FocusEventArgs());
+        await cut.Find("[role=group]").FocusInAsync(new FocusEventArgs());
+        var leaving = cut.Find("[role=group]").FocusOutAsync(new FocusEventArgs());
         PassFocusMoveWait();
         await leaving;
 
@@ -150,22 +111,17 @@ public class DurationFieldTests : ComponentTestBase
             .Add(x => x.Value, "1::")
             .Add(x => x.ValueChanged, (string? v) => raised = v));
 
-        var leaving = cut.Find(".field").FocusOutAsync(new FocusEventArgs());
-        await cut.Find(".field").FocusInAsync(new FocusEventArgs());
+        var leaving = cut.Find("[role=group]").FocusOutAsync(new FocusEventArgs());
+        await cut.Find("[role=group]").FocusInAsync(new FocusEventArgs());
         PassFocusMoveWait();
         await leaving;
 
         Assert.That(raised, Is.Null);
     }
 
-    [Test]
-    public void Boxes_UseNumericKeyboard()
-    {
-        var cut = Context.Render<DurationField>(p => p.Add(x => x.Label, "Duration"));
-
-        Assert.That(cut.FindAll("input").Select(i => i.GetAttribute("inputmode")), Is.All.EqualTo("numeric"));
-    }
+    // The kit keeps its wait private; its own tests advance by the same 10 ms.
+    private static readonly TimeSpan FocusMoveWait = TimeSpan.FromMilliseconds(10);
 
     // The component waits on the context's FakeTimeProvider, which only moves here, so no test depends on real time.
-    private void PassFocusMoveWait() => ((FakeTimeProvider)Context.Services.GetRequiredService<TimeProvider>()).Advance(DurationField.FocusMoveWait);
+    private void PassFocusMoveWait() => ((FakeTimeProvider)Context.Services.GetRequiredService<TimeProvider>()).Advance(FocusMoveWait);
 }

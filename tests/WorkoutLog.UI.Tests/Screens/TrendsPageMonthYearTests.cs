@@ -141,7 +141,7 @@ public class TrendsPageMonthYearTests : ComponentTestBase
             Assert.That(cut.Find("[data-testid=trends-stepper-label]").TextContent, Is.EqualTo("November 2026"));
             Assert.That(cut.Find("[data-testid=trends-tiles-against]").TextContent, Is.EqualTo("Against October to the 18th"));
             Assert.That(cut.FindAll("[data-testid=trends-tiles] .value").Select(v => v.TextContent), Is.EqualTo(new[] { "11", "10h 55m", "172", "41,200 kg" }));
-            Assert.That(cut.FindAll("[data-testid=trends-calendar-days] .done").Count, Is.EqualTo(3));
+            Assert.That(cut.FindAll("[data-testid=trends-calendar-days] .marked").Count, Is.EqualTo(3));
             Assert.That(cut.FindAll("[data-testid=trends-weeks-rows] .week .dates").Select(d => d.TextContent),
                 Is.EqualTo(new[] { "1 Nov", "2 – 8 Nov", "9 – 15 Nov", "16 – 18 Nov" }));
             Assert.That(cut.FindAll("[data-testid=trends-weeks-rows] .totals").Select(d => d.TextContent),
@@ -201,7 +201,7 @@ public class TrendsPageMonthYearTests : ComponentTestBase
         Assert.Multiple(() =>
         {
             Assert.That(cut.FindAll("[data-testid=trends-tiles] .value").Select(v => v.TextContent), Is.EqualTo(new[] { "0", "0m", "0", "0 kg" }));
-            Assert.That(cut.FindAll("[data-testid=trends-calendar-days] .done"), Is.Empty);
+            Assert.That(cut.FindAll("[data-testid=trends-calendar-days] .marked"), Is.Empty);
             Assert.That(cut.Find("[data-testid=trends-records-none]").TextContent, Is.EqualTo("No new records that month"));
             Assert.That(cut.Find("[data-testid=trends-most-trained-rows-none]").TextContent, Is.EqualTo("No exercises that month"));
             Assert.That(cut.FindAll("[data-testid=trends-error]"), Is.Empty);
@@ -438,7 +438,7 @@ public class TrendsPageMonthYearTests : ComponentTestBase
         var opened = new List<WorkoutsOpened>();
         var cut = Context.Render<TrendsPage>(p => p.Add(x => x.KindQuery, "month").Add(x => x.OnOpenWorkouts, opened.Add));
 
-        cut.WaitForElement("[data-testid=trends-calendar-days-4-open]").Click();
+        cut.WaitForElement("[data-testid=trends-calendar-days-day-2026-11-04]").Click();
         cut.Find("[data-testid=trends-weeks-rows-2-open]").Click();
         cut.Find("[data-testid=trends-weeks-rows-4-open]").Click();
 
@@ -450,7 +450,7 @@ public class TrendsPageMonthYearTests : ComponentTestBase
                 new WorkoutsOpened(new DateSpan(new DateOnly(2026, 11, 2), new DateOnly(2026, 11, 8)), November),
                 new WorkoutsOpened(new DateSpan(new DateOnly(2026, 11, 16), new DateOnly(2026, 11, 18)), November),
             }));
-            Assert.That(cut.FindAll("[data-testid=trends-calendar-days-3-open]"), Is.Empty);
+            Assert.That(cut.FindAll("button[data-testid=trends-calendar-days-day-2026-11-03]"), Is.Empty);
         });
     }
 

@@ -1130,7 +1130,7 @@ public class ExerciseCardTests : ComponentTestBase
         {
             Assert.That(lines, Is.EqualTo(new[] { "Enter duration", "Distance error" }));
             Assert.That(cut.Find("[data-testid=exercise-1-distance]").GetAttribute("aria-invalid"), Is.EqualTo("true"));
-            Assert.That(cut.FindAll("[data-testid^=exercise-1-duration-]").Select(i => i.GetAttribute("aria-invalid")),
+            Assert.That(cut.FindAll("[data-testid^=exercise-1-duration-] input").Select(i => i.GetAttribute("aria-invalid")),
                 Is.All.EqualTo("true"));
         });
     }
@@ -1398,7 +1398,7 @@ public class ExerciseCardTests : ComponentTestBase
             Assert.That(LastColumn(cut), Is.EqualTo(new[] { "Last time 62.5×6" }));
             Assert.That(cut.Find("[data-testid=exercise-1-set-3-last]").TextContent, Is.EqualTo("Last time 62.5×6"));
             Assert.That(cut.Find(".set-header").GetAttribute("style"),
-                Is.EqualTo("grid-template-columns: var(--set-number-width) var(--set-last-width) minmax(0, 2fr) minmax(0, 3fr) var(--touch-target)"));
+                Is.EqualTo("grid-template-columns: var(--set-number-width) var(--set-last-width) minmax(0, 2fr) minmax(0, 2fr) var(--touch-target)"));
         });
     }
 

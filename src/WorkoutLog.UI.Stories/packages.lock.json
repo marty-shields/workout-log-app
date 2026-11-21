@@ -26,12 +26,12 @@
       },
       "Shields.UI.Stories": {
         "type": "Direct",
-        "requested": "[1.0.0-pr.19.9, )",
-        "resolved": "1.0.0-pr.19.9",
-        "contentHash": "KvwK5InX20+IyaNMl0l5Pf/PBzoGd6RRXimGFPHqNZa2gIMThNUIzhPbAdWToG71E7tYpg6YXAT0kXah+9WC6g==",
+        "requested": "[1.0.0-pr.19.31, )",
+        "resolved": "1.0.0-pr.19.31",
+        "contentHash": "ajOp0QQL8jNbR2/6b4AaydiQeLU+hBgjYEJRI29MbvLGG7y3kadFFF5x+vGvp6P1hU0V8SAeObD/W64sOTGkZg==",
         "dependencies": {
           "BlazingStory": "1.0.0-preview.97",
-          "Shields.UI": "1.0.0-pr.19.9"
+          "Shields.UI": "1.0.0-pr.19.31"
         }
       },
       "BlazingStory.Abstractions": {
@@ -208,7 +208,7 @@
         "type": "Project",
         "dependencies": {
           "Microsoft.AspNetCore.Components.Web": "[11.0.0, )",
-          "Shields.UI": "[1.0.0-pr.19.9, )",
+          "Shields.UI": "[1.0.0-pr.19.31, )",
           "WorkoutLog.Core": "[1.0.0, )"
         }
       },
@@ -232,9 +232,9 @@
       },
       "Shields.UI": {
         "type": "CentralTransitive",
-        "requested": "[1.0.0-pr.19.9, )",
-        "resolved": "1.0.0-pr.19.9",
-        "contentHash": "xg/zZa7YC5zyoaBfnBBhjQUXGjseEVBcnsG9i3C5icklDXe9yx2O4PS+rkoV+IVVPYG/bzrPByamYbz16UH4mQ==",
+        "requested": "[1.0.0-pr.19.31, )",
+        "resolved": "1.0.0-pr.19.31",
+        "contentHash": "shvdVGbpdCbCqLm9HycTazsGTIXt8w18qBDNInAM5fKv7y4q86BgrZsk6ijbCYkJ4xsrFAzyNPGz2whFq3NIwQ==",
         "dependencies": {
           "Microsoft.AspNetCore.Components.Web": "11.0.0"
         }

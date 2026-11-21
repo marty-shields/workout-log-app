@@ -1,3 +1,4 @@
+using Shields.UI.Components.Inputs;
 using WorkoutLog.Core.Domain.Exercises;
 
 namespace WorkoutLog.UI.Models.Fields;
@@ -14,6 +15,14 @@ namespace WorkoutLog.UI.Models.Fields;
 public sealed record FieldSpec(
     string Key, Metric Metric, string Label, FieldKind Kind, bool Required = false, string? Unit = null, string? BlankFill = null, bool HideZero = false)
 {
+    /// <summary>The kit's value kind for <see cref="Kind"/>.</summary>
+    public ValueKind ValueKind => Kind switch
+    {
+        FieldKind.Whole => ValueKind.Whole,
+        FieldKind.Decimal => ValueKind.Fractional,
+        _ => ValueKind.Duration,
+    };
+
     /// <summary>Label with the unit, e.g. Weight (kg).</summary>
     public string DisplayLabel => Unit is null ? Label : $"{Label} ({Unit})";
 }

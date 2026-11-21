@@ -55,7 +55,7 @@ public sealed class TrendsScreen(WebView web)
     public string Workouts() => web.Find("trends-tiles-workouts").FindElement(By.CssSelector(".value")).Text.Trim();
 
     /// <summary>Taps a day of the month in the calendar; only a day with a workout is tappable.</summary>
-    public void OpenDay(int day) => web.Tap($"trends-calendar-days-{day}-open");
+    public void OpenDay(DateOnly day) => web.Tap($"trends-calendar-days-day-{day:yyyy-MM-dd}");
 
     /// <summary>Taps a row of the Weeks card, counting from 1.</summary>
     public void OpenWeekRow(int row) => web.Tap($"trends-weeks-rows-{row}-open");
@@ -67,7 +67,10 @@ public sealed class TrendsScreen(WebView web)
     public void OpenMonthColumn(int column) => web.Tap($"trends-months-chart-{column}-open");
 
     /// <summary>The tappable day numbers of the month calendar.</summary>
-    public IReadOnlyList<int> OpenDays() => Numbers("trends-calendar-days-");
+    public IReadOnlyList<int> OpenDays() =>
+        web.FindAll("button[data-testid^=\"trends-calendar-days-day-\"]")
+            .Select(e => DateOnly.ParseExact(e.GetDomAttribute("data-testid")!["trends-calendar-days-day-".Length..], "yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture).Day)
+            .ToList();
 
     /// <summary>The tappable columns of the year view, January being 1.</summary>
     public IReadOnlyList<int> OpenMonthColumns() => Numbers("trends-months-chart-");

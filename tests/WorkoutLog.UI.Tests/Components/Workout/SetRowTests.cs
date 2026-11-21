@@ -71,7 +71,7 @@ public class SetRowTests : ComponentTestBase
             Assert.That(cut.Find("[data-testid=set-1-last]").TextContent, Is.EqualTo($"Last time {last}"));
             Assert.That(cut.Find(".last .visually-hidden").TextContent, Is.EqualTo("Last time "));
             Assert.That(cut.Find(".set-row").GetAttribute("style"),
-                Is.EqualTo("grid-template-columns: var(--set-number-width) var(--set-last-width) minmax(0, 2fr) minmax(0, 3fr) var(--touch-target)"));
+                Is.EqualTo("grid-template-columns: var(--set-number-width) var(--set-last-width) minmax(0, 2fr) minmax(0, 2fr) var(--touch-target)"));
         });
     }
 
@@ -282,5 +282,147 @@ public class SetRowTests : ComponentTestBase
             .Add(x => x.TestId, "set-2"));
 
         Assert.That(cut.FindAll("[data-testid=set-2-record]"), Is.Empty);
+    }
+
+    [Test]
+    public void NumberBoxes_AreCompactAndHaveABoxTestId()
+    {
+        var cut = Context.Render<SetRow>(p => p
+            .Add(x => x.Number, 1)
+            .Add(x => x.Fields, Fields)
+            .Add(x => x.Entry, new EntryState())
+            .Add(x => x.TestId, "set-1"));
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.Find("[data-testid=set-1-weight-box]").ClassList, Does.Contain("input-box-compact"));
+            Assert.That(cut.Find("[data-testid=set-1-reps-box]").ClassList, Does.Contain("input-box-compact"));
+        });
+    }
+
+    [Test]
+    public void Input_WritesEntryAndRaisesOnChanged()
+    {
+        var entry = new EntryState();
+        var changed = 0;
+        var cut = Context.Render<SetRow>(p => p
+            .Add(x => x.Number, 1)
+            .Add(x => x.Fields, Fields)
+            .Add(x => x.Entry, entry)
+            .Add(x => x.OnChanged, () => changed++)
+            .Add(x => x.TestId, "set-1"));
+
+        cut.Find("[data-testid=set-1-reps]").Input("10");
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(entry.Values["reps"], Is.EqualTo("10"));
+            Assert.That(changed, Is.EqualTo(1));
+        });
+    }
+
+    [Test]
+    public void ClearedInput_SetsEntryToNull()
+    {
+        var entry = new EntryState { Values = { ["reps"] = "5" } };
+        var cut = Context.Render<SetRow>(p => p
+            .Add(x => x.Number, 1)
+            .Add(x => x.Fields, Fields)
+            .Add(x => x.Entry, entry)
+            .Add(x => x.TestId, "set-1"));
+
+        cut.Find("[data-testid=set-1-reps]").Input("");
+
+        Assert.That(entry.Values["reps"], Is.Null);
+    }
+
+    [TestCase("1.")]
+    [TestCase("1,5")]
+    [TestCase("abc")]
+    [TestCase("-")]
+    [TestCase(" 5")]
+    [TestCase(".5")]
+    [TestCase("007")]
+    public void TypedText_StaysInTheBoxAndTheEntry(string typed)
+    {
+        var entry = new EntryState();
+        var cut = Context.Render<SetRow>(p => p
+            .Add(x => x.Number, 1)
+            .Add(x => x.Fields, Fields)
+            .Add(x => x.Entry, entry)
+            .Add(x => x.TestId, "set-1"));
+
+        cut.Find("[data-testid=set-1-weight]").Input(typed);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(entry.Values["weight"], Is.EqualTo(typed));
+            Assert.That(cut.Find("[data-testid=set-1-weight]").GetAttribute("value"), Is.EqualTo(typed));
+        });
+    }
+
+    [TestCase("22,75")]
+    [TestCase("abc")]
+    [TestCase("007")]
+    public void ReopenedSetWithRejectedText_ShowsItAsTypedAndStaysInvalid(string rejected)
+    {
+        var entry = new EntryState { Values = { ["weight"] = rejected }, Errors = { ["weight"] = "Weight must be a number" } };
+        var cut = Context.Render<SetRow>(p => p
+            .Add(x => x.Number, 1)
+            .Add(x => x.Fields, Fields)
+            .Add(x => x.Entry, entry)
+            .Add(x => x.TestId, "set-1"));
+
+        var input = cut.Find("[data-testid=set-1-weight]");
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(input.GetAttribute("value"), Is.EqualTo(rejected));
+            Assert.That(input.GetAttribute("aria-invalid"), Is.EqualTo("true"));
+            Assert.That(entry.Values["weight"], Is.EqualTo(rejected));
+        });
+    }
+
+    [Test]
+    public void EntryValue_ShowsInTheBox()
+    {
+        var cut = Context.Render<SetRow>(p => p
+            .Add(x => x.Number, 1)
+            .Add(x => x.Fields, Fields)
+            .Add(x => x.Entry, new EntryState { Values = { ["weight"] = "62.5" } })
+            .Add(x => x.TestId, "set-1"));
+
+        Assert.That(cut.Find("[data-testid=set-1-weight]").GetAttribute("value"), Is.EqualTo("62.5"));
+    }
+
+    [Test]
+    public void Enter_InTheLastField_RaisesOnEnterLast()
+    {
+        var entered = false;
+        var cut = Context.Render<SetRow>(p => p
+            .Add(x => x.Number, 1)
+            .Add(x => x.Fields, Fields)
+            .Add(x => x.Entry, new EntryState())
+            .Add(x => x.OnEnterLast, () => entered = true)
+            .Add(x => x.TestId, "set-1"));
+
+        cut.Find("[data-testid=set-1-weight]").KeyDown(new Microsoft.AspNetCore.Components.Web.KeyboardEventArgs { Key = "Enter" });
+
+        Assert.That(entered, Is.True);
+    }
+
+    [Test]
+    public void DurationField_WritesTheJoinedTextToTheEntry()
+    {
+        var entry = new EntryState();
+        var cut = Context.Render<SetRow>(p => p
+            .Add(x => x.Number, 1)
+            .Add(x => x.Fields, HoldFields)
+            .Add(x => x.Entry, entry)
+            .Add(x => x.TestId, "set-1"));
+
+        cut.Find("[data-testid=set-1-duration-mm]").Input("45");
+
+        Assert.That(entry.Values["duration"], Is.EqualTo(":45:"));
     }
 }

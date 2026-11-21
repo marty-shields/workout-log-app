@@ -18,11 +18,6 @@ A hand-drawn SVG bar chart that fills its width, one column per `TrendBar`. Its 
 - With `OnOpen` set, a column that has a value and a `TrendBar.Span` (the days it counts) is a button laid over the column, a touch target tall, with the hidden text *Open workouts, Monday*; it raises the `DateSpan`. Other columns do nothing.
 - `data-testid`: `TestId`, and as a prefix: `{TestId}-values` (the list), `{TestId}-legend`, `{TestId}-none`, and `{TestId}-{column, from 1}-open` on a tappable column.
 
-## `MonthCalendar`
-The days of a month in a Monday-first grid under the weekday initials, as circles like `DayStrip`'s: trained days are solid `--color-primary` with the date in `--color-on-primary`, other days a dashed circle, today a ring, and days after today dimmed to `--opacity-disabled`. A kit `ChartLegend` names the three shapes. Each day has hidden text, e.g. *Wednesday 18 November, trained, today*. The list is named "Days in November 2026".
-- With `OnOpenDay` set, a day with a workout is a button (a touch target drawn over its cell, so the grid keeps its size) with the hidden text, e.g. *Wednesday 4 November, trained, open workouts*; it raises the date. Days with no workout stay as they are.
-- `data-testid`: `TestId`, and as a prefix: `{TestId}-1` to `{TestId}-31`, `{TestId}-{day}-open` on a tappable day, and `{TestId}-legend`.
-
 ## `MonthWeeks`
 A row per week of the month: its dates cut to the month at the left (e.g. *16 – 18 Nov*) and its workouts and time at the right (e.g. *3 workouts · 2h 35m*). None shows "No weeks yet".
 - With `OnOpen` set, a row that has workouts and a `MonthWeek.Span` (its dates) is a button with a chevron, a touch target tall; it raises the `DateSpan`.
@@ -40,4 +35,4 @@ The records of a period as `ListRow`s inside a kit `Card` titled "Records" with 
 One row, *Longest streak*, with the weeks at the right (*23 weeks*, *1 week*, or *None* at 0) and, under it, *Still going* when the run reaches this week.
 - `data-testid`: `TestId`, and `{TestId}-row`.
 
-Stories: [TrendTiles](./?path=/docs/workout-log-components-trends-trendtiles--docs) · [TrendBars](./?path=/docs/workout-log-components-trends-trendbars--docs) · [MonthCalendar](./?path=/docs/workout-log-components-trends-monthcalendar--docs) · [MonthWeeks](./?path=/docs/workout-log-components-trends-monthweeks--docs) · [MeterRows](./?path=/docs/workout-log-components-trends-meterrows--docs) · [RecordRows](./?path=/docs/workout-log-components-trends-recordrows--docs) · [LongestStreakCard](./?path=/docs/workout-log-components-trends-longeststreakcard--docs)
+Stories: [TrendTiles](./?path=/docs/workout-log-components-trends-trendtiles--docs) · [TrendBars](./?path=/docs/workout-log-components-trends-trendbars--docs) · [MonthWeeks](./?path=/docs/workout-log-components-trends-monthweeks--docs) · [MeterRows](./?path=/docs/workout-log-components-trends-meterrows--docs) · [RecordRows](./?path=/docs/workout-log-components-trends-recordrows--docs) · [LongestStreakCard](./?path=/docs/workout-log-components-trends-longeststreakcard--docs)

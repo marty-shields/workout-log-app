@@ -119,7 +119,7 @@ public class TrendsViewTests : ComponentTestBase
 
         Assert.Multiple(() =>
         {
-            Assert.That(cut.FindAll("[data-testid=trends-calendar-days] .day"), Has.Count.EqualTo(30));
+            Assert.That(cut.FindAll("[data-testid=trends-calendar-days] .cell"), Has.Count.EqualTo(30));
             Assert.That(cut.FindAll("[data-testid=trends-weeks-rows] .week"), Has.Count.EqualTo(4));
             Assert.That(cut.Find("[data-testid=trends-records-aside]").TextContent, Is.EqualTo("4 this month"));
             Assert.That(cut.Find("[data-testid=trends-most-trained-aside]").TextContent, Is.EqualTo("sessions"));
@@ -248,7 +248,7 @@ public class TrendsViewTests : ComponentTestBase
 
         Assert.Multiple(() =>
         {
-            Assert.That(cut.FindAll("[data-testid=trends-calendar-days] .done"), Is.Empty);
+            Assert.That(cut.FindAll("[data-testid=trends-calendar-days] .marked"), Is.Empty);
             Assert.That(cut.FindAll("[data-testid=trends-weeks-rows] .totals").Select(t => t.TextContent), Is.All.EqualTo("0 workouts · 0m"));
             Assert.That(cut.Find("[data-testid=trends-records-none]").TextContent, Is.EqualTo("No new records that month"));
             Assert.That(cut.Find("[data-testid=trends-most-trained-rows-none]").TextContent, Is.EqualTo("No exercises that month"));
@@ -385,7 +385,7 @@ public class TrendsViewTests : ComponentTestBase
         var opened = new List<DateSpan>();
         var cut = Context.Render<TrendsView>(p => p.Sample(SampleTrends.Month).Add(x => x.OnOpenWorkouts, opened.Add));
 
-        cut.Find("[data-testid=trends-calendar-days-4-open]").Click();
+        cut.Find("[data-testid=trends-calendar-days-day-2026-11-04]").Click();
         cut.Find("[data-testid=trends-weeks-rows-4-open]").Click();
 
         Assert.That(opened, Is.EqualTo(new[]

@@ -12,19 +12,12 @@ public class TestIdTests : ComponentTestBase
         Assert.That(WithoutTestId(elements), Is.Empty);
     }
 
-    /// <summary>
-    /// Buttons, inputs, links and elements with a click handler that have no data-testid, as their opening markup.
-    /// A div whose direct child is an input with an id, which only forwards a click to it (the kit's number box), is not one.
-    /// </summary>
+    /// <summary>Buttons, inputs, links and elements with a click handler that have no data-testid, as their opening markup.</summary>
     public static IEnumerable<string> WithoutTestId(IEnumerable<IElement> elements) =>
         elements
             .Where(IsInteractive)
-            .Where(e => !ForwardsClickToInput(e))
             .Where(e => string.IsNullOrEmpty(e.GetAttribute("data-testid")))
             .Select(e => e.OuterHtml[..(e.OuterHtml.IndexOf('>') + 1)]);
-
-    private static bool ForwardsClickToInput(IElement element) =>
-        element.LocalName == "div" && element.Children.Any(c => c.LocalName == "input" && c.HasAttribute("data-testid"));
 
     private static bool IsInteractive(IElement element) =>
         element.LocalName is "button" or "input" or "select" or "textarea" or "a"

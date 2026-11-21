@@ -1,3 +1,4 @@
+@using Shields.UI.Components.Inputs
 @using Shields.UI.Components.Navigation
 @using WorkoutLog.UI.Models.Workouts
 <div class="date-range">
@@ -15,7 +16,7 @@
     @if (Expanded)
     {
         <BackHandler OnBack="Close" />
-        <RangeCalendar History="History" Dates="Dates" OpenOnMonths="OpenOnMonths" OnApply="Apply" OnCancel="Close" />
+        <RangeCalendar Min="History.Earliest" Max="History.Today" Today="History.Today" Dates="new DateRange(Dates.From, Dates.To)" DayCounts="History.PerDay" CountText="DisplayFormat.Workouts" MarkedDayText="workout logged" ApplyLabel="Show workouts" OpenOnMonths="OpenOnMonths" OnApply="Apply" OnCancel="Close" />
     }
 </div>
 
@@ -54,9 +55,9 @@
 
     private Task Close() => ExpandedChanged.InvokeAsync(false);
 
-    private async Task Apply(DateSpan dates)
+    private async Task Apply(DateRange range)
     {
         await Close();
-        await DatesChanged.InvokeAsync(dates);
+        await DatesChanged.InvokeAsync(new DateSpan(range.From, range.To));
     }
 }
