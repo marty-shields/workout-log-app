@@ -1,5 +1,5 @@
-<section class="card" data-testid="@TestId">
-    <h2 class="title">Records this week</h2>
+@using Shields.UI.Components.Layout
+<Card Title="Records this week" TestId="@TestId">
     @if (Records.Count == 0)
     {
         <p class="none" data-testid="@($"{TestId}-none")">No new records this week</p>
@@ -22,7 +22,7 @@
             <p class="more" data-testid="@($"{TestId}-more")">@(Records.Count - MaxRows) more</p>
         }
     }
-</section>
+</Card>
 
 @code {
     private const int MaxRows = 5;

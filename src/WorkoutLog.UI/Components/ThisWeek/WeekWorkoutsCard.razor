@@ -1,5 +1,5 @@
-<section class="card" data-testid="@TestId">
-    <h2 class="title">This week's workouts</h2>
+@using Shields.UI.Components.Layout
+<Card Title="This week's workouts" TestId="@TestId">
     @if (Workouts.Count == 0)
     {
         <p class="none" data-testid="@($"{TestId}-none")" data-wrap-ok>Nothing yet this week. Tap + to start one.</p>
@@ -19,7 +19,7 @@
             }
         </ul>
     }
-</section>
+</Card>
 
 @code {
     /// <summary>The week's workouts. Shown newest first whatever the order given.</summary>

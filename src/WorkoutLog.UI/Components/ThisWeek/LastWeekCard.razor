@@ -1,10 +1,13 @@
+@using Shields.UI.Components.Layout
 @using WorkoutLog.UI.Components.Weekly
-<section class="card" data-testid="@TestId">
-    <ListRow Text="Last week"
-             Detail="@($"{DisplayFormat.Workouts(Totals.Workouts)} · {DisplayFormat.Minutes((int)Totals.Time.TotalMinutes)} · {DisplayFormat.Sets(Totals.Sets)}")"
-             OnClick="OnOpen"
-             TestId="@($"{TestId}-row")" />
-</section>
+<Card TestId="@TestId">
+    <div class="single">
+        <ListRow Text="Last week"
+                 Detail="@($"{DisplayFormat.Workouts(Totals.Workouts)} · {DisplayFormat.Minutes((int)Totals.Time.TotalMinutes)} · {DisplayFormat.Sets(Totals.Sets)}")"
+                 OnClick="OnOpen"
+                 TestId="@($"{TestId}-row")" />
+    </div>
+</Card>
 
 @code {
     /// <summary>Last week's whole-week totals.</summary>
