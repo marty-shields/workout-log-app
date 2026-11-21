@@ -14,7 +14,7 @@ Opened from the gear on This week or Trends. View: `SettingsView`; page: `Settin
 | Version | "Version 1.4.2": muted, centred and pinned to the bottom of the screen; also in Loading and Load failed. Nothing shows when there is no version. CI and local E2E builds show "Version 1.0.0-e2e.<run id>" or "1.0.0-e2e.<epoch>". |
 | Theme | Tapping a segment applies it at once and saves it on the phone. **System** follows the phone's light or dark setting and is the default. **Light** and **Dark** override it, and are kept across app starts. The saved choice is applied before the first screen shows, so the app never flashes the wrong theme. The control shows while the count loads and when it fails to load. If the saved choice can't be read, System shows; if the phone fails to apply a tapped choice, the previous one stays selected; if it applies but can't be saved, the new one stays selected until the app closes, then System or the earlier saved choice returns. |
 | Loading | `Spinner` "Loading…", centred under Appearance, until the count loads. Your data shows after it. |
-| Load failed | Error "Couldn't load your workouts" and a Secondary **Try again** that reloads, under Appearance. Focus moves to Try again. |
+| Load failed | Error "Couldn't load your workouts" and the kit's `LoadFailed` **Try again** button that reloads, under Appearance. Focus moves to Try again. |
 | Exporting | Export is busy: a spinner beside "Exporting…". Taps are ignored. |
 | Export failed | "Couldn't export your workouts. Try again" under Export, also when the share sheet can't open. Focus moves to Export. |
 | Too many workouts | "Too many workouts to export" under Export: the file would be over 5 MB. |

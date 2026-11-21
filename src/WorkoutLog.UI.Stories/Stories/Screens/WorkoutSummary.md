@@ -14,7 +14,7 @@ What you did and what improved, shown after saving a new workout. View: `Workout
 | Since last time | Card "Since last time": a row per exercise in the workout's order, the exercise with its best in muted text under it, e.g. *Barbell Bench Press* and *90kg × 5*, and the change at the right. |
 | First workout | When there is no earlier workout, a card "Your first workout. Records and changes show from your next one." replaces Records and Since last time. |
 | Loading | `Spinner` "Loading…" centred instead of the cards. |
-| Load failed | Error "Couldn't load the summary" and a Secondary full-width **Try again** that loads again, instead of the cards. Focus moves to Try again. |
+| Load failed | Error "Couldn't load the summary" and the kit's `LoadFailed` **Try again** button that loads again, instead of the cards. Focus moves to Try again. |
 | Bottom bar | Done, `AppButton` primary, full width, in every state. |
 
 The change is the exercise's best in this workout against its best in its last session before this one:
