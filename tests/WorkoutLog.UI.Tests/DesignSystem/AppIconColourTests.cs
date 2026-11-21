@@ -78,6 +78,6 @@ public class AppIconColourTests
     [Test]
     public void LightSplash_MatchesTheAppsLightPage()
     {
-        Assert.That(Palette["splash-light"], Is.EqualTo(DesignTokens.Colour("--color-bg").Light.ToString()));
+        Assert.That(Palette["splash-light"], Is.EqualTo(AppTokens.Colour("--color-bg").Light.ToString()));
     }
 }

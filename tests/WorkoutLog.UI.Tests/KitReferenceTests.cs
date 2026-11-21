@@ -4,8 +4,8 @@ using System.Xml.Linq;
 namespace WorkoutLog.UI.Tests;
 
 /// <summary>
-/// WorkoutLog.UI takes the Shields.UI kit, and the WorkoutLog.UI.Stories library the Shields.UI.Stories shell, from NuGet or from the kit's
-/// source with -p:UseKitSource=true. The project files are read to check both references.
+/// WorkoutLog.UI takes the Shields.UI kit, the WorkoutLog.UI.Stories library the Shields.UI.Stories shell and these tests the
+/// Shields.UI.Testing design checks, from NuGet or from the kit's source with -p:UseKitSource=true. The project files are read to check the references.
 /// </summary>
 public class KitReferenceTests
 {
@@ -49,21 +49,40 @@ public class KitReferenceTests
             Is.EqualTo(new[] { "$(KitSourcePath)/src/Shields.UI.Stories/Shields.UI.Stories.csproj" }));
     }
 
-    [TestCase("Shields.UI", "WorkoutLog.UI")]
-    [TestCase("Shields.UI.Stories", "WorkoutLog.UI.Stories")]
-    public void KitPackageVersion_IsPinnedCentrallyAndMatchesTheLockFile(string package, string project)
+    [TestCase("Shields.UI", "src", "WorkoutLog.UI")]
+    [TestCase("Shields.UI.Stories", "src", "WorkoutLog.UI.Stories")]
+    [TestCase("Shields.UI.Testing", "tests", "WorkoutLog.UI.Tests")]
+    public void KitPackageVersion_IsPinnedCentrallyAndMatchesTheLockFile(string package, string folder, string project)
     {
         var props = XDocument.Parse(RepoFiles.Read("Directory.Packages.props"));
         var version = props.Descendants("PackageVersion")
             .Single(p => (string?)p.Attribute("Include") == package)
             .Attribute("Version")?.Value;
 
-        var lockFile = JsonDocument.Parse(RepoFiles.Read("src", project, "packages.lock.json"));
+        var lockFile = JsonDocument.Parse(RepoFiles.Read(folder, project, "packages.lock.json"));
         var locked = lockFile.RootElement.GetProperty("dependencies").EnumerateObject().First()
             .Value.GetProperty(package).GetProperty("resolved").GetString();
 
         Assert.That(version, Is.Not.Null.And.Not.Empty);
         Assert.That(locked, Is.EqualTo(version));
+    }
+
+    [Test]
+    public void DesignChecksPackage_IsReferencedUnlessUsingKitSource()
+    {
+        var references = ItemGroupsWhen("tests", "WorkoutLog.UI.Tests", PackageCondition).Elements("PackageReference");
+
+        Assert.That(references.Select(r => (string?)r.Attribute("Include")), Is.EqualTo(new[] { "Shields.UI.Testing" }));
+    }
+
+    [Test]
+    public void DesignChecksProject_IsReferencedWhenUsingKitSource()
+    {
+        var references = ItemGroupsWhen("tests", "WorkoutLog.UI.Tests", SourceCondition).Elements("ProjectReference");
+
+        Assert.That(
+            references.Select(r => (string?)r.Attribute("Include")),
+            Is.EqualTo(new[] { "$(KitSourcePath)/src/Shields.UI.Testing/Shields.UI.Testing.csproj" }));
     }
 
     [Test]
@@ -74,6 +93,7 @@ public class KitReferenceTests
             .Single(p => (string?)p.Attribute("Include") == package).Attribute("Version")?.Value;
 
         Assert.That(Version("Shields.UI.Stories"), Is.EqualTo(Version("Shields.UI")));
+        Assert.That(Version("Shields.UI.Testing"), Is.EqualTo(Version("Shields.UI")));
     }
 
     [Test]
@@ -115,8 +135,10 @@ public class KitReferenceTests
 
     private static IEnumerable<XElement> ItemGroupsWhen(string condition) => ItemGroupsWhen("WorkoutLog.UI", condition);
 
-    private static IEnumerable<XElement> ItemGroupsWhen(string project, string condition) =>
-        XDocument.Parse(RepoFiles.Read("src", project, $"{project}.csproj")).Root!
+    private static IEnumerable<XElement> ItemGroupsWhen(string project, string condition) => ItemGroupsWhen("src", project, condition);
+
+    private static IEnumerable<XElement> ItemGroupsWhen(string folder, string project, string condition) =>
+        XDocument.Parse(RepoFiles.Read(folder, project, $"{project}.csproj")).Root!
             .Elements("ItemGroup")
             .Where(group => (string?)group.Attribute("Condition") == condition);
 }

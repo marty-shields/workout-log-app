@@ -54,7 +54,7 @@ public partial class DesignSystemPageTests
 
         var listed = Regex.Matches(story, "\"(--[a-z0-9-]+)\"").Select(m => m.Groups[1].Value);
 
-        Assert.That(listed, Is.EquivalentTo(DesignTokens.Declares(DesignTokens.AppTokensCss)));
+        Assert.That(listed, Is.EquivalentTo(AppTokens.Names));
     }
 
     [Test]

@@ -72,6 +72,12 @@
           "Microsoft.Testing.Platform.MSBuild": "2.4.1"
         }
       },
+      "Shields.UI.Testing": {
+        "type": "Direct",
+        "requested": "[1.0.0-pr.19.9, )",
+        "resolved": "1.0.0-pr.19.9",
+        "contentHash": "exHwqulpQQBiQDG7usXKatzChevKIhXzAs6P67t9o5DcXnxdiGjd5G2/0Vnp2KapVl2mPdOh7ZLjE0Af5D462A=="
+      },
       "AngleSharp": {
         "type": "Transitive",
         "resolved": "1.10.1",
