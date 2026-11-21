@@ -1,3 +1,4 @@
+@inject TimeProvider Clock
 <div class="field" role="group" aria-label="@Label" @onfocusin="() => focused = true" @onfocusout="OnFocusOut">
     <span class="label @(ShowLabel ? null : "visually-hidden")" aria-hidden="true" data-wrap-ok>
         @Label
@@ -62,7 +63,7 @@
     [Parameter]
     public string? TestId { get; set; }
 
-    private static readonly TimeSpan FocusMoveWait = TimeSpan.FromMilliseconds(10);
+    internal static readonly TimeSpan FocusMoveWait = TimeSpan.FromMilliseconds(10);
 
     private bool focused;
     private readonly ElementReference[] boxes = new ElementReference[Parts.Length];
@@ -90,7 +91,7 @@
     private async Task OnFocusOut()
     {
         focused = false;
-        await Task.Delay(FocusMoveWait);
+        await Task.Delay(FocusMoveWait, Clock);
         if (focused)
         {
             return;
