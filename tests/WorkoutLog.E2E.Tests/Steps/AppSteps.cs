@@ -108,7 +108,7 @@ public sealed class AppSteps(
             var edges = web.List(
                 "const dpr = devicePixelRatio;" +
                 "const title = document.querySelector('[data-testid=screen-title]').getBoundingClientRect().top;" +
-                "const tabs = Math.max(...[...document.querySelectorAll('.tab-bar .label')].map(l => l.getBoundingClientRect().bottom));" +
+                "const tabs = Math.max(...[...document.querySelectorAll('.bottom-nav .label')].map(l => l.getBoundingClientRect().bottom));" +
                 "return [title * dpr, tabs * dpr];");
             var (title, tabs) = (Convert.ToDouble(edges[0], CultureInfo.InvariantCulture), Convert.ToDouble(edges[1], CultureInfo.InvariantCulture));
             return title >= topEnd && tabs <= bottomStart

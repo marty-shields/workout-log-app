@@ -1,10 +1,3 @@
-.card {
-    padding: var(--space-3) var(--space-2);
-    border: var(--border-width) solid var(--color-border);
-    border-radius: var(--radius-lg);
-    background-color: var(--color-surface);
-}
-
 .days {
     display: grid;
     grid-template-columns: repeat(7, 1fr);

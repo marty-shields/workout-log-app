@@ -6,7 +6,7 @@
 @using WorkoutLog.Core.Services
 @using WorkoutLog.UI.Components.ThisWeek
 @using WorkoutLog.UI.Components.Trends
-@using WorkoutLog.UI.Lifecycle
+@using Shields.UI.Lifecycle
 @using WorkoutLog.UI.Models.Muscles
 @using WorkoutLog.UI.Models.ThisWeek
 @using WorkoutLog.UI.Models.Workouts
@@ -76,11 +76,11 @@
     [Parameter]
     public EventCallback<Period> OnSettings { get; set; }
 
-    /// <summary>Raised by the New button in the tab bar with the period shown, so discarding can return to it.</summary>
+    /// <summary>Raised by the New button in the bottom nav with the period shown, so discarding can return to it.</summary>
     [Parameter]
     public EventCallback<Period> OnNew { get; set; }
 
-    /// <summary>Raised with the tab tapped in the tab bar.</summary>
+    /// <summary>Raised with the tab tapped in the bottom navigation bar.</summary>
     [Parameter]
     public EventCallback<MainTab> OnNavigate { get; set; }
 

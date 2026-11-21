@@ -1,6 +1,6 @@
 namespace WorkoutLog.UI.Navigation;
 
-/// <summary>A tab of the <see cref="Components.Layout.MainTabBar"/>.</summary>
+/// <summary>A tab of the bottom navigation bar.</summary>
 public enum MainTab
 {
     ThisWeek,

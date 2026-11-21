@@ -22,6 +22,23 @@ public sealed class SettingsScreen(WebView web)
         web.Eventually(() => web.Find(radio).Selected, Is.True, $"{theme} theme selected");
     }
 
+    /// <summary>
+    /// Stores a theme under the key an earlier version wrote, as that version wrote it: the bare word. Also stores
+    /// <paramref name="marker"/> under another key, which the WebView writes to disk in the same commit.
+    /// </summary>
+    public void StoreThemeAsEarlierVersion(string theme, string marker) =>
+        web.Run($"localStorage.setItem('workoutlog.theme', '{theme}'); localStorage.setItem('e2e.seed', '{marker}');");
+
+    /// <summary>The theme saved in the page's storage, or null when none is.</summary>
+    public string? StoredTheme() => web.Run("return localStorage.getItem('workoutlog.theme');") as string;
+
+    /// <summary>The theme the page applies: the root element's <c>data-theme</c>, empty when it follows the phone.</summary>
+    public string AppliedTheme() =>
+        web.Run("return document.documentElement.getAttribute('data-theme') ?? '';") as string ?? "";
+
+    /// <summary>Whether the theme's radio in Appearance is selected.</summary>
+    public bool ThemeSelected(string theme) => web.Find($"settings-theme-{theme}").Selected;
+
     /// <summary>The version line at the bottom, once Settings has opened.</summary>
     public string Version()
     {

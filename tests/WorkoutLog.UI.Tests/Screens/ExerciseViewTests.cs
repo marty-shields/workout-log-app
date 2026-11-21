@@ -1,3 +1,4 @@
+using Shields.UI.Components.Layout;
 using WorkoutLog.Core.Domain;
 using WorkoutLog.UI.Components.Charts;
 using WorkoutLog.UI.Screens;
@@ -41,6 +42,21 @@ public class ExerciseViewTests : ComponentTestBase
         {
             Assert.That(cut.FindAll("[data-testid=exercise-tabs]"), Is.Empty);
             Assert.That(cut.Find("[data-testid=exercise-chart-card] h2").TextContent, Is.EqualTo("Least assist per session"));
+        });
+    }
+
+    [Test]
+    public void ChartCard_IsTheKitsCard_TitledWhenTheChartHasATitle()
+    {
+        var titled = Render(SampleExercises.Assisted);
+        var plain = Render(SampleExercises.LiftTopSet);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(titled.FindComponent<Card>().Instance.Title, Is.EqualTo("Least assist per session"));
+            Assert.That(plain.FindComponent<Card>().Instance.Title, Is.Null);
+            Assert.That(titled.Find("section.card[data-testid=exercise-chart-card] h2.title").TextContent, Is.EqualTo("Least assist per session"));
+            Assert.That(plain.Find("div.card[data-testid=exercise-chart-card]").QuerySelector("h2"), Is.Null);
         });
     }
 
@@ -125,15 +141,19 @@ public class ExerciseViewTests : ComponentTestBase
         Assert.That(changed, Is.EqualTo(new[] { HistoryRange.All }));
     }
 
-    [TestCase(HistoryRange.ThreeMonths, "Records · last 3 months")]
-    [TestCase(HistoryRange.SixMonths, "Records · last 6 months")]
-    [TestCase(HistoryRange.Year, "Records · last year")]
-    [TestCase(HistoryRange.All, "Records · all time")]
-    public void Records_AreTitledWithTheRange(HistoryRange range, string title)
+    [TestCase(HistoryRange.ThreeMonths, "last 3 months")]
+    [TestCase(HistoryRange.SixMonths, "last 6 months")]
+    [TestCase(HistoryRange.Year, "last year")]
+    [TestCase(HistoryRange.All, "all time")]
+    public void Records_ShowTheRangeBesideTheTitle(HistoryRange range, string title)
     {
         var cut = Render(SampleExercises.LiftTopSet, p => p.Add(x => x.Range, range));
 
-        Assert.That(TestText.Normalise(cut.Find("[data-testid=exercise-records] h2").TextContent), Is.EqualTo(title));
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.Find("[data-testid=exercise-records] h2").TextContent, Is.EqualTo("Records"));
+            Assert.That(cut.Find("[data-testid=exercise-records-aside]").TextContent, Is.EqualTo(title));
+        });
     }
 
     [Test]

@@ -8,7 +8,7 @@
     }
     @foreach (var field in Fields)
     {
-        <FieldInput @ref="fields[field.Key]" Field="field" Entry="Entry" ShowLabel="false" OnChanged="OnChanged" OnEnter="@(field == Fields[^1] ? OnEnterLast : default)" TestId="@($"{TestId}-{field.Key}")" />
+        <EntryField @ref="fields[field.Key]" Field="field" Entry="Entry" ShowLabel="false" OnChanged="OnChanged" OnEnter="@(field == Fields[^1] ? OnEnterLast : default)" TestId="@($"{TestId}-{field.Key}")" />
     }
     <IconButton Icon="IconName.Close" AriaLabel="@RemoveLabel" TestId="@($"{TestId}-remove")" Muted Size="IconSize.Small" OnClick="OnRemove" />
 </div>
@@ -70,7 +70,7 @@
     [Parameter]
     public string? TestId { get; set; }
 
-    private readonly Dictionary<string, FieldInput> fields = new();
+    private readonly Dictionary<string, EntryField> fields = new();
 
     /// <summary>Moves focus to the first field with an error, or the first field.</summary>
     public ValueTask FocusAsync() =>

@@ -1,5 +1,5 @@
 ---
-$attribute: CustomPage("Components/Workout/Overview")
+$attribute: CustomPage(StoryTitles.Prefix + "/Components/Workout/Overview")
 ---
 
 # Workout
@@ -22,14 +22,18 @@ One exercise in a workout: name, Done, Remove, and its sets (strength) or entry 
 - Add set and opening another set are blocked while the current set is empty or has errors. Focus then moves to its first field at fault.
 - `ValidateSet` is `ISetChecker.Check` in the App: one message per field, format messages first, then Core's rules. A cardio entry is checked on Save. Once a set or entry fails a check, every change re-checks it, even after it becomes valid, until it passes Add set or opening another set, or the whole workout passes Save.
 - `ValidateDone` is `IWorkoutChecker.CheckExercise` in the App: the Save checks for this exercise only. Done is blocked while it returns false; the card stays open and focus moves to the first error as `FocusFirstErrorAsync` does. Unset: Done is never blocked.
-- Haptics, through the injected `IHaptics` ([Haptics](./?path=/custom/foundations-haptics)): Add set that closes a valid open set plays `SetLogged`, Done plays `ExerciseDone`, and Add set or Done blocked by `ValidateSet` or `ValidateDone` plays `Rejected`. Typing, opening another set, removing a set and the pencil play nothing.
+- Haptics, through the injected `IHaptics` ([Haptics](./?path=/custom/workout-log-foundations-haptics)): Add set that closes a valid open set plays `SetLogged`, Done plays `ExerciseDone`, and Add set or Done blocked by `ValidateSet` or `ValidateDone` plays `Rejected`. Typing, opening another set, removing a set and the pencil play nothing.
 - `FocusFirstErrorAsync` (after a failed Save or Done): Add set for an exercise with no sets, Remove for another exercise error, else the first field at fault in the first set or entry with errors.
 - With `RecordEntry` set, that set or the cardio entry shows a `RecordBadge`.
-- `data-testid`: `TestId`, `{TestId}-done` (open card), `{TestId}-edit` (done card), `{TestId}-remove`, `{TestId}-weights`, `{TestId}-last` (cardio), `{TestId}-error`, `{TestId}-add-set`, `{TestId}-sets-full`, `{TestId}-set-{n}` (and `-edit` on a closed set, `-remove` on any set), `{TestId}-{field}` (cardio), `{TestId}-worked-out`, `{TestId}-last-note`, `{TestId}-add-note`, `{TestId}-note` (and its parts, see [Inputs](./?path=/custom/components-inputs-overview)).
+- `data-testid`: `TestId`, `{TestId}-done` (open card), `{TestId}-edit` (done card), `{TestId}-remove`, `{TestId}-weights`, `{TestId}-last` (cardio), `{TestId}-error`, `{TestId}-add-set`, `{TestId}-sets-full`, `{TestId}-set-{n}` (and `-edit` on a closed set, `-remove` on any set), `{TestId}-{field}` (cardio), `{TestId}-worked-out`, `{TestId}-last-note`, `{TestId}-add-note`, `{TestId}-note` (and its parts, see [Inputs](./?path=/custom/workout-log-components-inputs-overview)).
 
 ## `LastNote`
 The note an exercise had in the last saved workout with it: one muted line, the note `Icon` (`Muted`, `Small`) and the text. Cut with … when long; tap to show the whole note, tap again to cut it. Read-only. Screen readers hear "Last note:" before the text.
 - `data-testid`: `TestId`.
+
+## `EntryField`
+The input for one field of a set or cardio entry, picked from its kind: the kit's `NumberField` for whole and decimal numbers (numeric or decimal keyboard), `DurationField` for durations. Reads and writes the field's text in the `EntryState` and shows the box invalid when the entry has an error for the field. Enter raises `OnEnter` from a number box. `FocusAsync` focuses the box, or the first box of a duration.
+- `data-testid`: `TestId`, passed to the input it picks.
 
 ## `SetRow`
 One set on one row: number, a box per field, remove (`IconButton` Close, muted, small). Column headers come from the card. With `IsRecord`, a `RecordBadge` shows under the row, in line with the fields.
@@ -57,4 +61,4 @@ The Record `Icon` (`Success`, small) and "Record" in bold small text, in `--colo
 One message per faulty field under a set or entry, in field order.
 - `data-testid`: `TestId`.
 
-Stories: [ExerciseCard](./?path=/docs/components-workout-exercisecard--docs) · [LastNote](./?path=/docs/components-workout-lastnote--docs) · [SetRow](./?path=/docs/components-workout-setrow--docs) · [SetPanel](./?path=/docs/components-workout-setpanel--docs) · [SetSummary](./?path=/docs/components-workout-setsummary--docs) · [RecordBadge](./?path=/docs/components-workout-recordbadge--docs) · [EntryErrors](./?path=/docs/components-workout-entryerrors--docs).
+Stories: [EntryField](./?path=/docs/workout-log-components-workout-entryfield--docs) · [ExerciseCard](./?path=/docs/workout-log-components-workout-exercisecard--docs) · [LastNote](./?path=/docs/workout-log-components-workout-lastnote--docs) · [SetRow](./?path=/docs/workout-log-components-workout-setrow--docs) · [SetPanel](./?path=/docs/workout-log-components-workout-setpanel--docs) · [SetSummary](./?path=/docs/workout-log-components-workout-setsummary--docs) · [RecordBadge](./?path=/docs/workout-log-components-workout-recordbadge--docs) · [EntryErrors](./?path=/docs/workout-log-components-workout-entryerrors--docs).

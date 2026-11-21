@@ -1,10 +1,10 @@
-# Weekly update PRs, labelled semver:patch with a chore(deps) title.
+# Update PRs (NuGet daily, the rest weekly), labelled semver:patch with a chore(deps) title.
 version: 2
 updates:
   - package-ecosystem: "nuget"
     directory: "/"
     schedule:
-      interval: "weekly"
+      interval: "daily"
     labels: ["semver:patch"]
     commit-message:
       prefix: "chore(deps)"

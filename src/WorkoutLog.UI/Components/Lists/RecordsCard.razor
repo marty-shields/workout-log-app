@@ -1,5 +1,4 @@
-<section class="card" data-testid="@TestId">
-    <h2 class="title">Records <span class="range">· @Range</span></h2>
+<Card Title="Records" Aside="@Range" TestId="@TestId">
     <dl class="rows">
         @foreach (var row in Rows)
         {
@@ -10,7 +9,7 @@
             </div>
         }
     </dl>
-</section>
+</Card>
 
 @code {
     /// <summary>Range the records cover, e.g. last 3 months.</summary>

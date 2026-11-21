@@ -1,5 +1,5 @@
 ---
-$attribute: CustomPage("Components/Charts/Overview")
+$attribute: CustomPage(StoryTitles.Prefix + "/Components/Charts/Overview")
 ---
 
 # Charts
@@ -17,4 +17,4 @@ An SVG line chart that fills its width. Each `ChartPoint` has a date, a value an
 - Line and points `--color-accent` at `--chart-stroke-width`, the best ring at `--border-width`; grid `--color-border`; text `--color-text-muted`.
 - `data-testid`: `TestId`; `{TestId}-values` on the list.
 
-Stories: [Chart](./?path=/docs/components-charts-chart--docs) · [Best beside latest](./?path=/story/components-charts-chart--best-beside-latest) · [Best beside latest at the bottom](./?path=/story/components-charts-chart--best-beside-latest-at-the-bottom)
+Stories: [Chart](./?path=/docs/workout-log-components-charts-chart--docs) · [Best beside latest](./?path=/story/workout-log-components-charts-chart--best-beside-latest) · [Best beside latest at the bottom](./?path=/story/workout-log-components-charts-chart--best-beside-latest-at-the-bottom)

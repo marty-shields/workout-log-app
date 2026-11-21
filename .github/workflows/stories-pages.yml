@@ -29,7 +29,7 @@ jobs:
 
       # Pages compresses files itself, so the publish writes none.
       - name: Publish
-        run: dotnet publish src/WorkoutLog.UI.Stories -c Release -o publish -p:CompressionEnabled=false
+        run: dotnet publish src/WorkoutLog.UI.Stories.Host -c Release -o publish -p:CompressionEnabled=false
 
       # The site is served under /<repo>/, not the root.
       - name: Set the base path

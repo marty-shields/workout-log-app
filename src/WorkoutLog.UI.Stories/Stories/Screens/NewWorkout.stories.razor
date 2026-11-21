@@ -1,4 +1,4 @@
-@attribute [Stories("Screens/New Workout")]
+@attribute [Stories(StoryTitles.Prefix + "/Screens/New Workout")]
 @inject IExerciseCatalog Catalog
 @inject IWorkoutChecker Checker
 
@@ -91,14 +91,14 @@
     <Story Name="Set deleted">
         <Template>
             @{ var exercises = SampleData.StrengthWorkoutWithWeights(Catalog); var undo = SampleData.DeleteSet(exercises, 0, 1); }
-            <WorkoutView Mode="WorkoutMode.New" StartedAt="SampleData.Started" Time="new TimeSpan(0, 34, 12)" Exercises="exercises" Undo="undo" OnBack="() => { }" />
+            <WorkoutView Mode="WorkoutMode.New" StartedAt="SampleData.Started" Time="new TimeSpan(0, 34, 12)" Exercises="exercises" Undo="undo" OnUndo="() => { }" OnBack="() => { }" />
         </Template>
     </Story>
 
     <Story Name="Exercise deleted">
         <Template>
             @{ var exercises = SampleData.StrengthWorkoutWithWeights(Catalog); var undo = SampleData.DeleteExercise(exercises, 0); }
-            <WorkoutView Mode="WorkoutMode.New" StartedAt="SampleData.Started" Time="new TimeSpan(0, 34, 12)" Exercises="exercises" Undo="undo" OnBack="() => { }" />
+            <WorkoutView Mode="WorkoutMode.New" StartedAt="SampleData.Started" Time="new TimeSpan(0, 34, 12)" Exercises="exercises" Undo="undo" OnUndo="() => { }" OnBack="() => { }" />
         </Template>
     </Story>
 

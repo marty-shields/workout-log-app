@@ -1,10 +1,10 @@
 ---
-$attribute: CustomPage("Screens/Workout Summary/Overview")
+$attribute: CustomPage(StoryTitles.Prefix + "/Screens/Workout Summary/Overview")
 ---
 
 # Workout Summary
 
-What you did and what improved, shown after saving a new workout. View: `WorkoutSummaryView`; page: `WorkoutSummaryPage`. Saving an edit goes straight back to where it was opened from, as on [Edit Workout](./?path=/custom/screens-edit-workout-overview#back).
+What you did and what improved, shown after saving a new workout. View: `WorkoutSummaryView`; page: `WorkoutSummaryPage`. Saving an edit goes straight back to where it was opened from, as on [Edit Workout](./?path=/custom/workout-log-screens-edit-workout-overview#back).
 
 | Part | Content |
 |---|---|
@@ -14,7 +14,7 @@ What you did and what improved, shown after saving a new workout. View: `Workout
 | Since last time | Card "Since last time": a row per exercise in the workout's order, the exercise with its best in muted text under it, e.g. *Barbell Bench Press* and *90kg × 5*, and the change at the right. |
 | First workout | When there is no earlier workout, a card "Your first workout. Records and changes show from your next one." replaces Records and Since last time. |
 | Loading | `Spinner` "Loading…" centred instead of the cards. |
-| Load failed | Error "Couldn't load the summary" and a Secondary full-width **Try again** that loads again, instead of the cards. Focus moves to Try again. |
+| Load failed | Error "Couldn't load the summary" and the kit's `LoadFailed` **Try again** button that loads again, instead of the cards. Focus moves to Try again. |
 | Bottom bar | Done, `AppButton` primary, full width, in every state. |
 
 The change is the exercise's best in this workout against its best in its last session before this one:
@@ -26,10 +26,10 @@ The change is the exercise's best in this workout against its best in its last s
 | The same | A muted "—". Screen readers hear "no change". |
 | No earlier session | A muted "First time". |
 
-Better and worse follow the add-exercise list's best: for an assisted exercise, less assist is better. Records follow the same rule as the Records on [This week](./?path=/custom/screens-this-week-overview) and the record badge on [New Workout](./?path=/custom/screens-new-workout-overview): an exercise's first session and a tie aren't records.
+Better and worse follow the add-exercise list's best: for an assisted exercise, less assist is better. Records follow the same rule as the Records on [This week](./?path=/custom/workout-log-screens-this-week-overview) and the record badge on [New Workout](./?path=/custom/workout-log-screens-new-workout-overview): an exercise's first session and a tie aren't records.
 
 Done and Android back return to This week; the workout is already saved.
 
-States: [Records and changes](./?path=/story/screens-workout-summary--records-and-changes) · [No records](./?path=/story/screens-workout-summary--no-records) · [First workout](./?path=/story/screens-workout-summary--first-workout) · [All first time](./?path=/story/screens-workout-summary--all-first-time) · [Loading](./?path=/story/screens-workout-summary--loading) · [Load failed](./?path=/story/screens-workout-summary--load-failed)
+States: [Records and changes](./?path=/story/workout-log-screens-workout-summary--records-and-changes) · [No records](./?path=/story/workout-log-screens-workout-summary--no-records) · [First workout](./?path=/story/workout-log-screens-workout-summary--first-workout) · [All first time](./?path=/story/workout-log-screens-workout-summary--all-first-time) · [Loading](./?path=/story/workout-log-screens-workout-summary--loading) · [Load failed](./?path=/story/workout-log-screens-workout-summary--load-failed)
 
 `data-testid`: `screen-title`, `summary-stats`, `summary-duration`, `summary-exercises`, `summary-sets`, `summary-records`, `summary-record-{exercise id}`, `summary-records-none`, `summary-changes`, `summary-change-{exercise id}`, `summary-first-workout`, `summary-loading`, `summary-error`, `summary-retry`, `done`, `bottom-bar`.

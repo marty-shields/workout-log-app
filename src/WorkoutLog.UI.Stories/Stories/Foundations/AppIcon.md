@@ -1,5 +1,5 @@
 ---
-$attribute: CustomPage("Foundations/App Icon/Overview")
+$attribute: CustomPage(StoryTitles.Prefix + "/Foundations/App Icon/Overview")
 ---
 
 # App icon and splash
@@ -31,4 +31,4 @@ In `src/WorkoutLog.App/`; the stories project embeds the SVGs for these stories:
 ## Changing the art
 The SVGs, and the README's `docs/images/readme/icon.svg`, are generated. Edit the dumbbell parts, the tilt, the scale or the shadow in `.github/scripts/app-icon.mjs` and colours in `palette.json`, then run `node .github/scripts/app-icon.mjs`. It overwrites every file, and rerunning it changes nothing.
 
-Story: [Icon and splash](./?path=/story/foundations-app-icon--icon-and-splash)
+Story: [Icon and splash](./?path=/story/workout-log-foundations-app-icon--icon-and-splash)

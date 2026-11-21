@@ -1,9 +1,5 @@
 @using WorkoutLog.UI.Models.Muscles
-<section class="card" data-testid="@TestId">
-    <div class="header">
-        <h2 class="title">Sets per muscle group</h2>
-        <span class="aside">@Period</span>
-    </div>
+<Card Title="Sets per muscle group" Aside="@Period" TestId="@TestId">
     @{ var most = Groups.Count == 0 ? 0 : Groups.Max(g => g.Sets); }
     <ul class="groups">
         @foreach (var group in Groups.OrderByDescending(g => g.Sets))
@@ -22,7 +18,7 @@
             </li>
         }
     </ul>
-</section>
+</Card>
 
 @code {
     /// <summary>The muscle groups with their sets for the week. Shown most sets first, so the groups at zero come last.</summary>

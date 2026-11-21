@@ -97,9 +97,17 @@ public class MonthCalendarTests : ComponentTestBase
     }
 
     [Test]
-    public void Legend_NamesTrainedNoWorkoutAndToday() =>
-        Assert.That(Render(new DateOnly(2026, 11, 1), []).FindAll(".legend li").Select(li => li.TextContent),
-            Is.EqualTo(new[] { "Trained", "No workout", "Today" }));
+    public void Legend_NamesTrainedNoWorkoutAndToday()
+    {
+        var items = Render(new DateOnly(2026, 11, 1), []).FindAll("[data-testid=cal-legend] li");
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(items.Select(li => li.QuerySelector(".text")!.TextContent), Is.EqualTo(new[] { "Trained", "No workout", "Today" }));
+            Assert.That(items.Select(li => li.QuerySelector(".swatch")!.ClassList.Last()), Is.EqualTo(new[] { "accent", "outline", "outline" }));
+            Assert.That(items.Select(li => li.QuerySelector(".marker")?.TextContent), Is.EqualTo(new[] { null, null, "◯" }));
+        });
+    }
 
     [Test]
     public void NoOnOpenDay_NoDayIsTappable() =>

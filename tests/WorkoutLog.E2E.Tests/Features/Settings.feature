@@ -32,3 +32,16 @@ Feature: Settings
       | on    | System |
       | on    | Light  |
       | on    | Dark   |
+
+  Scenario Outline: A theme saved by an earlier version still applies
+    Given the phone's dark theme is <phone>
+    And an earlier version saved the <app> theme
+    When I close the app and open it again
+    Then the <app> theme is applied
+    And the status bar icons are light
+    When I tap Settings on This week
+    Then the <app> theme is selected in Settings
+    Examples:
+      | phone | app   |
+      | off   | Dark  |
+      | on    | Light |

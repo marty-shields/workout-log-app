@@ -1,5 +1,5 @@
 ---
-$attribute: CustomPage("Foundations/Haptics")
+$attribute: CustomPage(StoryTitles.Prefix + "/Foundations/Haptics")
 ---
 
 # Haptics
@@ -17,4 +17,4 @@ A screen plays a cue through `IHaptics.Play(HapticCue)` where the action succeed
 
 No cue for navigation, opening another set (even when it is blocked), typing, adding an exercise, deleting, Undo, Discard or Delete. The snackbar and the screen change already confirm those.
 
-The cues are listed on [New Workout](./?path=/custom/screens-new-workout-overview#haptics) and [Edit Workout](./?path=/custom/screens-edit-workout-overview).
+The cues are listed on [New Workout](./?path=/custom/workout-log-screens-new-workout-overview#haptics) and [Edit Workout](./?path=/custom/workout-log-screens-edit-workout-overview).

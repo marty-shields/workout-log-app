@@ -3,12 +3,12 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Testing;
 using Microsoft.Extensions.Time.Testing;
+using Shields.UI.Components.Layout;
 using WorkoutLog.Core.Domain.Exercises;
 using WorkoutLog.Core.Domain.Exercises.Progress;
 using WorkoutLog.Core.Domain.Workouts;
 using WorkoutLog.Core.Domain.Workouts.Validation;
 using WorkoutLog.Core.Services;
-using WorkoutLog.UI.Components.Layout;
 using WorkoutLog.UI.Haptics;
 using WorkoutLog.UI.Logging;
 using WorkoutLog.UI.Screens;
@@ -173,7 +173,7 @@ public class EditWorkoutPageTests : ComponentTestBase
         var before = cut.Find("[data-testid=exercise-3-set-1] .text").TextContent;
         cut.Find("[data-testid=exercise-3-set-1-remove]").Click();
 
-        cut.Find("[data-testid=snackbar-undo]").Click();
+        cut.Find("[data-testid=snackbar-action]").Click();
 
         Assert.Multiple(() =>
         {
@@ -276,12 +276,12 @@ public class EditWorkoutPageTests : ComponentTestBase
         var cut = await RenderLoadedAsync();
         cut.Find("[data-testid=exercise-2-remove]").Click();
 
-        cut.Find("[data-testid=snackbar-undo]").Click();
+        cut.Find("[data-testid=snackbar-action]").Click();
 
         Assert.Multiple(() =>
         {
             Assert.That(Names(cut), Is.EqualTo(new[] { "Treadmill", "Farmer's Walk", "Barbell Back Squat" }));
-            Assert.That(cut.Find("[data-testid=exercise-2]").ClassList, Does.Contain("done"));
+            Assert.That(cut.Find("[data-testid=exercise-2] .body").ClassList, Does.Contain("done"));
             Assert.That(cut.FindAll("[data-testid=snackbar]"), Is.Empty);
         });
     }
@@ -292,7 +292,7 @@ public class EditWorkoutPageTests : ComponentTestBase
         var backs = 0;
         var cut = await RenderLoadedAsync(onBack: () => backs++);
         cut.Find("[data-testid=exercise-2-remove]").Click();
-        cut.Find("[data-testid=snackbar-undo]").Click();
+        cut.Find("[data-testid=snackbar-action]").Click();
 
         await cut.InvokeAsync(BackButton.HandleAsync);
 

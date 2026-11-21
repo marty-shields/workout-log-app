@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Workout Log</title>
+    <base href="/" />
+    <link rel="preload" id="webassembly" />
+    <!-- CSS and JS for the story canvas go here, not in index.html. -->
+    <link rel="stylesheet" href="_content/Shields.UI.Stories/css/blazor-ui.css" />
+    <script src="_content/Shields.UI/theme.js" data-storage-key="workoutlog.theme"></script>
+    <link rel="stylesheet" href="_content/Shields.UI/css/tokens.css" />
+    <link rel="stylesheet" href="_content/Shields.UI.Stories/css/tokens.css" />
+    <link rel="stylesheet" href="_content/Shields.UI/css/base.css" />
+    <link rel="stylesheet" href="_content/WorkoutLog.UI/css/tokens.css" />
+    <link rel="stylesheet" href="WorkoutLog.UI.Stories.Host.styles.css" />
+    <script type="importmap"></script>
+</head>
+
+<body>
+    <div id="app">
+    </div>
+
+    <div id="blazor-error-ui">
+        An unhandled error has occurred.
+        <a href="" class="reload">Reload</a>
+        <a class="dismiss">🗙</a>
+    </div>
+
+    <!-- Scripts for the story canvas go here, not in index.html. -->
+    <script src="_framework/blazor.webassembly#[.{fingerprint}].js" autostart="false"></script>
+    <script>
+        // XML doc files have no fingerprint, so they are fetched past the browser cache.
+        Blazor.start({
+            loadBootResource: (type, name, defaultUri, integrity) =>
+                name.endsWith('.xml') ? fetch(defaultUri, { cache: 'reload', integrity }) : undefined
+        });
+    </script>
+</body>
+
+</html>

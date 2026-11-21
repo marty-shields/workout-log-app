@@ -19,6 +19,18 @@ public class LastWeekCardTests : ComponentTestBase
     }
 
     [Test]
+    public void IsAPlainKitCard_WithTheTestIdAndNoHeading()
+    {
+        var cut = Context.Render<LastWeekCard>(p => p.Add(x => x.Totals, SampleThisWeek.LastWeek).Add(x => x.TestId, "last"));
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.Find("div.card").GetAttribute("data-testid"), Is.EqualTo("last"));
+            Assert.That(cut.FindAll("h2"), Is.Empty);
+        });
+    }
+
+    [Test]
     public void SingularCounts_AreSingular()
     {
         var cut = Context.Render<LastWeekCard>(p => p.Add(x => x.Totals, new WeekTotals(1, new TimeSpan(0, 45, 0), 1)));

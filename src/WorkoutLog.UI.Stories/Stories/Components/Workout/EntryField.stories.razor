@@ -1,0 +1,24 @@
+@using WorkoutLog.UI.Models.Fields
+@attribute [Stories(StoryTitles.Prefix + "/Components/Workout/EntryField")]
+
+<Stories TComponent="EntryField" Layout="typeof(ThemeLayout)">
+
+    <Story Name="Whole">
+        <Template>
+            <EntryField Field="@(new FieldSpec("reps", Metric.Reps, "Reps", FieldKind.Whole, Required: true))" Entry="new EntryState()" />
+        </Template>
+    </Story>
+
+    <Story Name="Decimal">
+        <Template>
+            <EntryField Field="@(new FieldSpec("weight", Metric.WeightKg, "Weight", FieldKind.Decimal, Required: true, Unit: "kg"))" Entry="new EntryState()" />
+        </Template>
+    </Story>
+
+    <Story Name="Duration">
+        <Template>
+            <EntryField Field="@(new FieldSpec("duration", Metric.Duration, "Duration", FieldKind.Duration, Required: true))" Entry="new EntryState()" />
+        </Template>
+    </Story>
+
+</Stories>

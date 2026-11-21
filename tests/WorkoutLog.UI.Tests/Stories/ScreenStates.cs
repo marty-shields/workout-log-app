@@ -1,10 +1,11 @@
 using AngleSharp.Dom;
 using Microsoft.Extensions.DependencyInjection;
+using Shields.UI.Components.Overlays;
+using Shields.UI.Theme;
 using WorkoutLog.Core.Domain;
 using WorkoutLog.Core.Domain.Exercises;
 using WorkoutLog.Core.Domain.Workouts.Periods;
 using WorkoutLog.Core.Services;
-using WorkoutLog.UI.Components.Overlays;
 using WorkoutLog.UI.Models.Exercises;
 using WorkoutLog.UI.Models.Settings;
 using WorkoutLog.UI.Models.Summary;
@@ -12,17 +13,18 @@ using WorkoutLog.UI.Models.Workout;
 using WorkoutLog.UI.Models.Workouts;
 using WorkoutLog.UI.Navigation;
 using WorkoutLog.UI.Screens;
+using WorkoutLog.UI.Stories;
 using WorkoutLog.UI.Stories.Samples;
 
 namespace WorkoutLog.UI.Tests.Stories;
 
 /// <summary>A screen state: its stories section and story name, and how to render it.</summary>
-/// <param name="Section">Stories title, e.g. "Screens/New Workout".</param>
+/// <param name="Section">Stories title after <see cref="StoryTitles.Prefix"/>, e.g. "Screens/New Workout".</param>
 /// <param name="Name">Story name.</param>
 /// <param name="Render">Renders the state with every callback set and returns its elements.</param>
 public sealed record ScreenState(string Section, string Name, Func<BunitContext, IReadOnlyList<IElement>> Render)
 {
-    public override string ToString() => $"{Section}/{Name}";
+    public override string ToString() => $"{StoryTitles.Prefix}/{Section}/{Name}";
 }
 
 /// <summary>Every screen state that has a story, in story order. Renders mirror the stories, with every callback set.</summary>
@@ -30,9 +32,6 @@ public static class ScreenStates
 {
     public static IReadOnlyList<ScreenState> All { get; } =
     [
-        new("Screens/Startup", "Loading", c => c.Render<StartupView>().FindAll("*")),
-        new("Screens/Startup", "Load failed", c => c.Render<StartupView>(p => p.Add(x => x.Failed, true)).FindAll("*")),
-
         new("Screens/This week", "Mid-week", c => ThisWeek(c, p => p
             .Add(x => x.Today, SampleThisWeek.Wednesday)
             .Add(x => x.Trained, SampleThisWeek.TrainedDays)
@@ -164,9 +163,6 @@ public static class ScreenStates
         new("Screens/Import Review", "No workouts", c => ReviewScreen(c, ImportReview.Rejected("f.json", ImportError.NoWorkouts))),
         new("Screens/Import Review", "Too large", c => ReviewScreen(c, ImportReview.Rejected("f.json", ImportError.TooLarge))),
         new("Screens/Import Review", "Reading another file", c => ReviewScreen(c, ImportReview.Rejected("photo.json", ImportError.NotAnExport), reading: true)),
-
-        new("Screens/Error", "Error", c => c.Render<ErrorView>(p => p.Add(x => x.OnRestart, () => { })).FindAll("*")),
-
 
         new("Screens/Exercise", "Lift top set", c => ExercisePage(c, SampleExercises.LiftTopSet)),
         new("Screens/Exercise", "Lift e1RM", c => ExercisePage(c, SampleExercises.LiftE1rm)),

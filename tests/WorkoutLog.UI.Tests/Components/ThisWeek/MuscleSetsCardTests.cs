@@ -13,7 +13,8 @@ public class MuscleSetsCardTests : ComponentTestBase
 
         Assert.Multiple(() =>
         {
-            Assert.That(cut.Find(".title").TextContent, Is.EqualTo("Sets per muscle group"));
+            Assert.That(cut.Find("section.card").GetAttribute("data-testid"), Is.EqualTo("muscles"));
+            Assert.That(cut.Find("section.card h2.title").TextContent, Is.EqualTo("Sets per muscle group"));
             Assert.That(cut.Find(".aside").TextContent, Is.EqualTo("this week"));
         });
     }

@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Components;
+using Shields.UI.Components.Actions;
+using Shields.UI.Components.Layout;
 using WorkoutLog.Core.Domain.Exercises;
-using WorkoutLog.UI.Components.Actions;
-using WorkoutLog.UI.Components.Layout;
 using WorkoutLog.UI.Models.Exercises;
 using WorkoutLog.UI.Screens;
 using WorkoutLog.UI.Stories.Samples;
@@ -142,7 +142,7 @@ public class AddExerciseViewTests : ComponentTestBase
             Assert.That(cut.Find("[data-testid=add-exercise-overlay] [data-testid=screen-title]").TextContent, Is.EqualTo("Exercises"));
             Assert.That(cut.FindAll("[data-testid=add-exercise-overlay] .toolbar [data-testid=add-exercise-search]"), Has.Count.EqualTo(1));
             Assert.That(cut.FindAll("button[data-testid^=add-exercise-row-]"), Has.Count.EqualTo(SampleExercises.All.Count));
-            Assert.That(cut.FindAll("[data-testid=tab-bar]"), Is.Empty);
+            Assert.That(cut.FindAll("[data-testid=bottom-nav]"), Is.Empty);
             Assert.That(cut.FindAll("[data-testid=pull-refresh]"), Is.Empty);
         });
     }

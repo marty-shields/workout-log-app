@@ -66,8 +66,8 @@ public sealed class TrendsSteps(WebView web, Journeys journeys, TrendsScreen tre
         trends.OpenMostTrained(name);
     }
 
-    [Then(@"^the tab bar is (shown|hidden)$")]
-    public void ThenTheTabBarIs(string shown) => web.Eventually(() => tabs.Has("Trends") && tabs.HasPlus(), Is.EqualTo(shown == "shown"), "tab bar shown");
+    [Then(@"^the bottom nav is (shown|hidden)$")]
+    public void ThenTheTabBarIs(string shown) => web.Eventually(() => tabs.Has("Trends") && tabs.HasPlus(), Is.EqualTo(shown == "shown"), "bottom nav shown");
 
     [Then(@"^Trends counts (\d+) workouts?$")]
     public void ThenTrendsCounts(int workouts) =>

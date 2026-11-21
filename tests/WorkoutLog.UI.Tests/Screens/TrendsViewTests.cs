@@ -1,5 +1,5 @@
+using Shields.UI.Components.Actions;
 using WorkoutLog.Core.Domain.Workouts.Periods;
-using WorkoutLog.UI.Components.Actions;
 using WorkoutLog.UI.Models.Workouts;
 using WorkoutLog.UI.Navigation;
 using WorkoutLog.UI.Screens;
@@ -279,7 +279,21 @@ public class TrendsViewTests : ComponentTestBase
             Assert.That(cut.FindAll(Cards), Is.Empty);
             Assert.That(cut.FindAll("[data-testid=trends-kind]"), Has.Count.EqualTo(1));
             Assert.That(cut.FindAll("[data-testid=trends-stepper]"), Has.Count.EqualTo(1));
-            Assert.That(cut.FindAll("[data-testid=tab-bar]"), Has.Count.EqualTo(1));
+            Assert.That(cut.FindAll("[data-testid=bottom-nav]"), Has.Count.EqualTo(1));
+        });
+    }
+
+    [Test]
+    public void BottomNav_MarksTrendsCurrentAndLabelsTheRaisedButtonNew()
+    {
+        var cut = Render(SampleTrends.Loading);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.FindAll("[data-testid=bottom-nav] [aria-current=page]").Select(e => e.GetAttribute("data-testid")), Is.EqualTo(new[] { "trends-link" }));
+            Assert.That(cut.Find("[data-testid=add-button] .label").TextContent, Is.EqualTo("New"));
+            Assert.That(cut.Find("[data-testid=add-button]").HasAttribute("aria-current"), Is.False);
+            Assert.That(cut.FindAll("[data-testid=add-button] svg.icon"), Has.Count.EqualTo(1));
         });
     }
 
@@ -301,6 +315,26 @@ public class TrendsViewTests : ComponentTestBase
         });
     }
 
+    [TestCase("Week", "week")]
+    [TestCase("Month", "month")]
+    [TestCase("Year", "year")]
+    public void Stepper_NamesItsArrowsAfterTheKind(string sample, string unit)
+    {
+        var state = sample switch
+        {
+            "Week" => SampleTrends.Week,
+            "Month" => SampleTrends.Month,
+            _ => SampleTrends.Year,
+        };
+        var cut = Render(state);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.Find("[data-testid=trends-stepper-previous]").GetAttribute("aria-label"), Is.EqualTo($"Previous {unit}"));
+            Assert.That(cut.Find("[data-testid=trends-stepper-next]").GetAttribute("aria-label"), Is.EqualTo($"Next {unit}"));
+        });
+    }
+
     [Test]
     public void Callbacks_AreRaised()
     {
@@ -318,7 +352,7 @@ public class TrendsViewTests : ComponentTestBase
         cut.Find("[data-testid=trends-year]").Change(true);
         cut.Find("[data-testid=trends-stepper-previous]").Click();
         cut.Find("[data-testid=settings]").Click();
-        cut.Find("[data-testid=new-link]").Click();
+        cut.Find("[data-testid=add-button]").Click();
         cut.Find("[data-testid=this-week-link]").Click();
         cut.Find("[data-testid=trends-records-row-22]").Click();
 
@@ -332,7 +366,7 @@ public class TrendsViewTests : ComponentTestBase
 
     [Test]
     public void Settings_UsesTheGearIcon() =>
-        Assert.That(Render(SampleTrends.Week).FindComponents<IconButton>().Single().Instance.Icon, Is.EqualTo(IconName.Settings));
+        Assert.That(Render(SampleTrends.Week).FindComponents<IconButton>().Single(b => b.Instance.TestId == "settings").Instance.Icon, Is.EqualTo(IconName.Settings));
 
     [Test]
     public void Week_DayColumn_RaisesOnOpenWorkoutsWithThatDay()

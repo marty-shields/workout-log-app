@@ -1,4 +1,4 @@
-using WorkoutLog.UI.Components.Actions;
+using Shields.UI.Components.Actions;
 using WorkoutLog.UI.Components.ThisWeek;
 using WorkoutLog.UI.Navigation;
 using WorkoutLog.UI.Screens;
@@ -60,18 +60,6 @@ public class ThisWeekViewTests : ComponentTestBase
     }
 
     [Test]
-    public void TabBar_ShowsThisWeekCurrent_AndNotTheOldBar()
-    {
-        var cut = MidWeek();
-
-        Assert.Multiple(() =>
-        {
-            Assert.That(cut.Find("[aria-current=page]").GetAttribute("data-testid"), Is.EqualTo("this-week-link"));
-            Assert.That(cut.FindAll("[data-testid=bottom-nav]"), Is.Empty);
-        });
-    }
-
-    [Test]
     public void NewWeek_ShowsZerosThePromptAndLastWeekAndNoOtherCards()
     {
         var cut = Context.Render<ThisWeekView>(p => p
@@ -110,7 +98,7 @@ public class ThisWeekViewTests : ComponentTestBase
         {
             Assert.That(cut.Find("[data-testid=this-week-loading]").TextContent, Does.Contain("Loading"));
             Assert.That(cut.FindAll(Parts), Is.Empty);
-            Assert.That(cut.FindAll("[data-testid=settings], [data-testid=tab-bar]"), Has.Count.EqualTo(2));
+            Assert.That(cut.FindAll("[data-testid=settings], [data-testid=bottom-nav]"), Has.Count.EqualTo(2));
         });
     }
 
@@ -126,7 +114,7 @@ public class ThisWeekViewTests : ComponentTestBase
         {
             Assert.That(cut.Find("[data-testid=this-week-error]").TextContent, Is.EqualTo("Couldn't load This week"));
             Assert.That(cut.FindAll(Parts), Is.Empty);
-            Assert.That(cut.FindAll("[data-testid=settings], [data-testid=tab-bar]"), Has.Count.EqualTo(2));
+            Assert.That(cut.FindAll("[data-testid=settings], [data-testid=bottom-nav]"), Has.Count.EqualTo(2));
             Assert.That(retried, Is.EqualTo(1));
         });
     }
@@ -166,7 +154,7 @@ public class ThisWeekViewTests : ComponentTestBase
             .Add(x => x.OnOpenRecord, records.Add));
 
         cut.Find("[data-testid=trends-link]").Click();
-        cut.Find("[data-testid=new-link]").Click();
+        cut.Find("[data-testid=add-button]").Click();
         cut.Find("[data-testid=week-workouts-row-33]").Click();
         cut.Find("[data-testid=week-records-row-8]").Click();
 
@@ -213,7 +201,7 @@ public class ThisWeekViewTests : ComponentTestBase
     }
 
     [Test]
-    public void TabBar_RaisesOnNavigateAndOnNew()
+    public void BottomNav_RaisesOnNavigateAndOnNew()
     {
         var navigated = new List<MainTab>();
         var added = 0;
@@ -224,7 +212,7 @@ public class ThisWeekViewTests : ComponentTestBase
             .Add(x => x.OnNew, () => added++));
 
         cut.Find("[data-testid=trends-link]").Click();
-        cut.Find("[data-testid=new-link]").Click();
+        cut.Find("[data-testid=add-button]").Click();
 
         Assert.Multiple(() =>
         {
@@ -234,8 +222,22 @@ public class ThisWeekViewTests : ComponentTestBase
     }
 
     [Test]
-    public void NoBottomBar_OnlyTheTabBarShows() =>
-        Assert.That(MidWeek().FindAll("footer > *").Select(e => e.GetAttribute("data-testid")), Is.EqualTo(new[] { "tab-bar" }));
+    public void BottomNav_MarksThisWeekCurrentAndLabelsTheRaisedButtonNew()
+    {
+        var cut = MidWeek();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.FindAll("[data-testid=bottom-nav] [aria-current=page]").Select(e => e.GetAttribute("data-testid")), Is.EqualTo(new[] { "this-week-link" }));
+            Assert.That(cut.Find("[data-testid=add-button] .label").TextContent, Is.EqualTo("New"));
+            Assert.That(cut.Find("[data-testid=add-button]").HasAttribute("aria-current"), Is.False);
+            Assert.That(cut.FindAll("[data-testid=add-button] svg.icon"), Has.Count.EqualTo(1));
+        });
+    }
+
+    [Test]
+    public void NoBottomBar_OnlyTheBottomNavShows() =>
+        Assert.That(MidWeek().FindAll("footer > *").Select(e => e.GetAttribute("data-testid")), Is.EqualTo(new[] { "bottom-nav" }));
 
     private IRenderedComponent<ThisWeekView> MidWeek() =>
         Context.Render<ThisWeekView>(p => p

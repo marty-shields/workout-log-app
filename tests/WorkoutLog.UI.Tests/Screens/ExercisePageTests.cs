@@ -227,7 +227,7 @@ public class ExercisePageTests : ComponentTestBase
         {
             Assert.That(progress.AssistedSummaries.Select(s => s.Range), Is.EqualTo(new[] { HistoryRange.ThreeMonths }));
             Assert.That(cut.FindAll("[data-testid=exercise-tabs]"), Is.Empty);
-            Assert.That(cut.Find("[data-testid=exercise-chart-card] .card-title").TextContent, Is.EqualTo("Least assist per session"));
+            Assert.That(cut.Find("[data-testid=exercise-chart-card] .title").TextContent, Is.EqualTo("Least assist per session"));
             Assert.That(view.Flipped, Is.True);
             Assert.That(cut.FindAll("[data-testid=exercise-chart-values] li").Select(v => v.TextContent), Is.EqualTo(new[] { "20 Oct: 0kg ×5" }));
             Assert.That(cut.Find("[data-testid=exercise-chart-caption]").TextContent, Is.EqualTo("Up = less assist"));

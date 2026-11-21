@@ -2,14 +2,14 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Testing;
 using Microsoft.Extensions.Time.Testing;
+using Shields.UI.Components.Layout;
+using Shields.UI.Lifecycle;
 using WorkoutLog.Core.Domain.Exercises;
 using WorkoutLog.Core.Domain.Exercises.Bests;
 using WorkoutLog.Core.Domain.Workouts;
 using WorkoutLog.Core.Domain.Workouts.Consistency;
 using WorkoutLog.Core.Domain.Workouts.Periods;
 using WorkoutLog.Core.Services;
-using WorkoutLog.UI.Components.Layout;
-using WorkoutLog.UI.Lifecycle;
 using WorkoutLog.UI.Logging;
 using WorkoutLog.UI.Navigation;
 using WorkoutLog.UI.Screens;
@@ -53,7 +53,7 @@ public class ThisWeekPageTests : ComponentTestBase
     }
 
     [Test]
-    public void WhileLoading_ShowsTheSpinnerWithTheTabBar()
+    public void WhileLoading_ShowsTheSpinnerWithTheBottomNav()
     {
         training.Hold = true;
 
@@ -63,10 +63,9 @@ public class ThisWeekPageTests : ComponentTestBase
         {
             Assert.That(cut.FindAll("[data-testid=this-week-loading]"), Has.Count.EqualTo(1));
             Assert.That(cut.FindAll("[data-testid=week-tiles]"), Is.Empty);
-            Assert.That(cut.FindAll("[data-testid=tab-bar]"), Has.Count.EqualTo(1));
+            Assert.That(cut.FindAll("[data-testid=bottom-nav]"), Has.Count.EqualTo(1));
             Assert.That(cut.Find("[aria-current=page]").GetAttribute("data-testid"), Is.EqualTo("this-week-link"));
             Assert.That(cut.FindAll("[data-testid=new-workout]"), Is.Empty);
-            Assert.That(cut.FindAll("[data-testid=bottom-nav]"), Is.Empty);
         });
     }
 
@@ -239,7 +238,7 @@ public class ThisWeekPageTests : ComponentTestBase
         Assert.Multiple(() =>
         {
             Assert.That(cut.FindAll("[data-testid=week-tiles]"), Is.Empty);
-            Assert.That(cut.FindAll("[data-testid=new-link]"), Has.Count.EqualTo(1));
+            Assert.That(cut.FindAll("[data-testid=add-button]"), Has.Count.EqualTo(1));
             Assert.That(cut.FindAll("[data-testid=trends-link]"), Has.Count.EqualTo(1));
             Assert.That(LoggedEvents.Of(logger), Is.EqualTo(new[] { (UiEvent.ThisWeekLoadFailed, LogLevel.Warning, "Loading This week failed") }));
         });
@@ -336,7 +335,7 @@ public class ThisWeekPageTests : ComponentTestBase
             .Add(x => x.OnNavigate, navigated.Add)
             .Add(x => x.OnSettings, () => settings++));
 
-        cut.Find("[data-testid=new-link]").Click();
+        cut.Find("[data-testid=add-button]").Click();
         cut.Find("[data-testid=trends-link]").Click();
         cut.Find("[data-testid=settings]").Click();
 

@@ -72,6 +72,12 @@
           "Microsoft.Testing.Platform.MSBuild": "2.4.1"
         }
       },
+      "Shields.UI.Testing": {
+        "type": "Direct",
+        "requested": "[1.0.0-pr.19.9, )",
+        "resolved": "1.0.0-pr.19.9",
+        "contentHash": "exHwqulpQQBiQDG7usXKatzChevKIhXzAs6P67t9o5DcXnxdiGjd5G2/0Vnp2KapVl2mPdOh7ZLjE0Af5D462A=="
+      },
       "AngleSharp": {
         "type": "Transitive",
         "resolved": "1.10.1",
@@ -442,6 +448,7 @@
         "type": "Project",
         "dependencies": {
           "Microsoft.AspNetCore.Components.Web": "[11.0.0, )",
+          "Shields.UI": "[1.0.0-pr.19.9, )",
           "WorkoutLog.Core": "[1.0.0, )"
         }
       },
@@ -449,7 +456,7 @@
         "type": "Project",
         "dependencies": {
           "BlazingStory": "[1.0.0-preview.97, )",
-          "Microsoft.AspNetCore.Components.WebAssembly": "[11.0.0, )",
+          "Shields.UI.Stories": "[1.0.0-pr.19.9, )",
           "WorkoutLog.UI": "[1.0.0, )"
         }
       },
@@ -501,6 +508,25 @@
         "requested": "[11.0.0, )",
         "resolved": "11.0.0",
         "contentHash": "KygQMITBDDPXw7+AAgdwQvVAaTXuDsc1iCAuvhO73ERxKX+d92cdbgZmpoYF7DIUq2hfs/yO2KD87uIreRy3MA=="
+      },
+      "Shields.UI": {
+        "type": "CentralTransitive",
+        "requested": "[1.0.0-pr.19.9, )",
+        "resolved": "1.0.0-pr.19.9",
+        "contentHash": "xg/zZa7YC5zyoaBfnBBhjQUXGjseEVBcnsG9i3C5icklDXe9yx2O4PS+rkoV+IVVPYG/bzrPByamYbz16UH4mQ==",
+        "dependencies": {
+          "Microsoft.AspNetCore.Components.Web": "11.0.0"
+        }
+      },
+      "Shields.UI.Stories": {
+        "type": "CentralTransitive",
+        "requested": "[1.0.0-pr.19.9, )",
+        "resolved": "1.0.0-pr.19.9",
+        "contentHash": "KvwK5InX20+IyaNMl0l5Pf/PBzoGd6RRXimGFPHqNZa2gIMThNUIzhPbAdWToG71E7tYpg6YXAT0kXah+9WC6g==",
+        "dependencies": {
+          "BlazingStory": "1.0.0-preview.97",
+          "Shields.UI": "1.0.0-pr.19.9"
+        }
       },
       "sqlite-net-pcl": {
         "type": "CentralTransitive",

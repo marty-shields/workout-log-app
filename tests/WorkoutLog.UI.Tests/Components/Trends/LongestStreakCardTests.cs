@@ -41,6 +41,18 @@ public class LongestStreakCardTests : ComponentTestBase
     public void Row_IsNotTappable() =>
         Assert.That(Render(23, running: true).FindAll("button"), Is.Empty);
 
+    [Test]
+    public void IsAPlainKitCard_WithTheTestIdAndNoHeading()
+    {
+        var cut = Render(3, running: false);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.Find("div.card").GetAttribute("data-testid"), Is.EqualTo("streak"));
+            Assert.That(cut.FindAll("h2"), Is.Empty);
+        });
+    }
+
     private IRenderedComponent<LongestStreakCard> Render(int weeks, bool running) =>
         Context.Render<LongestStreakCard>(p => p.Add(x => x.Weeks, weeks).Add(x => x.Running, running).Add(x => x.TestId, "streak"));
 }

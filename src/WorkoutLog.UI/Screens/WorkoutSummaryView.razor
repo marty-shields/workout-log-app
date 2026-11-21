@@ -1,4 +1,4 @@
-@using WorkoutLog.UI.Components.Feedback
+@using Shields.UI.Components.Navigation
 @using WorkoutLog.UI.Models.Summary
 <BackHandler OnBack="OnDone" />
 <AppScreen Title="Workout saved">
@@ -16,28 +16,31 @@
         else if (Summary is { } summary)
         {
             <div class="sections">
-                <dl class="card stats" data-testid="summary-stats">
-                    <div class="stat">
-                        <dt class="label">Duration</dt>
-                        <dd class="value" data-testid="summary-duration">@DisplayFormat.Duration(summary.Duration)</dd>
-                    </div>
-                    <div class="stat">
-                        <dt class="label">Exercises</dt>
-                        <dd class="value" data-testid="summary-exercises">@summary.Exercises</dd>
-                    </div>
-                    <div class="stat">
-                        <dt class="label">Sets</dt>
-                        <dd class="value" data-testid="summary-sets">@summary.Sets</dd>
-                    </div>
-                </dl>
+                <Card TestId="summary-stats">
+                    <dl class="stats">
+                        <div class="stat">
+                            <dt class="label">Duration</dt>
+                            <dd class="value" data-testid="summary-duration">@DisplayFormat.Duration(summary.Duration)</dd>
+                        </div>
+                        <div class="stat">
+                            <dt class="label">Exercises</dt>
+                            <dd class="value" data-testid="summary-exercises">@summary.Exercises</dd>
+                        </div>
+                        <div class="stat">
+                            <dt class="label">Sets</dt>
+                            <dd class="value" data-testid="summary-sets">@summary.Sets</dd>
+                        </div>
+                    </dl>
+                </Card>
                 @if (summary.IsFirstWorkout)
                 {
-                    <p class="card note" data-testid="summary-first-workout">Your first workout. Records and changes show from your next one.</p>
+                    <Card TestId="summary-first-workout">
+                        <p class="note">Your first workout. Records and changes show from your next one.</p>
+                    </Card>
                 }
                 else
                 {
-                    <section class="card" data-testid="summary-records">
-                        <h2 class="title">Records</h2>
+                    <Card Title="Records" TestId="summary-records">
                         @if (summary.Records.Count == 0)
                         {
                             <p class="none" data-testid="summary-records-none">No records this time</p>
@@ -54,11 +57,10 @@
                                 }
                             </ul>
                         }
-                    </section>
+                    </Card>
                     @if (summary.Changes.Count > 0)
                     {
-                        <section class="card" data-testid="summary-changes">
-                            <h2 class="title">Since last time</h2>
+                        <Card Title="Since last time" TestId="summary-changes">
                             <ul class="rows">
                                 @foreach (var change in summary.Changes)
                                 {
@@ -71,7 +73,7 @@
                                     </li>
                                 }
                             </ul>
-                        </section>
+                        </Card>
                     }
                 }
             </div>

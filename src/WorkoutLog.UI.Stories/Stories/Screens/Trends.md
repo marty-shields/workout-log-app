@@ -1,18 +1,18 @@
 ---
-$attribute: CustomPage("Screens/Trends/Overview")
+$attribute: CustomPage(StoryTitles.Prefix + "/Screens/Trends/Overview")
 ---
 
 # Trends
 
-How a week, a month or a year went: what you did, how it compares with the period before, and how the weeks and months added up. It is the second tab of the tab bar, at `/trends`. View: `TrendsView`; page: `TrendsPage`. Design: [docs/design/this-week-and-trends.html](https://github.com/marty-shields/workout-log-app/blob/main/docs/design/this-week-and-trends.html).
+How a week, a month or a year went: what you did, how it compares with the period before, and how the weeks and months added up. It is the second tab of the bottom nav, at `/trends`. View: `TrendsView`; page: `TrendsPage`. Design: [docs/design/this-week-and-trends.html](https://github.com/marty-shields/workout-log-app/blob/main/docs/design/this-week-and-trends.html).
 
 | Part | Content |
 |---|---|
 | Top bar | Title "Trends"; Settings gear (`IconButton`) on the right in every state. No back arrow. |
-| Kind | A Week / Month / Year `SegmentedControl`. The page offers all three (`TrendsView`'s `Kinds` lists what is offered; one kind hides the control). |
-| Stepper | A `PeriodStepper`: previous arrow, the period's label, next arrow. Previous is disabled at the period of the first workout, next at the period that holds today. |
+| Kind | A Week / Month / Year kit `SegmentedControl`. The page offers all three (`TrendsView`'s `Kinds` lists what is offered; one kind hides the control). |
+| Stepper | A kit `PeriodStepper`: previous arrow, the period's label, next arrow. Previous is disabled at the period of the first workout, next at the period that holds today. |
 | Tiles | `TrendTiles`: Workouts, Time, Sets and Volume (strength) against the period before, up to the same point in it while the period is still running. |
-| Tab bar | `MainTabBar` with Trends current, through `AppScreen`'s `Tab`: This week opens [This week](./?path=/custom/screens-this-week-overview), + opens [New Workout](./?path=/custom/screens-new-workout-overview) with `from` the period shown, so discarding returns to it. |
+| Bottom navigation | The kit's `BottomNav` with Trends current, through `AppScreen`'s `NavItems` (from `MainTabs`): This week opens [This week](./?path=/custom/workout-log-screens-this-week-overview), + opens [New Workout](./?path=/custom/workout-log-screens-new-workout-overview) with `from` the period shown, so discarding returns to it. |
 
 Under the tiles, each kind has its own cards, top to bottom:
 
@@ -22,7 +22,7 @@ Under the tiles, each kind has its own cards, top to bottom:
 | Month | **Each day**: `MonthCalendar`. **Weeks**: `MonthWeeks`. **Records**: `RecordRows`, "n this month", each dated (e.g. *Wed 18 Nov*). **Most trained**: `MeterRows` of the top five exercises by sessions. |
 | Year | **Workouts by month**: single `TrendBars`, "3.2 a week" at the right (hidden at 0). **Longest streak**: `LongestStreakCard`. **Records by month**: `MeterRows`, "n this year". |
 
-Every chart has an accessible name saying what it shows and a hidden list of its values; none tells a state by colour alone (see [Trends components](./?path=/custom/components-trends-overview)).
+Every chart has an accessible name saying what it shows and a hidden list of its values; none tells a state by colour alone (see [Trends components](./?path=/custom/workout-log-components-trends-overview)).
 
 ## States
 
@@ -31,8 +31,8 @@ Every chart has an accessible name saying what it shows and a hidden list of its
 - **Past week, Past month, Past year**: a finished period. Both arrows work, the cards say "that week", "that month" or "that year", and the paired bars are labelled *That week* and *The week before*.
 - **No workouts**: a period with none. The tiles show zeros and "—", each chart says what is missing instead (e.g. *No workouts that week*), the records cards say "No new records that week" and the muscle groups all read "Not trained". The previous arrow is disabled when it is the first period.
 - **No workouts ever**: the current week with nothing logged yet, so both arrows are disabled and the cards read as an empty week.
-- **Loading**: `Spinner` "Loading…" in place of the cards. The kind control, stepper and tab bar work.
-- **Load failed**: error "Couldn't load Trends" and a Secondary full-width **Try again** in place of the cards. Focus moves to Try again. The kind control, stepper and tab bar work.
+- **Loading**: `Spinner` "Loading…" in place of the cards. The kind control, stepper and bottom nav work.
+- **Load failed**: error "Couldn't load Trends" and the kit's `LoadFailed` **Try again** button in place of the cards. Focus moves to Try again. The kind control, stepper and bottom nav work.
 
 `TrendsView` takes every value as a parameter, with those of the kinds not shown ignored. A change of kind or period is raised (`OnKindChanged`, `OnPrevious`, `OnNext`) and the page answers by loading the period and passing it back.
 
@@ -56,9 +56,9 @@ Weeks run from Monday 00:00 to Sunday 23:59:59 in the phone's time zone, and tod
 - **Load failed**: if the period, the one before, the volume, the series, the limits, or what the kind also reads (the muscle groups and streak for a week, the most trained for a month, the streak for a year) fail to read, the page shows the error and Try again. If only the records fail, their card reads "No new records" (the year's "No records") and the rest shows; the failure is logged either way, with no workout contents.
 - **Reloads** when the app comes back on screen and on pull to refresh (the spinner shows for at least half a second), whichever kind is shown. A reload that finds a new week, month or year has begun while the current one was shown moves to the new one.
 - **Records**, and in the month the Most trained rows, open their exercise; back from the exercise returns to the same kind and period (the link carries `from=trends:month:2026-11-01`; the older `trends:2026-11-09` still means the week holding it). Muscle group rows, and in the year the Records by month rows, do nothing. Settings opened from the gear returns to the same period too (`/settings?from=trends:…`).
-- **Workouts**: a day with a workout in the month calendar, a Weeks row with workouts, a day's columns with a workout in the week view and a month's column with workouts in the year view are buttons (when `OnOpenWorkouts` is set) that open [Workouts](./?path=/custom/screens-workouts-overview) with those dates (`first` and `last`; a month's end is cut to today), and `from` the period shown, so back returns to it. A day, row or column with no workouts isn't tappable.
-- **Back**: Android back goes to This week (`AppScreen`'s `Tab`), whichever kind is shown.
+- **Workouts**: a day with a workout in the month calendar, a Weeks row with workouts, a day's columns with a workout in the week view and a month's column with workouts in the year view are buttons (when `OnOpenWorkouts` is set) that open [Workouts](./?path=/custom/workout-log-screens-workouts-overview) with those dates (`first` and `last`; a month's end is cut to today), and `from` the period shown, so back returns to it. A day, row or column with no workouts isn't tappable.
+- **Back**: Android back goes to This week (the kit's `AppScreen`, from the first of `NavItems`), whichever kind is shown.
 
-States: [Week](./?path=/story/screens-trends--week) · [Week only](./?path=/story/screens-trends--week-only) · [Month](./?path=/story/screens-trends--month) · [Year](./?path=/story/screens-trends--year) · [Past week](./?path=/story/screens-trends--past-week) · [Past month](./?path=/story/screens-trends--past-month) · [Past year](./?path=/story/screens-trends--past-year) · [No workouts ever](./?path=/story/screens-trends--no-workouts-ever) · [No workouts, week](./?path=/story/screens-trends--no-workouts-week) · [No workouts, month](./?path=/story/screens-trends--no-workouts-month) · [No workouts, year](./?path=/story/screens-trends--no-workouts-year) · [Loading](./?path=/story/screens-trends--loading) · [Load failed](./?path=/story/screens-trends--load-failed)
+States: [Week](./?path=/story/workout-log-screens-trends--week) · [Week only](./?path=/story/workout-log-screens-trends--week-only) · [Month](./?path=/story/workout-log-screens-trends--month) · [Year](./?path=/story/workout-log-screens-trends--year) · [Past week](./?path=/story/workout-log-screens-trends--past-week) · [Past month](./?path=/story/workout-log-screens-trends--past-month) · [Past year](./?path=/story/workout-log-screens-trends--past-year) · [No workouts ever](./?path=/story/workout-log-screens-trends--no-workouts-ever) · [No workouts, week](./?path=/story/workout-log-screens-trends--no-workouts-week) · [No workouts, month](./?path=/story/workout-log-screens-trends--no-workouts-month) · [No workouts, year](./?path=/story/workout-log-screens-trends--no-workouts-year) · [Loading](./?path=/story/workout-log-screens-trends--loading) · [Load failed](./?path=/story/workout-log-screens-trends--load-failed)
 
-`data-testid`: `trends-kind` (`trends-week`, `trends-month`, `trends-year`), `trends-stepper` (`-previous`, `-label`, `-next`), `trends-tiles`, `trends-days`, `trends-muscles`, `trends-records`, `trends-recent-weeks`, `trends-calendar`, `trends-weeks`, `trends-most-trained`, `trends-months`, `trends-streak`, `trends-records-by-month` (with the parts' own as prefixes), `settings`, `tab-bar`, `this-week-link`, `new-link`, `trends-link`, `trends-loading`, `trends-error`, `trends-retry`.
+`data-testid`: `trends-kind` (`trends-week`, `trends-month`, `trends-year`), `trends-stepper` (`-previous`, `-label`, `-next`), `trends-tiles`, `trends-days`, `trends-muscles`, `trends-records`, `trends-recent-weeks`, `trends-calendar`, `trends-weeks`, `trends-most-trained`, `trends-months`, `trends-streak`, `trends-records-by-month` (with the parts' own as prefixes), `settings`, `bottom-nav`, `this-week-link`, `add-button`, `trends-link`, `trends-loading`, `trends-error`, `trends-retry`.

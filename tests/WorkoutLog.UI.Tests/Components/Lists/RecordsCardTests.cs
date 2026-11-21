@@ -5,11 +5,15 @@ namespace WorkoutLog.UI.Tests.Components.Lists;
 public class RecordsCardTests : ComponentTestBase
 {
     [Test]
-    public void Title_ShowsTheRange()
+    public void Title_IsRecords_WithTheRangeAsTheAside()
     {
         var cut = Render([]);
 
-        Assert.That(TestText.Normalise(cut.Find("h2").TextContent), Is.EqualTo("Records · last 3 months"));
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.Find("section.card h2.title").TextContent, Is.EqualTo("Records"));
+            Assert.That(cut.Find("section.card [data-testid=records-aside]").TextContent, Is.EqualTo("last 3 months"));
+        });
     }
 
     [Test]
@@ -33,7 +37,7 @@ public class RecordsCardTests : ComponentTestBase
     {
         var cut = Render([]);
 
-        Assert.That(cut.Find("section").GetAttribute("data-testid"), Is.EqualTo("records"));
+        Assert.That(cut.Find("section.card").GetAttribute("data-testid"), Is.EqualTo("records"));
     }
 
     private IRenderedComponent<RecordsCard> Render(IReadOnlyList<RecordRow> rows) =>
