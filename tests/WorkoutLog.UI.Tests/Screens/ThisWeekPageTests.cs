@@ -158,8 +158,8 @@ public class ThisWeekPageTests : ComponentTestBase
                     ("week-records-row-6", "Barbell Back Squat · 70kg × 3", "Wednesday"),
                     ("week-records-row-311", "Outdoor Run · 5.2km", "Monday"),
                 }));
-            Assert.That(cut.Find("[data-testid=week-muscles-legs] .sets").TextContent, Is.EqualTo("12 sets"));
-            Assert.That(cut.Find("[data-testid=week-muscles-chest] .sets").TextContent, Is.EqualTo("Not trained"));
+            Assert.That(cut.Find("[data-testid=week-muscles-rows-row-legs] .value").TextContent, Is.EqualTo("12 sets"));
+            Assert.That(cut.Find("[data-testid=week-muscles-rows-row-chest] .value").TextContent, Is.EqualTo("Not trained"));
         });
     }
 

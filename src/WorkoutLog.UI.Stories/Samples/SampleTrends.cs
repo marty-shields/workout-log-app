@@ -245,10 +245,6 @@ public static class SampleTrends
     private static readonly string[] MonthNames =
         [.. Enumerable.Range(1, 12).Select(m => CultureInfo.InvariantCulture.DateTimeFormat.GetMonthName(m))];
 
-    private static string Minutes(int minutes) => minutes >= 60 ? $"{minutes / 60}h {minutes % 60:00}m" : $"{minutes}m";
-
-    private static string Workouts(int count) => count == 1 ? "1 workout" : $"{count} workouts";
-
     private static int[] DayNumbers(params int[] days) => days;
 
     private static Dictionary<string, object?> State(
@@ -273,27 +269,22 @@ public static class SampleTrends
     /// <summary>Minutes trained each day of a week beside the same day the week before; <paramref name="today"/> is the index of today, or null for a finished week; each column with minutes opens that day of the week starting <paramref name="monday"/>.</summary>
     private static List<TrendBar> Days(int[] minutes, int[] earlier, int? today, DateOnly monday) =>
         [.. minutes.Select((value, i) => new TrendBar(
+            new DateSpan(monday.AddDays(i), monday.AddDays(i)),
             DayNames[i][..3],
-            DayNames[i],
             value,
-            value > 0 ? Minutes(value) : today is { } t && i > t ? "still to come" : "rest day",
             earlier[i],
-            earlier[i] > 0 ? Minutes(earlier[i]) : "rest day",
-            Current: i == today,
-            Span: value > 0 ? new DateSpan(monday.AddDays(i), monday.AddDays(i)) : null))];
+            Current: i == today))];
 
     /// <summary>Workouts in each month; <paramref name="current"/> is the index of this month, or -1. The current and highest months show their value.</summary>
     private static List<TrendBar> Months(int[] workouts, int current, int year)
     {
         var highest = workouts.Max();
         return [.. workouts.Select((value, i) => new TrendBar(
+            new DateSpan(new DateOnly(year, i + 1, 1), new DateOnly(year, i + 1, DateTime.DaysInMonth(year, i + 1))),
             MonthNames[i][..1],
-            MonthNames[i],
             value,
-            value == 0 ? "no workouts" : Workouts(value),
             Current: i == current,
-            Labelled: i == current || (value == highest && highest > 0),
-            Span: value > 0 ? new DateSpan(new DateOnly(year, i + 1, 1), new DateOnly(year, i + 1, DateTime.DaysInMonth(year, i + 1))) : null))];
+            Labelled: i == current || (value == highest && highest > 0)))];
     }
 
     private static List<MeterRow> RecordMonths(int[] records) =>

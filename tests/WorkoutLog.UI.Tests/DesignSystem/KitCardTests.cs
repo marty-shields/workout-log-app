@@ -9,7 +9,6 @@ public partial class KitCardTests
     [
         Path.Combine("Components", "ThisWeek", "WeekWorkoutsCard.razor.css"),
         Path.Combine("Components", "ThisWeek", "WeekRecordsCard.razor.css"),
-        Path.Combine("Components", "ThisWeek", "MuscleSetsCard.razor.css"),
         Path.Combine("Components", "ThisWeek", "LastWeekCard.razor.css"),
         Path.Combine("Components", "Trends", "LongestStreakCard.razor.css"),
         Path.Combine("Components", "Lists", "RecordsCard.razor.css"),

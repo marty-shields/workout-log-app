@@ -57,8 +57,8 @@ public sealed partial class ThisWeekScreen(WebView web)
     public IReadOnlyList<(string Group, string Sets)> MuscleRows()
     {
         WaitUntilLoaded();
-        return web.FindAll("li[data-testid^=\"week-muscles-\"]")
-            .Select(r => (Part(r, ".name"), Part(r, ".sets")))
+        return web.FindAll("li[data-testid^=\"week-muscles-rows-row-\"]")
+            .Select(r => (Part(r, ".name"), Part(r, ".value")))
             .ToList();
     }
 

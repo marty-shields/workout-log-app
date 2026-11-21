@@ -60,11 +60,12 @@ public sealed class TrendsScreen(WebView web)
     /// <summary>Taps a row of the Weeks card, counting from 1.</summary>
     public void OpenWeekRow(int row) => web.Tap($"trends-weeks-rows-{row}-open");
 
-    /// <summary>Taps a day's columns in the week view, Monday being 1.</summary>
-    public void OpenDayColumn(int column) => web.Tap($"trends-days-chart-{column}-open");
+    /// <summary>Taps a day's bar in the week view.</summary>
+    public void OpenDayColumn(DateOnly day) => web.Tap($"trends-days-chart-bar-{day:yyyy-MM-dd}");
 
-    /// <summary>Taps a month's column in the year view, January being 1.</summary>
-    public void OpenMonthColumn(int column) => web.Tap($"trends-months-chart-{column}-open");
+    /// <summary>Taps a month's bar in the year view, January being 1, of the year shown.</summary>
+    public void OpenMonthColumn(int month) =>
+        web.Tap($"trends-months-chart-bar-{int.Parse(Label(), System.Globalization.CultureInfo.InvariantCulture):0000}-{month:00}-01");
 
     /// <summary>The tappable day numbers of the month calendar.</summary>
     public IReadOnlyList<int> OpenDays() =>
@@ -72,19 +73,19 @@ public sealed class TrendsScreen(WebView web)
             .Select(e => DateOnly.ParseExact(e.GetDomAttribute("data-testid")!["trends-calendar-days-day-".Length..], "yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture).Day)
             .ToList();
 
-    /// <summary>The tappable columns of the year view, January being 1.</summary>
-    public IReadOnlyList<int> OpenMonthColumns() => Numbers("trends-months-chart-");
+    /// <summary>The tappable bars of the year view, January being 1.</summary>
+    public IReadOnlyList<int> OpenMonthColumns() => Bars("trends-months-chart-").Select(day => day.Month).ToList();
 
-    /// <summary>The tappable columns of the week view, Monday being 1.</summary>
-    public IReadOnlyList<int> OpenDayColumns() => Numbers("trends-days-chart-");
+    /// <summary>The tappable bars of the week view.</summary>
+    public IReadOnlyList<DateOnly> OpenDayColumns() => Bars("trends-days-chart-");
 
     /// <summary>Taps the Records row of the exercise.</summary>
     public void OpenRecord(int exerciseId) => web.Tap($"trends-records-row-{exerciseId}");
 
     /// <summary>Taps the Most trained row of the exercise, by name as the row's test id writes it.</summary>
-    public void OpenMostTrained(string name) => web.Tap($"trends-most-trained-rows-{name.ToLowerInvariant().Replace(' ', '-')}-open");
+    public void OpenMostTrained(string name) => web.Tap($"trends-most-trained-rows-select-{Slug(name)}");
 
-    public bool HasMostTrained(string name) => web.Exists($"trends-most-trained-rows-{name.ToLowerInvariant().Replace(' ', '-')}-open");
+    public bool HasMostTrained(string name) => web.Exists($"trends-most-trained-rows-select-{Slug(name)}");
 
     /// <summary>
     /// In the Year view, steps back from this year until a month with workouts shows, then taps its latest one, which opens Workouts.
@@ -140,8 +141,11 @@ public sealed class TrendsScreen(WebView web)
         throw new InvalidOperationException($"No month has {name} among its most trained exercises.");
     }
 
-    private IReadOnlyList<int> Numbers(string prefix) =>
-        web.FindAll($"[data-testid^=\"{prefix}\"][data-testid$=\"-open\"]")
-            .Select(e => int.Parse(e.GetDomAttribute("data-testid")![prefix.Length..^"-open".Length], System.Globalization.CultureInfo.InvariantCulture))
+    /// <summary>The kit's row id for a label: lower case letters and digits, each run of other characters one dash.</summary>
+    private static string Slug(string name) => System.Text.RegularExpressions.Regex.Replace(name.ToLowerInvariant(), "[^\\p{L}\\p{N}]+", "-").Trim('-');
+
+    private IReadOnlyList<DateOnly> Bars(string prefix) =>
+        web.FindAll($"[role=\"button\"][data-testid^=\"{prefix}bar-\"]")
+            .Select(e => DateOnly.ParseExact(e.GetDomAttribute("data-testid")![$"{prefix}bar-".Length..], "yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture))
             .ToList();
 }

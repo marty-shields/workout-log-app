@@ -110,7 +110,7 @@ public sealed class TrendsSteps(WebView web, Journeys journeys, TrendsScreen tre
     {
         var date = SeedTime.ResolveDay(day, clock.LocalNow());
         Show("Week", Monday(clock.LocalNow()), Monday(date), 7);
-        trends.OpenDayColumn(((int)date.DayOfWeek + 6) % 7 + 1);
+        trends.OpenDayColumn(DateOnly.FromDateTime(date));
     }
 
     /// <summary>Taps the month's column in the Year view, stepping back to its year first.</summary>
@@ -137,7 +137,7 @@ public sealed class TrendsSteps(WebView web, Journeys journeys, TrendsScreen tre
     public void ThenTheWeekViewOpens(string days)
     {
         var now = clock.LocalNow();
-        var expected = days.Split(", ").Select(d => ((int)SeedTime.ResolveDay(d, now).DayOfWeek + 6) % 7 + 1).Order().ToList();
+        var expected = days.Split(", ").Select(d => DateOnly.FromDateTime(SeedTime.ResolveDay(d, now))).Order().ToList();
         web.Eventually(() => trends.OpenDayColumns().Order().ToList(), Is.EqualTo(expected));
     }
 

@@ -1,5 +1,7 @@
 using Shields.UI.Components.Actions;
+using Shields.UI.Components.Charts;
 using WorkoutLog.Core.Domain.Workouts.Periods;
+using WorkoutLog.UI.Components.Trends;
 using WorkoutLog.UI.Models.Workouts;
 using WorkoutLog.UI.Navigation;
 using WorkoutLog.UI.Screens;
@@ -61,7 +63,10 @@ public class TrendsViewTests : ComponentTestBase
         {
             Assert.That(cut.Find("[data-testid=trends-days] .title").TextContent, Is.EqualTo("Time trained by day"));
             Assert.That(cut.FindAll("[data-testid=trends-days-chart-legend] li").Select(li => li.TextContent), Is.EqualTo(new[] { "This week", "Last week" }));
+            Assert.That(cut.FindAll("[data-testid=trends-days-chart-legend] .swatch").Select(s => s.ClassList.Last()), Is.EqualTo(new[] { "accent", "past" }));
             Assert.That(cut.Find("[data-testid=trends-days-chart]").GetAttribute("aria-label"), Is.EqualTo("Time trained each day this week beside the same day last week"));
+            Assert.That(cut.Find("[data-testid=trends-days-chart-bar-2026-11-16]").GetAttribute("aria-label"), Is.EqualTo("Mon 16 Nov, 62 min, last week 65 min"));
+            Assert.That(cut.FindAll("[data-testid=trends-days-chart-earlier-2026-11-16], [data-testid=trends-days-chart-column-2026-11-16]"), Has.Count.EqualTo(2));
         });
     }
 
@@ -166,7 +171,7 @@ public class TrendsViewTests : ComponentTestBase
             Assert.That(cut.FindAll("[data-testid=trends-weeks-rows] .week"), Has.Count.EqualTo(4));
             Assert.That(cut.Find("[data-testid=trends-records-aside]").TextContent, Is.EqualTo("4 this month"));
             Assert.That(cut.Find("[data-testid=trends-most-trained-aside]").TextContent, Is.EqualTo("sessions"));
-            Assert.That(cut.FindAll("[data-testid=trends-most-trained-rows] .row"), Has.Count.EqualTo(5));
+            Assert.That(cut.FindAll("[data-testid=trends-most-trained-rows] li"), Has.Count.EqualTo(5));
             Assert.That(cut.Find("[data-testid=trends-most-trained-rows]").GetAttribute("aria-label"), Is.EqualTo("Sessions of the most trained exercises this month"));
         });
     }
@@ -197,7 +202,7 @@ public class TrendsViewTests : ComponentTestBase
             Assert.That(cut.Find("[data-testid=trends-streak-row] .aside").TextContent, Is.EqualTo("23 weeks"));
             Assert.That(cut.Find("[data-testid=trends-streak-row] .detail").TextContent, Is.EqualTo("Still going"));
             Assert.That(cut.Find("[data-testid=trends-records-by-month-aside]").TextContent, Is.EqualTo("37 this year"));
-            Assert.That(cut.FindAll("[data-testid=trends-records-by-month-rows] .row"), Has.Count.EqualTo(11));
+            Assert.That(cut.FindAll("[data-testid=trends-records-by-month-rows] li"), Has.Count.EqualTo(11));
             Assert.That(cut.Find("[data-testid=trends-records-by-month-rows]").GetAttribute("aria-label"), Is.EqualTo("Records set in each month of 2026"));
         });
     }
@@ -276,9 +281,9 @@ public class TrendsViewTests : ComponentTestBase
         Assert.Multiple(() =>
         {
             Assert.That(cut.FindAll("[data-testid=trends-tiles] .value").Select(v => v.TextContent), Is.EqualTo(new[] { "0", "0m", "0", "0 kg" }));
-            Assert.That(cut.Find("[data-testid=trends-days-chart-none]").TextContent, Is.EqualTo("No workouts that week"));
+            Assert.That(cut.Find("[data-testid=trends-days-chart-empty]").TextContent, Is.EqualTo("No workouts that week"));
             Assert.That(cut.Find("[data-testid=trends-records-none]").TextContent, Is.EqualTo("No new records that week"));
-            Assert.That(cut.FindAll("[data-testid=trends-muscles] .sets").Select(s => s.TextContent), Is.All.EqualTo("Not trained"));
+            Assert.That(cut.FindAll("[data-testid=trends-muscles] .value").Select(s => s.TextContent), Is.All.EqualTo("Not trained"));
             Assert.That(cut.Find("[data-testid=trends-recent-weeks-chart-none]").TextContent, Is.EqualTo("No workouts in the last 12 weeks"));
             Assert.That(cut.Find("[data-testid=trends-stepper-previous]").HasAttribute("disabled"), Is.True);
         });
@@ -294,7 +299,7 @@ public class TrendsViewTests : ComponentTestBase
             Assert.That(cut.FindAll("[data-testid=trends-calendar-days] .marked"), Is.Empty);
             Assert.That(cut.FindAll("[data-testid=trends-weeks-rows] .totals").Select(t => t.TextContent), Is.All.EqualTo("0 workouts · 0m"));
             Assert.That(cut.Find("[data-testid=trends-records-none]").TextContent, Is.EqualTo("No new records that month"));
-            Assert.That(cut.Find("[data-testid=trends-most-trained-rows-none]").TextContent, Is.EqualTo("No exercises that month"));
+            Assert.That(cut.Find("[data-testid=trends-most-trained-rows-empty]").TextContent, Is.EqualTo("No exercises that month"));
         });
     }
 
@@ -305,9 +310,9 @@ public class TrendsViewTests : ComponentTestBase
 
         Assert.Multiple(() =>
         {
-            Assert.That(cut.Find("[data-testid=trends-months-chart-none]").TextContent, Is.EqualTo("No workouts that year"));
+            Assert.That(cut.Find("[data-testid=trends-months-chart-empty]").TextContent, Is.EqualTo("No workouts that year"));
             Assert.That(cut.Find("[data-testid=trends-streak-row] .aside").TextContent, Is.EqualTo("None"));
-            Assert.That(cut.Find("[data-testid=trends-records-by-month-rows-none]").TextContent, Is.EqualTo("No records that year"));
+            Assert.That(cut.Find("[data-testid=trends-records-by-month-rows-all-zero]").TextContent, Is.EqualTo("No records that year"));
         });
     }
 
@@ -417,7 +422,7 @@ public class TrendsViewTests : ComponentTestBase
         var opened = new List<DateSpan>();
         var cut = Context.Render<TrendsView>(p => p.Sample(SampleTrends.Week).Add(x => x.OnOpenWorkouts, opened.Add));
 
-        cut.Find("[data-testid=trends-days-chart-3-open]").Click();
+        cut.Find("[data-testid=trends-days-chart-bar-2026-11-18]").Click();
 
         Assert.That(opened, Is.EqualTo(new[] { new DateSpan(new DateOnly(2026, 11, 18), new DateOnly(2026, 11, 18)) }));
     }
@@ -444,7 +449,7 @@ public class TrendsViewTests : ComponentTestBase
         var opened = new List<DateSpan>();
         var cut = Context.Render<TrendsView>(p => p.Sample(SampleTrends.Year).Add(x => x.OnOpenWorkouts, opened.Add));
 
-        cut.Find("[data-testid=trends-months-chart-2-open]").Click();
+        cut.Find("[data-testid=trends-months-chart-bar-2026-02-01]").Click();
 
         Assert.That(opened, Is.EqualTo(new[] { new DateSpan(new DateOnly(2026, 2, 1), new DateOnly(2026, 2, 28)) }));
     }
@@ -456,8 +461,73 @@ public class TrendsViewTests : ComponentTestBase
         {
             var cut = Render(state);
 
-            Assert.That(cut.FindAll("[data-testid$=-open]"), Is.Empty);
+            Assert.That(cut.FindAll("[data-testid$=-open], [data-testid*=-select-], [data-testid*=chart-bar-][role=button]"), Is.Empty);
         }
+    }
+
+    [Test]
+    public void Week_ChartsShareOneScaleTopAtTheBiggestValueOfBothWeeks() =>
+        Assert.That(Render(SampleTrends.Week).FindComponent<TrendBarChart>().Instance.Max, Is.EqualTo(70));
+
+    [Test]
+    public void Year_ChartScaleTopsAtTheBusiestMonth() =>
+        Assert.That(Render(SampleTrends.Year).FindComponent<TrendBarChart>().Instance.Max, Is.EqualTo(17));
+
+    [Test]
+    public void Week_NoValuesAtAll_ScaleTopIsOneAndTheLegendIsLeftOut()
+    {
+        var cut = Render(SampleTrends.EmptyWeek);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.FindComponent<TrendBarChart>().Instance.Max, Is.EqualTo(1));
+            Assert.That(cut.FindAll("[data-testid=trends-days-chart-legend]"), Is.Empty);
+        });
+    }
+
+    [Test]
+    public void Month_MostTrainedRows_HaveSlugIdsAndRaiseTheExerciseOnSelect()
+    {
+        var opened = new List<int>();
+        var cut = Context.Render<TrendsView>(p => p.Sample(SampleTrends.Month).Add(x => x.OnOpenRecord, opened.Add));
+
+        cut.Find("[data-testid=trends-most-trained-rows-select-overhead-press]").Click();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.FindAll("[data-testid^=trends-most-trained-rows-row-]").Select(r => r.GetAttribute("data-testid")),
+                Is.EqualTo(new[] { "bench-press", "squat", "deadlift", "treadmill-run", "overhead-press" }.Select(slug => $"trends-most-trained-rows-row-{slug}")));
+            Assert.That(opened, Is.EqualTo(new[] { 9 }));
+        });
+    }
+
+    [Test]
+    public void Month_MostTrainedRows_AreNotTappableWithoutOnOpenRecord() =>
+        Assert.That(Render(SampleTrends.Month).FindAll("[data-testid^=trends-most-trained-rows-select-]"), Is.Empty);
+
+    [Test]
+    public void Month_MostTrainedAllAtZero_ShowsTheMessageInPlaceOfTheRows()
+    {
+        var cut = Render(new Dictionary<string, object?>(SampleTrends.Month) { [nameof(TrendsView.MostTrained)] = new MeterRow[] { new("Squat", 0, 22) } });
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.Find("[data-testid=trends-most-trained-rows-all-zero]").TextContent, Is.EqualTo("No exercises this month"));
+            Assert.That(cut.FindAll("[data-testid^=trends-most-trained-rows-row-]"), Is.Empty);
+        });
+    }
+
+    [Test]
+    public void Year_RecordsByMonthRows_HaveSlugIdsAndAreNotTappable()
+    {
+        var cut = Render(SampleTrends.Year);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.FindAll("[data-testid^=trends-records-by-month-rows-row-]").Select(r => r.GetAttribute("data-testid")).Take(3),
+                Is.EqualTo(new[] { "jan", "feb", "mar" }.Select(slug => $"trends-records-by-month-rows-row-{slug}")));
+            Assert.That(cut.FindAll("[data-testid^=trends-records-by-month-rows-select-]"), Is.Empty);
+        });
     }
 
     private static Dictionary<string, object?> With(IReadOnlyDictionary<string, object?> state, string name, object value) =>

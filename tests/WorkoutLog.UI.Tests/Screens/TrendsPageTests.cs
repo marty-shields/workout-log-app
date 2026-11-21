@@ -142,16 +142,12 @@ public class TrendsPageTests : ComponentTestBase
 
         var cut = Context.Render<TrendsPage>();
 
-        cut.WaitForAssertion(() => Assert.That(cut.FindAll("[data-testid=trends-days-chart-values] li"), Has.Count.EqualTo(7)));
-        Assert.That(cut.FindAll("[data-testid=trends-days-chart-values] li").Select(li => li.TextContent), Is.EqualTo(new[]
+        cut.WaitForElement("[data-testid=trends-days-chart-bar-2026-11-16]");
+        Assert.That(cut.FindAll("[data-testid^=trends-days-chart-bar-]").Select(b => b.GetAttribute("aria-label")), Is.EqualTo(new[]
         {
-            "Monday: 30m (last week 1h 05m)",
-            "Tuesday: rest day (last week rest day)",
-            "Wednesday: 1h 00m (last week 55m)",
-            "Thursday: still to come (last week rest day)",
-            "Friday: still to come (last week 1h 00m)",
-            "Saturday: still to come (last week rest day)",
-            "Sunday: still to come (last week rest day)",
+            "Mon 16 Nov, 30 min, last week 65 min",
+            "Wed 18 Nov, 60 min, last week 55 min, current",
+            "Fri 20 Nov, last week 60 min",
         }));
     }
 
@@ -173,8 +169,8 @@ public class TrendsPageTests : ComponentTestBase
                     ("trends-records-row-6", "Barbell Back Squat · 70kg × 3", "Wednesday"),
                     ("trends-records-row-311", "Outdoor Run · 5.2km", "Monday"),
                 }));
-            Assert.That(cut.Find("[data-testid=trends-muscles-legs] .sets").TextContent, Is.EqualTo("12 sets"));
-            Assert.That(cut.Find("[data-testid=trends-muscles-chest] .sets").TextContent, Is.EqualTo("Not trained"));
+            Assert.That(cut.Find("[data-testid=trends-muscles-rows-row-legs] .value").TextContent, Is.EqualTo("12 sets"));
+            Assert.That(cut.Find("[data-testid=trends-muscles-rows-row-chest] .value").TextContent, Is.EqualTo("Not trained"));
         });
     }
 
@@ -199,9 +195,9 @@ public class TrendsPageTests : ComponentTestBase
         Assert.Multiple(() =>
         {
             Assert.That(cut.Find("[data-testid=trends-tiles-workouts] .value").TextContent, Is.EqualTo("0"));
-            Assert.That(cut.Find("[data-testid=trends-days-chart-none]").TextContent, Is.EqualTo("No workouts that week"));
+            Assert.That(cut.Find("[data-testid=trends-days-chart-empty]").TextContent, Is.EqualTo("No workouts that week"));
             Assert.That(cut.Find("[data-testid=trends-records-none]").TextContent, Is.EqualTo("No new records that week"));
-            Assert.That(cut.FindAll("[data-testid=trends-muscles] .sets").Select(s => s.TextContent), Is.All.EqualTo("Not trained"));
+            Assert.That(cut.FindAll("[data-testid=trends-muscles] .value").Select(s => s.TextContent), Is.All.EqualTo("Not trained"));
             Assert.That(cut.FindAll("[data-testid=trends-recent-weeks-aside]"), Is.Empty);
             Assert.That(cut.FindAll("[data-testid=trends-error]"), Is.Empty);
         });
@@ -215,7 +211,7 @@ public class TrendsPageTests : ComponentTestBase
         cut.WaitForAssertion(() => Assert.That(cut.FindAll("[data-testid=trends-tiles]"), Has.Count.EqualTo(1)));
         Assert.Multiple(() =>
         {
-            Assert.That(cut.Find("[data-testid=trends-days-chart-none]").TextContent, Is.EqualTo("No workouts this week"));
+            Assert.That(cut.Find("[data-testid=trends-days-chart-empty]").TextContent, Is.EqualTo("No workouts this week"));
             Assert.That(cut.Find("[data-testid=trends-stepper-previous]").HasAttribute("disabled"), Is.True);
             Assert.That(cut.Find("[data-testid=trends-stepper-next]").HasAttribute("disabled"), Is.True);
             Assert.That(cut.FindAll("[data-testid=trends-error]"), Is.Empty);
@@ -347,7 +343,7 @@ public class TrendsPageTests : ComponentTestBase
             Assert.That(training.RecordReads.Last(), Is.EqualTo(LastMonday));
             Assert.That(cut.Find("[data-testid=trends-stepper-next]").HasAttribute("disabled"), Is.False);
             Assert.That(cut.Find("[data-testid=trends-tiles-against]").TextContent, Is.EqualTo("Against the week before"));
-            Assert.That(cut.Find("[data-testid=trends-days-chart-none]").TextContent, Is.EqualTo("No workouts that week"));
+            Assert.That(cut.Find("[data-testid=trends-days-chart-empty]").TextContent, Is.EqualTo("No workouts that week"));
             Assert.That(cut.Find("[data-testid=trends-recent-weeks-aside]").TextContent, Is.EqualTo("5-week streak"));
         });
     }
@@ -464,20 +460,19 @@ public class TrendsPageTests : ComponentTestBase
     }
 
     [Test]
-    public void TodayWithNoWorkout_IsARestDayAndMarkedAsToday()
+    public void TodayWithNoWorkout_HasNoBarAndIsMarkedAsToday()
     {
         MidWeek();
         totals.Series = new PeriodSeries(Week, [new PeriodBucket(Monday, Monday, 1, TimeSpan.FromMinutes(30))], [], [], 0);
 
         var cut = Context.Render<TrendsPage>();
 
-        cut.WaitForAssertion(() => Assert.That(cut.FindAll("[data-testid=trends-days-chart-values] li"), Has.Count.EqualTo(7)));
-        var values = cut.FindAll("[data-testid=trends-days-chart-values] li").Select(li => li.TextContent).ToList();
+        cut.WaitForElement("[data-testid=trends-days-chart-bar-2026-11-16]");
         Assert.Multiple(() =>
         {
-            Assert.That(values[2], Is.EqualTo("Wednesday: rest day (last week rest day)"));
-            Assert.That(values[3], Is.EqualTo("Thursday: still to come (last week rest day)"));
-            Assert.That(cut.FindAll("[data-testid=trends-days] span.current").Select(e => e.TextContent), Is.EqualTo(new[] { "Wed" }));
+            Assert.That(cut.FindAll("[data-testid=trends-days-chart-bar-2026-11-18]"), Is.Empty);
+            Assert.That(cut.FindAll("[data-testid=trends-days-chart-gap-2026-11-18]"), Has.Count.EqualTo(1));
+            Assert.That(cut.FindAll("[data-testid=trends-days] .axis-label.current").Select(e => e.TextContent), Is.EqualTo(new[] { "Wed" }));
         });
     }
 
@@ -634,8 +629,8 @@ public class TrendsPageTests : ComponentTestBase
         var opened = new List<WorkoutsOpened>();
         var cut = Context.Render<TrendsPage>(p => p.Add(x => x.OnOpenWorkouts, opened.Add));
 
-        cut.WaitForElement("[data-testid=trends-days-chart-1-open]").Click();
-        cut.Find("[data-testid=trends-days-chart-3-open]").Click();
+        cut.WaitForElement("[data-testid=trends-days-chart-bar-2026-11-16]").Click();
+        cut.Find("[data-testid=trends-days-chart-bar-2026-11-18]").Click();
 
         Assert.Multiple(() =>
         {
@@ -644,7 +639,7 @@ public class TrendsPageTests : ComponentTestBase
                 new WorkoutsOpened(new DateSpan(Monday, Monday), Week),
                 new WorkoutsOpened(new DateSpan(Monday.AddDays(2), Monday.AddDays(2)), Week),
             }));
-            Assert.That(cut.FindAll("[data-testid=trends-days-chart-2-open]"), Is.Empty);
+            Assert.That(cut.FindAll("[data-testid=trends-days-chart-bar-2026-11-17]"), Is.Empty);
         });
     }
 
@@ -660,8 +655,8 @@ public class TrendsPageTests : ComponentTestBase
             0);
         var cut = Context.Render<TrendsPage>();
 
-        cut.WaitForElement("[data-testid=trends-days-chart-1-open]");
-        Assert.That(cut.FindAll("[data-testid=trends-days-chart-2-open]"), Is.Empty);
+        cut.WaitForElement("[data-testid=trends-days-chart-bar-2026-11-16]");
+        Assert.That(cut.FindAll("[data-testid=trends-days-chart-bar-2026-11-17]"), Is.Empty);
     }
 
     [Test]

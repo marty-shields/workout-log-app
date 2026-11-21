@@ -35,9 +35,13 @@
                 @if (Kind == PeriodKind.Week)
                 {
                     <Card Title="Time trained by day" TestId="trends-days">
-                        <TrendBars Bars="Days" NowLabel="@(Past ? "That week" : "This week")" EarlierLabel="@(Past ? "The week before" : "Last week")"
-                                   AriaLabel="@($"Time trained each day {Name} beside the same day {(Past ? "the week before" : "last week")}")"
-                                   EmptyText="@($"No workouts {Name}")" OnOpen="OnOpenWorkouts" TestId="trends-days-chart" />
+                        @if (Days.Any(day => day.Value > 0 || day.Earlier > 0))
+                        {
+                            <ChartLegend Items="DaysLegend" TestId="trends-days-chart-legend" />
+                        }
+                        <TrendBarChart Bars="Points(Days)" Style="TrendBarStyle.PastAndCurrent" Max="Top(Days)" Unit="min" EarlierLabel="@EarlierLabel"
+                                       Label="@($"Time trained each day {Name} beside the same day {EarlierLabel}")"
+                                       EmptyText="@($"No workouts {Name}")" OnSelect="Open(Days)" TestId="trends-days-chart" />
                     </Card>
                     <MuscleSetsCard Groups="Muscles" Period="@Name" TestId="trends-muscles" />
                     <Card Title="Records" Aside="@($"{Records.Count} {Name}")" TestId="trends-records">
@@ -60,17 +64,22 @@
                         <RecordRows Records="Records" EmptyText="@($"No new records {Name}")" OnOpen="OnOpenRecord" TestId="trends-records" />
                     </Card>
                     <Card Title="Most trained" Aside="sessions" TestId="trends-most-trained">
-                        <MeterRows Rows="MostTrained" Unit="sessions" AriaLabel="@($"Sessions of the most trained exercises {Name}")" Wide EmptyText="@($"No exercises {Name}")" OnOpen="OnOpenRecord" TestId="trends-most-trained-rows" />
+                        <BarList Items="Items(MostTrained)" Inline LabelWidth="BarListLabelWidth.Wide" ValueWidth="BarListValueWidth.Narrow" Unit="sessions"
+                                 Label="@($"Sessions of the most trained exercises {Name}")" EmptyText="@($"No exercises {Name}")" AllZeroText="@($"No exercises {Name}")"
+                                 OnSelect="OpenExercise" TestIdBy="BarListTestIdBy.Slug" TestId="trends-most-trained-rows" />
                     </Card>
                 }
                 else
                 {
                     <Card Title="Workouts by month" Aside="@(PerWeek > 0 ? $"{PerWeek.ToString("0.#", CultureInfo.InvariantCulture)} a week" : null)" TestId="trends-months">
-                        <TrendBars Bars="Months" AriaLabel="@($"Workouts in each month of {Label}")" EmptyText="@($"No workouts {Name}")" OnOpen="OnOpenWorkouts" TestId="trends-months-chart" />
+                        <TrendBarChart Bars="Points(Months)" Style="TrendBarStyle.PastAndCurrent" Max="Top(Months)" Unit="workouts" DateFormat="MMMM yyyy"
+                                       Label="@($"Workouts in each month of {Label}")" EmptyText="@($"No workouts {Name}")" OnSelect="Open(Months)" TestId="trends-months-chart" />
                     </Card>
                     <LongestStreakCard Weeks="LongestStreak" Running="StreakRunning" TestId="trends-streak" />
                     <Card Title="Records by month" Aside="@($"{RecordsByMonth.Sum(m => m.Value)} {Name}")" TestId="trends-records-by-month">
-                        <MeterRows Rows="RecordsByMonth" Unit="records" AriaLabel="@($"Records set in each month of {Label}")" EmptyText="@($"No records {Name}")" TestId="trends-records-by-month-rows" />
+                        <BarList Items="Items(RecordsByMonth)" Inline LabelWidth="BarListLabelWidth.Narrow" ValueWidth="BarListValueWidth.Narrow" Unit="records"
+                                 Label="@($"Records set in each month of {Label}")" EmptyText="@($"No records {Name}")" AllZeroText="@($"No records {Name}")"
+                                 TestIdBy="BarListTestIdBy.Slug" TestId="trends-records-by-month-rows" />
                     </Card>
                 }
             }
@@ -257,6 +266,34 @@
 
     private EventCallback<DateOnly> OpenDay =>
         OnOpenWorkouts.HasDelegate ? EventCallback.Factory.Create<DateOnly>(this, day => OnOpenWorkouts.InvokeAsync(new DateSpan(day, day))) : default;
+
+    private IReadOnlyList<LegendItem> DaysLegend =>
+    [
+        new(LegendSwatch.Accent, Past ? "That week" : "This week"),
+        new(LegendSwatch.Past, Past ? "The week before" : "Last week"),
+    ];
+
+    private string EarlierLabel => Past ? "the week before" : "last week";
+
+    private static IReadOnlyList<TrendBarPoint> Points(IReadOnlyList<TrendBar> bars) =>
+        [.. bars.Select(bar => new TrendBarPoint(bar.Span.From, bar.Label, bar.Value, Current: bar.Current, Labelled: bar.Labelled, Earlier: bar.Earlier))];
+
+    /// <summary>The top of the chart's scale: the biggest value drawn, at least 1, so a period's bars fill the chart as before.</summary>
+    private static double Top(IReadOnlyList<TrendBar> bars) =>
+        Math.Max(1, bars.Select(bar => Math.Max(bar.Value, bar.Earlier)).DefaultIfEmpty(0).Max());
+
+    private EventCallback<DateOnly> Open(IReadOnlyList<TrendBar> bars) =>
+        OnOpenWorkouts.HasDelegate
+            ? EventCallback.Factory.Create<DateOnly>(this, date => OnOpenWorkouts.InvokeAsync(bars.First(bar => bar.Span.From == date).Span))
+            : default;
+
+    private static IReadOnlyList<BarListItem> Items(IReadOnlyList<MeterRow> rows) =>
+        [.. rows.Select(row => new BarListItem(row.Label, row.Value, Selectable: row.ExerciseId is not null))];
+
+    private EventCallback<int> OpenExercise =>
+        OnOpenRecord.HasDelegate
+            ? EventCallback.Factory.Create<int>(this, index => OnOpenRecord.InvokeAsync(MostTrained[index].ExerciseId!.Value))
+            : default;
 
     /// <summary>The period as it reads in the cards: this week, or that week once it is over.</summary>
     private string Name => $"{(Past ? "that" : "this")} {Kind.ToString().ToLowerInvariant()}";
