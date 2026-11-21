@@ -1,15 +1,7 @@
-.card {
+.body {
     display: flex;
     flex-direction: column;
     gap: var(--space-3);
-    padding: var(--space-4);
-    border: var(--border-width) solid var(--color-border);
-    border-radius: var(--radius-lg);
-    background-color: var(--color-surface);
-}
-
-.has-error {
-    border: var(--border-width-error) solid var(--color-error);
 }
 
 .card-header {
@@ -23,10 +15,6 @@
 .actions {
     display: flex;
     align-items: center;
-}
-
-.done {
-    padding-block: var(--space-1);
 }
 
 .done .card-header {

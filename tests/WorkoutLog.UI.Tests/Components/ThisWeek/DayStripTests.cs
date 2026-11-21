@@ -6,6 +6,14 @@ namespace WorkoutLog.UI.Tests.Components.ThisWeek;
 public class DayStripTests : ComponentTestBase
 {
     [Test]
+    public void Strip_IsTheKitsCardHoldingTheDays()
+    {
+        var cut = Render(SampleThisWeek.Wednesday, SampleThisWeek.TrainedDays);
+
+        Assert.That(cut.Find("div.card[data-testid=strip] > ul.days"), Is.Not.Null);
+    }
+
+    [Test]
     public void Days_AreMondayToSundayWithAbbreviations()
     {
         var cut = Render(SampleThisWeek.Wednesday, SampleThisWeek.TrainedDays);

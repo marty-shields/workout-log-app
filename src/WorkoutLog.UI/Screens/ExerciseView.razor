@@ -21,25 +21,23 @@
             {
                 <SegmentedControl TValue="string" Label="Chart" Options="Tabs" Value="Tab" ValueChanged="TabChanged" TestId="exercise-tabs" />
             }
-            <section class="card" data-testid="exercise-chart-card">
-                @if (ChartTitle is not null)
-                {
-                    <h2 class="card-title">@ChartTitle</h2>
-                }
-                @if (Points.Any(p => p.Value is not null))
-                {
-                    <Chart Points="Points" Flipped="Flipped" Format="Format" TimeScale="TimeScale" Name="@ChartName" TestId="exercise-chart" />
-                }
-                else
-                {
-                    <p class="no-data" data-testid="exercise-chart-empty">@(Sessions.Count > 0 && NoDataMessage is not null ? NoDataMessage : NoSessionsMessage)</p>
-                }
-                <SegmentedControl TValue="HistoryRange" Label="Range" Options="Ranges" Value="Range" ValueChanged="RangeChanged" TestId="exercise-range" />
-                @if (Caption is not null)
-                {
-                    <p class="caption" data-testid="exercise-chart-caption">@Caption</p>
-                }
-            </section>
+            <Card Title="@ChartTitle" TestId="exercise-chart-card">
+                <div class="chart-card">
+                    @if (Points.Any(p => p.Value is not null))
+                    {
+                        <Chart Points="Points" Flipped="Flipped" Format="Format" TimeScale="TimeScale" Name="@ChartName" TestId="exercise-chart" />
+                    }
+                    else
+                    {
+                        <p class="no-data" data-testid="exercise-chart-empty">@(Sessions.Count > 0 && NoDataMessage is not null ? NoDataMessage : NoSessionsMessage)</p>
+                    }
+                    <SegmentedControl TValue="HistoryRange" Label="Range" Options="Ranges" Value="Range" ValueChanged="RangeChanged" TestId="exercise-range" />
+                    @if (Caption is not null)
+                    {
+                        <p class="caption" data-testid="exercise-chart-caption">@Caption</p>
+                    }
+                </div>
+            </Card>
             <RecordsCard Range="@RangeText" Rows="Records" TestId="exercise-records" />
             @if (Sessions.Count > 0)
             {

@@ -120,6 +120,21 @@ public class WorkoutSummaryViewTests : ComponentTestBase
     }
 
     [Test]
+    public void EverySection_IsTheKitsCard()
+    {
+        var cut = Render(SampleWorkoutSummary.RecordsAndChanges);
+        var first = Render(SampleWorkoutSummary.FirstWorkout);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.Find("div.card[data-testid=summary-stats] > dl.stats"), Is.Not.Null);
+            Assert.That(cut.Find("section.card[data-testid=summary-records] h2.title").TextContent, Is.EqualTo("Records"));
+            Assert.That(cut.Find("section.card[data-testid=summary-changes] h2.title").TextContent, Is.EqualTo("Since last time"));
+            Assert.That(first.Find("div.card[data-testid=summary-first-workout] > p.note"), Is.Not.Null);
+        });
+    }
+
+    [Test]
     public void FirstWorkout_ShowsTotalsAndANoteInPlaceOfRecordsAndChanges()
     {
         var cut = Render(SampleWorkoutSummary.FirstWorkout);

@@ -4,20 +4,10 @@
     gap: var(--space-4);
 }
 
-.card {
+.chart-card {
     display: flex;
     flex-direction: column;
     gap: var(--space-3);
-    padding: var(--space-4);
-    border: var(--border-width) solid var(--color-border);
-    border-radius: var(--radius-lg);
-    background-color: var(--color-surface);
-}
-
-.card-title {
-    margin: 0;
-    font-size: var(--font-size-md);
-    font-weight: var(--font-weight-bold);
 }
 
 .no-data {

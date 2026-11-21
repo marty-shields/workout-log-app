@@ -16,7 +16,7 @@ public sealed class ExerciseScreen(WebView web)
     public string? ChartTitle()
     {
         WaitUntilLoaded();
-        return web.FindAll("[data-testid=\"exercise-chart-card\"] .card-title").SingleOrDefault()?.Text.Trim();
+        return web.FindAll("[data-testid=\"exercise-chart-card\"] .title").SingleOrDefault()?.Text.Trim();
     }
 
     /// <summary>True once the page shows its content, spinner or load error.</summary>

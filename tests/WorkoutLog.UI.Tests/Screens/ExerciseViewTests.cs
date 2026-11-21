@@ -45,6 +45,19 @@ public class ExerciseViewTests : ComponentTestBase
     }
 
     [Test]
+    public void ChartCard_IsTheKitsCard_TitledWhenTheChartHasATitle()
+    {
+        var titled = Render(SampleExercises.Assisted);
+        var plain = Render(SampleExercises.LiftTopSet);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(titled.Find("section.card[data-testid=exercise-chart-card] h2.title").TextContent, Is.EqualTo("Least assist per session"));
+            Assert.That(plain.Find("div.card[data-testid=exercise-chart-card]").QuerySelector("h2"), Is.Null);
+        });
+    }
+
+    [Test]
     public void TappingATab_RaisesTabChanged()
     {
         var changed = new List<string>();

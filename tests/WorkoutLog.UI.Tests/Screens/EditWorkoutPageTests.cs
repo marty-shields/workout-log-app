@@ -281,7 +281,7 @@ public class EditWorkoutPageTests : ComponentTestBase
         Assert.Multiple(() =>
         {
             Assert.That(Names(cut), Is.EqualTo(new[] { "Treadmill", "Farmer's Walk", "Barbell Back Squat" }));
-            Assert.That(cut.Find("[data-testid=exercise-2]").ClassList, Does.Contain("done"));
+            Assert.That(cut.Find("[data-testid=exercise-2] .body").ClassList, Does.Contain("done"));
             Assert.That(cut.FindAll("[data-testid=snackbar]"), Is.Empty);
         });
     }
