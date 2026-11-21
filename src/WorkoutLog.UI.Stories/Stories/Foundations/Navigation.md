@@ -8,19 +8,19 @@ The app opens on the kit's start-up screen (`StartupGate`), then [This week](./?
 
 This week and [Trends](./?path=/custom/workout-log-screens-trends-overview) are the two top-level screens. Each shows the bottom navigation bar (the kit's `BottomNav`, whose stories are in the Shields.UI kit's story book): **This week**, a raised **+** in the middle and **Trends**. They have no back arrow. Android back from Trends goes to This week, and from This week leaves the app. + opens New Workout from either tab.
 
-[Workouts](./?path=/custom/workout-log-screens-workouts-overview) is not a tab. It opens from Trends for the dates tapped (a day in the month calendar, a week row, a day's bars in the week view, a month's bar in the year view), with those dates already chosen, a back arrow and no tab bar. There is no Exercises list: an [Exercise](./?path=/custom/workout-log-screens-exercise-overview) page opens from a record or a Most trained row, and [Add Exercise](./?path=/custom/workout-log-screens-add-exercise-overview) is the only list of exercises.
+[Workouts](./?path=/custom/workout-log-screens-workouts-overview) is not a tab. It opens from Trends for the dates tapped (a day in the month calendar, a week row, a day's bars in the week view, a month's bar in the year view), with those dates already chosen, a back arrow and no bottom nav. There is no Exercises list: an [Exercise](./?path=/custom/workout-log-screens-exercise-overview) page opens from a record or a Most trained row, and [Add Exercise](./?path=/custom/workout-log-screens-add-exercise-overview) is the only list of exercises.
 
 | From | Action | To |
 |---|---|---|
-| This week | Trends in the tab bar | Trends |
-| This week | + in the tab bar | New Workout |
+| This week | Trends in the bottom nav | Trends |
+| This week | + in the bottom nav | New Workout |
 | This week | Tap a record | Exercise |
 | This week | Settings gear | Settings |
 | This week | Tap a workout | Edit Workout |
 | This week | Last week row (an empty week) | Trends, last week |
 | This week | Back | Leaves the app |
-| Trends | This week in the tab bar, or back | This week |
-| Trends | + in the tab bar | New Workout |
+| Trends | This week in the bottom nav, or back | This week |
+| Trends | + in the bottom nav | New Workout |
 | Trends | Week, Month or Year in the kind control | Trends, the week, month or year holding the day shown |
 | Trends | Previous or next period | Trends, that week, month or year |
 | Trends | Tap a day with a workout in the month calendar, a week row, a day's bars in the week view, or a month's bars in the year view | Workouts, those dates |

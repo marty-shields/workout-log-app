@@ -19,7 +19,7 @@ Add an exercise to the workout. View: `AddExerciseView`, the one list of exercis
 
 Tapping an exercise adds it to the workout and closes the list. Picking one already in the workout moves its card to the top instead of adding it again. With 10 exercises, Add exercise is off, so the list can't open; see [New Workout](./?path=/custom/workout-log-screens-new-workout-overview).
 
-Back closes the list; with the soft keyboard open, Android back first only hides the keyboard. No tab bar and no pull to refresh.
+Back closes the list; with the soft keyboard open, Android back first only hides the keyboard. No bottom nav and no pull to refresh.
 
 States: [No search text](./?path=/story/workout-log-screens-add-exercise--no-search-text) · [Strength](./?path=/story/workout-log-screens-add-exercise--strength) · [Cardio](./?path=/story/workout-log-screens-add-exercise--cardio) · [Results](./?path=/story/workout-log-screens-add-exercise--results) · [No match](./?path=/story/workout-log-screens-add-exercise--no-match) · [Loading](./?path=/story/workout-log-screens-add-exercise--loading) · [Load failed](./?path=/story/workout-log-screens-add-exercise--load-failed)
 

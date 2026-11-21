@@ -8,7 +8,7 @@ Saved workouts in a span of dates, newest first, opened from [Trends](./?path=/c
 
 | Part | Content |
 |---|---|
-| Top bar | Back arrow; title "Workouts". Not a tab: there is no tab bar. |
+| Top bar | Back arrow; title "Workouts". Not a tab: there is no bottom nav. |
 | Dates | Fixed under the top bar. A `DateRangeField` with the dates shown and their workout count, e.g. *6 Aug – 6 Nov 2026* and *38*, over a full-width kit `SegmentedControl` with **3M**, **6M**, **1Y** and **All**. Screen readers read the segments as *Last 3 months*, *Last 6 months*, *Last year* and *All*. Hidden when there are no workouts. |
 | Content | The workouts in the dates, under sticky month headers such as *November 2026* with *4 workouts*. One `ListRow` per workout: day, date and start time without the year, e.g. *Thu 5 Nov · 18:05*. The list ends at the last row, with no note about workouts outside the dates. |
 | Nothing in the dates | `EmptyState` *No workouts between these dates*, or *No workout on this day* for one day, with the hint "Choose different dates or a quick range above". |
