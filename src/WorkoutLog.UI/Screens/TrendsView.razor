@@ -276,7 +276,7 @@
     private string EarlierLabel => Past ? "the week before" : "last week";
 
     private static IReadOnlyList<TrendBarPoint> Points(IReadOnlyList<TrendBar> bars) =>
-        [.. bars.Select(bar => new TrendBarPoint(bar.Span.From, bar.Label, bar.Value, Current: bar.Current, Labelled: bar.Labelled, Earlier: bar.Earlier))];
+        [.. bars.Select(bar => new TrendBarPoint(bar.Date, bar.Label, bar.Value, Current: bar.Current, Labelled: bar.Labelled, Earlier: bar.Earlier))];
 
     /// <summary>The top of the chart's scale: the biggest value drawn, at least 1, so a period's bars fill the chart as before.</summary>
     private static double Top(IReadOnlyList<TrendBar> bars) =>
@@ -284,7 +284,13 @@
 
     private EventCallback<DateOnly> Open(IReadOnlyList<TrendBar> bars) =>
         OnOpenWorkouts.HasDelegate
-            ? EventCallback.Factory.Create<DateOnly>(this, date => OnOpenWorkouts.InvokeAsync(bars.First(bar => bar.Span.From == date).Span))
+            ? EventCallback.Factory.Create<DateOnly>(this, async date =>
+            {
+                if (bars.First(bar => bar.Date == date).Span is { } span)
+                {
+                    await OnOpenWorkouts.InvokeAsync(span);
+                }
+            })
             : default;
 
     private static IReadOnlyList<BarListItem> Items(IReadOnlyList<MeterRow> rows) =>

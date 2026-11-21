@@ -76,7 +76,7 @@ public sealed class TrendsScreen(WebView web)
     /// <summary>The tappable bars of the year view, January being 1.</summary>
     public IReadOnlyList<int> OpenMonthColumns() => Bars("trends-months-chart-").Select(day => day.Month).ToList();
 
-    /// <summary>The tappable bars of the week view.</summary>
+    /// <summary>The tappable bars of the week view that draw this week's value; a day with only last week's time is a button that opens nothing.</summary>
     public IReadOnlyList<DateOnly> OpenDayColumns() => Bars("trends-days-chart-");
 
     /// <summary>Taps the Records row of the exercise.</summary>
@@ -147,5 +147,6 @@ public sealed class TrendsScreen(WebView web)
     private IReadOnlyList<DateOnly> Bars(string prefix) =>
         web.FindAll($"[role=\"button\"][data-testid^=\"{prefix}bar-\"]")
             .Select(e => DateOnly.ParseExact(e.GetDomAttribute("data-testid")![$"{prefix}bar-".Length..], "yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture))
+            .Where(day => web.Exists($"{prefix}column-{day:yyyy-MM-dd}"))
             .ToList();
 }

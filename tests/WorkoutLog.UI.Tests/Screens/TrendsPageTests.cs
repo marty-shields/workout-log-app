@@ -647,16 +647,34 @@ public class TrendsPageTests : ComponentTestBase
     public void DayColumn_WithAWorkoutUnderAMinute_IsStillTappable()
     {
         MidWeek();
+        var opened = new List<WorkoutsOpened>();
         totals.Series = new PeriodSeries(
             Week,
             [new PeriodBucket(Monday, Monday, 1, TimeSpan.FromSeconds(40)), new PeriodBucket(Monday.AddDays(2), Monday.AddDays(2), 1, TimeSpan.FromHours(1))],
             [],
             [],
             0);
-        var cut = Context.Render<TrendsPage>();
+        var cut = Context.Render<TrendsPage>(p => p.Add(x => x.OnOpenWorkouts, opened.Add));
 
-        cut.WaitForElement("[data-testid=trends-days-chart-bar-2026-11-16]");
-        Assert.That(cut.FindAll("[data-testid=trends-days-chart-bar-2026-11-17]"), Is.Empty);
+        cut.WaitForElement("[data-testid=trends-days-chart-bar-2026-11-16]").Click();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(opened, Is.EqualTo(new[] { new WorkoutsOpened(new DateSpan(Monday, Monday), Week) }));
+            Assert.That(cut.FindAll("[data-testid=trends-days-chart-bar-2026-11-17]"), Is.Empty);
+        });
+    }
+
+    [Test]
+    public void DayColumn_WithOnlyLastWeeksTime_OpensNothing()
+    {
+        MidWeek();
+        var opened = new List<WorkoutsOpened>();
+        var cut = Context.Render<TrendsPage>(p => p.Add(x => x.OnOpenWorkouts, opened.Add));
+
+        cut.WaitForElement("[data-testid=trends-days-chart-bar-2026-11-20]").Click();
+
+        Assert.That(opened, Is.Empty);
     }
 
     [Test]

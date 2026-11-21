@@ -327,7 +327,7 @@
             var day = week.Start.AddDays(i);
             var minutes = Math.Max(Minutes(series.Buckets, day), HasWorkouts(series.Buckets, day) ? 1 : 0);
             var before = Minutes(series.Earlier, day.AddDays(-7));
-            return new TrendBar(new DateSpan(day, day), name[..3], minutes, before, Current: day == today);
+            return new TrendBar(day, name[..3], minutes, before, Current: day == today, Span: minutes > 0 ? new DateSpan(day, day) : null);
         })];
 
     private static bool HasWorkouts(IReadOnlyList<PeriodBucket> buckets, DateOnly day) =>
@@ -361,11 +361,12 @@
             var name = b.Start.ToString("MMMM", CultureInfo.InvariantCulture);
             var current = b.Start <= today && today <= b.End;
             return new TrendBar(
-                new DateSpan(b.Start, b.End > today && b.Start <= today ? today : b.End),
+                b.Start,
                 name[..1],
                 b.Workouts,
                 Current: current,
-                Labelled: current || (b.Workouts == highest && highest > 0));
+                Labelled: current || (b.Workouts == highest && highest > 0),
+                Span: b.Workouts == 0 || b.Start > today ? null : new DateSpan(b.Start, b.End > today ? today : b.End));
         })];
     }
 

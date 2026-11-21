@@ -502,6 +502,27 @@ public class TrendsViewTests : ComponentTestBase
     }
 
     [Test]
+    public void Month_MostTrainedRowWithoutAnExercise_IsNotSelectable()
+    {
+        var rows = new MeterRow[] { new("Squat", 4, 22), new("Jan", 3), new("Deadlift", 2, 115) };
+        var cut = Context.Render<TrendsView>(p => p.Sample(new Dictionary<string, object?>(SampleTrends.Month) { [nameof(TrendsView.MostTrained)] = rows }).Add(x => x.OnOpenRecord, _ => { }));
+
+        Assert.That(cut.FindAll("[data-testid^=trends-most-trained-rows-select-]").Select(b => b.GetAttribute("data-testid")),
+            Is.EqualTo(new[] { "trends-most-trained-rows-select-squat", "trends-most-trained-rows-select-deadlift" }));
+    }
+
+    [Test]
+    public void Week_BarWithoutSpan_OpensNothing()
+    {
+        var opened = new List<DateSpan>();
+        var cut = Context.Render<TrendsView>(p => p.Sample(SampleTrends.Week).Add(x => x.OnOpenWorkouts, opened.Add));
+
+        cut.Find("[data-testid=trends-days-chart-bar-2026-11-20]").Click();
+
+        Assert.That(opened, Is.Empty);
+    }
+
+    [Test]
     public void Month_MostTrainedRows_AreNotTappableWithoutOnOpenRecord() =>
         Assert.That(Render(SampleTrends.Month).FindAll("[data-testid^=trends-most-trained-rows-select-]"), Is.Empty);
 
