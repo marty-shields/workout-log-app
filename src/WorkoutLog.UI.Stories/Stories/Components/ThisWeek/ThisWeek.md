@@ -1,10 +1,10 @@
 ---
-$attribute: CustomPage("Components/ThisWeek/Overview")
+$attribute: CustomPage(StoryTitles.Prefix + "/Components/ThisWeek/Overview")
 ---
 
 # This week
 
-Parts of the [This week](./?path=/custom/screens-this-week-overview) screen. Each takes display-ready values; the page works them out. The design they started from is [docs/design/this-week-and-trends.html](https://github.com/marty-shields/workout-log-app/blob/main/docs/design/this-week-and-trends.html).
+Parts of the [This week](./?path=/custom/workout-log-screens-this-week-overview) screen. Each takes display-ready values; the page works them out. The design they started from is [docs/design/this-week-and-trends.html](https://github.com/marty-shields/workout-log-app/blob/main/docs/design/this-week-and-trends.html).
 
 ## `DayStrip`
 A card with the seven days of the week, Monday to Sunday: the weekday abbreviation over a circle.
@@ -39,4 +39,4 @@ A card titled "Sets per muscle group", "this week" at its right (`Period` rename
 A card with one `ListRow` "Last week" and, under it, last week's whole-week totals (e.g. *4 workouts · 4h 10m · 67 sets*). With `OnOpen` the row is tappable, with a chevron. This week shows it while nothing is logged yet.
 - `data-testid`: `TestId`, and `{TestId}-row`.
 
-Stories: [DayStrip](./?path=/docs/components-thisweek-daystrip--docs) · [WeekTiles](./?path=/docs/components-thisweek-weektiles--docs) · [WeekWorkoutsCard](./?path=/docs/components-thisweek-weekworkoutscard--docs) · [WeekRecordsCard](./?path=/docs/components-thisweek-weekrecordscard--docs) · [MuscleSetsCard](./?path=/docs/components-thisweek-musclesetscard--docs) · [LastWeekCard](./?path=/docs/components-thisweek-lastweekcard--docs)
+Stories: [DayStrip](./?path=/docs/workout-log-components-thisweek-daystrip--docs) · [WeekTiles](./?path=/docs/workout-log-components-thisweek-weektiles--docs) · [WeekWorkoutsCard](./?path=/docs/workout-log-components-thisweek-weekworkoutscard--docs) · [WeekRecordsCard](./?path=/docs/workout-log-components-thisweek-weekrecordscard--docs) · [MuscleSetsCard](./?path=/docs/workout-log-components-thisweek-musclesetscard--docs) · [LastWeekCard](./?path=/docs/workout-log-components-thisweek-lastweekcard--docs)

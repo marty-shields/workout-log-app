@@ -18,8 +18,11 @@ const CARD_WIDTH = 328;
 // Exploration knob (Android font size scales rem); not run in CI.
 const FONT_SCALE = Number(process.env.STORY_FONT_SCALE ?? 1);
 const CONCURRENCY = 8;
-const root = resolve(dirname(fileURLToPath(import.meta.url)), '../../src/WorkoutLog.UI.Stories/Stories');
-const scopes = prefixes.length ? prefixes : ['Components/Workout/'];
+const library = resolve(dirname(fileURLToPath(import.meta.url)), '../../src/WorkoutLog.UI.Stories');
+const root = join(library, 'Stories');
+const storyPrefix = /Prefix = "([^"]+)"/.exec(readFileSync(join(library, 'StoryTitles.cs'), 'utf8'))?.[1];
+if (!storyPrefix) throw new Error('StoryTitles.Prefix not found in StoryTitles.cs');
+const scopes = prefixes.length ? prefixes : [`${storyPrefix}/Components/Workout/`];
 
 const slug = (text) => text.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
 
@@ -33,7 +36,8 @@ function storyFiles(dir) {
 function stories() {
   return storyFiles(root).flatMap((file) => {
     const source = readFileSync(file, 'utf8');
-    const title = /\[Stories\("([^"]+)"\)\]/.exec(source)?.[1];
+    const rest = /\[Stories\(StoryTitles\.Prefix \+ "\/([^"]+)"\)\]/.exec(source)?.[1];
+    const title = rest && `${storyPrefix}/${rest}`;
     if (!title || !scopes.some((scope) => title.startsWith(scope))) return [];
     return [...source.matchAll(/<Story\s+Name="([^"]+)"/g)].map((m) => ({ title, name: m[1], id: `${slug(title)}--${slug(m[1])}` }));
   });

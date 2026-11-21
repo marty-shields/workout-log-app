@@ -2,6 +2,8 @@ using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.Components;
 using WorkoutLog.UI.Screens;
 
+using WorkoutLog.UI.Stories;
+
 namespace WorkoutLog.UI.Tests.Stories;
 
 public partial class StoryCoverageTests
@@ -24,7 +26,7 @@ public partial class StoryCoverageTests
     {
         var titles = StoriesFiles("Components").Where(f => f.Component == name).Select(f => f.Title);
 
-        Assert.That(titles, Is.EqualTo(new[] { $"Components/{group}/{name}" }));
+        Assert.That(titles, Is.EqualTo(new[] { $"{StoryTitles.Prefix}/Components/{group}/{name}" }));
     }
 
     [Test]
@@ -60,7 +62,7 @@ public partial class StoryCoverageTests
     [Test]
     public void Stories_AreInFoundationsComponentsOrScreens()
     {
-        var titles = StoriesFiles("").Select(f => f.Title.Split('/')[0]).Distinct();
+        var titles = StoriesFiles("").Select(f => f.Title.Split('/')[1]).Distinct();
 
         Assert.That(titles, Is.SubsetOf(new[] { "Foundations", "Components", "Screens" }));
     }
@@ -73,12 +75,9 @@ public partial class StoryCoverageTests
         RepoFiles.Find("*.stories.razor", "src", "WorkoutLog.UI.Stories", "Stories", folder)
             .Select(File.ReadAllText)
             .Select(source => (
-                StoriesTitle().Match(source).Groups[1].Value,
+                StoryFiles.Title(source),
                 TComponent().Match(source).Groups[1].Value,
                 (IReadOnlyList<string>)Shown().Matches(source).Concat(ShownOver().Matches(source)).Select(m => m.Groups[1].Value).ToList()));
-
-    [GeneratedRegex("""\[Stories\("([^"]+)"\)\]""")]
-    private static partial Regex StoriesTitle();
 
     [GeneratedRegex(@"<Stories TComponent=""([A-Za-z]+)(?:<[^""]*>)?""")]
     private static partial Regex TComponent();

@@ -21,20 +21,20 @@ The stories need only the .NET SDK.
 
 | File | Story id |
 |---|---|
-| `this-week` | `screens-this-week--mid-week` |
-| `workout-summary` | `screens-workout-summary--records-and-changes` |
-| `new-workout` | `screens-new-workout--strength` |
-| `cardio` | `screens-new-workout--cardio` |
-| `last-time` | `screens-new-workout--last-time` |
-| `notes` | `screens-new-workout--notes` |
-| `add-exercise` | `screens-add-exercise--results` |
-| `trends-week` | `screens-trends--week` |
-| `trends-month` | `screens-trends--month` |
-| `trends-year` | `screens-trends--year` |
-| `workouts` | `screens-workouts--with-workouts` |
-| `settings` | `screens-settings--with-workouts` |
-| `exercise-lift` | `screens-exercise--lift-top-set` |
-| `exercise-cardio` | `screens-exercise--cardio-distance` |
+| `this-week` | `workout-log-screens-this-week--mid-week` |
+| `workout-summary` | `workout-log-screens-workout-summary--records-and-changes` |
+| `new-workout` | `workout-log-screens-new-workout--strength` |
+| `cardio` | `workout-log-screens-new-workout--cardio` |
+| `last-time` | `workout-log-screens-new-workout--last-time` |
+| `notes` | `workout-log-screens-new-workout--notes` |
+| `add-exercise` | `workout-log-screens-add-exercise--results` |
+| `trends-week` | `workout-log-screens-trends--week` |
+| `trends-month` | `workout-log-screens-trends--month` |
+| `trends-year` | `workout-log-screens-trends--year` |
+| `workouts` | `workout-log-screens-workouts--with-workouts` |
+| `settings` | `workout-log-screens-settings--with-workouts` |
+| `exercise-lift` | `workout-log-screens-exercise--lift-top-set` |
+| `exercise-cardio` | `workout-log-screens-exercise--cardio-distance` |
 
 `icon.svg` is the Volt dumbbell and its shadow on the icon background, clipped to rounded corners. `node .github/scripts/app-icon.mjs` writes it with the rest of the icon and splash art ([App icon](../src/WorkoutLog.UI.Stories/Stories/Foundations/AppIcon.md)).
 
