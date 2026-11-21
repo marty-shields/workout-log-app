@@ -41,11 +41,11 @@
     private IDisposable? registration;
     private bool disposed;
 
-    /// <summary>Raised by the New button in the tab bar.</summary>
+    /// <summary>Raised by the New button in the bottom navigation bar.</summary>
     [Parameter]
     public EventCallback OnNew { get; set; }
 
-    /// <summary>Raised with the tab tapped in the tab bar.</summary>
+    /// <summary>Raised with the tab tapped in the bottom navigation bar.</summary>
     [Parameter]
     public EventCallback<MainTab> OnNavigate { get; set; }
 

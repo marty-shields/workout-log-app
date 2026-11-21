@@ -279,7 +279,21 @@ public class TrendsViewTests : ComponentTestBase
             Assert.That(cut.FindAll(Cards), Is.Empty);
             Assert.That(cut.FindAll("[data-testid=trends-kind]"), Has.Count.EqualTo(1));
             Assert.That(cut.FindAll("[data-testid=trends-stepper]"), Has.Count.EqualTo(1));
-            Assert.That(cut.FindAll("[data-testid=tab-bar]"), Has.Count.EqualTo(1));
+            Assert.That(cut.FindAll("[data-testid=bottom-nav]"), Has.Count.EqualTo(1));
+        });
+    }
+
+    [Test]
+    public void BottomNav_MarksTrendsCurrentAndLabelsTheRaisedButtonNew()
+    {
+        var cut = Render(SampleTrends.Loading);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.FindAll("[data-testid=bottom-nav] [aria-current=page]").Select(e => e.GetAttribute("data-testid")), Is.EqualTo(new[] { "trends-link" }));
+            Assert.That(cut.Find("[data-testid=add-button] .label").TextContent, Is.EqualTo("New"));
+            Assert.That(cut.Find("[data-testid=add-button]").HasAttribute("aria-current"), Is.False);
+            Assert.That(cut.FindAll("[data-testid=add-button] svg.icon"), Has.Count.EqualTo(1));
         });
     }
 
@@ -338,7 +352,7 @@ public class TrendsViewTests : ComponentTestBase
         cut.Find("[data-testid=trends-year]").Change(true);
         cut.Find("[data-testid=trends-stepper-previous]").Click();
         cut.Find("[data-testid=settings]").Click();
-        cut.Find("[data-testid=new-link]").Click();
+        cut.Find("[data-testid=add-button]").Click();
         cut.Find("[data-testid=this-week-link]").Click();
         cut.Find("[data-testid=trends-records-row-22]").Click();
 

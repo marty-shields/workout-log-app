@@ -72,9 +72,6 @@ internal enum UiEvent
     /// <summary><see cref="Import.ImportFileOpener"/>: the picked file is over the size limit.</summary>
     ImportFileTooLarge = 3801,
 
-    /// <summary><see cref="Components.Layout.AppScreen"/>: setting up pull to refresh failed, so the screen can't be pulled.</summary>
-    PullRefreshFailed = 4001,
-
     /// <summary><see cref="Screens.TrendsPage"/>: reading the period failed, so the screen shows the error.</summary>
     TrendsLoadFailed = 4101,
 

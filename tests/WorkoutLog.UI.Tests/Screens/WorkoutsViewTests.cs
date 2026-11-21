@@ -203,7 +203,7 @@ public class WorkoutsViewTests : ComponentTestBase
             Assert.That(cut.FindAll("[data-testid=workouts-empty]"), Is.Empty);
             Assert.That(cut.FindAll("[data-testid=workouts-error]"), Is.Empty);
             Assert.That(cut.FindAll("[data-testid=workouts-dates]"), Is.Empty);
-            Assert.That(cut.FindAll("[data-testid=tab-bar]"), Is.Empty);
+            Assert.That(cut.FindAll("[data-testid=bottom-nav]"), Is.Empty);
         });
     }
 
@@ -288,7 +288,7 @@ public class WorkoutsViewTests : ComponentTestBase
         Assert.Multiple(() =>
         {
             Assert.That(cut.FindAll("[data-testid=back]"), Has.Count.EqualTo(1));
-            Assert.That(cut.FindAll("[data-testid=tab-bar]"), Is.Empty);
+            Assert.That(cut.FindAll("[data-testid=bottom-nav]"), Is.Empty);
         });
     }
 

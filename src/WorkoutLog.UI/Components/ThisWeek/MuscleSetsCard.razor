@@ -1,4 +1,3 @@
-@using Shields.UI.Components.Layout
 @using WorkoutLog.UI.Models.Muscles
 <Card Title="Sets per muscle group" Aside="@Period" TestId="@TestId">
     @{ var most = Groups.Count == 0 ? 0 : Groups.Max(g => g.Sets); }
