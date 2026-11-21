@@ -1,7 +1,7 @@
 namespace WorkoutLog.UI.Tests.Lifecycle;
 
 /// <summary>
-/// The App passes the activity's lifecycle to <c>IBackButton</c>, <c>IAppLifecycle</c>, <c>AndroidKeyboardRestore</c> and <c>AndroidDiagnostics</c>;
+/// The App passes the activity's lifecycle to the kit's <c>IBackButton</c> and <c>IAppLifecycle</c> (through <c>AndroidBackButton</c> and <c>AndroidAppLifecycle</c>, which <c>ActivityBridge</c> connects to the BlazorWebView's scoped instances), <c>AndroidKeyboardRestore</c> and <c>AndroidDiagnostics</c>;
 /// the back button, app start and keyboard restore follow only <c>MainActivity</c>, not MAUI's own activities, except that destroy is passed on and each class ignores any activity but its own.
 /// The App can't be referenced, so its files are read. Whitespace is ignored.
 /// </summary>
@@ -12,7 +12,7 @@ public class ActivityWiringTests
     [TestCase("MauiProgram.cs", ".OnDestroy(activity => BackButton().Detach(activity))")]
     [TestCase("MauiProgram.cs", "AddAppLifecycle(builder);")]
     [TestCase("MauiProgram.cs", "if (activity is MainActivity) { Lifecycle().Attach(activity); }")]
-    [TestCase("MauiProgram.cs", "if (activity is MainActivity) { _ = Lifecycle().NotifyStartedAsync(); }")]
+    [TestCase("MauiProgram.cs", "if (activity is MainActivity) { Lifecycle().NotifyStarted(); }")]
     [TestCase("MauiProgram.cs", ".OnDestroy(activity => Lifecycle().Detach(activity))")]
     [TestCase("MauiProgram.cs", "AddDiagnostics(builder);")]
     [TestCase("MauiProgram.cs", ".OnStart(_ => Diagnostics().ActivityStarted())")]
@@ -22,8 +22,16 @@ public class ActivityWiringTests
     [TestCase("MauiProgram.cs", ".OnCreate((activity, _) => { if (activity is MainActivity) { KeyboardRestore().Attach(activity); } })")]
     [TestCase("MauiProgram.cs", ".OnResume(activity => { if (activity is MainActivity) { KeyboardRestore().Resumed(activity); } })")]
     [TestCase("MauiProgram.cs", ".OnDestroy(activity => KeyboardRestore().Detach(activity))")]
-    [TestCase("Navigation/AndroidBackButton.cs", "backButton.Attach(activity);")]
-    [TestCase("Navigation/AndroidBackButton.cs", "backButton.Detach(activity);")]
+    [TestCase("MauiProgram.cs", "builder.Services.AddSingleton<AndroidAppLifecycle>();")]
+    [TestCase("Navigation/AndroidBackButton.cs", "backButton?.Attach(activity);")]
+    [TestCase("Navigation/AndroidBackButton.cs", "scoped.Attach(current);")]
+    [TestCase("Navigation/AndroidBackButton.cs", "backButton?.Detach(activity);")]
+    [TestCase("Lifecycle/AndroidAppLifecycle.cs", "lifecycle?.Attach(activity);")]
+    [TestCase("Lifecycle/AndroidAppLifecycle.cs", "scoped.Attach(current);")]
+    [TestCase("Lifecycle/AndroidAppLifecycle.cs", "lifecycle?.Detach(activity);")]
+    [TestCase("Components/ActivityBridge.cs", "AndroidBackButton.Connect(BackButton);")]
+    [TestCase("Components/ActivityBridge.cs", "AndroidLifecycle.Connect(Lifecycle);")]
+    [TestCase("Components/Routes.razor", "<ActivityBridge />")]
     [TestCase("Diagnostics/AndroidDiagnostics.cs", "public void ActivityStarted() => Log.ActivityStarted(logger);")]
     [TestCase("Diagnostics/AndroidDiagnostics.cs", "[LoggerMessage((int)AppEvent.ActivityStarted, LogLevel.Information, \"Activity started\")]")]
     public void App_PassesTheActivityLifecycle(string file, string code) =>

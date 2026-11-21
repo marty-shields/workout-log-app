@@ -38,12 +38,4 @@ The bar of the app's two top-level screens, [This week](./?path=/custom/screens-
 
 Stories: [MainTabBar](./?path=/docs/components-layout-maintabbar--docs)
 
-## `StartupGate`
-Runs `Initialize` once at startup. Shows the [Startup](./?path=/custom/screens-startup-overview) screen while it runs or if it throws, then `ChildContent`.
-
-Stories: [StartupGate](./?path=/docs/components-layout-startupgate--docs)
-
-## `AppErrorBoundary`
-Shows `ChildContent` until it throws an unhandled error, then logs the error and shows the [Error](./?path=/custom/screens-error-overview) screen. **Restart** raises `OnRestart`, then shows `ChildContent` again.
-
-Stories: [AppErrorBoundary](./?path=/docs/components-layout-apperrorboundary--docs)
+The start-up gate, the error boundary and the confirm dialog come from the kit (`StartupGate`, `AppErrorBoundary`, `ConfirmDialog`); see its stories.

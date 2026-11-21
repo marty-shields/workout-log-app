@@ -1,10 +1,10 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Time.Testing;
+using Shields.UI.Navigation;
 using WorkoutLog.Core.Domain.Exercises;
 using WorkoutLog.Core.Services;
 using WorkoutLog.UI.Haptics;
-using WorkoutLog.UI.Navigation;
 using WorkoutLog.UI.Stories.Samples;
 
 namespace WorkoutLog.UI.Tests;

@@ -6,6 +6,7 @@ using WorkoutLog.App.Export;
 using WorkoutLog.App.Haptics;
 using WorkoutLog.App.Import;
 using WorkoutLog.App.Keyboard;
+using WorkoutLog.App.Lifecycle;
 using WorkoutLog.App.Logging;
 using WorkoutLog.App.Navigation;
 using WorkoutLog.App.Sharing;
@@ -16,7 +17,6 @@ using WorkoutLog.Core.Services;
 using WorkoutLog.UI;
 using WorkoutLog.UI.Haptics;
 using WorkoutLog.UI.Import;
-using WorkoutLog.UI.Lifecycle;
 using WorkoutLog.UI.Sharing;
 
 namespace WorkoutLog.App;
@@ -53,7 +53,7 @@ public static class MauiProgram
     /// <summary>
     /// Passes the Android back button to the registered page handlers through <see cref="AndroidBackButton"/>.
     /// Only <see cref="MainActivity"/> counts; MAUI's own activities, such as the file picker's, are ignored.
-    /// The handlers resolve it from the app's services.
+    /// The handlers resolve it from the app's services; <see cref="Components.ActivityBridge"/> connects it to the page's back button.
     /// </summary>
     private static void AddBackButton(MauiAppBuilder builder)
     {
@@ -72,11 +72,13 @@ public static class MauiProgram
     }
 
     /// <summary>
-    /// Runs the pages' app start handlers through <see cref="IAppLifecycle"/> each time <see cref="MainActivity"/> starts,
-    /// and removes them when it is destroyed or replaced. MAUI's own activities are ignored. The handlers resolve it from the app's services.
+    /// Runs the pages' app start handlers through <see cref="AndroidAppLifecycle"/> each time <see cref="MainActivity"/> starts,
+    /// and removes them when it is destroyed or replaced. MAUI's own activities are ignored.
+    /// The handlers resolve it from the app's services; <see cref="Components.ActivityBridge"/> connects it to the page's lifecycle.
     /// </summary>
     private static void AddAppLifecycle(MauiAppBuilder builder)
     {
+        builder.Services.AddSingleton<AndroidAppLifecycle>();
         builder.ConfigureLifecycleEvents(events => events.AddAndroid(android => android
             .OnCreate((activity, _) =>
             {
@@ -89,12 +91,12 @@ public static class MauiProgram
             {
                 if (activity is MainActivity)
                 {
-                    _ = Lifecycle().NotifyStartedAsync();
+                    Lifecycle().NotifyStarted();
                 }
             })
             .OnDestroy(activity => Lifecycle().Detach(activity))));
 
-        static IAppLifecycle Lifecycle() => IPlatformApplication.Current!.Services.GetRequiredService<IAppLifecycle>();
+        static AndroidAppLifecycle Lifecycle() => IPlatformApplication.Current!.Services.GetRequiredService<AndroidAppLifecycle>();
     }
 
     /// <summary>
