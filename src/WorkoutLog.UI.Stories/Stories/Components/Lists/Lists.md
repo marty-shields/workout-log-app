@@ -13,7 +13,7 @@ One session of an exercise: date and headline in bold, with every set or the car
 - `data-testid`: `TestId`.
 
 ## `AddExerciseSearch`
-Search box with the search `Icon`, then `FilterChips` All / Strength / Cardio. No wrapper: the screen lays them out, in its toolbar or above an `ExerciseList`. Typing past the catalog's search limit is cut to it. With `FocusSearch` the search box takes focus when first shown. Used by Add Exercise.
+Search box with the search `Icon`, then kit `FilterChips` All / Strength / Cardio. No wrapper: the screen lays them out, in its toolbar or above an `ExerciseList`. Typing past the catalog's search limit is cut to it. With `FocusSearch` the search box takes focus when first shown. Used by Add Exercise.
 - `data-testid`: `TestId` as the prefix: `{TestId}-search`, `{TestId}-filter`, `{TestId}-filter-all`, `{TestId}-filter-strength`, `{TestId}-filter-cardio`.
 
 ## `ExerciseList`

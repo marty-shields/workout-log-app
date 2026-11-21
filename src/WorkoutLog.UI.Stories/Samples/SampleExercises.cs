@@ -1,6 +1,6 @@
 using System.Globalization;
+using Shields.UI.Components.Inputs;
 using WorkoutLog.UI.Components.Charts;
-using WorkoutLog.UI.Components.Inputs;
 using WorkoutLog.UI.Components.Lists;
 using WorkoutLog.UI.Models.Exercises;
 using WorkoutLog.UI.Models.Workout;

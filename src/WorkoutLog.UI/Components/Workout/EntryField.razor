@@ -1,3 +1,5 @@
+@using WorkoutLog.UI.Components.Inputs
+@using System.Globalization
 @using WorkoutLog.UI.Models.Fields
 @if (Field.Kind == FieldKind.Duration)
 {
@@ -18,8 +20,8 @@ else
                  Required="Field.Required"
                  AllowDecimal="@(Field.Kind == FieldKind.Decimal)"
                  Invalid="Invalid"
-                 Value="@CurrentValue"
-                 ValueChanged="OnValueChanged"
+                 Value="@NumberValue"
+                 TextChanged="OnTextChanged"
                  OnEnter="OnEnter"
                  TestId="@TestId" />
 }
@@ -58,6 +60,13 @@ else
     private string? CurrentValue => Entry.Values.GetValueOrDefault(Field.Key);
 
     private bool Invalid => Entry.Errors.ContainsKey(Field.Key);
+
+    // The entry keeps the typed text, which the checker reads, so the kit's number is only for display.
+    // Parsed as the kit parses typed text: if they differed, the kit would replace what the user typed.
+    private decimal? NumberValue =>
+        decimal.TryParse(CurrentValue?.Trim().Replace(',', '.'), NumberStyles.AllowDecimalPoint | NumberStyles.AllowLeadingSign, CultureInfo.InvariantCulture, out var number) ? number : null;
+
+    private Task OnTextChanged(string text) => OnValueChanged(string.IsNullOrEmpty(text) ? null : text);
 
     private Task OnValueChanged(string? value)
     {

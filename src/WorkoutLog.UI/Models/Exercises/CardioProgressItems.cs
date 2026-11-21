@@ -1,10 +1,10 @@
 using System.Globalization;
+using Shields.UI.Components.Inputs;
 using WorkoutLog.Core.Domain;
 using WorkoutLog.Core.Domain.Exercises;
 using WorkoutLog.Core.Domain.Exercises.Progress;
 using WorkoutLog.Core.Domain.Workouts;
 using WorkoutLog.UI.Components.Charts;
-using WorkoutLog.UI.Components.Inputs;
 using WorkoutLog.UI.Components.Lists;
 using WorkoutLog.UI.Models.Workout;
 
