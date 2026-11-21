@@ -38,12 +38,11 @@ The bar of the app's two top-level screens, [This week](./?path=/custom/screens-
 
 Stories: [MainTabBar](./?path=/docs/components-layout-maintabbar--docs)
 
-## `StartupGate`
-Runs `Initialize` once at startup. Shows the [Startup](./?path=/custom/screens-startup-overview) screen while it runs or if it throws, then `ChildContent`.
+The start-up gate, the error boundary and the confirm dialog come from the kit (`StartupGate`, `AppErrorBoundary`, `ConfirmDialog`). Their stories are in the Shields.UI kit's story book, under Components/Layout (`StartupGate`) and Components/Overlays (`ConfirmDialog`).
 
-Stories: [StartupGate](./?path=/docs/components-layout-startupgate--docs)
-
-## `AppErrorBoundary`
-Shows `ChildContent` until it throws an unhandled error, then logs the error and shows the [Error](./?path=/custom/screens-error-overview) screen. **Restart** raises `OnRestart`, then shows `ChildContent` again.
-
-Stories: [AppErrorBoundary](./?path=/docs/components-layout-apperrorboundary--docs)
+## Startup and error
+- `Routes.razor` wraps the router in `StartupGate` and `AppErrorBoundary`, both titled "Workout Log". `ActivityBridge` comes first, before the gate.
+- Start-up deletes leftover export files and opens the database, before This week shows. While it runs the screen shows "Loading…".
+- If that fails, the screen shows "Couldn't open the workout database" and the kit's Try again button, which runs start-up again (`Retryable` is left at its default of true).
+- An unhandled error in any screen shows the kit's error screen with "Something went wrong" and no details. **Restart** goes to This week; an unsaved workout is lost.
+- The E2E tests find the kit's parts by `data-testid`: `startup-loading`, `startup-error`, `startup-retry`, `error-message`, `error-restart`. `ConfirmDialog` uses `confirm-dialog` for the dialog and `{TestId}-cancel` and `{TestId}-confirm` for its buttons, where `TestId` is `confirm-dialog` unless a screen sets another.

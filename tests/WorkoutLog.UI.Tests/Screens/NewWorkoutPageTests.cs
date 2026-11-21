@@ -4,12 +4,12 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Testing;
 using Microsoft.Extensions.Time.Testing;
 using Shields.UI.Components.Feedback;
+using Shields.UI.Components.Layout;
 using WorkoutLog.Core.Domain.Exercises;
 using WorkoutLog.Core.Domain.Exercises.Progress;
 using WorkoutLog.Core.Domain.Workouts;
 using WorkoutLog.Core.Domain.Workouts.Validation;
 using WorkoutLog.Core.Services;
-using WorkoutLog.UI.Components.Layout;
 using WorkoutLog.UI.Haptics;
 using WorkoutLog.UI.Logging;
 using WorkoutLog.UI.Models.Workout;
@@ -20,6 +20,9 @@ namespace WorkoutLog.UI.Tests.Screens;
 
 public class NewWorkoutPageTests : ComponentTestBase
 {
+    /// <summary>The kit's id for an unhandled error in a screen, which it logs from <c>AppErrorBoundary</c>.</summary>
+    private const int KitScreenErrorId = 9101;
+
     /// <summary>Tue 20 Oct 2026 23:30 UTC; Wed 21 Oct 00:30 in the test's UTC+1 zone.</summary>
     private static readonly DateTimeOffset Start = new(2026, 10, 20, 23, 30, 0, TimeSpan.Zero);
 
@@ -616,7 +619,7 @@ public class NewWorkoutPageTests : ComponentTestBase
     }
 
     [Test]
-    public async Task UndoTimeoutThrows_ReachesTheErrorBoundaryAndLogsScreenError()
+    public async Task UndoTimeoutThrows_ReachesTheErrorBoundaryAndLogsTheKitsScreenError()
     {
         var boundaryLogger = new FakeLogger<AppErrorBoundary>();
         Context.Services.AddSingleton<ILogger<AppErrorBoundary>>(boundaryLogger);
@@ -641,7 +644,8 @@ public class NewWorkoutPageTests : ComponentTestBase
         cut.WaitForAssertion(() => Assert.Multiple(() =>
         {
             Assert.That(cut.FindAll("[data-testid=error-message]"), Has.Count.EqualTo(1));
-            Assert.That(LoggedEvents.Of(boundaryLogger), Is.EqualTo(new[] { (UiEvent.ScreenError, LogLevel.Error, "Unhandled error in a screen") }));
+            Assert.That(boundaryLogger.Collector.GetSnapshot().Select(r => (r.Id.Id, r.Level, r.Message)),
+                Is.EqualTo(new[] { (KitScreenErrorId, LogLevel.Error, "Unhandled error in a screen") }));
         }));
     }
 

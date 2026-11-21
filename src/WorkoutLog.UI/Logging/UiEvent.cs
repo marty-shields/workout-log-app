@@ -2,28 +2,10 @@ namespace WorkoutLog.UI.Logging;
 
 /// <summary>
 /// Event ids of the UI's log messages: 2000–4999, a block of 100 per type. Values never change once logged.
-/// Retired, never reused: 2801, 3001, 3301, 3901, 3902 (the last three now belong to the kit, which logs them as 9401, 9501 and 9502).
+/// Retired, never reused: 2001, 2002, 2101, 2201, 2202, 2203, 2801, 3001, 3201, 3301, 3901, 3902 (the kit now logs the start-up, screen error, back button and app start events, and 3301, 3901 and 3902 as 9401, 9501 and 9502).
 /// </summary>
 internal enum UiEvent
 {
-    /// <summary><see cref="Components.Layout.StartupGate"/>: startup finished, with its duration.</summary>
-    StartupFinished = 2001,
-
-    /// <summary><see cref="Components.Layout.StartupGate"/>: startup failed.</summary>
-    StartupFailed = 2002,
-
-    /// <summary><see cref="Components.Layout.AppErrorBoundary"/>: unhandled error in a screen.</summary>
-    ScreenError = 2101,
-
-    /// <summary><see cref="Navigation.BackButton"/>: back handled by the page.</summary>
-    BackHandled = 2201,
-
-    /// <summary><see cref="Navigation.BackButton"/>: back pressed with no handler.</summary>
-    BackNotHandled = 2202,
-
-    /// <summary><see cref="Navigation.BackButton"/>: a back handler failed.</summary>
-    BackHandlerFailed = 2203,
-
     /// <summary><see cref="Screens.WorkoutView"/>: focusing an exercise failed.</summary>
     ExerciseFocusFailed = 2301,
 
@@ -59,9 +41,6 @@ internal enum UiEvent
 
     /// <summary><see cref="Screens.ThisWeekPage"/>: reading the week's records failed, so their card is left out.</summary>
     ThisWeekRecordsFailed = 3102,
-
-    /// <summary><see cref="Lifecycle.AppLifecycle"/>: an app start handler failed.</summary>
-    AppStartHandlerFailed = 3201,
 
     /// <summary><see cref="Screens.SettingsPage"/>: opening the share sheet failed.</summary>
     ShareFailed = 3401,

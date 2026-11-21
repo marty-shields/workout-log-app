@@ -1,6 +1,5 @@
 using WorkoutLog.Core.Domain;
 using WorkoutLog.UI.Models.Workouts;
-using WorkoutLog.UI.Navigation;
 using WorkoutLog.UI.Screens;
 using WorkoutLog.UI.Tests.Models.Workouts;
 

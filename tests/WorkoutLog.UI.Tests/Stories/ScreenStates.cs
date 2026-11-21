@@ -1,11 +1,11 @@
 using AngleSharp.Dom;
 using Microsoft.Extensions.DependencyInjection;
+using Shields.UI.Components.Overlays;
 using Shields.UI.Theme;
 using WorkoutLog.Core.Domain;
 using WorkoutLog.Core.Domain.Exercises;
 using WorkoutLog.Core.Domain.Workouts.Periods;
 using WorkoutLog.Core.Services;
-using WorkoutLog.UI.Components.Overlays;
 using WorkoutLog.UI.Models.Exercises;
 using WorkoutLog.UI.Models.Settings;
 using WorkoutLog.UI.Models.Summary;
@@ -31,9 +31,6 @@ public static class ScreenStates
 {
     public static IReadOnlyList<ScreenState> All { get; } =
     [
-        new("Screens/Startup", "Loading", c => c.Render<StartupView>().FindAll("*")),
-        new("Screens/Startup", "Load failed", c => c.Render<StartupView>(p => p.Add(x => x.Failed, true)).FindAll("*")),
-
         new("Screens/This week", "Mid-week", c => ThisWeek(c, p => p
             .Add(x => x.Today, SampleThisWeek.Wednesday)
             .Add(x => x.Trained, SampleThisWeek.TrainedDays)
@@ -165,9 +162,6 @@ public static class ScreenStates
         new("Screens/Import Review", "No workouts", c => ReviewScreen(c, ImportReview.Rejected("f.json", ImportError.NoWorkouts))),
         new("Screens/Import Review", "Too large", c => ReviewScreen(c, ImportReview.Rejected("f.json", ImportError.TooLarge))),
         new("Screens/Import Review", "Reading another file", c => ReviewScreen(c, ImportReview.Rejected("photo.json", ImportError.NotAnExport), reading: true)),
-
-        new("Screens/Error", "Error", c => c.Render<ErrorView>(p => p.Add(x => x.OnRestart, () => { })).FindAll("*")),
-
 
         new("Screens/Exercise", "Lift top set", c => ExercisePage(c, SampleExercises.LiftTopSet)),
         new("Screens/Exercise", "Lift e1RM", c => ExercisePage(c, SampleExercises.LiftE1rm)),
