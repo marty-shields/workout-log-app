@@ -53,6 +53,7 @@ else
 
     private DurationField? duration;
     private NumberField? number;
+    private string? typedText;
 
     /// <summary>Moves focus to the input, or the first box of a duration.</summary>
     public ValueTask FocusAsync() => duration?.FocusAsync() ?? number?.FocusAsync() ?? ValueTask.CompletedTask;
@@ -62,11 +63,22 @@ else
     private bool Invalid => Entry.Errors.ContainsKey(Field.Key);
 
     // The entry keeps the typed text, which the checker reads, so the kit's number is only for display.
-    // Parsed as the kit parses typed text: if they differed, the kit would replace what the user typed.
+    // Text typed in this box is parsed as the kit parses it: if they differed, the kit would replace what the user typed.
+    // Text from an earlier box (a set opened again) shows only when it is a valid number, so the box never shows a
+    // number that differs from the entry. Rejected text shows empty: the kit's number cannot show raw text.
     private decimal? NumberValue =>
-        decimal.TryParse(CurrentValue?.Trim().Replace(',', '.'), NumberStyles.AllowDecimalPoint | NumberStyles.AllowLeadingSign, CultureInfo.InvariantCulture, out var number) ? number : null;
+        CurrentValue is null ? null
+        : CurrentValue == typedText ? KitParse(CurrentValue)
+        : FieldReader.Read(Field, CurrentValue) is ({ } value, null) ? value : null;
 
-    private Task OnTextChanged(string text) => OnValueChanged(string.IsNullOrEmpty(text) ? null : text);
+    private static decimal? KitParse(string text) =>
+        decimal.TryParse(text.Trim().Replace(',', '.'), NumberStyles.AllowDecimalPoint | NumberStyles.AllowLeadingSign, CultureInfo.InvariantCulture, out var number) ? number : null;
+
+    private Task OnTextChanged(string text)
+    {
+        typedText = string.IsNullOrEmpty(text) ? null : text;
+        return OnValueChanged(typedText);
+    }
 
     private Task OnValueChanged(string? value)
     {

@@ -17,7 +17,6 @@ public class EntryFieldTests : ComponentTestBase
         Assert.That(cut.FindAll("input"), Has.Count.EqualTo(3));
     }
 
-
     [TestCase(FieldKind.Whole, "numeric")]
     [TestCase(FieldKind.Decimal, "decimal")]
     public void NumberKinds_SetInputMode(FieldKind kind, string inputMode)
@@ -86,10 +85,13 @@ public class EntryFieldTests : ComponentTestBase
         });
     }
 
-    [TestCase("1.", "1.")]
-    [TestCase("1,5", "1,5")]
-    [TestCase("abc", "abc")]
-    public void TypedText_StaysInTheBoxAndTheEntry(string typed, string expected)
+    [TestCase("1.")]
+    [TestCase("1,5")]
+    [TestCase("abc")]
+    [TestCase("-")]
+    [TestCase(" 5")]
+    [TestCase(".5")]
+    public void TypedText_StaysInTheBoxAndTheEntry(string typed)
     {
         var entry = new EntryState();
         var cut = Context.Render<EntryField>(p => p
@@ -101,7 +103,43 @@ public class EntryFieldTests : ComponentTestBase
         Assert.Multiple(() =>
         {
             Assert.That(entry.Values["weight"], Is.EqualTo(typed));
-            Assert.That(cut.Find("input").GetAttribute("value"), Is.EqualTo(expected));
+            Assert.That(cut.Find("input").GetAttribute("value"), Is.EqualTo(typed));
+        });
+    }
+
+    [TestCase("1.")]
+    [TestCase("1,5")]
+    [TestCase("abc")]
+    [TestCase("-")]
+    [TestCase(" 5")]
+    [TestCase(".5")]
+    public void TypedText_SurvivesARedrawFromTheEntry(string typed)
+    {
+        var entry = new EntryState();
+        var cut = Context.Render<EntryField>(p => p
+            .Add(x => x.Field, new FieldSpec("weight", Metric.WeightKg, "Weight", FieldKind.Decimal))
+            .Add(x => x.Entry, entry));
+        cut.Find("input").Input(typed);
+
+        entry.Errors["weight"] = "Weight must be a number";
+        cut.Render();
+
+        Assert.That(cut.Find("input").GetAttribute("value"), Is.EqualTo(typed));
+    }
+
+    [TestCase("22,75")]
+    [TestCase("abc")]
+    public void NewBoxOverRejectedText_NeverShowsAValidLookingNumber(string rejected)
+    {
+        var entry = new EntryState { Values = { ["weight"] = rejected } };
+        var cut = Context.Render<EntryField>(p => p
+            .Add(x => x.Field, new FieldSpec("weight", Metric.WeightKg, "Weight", FieldKind.Decimal))
+            .Add(x => x.Entry, entry));
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.Find("input").GetAttribute("value") ?? "", Is.Empty);
+            Assert.That(entry.Values["weight"], Is.EqualTo(rejected));
         });
     }
 

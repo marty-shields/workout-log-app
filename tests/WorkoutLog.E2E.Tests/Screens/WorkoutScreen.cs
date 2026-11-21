@@ -170,8 +170,8 @@ public sealed partial class WorkoutScreen(WebView web, Native native)
         var root = set is { } number ? $"{Card(name)}-set-{number}" : Card(name);
         var script = $$"""
             const root = document.querySelector('[data-testid="{{root}}"]');
-            return [...root.querySelectorAll('label.field, div.field[role=group]')].map(f =>
-                f.getAttribute('role') === 'group' ? f.getAttribute('aria-label') : f.querySelector('.label').childNodes[0].textContent.trim());
+            return [...root.querySelectorAll('div.field[role=group], div.field:has(> label.label)')].map(f =>
+                f.getAttribute('role') === 'group' ? f.getAttribute('aria-label') : f.querySelector(':scope > label.label').childNodes[0].textContent.trim());
             """;
         return web.Strings(script);
     }

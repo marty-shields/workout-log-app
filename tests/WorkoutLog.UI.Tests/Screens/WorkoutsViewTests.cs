@@ -96,6 +96,27 @@ public class WorkoutsViewTests : ComponentTestBase
     }
 
     [Test]
+    public void TappingTwoSegmentsInARow_RaisesBothWhenTheHostTakesTheDates()
+    {
+        var changed = new List<DateSpan>();
+        IRenderedComponent<WorkoutsView>? cut = null;
+        cut = Render(ThreeMonths, p => p.Add(x => x.DatesChanged, (DateSpan d) =>
+        {
+            changed.Add(d);
+            cut!.Render(q => q.Add(x => x.Dates, d));
+        }));
+
+        cut.Find("[data-testid=workouts-range-1y]").Change(true);
+        cut.Find("[data-testid=workouts-range-all]").Change(true);
+
+        Assert.That(changed, Is.EqualTo(new[]
+        {
+            new DateSpan(new(2025, 11, 6), Today),
+            new DateSpan(new(2025, 3, 12), Today),
+        }));
+    }
+
+    [Test]
     public void Field_ShowsTheDatesAndTheirCount()
     {
         var cut = Render(ThreeMonths);
