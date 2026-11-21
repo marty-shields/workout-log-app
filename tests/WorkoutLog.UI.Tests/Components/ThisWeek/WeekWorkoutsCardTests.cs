@@ -1,3 +1,4 @@
+using Shields.UI.Components.Layout;
 using WorkoutLog.UI.Components.ThisWeek;
 using WorkoutLog.UI.Stories.Samples;
 
@@ -46,6 +47,16 @@ public class WeekWorkoutsCardTests : ComponentTestBase
         var cut = Render([new WeekWorkout(1, new DateTime(2026, 11, 16, 9, 0, 0), ["Squat", "Press"], new TimeSpan(1, 5, 59))]);
 
         Assert.That(cut.Find(".aside").TextContent, Is.EqualTo("1:05"));
+    }
+
+    [Test]
+    public void Card_IsCompactWithRowsAndNormalWithThePrompt()
+    {
+        Assert.Multiple(() =>
+        {
+            Assert.That(Render(SampleThisWeek.Workouts).FindComponent<Card>().Instance.Compact, Is.True, "rows supply their own padding");
+            Assert.That(Render([]).FindComponent<Card>().Instance.Compact, Is.False, "the prompt needs the card's padding below it");
+        });
     }
 
     [Test]

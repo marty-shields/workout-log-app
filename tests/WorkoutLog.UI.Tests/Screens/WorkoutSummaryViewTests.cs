@@ -108,6 +108,21 @@ public class WorkoutSummaryViewTests : ComponentTestBase
     }
 
     [Test]
+    public void ListCards_AreCompactExceptTheEmptyRecords()
+    {
+        var withBoth = Render(SampleWorkoutSummary.RecordsAndChanges);
+        var noRecords = Render(SampleWorkoutSummary.NoRecords);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(withBoth.FindComponents<Card>().Single(c => c.Instance.TestId == "summary-records").Instance.Compact, Is.True);
+            Assert.That(withBoth.FindComponents<Card>().Single(c => c.Instance.TestId == "summary-changes").Instance.Compact, Is.True);
+            Assert.That(withBoth.FindComponents<Card>().Single(c => c.Instance.TestId == "summary-stats").Instance.Compact, Is.False);
+            Assert.That(noRecords.FindComponents<Card>().Single(c => c.Instance.TestId == "summary-records").Instance.Compact, Is.False);
+        });
+    }
+
+    [Test]
     public void NoRecords_SaysSoAndStillShowsChanges()
     {
         var cut = Render(SampleWorkoutSummary.NoRecords);

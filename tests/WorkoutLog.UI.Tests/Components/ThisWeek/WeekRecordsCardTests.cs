@@ -1,3 +1,4 @@
+using Shields.UI.Components.Layout;
 using WorkoutLog.UI.Components.ThisWeek;
 using WorkoutLog.UI.Stories.Samples;
 
@@ -5,6 +6,16 @@ namespace WorkoutLog.UI.Tests.Components.ThisWeek;
 
 public class WeekRecordsCardTests : ComponentTestBase
 {
+    [Test]
+    public void Card_IsCompactWithRowsAndNormalWithThePrompt()
+    {
+        Assert.Multiple(() =>
+        {
+            Assert.That(Render(SampleThisWeek.Records).FindComponent<Card>().Instance.Compact, Is.True, "rows supply their own padding");
+            Assert.That(Render([]).FindComponent<Card>().Instance.Compact, Is.False, "the prompt needs the card's padding below it");
+        });
+    }
+
     [Test]
     public void Row_ShowsExerciseAndBestWithTheWeekdayUnder()
     {

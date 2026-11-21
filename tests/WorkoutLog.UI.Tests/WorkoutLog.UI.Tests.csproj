@@ -20,12 +20,6 @@
     <ProjectReference Include="$(KitSourcePath)/src/Shields.UI.Testing/Shields.UI.Testing.csproj" />
   </ItemGroup>
 
-  <!-- The App's start-up wiring with no Android types, compiled here because the App itself can't be referenced. -->
-  <ItemGroup>
-    <Compile Include="..\..\src\WorkoutLog.App\Lifecycle\AndroidAppLifecycle.cs" Link="Lifecycle\AndroidAppLifecycle.cs" />
-    <Compile Include="..\..\src\WorkoutLog.App\Navigation\BackButtonLink.cs" Link="Navigation\BackButtonLink.cs" />
-  </ItemGroup>
-
   <ItemGroup>
     <Using Include="Bunit" />
   </ItemGroup>

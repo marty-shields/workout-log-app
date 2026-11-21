@@ -164,7 +164,7 @@ public class WorkoutViewTests : ComponentTestBase
             .Add(x => x.StartedAt, Started)
             .Add(x => x.Exercises, [Curl(), new ExerciseState(258, "Plank", ExerciseKind.Strength, [])]));
 
-        Assert.That(cut.FindAll(".name").Select(n => n.TextContent), Is.EqualTo(new[] { "Dumbbell Curl", "Plank" }));
+        Assert.That(cut.FindAll(".card .title").Select(n => n.TextContent), Is.EqualTo(new[] { "Dumbbell Curl", "Plank" }));
     }
 
     [Test]

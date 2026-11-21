@@ -19,7 +19,15 @@ public class TrendTilesTests : ComponentTestBase
     }
 
     [Test]
-    public void Increase_ShowsUpInSuccessAndTheDifference()
+    public void Tiles_AreCompact()
+    {
+        var cut = Render(PeriodKind.Week, SampleTrends.WeekTotals, SampleTrends.WeekEarlier);
+
+        Assert.That(cut.FindComponents<StatTile>().Select(t => t.Instance.Compact), Is.All.True);
+    }
+
+    [Test]
+    public void Increase_ShowsUpInMutedAndTheDifference()
     {
         var cut = Render(PeriodKind.Week, SampleTrends.WeekTotals, SampleTrends.WeekEarlier);
 
@@ -28,12 +36,12 @@ public class TrendTilesTests : ComponentTestBase
             Assert.That(TestText.Normalise(cut.Find("[data-testid=tiles-workouts-change]").TextContent), Is.EqualTo("up 1"));
             Assert.That(TestText.Normalise(cut.Find("[data-testid=tiles-time-change]").TextContent), Is.EqualTo("up 35m"));
             Assert.That(TestText.Normalise(cut.Find("[data-testid=tiles-sets-change]").TextContent), Is.EqualTo("up 1"));
-            Assert.That(cut.FindComponents<Icon>().Where(i => i.Instance.Name == IconName.Up).Select(i => i.Instance.Tone), Is.All.EqualTo(IconTone.Success));
+            Assert.That(cut.FindComponents<Icon>().Where(i => i.Instance.Name == IconName.Up).Select(i => i.Instance.Tone), Is.All.EqualTo(IconTone.Muted));
         });
     }
 
     [Test]
-    public void Decrease_ShowsDownInErrorAndTheDifference()
+    public void Decrease_ShowsDownInMutedAndTheDifference()
     {
         var cut = Render(PeriodKind.Week, SampleTrends.WeekEarlier, SampleTrends.WeekTotals);
 
@@ -41,7 +49,7 @@ public class TrendTilesTests : ComponentTestBase
         {
             Assert.That(TestText.Normalise(cut.Find("[data-testid=tiles-time-change]").TextContent), Is.EqualTo("down 35m"));
             Assert.That(TestText.Normalise(cut.Find("[data-testid=tiles-volume-change]").TextContent), Does.StartWith("down 6%"));
-            Assert.That(cut.FindComponents<Icon>().Where(i => i.Instance.Name == IconName.Down).Select(i => i.Instance.Tone), Is.All.EqualTo(IconTone.Error));
+            Assert.That(cut.FindComponents<Icon>().Where(i => i.Instance.Name == IconName.Down).Select(i => i.Instance.Tone), Is.All.EqualTo(IconTone.Muted));
         });
     }
 

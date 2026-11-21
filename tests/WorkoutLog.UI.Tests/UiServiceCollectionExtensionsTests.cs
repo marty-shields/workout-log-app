@@ -72,4 +72,22 @@ public class UiServiceCollectionExtensionsTests
             Assert.That(() => provider.GetRequiredService<IBackButton>(), Throws.InvalidOperationException);
         });
     }
+
+    [Test]
+    public void AddUi_ResolvesTheActivitysBridgesFromTheRootProvider()
+    {
+        using var provider = new ServiceCollection()
+            .AddSingleton(typeof(ILogger<>), typeof(NullLogger<>))
+            .AddUi()
+            .BuildServiceProvider(validateScopes: true);
+
+        var back = provider.GetRequiredService<BackButtonBridge>();
+        var lifecycle = provider.GetRequiredService<AppLifecycleBridge>();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(provider.GetRequiredService<BackButtonBridge>(), Is.SameAs(back));
+            Assert.That(provider.GetRequiredService<AppLifecycleBridge>(), Is.SameAs(lifecycle));
+        });
+    }
 }

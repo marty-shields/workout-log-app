@@ -5,6 +5,7 @@ using Microsoft.Extensions.Logging.Testing;
 using Microsoft.Extensions.Time.Testing;
 using Shields.UI.Components.Feedback;
 using Shields.UI.Components.Layout;
+using Shields.UI.Logging;
 using WorkoutLog.Core.Domain.Exercises;
 using WorkoutLog.Core.Domain.Exercises.Progress;
 using WorkoutLog.Core.Domain.Workouts;
@@ -20,9 +21,6 @@ namespace WorkoutLog.UI.Tests.Screens;
 
 public class NewWorkoutPageTests : ComponentTestBase
 {
-    /// <summary>The kit's id for an unhandled error in a screen, which it logs from <c>AppErrorBoundary</c>.</summary>
-    private const int KitScreenErrorId = 9101;
-
     /// <summary>Tue 20 Oct 2026 23:30 UTC; Wed 21 Oct 00:30 in the test's UTC+1 zone.</summary>
     private static readonly DateTimeOffset Start = new(2026, 10, 20, 23, 30, 0, TimeSpan.Zero);
 
@@ -540,7 +538,7 @@ public class NewWorkoutPageTests : ComponentTestBase
         cut.WaitForAssertion(() => Assert.Multiple(() =>
         {
             Assert.That(Names(cut), Is.EqualTo(new[] { "Barbell Back Squat", "Dumbbell Curl" }));
-            Assert.That(cut.Find("[data-testid=exercise-2] .body").ClassList, Does.Contain("done"));
+            Assert.That(cut.FindAll("[data-testid=exercise-2-edit]"), Has.Count.EqualTo(1));
             Assert.That(cut.FindAll("[data-testid=snackbar]"), Is.Empty);
         }));
     }
@@ -572,7 +570,7 @@ public class NewWorkoutPageTests : ComponentTestBase
         cut.Find("[data-testid=exercise-1-set-2-remove]").Click();
         cut.Find("[data-testid=exercise-1-set-1-remove]").Click();
         cut.Find("[data-testid=save-workout]").Click();
-        var shown = cut.Find("[data-testid=exercise-1-error]").TextContent;
+        var shown = cut.Find("[data-testid=exercise-1-error]").TextContent.Trim();
 
         cut.Find("[data-testid=snackbar-action]").Click();
 
@@ -645,7 +643,7 @@ public class NewWorkoutPageTests : ComponentTestBase
         {
             Assert.That(cut.FindAll("[data-testid=error-message]"), Has.Count.EqualTo(1));
             Assert.That(boundaryLogger.Collector.GetSnapshot().Select(r => (r.Id.Id, r.Level, r.Message)),
-                Is.EqualTo(new[] { (KitScreenErrorId, LogLevel.Error, "Unhandled error in a screen") }));
+                Is.EqualTo(new[] { ((int)KitEvent.ScreenError, LogLevel.Error, "Unhandled error in a screen") }));
         }));
     }
 
@@ -1403,7 +1401,7 @@ public class NewWorkoutPageTests : ComponentTestBase
 
         cut.Find("[data-testid=save-workout]").Click();
 
-        Assert.That(cut.Find("[data-testid=exercise-1-error]").TextContent, Is.EqualTo("Add at least one set"));
+        Assert.That(cut.Find("[data-testid=exercise-1-error]").TextContent.Trim(), Is.EqualTo("Add at least one set"));
         cut.WaitForAssertion(() => Assert.That(((ElementReference)LastFocus().Arguments[0]!).Id, Is.EqualTo(addSet)));
     }
 
@@ -1869,7 +1867,7 @@ public class NewWorkoutPageTests : ComponentTestBase
 
     private static string Subtitle(IRenderedComponent<NewWorkoutPage> cut) => cut.Find("[data-testid=screen-subtitle]").TextContent;
 
-    private static IEnumerable<string> Names(IRenderedComponent<NewWorkoutPage> cut) => cut.FindAll(".card .name").Select(n => n.TextContent);
+    private static IEnumerable<string> Names(IRenderedComponent<NewWorkoutPage> cut) => cut.FindAll(".card .title").Select(n => n.TextContent);
 
     /// <summary>The latest focus call; the list search and added exercises each take focus.</summary>
     private JSRuntimeInvocation LastFocus() => Context.JSInterop.Invocations["Blazor._internal.domWrapper.focus"][^1];

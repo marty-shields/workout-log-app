@@ -27,6 +27,7 @@ public class LastWeekCardTests : ComponentTestBase
         {
             Assert.That(cut.Find("div.card").GetAttribute("data-testid"), Is.EqualTo("last"));
             Assert.That(cut.FindAll("h2"), Is.Empty);
+            Assert.That(cut.Find("div.card").ClassList, Does.Not.Contain("compact"), "the single row keeps the kit's normal padding");
         });
     }
 

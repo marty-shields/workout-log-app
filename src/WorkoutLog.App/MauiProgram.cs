@@ -6,9 +6,7 @@ using WorkoutLog.App.Export;
 using WorkoutLog.App.Haptics;
 using WorkoutLog.App.Import;
 using WorkoutLog.App.Keyboard;
-using WorkoutLog.App.Lifecycle;
 using WorkoutLog.App.Logging;
-using WorkoutLog.App.Navigation;
 using WorkoutLog.App.Sharing;
 using WorkoutLog.App.Timing;
 using WorkoutLog.Core;
@@ -43,60 +41,9 @@ public static class MauiProgram
 
         AddLogging(builder);
         AddDiagnostics(builder);
-        AddBackButton(builder);
-        AddAppLifecycle(builder);
         AddKeyboardRestore(builder);
 
         return builder.Build();
-    }
-
-    /// <summary>
-    /// Passes the Android back button to the registered page handlers through <see cref="AndroidBackButton"/>.
-    /// Only <see cref="MainActivity"/> counts; MAUI's own activities, such as the file picker's, are ignored.
-    /// The handlers resolve it from the app's services; <see cref="Components.ActivityBridge"/> connects it to the page's back button.
-    /// </summary>
-    private static void AddBackButton(MauiAppBuilder builder)
-    {
-        builder.Services.AddSingleton<AndroidBackButton>();
-        builder.ConfigureLifecycleEvents(events => events.AddAndroid(android => android
-            .OnCreate((activity, _) =>
-            {
-                if (activity is MainActivity main)
-                {
-                    BackButton().Attach(main);
-                }
-            })
-            .OnDestroy(activity => BackButton().Detach(activity))));
-
-        static AndroidBackButton BackButton() => IPlatformApplication.Current!.Services.GetRequiredService<AndroidBackButton>();
-    }
-
-    /// <summary>
-    /// Runs the pages' app start handlers through <see cref="AndroidAppLifecycle"/> each time <see cref="MainActivity"/> starts,
-    /// and removes them when it is destroyed or replaced. MAUI's own activities are ignored.
-    /// The handlers resolve it from the app's services; <see cref="Components.ActivityBridge"/> connects it to the page's lifecycle.
-    /// </summary>
-    private static void AddAppLifecycle(MauiAppBuilder builder)
-    {
-        builder.Services.AddSingleton<AndroidAppLifecycle>();
-        builder.ConfigureLifecycleEvents(events => events.AddAndroid(android => android
-            .OnCreate((activity, _) =>
-            {
-                if (activity is MainActivity)
-                {
-                    Lifecycle().Attach(activity);
-                }
-            })
-            .OnStart(activity =>
-            {
-                if (activity is MainActivity)
-                {
-                    Lifecycle().NotifyStarted();
-                }
-            })
-            .OnDestroy(activity => Lifecycle().Detach(activity))));
-
-        static AndroidAppLifecycle Lifecycle() => IPlatformApplication.Current!.Services.GetRequiredService<AndroidAppLifecycle>();
     }
 
     /// <summary>

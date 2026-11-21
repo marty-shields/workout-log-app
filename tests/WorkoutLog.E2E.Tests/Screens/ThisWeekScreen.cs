@@ -62,7 +62,7 @@ public sealed partial class ThisWeekScreen(WebView web)
             .ToList();
     }
 
-    public bool HasStartupError() => web.Exists("startup-error");
+    public bool HasStartupError() => web.Exists("startup-failed");
 
     public void OpenSettings() => web.Tap("settings");
 

@@ -281,7 +281,7 @@ public class EditWorkoutPageTests : ComponentTestBase
         Assert.Multiple(() =>
         {
             Assert.That(Names(cut), Is.EqualTo(new[] { "Treadmill", "Farmer's Walk", "Barbell Back Squat" }));
-            Assert.That(cut.Find("[data-testid=exercise-2] .body").ClassList, Does.Contain("done"));
+            Assert.That(cut.FindAll("[data-testid=exercise-2-edit]"), Has.Count.EqualTo(1));
             Assert.That(cut.FindAll("[data-testid=snackbar]"), Is.Empty);
         });
     }
@@ -1675,7 +1675,7 @@ public class EditWorkoutPageTests : ComponentTestBase
     }
 
     private static IReadOnlyList<string> Names(IRenderedComponent<EditWorkoutPage> cut) =>
-        cut.FindAll(".card .name").Select(n => n.TextContent).ToList();
+        cut.FindAll(".card .title").Select(n => n.TextContent).ToList();
 
     /// <summary>
     /// Types the text into the note of the workout (<paramref name="number"/> null) or the numbered exercise and leaves the field. Opens the

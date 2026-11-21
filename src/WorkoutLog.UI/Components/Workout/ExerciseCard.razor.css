@@ -4,34 +4,6 @@
     gap: var(--space-3);
 }
 
-.has-error {
-    outline: var(--border-width-error) solid var(--color-error);
-    outline-offset: var(--space-2);
-}
-
-.card-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: var(--space-2);
-    margin: calc(-1 * var(--space-2)) 0 0;
-}
-
-.actions {
-    display: flex;
-    align-items: center;
-}
-
-.done .card-header {
-    margin: 0;
-}
-
-.name {
-    margin: 0;
-    font-size: var(--font-size-md);
-    font-weight: var(--font-weight-bold);
-}
-
 .weights {
     display: flex;
     flex-wrap: wrap;
@@ -97,13 +69,6 @@
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: var(--space-3);
-}
-
-.error {
-    margin: 0;
-    color: var(--color-error);
-    font-size: var(--font-size-sm);
-    font-weight: var(--font-weight-bold);
 }
 
 .note {

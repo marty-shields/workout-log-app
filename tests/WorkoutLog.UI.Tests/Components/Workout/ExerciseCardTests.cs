@@ -69,8 +69,8 @@ public class ExerciseCardTests : ComponentTestBase
         Assert.Multiple(() =>
         {
             Assert.That(cut.FindComponent<Card>().Instance.TestId, Is.EqualTo("exercise-1"));
-            Assert.That(cut.Find("div.card[data-testid=exercise-1] > .body > .card-header h2.name").TextContent, Is.EqualTo("Farmer's Walk"));
-            Assert.That(cut.Find("div.card[data-testid=exercise-1] .sets"), Is.Not.Null);
+            Assert.That(cut.Find("section.card[data-testid=exercise-1] > .header h2.title").TextContent, Is.EqualTo("Farmer's Walk"));
+            Assert.That(cut.Find("section.card[data-testid=exercise-1] .sets"), Is.Not.Null);
         });
     }
 
@@ -883,7 +883,7 @@ public class ExerciseCardTests : ComponentTestBase
         Assert.Multiple(() =>
         {
             Assert.That(exercise.IsDone, Is.True);
-            Assert.That(cut.Find(".name").TextContent, Is.EqualTo("Dumbbell Curl"));
+            Assert.That(cut.Find(".title").TextContent, Is.EqualTo("Dumbbell Curl"));
             Assert.That((edit.Icon, edit.AriaLabel), Is.EqualTo((IconName.Edit, "Edit Dumbbell Curl")));
             Assert.That(cut.FindAll("[data-testid=exercise-1-remove]"), Has.Count.EqualTo(1));
             Assert.That(cut.FindAll("[data-testid=exercise-1-done]"), Is.Empty);
@@ -907,6 +907,21 @@ public class ExerciseCardTests : ComponentTestBase
             Assert.That(cut.FindAll("[data-testid=exercise-1-edit]"), Has.Count.EqualTo(1));
             Assert.That(cut.FindAll("[data-testid=exercise-1-add-set]"), Is.Empty);
         });
+    }
+
+    [Test]
+    public void Done_RendersNoBodyBelowTheHeader_UnlessItHasAnError()
+    {
+        var exercise = Strength(1);
+        exercise.IsDone = true;
+        var cut = Context.Render<ExerciseCard>(p => p.Add(x => x.Exercise, exercise).Add(x => x.TestId, "exercise-1"));
+
+        Assert.That(cut.FindAll(".body"), Is.Empty);
+
+        exercise.Error = "Add at least one set";
+        cut.Render();
+
+        Assert.That(cut.Find("[data-testid=exercise-1-error]").TextContent, Does.Contain("Add at least one set"));
     }
 
     [Test]
@@ -1146,8 +1161,9 @@ public class ExerciseCardTests : ComponentTestBase
 
         Assert.Multiple(() =>
         {
-            Assert.That(cut.Find("[data-testid=exercise-1-error]").TextContent, Is.EqualTo("Add at least one set"));
-            Assert.That(cut.Find(".body").ClassList, Does.Contain("has-error"));
+            Assert.That(cut.Find("[data-testid=exercise-1-error]").TextContent.Trim(), Is.EqualTo("Add at least one set"));
+            Assert.That(cut.FindComponent<Card>().Instance.Error, Is.True);
+            Assert.That(cut.Find("section.card").ClassList, Does.Contain("error"));
         });
     }
 
@@ -1166,7 +1182,7 @@ public class ExerciseCardTests : ComponentTestBase
         {
             Assert.That(exercise.Error, Is.Null);
             Assert.That(cut.FindAll("[data-testid=exercise-1-error]"), Is.Empty);
-            Assert.That(cut.Find(".body").ClassList, Does.Not.Contain("has-error"));
+            Assert.That(cut.FindComponent<Card>().Instance.Error, Is.False);
         });
     }
 
@@ -1328,7 +1344,7 @@ public class ExerciseCardTests : ComponentTestBase
         Assert.Multiple(() =>
         {
             Assert.That(cut.Find("[data-testid=exercise-1-weights]").TextContent, Is.EqualTo(text));
-            Assert.That(cut.FindAll(".card-header + .weights + .sets"), Has.Count.EqualTo(1));
+            Assert.That(cut.FindAll(".header + .body > .weights + .sets"), Has.Count.EqualTo(1));
             Assert.That(cut.FindAll(".weights button, .weights [blazor\\:onclick]"), Is.Empty);
         });
     }
@@ -1896,7 +1912,7 @@ public class ExerciseCardTests : ComponentTestBase
         Assert.Multiple(() =>
         {
             Assert.That(cut.Find("[data-testid=exercise-1-last-note] .text").TextContent, Is.EqualTo("Belt on from set 3"));
-            Assert.That(cut.FindAll(".card-header + .weights + [data-testid=exercise-1-last-note] + .sets"), Has.Count.EqualTo(1));
+            Assert.That(cut.FindAll(".header + .body > .weights + [data-testid=exercise-1-last-note] + .sets"), Has.Count.EqualTo(1));
         });
     }
 
@@ -1913,7 +1929,7 @@ public class ExerciseCardTests : ComponentTestBase
         Assert.Multiple(() =>
         {
             Assert.That(cut.FindAll("[data-testid=exercise-1-weights]"), Is.Empty);
-            Assert.That(cut.FindAll(".card-header + [data-testid=exercise-1-last-note] + .sets"), Has.Count.EqualTo(1));
+            Assert.That(cut.FindAll(".header + .body > [data-testid=exercise-1-last-note] + .sets"), Has.Count.EqualTo(1));
         });
     }
 
@@ -1927,7 +1943,7 @@ public class ExerciseCardTests : ComponentTestBase
             .Add(x => x.Exercise, exercise)
             .Add(x => x.TestId, "exercise-1"));
 
-        Assert.That(cut.FindAll(".card-header + [data-testid=exercise-1-last-note] + .cardio"), Has.Count.EqualTo(1));
+        Assert.That(cut.FindAll(".header + .body > [data-testid=exercise-1-last-note] + .cardio"), Has.Count.EqualTo(1));
     }
 
     [TestCase(null)]

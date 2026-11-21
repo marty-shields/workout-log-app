@@ -1,4 +1,4 @@
-<Card Title="Records this week" TestId="@TestId">
+<Card Title="Records this week" Compact="@(Records.Count > 0)" TestId="@TestId">
     @if (Records.Count == 0)
     {
         <p class="none" data-testid="@($"{TestId}-none")">No new records this week</p>
