@@ -17,12 +17,16 @@ internal static class SetGrid
     /// <summary>CSS grid-template-columns: set number, the Last column when <see cref="LastColumn"/>, one column per field, remove button.</summary>
     public static string Columns(IReadOnlyList<FieldSpec> fields, bool hasLast)
     {
+        var lastColumn = LastColumn(fields, hasLast);
+        // TEMP (epic #262): remove when the kit's compact NumberField lands. With a Last column a decimal like 62.5 gets 3fr to a whole number's 2fr, so it is not clipped at the narrowest card.
         var fieldColumns = fields.Select(field => field.Kind switch
         {
             FieldKind.Duration => "minmax(0, 2fr)",
+            FieldKind.Decimal when lastColumn => "minmax(0, 3fr)",
+            _ when lastColumn => "minmax(0, 2fr)",
             _ => "minmax(0, 1fr)",
         });
-        var last = LastColumn(fields, hasLast) ? "var(--set-last-width) " : null;
+        var last = lastColumn ? "var(--set-last-width) " : null;
         return $"var(--set-number-width) {last}{string.Join(' ', fieldColumns)} var(--touch-target)";
     }
 }
