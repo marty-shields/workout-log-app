@@ -49,16 +49,17 @@ public class KitReferenceTests
             Is.EqualTo(new[] { "$(KitSourcePath)/src/Shields.UI.Stories/Shields.UI.Stories.csproj" }));
     }
 
-    [TestCase("Shields.UI", "WorkoutLog.UI")]
-    [TestCase("Shields.UI.Stories", "WorkoutLog.UI.Stories")]
-    public void KitPackageVersion_IsPinnedCentrallyAndMatchesTheLockFile(string package, string project)
+    [TestCase("Shields.UI", "src", "WorkoutLog.UI")]
+    [TestCase("Shields.UI.Stories", "src", "WorkoutLog.UI.Stories")]
+    [TestCase("Shields.UI.Testing", "tests", "WorkoutLog.UI.Tests")]
+    public void KitPackageVersion_IsPinnedCentrallyAndMatchesTheLockFile(string package, string folder, string project)
     {
         var props = XDocument.Parse(RepoFiles.Read("Directory.Packages.props"));
         var version = props.Descendants("PackageVersion")
             .Single(p => (string?)p.Attribute("Include") == package)
             .Attribute("Version")?.Value;
 
-        var lockFile = JsonDocument.Parse(RepoFiles.Read("src", project, "packages.lock.json"));
+        var lockFile = JsonDocument.Parse(RepoFiles.Read(folder, project, "packages.lock.json"));
         var locked = lockFile.RootElement.GetProperty("dependencies").EnumerateObject().First()
             .Value.GetProperty(package).GetProperty("resolved").GetString();
 
@@ -69,7 +70,7 @@ public class KitReferenceTests
     [Test]
     public void DesignChecksPackage_IsReferencedUnlessUsingKitSource()
     {
-        var references = TestProjectItemGroupsWhen(PackageCondition).Elements("PackageReference");
+        var references = ItemGroupsWhen("tests", "WorkoutLog.UI.Tests", PackageCondition).Elements("PackageReference");
 
         Assert.That(references.Select(r => (string?)r.Attribute("Include")), Is.EqualTo(new[] { "Shields.UI.Testing" }));
     }
@@ -77,26 +78,11 @@ public class KitReferenceTests
     [Test]
     public void DesignChecksProject_IsReferencedWhenUsingKitSource()
     {
-        var references = TestProjectItemGroupsWhen(SourceCondition).Elements("ProjectReference");
+        var references = ItemGroupsWhen("tests", "WorkoutLog.UI.Tests", SourceCondition).Elements("ProjectReference");
 
         Assert.That(
             references.Select(r => (string?)r.Attribute("Include")),
             Is.EqualTo(new[] { "$(KitSourcePath)/src/Shields.UI.Testing/Shields.UI.Testing.csproj" }));
-    }
-
-    [Test]
-    public void DesignChecksPackageVersion_MatchesTheTestProjectsLockFile()
-    {
-        var props = XDocument.Parse(RepoFiles.Read("Directory.Packages.props"));
-        var version = props.Descendants("PackageVersion")
-            .Single(p => (string?)p.Attribute("Include") == "Shields.UI.Testing")
-            .Attribute("Version")?.Value;
-        var lockFile = JsonDocument.Parse(RepoFiles.Read("tests", "WorkoutLog.UI.Tests", "packages.lock.json"));
-        var locked = lockFile.RootElement.GetProperty("dependencies").EnumerateObject().First()
-            .Value.GetProperty("Shields.UI.Testing").GetProperty("resolved").GetString();
-
-        Assert.That(version, Is.Not.Null.And.Not.Empty);
-        Assert.That(locked, Is.EqualTo(version));
     }
 
     [Test]
@@ -147,15 +133,12 @@ public class KitReferenceTests
     private static IEnumerable<XElement> BuildPropsGroups() =>
         XDocument.Parse(RepoFiles.Read("Directory.Build.props")).Root!.Elements("PropertyGroup");
 
-    private static IEnumerable<XElement> TestProjectItemGroupsWhen(string condition) =>
-        XDocument.Parse(RepoFiles.Read("tests", "WorkoutLog.UI.Tests", "WorkoutLog.UI.Tests.csproj")).Root!
-            .Elements("ItemGroup")
-            .Where(group => (string?)group.Attribute("Condition") == condition);
-
     private static IEnumerable<XElement> ItemGroupsWhen(string condition) => ItemGroupsWhen("WorkoutLog.UI", condition);
 
-    private static IEnumerable<XElement> ItemGroupsWhen(string project, string condition) =>
-        XDocument.Parse(RepoFiles.Read("src", project, $"{project}.csproj")).Root!
+    private static IEnumerable<XElement> ItemGroupsWhen(string project, string condition) => ItemGroupsWhen("src", project, condition);
+
+    private static IEnumerable<XElement> ItemGroupsWhen(string folder, string project, string condition) =>
+        XDocument.Parse(RepoFiles.Read(folder, project, $"{project}.csproj")).Root!
             .Elements("ItemGroup")
             .Where(group => (string?)group.Attribute("Condition") == condition);
 }

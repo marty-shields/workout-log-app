@@ -8,7 +8,7 @@ public partial class TouchTargetTests
     [Test]
     public void Controls_AreAtLeastATouchTarget()
     {
-        Assert.That(TouchTargetCheck.ProblemsInFolder(RepoFiles.PathOf("src", "WorkoutLog.UI")), Is.Empty);
+        Assert.That(TouchTargetCheck.ProblemsInFolder(TokensOnlyCssTests.UiFolder), Is.Empty);
     }
 
     [Test]

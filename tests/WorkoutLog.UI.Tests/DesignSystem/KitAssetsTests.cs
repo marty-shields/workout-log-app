@@ -1,5 +1,4 @@
 using System.Text.RegularExpressions;
-using Shields.UI.Testing;
 
 namespace WorkoutLog.UI.Tests.DesignSystem;
 
@@ -14,7 +13,7 @@ public partial class KitAssetsTests
 
     private const string KitTokens = "_content/Shields.UI/css/tokens.css";
 
-    private const string AppTokens = "_content/WorkoutLog.UI/css/tokens.css";
+    private const string AppTokensUrl = "_content/WorkoutLog.UI/css/tokens.css";
 
     private const string StoriesCss = "_content/Shields.UI.Stories/css/blazor-ui.css";
 
@@ -34,7 +33,7 @@ public partial class KitAssetsTests
     {
         var loaded = Loaded(html).Where(url => url != StoriesCss && url != StoriesTokens).ToList();
 
-        Assert.That(loaded, Is.EqualTo(KitHead.Append(AppTokens)));
+        Assert.That(loaded, Is.EqualTo(KitHead.Append(AppTokensUrl)));
     }
 
     [Test]
@@ -77,7 +76,7 @@ public partial class KitAssetsTests
     {
         Assert.Multiple(() =>
         {
-            Assert.That(KitCss.Tokens, Does.Contain("--color-accent"));
+            Assert.That(KitAssets.Read("css/tokens.css"), Does.Contain("--color-accent"));
             Assert.That(KitAssets.Read("css/base.css"), Does.Contain("--inset-top"));
             Assert.That(KitAssets.Read("theme.js"), Does.Contain("shieldsTheme"));
         });

@@ -5,13 +5,22 @@ namespace WorkoutLog.UI.Tests.DesignSystem;
 /// <summary>The kit's tokens-only checks over this app's styles and markup; the kit's own base.css is checked by the kit's tests.</summary>
 public class TokensOnlyCssTests
 {
-    private static readonly string UiFolder = RepoFiles.PathOf("src", "WorkoutLog.UI");
+    /// <summary>The folder every style and touch-target check scans: the whole project.</summary>
+    internal static readonly string UiFolder = RepoFiles.PathOf("src", "WorkoutLog.UI");
 
     // This app's component styles; its tokens.css is where literals belong.
     private static IEnumerable<TestCaseData> StyleFiles() =>
         RepoFiles.Find("*.css", "src", "WorkoutLog.UI")
             .Where(f => Path.GetFileName(f) != "tokens.css")
             .Select(f => new TestCaseData(File.ReadAllText(f), Path.GetFileName(f)).SetArgDisplayNames(Path.GetFileName(f)));
+
+    [Test]
+    public void Checks_CoverTheWholeProject_NotJustScreens()
+    {
+        var css = RepoFiles.Find("*.css", "src", "WorkoutLog.UI").Select(f => Path.GetRelativePath(UiFolder, f).Replace('\\', '/')).ToList();
+
+        Assert.That(css, Does.Contain("Components/Charts/Chart.razor.css").And.Contain("Screens/ExerciseView.razor.css"));
+    }
 
     [Test]
     public void Css_HasNoLiteralColoursOrSizes()

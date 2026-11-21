@@ -1,3 +1,4 @@
+using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.Components;
 using Shields.UI.Testing;
 
@@ -7,16 +8,20 @@ namespace WorkoutLog.UI.Tests.DesignSystem;
 /// A general component or token belongs in the Shields.UI kit (app-ui-kit), not in this app. These tests fail when the app declares
 /// a component or a custom property under the same name as one the kit has, so a local copy cannot creep back in.
 /// </summary>
-public class KitDuplicateTests
+public partial class KitDuplicateTests
 {
     private static readonly string[] AppProjects = ["WorkoutLog.UI", "WorkoutLog.App"];
 
     [Test]
     public void AppComponents_DoNotShareANameWithAKitComponent()
     {
-        var appComponents = AppProjects.SelectMany(project => RepoFiles.Find("*.razor", "src", project));
+        Assert.That(Shared(AppComponentNames(), KitComponents()), Is.Empty, "move the component to app-ui-kit or rename it");
+    }
 
-        Assert.That(Shared(ComponentNames(appComponents), KitComponents()), Is.Empty, "move the component to app-ui-kit or rename it");
+    [Test]
+    public void AppComponentNames_CoverBothProjectsAndBothKindsOfComponent()
+    {
+        Assert.That(AppComponentNames(), Is.SupersetOf(new[] { "Chart", "Routes", "SystemBarInsets" }));
     }
 
     [Test]
@@ -60,6 +65,13 @@ public class KitDuplicateTests
     private static string[] Shared(IEnumerable<string> app, IEnumerable<string> kit) =>
         app.Intersect(kit).Order().ToArray();
 
+    // A *.razor file, or a C# class deriving ComponentBase, in either project.
+    private static IReadOnlySet<string> AppComponentNames() =>
+        ComponentNames(AppProjects.SelectMany(project => RepoFiles.Find("*.razor", "src", project)))
+            .Concat(AppProjects.SelectMany(project => RepoFiles.Find("*.cs", "src", project))
+                .SelectMany(file => ComponentClass().Matches(File.ReadAllText(file)).Select(m => m.Groups[1].Value)))
+            .ToHashSet();
+
     private static IEnumerable<string> ComponentNames(IEnumerable<string> razorFiles) =>
         razorFiles.Select(Path.GetFileNameWithoutExtension)!;
 
@@ -70,4 +82,7 @@ public class KitDuplicateTests
             .ToHashSet();
 
     private static string TypeName(Type type) => type.Name.Split('`')[0];
+
+    [GeneratedRegex(@"\bclass\s+(\w+)\s*:\s*ComponentBase\b")]
+    private static partial Regex ComponentClass();
 }
