@@ -20,7 +20,7 @@ Colour is never the only sign: the tick, the dashed or solid outline, the ring a
 - `data-testid`: `TestId`, and as a prefix: `{TestId}-monday` to `{TestId}-sunday`.
 
 ## `WeekTiles`
-Three kit `StatTile`s in a row: Workouts, Time (e.g. *2h 35m*) and Sets, each with its change on last week from Monday to the same weekday: an increase is the Up `Icon` and the difference in `--color-success`, a decrease the Down `Icon` and the difference in `--color-error`, no change a muted "—". Screen readers hear "up 35m", "down 1" or "no change". Time is compared in whole minutes. Under the tiles: "Against Monday to Wednesday last week" (on a Monday, "Against Monday last week").
+Three kit `StatTile`s in a row: Workouts, Time (e.g. *2h 35m*) and Sets, each with its change on last week from Monday to the same weekday: an increase is the Up `Icon` and the difference, a decrease the Down `Icon` and the difference, both muted (the arrow gives the direction), no change a muted "—". Screen readers hear "up 35m", "down 1" or "no change". Time is compared in whole minutes. Under the tiles: "Against Monday to Wednesday last week" (on a Monday, "Against Monday last week").
 - `data-testid`: `TestId`, and as a prefix: `{TestId}-workouts`, `{TestId}-time`, `{TestId}-sets` (each tile with `-value`, `-label`, `-caption` and `-change` parts), `{TestId}-against`.
 
 ## `WeekWorkoutsCard`

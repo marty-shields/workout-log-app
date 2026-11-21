@@ -49,6 +49,7 @@ public class LongestStreakCardTests : ComponentTestBase
         Assert.Multiple(() =>
         {
             Assert.That(cut.Find("div.card").GetAttribute("data-testid"), Is.EqualTo("streak"));
+            Assert.That(cut.Find("div.card").ClassList, Does.Not.Contain("compact"), "the single row keeps the kit's normal padding");
             Assert.That(cut.FindAll("h2"), Is.Empty);
         });
     }

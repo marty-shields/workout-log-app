@@ -339,7 +339,7 @@ public sealed partial class WorkoutScreen(WebView web, Native native)
     {
         const string script = """
             return [...document.querySelectorAll('.card[data-testid^="exercise-"]')]
-                .map(s => [s.getAttribute('data-testid'), s.querySelector('.name').textContent.trim()]);
+                .map(s => [s.getAttribute('data-testid'), s.querySelector('.header .title').textContent.trim()]);
             """;
         var cards = web.List(script);
         return cards.Cast<ReadOnlyCollection<object>>().Select(c => ((string)c[0], (string)c[1]));

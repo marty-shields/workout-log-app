@@ -910,6 +910,21 @@ public class ExerciseCardTests : ComponentTestBase
     }
 
     [Test]
+    public void Done_RendersNoBodyBelowTheHeader_UnlessItHasAnError()
+    {
+        var exercise = Strength(1);
+        exercise.IsDone = true;
+        var cut = Context.Render<ExerciseCard>(p => p.Add(x => x.Exercise, exercise).Add(x => x.TestId, "exercise-1"));
+
+        Assert.That(cut.FindAll(".body"), Is.Empty);
+
+        exercise.Error = "Add at least one set";
+        cut.Render();
+
+        Assert.That(cut.Find("[data-testid=exercise-1-error]").TextContent, Does.Contain("Add at least one set"));
+    }
+
+    [Test]
     public void Done_ChecksTheWholeExercise()
     {
         var exercise = Strength(1);

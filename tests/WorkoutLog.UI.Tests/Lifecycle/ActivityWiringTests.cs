@@ -25,6 +25,8 @@ public class ActivityWiringTests
     [TestCase("Platforms/Android/MainActivity.cs", "backBridge.Detach(this);")]
     [TestCase("Platforms/Android/MainActivity.cs", "lifecycleBridge.Detach(this);")]
     [TestCase("Platforms/Android/MainActivity.cs", "backCallback.Enabled = backBridge.Enabled")]
+    [TestCase("Platforms/Android/MainActivity.cs", "OnBackPressedDispatcher.AddCallback(this, backCallback);")]
+    [TestCase("Platforms/Android/MainActivity.cs", "if (bridge.HandleAsync() is null) { Enabled = false; activity.OnBackPressedDispatcher.OnBackPressed(); }")]
     [TestCase("Components/Routes.razor", "<HostBridges />")]
     [TestCase("Components/Routes.razor", "<StartupGateInitialize=\"InitializeAsync\"")]
     [TestCase("Components/Routes.razor", "<AppErrorBoundaryTitle=\"WorkoutLog\"OnRestart=\"()=>Navigation.GoTo(string.Empty)\">")]
