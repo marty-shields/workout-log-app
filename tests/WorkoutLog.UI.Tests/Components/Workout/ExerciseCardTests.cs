@@ -1394,11 +1394,28 @@ public class ExerciseCardTests : ComponentTestBase
 
         Assert.Multiple(() =>
         {
-            Assert.That(cut.FindAll(".set-header span").Select(s => s.TextContent), Is.EqualTo(new[] { "Set", "Last", "Reps\u00a0*", "Weight (kg)", "" }));
+            Assert.That(cut.FindAll(".set-header span").Select(s => s.TextContent), Is.EqualTo(new[] { "Set", "Last", "Reps\u00a0*", "Weight", "" }));
             Assert.That(LastColumn(cut), Is.EqualTo(new[] { "Last time 62.5×6" }));
             Assert.That(cut.Find("[data-testid=exercise-1-set-3-last]").TextContent, Is.EqualTo("Last time 62.5×6"));
             Assert.That(cut.Find(".set-header").GetAttribute("style"),
                 Is.EqualTo("grid-template-columns: var(--set-number-width) var(--set-last-width) minmax(0, 2fr) minmax(0, 3fr) var(--touch-target)"));
+        });
+    }
+
+    [Test]
+    public void LastTime_HeaderDropsTheUnitToFitButTheFieldStillNamesIt()
+    {
+        var exercise = Strength(1);
+        exercise.LastTime = new LastTime(["60×8"]);
+
+        var cut = Context.Render<ExerciseCard>(p => p
+            .Add(x => x.Exercise, exercise)
+            .Add(x => x.TestId, "exercise-1"));
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.Find(".set-header").GetAttribute("aria-hidden"), Is.EqualTo("true"));
+            Assert.That(cut.FindAll(".label").Select(l => TestText.Normalise(l.TextContent)), Has.Member("Weight (kg)"));
         });
     }
 
@@ -1525,7 +1542,7 @@ public class ExerciseCardTests : ComponentTestBase
 
         Assert.Multiple(() =>
         {
-            Assert.That(cut.FindAll(".set-header span").Select(s => s.TextContent), Is.EqualTo(new[] { "Set", "Duration\u00a0*", "Weight (kg)", "" }));
+            Assert.That(cut.FindAll(".set-header span").Select(s => s.TextContent), Is.EqualTo(new[] { "Set", "Duration\u00a0*", "Weight", "" }));
             Assert.That(cut.Find(".set-header").GetAttribute("style"),
                 Is.EqualTo("grid-template-columns: var(--set-number-width) minmax(0, 2fr) minmax(0, 1fr) var(--touch-target)"));
             Assert.That(cut.FindAll(".set-row .last"), Is.Empty);
@@ -1546,7 +1563,7 @@ public class ExerciseCardTests : ComponentTestBase
         Assert.Multiple(() =>
         {
             Assert.That(cut.FindAll(".last, .last-line"), Is.Empty);
-            Assert.That(cut.FindAll(".set-header span").Select(s => s.TextContent), Is.EqualTo(new[] { "Set", "Duration\u00a0*", "Weight (kg)", "" }));
+            Assert.That(cut.FindAll(".set-header span").Select(s => s.TextContent), Is.EqualTo(new[] { "Set", "Duration\u00a0*", "Weight", "" }));
         });
     }
 

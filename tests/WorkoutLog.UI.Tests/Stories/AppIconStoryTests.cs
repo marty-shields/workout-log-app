@@ -1,10 +1,11 @@
 using System.Text;
+using System.Text.RegularExpressions;
 using Shields.UI.Stories.Shared;
 using WorkoutLog.UI.Stories.Stories.Foundations;
 
 namespace WorkoutLog.UI.Tests.Stories;
 
-public class AppIconStoryTests : ComponentTestBase
+public partial class AppIconStoryTests : ComponentTestBase
 {
     private const string DataUri = "data:image/svg+xml;base64,";
 
@@ -32,6 +33,30 @@ public class AppIconStoryTests : ComponentTestBase
         });
     }
 
+    [Test]
+    public void StoryTemplate_PassesEachFieldToTheSheetParameterOfTheSameName()
+    {
+        var story = RepoFiles.Read("src", "WorkoutLog.UI.Stories", "Stories", "Foundations", "AppIcon.stories.razor");
+
+        var sheet = Sheet().Match(story).Groups[1].Value;
+        var passed = Parameter().Matches(sheet).ToDictionary(m => m.Groups[1].Value, m => m.Groups[2].Value);
+
+        Assert.That(passed, Is.EqualTo(new Dictionary<string, string>
+        {
+            ["Background"] = "Background",
+            ["Foreground"] = "Foreground",
+            ["Monochrome"] = "Monochrome",
+            ["SplashLight"] = "SplashLight",
+            ["SplashDark"] = "SplashDark",
+        }));
+    }
+
     private static string Uri(string folder, string file) =>
         DataUri + Convert.ToBase64String(Encoding.UTF8.GetBytes(RepoFiles.Read("src", "WorkoutLog.App", "Resources", folder, file)));
+
+    [GeneratedRegex(@"<AppIconSheet\s([^>]*)/>")]
+    private static partial Regex Sheet();
+
+    [GeneratedRegex(@"(\w+)=""@(\w+)""")]
+    private static partial Regex Parameter();
 }

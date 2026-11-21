@@ -138,11 +138,11 @@ Feature: This week
       | Core      | Not trained |
 
   Scenario: + opens a new workout
-    When I tap + in the tab bar
+    When I tap + in the bottom nav
     Then I am on New Workout
 
-  Scenario: Trends in the tab bar opens Trends
-    When I tap Trends in the tab bar
+  Scenario: Trends in the bottom nav opens Trends
+    When I tap Trends in the bottom nav
     Then I am on Trends
 
   Scenario: The Last week row opens last week in Trends
@@ -154,7 +154,7 @@ Feature: This week
     And Trends is on the Week view
     And Trends is on an earlier period
     And Trends counts 1 workout
-    When I tap This week in the tab bar
+    When I tap This week in the bottom nav
     Then I am on This week
 
   @today

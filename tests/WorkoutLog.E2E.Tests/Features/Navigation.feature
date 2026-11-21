@@ -1,20 +1,20 @@
 Feature: Navigation
-  The tab bar has This week, + and Trends. Android back does what the on-screen back or Cancel does, and a screen returns to where it was opened from.
+  The bottom nav has This week, + and Trends. Android back does what the on-screen back or Cancel does, and a screen returns to where it was opened from.
 
-  Scenario: The tab bar has This week, + and Trends
+  Scenario: The bottom nav has This week, + and Trends
     Given I am on This week
-    Then I can open Trends and start a New Workout from the tab bar
+    Then I can open Trends and start a New Workout from the bottom nav
 
-  Scenario: The tab bar switches between This week and Trends
+  Scenario: The bottom nav switches between This week and Trends
     Given I am on This week
-    When I tap Trends in the tab bar
+    When I tap Trends in the bottom nav
     Then I am on Trends
-    When I tap This week in the tab bar
+    When I tap This week in the bottom nav
     Then I am on This week
 
   Scenario Outline: + starts a new workout from either tab
     Given I am on <tab>
-    When I tap + in the tab bar
+    When I tap + in the bottom nav
     Then I am on New Workout
     Examples:
       | tab       |
@@ -55,15 +55,15 @@ Feature: Navigation
     When I open the app again
     Then I am on This week
 
-  Scenario Outline: Workouts has a back arrow and no tab bar, and back returns to Trends
+  Scenario Outline: Workouts has a back arrow and no bottom nav, and back returns to Trends
     Given these saved workouts:
       | started         | exercises             |
       | yesterday 18:05 | Push-up: 10 reps 0 kg |
     And I have opened Workouts
-    Then the tab bar is hidden
+    Then the bottom nav is hidden
     When I go back from Workouts with <how>
     Then I am on Trends
-    And the tab bar is shown
+    And the bottom nav is shown
     Examples:
       | how            |
       | the back arrow |

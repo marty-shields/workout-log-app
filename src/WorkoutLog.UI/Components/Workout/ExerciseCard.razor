@@ -73,15 +73,17 @@
                         }
                         else
                         {
-                            <div class="set-header" style="grid-template-columns: @SetGrid.Columns(Exercise.Fields, Exercise.LastTime is not null)" aria-hidden="true">
-                                <span data-wrap-ok>Set</span>
-                                @if (SetGrid.LastColumn(Exercise.Fields, Exercise.LastTime is not null))
+                            var hasLast = Exercise.LastTime is not null;
+                            var shortHeaders = SetGrid.ShortHeaders(Exercise.Fields, hasLast);
+                            <div class="set-header" style="grid-template-columns: @SetGrid.Columns(Exercise.Fields, hasLast)" aria-hidden="true">
+                                <span>Set</span>
+                                @if (SetGrid.LastColumn(Exercise.Fields, hasLast))
                                 {
-                                    <span data-wrap-ok>Last</span>
+                                    <span>Last</span>
                                 }
                                 @foreach (var field in Exercise.Fields)
                                 {
-                                    <span data-wrap-ok>@field.DisplayLabel@(field.Required ? "\u00a0*" : null)</span>
+                                    <span>@(shortHeaders ? field.Label : field.DisplayLabel)@(field.Required ? "\u00a0*" : null)</span>
                                 }
                                 <span></span>
                             </div>

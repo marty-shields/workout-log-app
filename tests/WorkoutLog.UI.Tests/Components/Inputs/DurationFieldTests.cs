@@ -1,4 +1,6 @@
 using Microsoft.AspNetCore.Components.Web;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Time.Testing;
 using WorkoutLog.UI.Components.Inputs;
 
 namespace WorkoutLog.UI.Tests.Components.Inputs;
@@ -98,7 +100,9 @@ public class DurationFieldTests : ComponentTestBase
             .Add(x => x.Value, value)
             .Add(x => x.ValueChanged, (string? v) => raised = v));
 
-        await cut.Find(".field").FocusOutAsync(new FocusEventArgs());
+        var leaving = cut.Find(".field").FocusOutAsync(new FocusEventArgs());
+        PassFocusMoveWait();
+        await leaving;
 
         Assert.That(raised, Is.EqualTo(expected));
     }
@@ -113,7 +117,9 @@ public class DurationFieldTests : ComponentTestBase
             .Add(x => x.Value, value)
             .Add(x => x.ValueChanged, (string? _) => raised = true));
 
-        await cut.Find(".field").FocusOutAsync(new FocusEventArgs());
+        var leaving = cut.Find(".field").FocusOutAsync(new FocusEventArgs());
+        PassFocusMoveWait();
+        await leaving;
 
         Assert.That(raised, Is.False);
     }
@@ -129,6 +135,7 @@ public class DurationFieldTests : ComponentTestBase
 
         var leaving = cut.Find(".field").FocusOutAsync(new FocusEventArgs());
         await cut.Find(".field").FocusInAsync(new FocusEventArgs());
+        PassFocusMoveWait();
         await leaving;
 
         Assert.That(raised, Is.Null);
@@ -141,4 +148,7 @@ public class DurationFieldTests : ComponentTestBase
 
         Assert.That(cut.FindAll("input").Select(i => i.GetAttribute("inputmode")), Is.All.EqualTo("numeric"));
     }
+
+    // The component waits on the context's FakeTimeProvider, which only moves here, so no test depends on real time.
+    private void PassFocusMoveWait() => ((FakeTimeProvider)Context.Services.GetRequiredService<TimeProvider>()).Advance(TimeSpan.FromMilliseconds(10));
 }

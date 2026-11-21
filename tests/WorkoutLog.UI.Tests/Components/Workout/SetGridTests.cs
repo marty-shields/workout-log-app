@@ -24,6 +24,17 @@ public class SetGridTests
     }
 
     [Test]
+    public void ShortHeaders_AreForALastColumnOrADuration()
+    {
+        Assert.Multiple(() =>
+        {
+            Assert.That(SetGrid.ShortHeaders([Weight, Reps], false), Is.False);
+            Assert.That(SetGrid.ShortHeaders([Weight, Reps], true), Is.True);
+            Assert.That(SetGrid.ShortHeaders([Time, Weight], false), Is.True);
+        });
+    }
+
+    [Test]
     public void Columns_AreTheNumberOneColumnPerFieldAndTheRemoveButton()
     {
         Assert.Multiple(() =>
