@@ -451,6 +451,7 @@
         "dependencies": {
           "BlazingStory": "[1.0.0-preview.97, )",
           "Microsoft.AspNetCore.Components.WebAssembly": "[11.0.0, )",
+          "Shields.UI.Stories": "[1.0.0-pr.19.9, )",
           "WorkoutLog.UI": "[1.0.0, )"
         }
       },
@@ -510,6 +511,16 @@
         "contentHash": "xg/zZa7YC5zyoaBfnBBhjQUXGjseEVBcnsG9i3C5icklDXe9yx2O4PS+rkoV+IVVPYG/bzrPByamYbz16UH4mQ==",
         "dependencies": {
           "Microsoft.AspNetCore.Components.Web": "11.0.0"
+        }
+      },
+      "Shields.UI.Stories": {
+        "type": "CentralTransitive",
+        "requested": "[1.0.0-pr.19.9, )",
+        "resolved": "1.0.0-pr.19.9",
+        "contentHash": "KvwK5InX20+IyaNMl0l5Pf/PBzoGd6RRXimGFPHqNZa2gIMThNUIzhPbAdWToG71E7tYpg6YXAT0kXah+9WC6g==",
+        "dependencies": {
+          "BlazingStory": "1.0.0-preview.97",
+          "Shields.UI": "1.0.0-pr.19.9"
         }
       },
       "sqlite-net-pcl": {

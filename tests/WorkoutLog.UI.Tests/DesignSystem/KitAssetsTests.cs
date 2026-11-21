@@ -11,7 +11,13 @@ public partial class KitAssetsTests
         "_content/Shields.UI/css/base.css",
     ];
 
+    private const string KitTokens = "_content/Shields.UI/css/tokens.css";
+
     private const string AppTokens = "_content/WorkoutLog.UI/css/tokens.css";
+
+    private const string StoriesCss = "_content/Shields.UI.Stories/css/blazor-ui.css";
+
+    private const string StoriesTokens = "_content/Shields.UI.Stories/css/tokens.css";
 
     private static IEnumerable<TestCaseData> Pages() =>
     [
@@ -19,12 +25,41 @@ public partial class KitAssetsTests
         new TestCaseData(RepoFiles.Read("src", "WorkoutLog.UI.Stories", "wwwroot", "iframe.html")).SetArgDisplayNames("Stories iframe.html"),
     ];
 
+    private static IEnumerable<string> Loaded(string html) =>
+        Asset().Matches(html).Select(m => m.Groups[1].Value).Where(url => url.StartsWith("_content/", StringComparison.Ordinal));
+
     [TestCaseSource(nameof(Pages))]
     public void Page_LoadsTheKitsThemeTokensAndBaseBeforeTheAppTokens(string html)
     {
-        var loaded = Asset().Matches(html).Select(m => m.Groups[1].Value).Where(url => url.StartsWith("_content/", StringComparison.Ordinal)).ToList();
+        var loaded = Loaded(html).Where(url => url != StoriesCss && url != StoriesTokens).ToList();
 
         Assert.That(loaded, Is.EqualTo(KitHead.Append(AppTokens)));
+    }
+
+    [Test]
+    public void AppIndex_LoadsNoStoriesShellAsset()
+    {
+        var loaded = Loaded(RepoFiles.Read("src", "WorkoutLog.App", "wwwroot", "index.html"));
+
+        Assert.That(loaded, Has.None.StartsWith("_content/Shields.UI.Stories/"));
+    }
+
+    [Test]
+    public void StoriesIframe_LoadsTheStoriesShellCssAndItsTokensAfterTheKitsTokens()
+    {
+        var loaded = Loaded(RepoFiles.Read("src", "WorkoutLog.UI.Stories", "wwwroot", "iframe.html")).ToList();
+
+        Assert.That(loaded.IndexOf(StoriesCss), Is.GreaterThanOrEqualTo(0));
+        Assert.That(loaded.IndexOf(StoriesTokens), Is.GreaterThan(loaded.IndexOf("_content/Shields.UI/css/tokens.css")));
+    }
+
+    [Test]
+    public void StoriesIndex_LoadsTheStoriesShellCssAndItsTokensAfterTheKitsTokens()
+    {
+        var loaded = Loaded(RepoFiles.Read("src", "WorkoutLog.UI.Stories", "wwwroot", "index.html")).ToList();
+
+        Assert.That(loaded, Is.SupersetOf(new[] { StoriesCss, StoriesTokens, KitTokens }));
+        Assert.That(loaded.IndexOf(StoriesTokens), Is.GreaterThan(loaded.IndexOf(KitTokens)));
     }
 
     [TestCaseSource(nameof(Pages))]

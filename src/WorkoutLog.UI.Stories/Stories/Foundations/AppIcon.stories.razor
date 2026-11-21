@@ -4,8 +4,34 @@
 
     <Story Name="Icon and splash">
         <Template>
-            <AppIconSheet />
+            <AppIconSheet Background="@Background"
+                          Foreground="@Foreground"
+                          Monochrome="@Monochrome"
+                          SplashLight="@SplashLight"
+                          SplashDark="@SplashDark" />
         </Template>
     </Story>
 
 </Stories>
+
+@code {
+    // The App's SVG, embedded by this project, as a data URI.
+    public static readonly string Background = Art("appicon.svg");
+
+    public static readonly string Foreground = Art("appiconfg.svg");
+
+    public static readonly string Monochrome = Art("appicon_monochrome.svg");
+
+    public static readonly string SplashLight = Art("splash.svg");
+
+    // The dark splash shows the icon's foreground, whose shadow suits a dark background.
+    public static readonly string SplashDark = Art("appiconfg.svg");
+
+    private static string Art(string file)
+    {
+        using var stream = typeof(App).Assembly.GetManifestResourceStream($"brand.{file}")!;
+        using var memory = new MemoryStream();
+        stream.CopyTo(memory);
+        return $"data:image/svg+xml;base64,{Convert.ToBase64String(memory.ToArray())}";
+    }
+}
