@@ -11,50 +11,24 @@ namespace WorkoutLog.App.Navigation;
 /// </summary>
 internal sealed class AndroidBackButton
 {
-    private ComponentActivity? current;
+    private readonly BackButtonLink link;
     private Callback? callback;
-    private IBackButton? backButton;
+
+    public AndroidBackButton() => link = new BackButtonLink(Update);
 
     /// <summary>Adds the back callback to a created activity, which replaces any earlier one.</summary>
     public void Attach(ComponentActivity activity)
     {
-        current = activity;
         callback = new Callback(this, activity.OnBackPressedDispatcher);
         activity.OnBackPressedDispatcher.AddCallback(activity, callback);
-        backButton?.Attach(activity);
-        Update();
+        link.Attach(activity);
     }
 
     /// <summary>Follows the page's back button, which replaces any earlier one, and attaches it to the current activity.</summary>
-    public void Connect(IBackButton scoped)
-    {
-        if (backButton is not null)
-        {
-            backButton.Changed -= Update;
-        }
-
-        backButton = scoped;
-        scoped.Changed += Update;
-        if (current is not null)
-        {
-            scoped.Attach(current);
-        }
-
-        Update();
-    }
+    public void Connect(IBackButton scoped) => link.Connect(scoped);
 
     /// <summary>Stops following the back button when its page is disposed. A back button that is not the connected one is ignored.</summary>
-    public void Disconnect(IBackButton scoped)
-    {
-        if (!ReferenceEquals(scoped, backButton))
-        {
-            return;
-        }
-
-        scoped.Changed -= Update;
-        backButton = null;
-        Update();
-    }
+    public void Disconnect(IBackButton scoped) => link.Disconnect(scoped);
 
     /// <summary>
     /// Removes the handlers when the current activity is destroyed: its pages are not disposed with it.
@@ -62,21 +36,17 @@ internal sealed class AndroidBackButton
     /// </summary>
     public void Detach(Android.App.Activity activity)
     {
-        if (!ReferenceEquals(activity, current))
+        if (link.Detach(activity))
         {
-            return;
+            callback = null;
         }
-
-        current = null;
-        callback = null;
-        backButton?.Detach(activity);
     }
 
     private void Update() => MainThread.BeginInvokeOnMainThread(() =>
     {
         if (callback is not null)
         {
-            callback.Enabled = backButton?.HasHandler ?? false;
+            callback.Enabled = link.Enabled;
         }
     });
 
@@ -85,9 +55,8 @@ internal sealed class AndroidBackButton
         // The handler can be removed between the gesture starting and back being pressed; Android then handles it.
         public override void HandleOnBackPressed()
         {
-            if (owner.backButton is { HasHandler: true } backButton)
+            if (owner.link.TryHandle())
             {
-                _ = backButton.HandleAsync();
                 return;
             }
 

@@ -4,7 +4,7 @@ namespace WorkoutLog.App.Lifecycle;
 
 /// <summary>
 /// Passes the activity's create, start and destroy to the kit's <see cref="IAppLifecycle"/>, which runs the pages' app start handlers.
-/// The lifecycle is scoped to the BlazorWebView, so <see cref="Components.ActivityBridge"/> hands it over with <see cref="Connect"/>
+/// The lifecycle is scoped to the BlazorWebView, so <c>ActivityBridge</c> hands it over with <see cref="Connect"/>
 /// once the page exists, which is after the activity is created and started.
 /// </summary>
 internal sealed class AndroidAppLifecycle

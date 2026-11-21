@@ -23,19 +23,41 @@ public class ActivityWiringTests
     [TestCase("MauiProgram.cs", ".OnResume(activity => { if (activity is MainActivity) { KeyboardRestore().Resumed(activity); } })")]
     [TestCase("MauiProgram.cs", ".OnDestroy(activity => KeyboardRestore().Detach(activity))")]
     [TestCase("MauiProgram.cs", "builder.Services.AddSingleton<AndroidAppLifecycle>();")]
-    [TestCase("Navigation/AndroidBackButton.cs", "backButton?.Attach(activity);")]
-    [TestCase("Navigation/AndroidBackButton.cs", "scoped.Attach(current);")]
-    [TestCase("Navigation/AndroidBackButton.cs", "backButton?.Detach(activity);")]
+    [TestCase("Navigation/BackButtonLink.cs", "backButton?.Attach(activity);")]
+    [TestCase("Navigation/BackButtonLink.cs", "scoped.Attach(current);")]
+    [TestCase("Navigation/BackButtonLink.cs", "backButton.Changed -= update;")]
+    [TestCase("Navigation/BackButtonLink.cs", "backButton?.Detach(activity);")]
     [TestCase("Lifecycle/AndroidAppLifecycle.cs", "lifecycle?.Attach(activity);")]
     [TestCase("Lifecycle/AndroidAppLifecycle.cs", "scoped.Attach(current);")]
     [TestCase("Lifecycle/AndroidAppLifecycle.cs", "lifecycle?.Detach(activity);")]
     [TestCase("Components/ActivityBridge.cs", "AndroidBackButton.Connect(BackButton);")]
     [TestCase("Components/ActivityBridge.cs", "AndroidLifecycle.Connect(Lifecycle);")]
+    [TestCase("Components/ActivityBridge.cs", "AndroidBackButton.Disconnect(BackButton);")]
+    [TestCase("Components/ActivityBridge.cs", "AndroidLifecycle.Disconnect(Lifecycle);")]
     [TestCase("Components/Routes.razor", "<ActivityBridge />")]
+    [TestCase("Components/Routes.razor", "<StartupGateInitialize=\"InitializeAsync\"")]
+    [TestCase("Components/Routes.razor", "<AppErrorBoundaryTitle=\"WorkoutLog\"OnRestart=\"()=>Navigation.GoTo(string.Empty)\">")]
+    [TestCase("Components/Routes.razor", "<Router")]
     [TestCase("Diagnostics/AndroidDiagnostics.cs", "public void ActivityStarted() => Log.ActivityStarted(logger);")]
     [TestCase("Diagnostics/AndroidDiagnostics.cs", "[LoggerMessage((int)AppEvent.ActivityStarted, LogLevel.Information, \"Activity started\")]")]
     public void App_PassesTheActivityLifecycle(string file, string code) =>
         Assert.That(WithoutWhitespace(RepoFiles.Read(["src", "WorkoutLog.App", .. file.Split('/')])), Does.Contain(WithoutWhitespace(code)));
+
+    [Test]
+    public void Routes_PutsTheActivityBridgeBeforeTheStartupGate() =>
+        Assert.That(PositionsInRoutes("<ActivityBridge />", "<StartupGate"), Is.Ordered.And.Unique.And.All.GreaterThanOrEqualTo(0));
+
+    [Test]
+    public void Routes_WrapsTheRouterInTheErrorBoundaryInTheStartupGate() =>
+        Assert.That(
+            PositionsInRoutes("<StartupGate", "<AppErrorBoundary", "<Router", "</Router>", "</AppErrorBoundary>", "</StartupGate>"),
+            Is.Ordered.And.Unique.And.All.GreaterThanOrEqualTo(0));
+
+    private static int[] PositionsInRoutes(params string[] tags)
+    {
+        var routes = WithoutWhitespace(RepoFiles.Read("src", "WorkoutLog.App", "Components", "Routes.razor"));
+        return [.. tags.Select(tag => routes.IndexOf(WithoutWhitespace(tag), StringComparison.Ordinal))];
+    }
 
     private static string WithoutWhitespace(string text) => string.Concat(text.Where(c => !char.IsWhiteSpace(c)));
 }
