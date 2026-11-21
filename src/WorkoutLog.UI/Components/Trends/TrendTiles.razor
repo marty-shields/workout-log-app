@@ -2,29 +2,10 @@
 @using WorkoutLog.UI.Components.Weekly
 <section class="tiles" data-testid="@TestId">
     <div class="grid">
-        <div class="tile" data-testid="@(TestId is null ? null : $"{TestId}-workouts")">
-            <span class="label">Workouts</span>
-            <span class="value">@Totals.Workouts</span>
-            <span class="change" data-testid="@(TestId is null ? null : $"{TestId}-workouts-change")"><WeekChange Difference="Totals.Workouts - Earlier.Workouts" Format="WeekMetric.Count" /></span>
-        </div>
-        <div class="tile" data-testid="@(TestId is null ? null : $"{TestId}-time")">
-            <span class="label">Time</span>
-            <span class="value">@DisplayFormat.Minutes((int)Totals.Time.TotalMinutes)</span>
-            <span class="change" data-testid="@(TestId is null ? null : $"{TestId}-time-change")"><WeekChange Difference="(int)Totals.Time.TotalMinutes - (int)Earlier.Time.TotalMinutes" Format="DisplayFormat.Minutes" /></span>
-        </div>
-        <div class="tile" data-testid="@(TestId is null ? null : $"{TestId}-sets")">
-            <span class="label">Sets</span>
-            <span class="value">@Totals.Sets</span>
-            <span class="change" data-testid="@(TestId is null ? null : $"{TestId}-sets-change")"><WeekChange Difference="Totals.Sets - Earlier.Sets" Format="WeekMetric.Count" /></span>
-        </div>
-        <div class="tile" data-testid="@(TestId is null ? null : $"{TestId}-volume")">
-            <span class="label">Volume</span>
-            <span class="value">@DisplayFormat.Volume(Totals.VolumeKg, Kind)</span>
-            <span class="change" data-testid="@(TestId is null ? null : $"{TestId}-volume-change")">
-                <WeekChange Difference="VolumeDirection" Format="VolumeChange" />
-                <span class="strength">strength</span>
-            </span>
-        </div>
+        <StatTile Label="Workouts" Value="@WeekMetric.Count(Totals.Workouts)" Change="WeekMetric.Change(Totals.Workouts - Earlier.Workouts, WeekMetric.Count)" TestId="@Id("workouts")" />
+        <StatTile Label="Time" Value="@DisplayFormat.Minutes(Minutes(Totals))" Change="WeekMetric.Change(Minutes(Totals) - Minutes(Earlier), DisplayFormat.Minutes)" TestId="@Id("time")" />
+        <StatTile Label="Sets" Value="@WeekMetric.Count(Totals.Sets)" Change="WeekMetric.Change(Totals.Sets - Earlier.Sets, WeekMetric.Count)" TestId="@Id("sets")" />
+        <StatTile Label="Volume" Value="@DisplayFormat.Volume(Totals.VolumeKg, Kind)" Change="WeekMetric.Change(VolumeDirection, VolumeChange)" Caption="strength" TestId="@Id("volume")" />
     </div>
     <p class="against" data-testid="@(TestId is null ? null : $"{TestId}-against")">@Against</p>
 </section>
@@ -49,6 +30,10 @@
     /// <summary>Value of the data-testid attribute, and the prefix of its parts': <c>{TestId}-workouts</c>, <c>-time</c>, <c>-sets</c>, <c>-volume</c> (each with <c>-change</c>), <c>{TestId}-against</c>.</summary>
     [Parameter]
     public string? TestId { get; set; }
+
+    private static int Minutes(TrendTotals totals) => (int)totals.Time.TotalMinutes;
+
+    private string? Id(string part) => TestId is null ? null : $"{TestId}-{part}";
 
     /// <summary>Which way the volume moved as the tile shows it: 0 when the figure shown rounds to nothing, so no arrow sits beside "0 t" or "0%".</summary>
     private int VolumeDirection

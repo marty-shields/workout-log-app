@@ -17,7 +17,8 @@ public class TrendBarsTests : ComponentTestBase
             Assert.That(monday[0].ClassList, Does.Contain("past"));
             Assert.That(monday[1].ClassList, Does.Contain("now"));
             Assert.That(double.Parse(monday[0].GetAttribute("x")!), Is.LessThan(double.Parse(monday[1].GetAttribute("x")!)));
-            Assert.That(cut.FindAll("[data-testid=bars-legend] li").Select(li => li.TextContent), Is.EqualTo(new[] { "This week", "Last week" }));
+            Assert.That(cut.FindAll("[data-testid=bars-legend] li").Select(li => li.QuerySelector(".text")!.TextContent), Is.EqualTo(new[] { "This week", "Last week" }));
+            Assert.That(cut.FindAll("[data-testid=bars-legend] .swatch").Select(s => s.ClassList.Last()), Is.EqualTo(new[] { "accent", "chip" }));
         });
     }
 

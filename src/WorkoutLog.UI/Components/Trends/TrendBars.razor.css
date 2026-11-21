@@ -5,38 +5,6 @@
     margin: 0;
 }
 
-.legend {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--space-4);
-    margin: 0 0 var(--space-2);
-    padding: 0;
-    color: var(--color-text-muted);
-    font-size: var(--font-size-sm);
-    list-style: none;
-}
-
-.legend li {
-    display: inline-flex;
-    align-items: center;
-    gap: var(--space-1);
-}
-
-.swatch {
-    display: inline-block;
-    width: var(--legend-swatch-size);
-    height: var(--legend-swatch-size);
-    border-radius: var(--radius-sm);
-}
-
-.swatch.now {
-    background-color: var(--color-accent);
-}
-
-.swatch.past {
-    background-color: var(--color-bar-past);
-}
-
 .plot {
     position: relative;
     padding-top: var(--space-4);

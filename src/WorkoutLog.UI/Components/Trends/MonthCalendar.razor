@@ -32,11 +32,7 @@
             </li>
         }
     </ul>
-    <ul class="legend">
-        <li><i class="swatch trained" aria-hidden="true"></i>Trained</li>
-        <li><i class="swatch rest" aria-hidden="true"></i>No workout</li>
-        <li><i class="swatch ring" aria-hidden="true"></i>Today</li>
-    </ul>
+    <ChartLegend Items="Legend" TestId="@(TestId is null ? null : $"{TestId}-legend")" />
 </div>
 
 @code {
@@ -56,9 +52,16 @@
     [Parameter]
     public EventCallback<DateOnly> OnOpenDay { get; set; }
 
-    /// <summary>Value of the data-testid attribute, and the prefix of each day's: <c>{TestId}-1</c> to <c>{TestId}-31</c>, and <c>{TestId}-1-open</c> on the button of a tappable day.</summary>
+    /// <summary>Value of the data-testid attribute, and the prefix of each day's: <c>{TestId}-1</c> to <c>{TestId}-31</c>, <c>{TestId}-1-open</c> on the button of a tappable day, and <c>{TestId}-legend</c>.</summary>
     [Parameter]
     public string? TestId { get; set; }
+
+    private static readonly IReadOnlyList<LegendItem> Legend =
+    [
+        new(LegendSwatch.Accent, "Trained"),
+        new(LegendSwatch.Outline, "No workout"),
+        new(LegendSwatch.Outline, "Today", "◯"),
+    ];
 
     /// <summary>The grid column of the 1st: Monday is 1.</summary>
     private static int Column(DateOnly date) => ((int)date.DayOfWeek + 6) % 7 + 1;
