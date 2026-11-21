@@ -4,7 +4,7 @@ $attribute: CustomPage(StoryTitles.Prefix + "/Screens/This week/Overview")
 
 # This week
 
-Home screen: how the week is going. Which days you trained, how it compares with last week, what you did, which records fell and which muscles you worked; start a workout with + and switch to Trends from the tab bar, or open Settings. View: `ThisWeekView`; page: `ThisWeekPage`. Design: [docs/design/this-week-and-trends.html](https://github.com/marty-shields/workout-log-app/blob/main/docs/design/this-week-and-trends.html).
+Home screen: how the week is going. Which days you trained, how it compares with last week, what you did, which records fell and which muscles you worked; start a workout with + and switch to Trends from the bottom nav, or open Settings. View: `ThisWeekView`; page: `ThisWeekPage`. Design: [docs/design/this-week-and-trends.html](https://github.com/marty-shields/workout-log-app/blob/main/docs/design/this-week-and-trends.html).
 
 | Part | Content |
 |---|---|
@@ -17,8 +17,8 @@ Home screen: how the week is going. Which days you trained, how it compares with
 | Sets per muscle group | A `MuscleSetsCard`: Monday to today. |
 | Last week | A `LastWeekCard`, only while nothing is logged this week and last week is known. |
 | Records failed | The same week with its Records card left out, because the records could not be read. |
-| Loading | `Spinner` "Loading…" instead of the week. The top bar and tab bar work. |
-| Load failed | Error "Couldn't load This week" and the kit's `LoadFailed` **Try again** button instead of the week. Focus moves to Try again. The top bar and tab bar work. |
+| Loading | `Spinner` "Loading…" instead of the week. The top bar and bottom nav work. |
+| Load failed | Error "Couldn't load This week" and the kit's `LoadFailed` **Try again** button instead of the week. Focus moves to Try again. The top bar and bottom nav work. |
 | Bottom navigation | The kit's `BottomNav` with This week current, through `AppScreen`'s `NavItems` (from `MainTabs`): Trends opens [Trends](./?path=/custom/workout-log-screens-trends-overview), + opens [New Workout](./?path=/custom/workout-log-screens-new-workout-overview) (`/workout/new?from=this-week`, so discarding it returns here). |
 
 The parts run top to bottom in that order. With no workouts this week the Records and muscle group cards are left out: the workouts card says "Nothing yet this week. Tap + to start one.", the tiles show zeros against last week, and a Last week row shows last week's workouts, time and sets. The row shows only when last week had a workout, so before the first workout ever there is none. Tapping it opens last week in [Trends](./?path=/custom/workout-log-screens-trends-overview) (`OnOpenLastWeek` raises that week).

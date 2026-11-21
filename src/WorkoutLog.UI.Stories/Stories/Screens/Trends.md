@@ -4,7 +4,7 @@ $attribute: CustomPage(StoryTitles.Prefix + "/Screens/Trends/Overview")
 
 # Trends
 
-How a week, a month or a year went: what you did, how it compares with the period before, and how the weeks and months added up. It is the second tab of the tab bar, at `/trends`. View: `TrendsView`; page: `TrendsPage`. Design: [docs/design/this-week-and-trends.html](https://github.com/marty-shields/workout-log-app/blob/main/docs/design/this-week-and-trends.html).
+How a week, a month or a year went: what you did, how it compares with the period before, and how the weeks and months added up. It is the second tab of the bottom nav, at `/trends`. View: `TrendsView`; page: `TrendsPage`. Design: [docs/design/this-week-and-trends.html](https://github.com/marty-shields/workout-log-app/blob/main/docs/design/this-week-and-trends.html).
 
 | Part | Content |
 |---|---|
@@ -31,8 +31,8 @@ Every chart has an accessible name saying what it shows and a hidden list of its
 - **Past week, Past month, Past year**: a finished period. Both arrows work, the cards say "that week", "that month" or "that year", and the paired bars are labelled *That week* and *The week before*.
 - **No workouts**: a period with none. The tiles show zeros and "—", each chart says what is missing instead (e.g. *No workouts that week*), the records cards say "No new records that week" and the muscle groups all read "Not trained". The previous arrow is disabled when it is the first period.
 - **No workouts ever**: the current week with nothing logged yet, so both arrows are disabled and the cards read as an empty week.
-- **Loading**: `Spinner` "Loading…" in place of the cards. The kind control, stepper and tab bar work.
-- **Load failed**: error "Couldn't load Trends" and the kit's `LoadFailed` **Try again** button in place of the cards. Focus moves to Try again. The kind control, stepper and tab bar work.
+- **Loading**: `Spinner` "Loading…" in place of the cards. The kind control, stepper and bottom nav work.
+- **Load failed**: error "Couldn't load Trends" and the kit's `LoadFailed` **Try again** button in place of the cards. Focus moves to Try again. The kind control, stepper and bottom nav work.
 
 `TrendsView` takes every value as a parameter, with those of the kinds not shown ignored. A change of kind or period is raised (`OnKindChanged`, `OnPrevious`, `OnNext`) and the page answers by loading the period and passing it back.
 
