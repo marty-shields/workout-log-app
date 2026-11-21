@@ -14,10 +14,10 @@ Personal Android app (.NET 11 MAUI Blazor Hybrid). Setup: [docs/dev-setup-build.
 - README screenshots (needs Chrome and the stories running): `node .github/scripts/readme-screenshots.mjs http://localhost:5056 <chrome>` retakes every screenshot in the [README table](docs/dev-setup-build.md#readme-screenshots), light and dark; `--check` fails on any that no longer match their story. CI runs the check in `story-layout` and uploads retaken images as the `readme-screenshots` artifact when it fails.
 - CI lint (needs `shellcheck`): `.github/scripts/lint-ci.sh` runs shellcheck over the scripts and actionlint over the workflows; CI runs it in `dev / build-and-test`.
 - Docs: `python3 -I .github/scripts/check-docs.py` fails on a relative link or `#anchor` in a tracked `*.md` that doesn't resolve, or a README screenshot and its table row that don't match; CI runs it in `dev / build-and-test`.
-- Design system: `dotnet run --project src/WorkoutLog.UI.Stories` → http://localhost:5056
+- Design system: `dotnet run --project src/WorkoutLog.UI.Stories.Host` → http://localhost:5056
 
 ## How the code fits
-- Projects: App → UI → Core; Stories → UI. `WorkoutLog.UI.Tests` reads the App's files because it can't reference it.
+- Projects: App → UI → Core; Stories.Host → Stories → UI. `WorkoutLog.UI.Tests` reads the App's files because it can't reference it.
 - Screens: a `*Page` calls services, a `*View` takes parameters. `StoryCoverageTests` requires a screen story for every `*View`.
 - Services return a status (`ExportResult`), not exceptions.
 - Every database call goes through `DatabaseGate` (`DatabaseGateTests`).

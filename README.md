@@ -218,14 +218,15 @@ Workout Log is sideloaded: it isn't on Google Play.
 
 ```
 src/
-  WorkoutLog.App/          MAUI Blazor Hybrid host (Android): startup, DI, routing
-  WorkoutLog.UI/           Razor class library: screens, components, design tokens
-  WorkoutLog.UI.Stories/   BlazingStory stories site for the UI
-  WorkoutLog.Core/         Domain rules, SQLite data, services, import and export
+  WorkoutLog.App/              MAUI Blazor Hybrid host (Android): startup, DI, routing
+  WorkoutLog.UI/               Razor class library: screens, components, design tokens
+  WorkoutLog.UI.Stories/       Razor class library: the BlazingStory stories, story pages and sample data
+  WorkoutLog.UI.Stories.Host/  BlazingStory site that serves the stories
+  WorkoutLog.Core/             Domain rules, SQLite data, services, import and export
 tests/
-  WorkoutLog.Core.Tests/   NUnit tests for Core
-  WorkoutLog.UI.Tests/     bUnit tests for components and screens
-  WorkoutLog.E2E.Tests/    Gherkin features on a device (Reqnroll + Appium)
+  WorkoutLog.Core.Tests/       NUnit tests for Core
+  WorkoutLog.UI.Tests/         bUnit tests for components and screens
+  WorkoutLog.E2E.Tests/        Gherkin features on a device (Reqnroll + Appium)
 ```
 
 </details>
@@ -243,7 +244,7 @@ dotnet test tests/WorkoutLog.Core.Tests
 dotnet test tests/WorkoutLog.UI.Tests
 
 # Browse the stories site at http://localhost:5056 (main is at https://marty-shields.github.io/workout-log-app/)
-dotnet run --project src/WorkoutLog.UI.Stories
+dotnet run --project src/WorkoutLog.UI.Stories.Host
 
 # Run on a connected Android phone
 dotnet build src/WorkoutLog.App -t:Run -f net11.0-android

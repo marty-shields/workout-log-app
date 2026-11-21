@@ -4,7 +4,7 @@ using System.Xml.Linq;
 namespace WorkoutLog.UI.Tests;
 
 /// <summary>
-/// WorkoutLog.UI takes the Shields.UI kit, and WorkoutLog.UI.Stories the Shields.UI.Stories shell, from NuGet or from the kit's
+/// WorkoutLog.UI takes the Shields.UI kit, and the WorkoutLog.UI.Stories library the Shields.UI.Stories shell, from NuGet or from the kit's
 /// source with -p:UseKitSource=true. The project files are read to check both references.
 /// </summary>
 public class KitReferenceTests
