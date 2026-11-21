@@ -4,13 +4,14 @@ using System.Xml.Linq;
 namespace WorkoutLog.UI.Tests;
 
 /// <summary>
-/// WorkoutLog.UI takes the Shields.UI kit from NuGet, or from the kit's source with -p:UseKitSource=true.
-/// The project file is read to check both references.
+/// WorkoutLog.UI takes the Shields.UI kit, and WorkoutLog.UI.Stories the Shields.UI.Stories shell, from NuGet or from the kit's
+/// source with -p:UseKitSource=true. The project files are read to check both references.
 /// </summary>
 public class KitReferenceTests
 {
     private const string PackageCondition = "'$(UseKitSource)' != 'true'";
     private const string SourceCondition = "'$(UseKitSource)' == 'true'";
+    private const string StoriesProject = "WorkoutLog.UI.Stories";
 
     [Test]
     public void KitPackage_IsReferencedUnlessUsingKitSource()
@@ -31,16 +32,35 @@ public class KitReferenceTests
     }
 
     [Test]
-    public void KitPackageVersion_IsPinnedCentrallyAndMatchesTheLockFile()
+    public void StoriesShellPackage_IsReferencedUnlessUsingKitSource()
+    {
+        var references = ItemGroupsWhen(StoriesProject, PackageCondition).Elements("PackageReference");
+
+        Assert.That(references.Select(r => (string?)r.Attribute("Include")), Is.EqualTo(new[] { "Shields.UI.Stories" }));
+    }
+
+    [Test]
+    public void StoriesShellProject_IsReferencedWhenUsingKitSource()
+    {
+        var references = ItemGroupsWhen(StoriesProject, SourceCondition).Elements("ProjectReference");
+
+        Assert.That(
+            references.Select(r => (string?)r.Attribute("Include")),
+            Is.EqualTo(new[] { "$(KitSourcePath)/src/Shields.UI.Stories/Shields.UI.Stories.csproj" }));
+    }
+
+    [TestCase("Shields.UI", "WorkoutLog.UI")]
+    [TestCase("Shields.UI.Stories", "WorkoutLog.UI.Stories")]
+    public void KitPackageVersion_IsPinnedCentrallyAndMatchesTheLockFile(string package, string project)
     {
         var props = XDocument.Parse(RepoFiles.Read("Directory.Packages.props"));
         var version = props.Descendants("PackageVersion")
-            .Single(p => (string?)p.Attribute("Include") == "Shields.UI")
+            .Single(p => (string?)p.Attribute("Include") == package)
             .Attribute("Version")?.Value;
 
-        var lockFile = JsonDocument.Parse(RepoFiles.Read("src", "WorkoutLog.UI", "packages.lock.json"));
+        var lockFile = JsonDocument.Parse(RepoFiles.Read("src", project, "packages.lock.json"));
         var locked = lockFile.RootElement.GetProperty("dependencies").EnumerateObject().First()
-            .Value.GetProperty("Shields.UI").GetProperty("resolved").GetString();
+            .Value.GetProperty(package).GetProperty("resolved").GetString();
 
         Assert.That(version, Is.Not.Null.And.Not.Empty);
         Assert.That(locked, Is.EqualTo(version));
@@ -83,8 +103,10 @@ public class KitReferenceTests
     private static IEnumerable<XElement> BuildPropsGroups() =>
         XDocument.Parse(RepoFiles.Read("Directory.Build.props")).Root!.Elements("PropertyGroup");
 
-    private static IEnumerable<XElement> ItemGroupsWhen(string condition) =>
-        XDocument.Parse(RepoFiles.Read("src", "WorkoutLog.UI", "WorkoutLog.UI.csproj")).Root!
+    private static IEnumerable<XElement> ItemGroupsWhen(string condition) => ItemGroupsWhen("WorkoutLog.UI", condition);
+
+    private static IEnumerable<XElement> ItemGroupsWhen(string project, string condition) =>
+        XDocument.Parse(RepoFiles.Read("src", project, $"{project}.csproj")).Root!
             .Elements("ItemGroup")
             .Where(group => (string?)group.Attribute("Condition") == condition);
 }

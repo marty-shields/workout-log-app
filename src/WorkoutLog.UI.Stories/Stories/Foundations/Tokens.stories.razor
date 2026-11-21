@@ -4,8 +4,20 @@
 
     <Story Name="All tokens">
         <Template>
-            <TokenSheet />
+            <TokenSheet ExtraColours="@AppColours" ExtraSizes="@AppSizes" />
         </Template>
     </Story>
 
 </Stories>
+
+@code {
+    // The tokens this app declares in WorkoutLog.UI's tokens.css, shown after the kit's.
+    private static readonly string[] AppColours = ["--color-bar-past"];
+
+    private static readonly string[] AppSizes =
+    [
+        "--chart-stroke-width", "--set-number-width", "--set-last-width", "--calendar-day-size", "--calendar-dot-size",
+        "--meter-height", "--meter-label-width", "--meter-value-width", "--meter-label-width-wide", "--meter-label-width-narrow",
+        "--meter-value-width-narrow",
+    ];
+}

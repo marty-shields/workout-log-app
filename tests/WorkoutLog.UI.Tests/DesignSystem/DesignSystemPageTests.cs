@@ -47,6 +47,16 @@ public partial class DesignSystemPageTests
         Assert.That(named.Where(n => !names.Contains(n)), Is.Empty);
     }
 
+    [Test]
+    public void TokensStory_ShowsEveryTokenTheAppDeclaresAfterTheKits()
+    {
+        var story = File.ReadAllText(Path.Combine(Folder("Foundations"), "Tokens.stories.razor"));
+
+        var listed = Regex.Matches(story, "\"(--[a-z0-9-]+)\"").Select(m => m.Groups[1].Value);
+
+        Assert.That(listed, Is.EquivalentTo(DesignTokens.Declares(DesignTokens.AppTokensCss)));
+    }
+
     private static string Folder(string folder) => RepoFiles.PathOf("src", "WorkoutLog.UI.Stories", "Stories", folder);
 
     private static IEnumerable<string> Pages(string folder) =>

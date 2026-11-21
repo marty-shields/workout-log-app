@@ -63,6 +63,16 @@
         "resolved": "11.0.0",
         "contentHash": "fvNAQsY36JwF/UNNkcPw+jEbcfHCNVkqKlgL7PBlolyXa+rSODtI5bQ4QLl3jr3QyRIAC6bIXGpXghH35+jI0w=="
       },
+      "Shields.UI.Stories": {
+        "type": "Direct",
+        "requested": "[1.0.0-pr.19.9, )",
+        "resolved": "1.0.0-pr.19.9",
+        "contentHash": "KvwK5InX20+IyaNMl0l5Pf/PBzoGd6RRXimGFPHqNZa2gIMThNUIzhPbAdWToG71E7tYpg6YXAT0kXah+9WC6g==",
+        "dependencies": {
+          "BlazingStory": "1.0.0-preview.97",
+          "Shields.UI": "1.0.0-pr.19.9"
+        }
+      },
       "BlazingStory.Abstractions": {
         "type": "Transitive",
         "resolved": "1.0.0-preview.97",
