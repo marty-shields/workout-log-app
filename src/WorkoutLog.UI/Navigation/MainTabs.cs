@@ -21,11 +21,19 @@ public static class MainTabs
     /// <summary>The bar's items in order, <see cref="Start"/> first as the kit's AppScreen takes Android back to the first.</summary>
     public static IReadOnlyList<BottomNavItem> Items { get; } = [ThisWeekItem, TrendsItem];
 
-    /// <summary>The bar's item of <paramref name="tab"/>.</summary>
-    public static BottomNavItem Item(MainTab tab) => tab == MainTab.Trends ? TrendsItem : ThisWeekItem;
+    /// <summary>The bar's item of <paramref name="tab"/>; the kit's <c>BottomNav</c> matches its <c>Current</c> to the items by value equality.</summary>
+    public static BottomNavItem Item(MainTab tab) => tab switch
+    {
+        MainTab.ThisWeek => ThisWeekItem,
+        MainTab.Trends => TrendsItem,
+        _ => throw new ArgumentOutOfRangeException(nameof(tab), tab, null),
+    };
 
     /// <summary>The tab of <paramref name="item"/>, one of <see cref="Items"/>.</summary>
-    public static MainTab Tab(BottomNavItem item) => item == TrendsItem ? MainTab.Trends : MainTab.ThisWeek;
+    public static MainTab Tab(BottomNavItem item) =>
+        item == ThisWeekItem ? MainTab.ThisWeek
+        : item == TrendsItem ? MainTab.Trends
+        : throw new ArgumentOutOfRangeException(nameof(item), item, null);
 
     /// <summary>The App route of <paramref name="tab"/>; empty for This week.</summary>
     public static string Route(MainTab tab) => tab == MainTab.Trends ? "trends" : string.Empty;

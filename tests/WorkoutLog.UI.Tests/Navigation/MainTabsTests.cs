@@ -23,6 +23,13 @@ public class MainTabsTests
     public void Item_AndTab_RoundTrip(MainTab tab) => Assert.That(MainTabs.Tab(MainTabs.Item(tab)), Is.EqualTo(tab));
 
     [Test]
+    public void Item_ThrowsForAnUnknownTab() => Assert.Throws<ArgumentOutOfRangeException>(() => MainTabs.Item((MainTab)99));
+
+    [Test]
+    public void Tab_ThrowsForAnItemOfTheBar() =>
+        Assert.Throws<ArgumentOutOfRangeException>(() => MainTabs.Tab(new Shields.UI.Components.Layout.BottomNavItem("Other", Shields.UI.Components.Actions.IconName.Plus, "other-link")));
+
+    [Test]
     public void AddButton_IsLabelledNewWithThePlusIcon()
     {
         Assert.That(MainTabs.AddLabel, Is.EqualTo("New"));

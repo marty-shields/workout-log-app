@@ -6,7 +6,7 @@ $attribute: CustomPage("Foundations/Navigation")
 
 The app opens on the kit's start-up screen (`StartupGate`), then [This week](./?path=/custom/screens-this-week-overview). Add Exercise is an overlay on the workout screen, not a route.
 
-This week and [Trends](./?path=/custom/screens-trends-overview) are the two top-level screens. Each shows the bottom navigation bar (the kit's [`BottomNav`](./?path=/docs/components-layout-bottomnav--docs)): **This week**, a raised **+** in the middle and **Trends**. They have no back arrow. Android back from Trends goes to This week, and from This week leaves the app. + opens New Workout from either tab.
+This week and [Trends](./?path=/custom/screens-trends-overview) are the two top-level screens. Each shows the bottom navigation bar (the kit's `BottomNav`, whose stories are in the Shields.UI kit's story book): **This week**, a raised **+** in the middle and **Trends**. They have no back arrow. Android back from Trends goes to This week, and from This week leaves the app. + opens New Workout from either tab.
 
 [Workouts](./?path=/custom/screens-workouts-overview) is not a tab. It opens from Trends for the dates tapped (a day in the month calendar, a week row, a day's bars in the week view, a month's bar in the year view), with those dates already chosen, a back arrow and no tab bar. There is no Exercises list: an [Exercise](./?path=/custom/screens-exercise-overview) page opens from a record or a Most trained row, and [Add Exercise](./?path=/custom/screens-add-exercise-overview) is the only list of exercises.
 
@@ -58,3 +58,11 @@ A value that doesn't parse returns to This week. Workouts takes its dates from `
 - An open `ConfirmDialog` (the kit's) closes on Android back, as Cancel does.
 - A `Snackbar` is not a dialog: Android back does what it does on the screen and leaves the snackbar to time out.
 - What back does on each screen is on its page: [New Workout](./?path=/custom/screens-new-workout-overview), [Edit Workout](./?path=/custom/screens-edit-workout-overview), [Add Exercise](./?path=/custom/screens-add-exercise-overview), [Workouts](./?path=/custom/screens-workouts-overview), [Exercise](./?path=/custom/screens-exercise-overview), [Settings](./?path=/custom/screens-settings-overview), [Import Review](./?path=/custom/screens-import-review-overview). Workout Summary has no back arrow: Android back does what Done does, [Workout Summary](./?path=/custom/screens-workout-summary-overview).
+
+## Startup and error
+- `Routes.razor` wraps the router in `StartupGate` and `AppErrorBoundary`, both titled "Workout Log". `ActivityBridge` comes first, before the gate.
+- Start-up deletes leftover export files and opens the database, before This week shows. While it runs the screen shows "Loading…".
+- If that fails, the screen shows "Couldn't open the workout database" and the kit's Try again button, which runs start-up again (`Retryable` is left at its default of true).
+- An unhandled error in any screen shows the kit's error screen with "Something went wrong" and no details. **Restart** goes to This week; an unsaved workout is lost.
+- The start-up gate, the error boundary and the confirm dialog come from the kit (`StartupGate`, `AppErrorBoundary`, `ConfirmDialog`). Their stories are in the Shields.UI kit's story book, under Components/Layout (`StartupGate`) and Components/Overlays (`ConfirmDialog`).
+- The E2E tests find the kit's parts by `data-testid`: `startup-loading`, `startup-error`, `startup-retry`, `error-message`, `error-restart`. `ConfirmDialog` uses `confirm-dialog` for the dialog and `{TestId}-cancel` and `{TestId}-confirm` for its buttons, where `TestId` is `confirm-dialog` unless a screen sets another.

@@ -284,9 +284,18 @@ public class TrendsViewTests : ComponentTestBase
     }
 
     [Test]
-    public void BottomNav_MarksTrendsCurrent() =>
-        Assert.That(Render(SampleTrends.Loading).FindAll("[data-testid=bottom-nav] [aria-current=page]").Select(e => e.GetAttribute("data-testid")),
-            Is.EqualTo(new[] { "trends-link" }));
+    public void BottomNav_MarksTrendsCurrentAndLabelsTheRaisedButtonNew()
+    {
+        var cut = Render(SampleTrends.Loading);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.FindAll("[data-testid=bottom-nav] [aria-current=page]").Select(e => e.GetAttribute("data-testid")), Is.EqualTo(new[] { "trends-link" }));
+            Assert.That(cut.Find("[data-testid=add-button] .label").TextContent, Is.EqualTo("New"));
+            Assert.That(cut.Find("[data-testid=add-button]").HasAttribute("aria-current"), Is.False);
+            Assert.That(cut.FindAll("[data-testid=add-button] svg.icon"), Has.Count.EqualTo(1));
+        });
+    }
 
     [Test]
     public void LoadFailed_ShowsTheErrorAndTryAgainAndKeepsTheControls()

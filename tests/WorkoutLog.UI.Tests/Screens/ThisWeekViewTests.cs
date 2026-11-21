@@ -231,6 +231,7 @@ public class ThisWeekViewTests : ComponentTestBase
             Assert.That(cut.FindAll("[data-testid=bottom-nav] [aria-current=page]").Select(e => e.GetAttribute("data-testid")), Is.EqualTo(new[] { "this-week-link" }));
             Assert.That(cut.Find("[data-testid=add-button] .label").TextContent, Is.EqualTo("New"));
             Assert.That(cut.Find("[data-testid=add-button]").HasAttribute("aria-current"), Is.False);
+            Assert.That(cut.FindAll("[data-testid=add-button] svg.icon"), Has.Count.EqualTo(1));
         });
     }
 

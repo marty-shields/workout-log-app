@@ -55,7 +55,7 @@ public class TrendsPageTests : ComponentTestBase
     }
 
     [Test]
-    public void WhileLoading_ShowsTheSpinnerWithTheStepperAndTheTabBar()
+    public void WhileLoading_ShowsTheSpinnerWithTheStepperAndTheBottomNav()
     {
         training.HoldMuscles = true;
 

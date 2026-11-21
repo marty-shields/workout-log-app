@@ -29,7 +29,7 @@ A record is a session whose best beats the exercise's best in every earlier sess
 
 A workout opens [Edit Workout](./?path=/custom/screens-edit-workout-overview) (`/workout/{id}?from=this-week`) and a record its [Exercise](./?path=/custom/screens-exercise-overview) page (`/exercises/{id}?from=this-week`); back, or on a workout Save or Delete, returns to This week. Android back leaves the app.
 
-Loads each time it shows, and again when the app comes back on screen. [Pull down to refresh](./?path=/docs/components-layout-appscreen--docs) loads it again the same way. Each load shows the spinner in place of the week, as on opening, then what was read, or the load error. After a pull the spinner stays up for at least half a second, so a fast reload doesn't blink. A failed load is logged without any workout contents.
+Loads each time it shows, and again when the app comes back on screen. Pull down to refresh (the kit's `AppScreen`, whose stories are in the Shields.UI kit's story book) loads it again the same way. Each load shows the spinner in place of the week, as on opening, then what was read, or the load error. After a pull the spinner stays up for at least half a second, so a fast reload doesn't blink. A failed load is logged without any workout contents.
 
 States: [Mid-week](./?path=/story/screens-this-week--mid-week) · [New week](./?path=/story/screens-this-week--new-week) · [No workouts](./?path=/story/screens-this-week--no-workouts) · [Records failed](./?path=/story/screens-this-week--records-failed) · [Loading](./?path=/story/screens-this-week--loading) · [Load failed](./?path=/story/screens-this-week--load-failed)
 
