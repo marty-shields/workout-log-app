@@ -10,7 +10,11 @@ public class WeekWorkoutsCardTests : ComponentTestBase
     {
         var cut = Render(SampleThisWeek.Workouts);
 
-        Assert.That(cut.Find(".title").TextContent, Is.EqualTo("This week's workouts"));
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.Find("section.card").GetAttribute("data-testid"), Is.EqualTo("workouts"));
+            Assert.That(cut.Find("section.card h2.title").TextContent, Is.EqualTo("This week's workouts"));
+        });
     }
 
     [Test]

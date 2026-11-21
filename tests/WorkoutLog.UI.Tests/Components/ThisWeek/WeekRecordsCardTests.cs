@@ -12,7 +12,8 @@ public class WeekRecordsCardTests : ComponentTestBase
 
         Assert.Multiple(() =>
         {
-            Assert.That(cut.Find(".title").TextContent, Is.EqualTo("Records this week"));
+            Assert.That(cut.Find("section.card").GetAttribute("data-testid"), Is.EqualTo("records"));
+            Assert.That(cut.Find("section.card h2.title").TextContent, Is.EqualTo("Records this week"));
             Assert.That(cut.Find(".text").TextContent, Is.EqualTo("Bench press · 82.5kg × 5"));
             Assert.That(cut.Find(".detail").TextContent, Is.EqualTo("Monday"));
             Assert.That(cut.FindAll("[data-testid=records-more]"), Is.Empty);

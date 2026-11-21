@@ -33,43 +33,43 @@
                 <TrendTiles Kind="Kind" Totals="Totals" Earlier="Earlier" Against="@Against" TestId="trends-tiles" />
                 @if (Kind == PeriodKind.Week)
                 {
-                    <TrendCard Title="Time trained by day" TestId="trends-days">
+                    <Shields.UI.Components.Layout.Card Title="Time trained by day" TestId="trends-days">
                         <TrendBars Bars="Days" NowLabel="@(Past ? "That week" : "This week")" EarlierLabel="@(Past ? "The week before" : "Last week")"
                                    AriaLabel="@($"Time trained each day {Name} beside the same day {(Past ? "the week before" : "last week")}")"
                                    EmptyText="@($"No workouts {Name}")" OnOpen="OnOpenWorkouts" TestId="trends-days-chart" />
-                    </TrendCard>
+                    </Shields.UI.Components.Layout.Card>
                     <MuscleSetsCard Groups="Muscles" Period="@Name" TestId="trends-muscles" />
-                    <TrendCard Title="Records" Aside="@($"{Records.Count} {Name}")" TestId="trends-records">
+                    <Shields.UI.Components.Layout.Card Title="Records" Aside="@($"{Records.Count} {Name}")" TestId="trends-records">
                         <RecordRows Records="Records" EmptyText="@($"No new records {Name}")" OnOpen="OnOpenRecord" TestId="trends-records" />
-                    </TrendCard>
-                    <TrendCard Title="Last 12 weeks" Aside="@(Streak > 0 ? $"{Streak}-week streak" : null)" TestId="trends-recent-weeks">
+                    </Shields.UI.Components.Layout.Card>
+                    <Shields.UI.Components.Layout.Card Title="Last 12 weeks" Aside="@(Streak > 0 ? $"{Streak}-week streak" : null)" TestId="trends-recent-weeks">
                         <WeekBars Counts="RecentWeeks" TestId="trends-recent-weeks-chart" />
-                    </TrendCard>
+                    </Shields.UI.Components.Layout.Card>
                 }
                 else if (Kind == PeriodKind.Month)
                 {
-                    <TrendCard Title="Each day" TestId="trends-calendar">
+                    <Shields.UI.Components.Layout.Card Title="Each day" TestId="trends-calendar">
                         <MonthCalendar Month="Start" Today="Today" Trained="Trained" OnOpenDay="OpenDay" TestId="trends-calendar-days" />
-                    </TrendCard>
-                    <TrendCard Title="Weeks" TestId="trends-weeks">
+                    </Shields.UI.Components.Layout.Card>
+                    <Shields.UI.Components.Layout.Card Title="Weeks" TestId="trends-weeks">
                         <MonthWeeks Weeks="Weeks" OnOpen="OnOpenWorkouts" TestId="trends-weeks-rows" />
-                    </TrendCard>
-                    <TrendCard Title="Records" Aside="@($"{Records.Count} {Name}")" TestId="trends-records">
+                    </Shields.UI.Components.Layout.Card>
+                    <Shields.UI.Components.Layout.Card Title="Records" Aside="@($"{Records.Count} {Name}")" TestId="trends-records">
                         <RecordRows Records="Records" EmptyText="@($"No new records {Name}")" OnOpen="OnOpenRecord" TestId="trends-records" />
-                    </TrendCard>
-                    <TrendCard Title="Most trained" Aside="sessions" TestId="trends-most-trained">
+                    </Shields.UI.Components.Layout.Card>
+                    <Shields.UI.Components.Layout.Card Title="Most trained" Aside="sessions" TestId="trends-most-trained">
                         <MeterRows Rows="MostTrained" Unit="sessions" AriaLabel="@($"Sessions of the most trained exercises {Name}")" Wide EmptyText="@($"No exercises {Name}")" OnOpen="OnOpenRecord" TestId="trends-most-trained-rows" />
-                    </TrendCard>
+                    </Shields.UI.Components.Layout.Card>
                 }
                 else
                 {
-                    <TrendCard Title="Workouts by month" Aside="@(PerWeek > 0 ? $"{PerWeek.ToString("0.#", CultureInfo.InvariantCulture)} a week" : null)" TestId="trends-months">
+                    <Shields.UI.Components.Layout.Card Title="Workouts by month" Aside="@(PerWeek > 0 ? $"{PerWeek.ToString("0.#", CultureInfo.InvariantCulture)} a week" : null)" TestId="trends-months">
                         <TrendBars Bars="Months" AriaLabel="@($"Workouts in each month of {Label}")" EmptyText="@($"No workouts {Name}")" OnOpen="OnOpenWorkouts" TestId="trends-months-chart" />
-                    </TrendCard>
+                    </Shields.UI.Components.Layout.Card>
                     <LongestStreakCard Weeks="LongestStreak" Running="StreakRunning" TestId="trends-streak" />
-                    <TrendCard Title="Records by month" Aside="@($"{RecordsByMonth.Sum(m => m.Value)} {Name}")" TestId="trends-records-by-month">
+                    <Shields.UI.Components.Layout.Card Title="Records by month" Aside="@($"{RecordsByMonth.Sum(m => m.Value)} {Name}")" TestId="trends-records-by-month">
                         <MeterRows Rows="RecordsByMonth" Unit="records" AriaLabel="@($"Records set in each month of {Label}")" EmptyText="@($"No records {Name}")" TestId="trends-records-by-month-rows" />
-                    </TrendCard>
+                    </Shields.UI.Components.Layout.Card>
                 }
             }
         </div>

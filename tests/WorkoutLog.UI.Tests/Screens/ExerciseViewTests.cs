@@ -125,15 +125,19 @@ public class ExerciseViewTests : ComponentTestBase
         Assert.That(changed, Is.EqualTo(new[] { HistoryRange.All }));
     }
 
-    [TestCase(HistoryRange.ThreeMonths, "Records · last 3 months")]
-    [TestCase(HistoryRange.SixMonths, "Records · last 6 months")]
-    [TestCase(HistoryRange.Year, "Records · last year")]
-    [TestCase(HistoryRange.All, "Records · all time")]
-    public void Records_AreTitledWithTheRange(HistoryRange range, string title)
+    [TestCase(HistoryRange.ThreeMonths, "last 3 months")]
+    [TestCase(HistoryRange.SixMonths, "last 6 months")]
+    [TestCase(HistoryRange.Year, "last year")]
+    [TestCase(HistoryRange.All, "all time")]
+    public void Records_ShowTheRangeBesideTheTitle(HistoryRange range, string title)
     {
         var cut = Render(SampleExercises.LiftTopSet, p => p.Add(x => x.Range, range));
 
-        Assert.That(TestText.Normalise(cut.Find("[data-testid=exercise-records] h2").TextContent), Is.EqualTo(title));
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.Find("[data-testid=exercise-records] h2").TextContent, Is.EqualTo("Records"));
+            Assert.That(cut.Find("[data-testid=exercise-records-aside]").TextContent, Is.EqualTo(title));
+        });
     }
 
     [Test]

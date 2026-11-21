@@ -13,7 +13,7 @@ One exercise's progress: a chart, its records and its sessions. View: `ExerciseV
 | Top bar | Back arrow; the exercise name, and under it primary muscle · equipment (the muscle only when the equipment is None), or "Cardio". Two-word names are spelled out as in the exercise names, e.g. Lower Back, EZ-Bar, Smith Machine. |
 | Tabs | `SegmentedControl` of the exercise's charts. Hidden when it has one. |
 | Chart card | Optional title, the `Chart`, a range `SegmentedControl` (3M, 6M, 1Y, All) and an optional caption. |
-| Records | `RecordsCard` titled with the range, e.g. "Records · last 3 months". |
+| Records | `RecordsCard` titled "Records" with the range as its aside, e.g. "last 3 months". |
 | Sessions | Heading "Sessions" and a `SessionRow` per session in the range, newest first. Hidden when there are none. |
 | Loading | `Spinner` "Loading…" centred; the top bar shows the name. |
 | Load failed | Error "Couldn't load this exercise" and the kit's `LoadFailed` **Try again** button. Focus moves to Try again. |
