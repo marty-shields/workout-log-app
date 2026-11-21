@@ -5,6 +5,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Testing;
 using Microsoft.JSInterop;
 using Shields.UI.Components.Actions;
+using Shields.UI.Components.Layout;
 using WorkoutLog.Core.Domain.Exercises;
 using WorkoutLog.Core.Domain.Workouts;
 using WorkoutLog.UI.Components.Workout;
@@ -67,6 +68,7 @@ public class ExerciseCardTests : ComponentTestBase
 
         Assert.Multiple(() =>
         {
+            Assert.That(cut.FindComponent<Card>().Instance.TestId, Is.EqualTo("exercise-1"));
             Assert.That(cut.Find("div.card[data-testid=exercise-1] > .body > .card-header h2.name").TextContent, Is.EqualTo("Farmer's Walk"));
             Assert.That(cut.Find("div.card[data-testid=exercise-1] .sets"), Is.Not.Null);
         });
@@ -1142,7 +1144,11 @@ public class ExerciseCardTests : ComponentTestBase
             .Add(x => x.Exercise, exercise)
             .Add(x => x.TestId, "exercise-1"));
 
-        Assert.That(cut.Find("[data-testid=exercise-1-error]").TextContent, Is.EqualTo("Add at least one set"));
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.Find("[data-testid=exercise-1-error]").TextContent, Is.EqualTo("Add at least one set"));
+            Assert.That(cut.Find(".body").ClassList, Does.Contain("has-error"));
+        });
     }
 
     [Test]
@@ -1160,6 +1166,7 @@ public class ExerciseCardTests : ComponentTestBase
         {
             Assert.That(exercise.Error, Is.Null);
             Assert.That(cut.FindAll("[data-testid=exercise-1-error]"), Is.Empty);
+            Assert.That(cut.Find(".body").ClassList, Does.Not.Contain("has-error"));
         });
     }
 

@@ -7,7 +7,7 @@
 @inject ILogger<ExerciseCard> Logger
 @inject IHaptics Haptics
 <Card TestId="@TestId">
-    <div class="body @(Exercise.IsDone ? "done" : null)">
+    <div class="body @(Exercise.IsDone ? "done" : null) @(Exercise.Error is not null ? "has-error" : null)">
         <header class="card-header">
             <h2 class="name">@Exercise.Name</h2>
             <div class="actions">

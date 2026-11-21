@@ -37,6 +37,7 @@ public partial class KitCardTests
     /// </summary>
     private static readonly Dictionary<(string File, string Selector), string> NotCards = new()
     {
+        [(Path.Combine("Components", "Charts", "Chart.razor.css"), ".point")] = "a chart point's SVG fill, not a card",
         [(Path.Combine("Components", "Inputs", "DateRangeField.razor.css"), ".field")] = "the date field's input box",
         [(Path.Combine("Components", "Inputs", "DurationField.razor.css"), ".input")] = "the duration field's input box",
         [(Path.Combine("Components", "Inputs", "NoteField.razor.css"), ".input")] = "the note's text box",
@@ -98,10 +99,10 @@ public partial class KitCardTests
     [GeneratedRegex(@"([^{}]+)\{([^{}]*)\}")]
     private static partial Regex CssRule();
 
-    [GeneratedRegex(@"(^|[;\s])border\s*:[^;]*\b(solid|dashed)\b")]
+    [GeneratedRegex(@"(^|[;\s])border(-block|-inline)?(-style)?\s*:[^;]*\b(solid|dashed)\b")]
     private static partial Regex DrawnBorder();
 
-    [GeneratedRegex(@"background(-color)?\s*:\s*var\(--color-surface\)")]
+    [GeneratedRegex(@"--color-surface[-\w]*")]
     private static partial Regex Surface();
 
     [GeneratedRegex(@"(^|[;{\s])border\s*:")]

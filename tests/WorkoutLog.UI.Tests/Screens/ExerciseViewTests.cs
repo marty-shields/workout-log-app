@@ -1,3 +1,4 @@
+using Shields.UI.Components.Layout;
 using WorkoutLog.Core.Domain;
 using WorkoutLog.UI.Components.Charts;
 using WorkoutLog.UI.Screens;
@@ -52,6 +53,8 @@ public class ExerciseViewTests : ComponentTestBase
 
         Assert.Multiple(() =>
         {
+            Assert.That(titled.FindComponent<Card>().Instance.Title, Is.EqualTo("Least assist per session"));
+            Assert.That(plain.FindComponent<Card>().Instance.Title, Is.Null);
             Assert.That(titled.Find("section.card[data-testid=exercise-chart-card] h2.title").TextContent, Is.EqualTo("Least assist per session"));
             Assert.That(plain.Find("div.card[data-testid=exercise-chart-card]").QuerySelector("h2"), Is.Null);
         });

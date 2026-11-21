@@ -1,4 +1,5 @@
 using Shields.UI.Components.Actions;
+using Shields.UI.Components.Layout;
 using WorkoutLog.UI.Models.Summary;
 using WorkoutLog.UI.Screens;
 using WorkoutLog.UI.Stories.Samples;
@@ -127,6 +128,11 @@ public class WorkoutSummaryViewTests : ComponentTestBase
 
         Assert.Multiple(() =>
         {
+            Assert.That(cut.FindComponents<Card>().Select(c => (c.Instance.TestId, c.Instance.Title)), Is.EqualTo(new (string?, string?)[]
+            {
+                ("summary-stats", null), ("summary-records", "Records"), ("summary-changes", "Since last time"),
+            }));
+            Assert.That(first.FindComponents<Card>().Select(c => (c.Instance.TestId, c.Instance.Title)), Does.Contain(("summary-first-workout", (string?)null)));
             Assert.That(cut.Find("div.card[data-testid=summary-stats] > dl.stats"), Is.Not.Null);
             Assert.That(cut.Find("section.card[data-testid=summary-records] h2.title").TextContent, Is.EqualTo("Records"));
             Assert.That(cut.Find("section.card[data-testid=summary-changes] h2.title").TextContent, Is.EqualTo("Since last time"));
