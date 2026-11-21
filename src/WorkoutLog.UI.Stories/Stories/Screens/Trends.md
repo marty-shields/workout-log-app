@@ -18,11 +18,11 @@ Under the tiles, each kind has its own cards, top to bottom:
 
 | Kind | Cards |
 |---|---|
-| Week | **Time trained by day**: `TrendBars` paired, this week beside the same day last week, with a legend. **Sets per muscle group**: `MuscleSetsCard`. **Records**: `WeekRecordsCard`, "n this week". **Last 12 weeks**: `WeekBars` with the streak at the right (e.g. *23-week streak*, hidden at 0). |
-| Month | **Each day**: the kit's `MonthCalendar` (marks style) and a legend. **Weeks**: `MonthWeeks`. **Records**: `RecordRows`, "n this month", each dated (e.g. *Wed 18 Nov*). **Most trained**: `MeterRows` of the top five exercises by sessions. |
-| Year | **Workouts by month**: single `TrendBars`, "3.2 a week" at the right (hidden at 0). **Longest streak**: `LongestStreakCard`. **Records by month**: `MeterRows`, "n this year". |
+| Week | **Time trained by day**: the kit's `TrendBarChart` paired, this week beside the same day last week, with a `ChartLegend`; one scale (`Max`) for the 14 bars, a day is a button when it has time. **Sets per muscle group**: `MuscleSetsCard`. **Records**: `WeekRecordsCard`, "n this week". **Last 12 weeks**: `WeekBars` with the streak at the right (e.g. *23-week streak*, hidden at 0). |
+| Month | **Each day**: the kit's `MonthCalendar` (marks style) and a legend. **Weeks**: `MonthWeeks`. **Records**: `RecordRows`, "n this month", each dated (e.g. *Wed 18 Nov*). **Most trained**: the kit's inline `BarList` of the top five exercises by sessions, a row is a button. |
+| Year | **Workouts by month**: the kit's `TrendBarChart` with one bar per month, "3.2 a week" at the right (hidden at 0). **Longest streak**: `LongestStreakCard`. **Records by month**: an inline `BarList`, "n this year". |
 
-Every chart has an accessible name saying what it shows and a hidden list of its values; none tells a state by colour alone (see [Trends components](./?path=/custom/workout-log-components-trends-overview)).
+Every chart has an accessible name saying what it shows and each bar its own text alternative; none tells a state by colour alone (see [Trends components](./?path=/custom/workout-log-components-trends-overview)).
 
 ## States
 

@@ -32,8 +32,8 @@ A card titled "Records this week" with a `ListRow` per record: exercise and best
 - `data-testid`: `TestId`, and as a prefix: `{TestId}-row-{exercise id}`, `{TestId}-more`, `{TestId}-none`.
 
 ## `MuscleSetsCard`
-A card titled "Sets per muscle group", "this week" at its right (`Period` renames it, e.g. "that week" in Trends), with a bar for each group, most sets first: the name, a bar as long as its sets against the busiest group's in `--color-accent` on `--color-border`, and the sets (e.g. *14 sets*, *1 set*). A group at zero has no bar and a muted "Not trained"; the groups at zero come last.
-- `data-testid`: `TestId`, and as a prefix: `{TestId}-{group, lower case}`.
+A card titled "Sets per muscle group", "this week" at its right (`Period` renames it, e.g. "that week" in Trends), with the kit's inline `BarList` of the groups, most sets first: the name, a bar as long as its sets against the busiest group's, and the sets as the row's value text (e.g. *14 sets*, *1 set*). A group at zero has no bar and reads "Not trained" in the value's usual colour; the groups at zero come last. No groups shows "No sets yet".
+- `data-testid`: `TestId` on the card, and as a prefix: `{TestId}-rows` on the list with `{TestId}-rows-row-{group, lower case}` per row, `{TestId}-rows-empty`.
 
 ## `LastWeekCard`
 A card with one `ListRow` "Last week" and, under it, last week's whole-week totals (e.g. *4 workouts · 4h 10m · 67 sets*). With `OnOpen` the row is tappable, with a chevron. This week shows it while nothing is logged yet.
