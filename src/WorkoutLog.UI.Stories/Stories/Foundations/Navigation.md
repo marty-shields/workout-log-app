@@ -1,14 +1,14 @@
 ---
-$attribute: CustomPage("Foundations/Navigation")
+$attribute: CustomPage(StoryTitles.Prefix + "/Foundations/Navigation")
 ---
 
 # Navigation
 
-The app opens on the kit's start-up screen (`StartupGate`), then [This week](./?path=/custom/screens-this-week-overview). Add Exercise is an overlay on the workout screen, not a route.
+The app opens on the kit's start-up screen (`StartupGate`), then [This week](./?path=/custom/workout-log-screens-this-week-overview). Add Exercise is an overlay on the workout screen, not a route.
 
-This week and [Trends](./?path=/custom/screens-trends-overview) are the two top-level screens. Each shows the bottom navigation bar (the kit's `BottomNav`, whose stories are in the Shields.UI kit's story book): **This week**, a raised **+** in the middle and **Trends**. They have no back arrow. Android back from Trends goes to This week, and from This week leaves the app. + opens New Workout from either tab.
+This week and [Trends](./?path=/custom/workout-log-screens-trends-overview) are the two top-level screens. Each shows the bottom navigation bar (the kit's `BottomNav`, whose stories are in the Shields.UI kit's story book): **This week**, a raised **+** in the middle and **Trends**. They have no back arrow. Android back from Trends goes to This week, and from This week leaves the app. + opens New Workout from either tab.
 
-[Workouts](./?path=/custom/screens-workouts-overview) is not a tab. It opens from Trends for the dates tapped (a day in the month calendar, a week row, a day's bars in the week view, a month's bar in the year view), with those dates already chosen, a back arrow and no tab bar. There is no Exercises list: an [Exercise](./?path=/custom/screens-exercise-overview) page opens from a record or a Most trained row, and [Add Exercise](./?path=/custom/screens-add-exercise-overview) is the only list of exercises.
+[Workouts](./?path=/custom/workout-log-screens-workouts-overview) is not a tab. It opens from Trends for the dates tapped (a day in the month calendar, a week row, a day's bars in the week view, a month's bar in the year view), with those dates already chosen, a back arrow and no tab bar. There is no Exercises list: an [Exercise](./?path=/custom/workout-log-screens-exercise-overview) page opens from a record or a Most trained row, and [Add Exercise](./?path=/custom/workout-log-screens-add-exercise-overview) is the only list of exercises.
 
 | From | Action | To |
 |---|---|---|
@@ -57,7 +57,7 @@ A value that doesn't parse returns to This week. Workouts takes its dates from `
 - The back arrow and Android back do the same, except with the soft keyboard open: Android back then only hides the keyboard, and the next back acts as below. The back arrow acts at once.
 - An open `ConfirmDialog` (the kit's) closes on Android back, as Cancel does.
 - A `Snackbar` is not a dialog: Android back does what it does on the screen and leaves the snackbar to time out.
-- What back does on each screen is on its page: [New Workout](./?path=/custom/screens-new-workout-overview), [Edit Workout](./?path=/custom/screens-edit-workout-overview), [Add Exercise](./?path=/custom/screens-add-exercise-overview), [Workouts](./?path=/custom/screens-workouts-overview), [Exercise](./?path=/custom/screens-exercise-overview), [Settings](./?path=/custom/screens-settings-overview), [Import Review](./?path=/custom/screens-import-review-overview). Workout Summary has no back arrow: Android back does what Done does, [Workout Summary](./?path=/custom/screens-workout-summary-overview).
+- What back does on each screen is on its page: [New Workout](./?path=/custom/workout-log-screens-new-workout-overview), [Edit Workout](./?path=/custom/workout-log-screens-edit-workout-overview), [Add Exercise](./?path=/custom/workout-log-screens-add-exercise-overview), [Workouts](./?path=/custom/workout-log-screens-workouts-overview), [Exercise](./?path=/custom/workout-log-screens-exercise-overview), [Settings](./?path=/custom/workout-log-screens-settings-overview), [Import Review](./?path=/custom/workout-log-screens-import-review-overview). Workout Summary has no back arrow: Android back does what Done does, [Workout Summary](./?path=/custom/workout-log-screens-workout-summary-overview).
 
 ## Startup and error
 - `Routes.razor` wraps the router in `StartupGate` and `AppErrorBoundary`, both titled "Workout Log". `ActivityBridge` comes first, before the gate.

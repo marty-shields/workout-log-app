@@ -1,5 +1,5 @@
 ---
-$attribute: CustomPage("Components/Lists/Overview")
+$attribute: CustomPage(StoryTitles.Prefix + "/Components/Lists/Overview")
 ---
 
 # Lists
@@ -20,4 +20,4 @@ Search box with the search `Icon`, then kit `FilterChips` All / Strength / Cardi
 One kit `ListRow` per exercise: its name, "Last" with the last session when it has one, and Strength or Cardio as its `Aside`. "No exercises match" when the list is empty. With `OnPick` the rows are tappable, with a chevron. Used under an `AddExerciseSearch` by Add Exercise.
 - `data-testid`: `TestId` as the prefix: `{TestId}-row-{id}`, `{TestId}-none`.
 
-Stories: [RecordsCard](./?path=/docs/components-lists-recordscard--docs) · [SessionRow](./?path=/docs/components-lists-sessionrow--docs) · [AddExerciseSearch](./?path=/docs/components-lists-addexercisesearch--docs) · [ExerciseList](./?path=/docs/components-lists-exerciselist--docs)
+Stories: [RecordsCard](./?path=/docs/workout-log-components-lists-recordscard--docs) · [SessionRow](./?path=/docs/workout-log-components-lists-sessionrow--docs) · [AddExerciseSearch](./?path=/docs/workout-log-components-lists-addexercisesearch--docs) · [ExerciseList](./?path=/docs/workout-log-components-lists-exerciselist--docs)

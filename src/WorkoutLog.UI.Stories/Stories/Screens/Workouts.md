@@ -1,10 +1,10 @@
 ---
-$attribute: CustomPage("Screens/Workouts/Overview")
+$attribute: CustomPage(StoryTitles.Prefix + "/Screens/Workouts/Overview")
 ---
 
 # Workouts
 
-Saved workouts in a span of dates, newest first, opened from [Trends](./?path=/custom/screens-trends-overview) for the dates tapped there. View: `WorkoutsView`; page: `WorkoutsPage`.
+Saved workouts in a span of dates, newest first, opened from [Trends](./?path=/custom/workout-log-screens-trends-overview) for the dates tapped there. View: `WorkoutsView`; page: `WorkoutsPage`.
 
 | Part | Content |
 |---|---|
@@ -23,6 +23,6 @@ The page reads the counts and then the workouts again when the app comes back on
 
 Tapping a row opens the workout in Edit Workout with the dates shown in `?from=workouts:…`, so Back, Save and Delete there return to Workouts with the same dates. Back (arrow or Android): closes the calendar when it is open, else returns to Trends at the period the dates were opened from (`?from=trends:…`; This week when opened with none).
 
-States: [Empty](./?path=/story/screens-workouts--empty) · [With workouts](./?path=/story/screens-workouts--with-workouts) · [1Y](./?path=/story/screens-workouts--1y) · [All](./?path=/story/screens-workouts--all) · [Dates picked](./?path=/story/screens-workouts--dates-picked) · [One day](./?path=/story/screens-workouts--one-day) · [Nothing in range](./?path=/story/screens-workouts--nothing-in-range) · [No workout on this day](./?path=/story/screens-workouts--no-workout-on-this-day) · [Picking dates](./?path=/story/screens-workouts--picking-dates) · [Picking month](./?path=/story/screens-workouts--picking-month) · [Loading](./?path=/story/screens-workouts--loading) · [Load failed](./?path=/story/screens-workouts--load-failed)
+States: [Empty](./?path=/story/workout-log-screens-workouts--empty) · [With workouts](./?path=/story/workout-log-screens-workouts--with-workouts) · [1Y](./?path=/story/workout-log-screens-workouts--1y) · [All](./?path=/story/workout-log-screens-workouts--all) · [Dates picked](./?path=/story/workout-log-screens-workouts--dates-picked) · [One day](./?path=/story/workout-log-screens-workouts--one-day) · [Nothing in range](./?path=/story/workout-log-screens-workouts--nothing-in-range) · [No workout on this day](./?path=/story/workout-log-screens-workouts--no-workout-on-this-day) · [Picking dates](./?path=/story/workout-log-screens-workouts--picking-dates) · [Picking month](./?path=/story/workout-log-screens-workouts--picking-month) · [Loading](./?path=/story/workout-log-screens-workouts--loading) · [Load failed](./?path=/story/workout-log-screens-workouts--load-failed)
 
 `data-testid`: `workouts-dates` (with `-dates` and `-count`), `workouts-range` and `workouts-range-3m`, `-6m`, `-1y`, `-all`, `workouts-month-{yyyy-MM}`, `workouts-row-{id}`, `workouts-none` (with `-message` and `-hint`), `workouts-empty`, `workouts-loading`, `workouts-error`, `workouts-retry`, the calendar's `range-*` ids and `back`.

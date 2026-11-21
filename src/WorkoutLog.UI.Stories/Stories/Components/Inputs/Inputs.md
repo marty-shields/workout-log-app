@@ -1,5 +1,5 @@
 ---
-$attribute: CustomPage("Components/Inputs/Overview")
+$attribute: CustomPage(StoryTitles.Prefix + "/Components/Inputs/Overview")
 ---
 
 # Inputs
@@ -31,4 +31,4 @@ Picks one day or a span of days, from `Dates` when it opens. From and To boxes s
 - Cancel raises `OnCancel`; Show workouts raises `OnApply` with the days picked.
 - `data-testid`: `range-calendar`, `range-from`, `range-to`, `range-prev-month`, `range-month-name`, `range-next-month`, `range-day-{yyyy-MM-dd}`, `range-prev-year`, `range-year`, `range-next-year`, `range-month-{yyyy-MM}`, `range-hint`, `range-cancel`, `range-apply`.
 
-Stories: [NoteField](./?path=/docs/components-inputs-notefield--docs) · [DurationField](./?path=/docs/components-inputs-durationfield--docs) · [DateRangeField](./?path=/docs/components-inputs-daterangefield--docs) · [RangeCalendar](./?path=/docs/components-inputs-rangecalendar--docs)
+Stories: [NoteField](./?path=/docs/workout-log-components-inputs-notefield--docs) · [DurationField](./?path=/docs/workout-log-components-inputs-durationfield--docs) · [DateRangeField](./?path=/docs/workout-log-components-inputs-daterangefield--docs) · [RangeCalendar](./?path=/docs/workout-log-components-inputs-rangecalendar--docs)

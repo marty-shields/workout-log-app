@@ -1,5 +1,5 @@
 ---
-$attribute: CustomPage("Foundations/Introduction")
+$attribute: CustomPage(StoryTitles.Prefix + "/Foundations/Introduction")
 ---
 
 # Workout Log design system
@@ -15,7 +15,7 @@ Tokens, components, screens and their behaviour for the Workout Log app.
 | Stories and these pages | `src/WorkoutLog.UI.Stories/Stories/`: `Foundations/`, `Components/<Group>/`, `Screens/` |
 
 ## Sections
-- **Foundations**: this page, [Tokens](./?path=/story/foundations-tokens--all-tokens), [Navigation](./?path=/custom/foundations-navigation), [Haptics](./?path=/custom/foundations-haptics) and the [App Icon](./?path=/custom/foundations-app-icon-overview).
+- **Foundations**: this page, [Tokens](./?path=/story/workout-log-foundations-tokens--all-tokens), [Navigation](./?path=/custom/workout-log-foundations-navigation), [Haptics](./?path=/custom/workout-log-foundations-haptics) and the [App Icon](./?path=/custom/workout-log-foundations-app-icon-overview).
 - **Components**: one folder per group, with an Overview page and one stories file per component. Each story is one visual state.
 - **Screens**: one folder per screen, with an Overview page (parts, behaviour, `data-testid`s) and one story per state, in the phone frame.
 
@@ -29,7 +29,7 @@ Tokens, components, screens and their behaviour for the Workout Log app.
 - Interactive elements have a `data-testid`.
 
 ## Tokens
-Defined in the kit's `tokens.css` and this app's `tokens.css`; the [Tokens](./?path=/story/foundations-tokens--all-tokens) story shows each one in light and dark.
+Defined in the kit's `tokens.css` and this app's `tokens.css`; the [Tokens](./?path=/story/workout-log-foundations-tokens--all-tokens) story shows each one in light and dark.
 
 ### Palette
 Five colours. Light uses them directly; dark keeps aqua for primary buttons and uses neutral, low-tint colours for everything else so text, accents and surfaces read apart:

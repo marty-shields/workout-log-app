@@ -13,17 +13,18 @@ using WorkoutLog.UI.Models.Workout;
 using WorkoutLog.UI.Models.Workouts;
 using WorkoutLog.UI.Navigation;
 using WorkoutLog.UI.Screens;
+using WorkoutLog.UI.Stories;
 using WorkoutLog.UI.Stories.Samples;
 
 namespace WorkoutLog.UI.Tests.Stories;
 
 /// <summary>A screen state: its stories section and story name, and how to render it.</summary>
-/// <param name="Section">Stories title, e.g. "Screens/New Workout".</param>
+/// <param name="Section">Stories title after <see cref="StoryTitles.Prefix"/>, e.g. "Screens/New Workout".</param>
 /// <param name="Name">Story name.</param>
 /// <param name="Render">Renders the state with every callback set and returns its elements.</param>
 public sealed record ScreenState(string Section, string Name, Func<BunitContext, IReadOnlyList<IElement>> Render)
 {
-    public override string ToString() => $"{Section}/{Name}";
+    public override string ToString() => $"{StoryTitles.Prefix}/{Section}/{Name}";
 }
 
 /// <summary>Every screen state that has a story, in story order. Renders mirror the stories, with every callback set.</summary>

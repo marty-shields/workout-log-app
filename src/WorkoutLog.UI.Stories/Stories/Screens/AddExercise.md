@@ -1,5 +1,5 @@
 ---
-$attribute: CustomPage("Screens/Add Exercise/Overview")
+$attribute: CustomPage(StoryTitles.Prefix + "/Screens/Add Exercise/Overview")
 ---
 
 # Add Exercise
@@ -17,10 +17,10 @@ Add an exercise to the workout. View: `AddExerciseView`, the one list of exercis
 | Loading | `Spinner` "Loading…" centred under the toolbar, in place of the rows, while the last sessions load. |
 | Load failed | The rows with no "Last" lines and no message; adding still works. |
 
-Tapping an exercise adds it to the workout and closes the list. Picking one already in the workout moves its card to the top instead of adding it again. With 10 exercises, Add exercise is off, so the list can't open; see [New Workout](./?path=/custom/screens-new-workout-overview).
+Tapping an exercise adds it to the workout and closes the list. Picking one already in the workout moves its card to the top instead of adding it again. With 10 exercises, Add exercise is off, so the list can't open; see [New Workout](./?path=/custom/workout-log-screens-new-workout-overview).
 
 Back closes the list; with the soft keyboard open, Android back first only hides the keyboard. No tab bar and no pull to refresh.
 
-States: [No search text](./?path=/story/screens-add-exercise--no-search-text) · [Strength](./?path=/story/screens-add-exercise--strength) · [Cardio](./?path=/story/screens-add-exercise--cardio) · [Results](./?path=/story/screens-add-exercise--results) · [No match](./?path=/story/screens-add-exercise--no-match) · [Loading](./?path=/story/screens-add-exercise--loading) · [Load failed](./?path=/story/screens-add-exercise--load-failed)
+States: [No search text](./?path=/story/workout-log-screens-add-exercise--no-search-text) · [Strength](./?path=/story/workout-log-screens-add-exercise--strength) · [Cardio](./?path=/story/workout-log-screens-add-exercise--cardio) · [Results](./?path=/story/workout-log-screens-add-exercise--results) · [No match](./?path=/story/workout-log-screens-add-exercise--no-match) · [Loading](./?path=/story/workout-log-screens-add-exercise--loading) · [Load failed](./?path=/story/workout-log-screens-add-exercise--load-failed)
 
 `data-testid`: `add-exercise-overlay`, `add-exercise-back`, `add-exercise-search`, `add-exercise-filter`, `add-exercise-filter-all`, `add-exercise-filter-strength`, `add-exercise-filter-cardio`, `add-exercise-row-{id}`, `add-exercise-none`, `add-exercise-loading`.

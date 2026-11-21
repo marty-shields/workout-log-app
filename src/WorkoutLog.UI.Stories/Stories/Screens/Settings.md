@@ -1,5 +1,5 @@
 ---
-$attribute: CustomPage("Screens/Settings/Overview")
+$attribute: CustomPage(StoryTitles.Prefix + "/Screens/Settings/Overview")
 ---
 
 # Settings
@@ -26,12 +26,12 @@ The count loads each time Settings shows and when the app starts again while it 
 
 Export writes the file, then opens Android's share sheet, titled "Export workouts". Nothing shows afterwards.
 
-Import opens Android's file picker (JSON files). Cancelling it leaves Settings as it was. A file that's read opens [Import Review](./?path=/custom/screens-import-review-overview), also when it can't be imported.
+Import opens Android's file picker (JSON files). Cancelling it leaves Settings as it was. A file that's read opens [Import Review](./?path=/custom/workout-log-screens-import-review-overview), also when it can't be imported.
 
 The messages under Export and Import clear on the next Export or Import tap and on any reload.
 
 Back: where it was opened from, This week or Trends at the same period (`/settings?from=trends:…`; This week when missing). Import: Import Review, which passes `from` on and returns to Settings with it.
 
-States: [With workouts](./?path=/story/screens-settings--with-workouts) · [Dark chosen](./?path=/story/screens-settings--dark-chosen) · [One workout](./?path=/story/screens-settings--one-workout) · [No workouts](./?path=/story/screens-settings--no-workouts) · [Loading](./?path=/story/screens-settings--loading) · [Load failed](./?path=/story/screens-settings--load-failed) · [Exporting](./?path=/story/screens-settings--exporting) · [Export failed](./?path=/story/screens-settings--export-failed) · [Too many workouts](./?path=/story/screens-settings--too-many-workouts) · [Reading](./?path=/story/screens-settings--reading) · [Import failed](./?path=/story/screens-settings--import-failed) · [Imported](./?path=/story/screens-settings--imported)
+States: [With workouts](./?path=/story/workout-log-screens-settings--with-workouts) · [Dark chosen](./?path=/story/workout-log-screens-settings--dark-chosen) · [One workout](./?path=/story/workout-log-screens-settings--one-workout) · [No workouts](./?path=/story/workout-log-screens-settings--no-workouts) · [Loading](./?path=/story/workout-log-screens-settings--loading) · [Load failed](./?path=/story/workout-log-screens-settings--load-failed) · [Exporting](./?path=/story/workout-log-screens-settings--exporting) · [Export failed](./?path=/story/workout-log-screens-settings--export-failed) · [Too many workouts](./?path=/story/workout-log-screens-settings--too-many-workouts) · [Reading](./?path=/story/workout-log-screens-settings--reading) · [Import failed](./?path=/story/workout-log-screens-settings--import-failed) · [Imported](./?path=/story/workout-log-screens-settings--imported)
 
 `data-testid`: `back`, `theme`, `settings-theme-system`, `settings-theme-light`, `settings-theme-dark`, `export-text`, `export`, `export-error`, `import-text`, `import`, `import-error`, `import-done`, `settings-loading`, `settings-error`, `settings-retry`, `app-version`.
