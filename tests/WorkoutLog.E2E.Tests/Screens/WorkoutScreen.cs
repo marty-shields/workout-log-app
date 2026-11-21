@@ -338,7 +338,7 @@ public sealed partial class WorkoutScreen(WebView web, Native native)
     private IEnumerable<(string TestId, string Name)> Cards()
     {
         const string script = """
-            return [...document.querySelectorAll('section.card[data-testid^="exercise-"]')]
+            return [...document.querySelectorAll('.card[data-testid^="exercise-"]')]
                 .map(s => [s.getAttribute('data-testid'), s.querySelector('.name').textContent.trim()]);
             """;
         var cards = web.List(script);

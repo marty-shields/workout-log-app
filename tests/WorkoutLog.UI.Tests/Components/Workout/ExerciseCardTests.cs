@@ -5,6 +5,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Testing;
 using Microsoft.JSInterop;
 using Shields.UI.Components.Actions;
+using Shields.UI.Components.Layout;
 using WorkoutLog.Core.Domain.Exercises;
 using WorkoutLog.Core.Domain.Workouts;
 using WorkoutLog.UI.Components.Workout;
@@ -56,6 +57,21 @@ public class ExerciseCardTests : ComponentTestBase
         }
 
         return exercise;
+    }
+
+    [Test]
+    public void Card_IsTheKitsCardHoldingTheHeaderAndSets()
+    {
+        var cut = Context.Render<ExerciseCard>(p => p
+            .Add(x => x.Exercise, Carry(1))
+            .Add(x => x.TestId, "exercise-1"));
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.FindComponent<Card>().Instance.TestId, Is.EqualTo("exercise-1"));
+            Assert.That(cut.Find("div.card[data-testid=exercise-1] > .body > .card-header h2.name").TextContent, Is.EqualTo("Farmer's Walk"));
+            Assert.That(cut.Find("div.card[data-testid=exercise-1] .sets"), Is.Not.Null);
+        });
     }
 
     private static ExerciseState Carry(int sets)
@@ -1128,7 +1144,11 @@ public class ExerciseCardTests : ComponentTestBase
             .Add(x => x.Exercise, exercise)
             .Add(x => x.TestId, "exercise-1"));
 
-        Assert.That(cut.Find("[data-testid=exercise-1-error]").TextContent, Is.EqualTo("Add at least one set"));
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.Find("[data-testid=exercise-1-error]").TextContent, Is.EqualTo("Add at least one set"));
+            Assert.That(cut.Find(".body").ClassList, Does.Contain("has-error"));
+        });
     }
 
     [Test]
@@ -1146,6 +1166,7 @@ public class ExerciseCardTests : ComponentTestBase
         {
             Assert.That(exercise.Error, Is.Null);
             Assert.That(cut.FindAll("[data-testid=exercise-1-error]"), Is.Empty);
+            Assert.That(cut.Find(".body").ClassList, Does.Not.Contain("has-error"));
         });
     }
 
@@ -1666,7 +1687,7 @@ public class ExerciseCardTests : ComponentTestBase
             Assert.That(note.GetAttribute("aria-label"), Is.EqualTo("Edit note"));
             Assert.That(note.ClassList, Does.Contain("active"));
             Assert.That(cut.Find("[data-testid=exercise-1-note-open] .text").TextContent, Is.EqualTo("Left knee twinge"));
-            Assert.That(cut.FindAll(".card > .add-row + [data-testid=exercise-1-note]"), Has.Count.EqualTo(1));
+            Assert.That(cut.FindAll(".body > .add-row + [data-testid=exercise-1-note]"), Has.Count.EqualTo(1));
         });
     }
 
@@ -1745,7 +1766,7 @@ public class ExerciseCardTests : ComponentTestBase
 
         Assert.Multiple(() =>
         {
-            Assert.That(cut.Find(".card > [data-testid=exercise-1-note]").QuerySelector("textarea")!.GetAttribute("data-testid"), Is.EqualTo("exercise-1-note-input"));
+            Assert.That(cut.Find(".body > [data-testid=exercise-1-note]").QuerySelector("textarea")!.GetAttribute("data-testid"), Is.EqualTo("exercise-1-note-input"));
             Assert.That(cut.Find("[data-testid=exercise-1-note-count]").TextContent, Is.EqualTo("0/500"));
             Context.JSInterop.VerifyFocusAsyncInvoke().Arguments[0].ShouldBeElementReferenceTo(cut.Find("textarea"));
         });
@@ -1996,7 +2017,6 @@ public class ExerciseCardTests : ComponentTestBase
             Assert.That(cut.Find("[data-testid=exercise-1-note-error]").TextContent, Is.EqualTo("Note must be 500 characters or less"));
             Assert.That(cut.Find("[data-testid=exercise-1-note-open]").ClassList, Does.Contain("invalid"));
             Assert.That(cut.FindAll("[data-testid=exercise-1-error]"), Is.Empty);
-            Assert.That(cut.Find(".card").ClassList, Does.Not.Contain("has-error"));
         });
     }
 

@@ -878,7 +878,15 @@ public class WorkoutViewTests : ComponentTestBase
             .Add(x => x.Exercises, [fine, noted])
             .Add(x => x.ErrorFocus, new ErrorFocus()));
 
-        cut.WaitForAssertion(() => Context.JSInterop.VerifyFocusAsyncInvoke().Arguments[0].ShouldBeElementReferenceTo(cut.Find("[data-testid=exercise-2-note-input]")));
+        // bUnit leaves blazor:elementreference empty on markup that a child component renders inside the kit's Card's content, so
+        // ShouldBeElementReferenceTo cannot match; the focus call still carries the text box's own captured reference.
+        cut.WaitForAssertion(() =>
+        {
+            var focused = Context.JSInterop.VerifyFocusAsyncInvoke().Arguments[0];
+            Assert.That(focused, Is.TypeOf<ElementReference>());
+            Assert.That(((ElementReference)focused!).Id, Is.Not.Empty);
+            Assert.That(cut.FindAll("textarea").Select(t => t.GetAttribute("data-testid")), Is.EqualTo(new[] { "exercise-2-note-input" }));
+        });
     }
 
     [Test]

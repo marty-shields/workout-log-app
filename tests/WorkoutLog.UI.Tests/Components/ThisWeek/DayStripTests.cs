@@ -1,3 +1,4 @@
+using Shields.UI.Components.Layout;
 using WorkoutLog.UI.Components.ThisWeek;
 using WorkoutLog.UI.Stories.Samples;
 
@@ -5,6 +6,18 @@ namespace WorkoutLog.UI.Tests.Components.ThisWeek;
 
 public class DayStripTests : ComponentTestBase
 {
+    [Test]
+    public void Strip_IsTheKitsCardHoldingTheDays()
+    {
+        var cut = Render(SampleThisWeek.Wednesday, SampleThisWeek.TrainedDays);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.FindComponent<Card>().Instance.TestId, Is.EqualTo("strip"));
+            Assert.That(cut.Find("div.card[data-testid=strip] > ul.days"), Is.Not.Null);
+        });
+    }
+
     [Test]
     public void Days_AreMondayToSundayWithAbbreviations()
     {

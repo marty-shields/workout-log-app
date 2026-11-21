@@ -1,3 +1,4 @@
+using Shields.UI.Components.Layout;
 using WorkoutLog.Core.Domain;
 using WorkoutLog.UI.Components.Charts;
 using WorkoutLog.UI.Screens;
@@ -41,6 +42,21 @@ public class ExerciseViewTests : ComponentTestBase
         {
             Assert.That(cut.FindAll("[data-testid=exercise-tabs]"), Is.Empty);
             Assert.That(cut.Find("[data-testid=exercise-chart-card] h2").TextContent, Is.EqualTo("Least assist per session"));
+        });
+    }
+
+    [Test]
+    public void ChartCard_IsTheKitsCard_TitledWhenTheChartHasATitle()
+    {
+        var titled = Render(SampleExercises.Assisted);
+        var plain = Render(SampleExercises.LiftTopSet);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(titled.FindComponent<Card>().Instance.Title, Is.EqualTo("Least assist per session"));
+            Assert.That(plain.FindComponent<Card>().Instance.Title, Is.Null);
+            Assert.That(titled.Find("section.card[data-testid=exercise-chart-card] h2.title").TextContent, Is.EqualTo("Least assist per session"));
+            Assert.That(plain.Find("div.card[data-testid=exercise-chart-card]").QuerySelector("h2"), Is.Null);
         });
     }
 
