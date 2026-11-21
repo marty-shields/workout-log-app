@@ -35,6 +35,14 @@ public partial class KitAssetsTests
     }
 
     [Test]
+    public void AppIndex_LoadsNoStoriesShellAsset()
+    {
+        var loaded = Loaded(RepoFiles.Read("src", "WorkoutLog.App", "wwwroot", "index.html"));
+
+        Assert.That(loaded, Has.None.StartsWith("_content/Shields.UI.Stories/"));
+    }
+
+    [Test]
     public void StoriesIframe_LoadsTheStoriesShellCssAndItsTokensAfterTheKitsTokens()
     {
         var loaded = Loaded(RepoFiles.Read("src", "WorkoutLog.UI.Stories", "wwwroot", "iframe.html")).ToList();

@@ -57,6 +57,31 @@ public partial class DesignSystemPageTests
         Assert.That(listed, Is.EquivalentTo(DesignTokens.Declares(DesignTokens.AppTokensCss)));
     }
 
+    [Test]
+    public void TokensStory_ListsColoursAndSizesInTheirOwnLists()
+    {
+        var story = File.ReadAllText(Path.Combine(Folder("Foundations"), "Tokens.stories.razor"));
+
+        var colours = Regex.Match(story, @"AppColours\s*=\s*\[(.*?)\];", RegexOptions.Singleline).Groups[1].Value;
+        var sizes = Regex.Match(story, @"AppSizes\s*=\s*\[(.*?)\];", RegexOptions.Singleline).Groups[1].Value;
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(Names(colours), Is.Not.Empty.And.All.StartsWith("--color-"));
+            Assert.That(Names(sizes), Is.Not.Empty.And.All.Not.StartsWith("--color-"));
+        });
+    }
+
+    [Test]
+    public void FoundationsPages_AreTheAppsOwn()
+    {
+        var pages = Directory.EnumerateFiles(Folder("Foundations")).Select(f => Path.GetFileName(f).Split('.')[0]).Distinct();
+
+        Assert.That(pages, Is.EquivalentTo(new[] { "Introduction", "Haptics", "Navigation", "AppIcon", "Tokens" }));
+    }
+
+    private static IEnumerable<string> Names(string list) => Regex.Matches(list, "\"(--[a-z0-9-]+)\"").Select(m => m.Groups[1].Value);
+
     private static string Folder(string folder) => RepoFiles.PathOf("src", "WorkoutLog.UI.Stories", "Stories", folder);
 
     private static IEnumerable<string> Pages(string folder) =>

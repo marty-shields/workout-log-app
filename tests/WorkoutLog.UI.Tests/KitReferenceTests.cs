@@ -67,6 +67,16 @@ public class KitReferenceTests
     }
 
     [Test]
+    public void KitPackages_ShareOneVersion()
+    {
+        var props = XDocument.Parse(RepoFiles.Read("Directory.Packages.props"));
+        string? Version(string package) => props.Descendants("PackageVersion")
+            .Single(p => (string?)p.Attribute("Include") == package).Attribute("Version")?.Value;
+
+        Assert.That(Version("Shields.UI.Stories"), Is.EqualTo(Version("Shields.UI")));
+    }
+
+    [Test]
     public void KitSourceBuild_MovesTheLockFileToObjAndDoesNotEnforceIt()
     {
         var group = BuildPropsGroups().Single(g => (string?)g.Attribute("Condition") == SourceCondition);
