@@ -92,7 +92,7 @@ public class SetRowTests : ComponentTestBase
             Assert.That(cut.FindAll(".set-row + .last-line"), Has.Count.EqualTo(1));
             Assert.That(cut.Find("[data-testid=set-1-last]").TextContent, Is.EqualTo(text));
             Assert.That(cut.Find(".set-row").GetAttribute("style"),
-                Is.EqualTo("grid-template-columns: var(--set-number-width) minmax(0, 2fr) minmax(0, 1fr) var(--touch-target)"));
+                Is.EqualTo("grid-template-columns: var(--set-number-width) minmax(0, 3fr) minmax(0, 1fr) var(--touch-target)"));
         });
     }
 

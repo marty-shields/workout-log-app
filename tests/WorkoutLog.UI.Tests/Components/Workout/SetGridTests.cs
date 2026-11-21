@@ -41,7 +41,7 @@ public class SetGridTests
         {
             Assert.That(SetGrid.Columns([Reps], false), Is.EqualTo("var(--set-number-width) minmax(0, 1fr) var(--touch-target)"));
             Assert.That(SetGrid.Columns([Weight, Reps], false), Is.EqualTo("var(--set-number-width) minmax(0, 1fr) minmax(0, 1fr) var(--touch-target)"));
-            Assert.That(SetGrid.Columns([Reps, Time], false), Is.EqualTo("var(--set-number-width) minmax(0, 1fr) minmax(0, 2fr) var(--touch-target)"));
+            Assert.That(SetGrid.Columns([Reps, Time], false), Is.EqualTo("var(--set-number-width) minmax(0, 1fr) minmax(0, 3fr) var(--touch-target)"));
         });
     }
 
@@ -83,7 +83,7 @@ public class SetGridTests
         Assert.Multiple(() =>
         {
             Assert.That(SetGrid.Columns([Time, Weight], true), Is.EqualTo(SetGrid.Columns([Time, Weight], false)));
-            Assert.That(SetGrid.Columns([Time, Weight], true), Is.EqualTo("var(--set-number-width) minmax(0, 2fr) minmax(0, 1fr) var(--touch-target)"));
+            Assert.That(SetGrid.Columns([Time, Weight], true), Is.EqualTo("var(--set-number-width) minmax(0, 3fr) minmax(0, 1fr) var(--touch-target)"));
         });
     }
 }

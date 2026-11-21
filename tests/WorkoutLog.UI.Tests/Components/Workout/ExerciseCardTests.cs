@@ -387,7 +387,7 @@ public class ExerciseCardTests : ComponentTestBase
         var cut = Context.Render<ExerciseCard>(p => p.Add(x => x.Exercise, exercise));
 
         Assert.That(cut.Find(".set-header").GetAttribute("style"),
-            Is.EqualTo("grid-template-columns: var(--set-number-width) minmax(0, 1fr) minmax(0, 2fr) var(--touch-target)"));
+            Is.EqualTo("grid-template-columns: var(--set-number-width) minmax(0, 1fr) minmax(0, 3fr) var(--touch-target)"));
     }
 
     [Test]
@@ -1544,7 +1544,7 @@ public class ExerciseCardTests : ComponentTestBase
         {
             Assert.That(cut.FindAll(".set-header span").Select(s => s.TextContent), Is.EqualTo(new[] { "Set", "Duration\u00a0*", "Weight", "" }));
             Assert.That(cut.Find(".set-header").GetAttribute("style"),
-                Is.EqualTo("grid-template-columns: var(--set-number-width) minmax(0, 2fr) minmax(0, 1fr) var(--touch-target)"));
+                Is.EqualTo("grid-template-columns: var(--set-number-width) minmax(0, 3fr) minmax(0, 1fr) var(--touch-target)"));
             Assert.That(cut.FindAll(".set-row .last"), Is.Empty);
             Assert.That(cut.FindAll(".set-row + .last-line"), Has.Count.EqualTo(1));
             Assert.That(cut.FindAll("[data-testid=exercise-1-set-1-last]"), Is.Empty);

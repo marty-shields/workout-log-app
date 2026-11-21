@@ -21,7 +21,8 @@ internal static class SetGrid
     public static string Columns(IReadOnlyList<FieldSpec> fields, bool hasLast)
     {
         var lastColumn = LastColumn(fields, hasLast);
-        var fieldColumns = fields.Select(field => field.Kind == FieldKind.Duration ? "minmax(0, 2fr)" : "minmax(0, 1fr)");
+        // A duration takes 3fr: the kit's three boxes pad 4px a side, so at the narrowest card 2fr clips mm and ss.
+        var fieldColumns = fields.Select(field => field.Kind == FieldKind.Duration ? "minmax(0, 3fr)" : "minmax(0, 1fr)");
         var last = lastColumn ? "var(--set-last-width) " : null;
         return $"var(--set-number-width) {last}{string.Join(' ', fieldColumns)} var(--touch-target)";
     }
