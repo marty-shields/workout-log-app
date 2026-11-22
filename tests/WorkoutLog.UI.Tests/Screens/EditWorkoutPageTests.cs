@@ -349,7 +349,7 @@ public class EditWorkoutPageTests : ComponentTestBase
         var cut = RenderPage();
         workouts.Complete(new ReadFailed());
         await WaitForRendererAsync();
-        cut.WaitForAssertion(() => Assert.That(cut.FindAll("[data-testid=workout-load-error]"), Has.Count.EqualTo(1)));
+        await WaitForSettledAsync(cut, () => Assert.That(cut.FindAll("[data-testid=workout-load-error]"), Has.Count.EqualTo(1)));
 
         cut.Find("[data-testid=workout-load-retry]").Click();
 
@@ -372,7 +372,7 @@ public class EditWorkoutPageTests : ComponentTestBase
         var cut = RenderPage();
         workouts.Complete(new ReadFailed());
         await WaitForRendererAsync();
-        cut.WaitForAssertion(() => Assert.That(Focuses(), Has.Count.EqualTo(1)));
+        await WaitForSettledAsync(cut, () => Assert.That(Focuses(), Has.Count.EqualTo(1)));
 
         cut.Find("[data-testid=workout-load-retry]").Click();
         workouts.Complete(new ReadFailed());
@@ -657,7 +657,7 @@ public class EditWorkoutPageTests : ComponentTestBase
         var cut = RenderPage(onBack: () => backs++);
         workouts.Complete(notFound ? new WorkoutNotFound() : new ReadFailed());
         await WaitForRendererAsync();
-        cut.WaitForAssertion(() => Assert.That(cut.FindAll("[data-testid=workout-loading]"), Is.Empty));
+        await WaitForSettledAsync(cut, () => Assert.That(cut.FindAll("[data-testid=workout-loading]"), Is.Empty));
 
         cut.Find("[data-testid=back]").Click();
         await cut.InvokeAsync(BackButton.HandleAsync);
@@ -854,7 +854,7 @@ public class EditWorkoutPageTests : ComponentTestBase
         cut.Find("[data-testid=confirm-dialog-confirm]").Click();
         await cut.InvokeAsync(() => pending.SetResult(WorkoutDelete.Deleted));
         await WaitForRendererAsync();
-        cut.WaitForAssertion(() => Assert.That(deleted, Is.EqualTo(1)));
+        await WaitForSettledAsync(cut, () => Assert.That(deleted, Is.EqualTo(1)));
         cut.Find("[data-testid=confirm-dialog-confirm]").Click();
 
         Assert.Multiple(() =>
@@ -1054,7 +1054,7 @@ public class EditWorkoutPageTests : ComponentTestBase
                 .Add(x => x.OnDeleted, () => throw new InvalidOperationException("Navigation failed"))));
         workouts.Complete(Loaded);
         await WaitForRendererAsync();
-        cut.WaitForAssertion(() => Assert.That(cut.FindAll("[data-testid=save-workout]"), Has.Count.EqualTo(1)));
+        await WaitForSettledAsync(cut, () => Assert.That(cut.FindAll("[data-testid=save-workout]"), Has.Count.EqualTo(1)));
         cut.Find("[data-testid=delete-workout]").Click();
 
         cut.Find("[data-testid=confirm-dialog-confirm]").Click();
@@ -1117,7 +1117,8 @@ public class EditWorkoutPageTests : ComponentTestBase
     {
         var cut = await RenderLoadedAsync();
         Add(cut, 6);
-        cut.WaitForElement("[data-testid=exercise-1-set-3-reps]").Input("5");
+        await WaitForSettledAsync(cut, () => Assert.That(cut.FindAll("[data-testid=exercise-1-set-3-reps]"), Has.Count.EqualTo(1)));
+        cut.Find("[data-testid=exercise-1-set-3-reps]").Input("5");
         Field(cut, "exercise-1-set-3-weight").Input("20");
 
         cut.Find("[data-testid=save-workout]").Click();
@@ -1751,7 +1752,7 @@ public class EditWorkoutPageTests : ComponentTestBase
         var cut = RenderPage(onBack, onSaved, onDeleted);
         workouts.Complete(saved is null ? Loaded : saved);
         await WaitForRendererAsync();
-        cut.WaitForAssertion(() => Assert.That(cut.FindAll("[data-testid=save-workout]"), Has.Count.EqualTo(1)));
+        await WaitForSettledAsync(cut, () => Assert.That(cut.FindAll("[data-testid=save-workout]"), Has.Count.EqualTo(1)));
         return cut;
     }
 

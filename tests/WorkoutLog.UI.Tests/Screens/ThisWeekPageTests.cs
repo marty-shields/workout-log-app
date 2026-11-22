@@ -563,7 +563,7 @@ public class ThisWeekPageTests : ComponentTestBase
     {
         var cut = Context.Render<ThisWeekPage>();
         await WaitForRendererAsync();
-        cut.WaitForAssertion(() => Assert.That(cut.FindAll("[data-testid=week-tiles]"), Has.Count.EqualTo(1)));
+        await WaitForSettledAsync(cut, () => Assert.That(cut.FindAll("[data-testid=week-tiles]"), Has.Count.EqualTo(1)));
         return cut;
     }
 
