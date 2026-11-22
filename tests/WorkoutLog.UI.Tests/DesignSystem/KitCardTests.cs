@@ -9,9 +9,6 @@ public partial class KitCardTests
     [
         Path.Combine("Components", "ThisWeek", "WeekWorkoutsCard.razor.css"),
         Path.Combine("Components", "ThisWeek", "WeekRecordsCard.razor.css"),
-        Path.Combine("Components", "ThisWeek", "LastWeekCard.razor.css"),
-        Path.Combine("Components", "Trends", "LongestStreakCard.razor.css"),
-        Path.Combine("Components", "Lists", "RecordsCard.razor.css"),
     ];
 
     [TestCaseSource(nameof(CardStyles))]
@@ -36,11 +33,6 @@ public partial class KitCardTests
     /// </summary>
     private static readonly Dictionary<(string File, string Selector), string> NotCards = new()
     {
-        [(Path.Combine("Components", "Charts", "Chart.razor.css"), ".point")] = "a chart point's SVG fill, not a card",
-        [(Path.Combine("Components", "Inputs", "DateRangeField.razor.css"), ".field")] = "the date field's input box",
-        [(Path.Combine("Components", "Inputs", "NoteField.razor.css"), ".input")] = "the note's text box",
-        [(Path.Combine("Components", "Inputs", "NoteField.razor.css"), ".summary.invalid")] = "the note summary button's error outline",
-        [(Path.Combine("Components", "Lists", "AddExerciseSearch.razor.css"), ".search-input")] = "the search input box",
         [(Path.Combine("Components", "ThisWeek", "DayStrip.razor.css"), ".dot")] = "a day's dashed circle",
     };
 
@@ -76,15 +68,6 @@ public partial class KitCardTests
         });
     }
 
-    [TestCase("Components/ThisWeek/LastWeekCard.razor.css")]
-    [TestCase("Components/Trends/LongestStreakCard.razor.css")]
-    public void SingleRowCards_DropTheRowsBottomBorder(string file)
-    {
-        var css = File.ReadAllText(RepoFiles.PathOf("src", "WorkoutLog.UI", file));
-
-        Assert.That(css, Does.Match(SingleRowBorderRule()));
-    }
-
     [GeneratedRegex(@"/\*.*?\*/", RegexOptions.Singleline)]
     private static partial Regex CssComment();
 
@@ -99,9 +82,6 @@ public partial class KitCardTests
 
     [GeneratedRegex(@"(^|[;{\s])border\s*:")]
     private static partial Regex BorderShorthand();
-
-    [GeneratedRegex(@"\.single ::deep \.row\s*\{[^}]*border-bottom:\s*none")]
-    private static partial Regex SingleRowBorderRule();
 
     [Test]
     public void KitCardTitle_IsTheMediumFontSize_Of16Pixels()

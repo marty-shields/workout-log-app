@@ -31,7 +31,7 @@ public class SetRowTests : ComponentTestBase
 
         Assert.Multiple(() =>
         {
-            Assert.That(cut.Find(".number").TextContent, Is.EqualTo("2"));
+            Assert.That(cut.Find(".index").TextContent, Is.EqualTo("2"));
             Assert.That(cut.Find("[data-testid=set-2-reps]"), Is.Not.Null);
             Assert.That(cut.Find("[data-testid=set-2-weight]"), Is.Not.Null);
         });
@@ -48,8 +48,8 @@ public class SetRowTests : ComponentTestBase
 
         Assert.Multiple(() =>
         {
-            Assert.That(cut.FindAll(".last"), Is.Empty);
-            Assert.That(cut.Find(".set-row").GetAttribute("style"),
+            Assert.That(cut.FindAll(".aside"), Is.Empty);
+            Assert.That(cut.Find(SetMarkup.OpenRow).GetAttribute("style"),
                 Is.EqualTo("grid-template-columns: var(--entry-grid-index-width) minmax(0, 1fr) minmax(0, 1fr) var(--touch-target)"));
         });
     }
@@ -67,11 +67,11 @@ public class SetRowTests : ComponentTestBase
 
         Assert.Multiple(() =>
         {
-            Assert.That(cut.FindAll(".number + .last"), Has.Count.EqualTo(1));
+            Assert.That(cut.FindAll(".index + .aside"), Has.Count.EqualTo(1));
             Assert.That(cut.Find("[data-testid=set-1-last]").TextContent, Is.EqualTo($"Last time {last}"));
-            Assert.That(cut.Find(".last .visually-hidden").TextContent, Is.EqualTo("Last time "));
-            Assert.That(cut.Find(".set-row").GetAttribute("style"),
-                Is.EqualTo("grid-template-columns: var(--entry-grid-index-width) calc(var(--entry-grid-aside-width) + var(--space-2)) minmax(0, 1fr) minmax(0, 1fr) var(--touch-target)"));
+            Assert.That(cut.Find(".aside .visually-hidden").TextContent, Is.EqualTo("Last time "));
+            Assert.That(cut.Find(SetMarkup.OpenRow).GetAttribute("style"),
+                Is.EqualTo("grid-template-columns: var(--entry-grid-index-width) var(--entry-grid-aside-width) minmax(0, 1fr) minmax(0, 1fr) var(--touch-target)"));
         });
     }
 
@@ -88,11 +88,29 @@ public class SetRowTests : ComponentTestBase
 
         Assert.Multiple(() =>
         {
-            Assert.That(cut.FindAll(".set-row .last"), Is.Empty);
-            Assert.That(cut.FindAll(".set-row + .last-line"), Has.Count.EqualTo(1));
+            Assert.That(cut.FindAll(".aside"), Is.Empty);
+            Assert.That(cut.FindAll($"{SetMarkup.OpenRow} + .indent [data-testid=set-1-last]"), Has.Count.EqualTo(1));
             Assert.That(cut.Find("[data-testid=set-1-last]").TextContent, Is.EqualTo(text));
-            Assert.That(cut.Find(".set-row").GetAttribute("style"),
+            Assert.That(cut.Find(SetMarkup.OpenRow).GetAttribute("style"),
                 Is.EqualTo("grid-template-columns: var(--entry-grid-index-width) minmax(0, 1fr) minmax(0, 1fr) var(--touch-target)"));
+        });
+    }
+
+    [Test]
+    public void Last_WhenTheCardSaysBelow_ShowsALineUnderTheRowAndNoColumnOnARowWithoutADuration()
+    {
+        var cut = Context.Render<SetRow>(p => p
+            .Add(x => x.Number, 1)
+            .Add(x => x.Fields, Fields)
+            .Add(x => x.Entry, new EntryState())
+            .Add(x => x.Last, "60×8")
+            .Add(x => x.LastBelow, true)
+            .Add(x => x.TestId, "set-1"));
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.FindAll(".aside"), Is.Empty);
+            Assert.That(cut.Find($"{SetMarkup.OpenRow} + .indent [data-testid=set-1-last]").TextContent, Is.EqualTo("Last time 60×8"));
         });
     }
 
@@ -105,7 +123,7 @@ public class SetRowTests : ComponentTestBase
             .Add(x => x.Entry, new EntryState())
             .Add(x => x.TestId, "set-3"));
 
-        Assert.That(cut.FindAll(".last, .last-line"), Is.Empty);
+        Assert.That(cut.FindAll("[data-testid$=-last]"), Is.Empty);
     }
 
     [Test]
@@ -192,7 +210,7 @@ public class SetRowTests : ComponentTestBase
             .Add(x => x.Entry, new EntryState { Errors = { ["weight"] = "Weight error", ["reps"] = "Reps error" } })
             .Add(x => x.TestId, "set-1"));
 
-        var lines = cut.FindAll("[data-testid=set-1-error] .error").Select(e => e.TextContent);
+        var lines = cut.FindAll("[data-testid=set-1-error] li").Select(e => e.TextContent);
 
         Assert.That(lines, Is.EqualTo(new[] { "Reps error", "Weight error" }));
     }
@@ -488,6 +506,6 @@ public class SetRowTests : ComponentTestBase
             .Add(x => x.Entry, new EntryState())
             .Add(x => x.TestId, "set-1"));
 
-        Assert.That(cut.Find(".set-row .parts").ClassList, Does.Contain("compact"));
+        Assert.That(cut.Find($"{SetMarkup.OpenRow} .parts").ClassList, Does.Contain("compact"));
     }
 }

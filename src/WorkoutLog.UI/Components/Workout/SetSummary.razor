@@ -1,18 +1,17 @@
-@using WorkoutLog.UI.Components.Inputs
 @using WorkoutLog.UI.Models.Fields
-<div class="summary" data-testid="@TestId">
-    <div class="line">
-        <h3 class="heading" data-wrap-ok>
-            <span class="number">@Number</span> <span class="text">@Text</span>
-        </h3>
-        <div class="actions">
+<div class="summary">
+    <ListRow Text="@Text" Divider="false" TestId="@TestId">
+        <Leading>@Number</Leading>
+        <Trailing>
             <IconButton @ref="edit" Icon="IconName.Edit" AriaLabel="@(Label("Edit"))" TestId="@($"{TestId}-edit")" Muted Compact OnClick="OnOpen" />
             <IconButton Icon="IconName.Delete" AriaLabel="@(Label("Delete"))" TestId="@($"{TestId}-remove")" Muted Compact OnClick="OnRemove" />
-        </div>
-    </div>
+        </Trailing>
+    </ListRow>
     @if (IsRecord)
     {
-        <RecordBadge TestId="@($"{TestId}-record")" />
+        <div class="record">
+            <SuccessBadge Text="Record" TestId="@($"{TestId}-record")" />
+        </div>
     }
 </div>
 

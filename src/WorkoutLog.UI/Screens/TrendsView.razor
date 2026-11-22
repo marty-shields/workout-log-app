@@ -1,7 +1,6 @@
 @using System.Globalization
 @using WorkoutLog.Core.Domain.Workouts.Periods
 @using WorkoutLog.UI.Components.Weekly
-@using WorkoutLog.UI.Components.Inputs
 @using WorkoutLog.UI.Components.ThisWeek
 @using WorkoutLog.UI.Components.Trends
 @using WorkoutLog.UI.Models.Muscles
@@ -48,7 +47,8 @@
                         <RecordRows Records="Records" EmptyText="@($"No new records {Name}")" OnOpen="OnOpenRecord" TestId="trends-records" />
                     </Card>
                     <Card Title="Last 12 weeks" Aside="@(Streak > 0 ? $"{Streak}-week streak" : null)" TestId="trends-recent-weeks">
-                        <WeekBars Counts="RecentWeeks" TestId="trends-recent-weeks-chart" />
+                        <CountBars Counts="RecentWeeks" Label="@($"Workouts per week, last {RecentWeeks.Count} weeks")" StartLabel="@(RecentWeeks.Count > 1 ? WeeksAgo(RecentWeeks.Count - 1) : null)" EndLabel="This week"
+                                   ValueText="WeekCountText" EmptyText="@($"No workouts in the last {RecentWeeks.Count} weeks")" TestId="trends-recent-weeks-chart" />
                     </Card>
                 }
                 else if (Kind == PeriodKind.Month)
@@ -58,7 +58,7 @@
                         <ChartLegend Items="CalendarLegend" TestId="trends-calendar-days-legend" />
                     </Card>
                     <Card Title="Weeks" TestId="trends-weeks">
-                        <MonthWeeks Weeks="Weeks" OnOpen="OnOpenWorkouts" TestId="trends-weeks-rows" />
+                        <BarList Items="WeekItems" Label="Workouts and time for each week" EmptyText="No weeks yet" OnSelect="OpenWeek" TestId="trends-weeks-rows" />
                     </Card>
                     <Card Title="Records" Aside="@($"{Records.Count} {Name}")" TestId="trends-records">
                         <RecordRows Records="Records" EmptyText="@($"No new records {Name}")" OnOpen="OnOpenRecord" TestId="trends-records" />
@@ -295,6 +295,22 @@
 
     private static IReadOnlyList<BarListItem> Items(IReadOnlyList<MeterRow> rows) =>
         [.. rows.Select(row => new BarListItem(row.Label, row.Value, Selectable: row.ExerciseId is not null))];
+
+    private IReadOnlyList<BarListItem> WeekItems =>
+        [.. Weeks.Select(week => new BarListItem(week.Dates, week.Workouts, $"{DisplayFormat.Workouts(week.Workouts)} · {DisplayFormat.Minutes((int)week.Time.TotalMinutes)}",
+            Selectable: week.Span is not null && week.Workouts > 0))];
+
+    private EventCallback<int> OpenWeek =>
+        OnOpenWorkouts.HasDelegate ? EventCallback.Factory.Create<int>(this, index => OnOpenWorkouts.InvokeAsync(Weeks[index].Span!.Value)) : default;
+
+    private string WeekCountText(int index, int count) => $"{WeeksAgo(RecentWeeks.Count - 1 - index)}: {DisplayFormat.Workouts(count)}";
+
+    private static string WeeksAgo(int weeksAgo) => weeksAgo switch
+    {
+        0 => "This week",
+        1 => "Last week",
+        _ => $"{weeksAgo} weeks ago",
+    };
 
     private EventCallback<int> OpenExercise =>
         OnOpenRecord.HasDelegate

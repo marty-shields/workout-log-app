@@ -1,26 +1,8 @@
 @using WorkoutLog.UI.Models.Fields
-<div class="set-row" style="grid-template-columns: @SetGrid.Columns(Fields, Last is not null)" data-testid="@TestId">
-    <span class="number">@Number</span>
-    @if (Last is not null && !SetGrid.LastBelow(Fields))
-    {
-        <span class="last" data-testid="@($"{TestId}-last")"><span class="visually-hidden">Last time </span>@Last</span>
-    }
-    @foreach (var field in Fields)
-    {
-        @* A kit gap: ValueField ignores Compact for a duration, so the compact boxes are the kit's DurationField itself. *@
-        @if (field.Kind == FieldKind.Duration)
-        {
-            <DurationField @ref="durations[field.Key]"
-                           Label="@field.DisplayLabel"
-                           ShowLabel="false"
-                           Required="field.Required"
-                           Invalid="Entry.Errors.ContainsKey(field.Key)"
-                           Compact
-                           Value="@Entry.Values.GetValueOrDefault(field.Key)"
-                           ValueChanged="value => Change(field, value)"
-                           TestId="@($"{TestId}-{field.Key}")" />
-        }
-        else
+<EntryGridRow FieldCount="Fields.Count" Aside="@(Last is not null && !Below ? LastCell : null)" TestId="@TestId">
+    <Index>@Number</Index>
+    <Fields>
+        @foreach (var field in Fields)
         {
             <ValueField @ref="fields[field.Key]"
                         Kind="field.ValueKind"
@@ -34,23 +16,27 @@
                         OnEnter="@(field == Fields[^1] ? OnEnterLast : default)"
                         TestId="@($"{TestId}-{field.Key}")" />
         }
-    }
-    <IconButton Icon="IconName.Close" AriaLabel="@RemoveLabel" TestId="@($"{TestId}-remove")" Muted Size="IconSize.Small" OnClick="OnRemove" />
-</div>
-@if (Last is not null && SetGrid.LastBelow(Fields))
+    </Fields>
+    <Actions>
+        <IconButton Icon="IconName.Close" AriaLabel="@RemoveLabel" TestId="@($"{TestId}-remove")" Muted Size="IconSize.Small" OnClick="OnRemove" />
+    </Actions>
+</EntryGridRow>
+@if (Last is not null && Below)
 {
-    <p class="last-line" data-testid="@($"{TestId}-last")">Last time @Last</p>
+    <div class="indent">
+        <Typography Variant="TextVariant.MutedSmall" As="TextElement.P" TestId="@($"{TestId}-last")">Last time @Last</Typography>
+    </div>
 }
 @if (IsRecord)
 {
     <div class="indent">
-        <RecordBadge TestId="@($"{TestId}-record")" />
+        <SuccessBadge Text="Record" TestId="@($"{TestId}-record")" />
     </div>
 }
 @if (Entry.Errors.Count > 0)
 {
     <div class="indent">
-        <EntryErrors Fields="Fields" Entry="Entry" TestId="@($"{TestId}-error")" />
+        <InlineAlert Messages="Entry.ErrorMessages(Fields)" TestId="@($"{TestId}-error")" />
     </div>
 }
 
@@ -71,9 +57,13 @@
     [Parameter, EditorRequired]
     public EntryState Entry { get; set; } = null!;
 
-    /// <summary>Last time's text for this set (<see cref="LastTime.Entry"/>), in a muted Last column after the number, or for a duration row on a line under it. Null leaves it out.</summary>
+    /// <summary>Last time's text for this set (<see cref="LastTime.Entry"/>), in a muted Last column after the number, or on a line under the row when <see cref="LastBelow"/> or the row has a duration. Null leaves it out.</summary>
     [Parameter]
     public string? Last { get; set; }
+
+    /// <summary>Shows <see cref="Last"/> under the row, not in the column, because some set's text is too wide for it (<see cref="SetGrid.LastBelow"/>). The card decides once for every set.</summary>
+    [Parameter]
+    public bool LastBelow { get; set; }
 
     /// <summary>Shows the Record badge under the row.</summary>
     [Parameter]
@@ -96,13 +86,16 @@
     public string? TestId { get; set; }
 
     private readonly Dictionary<string, ValueField> fields = new();
-    private readonly Dictionary<string, DurationField> durations = new();
+
+    private bool Below => LastBelow || SetGrid.HasDuration(Fields);
+
+    private RenderFragment LastCell =>
+        @<span data-testid="@($"{TestId}-last")"><span class="visually-hidden">Last time </span>@Last</span>;
 
     /// <summary>Moves focus to the first field with an error, or the first field.</summary>
     public ValueTask FocusAsync() =>
-        (Fields.FirstOrDefault(f => Entry.Errors.ContainsKey(f.Key)) ?? Fields.FirstOrDefault()) is not { } field ? ValueTask.CompletedTask
-            : durations.TryGetValue(field.Key, out var duration) ? duration.FocusAsync()
-            : fields.TryGetValue(field.Key, out var input) ? input.FocusAsync()
+        (Fields.FirstOrDefault(f => Entry.Errors.ContainsKey(f.Key)) ?? Fields.FirstOrDefault()) is { } field && fields.TryGetValue(field.Key, out var input)
+            ? input.FocusAsync()
             : ValueTask.CompletedTask;
 
     private Task Change(FieldSpec field, string? value)

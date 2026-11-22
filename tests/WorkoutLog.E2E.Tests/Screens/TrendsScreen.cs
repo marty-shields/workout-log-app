@@ -58,7 +58,7 @@ public sealed class TrendsScreen(WebView web)
     public void OpenDay(DateOnly day) => web.Tap($"trends-calendar-days-day-{day:yyyy-MM-dd}");
 
     /// <summary>Taps a row of the Weeks card, counting from 1.</summary>
-    public void OpenWeekRow(int row) => web.Tap($"trends-weeks-rows-{row}-open");
+    public void OpenWeekRow(int row) => web.Tap($"trends-weeks-rows-select-{row - 1}");
 
     /// <summary>Taps a day's bar in the week view.</summary>
     public void OpenDayColumn(DateOnly day) => web.Tap($"trends-days-chart-bar-{day:yyyy-MM-dd}");

@@ -27,6 +27,14 @@ public class WeekWorkoutsCardTests : ComponentTestBase
     }
 
     [Test]
+    public void OnlyTheLastRow_HasNoDivider()
+    {
+        var cut = Render(SampleThisWeek.Workouts);
+
+        Assert.That(cut.FindAll("li .row").Select(r => r.ClassList.Contains("no-divider")), Is.EqualTo(new[] { false, false, true }));
+    }
+
+    [Test]
     public void Row_ShowsFirstTwoExercisesThenCount_AndDuration()
     {
         var cut = Render(SampleThisWeek.Workouts);

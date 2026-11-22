@@ -1,17 +1,18 @@
 <Card Title="This week's workouts" Compact="@(Workouts.Count > 0)" TestId="@TestId">
     @if (Workouts.Count == 0)
     {
-        <p class="none" data-testid="@($"{TestId}-none")" data-wrap-ok>Nothing yet this week. Tap + to start one.</p>
+        <Typography Variant="TextVariant.Muted" As="TextElement.P" TestId="@($"{TestId}-none")" data-wrap-ok>Nothing yet this week. Tap + to start one.</Typography>
     }
     else
     {
         <ul class="rows">
-            @foreach (var workout in Workouts.OrderByDescending(w => w.StartedAt))
+            @foreach (var (workout, index) in Workouts.OrderByDescending(w => w.StartedAt).Select((workout, index) => (workout, index)))
             {
                 <li>
                     <ListRow Text="@DisplayFormat.DayAndTime(workout.StartedAt)"
                              Detail="@Exercises(workout.Exercises)"
                              Aside="@DisplayFormat.HoursMinutes(workout.Duration)"
+                             Divider="@(index < Workouts.Count - 1)"
                              OnClick="@(OnOpen.HasDelegate ? EventCallback.Factory.Create(this, () => OnOpen.InvokeAsync(workout.Id)) : default)"
                              TestId="@($"{TestId}-row-{workout.Id}")" />
                 </li>

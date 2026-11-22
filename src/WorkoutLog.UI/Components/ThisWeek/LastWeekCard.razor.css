@@ -1,4 +1,0 @@
-/* The row is the card's only line, so it has no border below it. */
-.single ::deep .row {
-    border-bottom: none;
-}

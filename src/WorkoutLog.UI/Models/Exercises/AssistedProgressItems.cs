@@ -1,7 +1,7 @@
+using Shields.UI.Components.Charts;
 using WorkoutLog.Core.Domain.Exercises.Bests;
 using WorkoutLog.Core.Domain.Exercises.Progress;
 using WorkoutLog.Core.Domain.Workouts;
-using WorkoutLog.UI.Components.Charts;
 using WorkoutLog.UI.Components.Lists;
 
 namespace WorkoutLog.UI.Models.Exercises;
@@ -16,7 +16,7 @@ public static class AssistedProgressItems
     public const string Caption = "Up = less assist";
 
     /// <summary>One point per session, oldest first: the least assist labelled ×reps. A session with no set has a point with no value.</summary>
-    public static IReadOnlyList<ChartPoint> Points(AssistedProgress progress, TimeZoneInfo zone, DateTimeOffset now) =>
+    public static IReadOnlyList<LineChartPoint> Points(AssistedProgress progress, TimeZoneInfo zone, DateTimeOffset now) =>
         progress.Sessions.Select(s => ExerciseProgressItems.Point(s.Session.StartedAt, s.LeastAssist, zone, now)).ToList();
 
     /// <summary>Least assist (e.g. 0kg × 5) with its date; no value shows —.</summary>

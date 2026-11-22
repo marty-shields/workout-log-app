@@ -20,7 +20,7 @@ public class ThisWeekViewTests : ComponentTestBase
             Assert.That(cut.Find("[data-testid=screen-title]").TextContent, Is.EqualTo("Workout Log"));
             Assert.That(cut.Find("[data-testid=settings]").GetAttribute("aria-label"), Is.EqualTo("Settings"));
             Assert.That(cut.FindAll("[data-testid=back]"), Is.Empty);
-            Assert.That(cut.Find("[data-testid=this-week-dates]").TextContent, Is.EqualTo("16 – 22 Nov"));
+            Assert.That(cut.Find("h2.heading[data-testid=this-week-dates]").TextContent, Is.EqualTo("16 – 22 Nov"));
             Assert.That(cut.Find("[data-testid=this-week-streak]").TextContent, Is.EqualTo("23-week streak"));
         });
     }

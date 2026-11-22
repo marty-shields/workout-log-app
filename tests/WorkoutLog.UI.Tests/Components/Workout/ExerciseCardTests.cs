@@ -334,9 +334,9 @@ public class ExerciseCardTests : ComponentTestBase
 
         Assert.Multiple(() =>
         {
-            Assert.That(cut.FindAll(".set-row").Select(r => r.GetAttribute("data-testid")), Is.EqualTo(new[] { "exercise-1-set-3" }));
-            Assert.That(cut.FindAll(".summary"), Has.Count.EqualTo(2));
-            Assert.That(cut.FindAll(".set-header"), Has.Count.EqualTo(1));
+            Assert.That(cut.FindAll(SetMarkup.OpenRow).Select(r => r.GetAttribute("data-testid")), Is.EqualTo(new[] { "exercise-1-set-3" }));
+            Assert.That(cut.FindAll(SetMarkup.Summary), Has.Count.EqualTo(2));
+            Assert.That(cut.FindAll(SetMarkup.Header), Has.Count.EqualTo(1));
         });
     }
 
@@ -352,8 +352,8 @@ public class ExerciseCardTests : ComponentTestBase
 
         Assert.Multiple(() =>
         {
-            Assert.That(cut.FindAll(".set-row"), Is.Empty);
-            Assert.That(cut.FindAll(".summary"), Has.Count.EqualTo(2));
+            Assert.That(cut.FindAll(SetMarkup.OpenRow), Is.Empty);
+            Assert.That(cut.FindAll(SetMarkup.Summary), Has.Count.EqualTo(2));
         });
 
         var empty = Strength(2);
@@ -362,7 +362,7 @@ public class ExerciseCardTests : ComponentTestBase
             .Add(x => x.OpenLastSet, false)
             .Add(x => x.TestId, "exercise-1"));
 
-        Assert.That(emptyCut.FindAll(".set-row").Select(r => r.GetAttribute("data-testid")), Is.EqualTo(new[] { "exercise-1-set-2" }));
+        Assert.That(emptyCut.FindAll(SetMarkup.OpenRow).Select(r => r.GetAttribute("data-testid")), Is.EqualTo(new[] { "exercise-1-set-2" }));
     }
 
     [Test]
@@ -370,7 +370,7 @@ public class ExerciseCardTests : ComponentTestBase
     {
         var cut = Context.Render<ExerciseCard>(p => p.Add(x => x.Exercise, Strength(1)));
 
-        var labels = cut.FindAll(".set-header span").Select(s => s.TextContent);
+        var labels = cut.FindAll($"{SetMarkup.Header} span").Select(s => s.TextContent);
 
         Assert.That(labels, Is.EqualTo(new[] { "Set", "Reps\u00a0*", "Weight (kg)", "" }));
     }
@@ -386,7 +386,7 @@ public class ExerciseCardTests : ComponentTestBase
         exercise.Entries.Add(new EntryState());
         var cut = Context.Render<ExerciseCard>(p => p.Add(x => x.Exercise, exercise));
 
-        Assert.That(cut.Find(".set-header").GetAttribute("style"),
+        Assert.That(cut.Find(SetMarkup.Header).GetAttribute("style"),
             Is.EqualTo("grid-template-columns: var(--entry-grid-index-width) minmax(0, 1fr) minmax(0, 1fr) var(--touch-target)"));
     }
 
@@ -431,9 +431,9 @@ public class ExerciseCardTests : ComponentTestBase
 
         Assert.Multiple(() =>
         {
-            Assert.That(cut.FindAll(".set-header"), Is.Empty);
-            Assert.That(cut.FindAll(".summary"), Has.Count.EqualTo(2));
-            Assert.That(cut.Find(".panel").GetAttribute("data-testid"), Is.EqualTo("exercise-1-set-3"));
+            Assert.That(cut.FindAll(SetMarkup.Header), Is.Empty);
+            Assert.That(cut.FindAll(SetMarkup.Summary), Has.Count.EqualTo(2));
+            Assert.That(cut.Find(SetMarkup.Panel).GetAttribute("data-testid"), Is.EqualTo("exercise-1-set-3"));
         });
     }
 
@@ -448,7 +448,7 @@ public class ExerciseCardTests : ComponentTestBase
 
         Assert.Multiple(() =>
         {
-            Assert.That(cut.FindAll(".panel").Select(p => p.GetAttribute("data-testid")), Is.EqualTo(new[] { "exercise-1-set-1" }));
+            Assert.That(cut.FindAll(SetMarkup.Panel).Select(p => p.GetAttribute("data-testid")), Is.EqualTo(new[] { "exercise-1-set-1" }));
             Assert.That(cut.FindAll("[data-testid=exercise-1-set-3-edit]"), Has.Count.EqualTo(1));
         });
     }
@@ -462,7 +462,7 @@ public class ExerciseCardTests : ComponentTestBase
 
         cut.Find("[data-testid=exercise-1-add-set]").Click();
 
-        Assert.That(cut.FindAll(".panel").Select(p => p.GetAttribute("data-testid")), Is.EqualTo(new[] { "exercise-1-set-3" }));
+        Assert.That(cut.FindAll(SetMarkup.Panel).Select(p => p.GetAttribute("data-testid")), Is.EqualTo(new[] { "exercise-1-set-3" }));
     }
 
     [Test]
@@ -478,8 +478,8 @@ public class ExerciseCardTests : ComponentTestBase
         Assert.Multiple(() =>
         {
             Assert.That(exercise.Entries, Has.Count.EqualTo(1));
-            Assert.That(cut.FindAll(".panel"), Is.Empty);
-            Assert.That(cut.FindAll(".summary"), Has.Count.EqualTo(1));
+            Assert.That(cut.FindAll(SetMarkup.Panel), Is.Empty);
+            Assert.That(cut.FindAll(SetMarkup.Summary), Has.Count.EqualTo(1));
         });
     }
 
@@ -492,7 +492,7 @@ public class ExerciseCardTests : ComponentTestBase
 
         cut.Render(p => p.Add(x => x.Exercise, Carry(3)));
 
-        Assert.That(cut.FindAll(".panel").Select(p => p.GetAttribute("data-testid")), Is.EqualTo(new[] { "exercise-1-set-3" }));
+        Assert.That(cut.FindAll(SetMarkup.Panel).Select(p => p.GetAttribute("data-testid")), Is.EqualTo(new[] { "exercise-1-set-3" }));
     }
 
     [TestCase(false, 1)]
@@ -611,7 +611,7 @@ public class ExerciseCardTests : ComponentTestBase
         {
             Assert.That(checkedEntry, Is.SameAs(exercise.Entries[1]));
             Assert.That(exercise.Entries, Has.Count.EqualTo(2));
-            Assert.That(cut.FindAll(".panel").Select(p => p.GetAttribute("data-testid")), Is.EqualTo(new[] { "exercise-1-set-2" }));
+            Assert.That(cut.FindAll(SetMarkup.Panel).Select(p => p.GetAttribute("data-testid")), Is.EqualTo(new[] { "exercise-1-set-2" }));
         });
     }
 
@@ -631,7 +631,7 @@ public class ExerciseCardTests : ComponentTestBase
         Assert.Multiple(() =>
         {
             Assert.That(checkedEntry, Is.SameAs(exercise.Entries[1]));
-            Assert.That(cut.FindAll(".panel").Select(p => p.GetAttribute("data-testid")), Is.EqualTo(new[] { expectedOpen }));
+            Assert.That(cut.FindAll(SetMarkup.Panel).Select(p => p.GetAttribute("data-testid")), Is.EqualTo(new[] { expectedOpen }));
         });
     }
 
@@ -646,7 +646,7 @@ public class ExerciseCardTests : ComponentTestBase
 
         cut.Find("[data-testid=exercise-1-set-1-edit]").Click();
 
-        Assert.That(cut.FindAll(".panel").Select(p => p.GetAttribute("data-testid")), Is.EqualTo(new[] { "exercise-1-set-1" }));
+        Assert.That(cut.FindAll(SetMarkup.Panel).Select(p => p.GetAttribute("data-testid")), Is.EqualTo(new[] { "exercise-1-set-1" }));
     }
 
     [Test]
@@ -656,7 +656,7 @@ public class ExerciseCardTests : ComponentTestBase
             .Add(x => x.Exercise, Carry(2))
             .Add(x => x.OpenLastSet, false));
 
-        Assert.That(cut.FindAll(".panel"), Is.Empty);
+        Assert.That(cut.FindAll(SetMarkup.Panel), Is.Empty);
     }
 
     [Test]
@@ -669,7 +669,7 @@ public class ExerciseCardTests : ComponentTestBase
             .Add(x => x.OpenLastSet, false)
             .Add(x => x.TestId, "exercise-1"));
 
-        Assert.That(cut.FindAll(".panel").Select(p => p.GetAttribute("data-testid")), Is.EqualTo(new[] { "exercise-1-set-2" }));
+        Assert.That(cut.FindAll(SetMarkup.Panel).Select(p => p.GetAttribute("data-testid")), Is.EqualTo(new[] { "exercise-1-set-2" }));
     }
 
     [Test]
@@ -687,8 +687,8 @@ public class ExerciseCardTests : ComponentTestBase
         Assert.Multiple(() =>
         {
             Assert.That(exercise.Entries, Has.Count.EqualTo(2));
-            Assert.That(cut.FindAll(".set-row").Select(r => r.GetAttribute("data-testid")), Is.EqualTo(new[] { "exercise-1-set-2" }));
-            Assert.That(cut.FindAll(".summary"), Has.Count.EqualTo(1));
+            Assert.That(cut.FindAll(SetMarkup.OpenRow).Select(r => r.GetAttribute("data-testid")), Is.EqualTo(new[] { "exercise-1-set-2" }));
+            Assert.That(cut.FindAll(SetMarkup.Summary), Has.Count.EqualTo(1));
             Assert.That(changed, Is.True);
         });
     }
@@ -707,7 +707,7 @@ public class ExerciseCardTests : ComponentTestBase
         Assert.Multiple(() =>
         {
             Assert.That(exercise.Entries, Is.EqualTo(new[] { first }));
-            Assert.That(cut.FindAll(".set-row"), Is.Empty);
+            Assert.That(cut.FindAll(SetMarkup.OpenRow), Is.Empty);
         });
     }
 
@@ -761,7 +761,7 @@ public class ExerciseCardTests : ComponentTestBase
         Assert.Multiple(() =>
         {
             Assert.That(cut.Find("[data-testid=exercise-1-set-1] .text").TextContent, Is.EqualTo("8 reps · 60kg"));
-            Assert.That(cut.FindAll(".set-row").Select(r => r.GetAttribute("data-testid")), Is.EqualTo(new[] { "exercise-1-set-2" }));
+            Assert.That(cut.FindAll(SetMarkup.OpenRow).Select(r => r.GetAttribute("data-testid")), Is.EqualTo(new[] { "exercise-1-set-2" }));
         });
     }
 
@@ -779,7 +779,7 @@ public class ExerciseCardTests : ComponentTestBase
         Assert.Multiple(() =>
         {
             Assert.That(exercise.Entries, Has.Count.EqualTo(1));
-            Assert.That(cut.FindAll(".set-row"), Has.Count.EqualTo(1));
+            Assert.That(cut.FindAll(SetMarkup.OpenRow), Has.Count.EqualTo(1));
         });
     }
 
@@ -795,8 +795,8 @@ public class ExerciseCardTests : ComponentTestBase
 
         Assert.Multiple(() =>
         {
-            Assert.That(cut.FindAll(".set-row").Select(r => r.GetAttribute("data-testid")), Is.EqualTo(new[] { "exercise-1-set-1" }));
-            Assert.That(cut.FindAll(".summary [data-testid$=-error]"), Is.Empty);
+            Assert.That(cut.FindAll(SetMarkup.OpenRow).Select(r => r.GetAttribute("data-testid")), Is.EqualTo(new[] { "exercise-1-set-1" }));
+            Assert.That(cut.FindAll($"{SetMarkup.Summary} [data-testid$=-error]"), Is.Empty);
         });
     }
 
@@ -814,9 +814,9 @@ public class ExerciseCardTests : ComponentTestBase
 
         Assert.Multiple(() =>
         {
-            Assert.That(cut.FindAll(".set-row").Select(r => r.GetAttribute("data-testid")), Is.EqualTo(new[] { "exercise-1-set-2" }));
+            Assert.That(cut.FindAll(SetMarkup.OpenRow).Select(r => r.GetAttribute("data-testid")), Is.EqualTo(new[] { "exercise-1-set-2" }));
             Assert.That(cut.Find("[data-testid=exercise-1-set-2-error]").TextContent.Trim(), Does.Contain("Enter reps"));
-            Assert.That(cut.FindAll(".summary [data-testid$=-error]"), Is.Empty);
+            Assert.That(cut.FindAll($"{SetMarkup.Summary} [data-testid$=-error]"), Is.Empty);
         });
     }
 
@@ -833,9 +833,9 @@ public class ExerciseCardTests : ComponentTestBase
 
         Assert.Multiple(() =>
         {
-            Assert.That(cut.FindAll(".panel").Select(p => p.GetAttribute("data-testid")), Is.EqualTo(new[] { "exercise-1-set-2" }));
+            Assert.That(cut.FindAll(SetMarkup.Panel).Select(p => p.GetAttribute("data-testid")), Is.EqualTo(new[] { "exercise-1-set-2" }));
             Assert.That(exercise.Entries[1].Errors, Is.Not.Empty);
-            Assert.That(cut.FindAll(".summary [data-testid$=-error]"), Is.Empty);
+            Assert.That(cut.FindAll($"{SetMarkup.Summary} [data-testid$=-error]"), Is.Empty);
         });
     }
 
@@ -1111,7 +1111,7 @@ public class ExerciseCardTests : ComponentTestBase
         cut.Find("[data-testid=exercise-1-done]").Click();
         cut.Find("[data-testid=exercise-1-edit]").Click();
 
-        Assert.That(cut.FindAll(".panel"), Is.Empty);
+        Assert.That(cut.FindAll(SetMarkup.Panel), Is.Empty);
     }
 
     [Test]
@@ -1156,7 +1156,7 @@ public class ExerciseCardTests : ComponentTestBase
             Assert.That(cut.FindAll(".cardio .label").Select(l => TestText.Normalise(l.TextContent)),
                 Is.EqualTo(new[] { "Duration *", "Distance (km)" }));
             Assert.That(cut.FindAll("[data-testid=exercise-1-add-set]"), Is.Empty);
-            Assert.That(cut.FindAll(".set-row"), Is.Empty);
+            Assert.That(cut.FindAll(SetMarkup.OpenRow), Is.Empty);
         });
     }
 
@@ -1170,7 +1170,7 @@ public class ExerciseCardTests : ComponentTestBase
             .Add(x => x.Exercise, exercise)
             .Add(x => x.TestId, "exercise-1"));
 
-        var lines = cut.FindAll("[data-testid=exercise-1-entry-error] .error").Select(e => e.TextContent);
+        var lines = cut.FindAll("[data-testid=exercise-1-entry-error] li").Select(e => e.TextContent);
 
         Assert.Multiple(() =>
         {
@@ -1375,13 +1375,13 @@ public class ExerciseCardTests : ComponentTestBase
         Assert.Multiple(() =>
         {
             Assert.That(cut.Find("[data-testid=exercise-1-weights]").TextContent, Is.EqualTo(text));
-            Assert.That(cut.FindAll(".header + .body > .weights + .sets"), Has.Count.EqualTo(1));
-            Assert.That(cut.FindAll(".weights button, .weights [blazor\\:onclick]"), Is.Empty);
+            Assert.That(cut.FindAll(".header + .body > .tuck + .sets"), Has.Count.EqualTo(1));
+            Assert.That(cut.FindAll("[data-testid=exercise-1-weights] button, [data-testid=exercise-1-weights] [blazor\\:onclick]"), Is.Empty);
         });
     }
 
     private static string[] LastColumn(IRenderedComponent<ExerciseCard> cut) =>
-        cut.FindAll(".set-row .last").Select(l => TestText.Normalise(l.TextContent)).ToArray();
+        cut.FindAll(SetMarkup.RowLast).Select(l => TestText.Normalise(l.TextContent)).ToArray();
 
     [Test]
     public void LastTime_DoneCard_HidesTheLastColumnAndLinesUntilItReopens()
@@ -1403,7 +1403,7 @@ public class ExerciseCardTests : ComponentTestBase
                 .Add(x => x.Exercise, exercise)
                 .Add(x => x.TestId, "exercise-1"));
 
-            Assert.That(cut.FindAll(".last, .last-line, .last-time"), Is.Empty, exercise.Name);
+            Assert.That(cut.FindAll(SetMarkup.AnyLast), Is.Empty, exercise.Name);
 
             cut.Find("[data-testid=exercise-1-edit]").Click();
             foreach (var set in cut.FindAll("[data-testid=exercise-1-set-1-edit]"))
@@ -1411,7 +1411,7 @@ public class ExerciseCardTests : ComponentTestBase
                 set.Click();
             }
 
-            Assert.That(cut.FindAll(".last, .last-line, .last-time"), Is.Not.Empty, exercise.Name);
+            Assert.That(cut.FindAll(SetMarkup.AnyLast), Is.Not.Empty, exercise.Name);
         }
     }
 
@@ -1424,8 +1424,8 @@ public class ExerciseCardTests : ComponentTestBase
 
         Assert.Multiple(() =>
         {
-            Assert.That(cut.FindAll(".last"), Is.Empty);
-            Assert.That(cut.FindAll(".set-header span").Select(s => s.TextContent), Is.EqualTo(new[] { "Set", "Reps\u00a0*", "Weight (kg)", "" }));
+            Assert.That(cut.FindAll(SetMarkup.AnyLast), Is.Empty);
+            Assert.That(cut.FindAll($"{SetMarkup.Header} span").Select(s => s.TextContent), Is.EqualTo(new[] { "Set", "Reps\u00a0*", "Weight (kg)", "" }));
         });
     }
 
@@ -1441,12 +1441,61 @@ public class ExerciseCardTests : ComponentTestBase
 
         Assert.Multiple(() =>
         {
-            Assert.That(cut.FindAll(".set-header span").Select(s => s.TextContent), Is.EqualTo(new[] { "Set", "Last", "Reps\u00a0*", "Weight", "" }));
+            Assert.That(cut.FindAll($"{SetMarkup.Header} span").Select(s => s.TextContent), Is.EqualTo(new[] { "Set", "Last", "Reps\u00a0*", "Weight", "" }));
             Assert.That(LastColumn(cut), Is.EqualTo(new[] { "Last time 62.5×6" }));
             Assert.That(cut.Find("[data-testid=exercise-1-set-3-last]").TextContent, Is.EqualTo("Last time 62.5×6"));
-            Assert.That(cut.Find(".set-header").GetAttribute("style"),
-                Is.EqualTo("grid-template-columns: var(--entry-grid-index-width) calc(var(--entry-grid-aside-width) + var(--space-2)) minmax(0, 1fr) minmax(0, 1fr) var(--touch-target)"));
+            Assert.That(cut.Find(SetMarkup.Header).GetAttribute("style"),
+                Is.EqualTo("grid-template-columns: var(--entry-grid-index-width) var(--entry-grid-aside-width) minmax(0, 1fr) minmax(0, 1fr) var(--touch-target)"));
         });
+    }
+
+    [TestCase("57.25kg×12")]
+    [TestCase("62.5kg×12")]
+    public void LastTime_TooLongForTheKitsAsideColumn_ShowsOnALineUnderTheRowWithNoLastHeader(string last)
+    {
+        var exercise = Strength(1);
+        exercise.LastTime = new LastTime([last]);
+
+        var cut = Context.Render<ExerciseCard>(p => p
+            .Add(x => x.Exercise, exercise)
+            .Add(x => x.TestId, "exercise-1"));
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.FindAll($"{SetMarkup.Header} span").Select(s => s.TextContent), Is.EqualTo(new[] { "Set", "Reps\u00a0*", "Weight (kg)", "" }));
+            Assert.That(cut.FindAll(SetMarkup.RowLast), Is.Empty);
+            Assert.That(cut.Find($"{SetMarkup.OpenRow} + .indent [data-testid=exercise-1-set-1-last]").TextContent, Is.EqualTo($"Last time {last}"));
+        });
+    }
+
+    [Test]
+    public void LastTime_OneSetTooWideForTheColumn_ShowsEverySetBelowEvenWhenTheOpenSetsTextIsShort()
+    {
+        var exercise = Strength(2);
+        exercise.LastTime = new LastTime(["57.25kg×12", "60×8"]);
+
+        var cut = Context.Render<ExerciseCard>(p => p
+            .Add(x => x.Exercise, exercise)
+            .Add(x => x.TestId, "exercise-1"));
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.FindAll($"{SetMarkup.Header} span").Select(s => s.TextContent), Is.EqualTo(new[] { "Set", "Reps\u00a0*", "Weight (kg)", "" }));
+            Assert.That(cut.FindAll(SetMarkup.RowLast), Is.Empty);
+            Assert.That(cut.Find($"{SetMarkup.OpenRow} + .indent [data-testid=exercise-1-set-2-last]").TextContent, Is.EqualTo("Last time 60×8"));
+        });
+    }
+
+    [Test]
+    public void LastTime_Hold_AnOpenSetWithNoLastTimeShowsNoLine()
+    {
+        var exercise = Hold(2);
+        exercise.LastTime = new LastTime(["1:30"]);
+        var cut = Context.Render<ExerciseCard>(p => p
+            .Add(x => x.Exercise, exercise)
+            .Add(x => x.TestId, "exercise-1"));
+
+        Assert.That(cut.FindAll("[data-testid=exercise-1-set-2-last]"), Is.Empty);
     }
 
     [Test]
@@ -1461,7 +1510,7 @@ public class ExerciseCardTests : ComponentTestBase
 
         Assert.Multiple(() =>
         {
-            Assert.That(cut.Find(".set-header").GetAttribute("aria-hidden"), Is.EqualTo("true"));
+            Assert.That(cut.Find(SetMarkup.Header).GetAttribute("aria-hidden"), Is.EqualTo("true"));
             Assert.That(cut.FindAll(".label").Select(l => TestText.Normalise(l.TextContent)), Has.Member("Weight (kg)"));
         });
     }
@@ -1554,9 +1603,9 @@ public class ExerciseCardTests : ComponentTestBase
 
         Assert.Multiple(() =>
         {
-            Assert.That(cut.FindAll(".set-header"), Is.Empty);
-            Assert.That(cut.FindAll(".set-row"), Is.Empty);
-            Assert.That(cut.Find(".panel [data-testid=exercise-1-set-2-last]").TextContent, Is.EqualTo("Last time 32kg · 40m · 0:50"));
+            Assert.That(cut.FindAll(SetMarkup.Header), Is.Empty);
+            Assert.That(cut.FindAll(SetMarkup.OpenRow), Is.Empty);
+            Assert.That(cut.Find($"{SetMarkup.Panel} [data-testid=exercise-1-set-2-last]").TextContent, Is.EqualTo("Last time 32kg · 40m · 0:50"));
             Assert.That(cut.FindAll("[data-testid=exercise-1-set-1-last]"), Is.Empty);
         });
     }
@@ -1574,7 +1623,7 @@ public class ExerciseCardTests : ComponentTestBase
         Assert.Multiple(() =>
         {
             Assert.That(cut.FindAll("[data-testid^=exercise-1-set-][data-testid$=-last]"), Is.Empty);
-            Assert.That(cut.FindAll(".last"), Is.Empty);
+            Assert.That(cut.FindAll(SetMarkup.AnyLast), Is.Empty);
         });
     }
 
@@ -1589,14 +1638,14 @@ public class ExerciseCardTests : ComponentTestBase
 
         Assert.Multiple(() =>
         {
-            Assert.That(cut.FindAll(".set-header span").Select(s => s.TextContent), Is.EqualTo(new[] { "Set", "Duration\u00a0*", "Weight", "" }));
-            Assert.That(cut.Find(".set-header").GetAttribute("style"),
+            Assert.That(cut.FindAll($"{SetMarkup.Header} span").Select(s => s.TextContent), Is.EqualTo(new[] { "Set", "Duration\u00a0*", "Weight", "" }));
+            Assert.That(cut.Find(SetMarkup.Header).GetAttribute("style"),
                 Is.EqualTo("grid-template-columns: var(--entry-grid-index-width) minmax(0, 1fr) minmax(0, 1fr) var(--touch-target)"));
-            Assert.That(cut.FindAll(".set-row .last"), Is.Empty);
-            Assert.That(cut.FindAll(".set-row + .last-line"), Has.Count.EqualTo(1));
+            Assert.That(cut.FindAll(SetMarkup.RowLast), Is.Empty);
+            Assert.That(cut.FindAll($"{SetMarkup.OpenRow} + .indent [data-testid$=-last]"), Has.Count.EqualTo(1));
             Assert.That(cut.FindAll("[data-testid=exercise-1-set-1-last]"), Is.Empty);
             Assert.That(cut.Find("[data-testid=exercise-1-set-2-last]").TextContent, Is.EqualTo("Last time 12.5kg · 1:20"));
-            Assert.That(cut.FindAll(".last-line").Select(l => l.TextContent), Does.Not.Contain("Last time —"));
+            Assert.That(cut.FindAll(SetMarkup.AnyLast).Select(l => l.TextContent), Does.Not.Contain("Last time —"));
         });
     }
 
@@ -1609,8 +1658,8 @@ public class ExerciseCardTests : ComponentTestBase
 
         Assert.Multiple(() =>
         {
-            Assert.That(cut.FindAll(".last, .last-line"), Is.Empty);
-            Assert.That(cut.FindAll(".set-header span").Select(s => s.TextContent), Is.EqualTo(new[] { "Set", "Duration\u00a0*", "Weight", "" }));
+            Assert.That(cut.FindAll(SetMarkup.AnyLast), Is.Empty);
+            Assert.That(cut.FindAll($"{SetMarkup.Header} span").Select(s => s.TextContent), Is.EqualTo(new[] { "Set", "Duration\u00a0*", "Weight", "" }));
         });
     }
 
@@ -1625,7 +1674,7 @@ public class ExerciseCardTests : ComponentTestBase
 
         cut.Find("[data-testid=exercise-1-add-set]").Click();
 
-        Assert.That(cut.FindAll(".last-line").Select(l => l.TextContent), Is.EqualTo(new[] { "Last time 1:20" }));
+        Assert.That(cut.FindAll(SetMarkup.AnyLast).Select(l => l.TextContent), Is.EqualTo(new[] { "Last time 1:20" }));
     }
 
     [Test]
@@ -1641,7 +1690,7 @@ public class ExerciseCardTests : ComponentTestBase
 
         Assert.Multiple(() =>
         {
-            Assert.That(cut.Find(".panel [data-testid=exercise-1-set-1-last]").TextContent, Is.EqualTo("Last time 32kg · 40m · 0:45"));
+            Assert.That(cut.Find($"{SetMarkup.Panel} [data-testid=exercise-1-set-1-last]").TextContent, Is.EqualTo("Last time 32kg · 40m · 0:45"));
             Assert.That(cut.FindAll("[data-testid=exercise-1-set-2-last]"), Is.Empty);
         });
     }
@@ -1653,7 +1702,7 @@ public class ExerciseCardTests : ComponentTestBase
             .Add(x => x.Exercise, Carry(3))
             .Add(x => x.TestId, "exercise-1"));
 
-        Assert.That(cut.FindAll(".last"), Is.Empty);
+        Assert.That(cut.FindAll(SetMarkup.AnyLast), Is.Empty);
     }
 
     [Test]
@@ -1669,7 +1718,7 @@ public class ExerciseCardTests : ComponentTestBase
         Assert.Multiple(() =>
         {
             Assert.That(cut.Find("[data-testid=exercise-1-last]").TextContent, Is.EqualTo("Last time 5.2km · 30:00"));
-            Assert.That(cut.FindAll(".last-time + .cardio"), Has.Count.EqualTo(1));
+            Assert.That(cut.FindAll(".tuck + .cardio"), Has.Count.EqualTo(1));
             Assert.That(exercise.Entries[0].Values, Is.Empty);
         });
     }
@@ -1943,7 +1992,7 @@ public class ExerciseCardTests : ComponentTestBase
         Assert.Multiple(() =>
         {
             Assert.That(cut.Find("[data-testid=exercise-1-last-note] .text").TextContent, Is.EqualTo("Belt on from set 3"));
-            Assert.That(cut.FindAll(".header + .body > .weights + [data-testid=exercise-1-last-note] + .sets"), Has.Count.EqualTo(1));
+            Assert.That(cut.FindAll(".header + .body > .tuck + [data-testid=exercise-1-last-note] + .sets"), Has.Count.EqualTo(1));
         });
     }
 

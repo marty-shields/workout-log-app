@@ -51,8 +51,21 @@ public class WeekRecordsCardTests : ComponentTestBase
         Assert.Multiple(() =>
         {
             Assert.That(cut.FindAll("li"), Has.Count.EqualTo(5));
-            Assert.That(cut.FindAll(".text").Select(t => t.TextContent).Last(), Is.EqualTo("Treadmill run · 5.2 km"));
+            Assert.That(cut.FindAll("li .text").Select(t => t.TextContent).Last(), Is.EqualTo("Treadmill run · 5.2 km"));
             Assert.That(cut.Find("[data-testid=records-more]").TextContent, Is.EqualTo("2 more"));
+        });
+    }
+
+    [Test]
+    public void Dividers_SeparateTheRowsAndTheLastRowKeepsOneOnlyAboveAMoreLine()
+    {
+        var five = Render(SampleThisWeek.ManyRecords.Take(5).ToList());
+        var many = Render(SampleThisWeek.ManyRecords);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(five.FindAll("li .row").Select(r => r.ClassList.Contains("no-divider")), Is.EqualTo(new[] { false, false, false, false, true }));
+            Assert.That(many.FindAll("li .row").Select(r => r.ClassList.Contains("no-divider")), Is.All.False);
         });
     }
 

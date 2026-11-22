@@ -23,7 +23,7 @@ public class NoAppTokensTests
             Assert.That(AppCss.Projects, Is.SupersetOf(new[] { "WorkoutLog.UI.Stories", "WorkoutLog.UI.Stories.Host" }));
             Assert.That(AppCss.MarkupFiles().Select(AppCss.Name), Does.Contain("src/WorkoutLog.UI.Stories.Host/wwwroot/iframe.html")
                 .And.Contain("src/WorkoutLog.App/wwwroot/index.html").And.Contain("src/WorkoutLog.UI/Components/Workout/SetRow.razor"));
-            Assert.That(AppCss.Files().Select(AppCss.Name), Does.Contain("src/WorkoutLog.UI/Components/Charts/Chart.razor.css"));
+            Assert.That(AppCss.Files().Select(AppCss.Name), Does.Contain("src/WorkoutLog.UI/Components/Workout/ExerciseCard.razor.css"));
         });
     }
 

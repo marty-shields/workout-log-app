@@ -1,8 +1,8 @@
 using System.Globalization;
+using Shields.UI.Components.Charts;
 using Shields.UI.Components.Inputs;
 using WorkoutLog.Core.Domain.Exercises.Progress;
 using WorkoutLog.Core.Domain.Workouts;
-using WorkoutLog.UI.Components.Charts;
 using WorkoutLog.UI.Components.Lists;
 
 namespace WorkoutLog.UI.Models.Exercises;
@@ -51,13 +51,13 @@ public static class BodyweightProgressItems
     /// One point per session, oldest first: the best set's reps, the total reps, the top set's weight labelled ×reps, or the unrounded e1RM.
     /// A session with no value for <paramref name="tab"/> has a point with no value.
     /// </summary>
-    public static IReadOnlyList<ChartPoint> Points(BodyweightProgress progress, string tab, TimeZoneInfo zone, DateTimeOffset now) =>
+    public static IReadOnlyList<LineChartPoint> Points(BodyweightProgress progress, string tab, TimeZoneInfo zone, DateTimeOffset now) =>
         progress.Sessions
             .Select(s => tab switch
             {
-                BestSetTab => new ChartPoint(ExerciseProgressItems.Day(s.Session.StartedAt, zone, now), s.BestSetReps),
-                TotalTab => new ChartPoint(ExerciseProgressItems.Day(s.Session.StartedAt, zone, now), s.TotalReps),
-                ExerciseProgressItems.E1rmTab => new ChartPoint(ExerciseProgressItems.Day(s.Session.StartedAt, zone, now), s.E1rmKg),
+                BestSetTab => new LineChartPoint(ExerciseProgressItems.Day(s.Session.StartedAt, zone, now), s.BestSetReps),
+                TotalTab => new LineChartPoint(ExerciseProgressItems.Day(s.Session.StartedAt, zone, now), s.TotalReps),
+                ExerciseProgressItems.E1rmTab => new LineChartPoint(ExerciseProgressItems.Day(s.Session.StartedAt, zone, now), s.E1rmKg),
                 _ => ExerciseProgressItems.Point(s.Session.StartedAt, s.TopSet, zone, now),
             })
             .ToList();

@@ -16,26 +16,15 @@
         else if (Summary is { } summary)
         {
             <div class="sections">
-                <Card TestId="summary-stats">
-                    <dl class="stats">
-                        <div class="stat">
-                            <dt class="label">Duration</dt>
-                            <dd class="value" data-testid="summary-duration">@DisplayFormat.Duration(summary.Duration)</dd>
-                        </div>
-                        <div class="stat">
-                            <dt class="label">Exercises</dt>
-                            <dd class="value" data-testid="summary-exercises">@summary.Exercises</dd>
-                        </div>
-                        <div class="stat">
-                            <dt class="label">Sets</dt>
-                            <dd class="value" data-testid="summary-sets">@summary.Sets</dd>
-                        </div>
-                    </dl>
-                </Card>
+                <div class="stats" data-testid="summary-stats">
+                    <StatTile Compact Label="Duration" Value="@DisplayFormat.Duration(summary.Duration)" TestId="summary-duration" />
+                    <StatTile Compact Label="Exercises" Value="@summary.Exercises.ToString()" TestId="summary-exercises" />
+                    <StatTile Compact Label="Sets" Value="@summary.Sets.ToString()" TestId="summary-sets" />
+                </div>
                 @if (summary.IsFirstWorkout)
                 {
                     <Card TestId="summary-first-workout">
-                        <p class="note">Your first workout. Records and changes show from your next one.</p>
+                        <Typography Variant="TextVariant.Muted" As="TextElement.P" data-wrap-ok>Your first workout. Records and changes show from your next one.</Typography>
                     </Card>
                 }
                 else
@@ -43,16 +32,17 @@
                     <Card Title="Records" Compact="@(summary.Records.Count > 0)" TestId="summary-records">
                         @if (summary.Records.Count == 0)
                         {
-                            <p class="none" data-testid="summary-records-none">No records this time</p>
+                            <Typography Variant="TextVariant.Muted" As="TextElement.P" TestId="summary-records-none">No records this time</Typography>
                         }
                         else
                         {
                             <ul class="rows">
-                                @foreach (var record in summary.Records)
+                                @foreach (var (record, index) in summary.Records.Select((record, index) => (record, index)))
                                 {
-                                    <li class="row" data-testid="@($"summary-record-{record.ExerciseId}")">
-                                        <Icon Name="IconName.Record" Tone="IconTone.Success" />
-                                        <span class="text">@record.Exercise · @record.Best</span>
+                                    <li>
+                                        <ListRow Text="@($"{record.Exercise} · {record.Best}")" Divider="@(index < summary.Records.Count - 1)" TestId="@($"summary-record-{record.ExerciseId}")">
+                                            <Leading><Icon Name="IconName.Record" Tone="IconTone.Success" /></Leading>
+                                        </ListRow>
                                     </li>
                                 }
                             </ul>
@@ -62,14 +52,11 @@
                     {
                         <Card Title="Since last time" Compact TestId="summary-changes">
                             <ul class="rows">
-                                @foreach (var change in summary.Changes)
+                                @foreach (var (change, index) in summary.Changes.Select((change, index) => (change, index)))
                                 {
-                                    <li class="row" data-testid="@($"summary-change-{change.ExerciseId}")">
-                                        <span class="texts">
-                                            <span class="text">@change.Exercise</span>
-                                            <span class="detail">@change.Best</span>
-                                        </span>
-                                        @Change(change.Since)
+                                    <li>
+                                        <ListRow Text="@change.Exercise" Detail="@change.Best" Aside="@(change.Since.Kind == ChangeKind.FirstTime ? "First time" : null)"
+                                                 Change="Since(change.Since)" Divider="@(index < summary.Changes.Count - 1)" TestId="@($"summary-change-{change.ExerciseId}")" />
                                     </li>
                                 }
                             </ul>
@@ -105,11 +92,11 @@
     [Parameter]
     public EventCallback OnDone { get; set; }
 
-    private static RenderFragment Change(SinceLastTime since) => since.Kind switch
+    private static StatChange? Since(SinceLastTime since) => since.Kind switch
     {
-        ChangeKind.Up => @<span class="change up"><Icon Name="IconName.Up" Tone="IconTone.Success" /><span class="visually-hidden">up </span>@since.Difference</span>,
-        ChangeKind.Down => @<span class="change down"><Icon Name="IconName.Down" Tone="IconTone.Error" /><span class="visually-hidden">down </span>@since.Difference</span>,
-        ChangeKind.Equal => @<span class="change same"><span aria-hidden="true">—</span><span class="visually-hidden">no change</span></span>,
-        _ => @<span class="change same">First time</span>,
+        ChangeKind.Up => new StatChange(ChangeDirection.Up, since.Difference!),
+        ChangeKind.Down => new StatChange(ChangeDirection.Down, since.Difference!),
+        ChangeKind.Equal => new StatChange(ChangeDirection.None, ""),
+        _ => null,
     };
 }

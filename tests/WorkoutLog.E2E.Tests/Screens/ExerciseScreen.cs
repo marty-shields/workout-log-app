@@ -47,7 +47,7 @@ public sealed class ExerciseScreen(WebView web)
     {
         WaitUntilLoaded();
         return web.FindAll("[data-testid=\"exercise-records\"] .row")
-            .Select(r => (Part(r, ".label"), Part(r, ".value"), Part(r, ".date")))
+            .Select(r => (Part(r, ".text"), Part(r, ".aside"), Part(r, ".detail")))
             .ToList();
     }
 
@@ -56,7 +56,7 @@ public sealed class ExerciseScreen(WebView web)
     {
         WaitUntilLoaded();
         return web.FindAll("[data-testid^=\"exercise-session-\"]")
-            .Select(r => (Part(r, ".date"), Part(r, ".headline"), Part(r, ".detail")))
+            .Select(r => (Part(r, ".text"), Part(r, ".aside"), Part(r, ".detail")))
             .ToList();
     }
 

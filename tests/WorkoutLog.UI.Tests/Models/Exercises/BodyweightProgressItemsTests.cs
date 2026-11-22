@@ -1,7 +1,7 @@
+using Shields.UI.Components.Charts;
 using WorkoutLog.Core.Domain.Exercises.Bests;
 using WorkoutLog.Core.Domain.Exercises.Progress;
 using WorkoutLog.Core.Domain.Workouts;
-using WorkoutLog.UI.Components.Charts;
 using WorkoutLog.UI.Components.Lists;
 using WorkoutLog.UI.Models.Exercises;
 
@@ -39,22 +39,22 @@ public class BodyweightProgressItemsTests
     [Test]
     public void Points_BestSet_AreTheMostRepsUnlabelled() =>
         Assert.That(BodyweightProgressItems.Points(Progress(Unweighted, Mixed), "best-set", TimeZoneInfo.Utc, Now),
-            Is.EqualTo(new[] { new ChartPoint("13 Oct", 25), new ChartPoint("20 Oct", 20) }));
+            Is.EqualTo(new[] { new LineChartPoint("13 Oct", 25), new LineChartPoint("20 Oct", 20) }));
 
     [Test]
     public void Points_Total_AreTheUnweightedRepsUnlabelled() =>
         Assert.That(BodyweightProgressItems.Points(Progress(Unweighted, Mixed), "total", TimeZoneInfo.Utc, Now),
-            Is.EqualTo(new[] { new ChartPoint("13 Oct", 63), new ChartPoint("20 Oct", 20) }));
+            Is.EqualTo(new[] { new LineChartPoint("13 Oct", 63), new LineChartPoint("20 Oct", 20) }));
 
     [Test]
     public void Points_TopSet_SessionWithNoWeightedSet_HasNoValue() =>
         Assert.That(BodyweightProgressItems.Points(Progress(Unweighted, Mixed), "top-set", TimeZoneInfo.Utc, Now),
-            Is.EqualTo(new[] { new ChartPoint("13 Oct", null), new ChartPoint("20 Oct", 16m, "×8") }));
+            Is.EqualTo(new[] { new LineChartPoint("13 Oct", null), new LineChartPoint("20 Oct", 16m, "×8") }));
 
     [Test]
     public void Points_E1rm_AreTheUnroundedEstimates() =>
         Assert.That(BodyweightProgressItems.Points(Progress(Unweighted, Mixed), "e1rm", TimeZoneInfo.Utc, Now),
-            Is.EqualTo(new[] { new ChartPoint("13 Oct", null), new ChartPoint("20 Oct", 16m * (1 + 8 / 30m)) }));
+            Is.EqualTo(new[] { new LineChartPoint("13 Oct", null), new LineChartPoint("20 Oct", 16m * (1 + 8 / 30m)) }));
 
 
 

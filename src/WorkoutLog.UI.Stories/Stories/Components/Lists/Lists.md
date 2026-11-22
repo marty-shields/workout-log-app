@@ -5,19 +5,11 @@ $attribute: CustomPage(StoryTitles.Prefix + "/Components/Lists/Overview")
 # Lists
 
 ## `RecordsCard`
-A kit `Card` titled "Records" with the range as its aside at the right, e.g. *last 3 months*. One row per `RecordRow`: the label with the date muted under it, and the value in bold on the right. A record with no value shows "—" and no date.
+A compact kit `Card` titled "Records" with the range as its aside at the right, e.g. *last 3 months*. One kit `ListRow` (headline layout) per `RecordRow`: the label and the value in bold, with the date muted under them. A record with no value shows "—" and no date. The last row has no divider.
 - `data-testid`: `TestId`.
-
-## `SessionRow`
-One session of an exercise: date and headline in bold, with every set or the cardio entry muted under them. Not tappable.
-- `data-testid`: `TestId`.
-
-## `AddExerciseSearch`
-Search box with the search `Icon`, then kit `FilterChips` All / Strength / Cardio. No wrapper: the screen lays them out, in its toolbar or above an `ExerciseList`. Typing past the catalog's search limit is cut to it. With `FocusSearch` the search box takes focus when first shown. Used by Add Exercise.
-- `data-testid`: `TestId` as the prefix: `{TestId}-search`, `{TestId}-filter`, `{TestId}-filter-all`, `{TestId}-filter-strength`, `{TestId}-filter-cardio`.
 
 ## `ExerciseList`
-One kit `ListRow` per exercise: its name, "Last" with the last session when it has one, and Strength or Cardio as its `Aside`. "No exercises match" when the list is empty. With `OnPick` the rows are tappable, with a chevron. Used under an `AddExerciseSearch` by Add Exercise.
+One kit `ListRow` per exercise: its name, "Last" with the last session when it has one, and Strength or Cardio as its `Aside`. "No exercises match" when the list is empty. With `OnPick` the rows are tappable, with a chevron. Used under the search and chips of Add Exercise.
 - `data-testid`: `TestId` as the prefix: `{TestId}-row-{id}`, `{TestId}-none`.
 
-Stories: [RecordsCard](./?path=/docs/workout-log-components-lists-recordscard--docs) · [SessionRow](./?path=/docs/workout-log-components-lists-sessionrow--docs) · [AddExerciseSearch](./?path=/docs/workout-log-components-lists-addexercisesearch--docs) · [ExerciseList](./?path=/docs/workout-log-components-lists-exerciselist--docs)
+Stories: [RecordsCard](./?path=/docs/workout-log-components-lists-recordscard--docs) · [ExerciseList](./?path=/docs/workout-log-components-lists-exerciselist--docs)

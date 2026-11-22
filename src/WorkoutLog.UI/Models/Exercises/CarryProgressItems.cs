@@ -1,9 +1,9 @@
+using Shields.UI.Components.Charts;
 using Shields.UI.Components.Inputs;
 using WorkoutLog.Core.Domain.Exercises;
 using WorkoutLog.Core.Domain.Exercises.Bests;
 using WorkoutLog.Core.Domain.Exercises.Progress;
 using WorkoutLog.Core.Domain.Workouts;
-using WorkoutLog.UI.Components.Charts;
 using WorkoutLog.UI.Components.Lists;
 using WorkoutLog.UI.Models.Workout;
 
@@ -32,11 +32,11 @@ public static class CarryProgressItems
     /// One point per session, oldest first: the heaviest weight labelled with its distance, or the longest distance labelled with its weight.
     /// A session with no value for <paramref name="tab"/> has a point with no value.
     /// </summary>
-    public static IReadOnlyList<ChartPoint> Points(CarryProgress progress, string tab, ExerciseDefinition exercise, TimeZoneInfo zone, DateTimeOffset now) =>
+    public static IReadOnlyList<LineChartPoint> Points(CarryProgress progress, string tab, ExerciseDefinition exercise, TimeZoneInfo zone, DateTimeOffset now) =>
         progress.Sessions
             .Select(s => tab == DistanceTab
-                ? new ChartPoint(ExerciseProgressItems.Day(s.Session.StartedAt, zone, now), s.Longest?.Distance, s.Longest?.WeightKg is { } kg ? DisplayFormat.Weight(kg) : null)
-                : new ChartPoint(ExerciseProgressItems.Day(s.Session.StartedAt, zone, now), s.Heaviest?.WeightKg, s.Heaviest?.Distance is { } d ? ExerciseFields.Distance(exercise, d) : null))
+                ? new LineChartPoint(ExerciseProgressItems.Day(s.Session.StartedAt, zone, now), s.Longest?.Distance, s.Longest?.WeightKg is { } kg ? DisplayFormat.Weight(kg) : null)
+                : new LineChartPoint(ExerciseProgressItems.Day(s.Session.StartedAt, zone, now), s.Heaviest?.WeightKg, s.Heaviest?.Distance is { } d ? ExerciseFields.Distance(exercise, d) : null))
             .ToList();
 
     /// <summary>Heaviest weight (e.g. 32kg · 40m) and Longest distance (e.g. 60m · 24kg, or 60m), each with its date; no value shows —.</summary>

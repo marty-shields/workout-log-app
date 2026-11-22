@@ -1,6 +1,7 @@
+@using WorkoutLog.Core.Domain.Exercises
 @using WorkoutLog.UI.Models.Exercises
 <div class="picker" role="dialog" aria-modal="true" aria-label="Add exercise" data-testid="add-exercise-overlay">
-    <AppScreen Title="Exercises" OnBack="OnClose" BackTestId="add-exercise-back" Toolbar="Tools">
+    <AppScreen Title="Exercises" OnBack="OnClose" BackTestId="add-exercise-back" Toolbar="Tools" ToolbarDivider>
         @if (Loading)
         {
             <div class="centre">
@@ -47,8 +48,23 @@
     [Parameter]
     public EventCallback OnClose { get; set; }
 
+    private Task OnQuery(string text) =>
+        QueryChanged.InvokeAsync(text.Length > ExerciseCatalog.MaxQueryLength ? text[..ExerciseCatalog.MaxQueryLength] : text);
+
+    private static readonly IReadOnlyList<RadioOption<AddExerciseFilter>> Filters =
+    [
+        new(AddExerciseFilter.All, "All", "add-exercise-filter-all"),
+        new(AddExerciseFilter.Strength, "Strength", "add-exercise-filter-strength"),
+        new(AddExerciseFilter.Cardio, "Cardio", "add-exercise-filter-cardio"),
+    ];
+
+    /// <summary>How many exercises the list shows, announced politely as the search or chip changes it; empty while it loads.</summary>
+    private string ResultText => Loading ? "" : Items.Count == 1 ? "1 exercise" : $"{Items.Count} exercises";
+
     private RenderFragment Tools =>
         @<div class="tools">
-            <AddExerciseSearch Query="@Query" QueryChanged="QueryChanged" Filter="Filter" FilterChanged="FilterChanged" FocusSearch="true" TestId="add-exercise" />
+            <SearchField Value="@Query" ValueChanged="OnQuery" Placeholder="Search exercises" AriaLabel="Search exercises"
+                         MaxLength="ExerciseCatalog.MaxQueryLength" FocusOnShow ResultText="@ResultText" TestId="add-exercise-search" />
+            <FilterChips TValue="AddExerciseFilter" Label="Type" Options="Filters" Value="Filter" ValueChanged="FilterChanged" TestId="add-exercise-filter" />
         </div>;
 }

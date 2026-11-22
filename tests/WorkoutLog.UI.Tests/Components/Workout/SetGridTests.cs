@@ -1,6 +1,7 @@
 using WorkoutLog.Core.Domain.Exercises;
 using WorkoutLog.UI.Components.Workout;
 using WorkoutLog.UI.Models.Fields;
+using WorkoutLog.UI.Models.Workout;
 
 namespace WorkoutLog.UI.Tests.Components.Workout;
 
@@ -35,55 +36,48 @@ public class SetGridTests
     }
 
     [Test]
-    public void Columns_AreTheNumberOneColumnPerFieldAndTheRemoveButton()
-    {
-        Assert.Multiple(() =>
-        {
-            Assert.That(SetGrid.Columns([Reps], false), Is.EqualTo("var(--entry-grid-index-width) minmax(0, 1fr) var(--touch-target)"));
-            Assert.That(SetGrid.Columns([Weight, Reps], false), Is.EqualTo("var(--entry-grid-index-width) minmax(0, 1fr) minmax(0, 1fr) var(--touch-target)"));
-            Assert.That(SetGrid.Columns([Reps, Time], false), Is.EqualTo("var(--entry-grid-index-width) minmax(0, 1fr) minmax(0, 1fr) var(--touch-target)"));
-        });
-    }
-
-    [Test]
-    public void Columns_WithLast_AddALastColumnAfterTheNumber()
-    {
-        Assert.Multiple(() =>
-        {
-            Assert.That(SetGrid.Columns([Weight, Reps], true), Is.EqualTo("var(--entry-grid-index-width) calc(var(--entry-grid-aside-width) + var(--space-2)) minmax(0, 1fr) minmax(0, 1fr) var(--touch-target)"));
-            Assert.That(SetGrid.Columns([Reps], true), Is.EqualTo("var(--entry-grid-index-width) calc(var(--entry-grid-aside-width) + var(--space-2)) minmax(0, 1fr) var(--touch-target)"));
-        });
-    }
-
-    [Test]
     public void LastBelow_IsTrueForAnyDuration()
     {
         Assert.Multiple(() =>
         {
-            Assert.That(SetGrid.LastBelow([Time]), Is.True);
-            Assert.That(SetGrid.LastBelow([Time, Weight]), Is.True);
-            Assert.That(SetGrid.LastBelow([Reps, Weight]), Is.False);
+            Assert.That(SetGrid.LastBelow([Time], new LastTime(["1:30"])), Is.True);
+            Assert.That(SetGrid.LastBelow([Time, Weight], null), Is.True);
+            Assert.That(SetGrid.LastBelow([Reps, Weight], new LastTime(["60×8"])), Is.False);
+            Assert.That(SetGrid.LastBelow([Reps, Weight], null), Is.False);
+        });
+    }
+
+    [TestCase("—", false)]
+    [TestCase("60×8", false)]
+    [TestCase("888×8", false)]
+    [TestCase("62.5×6", false)]
+    [TestCase("140×10", true)]
+    [TestCase("5kg×10", true)]
+    [TestCase("102.5×8", true)]
+    [TestCase("25kg×10", true)]
+    [TestCase("57.25kg×12", true)]
+    public void TooWideForColumn_IsTrueAbove5AndAHalfDigitWidths_SoThe56pxAsideNeverOverflows(string last, bool tooWide) =>
+        Assert.That(SetGrid.TooWideForColumn(last), Is.EqualTo(tooWide));
+
+    [Test]
+    public void LastBelow_OneTooWideSetPutsEverySetBelow()
+    {
+        Assert.Multiple(() =>
+        {
+            Assert.That(SetGrid.LastBelow([Reps, Weight], new LastTime(["60×8", "57.25kg×12"])), Is.True);
+            Assert.That(SetGrid.LastBelow([Reps, Weight], new LastTime(["60×8", "62.5×6"])), Is.False);
         });
     }
 
     [Test]
-    public void LastColumn_NeedsLastTimeAndNoDuration()
+    public void LastColumn_NeedsLastTimeShortTextsAndNoDuration()
     {
         Assert.Multiple(() =>
         {
-            Assert.That(SetGrid.LastColumn([Reps, Weight], true), Is.True);
-            Assert.That(SetGrid.LastColumn([Reps, Weight], false), Is.False);
-            Assert.That(SetGrid.LastColumn([Time, Weight], true), Is.False);
-        });
-    }
-
-    [Test]
-    public void Columns_WithLast_LeaveOutTheLastColumnForADuration()
-    {
-        Assert.Multiple(() =>
-        {
-            Assert.That(SetGrid.Columns([Time, Weight], true), Is.EqualTo(SetGrid.Columns([Time, Weight], false)));
-            Assert.That(SetGrid.Columns([Time, Weight], true), Is.EqualTo("var(--entry-grid-index-width) minmax(0, 1fr) minmax(0, 1fr) var(--touch-target)"));
+            Assert.That(SetGrid.LastColumn([Reps, Weight], new LastTime(["60×8"])), Is.True);
+            Assert.That(SetGrid.LastColumn([Reps, Weight], null), Is.False);
+            Assert.That(SetGrid.LastColumn([Time, Weight], new LastTime(["1:30"])), Is.False);
+            Assert.That(SetGrid.LastColumn([Reps, Weight], new LastTime(["60×8", "57.25kg×12"])), Is.False);
         });
     }
 }

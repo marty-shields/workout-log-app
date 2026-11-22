@@ -33,6 +33,14 @@ public class RecordsCardTests : ComponentTestBase
     }
 
     [Test]
+    public void OnlyTheLastRow_HasNoDivider()
+    {
+        var cut = Render([new("Heaviest weight", "70kg × 3", "20 Oct"), new("Best e1RM", "82.3kg", "13 Oct")]);
+
+        Assert.That(cut.FindAll(".row").Select(r => r.ClassList.Contains("no-divider")), Is.EqualTo(new[] { false, true }));
+    }
+
+    [Test]
     public void TestId_IsOnTheCard()
     {
         var cut = Render([]);
@@ -44,5 +52,5 @@ public class RecordsCardTests : ComponentTestBase
         Context.Render<RecordsCard>(p => p.Add(x => x.Range, "last 3 months").Add(x => x.Rows, rows).Add(x => x.TestId, "records"));
 
     private static IEnumerable<(string, string, string)> Rows(IRenderedComponent<RecordsCard> cut) =>
-        cut.FindAll(".row").Select(r => (r.QuerySelector(".label")!.TextContent, r.QuerySelector(".value")!.TextContent, r.QuerySelector(".date")!.TextContent));
+        cut.FindAll(".row").Select(r => (r.QuerySelector(".text")!.TextContent, r.QuerySelector(".aside")!.TextContent, r.QuerySelector(".detail")?.TextContent ?? ""));
 }

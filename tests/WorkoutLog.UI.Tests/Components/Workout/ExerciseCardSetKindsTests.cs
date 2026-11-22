@@ -64,7 +64,7 @@ public class ExerciseCardSetKindsTests : ComponentTestBase
         });
 
     private static List<string?> OpenSets(IRenderedComponent<ExerciseCard> cut) =>
-        cut.FindAll(".set-row, .panel").Select(e => e.GetAttribute("data-testid")).ToList();
+        cut.FindAll($"{SetMarkup.OpenRow}, {SetMarkup.Panel}").Select(e => e.GetAttribute("data-testid")).ToList();
 
     private static bool Invalid(ExerciseState exercise, EntryState entry)
     {
@@ -136,7 +136,7 @@ public class ExerciseCardSetKindsTests : ComponentTestBase
         Assert.Multiple(() =>
         {
             Assert.That(OpenSets(cut), Is.EqualTo(new[] { "exercise-1-set-1" }));
-            Assert.That(cut.FindAll(".summary .error"), Is.Empty);
+            Assert.That(cut.FindAll($"{SetMarkup.Summary} [role=alert]"), Is.Empty);
         });
     }
 
@@ -154,7 +154,7 @@ public class ExerciseCardSetKindsTests : ComponentTestBase
         {
             Assert.That(exercise.IsDone, Is.False);
             Assert.That(OpenSets(cut), Is.Empty);
-            Assert.That(cut.FindAll(".summary"), Has.Count.EqualTo(3));
+            Assert.That(cut.FindAll(SetMarkup.Summary), Has.Count.EqualTo(3));
         });
     }
 

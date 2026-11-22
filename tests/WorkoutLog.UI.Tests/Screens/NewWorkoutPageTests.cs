@@ -430,7 +430,7 @@ public class NewWorkoutPageTests : ComponentTestBase
         Assert.Multiple(() =>
         {
             Assert.That(cut.FindAll("[data-testid=exercise-1-set-2-reps]"), Is.Empty);
-            Assert.That(cut.FindAll("[data-testid=exercise-1-set-1-error] p").Select(p => p.TextContent.Trim()), Is.EqualTo(new[] { "Enter weight", "Enter reps" }));
+            Assert.That(cut.FindAll("[data-testid=exercise-1-set-1-error] li").Select(p => p.TextContent.Trim()), Is.EqualTo(new[] { "Enter weight", "Enter reps" }));
         });
         cut.WaitForAssertion(() => Assert.That(((ElementReference)LastFocus().Arguments[0]!).Id, Is.EqualTo(weight)));
     }
@@ -854,7 +854,7 @@ public class NewWorkoutPageTests : ComponentTestBase
         Assert.Multiple(() =>
         {
             Assert.That(cut.FindAll("[data-testid=exercise-1-set-2-reps]"), Is.Empty);
-            Assert.That(cut.FindAll("[data-testid=exercise-1-set-1-error] p").Select(p => p.TextContent.Trim()), Is.EqualTo(new[] { "Enter weight", "Enter reps" }));
+            Assert.That(cut.FindAll("[data-testid=exercise-1-set-1-error] li").Select(p => p.TextContent.Trim()), Is.EqualTo(new[] { "Enter weight", "Enter reps" }));
         });
     }
 
@@ -889,7 +889,7 @@ public class NewWorkoutPageTests : ComponentTestBase
         Assert.Multiple(() =>
         {
             Assert.That(cut.FindAll("[data-testid=exercise-1-set-2]"), Is.Empty);
-            Assert.That(cut.FindAll("[data-testid=exercise-1-set-1-error] p").Select(p => p.TextContent.Trim()),
+            Assert.That(cut.FindAll("[data-testid=exercise-1-set-1-error] li").Select(p => p.TextContent.Trim()),
                 Is.EqualTo(new[] { "Enter distance", "Duration minutes and seconds must be 00–59" }));
         });
     }
@@ -902,7 +902,7 @@ public class NewWorkoutPageTests : ComponentTestBase
 
         Add(cut, 305);
 
-        Assert.That(cut.FindAll("[data-testid=exercise-1-entry-error] p"), Is.Empty);
+        Assert.That(cut.FindAll("[data-testid=exercise-1-entry-error] li"), Is.Empty);
     }
 
     [Test]
@@ -1249,7 +1249,7 @@ public class NewWorkoutPageTests : ComponentTestBase
         Assert.Multiple(() =>
         {
             Assert.That(cut.FindAll("[data-testid$=-last]"), Is.Empty);
-            Assert.That(cut.FindAll(".set-header span").Select(h => h.TextContent), Does.Not.Contain("Last"));
+            Assert.That(cut.FindAll(".row.header span").Select(h => h.TextContent), Does.Not.Contain("Last"));
         });
     }
 
@@ -1261,7 +1261,7 @@ public class NewWorkoutPageTests : ComponentTestBase
 
         Add(cut, 6);
 
-        Assert.That(cut.FindAll(".set-header span").Select(h => h.TextContent), Does.Contain("Last"));
+        Assert.That(cut.FindAll(".row.header span").Select(h => h.TextContent), Does.Contain("Last"));
     }
 
     [Test]
@@ -1418,9 +1418,9 @@ public class NewWorkoutPageTests : ComponentTestBase
 
         Assert.Multiple(() =>
         {
-            Assert.That(cut.FindAll("[data-testid=exercise-1-entry-error] p").Select(p => p.TextContent.Trim()),
+            Assert.That(cut.FindAll("[data-testid=exercise-1-entry-error] li").Select(p => p.TextContent.Trim()),
                 Is.EqualTo(new[] { "Enter duration", "Distance can have up to 2 decimal places" }));
-            Assert.That(cut.FindAll("[data-testid=exercise-2-set-1-error] p").Select(p => p.TextContent.Trim()), Is.EqualTo(new[] { "Enter weight", "Enter reps" }));
+            Assert.That(cut.FindAll("[data-testid=exercise-2-set-1-error] li").Select(p => p.TextContent.Trim()), Is.EqualTo(new[] { "Enter weight", "Enter reps" }));
         });
         cut.WaitForAssertion(() => Assert.That(((ElementReference)LastFocus().Arguments[0]!).Id, Is.EqualTo(hours)));
     }
@@ -1433,7 +1433,7 @@ public class NewWorkoutPageTests : ComponentTestBase
 
         cut.Find("[data-testid=exercise-1-incline]").Input("1.255");
 
-        Assert.That(cut.FindAll("[data-testid=exercise-1-entry-error] p"), Is.Empty);
+        Assert.That(cut.FindAll("[data-testid=exercise-1-entry-error] li"), Is.Empty);
     }
 
     [Test]
@@ -1445,7 +1445,7 @@ public class NewWorkoutPageTests : ComponentTestBase
 
         cut.Find("[data-testid=exercise-1-duration-mm]").Input("20");
         cut.Find("[data-testid=exercise-1-distance]").Input("3");
-        var clearedOnValid = cut.FindAll("[data-testid=exercise-1-entry-error] p").Count;
+        var clearedOnValid = cut.FindAll("[data-testid=exercise-1-entry-error] li").Count;
         foreach (var typed in new[] { "1", "1.", "1.2", "1.25", "1.255" })
         {
             cut.Find("[data-testid=exercise-1-incline]").Input(typed);
@@ -1454,7 +1454,7 @@ public class NewWorkoutPageTests : ComponentTestBase
         Assert.Multiple(() =>
         {
             Assert.That(clearedOnValid, Is.Zero);
-            Assert.That(cut.FindAll("[data-testid=exercise-1-entry-error] p").Select(p => p.TextContent.Trim()),
+            Assert.That(cut.FindAll("[data-testid=exercise-1-entry-error] li").Select(p => p.TextContent.Trim()),
                 Is.EqualTo(new[] { "Incline can have up to 2 decimal places" }));
         });
     }

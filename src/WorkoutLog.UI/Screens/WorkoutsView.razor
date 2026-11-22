@@ -1,7 +1,6 @@
 @using WorkoutLog.Core.Domain
-@using WorkoutLog.UI.Components.Inputs
 @using WorkoutLog.UI.Models.Workouts
-<AppScreen Title="Workouts" OnBack="OnBack" OnRefresh="OnRefresh" Toolbar="@(ShowsTools ? Tools : null)">
+<AppScreen Title="Workouts" OnBack="OnBack" OnRefresh="OnRefresh" Toolbar="@(ShowsTools ? Tools : null)" ToolbarDivider>
     @if (Expanded && ShowsTools)
     {
         @* The calendar under the date field replaces the list, even while one loads. *@
@@ -29,10 +28,8 @@
         @foreach (var month in Rows.GroupBy(r => (r.StartedAt.Year, r.StartedAt.Month)))
         {
             <section class="month">
-                <h2 class="month-title" data-testid="@($"workouts-month-{month.Key.Year:D4}-{month.Key.Month:D2}")">
-                    <span>@DisplayFormat.Month(month.Key.Year, month.Key.Month)</span>
-                    <span class="month-count">@DisplayFormat.Workouts(month.Count())</span>
-                </h2>
+                <SectionHeader Title="@DisplayFormat.Month(month.Key.Year, month.Key.Month)" Total="@DisplayFormat.Workouts(month.Count())" Sticky
+                               TestId="@($"workouts-month-{month.Key.Year:D4}-{month.Key.Month:D2}")" />
                 <ul class="rows">
                     @foreach (var row in month)
                     {
@@ -116,12 +113,16 @@
         range = History.IsEmpty ? null : History.RangeOf(Dates);
     }
 
+    private Task Apply(DateRange range) => DatesChanged.InvokeAsync(new DateSpan(range.From, range.To));
+
     private bool ShowsTools => !Failed && !History.IsEmpty;
 
     private RenderFragment Tools =>
         @<div class="tools">
-            <DateRangeField Dates="Dates" Count="count" History="History" Expanded="Expanded" ExpandedChanged="ExpandedChanged"
-                            OpenOnMonths="OpenOnMonths" DatesChanged="DatesChanged" TestId="workouts-dates" />
+            <DateRangeField Dates="new DateRange(Dates.From, Dates.To)" DateFormat="d MMM yyyy" Count="count" CountText="DisplayFormat.Workouts"
+                            Min="History.Earliest" Max="History.Today" Today="History.Today" DayCounts="History.PerDay"
+                            MarkedDayText="workout logged" ApplyLabel="Show workouts" Expanded="Expanded" ExpandedChanged="ExpandedChanged"
+                            OpenOnMonths="OpenOnMonths" DatesChanged="Apply" TestId="workouts-dates" />
             @if (!Expanded)
             {
                 <SegmentedControl TValue="HistoryRange?" Label="Quick dates" Options="Ranges" Value="range"

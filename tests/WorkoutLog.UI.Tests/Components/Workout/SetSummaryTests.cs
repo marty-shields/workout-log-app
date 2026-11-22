@@ -50,7 +50,7 @@ public class SetSummaryTests : ComponentTestBase
 
         Assert.Multiple(() =>
         {
-            Assert.That(cut.Find(".number").TextContent, Is.EqualTo("1"));
+            Assert.That(cut.Find(".leading").TextContent, Is.EqualTo("1"));
             Assert.That(cut.Find(".text").TextContent, Is.EqualTo("40m · 32kg · 0:00:45"));
         });
     }
@@ -129,19 +129,19 @@ public class SetSummaryTests : ComponentTestBase
         Assert.Multiple(() =>
         {
             Assert.That(cut.FindAll("[data-testid=set-1-error]"), Is.Empty);
-            Assert.That(cut.Find(".line").ClassList, Does.Not.Contain("invalid"));
+            Assert.That(cut.Find("[data-testid=set-1]").ClassList, Does.Not.Contain("invalid"));
         });
     }
 
     [Test]
-    public void Heading_ReadsAsJustTheNumberAndValues()
+    public void Row_ReadsAsJustTheNumberAndValues()
     {
         var cut = Context.Render<SetSummary>(p => p
             .Add(x => x.Number, 2)
             .Add(x => x.Fields, Carry)
             .Add(x => x.Entry, Entry(("distance", "40"))));
 
-        Assert.That(TestText.Normalise(cut.Find(".heading").TextContent), Is.EqualTo("2 40m"));
+        Assert.That((cut.Find(".leading").TextContent, cut.Find(".text").TextContent), Is.EqualTo(("2", "40m")));
     }
 
     [Test]
@@ -209,7 +209,7 @@ public class SetSummaryTests : ComponentTestBase
         Assert.Multiple(() =>
         {
             Assert.That(cut.Find("[data-testid=set-1-record]").TextContent.Trim(), Is.EqualTo("Record"));
-            Assert.That(cut.Find(".line").QuerySelector("[data-testid=set-1-record]"), Is.Null);
+            Assert.That(cut.Find("[data-testid=set-1]").QuerySelector("[data-testid=set-1-record]"), Is.Null);
         });
     }
 

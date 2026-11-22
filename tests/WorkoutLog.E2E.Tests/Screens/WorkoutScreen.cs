@@ -86,7 +86,7 @@ public sealed partial class WorkoutScreen(WebView web, Native native)
     public IReadOnlyList<string> Errors(string name, int? set)
     {
         var testId = set is { } number ? $"{Card(name)}-set-{number}-error" : $"{Card(name)}-entry-error";
-        return web.FindAll($"[data-testid=\"{testId}\"] .error").Select(e => e.Text.Trim()).ToList();
+        return web.FindAll($"[data-testid=\"{testId}\"] li").Select(e => e.Text.Trim()).ToList();
     }
 
     /// <summary>The card's last and PB line as its text content, e.g. "Last 60kg · PB 70kg", or null when it has none.</summary>
@@ -338,7 +338,7 @@ public sealed partial class WorkoutScreen(WebView web, Native native)
     private IEnumerable<(string TestId, string Name)> Cards()
     {
         const string script = """
-            return [...document.querySelectorAll('.card[data-testid^="exercise-"]')]
+            return [...document.querySelectorAll('.card[data-testid^="exercise-"]:not(.selected)')]
                 .map(s => [s.getAttribute('data-testid'), s.querySelector('.header .title').textContent.trim()]);
             """;
         var cards = web.List(script);

@@ -11,7 +11,7 @@ Log a workout as you go. View: `WorkoutView` with `Mode` New; page: `NewWorkoutP
 | Part | Content |
 |---|---|
 | Top bar | Back arrow; date and day; "Elapsed h:mm:ss"; the note icon button. |
-| Content | Workout error, if any; the workout note (`NoteField`), once there is one; `EmptyState` "No exercises yet", hint "Tap Add exercise to start logging", or one `ExerciseCard` per exercise, newest first. Sets in a card are in the order added. At 10 exercises, a muted centred note "At most 10 exercises" under the cards. |
+| Content | Workout error, if any; the workout note (the kit's `NoteField`), once there is one; `EmptyState` "No exercises yet", hint "Tap Add exercise to start logging", or one `ExerciseCard` per exercise, newest first. Sets in a card are in the order added. At 10 exercises, a muted centred note "At most 10 exercises" under the cards. |
 | Bottom bar | Add exercise (secondary) and Save (primary), side by side. Add exercise is off at 10 exercises. |
 | Snackbar | After a closed set or an exercise is deleted: `Snackbar` "{exercise name} set {n} deleted" or "{exercise name} deleted" with **Undo**, just above the bottom bar (see [Deleting](#deleting)). |
 | Overlays | `AddExerciseView` in pick mode ([Add Exercise](./?path=/custom/workout-log-screens-add-exercise-overview)); `ConfirmDialog` "Discard this workout?" on back. |
@@ -43,7 +43,7 @@ While logging, mark an exercise done so it shrinks to one line and is hard to to
 - Done is only how the screen shows an exercise. It isn't saved, isn't a change for Edit's "Discard changes?", and records no time. A done exercise saves as it stands.
 
 ## Notes
-Written like the margin notes of a paper notebook: one on the workout and one on each exercise. Parts: [Inputs](./?path=/custom/workout-log-components-inputs-overview) and [Workout components](./?path=/custom/workout-log-components-workout-overview).
+Written like the margin notes of a paper notebook: one on the workout and one on each exercise. Parts: the kit's `NoteField` and the [Workout components](./?path=/custom/workout-log-components-workout-overview).
 - Workout note: a note icon button in the top bar, named "Add note" or, with a note, "Edit note". It opens a text box under the top bar, above the cards, with a counter, e.g. *120/500*. Leaving the text box shows the note as one plain line, cut with …; tap to edit. Cleared or blank means no note, and nothing shows. With no note the screen has no empty note row.
 - Exercise note: one per exercise, on its card. The note icon button sits at the right of the Add set row (cardio: on the footer, right-aligned, beside the Speed or Pace line). It opens a text box at the bottom of the card, with the same counter and the same one plain line when you leave it. The button stays once there is a note, named "Edit note" and filled.
 - Last time's note: an exercise just added shows the note it had in the last saved workout with it, as one muted line with the note icon under its last and PB line, or under its name when there is no weights line. Cut with … when long; tap to show the whole note, tap again to cut it. It cannot be edited and does not change while logging.
@@ -61,7 +61,7 @@ While logging, each exercise shows what its last saved workout had, so you know 
 
 An exercise just added, strength or cardio, loads its last time through `ILastSessionService.GetAsync`: its sets or entry in the saved workout with the latest start that has it. Nothing shows while it loads, and the values don't change while logging. Picking it again doesn't reload; adding it again after Remove does. When the load fails nothing shows and logging works as usual; Core logs Warning 1510 "Loading the last session of exercise {ExerciseId} failed" with the exception, and no workout contents.
 - Sets match by number: set 1 shows last time's set 1, set 2 its set 2. A set number last time didn't have, such as set 4 after 3 sets, shows *—* in the Last column and no line anywhere else. Last time's extra sets show nowhere.
-- Lift, assisted and bodyweight rows: a muted **Last** column after Set, as wide as a field, with last time's set as the Exercise page writes it: *60×8* (weight × reps), *1:30*, *20kg · 1:30*. Read out as "Last time 60×8".
+- Lift, assisted and bodyweight rows: a muted **Last** column after Set, as wide as a field, with last time's set as the Exercise page writes it: *60×8* (weight × reps), *62.5×6*. Read out as "Last time 60×8". The column is the kit's 56px aside, so when any set's text of the exercise is wider (*25kg×10*, an assisted *57.25kg×12*), the column goes and every set shows *Last time 25kg×10* on a line under its open row instead.
 - Holds (duration with an optional weight): no Last column, so the duration boxes keep their width. A muted full-width line under each row, e.g. *Last time 1:30*, or *Last time 20kg · 1:30* when a weight was logged. No line for a set number last time didn't have.
 - Carries (set panel): a muted *Last time 32kg · 40m · 0:45* line at the top of the open panel; closed sets show none, and no line for a set number last time didn't have. A weight of 0 isn't shown in holds or carries.
 - Cardio: a muted line above the fields with the entry's values, e.g. *Last time 5.2km · 30:00 · 5:46/km*; none when last time had no entry.
