@@ -671,7 +671,7 @@ public class SettingsPageTests : ComponentTestBase
         var cut = Context.Render<SettingsPage>(p => p.Add(x => x.OnBack, () => { }).Add(x => x.OnImportReview, onImportReview ?? (() => { })));
         export.CompleteCount(new ReadResult<int>(count));
         await WaitForRendererAsync();
-        cut.WaitForAssertion(() => Assert.That(cut.FindAll("[data-testid=export]"), Has.Count.EqualTo(1)));
+        await WaitForSettledAsync(cut, () => Assert.That(cut.FindAll("[data-testid=export]"), Has.Count.EqualTo(1)));
         return cut;
     }
 
@@ -681,7 +681,7 @@ public class SettingsPageTests : ComponentTestBase
         cut.Find("[data-testid=export]").Click();
         export.CompleteExport(new ExportFailed());
         await WaitForRendererAsync();
-        cut.WaitForAssertion(() => Assert.That(cut.FindAll("[data-testid=export-error]"), Has.Count.EqualTo(1)));
+        await WaitForSettledAsync(cut, () => Assert.That(cut.FindAll("[data-testid=export-error]"), Has.Count.EqualTo(1)));
         return cut;
     }
 

@@ -731,7 +731,7 @@ public class WorkoutsPageTests : ComponentTestBase
         var cut = Context.Render<WorkoutsPage>();
         workouts.CompleteDays(TwoYears);
         await WaitForRendererAsync();
-        cut.WaitForAssertion(() => Assert.That(workouts.RangeReads, Has.Count.EqualTo(1)));
+        await WaitForSettledAsync(cut, () => Assert.That(workouts.RangeReads, Has.Count.EqualTo(1)));
         return cut;
     }
 

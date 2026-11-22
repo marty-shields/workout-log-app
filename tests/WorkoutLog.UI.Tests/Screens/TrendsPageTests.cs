@@ -839,7 +839,7 @@ public class TrendsPageTests : ComponentTestBase
     {
         var cut = Context.Render(parameters);
         await WaitForRendererAsync();
-        cut.WaitForAssertion(() => Assert.That(cut.FindAll("[data-testid=trends-tiles]"), Has.Count.EqualTo(1)));
+        await WaitForSettledAsync(cut, () => Assert.That(cut.FindAll("[data-testid=trends-tiles]"), Has.Count.EqualTo(1)));
         return cut;
     }
 
