@@ -11,7 +11,7 @@
 ![.NET 11](https://img.shields.io/badge/.NET-11-512BD4?logo=dotnet&logoColor=white)
 ![MAUI Blazor Hybrid](https://img.shields.io/badge/MAUI-Blazor_Hybrid-512BD4?logo=blazor&logoColor=white)
 ![SQLite](https://img.shields.io/badge/SQLite-on_device-003B57?logo=sqlite&logoColor=white)
-[![Stories site](https://img.shields.io/badge/stories-GitHub_Pages-305252?logo=storybook&logoColor=white)](https://marty-shields.github.io/workout-log-app/)
+[![Stories site](https://img.shields.io/badge/stories-combined_site-305252?logo=storybook&logoColor=white)](https://marty-shields.github.io/app-ui-kit/)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 
 [Features](#features) · [Install](#install) · [Built with](#built-with) · [Getting started](#getting-started) · [License](#license)
@@ -209,7 +209,7 @@ Workout Log is sideloaded: it isn't on Google Play.
 | App | [.NET MAUI Blazor Hybrid](https://learn.microsoft.com/dotnet/maui/user-interface/controls/blazorwebview) on .NET 11: Razor components in a native Android shell |
 | Platform | Android 16 (API 36), sideloaded |
 | Data | SQLite via sqlite-net-pcl, on the device |
-| Design system | Design tokens, components and screens, documented in a [BlazingStory](https://github.com/jsakamoto/BlazingStory) stories site, [published on GitHub Pages](https://marty-shields.github.io/workout-log-app/) |
+| Design system | Design tokens, components and screens, documented in a [BlazingStory](https://github.com/jsakamoto/BlazingStory) stories site, published on the [combined stories site](https://marty-shields.github.io/app-ui-kit/) with the kit and both apps |
 | Tests | NUnit unit tests, bUnit component tests, and end-to-end Gherkin features run by Reqnroll and Appium on a phone or emulator |
 | CI | GitHub Actions builds and tests every pull request, end-to-end tests on emulators included; the release workflow runs them again, then signs and publishes the APK; Dependabot keeps packages current |
 
@@ -243,7 +243,7 @@ dotnet build WorkoutLog.slnx
 dotnet test tests/WorkoutLog.Core.Tests
 dotnet test tests/WorkoutLog.UI.Tests
 
-# Browse the stories site at http://localhost:5056 (main is at https://marty-shields.github.io/workout-log-app/)
+# Browse the stories site at http://localhost:5056 (main is on the combined stories site, https://marty-shields.github.io/app-ui-kit/)
 dotnet run --project src/WorkoutLog.UI.Stories.Host
 
 # Run on a connected Android phone
