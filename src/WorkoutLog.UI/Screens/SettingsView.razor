@@ -33,7 +33,7 @@
                 {
                     <InlineAlert Message="@message" TestId="export-error" />
                 }
-                <p class="text" data-testid="import-text">Import workouts from a JSON file exported by Workout Log</p>
+                <p class="text" data-testid="import-text" data-wrap-ok>Import workouts from a JSON file exported by Workout Log</p>
                 <AppButton @ref="import" Variant="ButtonVariant.Secondary" FullWidth Disabled="Exporting" Busy="Reading" TestId="import" OnClick="OnImport">
                     @(Reading ? "Reading…" : "Import")
                 </AppButton>

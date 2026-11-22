@@ -50,8 +50,8 @@ public class SetGridTests
     {
         Assert.Multiple(() =>
         {
-            Assert.That(SetGrid.Columns([Weight, Reps], true), Is.EqualTo("var(--entry-grid-index-width) var(--entry-grid-aside-width) minmax(0, 1fr) minmax(0, 1fr) var(--touch-target)"));
-            Assert.That(SetGrid.Columns([Reps], true), Is.EqualTo("var(--entry-grid-index-width) var(--entry-grid-aside-width) minmax(0, 1fr) var(--touch-target)"));
+            Assert.That(SetGrid.Columns([Weight, Reps], true), Is.EqualTo("var(--entry-grid-index-width) calc(var(--entry-grid-aside-width) + var(--space-2)) minmax(0, 1fr) minmax(0, 1fr) var(--touch-target)"));
+            Assert.That(SetGrid.Columns([Reps], true), Is.EqualTo("var(--entry-grid-index-width) calc(var(--entry-grid-aside-width) + var(--space-2)) minmax(0, 1fr) var(--touch-target)"));
         });
     }
 

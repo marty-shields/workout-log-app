@@ -33,7 +33,7 @@ The note an exercise had in the last saved workout with it: one muted line, the 
 
 ## `SetRow`
 One set on one row: number, a box per field, remove (`IconButton` Close, muted, small). Column headers come from the card. With `IsRecord`, a `RecordBadge` shows under the row, in line with the fields.
-- With `Last`, a muted small text after the number in a Last column the width of a field box: last time's set as the Exercise page writes it, e.g. *60×8*, *25kg×10*; *—* when last time had no set with that number (the caller passes it). Read out as "Last time 60×8".
+- With `Last`, a muted small text after the number in a Last column a little wider than the kit's aside width: last time's set as the Exercise page writes it, e.g. *60×8*, *25kg×10*; *—* when last time had no set with that number (the caller passes it). Read out as "Last time 60×8".
 - With `Last` on a row with a duration (a hold), no column: a muted small full-width line under the row, indented past the number: *Last time 1:30*, or *Last time 12.5kg · 1:30* when a weight was logged. The row's boxes keep the width they have without last time. The caller passes null for a set number last time didn't have, so no line shows.
 - `data-testid`: `TestId`, `{TestId}-last`, `{TestId}-{field}`, `{TestId}-remove`, `{TestId}-record`, `{TestId}-error`.
 

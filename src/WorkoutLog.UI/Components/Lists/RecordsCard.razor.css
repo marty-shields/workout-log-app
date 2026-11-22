@@ -1,7 +1,7 @@
-/* One grid for every row, so values and dates line up. */
+/* One grid for every row, so values line up; the date sits under the label so a long label keeps its line. */
 .rows {
     display: grid;
-    grid-template-columns: 1fr auto auto;
+    grid-template-columns: 1fr auto;
     column-gap: var(--space-3);
     margin: 0;
 }
@@ -10,7 +10,8 @@
     display: grid;
     grid-column: 1 / -1;
     grid-template-columns: subgrid;
-    align-items: baseline;
+    grid-template-areas: "label value" "date value";
+    align-items: center;
     padding: var(--space-2) 0;
     border-bottom: var(--border-width) solid var(--color-border);
 }
@@ -21,14 +22,19 @@
     margin: 0;
 }
 
+.label {
+    grid-area: label;
+}
+
 .value {
+    grid-area: value;
     font-weight: var(--font-weight-bold);
     font-variant-numeric: tabular-nums;
     text-align: right;
 }
 
 .date {
+    grid-area: date;
     color: var(--color-text-muted);
     font-size: var(--font-size-sm);
-    text-align: right;
 }

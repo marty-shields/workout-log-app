@@ -23,3 +23,14 @@
     grid-template-columns: 1fr 1fr;
     gap: var(--space-3);
 }
+
+/* Two buttons side by side, or one above the other when the longer "Choose another file" doesn't fit beside Cancel. */
+.actions {
+    display: flex;
+    flex: 1;
+    gap: var(--space-3);
+}
+
+.stacked {
+    flex-direction: column;
+}
