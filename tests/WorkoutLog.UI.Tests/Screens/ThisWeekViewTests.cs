@@ -1,4 +1,5 @@
 using Shields.UI.Components.Actions;
+using Shields.UI.Components.Charts;
 using WorkoutLog.UI.Components.ThisWeek;
 using WorkoutLog.UI.Navigation;
 using WorkoutLog.UI.Screens;
@@ -41,6 +42,23 @@ public class ThisWeekViewTests : ComponentTestBase
 
         Assert.That(cut.FindAll("[data-testid=this-week-dates], [data-testid=day-strip]").Select(e => e.GetAttribute("data-testid")),
             Is.EqualTo(new[] { "this-week-dates", "day-strip" }));
+    }
+
+    [Test]
+    public void MidWeek_StripIsTheKitsDayStripFromMondayToSunday()
+    {
+        var cut = MidWeek();
+        var strip = cut.FindComponent<DayStrip>().Instance;
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(strip.Days, Is.EqualTo(Enumerable.Range(0, 7).Select(SampleThisWeek.Monday.AddDays)));
+            Assert.That(strip.Done, Is.EquivalentTo(SampleThisWeek.TrainedDays));
+            Assert.That(strip.Today, Is.EqualTo(SampleThisWeek.Wednesday));
+            Assert.That((strip.Label, strip.DoneText, strip.EmptyText, strip.FutureText, strip.TodayText), Is.EqualTo(("Days this week", "trained", "no workout", "coming up", "today")));
+            Assert.That(cut.FindAll("li[data-testid^=day-strip-]").Select(d => d.GetAttribute("data-testid")),
+                Is.EqualTo(Enumerable.Range(16, 7).Select(day => $"day-strip-2026-11-{day}")));
+        });
     }
 
     [Test]

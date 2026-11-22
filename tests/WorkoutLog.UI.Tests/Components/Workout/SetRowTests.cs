@@ -1,4 +1,5 @@
 using Shields.UI.Components.Actions;
+using Shields.UI.Components.Inputs;
 using WorkoutLog.Core.Domain.Exercises;
 using WorkoutLog.UI.Components.Workout;
 using WorkoutLog.UI.Models.Fields;
@@ -73,6 +74,21 @@ public class SetRowTests : ComponentTestBase
             Assert.That(cut.Find(SetMarkup.OpenRow).GetAttribute("style"),
                 Is.EqualTo("grid-template-columns: var(--entry-grid-index-width) var(--entry-grid-aside-width) minmax(0, 1fr) minmax(0, 1fr) var(--touch-target)"));
         });
+    }
+
+    [Test]
+    public void Last_WideAside_WidensTheColumn()
+    {
+        var cut = Context.Render<SetRow>(p => p
+            .Add(x => x.Number, 1)
+            .Add(x => x.Fields, Fields)
+            .Add(x => x.Entry, new EntryState())
+            .Add(x => x.Last, "57.25kg×12")
+            .Add(x => x.AsideWidth, EntryGridAsideWidth.Wide)
+            .Add(x => x.TestId, "set-1"));
+
+        Assert.That(cut.Find(SetMarkup.OpenRow).GetAttribute("style"),
+            Is.EqualTo("grid-template-columns: var(--entry-grid-index-width) var(--entry-grid-aside-width-wide) minmax(0, 1fr) minmax(0, 1fr) var(--touch-target)"));
     }
 
     [TestCase("1:30", "Last time 1:30")]

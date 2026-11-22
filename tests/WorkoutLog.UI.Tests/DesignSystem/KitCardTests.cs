@@ -31,10 +31,7 @@ public partial class KitCardTests
     /// Rules that draw a border, corners or a surface and are not cards, keyed by file and selector, each with its reason.
     /// Anything else that draws all of a card's look fails <see cref="NoStyleSheet_DrawsACardItself"/>: use the kit's Card.
     /// </summary>
-    private static readonly Dictionary<(string File, string Selector), string> NotCards = new()
-    {
-        [(Path.Combine("Components", "ThisWeek", "DayStrip.razor.css"), ".dot")] = "a day's dashed circle",
-    };
+    private static readonly Dictionary<(string File, string Selector), string> NotCards = [];
 
     private static IEnumerable<string> UiStyleSheets() =>
         Directory.EnumerateFiles(RepoFiles.PathOf("src", "WorkoutLog.UI"), "*.razor.css", SearchOption.AllDirectories)

@@ -112,8 +112,8 @@ public class ThisWeekPageTests : ComponentTestBase
             Assert.That(cut.Find("[data-testid=this-week-streak]").TextContent, Is.EqualTo("5-week streak"));
             Assert.That(cut.FindAll("li[data-testid^=day-strip-]").Select(d => (d.GetAttribute("data-testid"), d.ClassList.Contains("done"))), Is.EqualTo(new[]
             {
-                ("day-strip-monday", true), ("day-strip-tuesday", false), ("day-strip-wednesday", true),
-                ("day-strip-thursday", false), ("day-strip-friday", false), ("day-strip-saturday", false), ("day-strip-sunday", false),
+                ("day-strip-2026-11-16", true), ("day-strip-2026-11-17", false), ("day-strip-2026-11-18", true),
+                ("day-strip-2026-11-19", false), ("day-strip-2026-11-20", false), ("day-strip-2026-11-21", false), ("day-strip-2026-11-22", false),
             }));
             Assert.That(cut.Find("[data-testid=week-tiles-workouts] .value").TextContent, Is.EqualTo("2"));
             Assert.That(cut.Find("[data-testid=week-tiles-time] .value").TextContent, Is.EqualTo("1h 30m"));

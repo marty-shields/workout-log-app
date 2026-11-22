@@ -27,6 +27,23 @@ public class SetSummaryTests : ComponentTestBase
     }
 
     [Test]
+    public void Text_IsALevel3HeadingThatMayWrap()
+    {
+        var cut = Context.Render<SetSummary>(p => p
+            .Add(x => x.Number, 2)
+            .Add(x => x.Fields, Carry)
+            .Add(x => x.Entry, Entry(("distance", "40"), ("weight", "32")))
+            .Add(x => x.TestId, "set-2"));
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.Find("[data-testid=set-2] [role=heading]").GetAttribute("aria-level"), Is.EqualTo("3"));
+            Assert.That(cut.Find("[data-testid=set-2] [role=heading]").TextContent.Trim(), Is.EqualTo("40m · 32kg"));
+            Assert.That(cut.Find("[data-testid=set-2]").HasAttribute("data-wrap-ok"), Is.True);
+        });
+    }
+
+    [Test]
     public void EditAndDelete_AreMutedCompactIconButtons()
     {
         var cut = Context.Render<SetSummary>(p => p

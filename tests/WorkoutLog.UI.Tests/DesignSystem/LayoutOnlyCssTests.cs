@@ -14,17 +14,8 @@ public partial class LayoutOnlyCssTests
     private const string Rule = "App styles only lay out. Use a kit component or parameter for the look, or ask for one in https://github.com/marty-shields/app-ui-kit "
         + "(AGENTS.md, 'No custom UI elements'). A real exception goes in LayoutOnlyCssTests.Exceptions with a reason.";
 
-    private static readonly KeyValuePair<string, string>[] Listed =
-    [
-        ..In("src/WorkoutLog.UI/Components/ThisWeek/DayStrip.razor.css", "kit gap: the kit has no read-only week strip with done, today and future days (DateStrip steps one day, MonthCalendar is a month grid); meanwhile this strip draws its dots and day names",
-            (".day", ["color", "font-size"]), (".done .dot", ["background-color", "border-color", "border-style", "color"]), (".dot", ["border", "border-radius", "font-variant-numeric"]), (".future .dot", ["opacity"]), (".today", ["color", "font-weight"]), (".today .dot", ["outline", "outline-offset"])),
-    ];
-
-    /// <summary>Allowed visual declarations, keyed <c>file | selector | property</c>, each with its reason.</summary>
-    internal static readonly IReadOnlyDictionary<string, string> Exceptions = Listed.ToDictionary(entry => entry.Key, entry => entry.Value);
-
-    private static IEnumerable<KeyValuePair<string, string>> In(string file, string reason, params (string Selector, string[] Properties)[] rules) =>
-        rules.SelectMany(rule => rule.Properties.Select(property => KeyValuePair.Create(Key(file, rule.Selector, property), reason)));
+    /// <summary>Allowed visual declarations, keyed <c>file | selector | property</c>, each with its reason. None are left: the kit covers every look the app had.</summary>
+    internal static readonly IReadOnlyDictionary<string, string> Exceptions = new Dictionary<string, string>();
 
     [Test]
     public void AppStyles_OnlyLayOut()
@@ -45,11 +36,11 @@ public partial class LayoutOnlyCssTests
     }
 
     [Test]
-    public void ANewVisualDeclaration_InAnExceptedFile_StillFails()
+    public void ANewVisualDeclaration_InAnAppStyleSheet_Fails()
     {
-        var excepted = AppCss.InCss("src/WorkoutLog.UI/Components/ThisWeek/DayStrip.razor.css", ".new { color: red; }");
+        var added = AppCss.InCss("src/WorkoutLog.UI/Components/Workout/SetSummary.razor.css", ".new { color: red; }");
 
-        Assert.That(Visual(excepted).Except(Exceptions.Keys), Is.Not.Empty);
+        Assert.That(Visual(added).Except(Exceptions.Keys), Is.Not.Empty);
     }
 
     [TestCase("color: red;")]

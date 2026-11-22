@@ -10,7 +10,7 @@ Home screen: how the week is going. Which days you trained, how it compares with
 |---|---|
 | Top bar | Title "Workout Log"; Settings gear (`IconButton`) on the right in every state. No back arrow; back leaves the app. |
 | Week line | The week's dates (e.g. *16 – 22 Nov*) and the streak at the right (e.g. *23-week streak*, hidden at 0). |
-| Day strip | A `DayStrip` for Monday to Sunday. |
+| Day strip | The kit `DayStrip` (Charts) for Monday to Sunday: a tick on each day with a workout, a ring on today, the days to come dimmed. Read out as e.g. *Monday 16 November, trained*. Day test ids are `day-strip-{yyyy-MM-dd}`. |
 | Tiles | `WeekTiles`: Workouts, Time and Sets against Monday to today's weekday last week. |
 | This week's workouts | A `WeekWorkoutsCard`. |
 | Records this week | A `WeekRecordsCard`. |

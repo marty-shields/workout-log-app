@@ -80,7 +80,7 @@
                         {
                             var lastColumn = SetGrid.LastColumn(Exercise.Fields, Exercise.LastTime);
                             var shortHeaders = SetGrid.ShortHeaders(Exercise.Fields, lastColumn);
-                            <EntryGridRow Header FieldCount="Exercise.Fields.Count" Aside="@(lastColumn ? LastHeading : null)">
+                            <EntryGridRow Header FieldCount="Exercise.Fields.Count" AsideWidth="SetGrid.AsideWidth(Exercise.LastTime)" Aside="@(lastColumn ? LastHeading : null)">
                                 <Index>Set</Index>
                                 <Fields>
                                     @foreach (var field in Exercise.Fields)
@@ -98,6 +98,7 @@
                                     Entry="entry"
                                     Last="@LastText(number)"
                                     LastBelow="SetGrid.LastBelow(Exercise.Fields, Exercise.LastTime)"
+                                    AsideWidth="SetGrid.AsideWidth(Exercise.LastTime)"
                                     IsRecord="entry == Exercise.RecordEntry"
                                     OnChanged="() => EntryChanged(entry)"
                                     OnEnterLast="AddSetFromEnter"
