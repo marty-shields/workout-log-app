@@ -6,19 +6,6 @@ $attribute: CustomPage(StoryTitles.Prefix + "/Components/ThisWeek/Overview")
 
 Parts of the [This week](./?path=/custom/workout-log-screens-this-week-overview) screen. Each takes display-ready values; the page works them out. The design they started from is [docs/design/this-week-and-trends.html](https://github.com/marty-shields/workout-log-app/blob/main/docs/design/this-week-and-trends.html).
 
-## `DayStrip`
-A card with the seven days of the week, Monday to Sunday: the weekday abbreviation over a circle.
-
-| Day | Shows |
-|---|---|
-| Trained | A tick on a solid `--color-primary` circle. |
-| Not trained, up to today | The date number in a dashed circle. |
-| Today | A ring around the circle and a bold label, whether trained or not. `aria-current="date"`. |
-| Still to come | The circle dimmed to `--opacity-disabled`. |
-
-Colour is never the only sign: the tick, the dashed or solid outline, the ring and the dimming differ in shape. Each day also has hidden text for screen readers, e.g. *Monday 16 November, trained*, *Wednesday 18 November, no workout, today*, *Thursday 19 November, coming up*.
-- `data-testid`: `TestId`, and as a prefix: `{TestId}-monday` to `{TestId}-sunday`.
-
 ## `WeekTiles`
 Three kit `StatTile`s in a row: Workouts, Time (e.g. *2h 35m*) and Sets, each with its change on last week from Monday to the same weekday: an increase is the Up `Icon` and the difference, a decrease the Down `Icon` and the difference, both muted (the arrow gives the direction), no change a muted "—". Screen readers hear "up 35m", "down 1" or "no change". Time is compared in whole minutes. Under the tiles: "Against Monday to Wednesday last week" (on a Monday, "Against Monday last week").
 - `data-testid`: `TestId`, and as a prefix: `{TestId}-workouts`, `{TestId}-time`, `{TestId}-sets` (each tile with `-value`, `-label`, `-caption` and `-change` parts), `{TestId}-against`.
@@ -39,4 +26,4 @@ A card titled "Sets per muscle group", "this week" at its right (`Period` rename
 A card with one `ListRow` "Last week" and, under it, last week's whole-week totals (e.g. *4 workouts · 4h 10m · 67 sets*). With `OnOpen` the row is tappable, with a chevron. This week shows it while nothing is logged yet.
 - `data-testid`: `TestId`, and `{TestId}-row`.
 
-Stories: [DayStrip](./?path=/docs/workout-log-components-thisweek-daystrip--docs) · [WeekTiles](./?path=/docs/workout-log-components-thisweek-weektiles--docs) · [WeekWorkoutsCard](./?path=/docs/workout-log-components-thisweek-weekworkoutscard--docs) · [WeekRecordsCard](./?path=/docs/workout-log-components-thisweek-weekrecordscard--docs) · [MuscleSetsCard](./?path=/docs/workout-log-components-thisweek-musclesetscard--docs) · [LastWeekCard](./?path=/docs/workout-log-components-thisweek-lastweekcard--docs)
+Stories: [WeekTiles](./?path=/docs/workout-log-components-thisweek-weektiles--docs) · [WeekWorkoutsCard](./?path=/docs/workout-log-components-thisweek-weekworkoutscard--docs) · [WeekRecordsCard](./?path=/docs/workout-log-components-thisweek-weekrecordscard--docs) · [MuscleSetsCard](./?path=/docs/workout-log-components-thisweek-musclesetscard--docs) · [LastWeekCard](./?path=/docs/workout-log-components-thisweek-lastweekcard--docs)

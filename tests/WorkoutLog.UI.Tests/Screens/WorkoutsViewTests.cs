@@ -135,7 +135,7 @@ public class WorkoutsViewTests : ComponentTestBase
 
         Assert.Multiple(() =>
         {
-            Assert.That(cut.Find("[data-testid=workouts-dates-dates]").TextContent, Is.EqualTo("6 Aug 2026 – 6 Nov 2026"));
+            Assert.That(cut.Find("[data-testid=workouts-dates-dates]").TextContent, Is.EqualTo("6 Aug – 6 Nov 2026"));
             Assert.That(cut.Find("[data-testid=workouts-dates-count]").TextContent, Is.EqualTo("3"));
         });
     }
@@ -156,11 +156,11 @@ public class WorkoutsViewTests : ComponentTestBase
     }
 
     [Test]
-    public void DateField_FormatsEachEndAsDayMonthYear_WhateverTheKitsDefaultIs()
+    public void DateField_ShowsASharedYearOnce_WhateverTheKitsDefaultIs()
     {
         var cut = Render(ThreeMonths);
 
-        Assert.That(cut.FindComponent<DateRangeField>().Instance.DateFormat, Is.EqualTo("d MMM yyyy"));
+        Assert.That(cut.FindComponent<DateRangeField>().Instance.Display, Is.EqualTo(DateRangeDisplay.SharedYear));
     }
 
     [Test]
@@ -237,7 +237,7 @@ public class WorkoutsViewTests : ComponentTestBase
         {
             Assert.That(cut.FindAll("[data-testid=workouts-loading]"), Has.Count.EqualTo(1));
             Assert.That(cut.FindAll(".rows"), Is.Empty);
-            Assert.That(cut.Find("[data-testid=workouts-dates-dates]").TextContent, Is.EqualTo("6 Aug 2026 – 6 Nov 2026"));
+            Assert.That(cut.Find("[data-testid=workouts-dates-dates]").TextContent, Is.EqualTo("6 Aug – 6 Nov 2026"));
             Assert.That(cut.FindAll("[data-testid=workouts-range]"), Has.Count.EqualTo(1));
         });
     }

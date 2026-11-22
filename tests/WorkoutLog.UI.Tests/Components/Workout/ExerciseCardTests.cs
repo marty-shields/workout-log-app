@@ -1449,8 +1449,28 @@ public class ExerciseCardTests : ComponentTestBase
         });
     }
 
+    [TestCase("25kg×10")]
     [TestCase("57.25kg×12")]
-    [TestCase("62.5kg×12")]
+    public void LastTime_AnAssistedSet_FitsTheWideAsideColumn(string last)
+    {
+        var exercise = Strength(1);
+        exercise.LastTime = new LastTime([last]);
+
+        var cut = Context.Render<ExerciseCard>(p => p
+            .Add(x => x.Exercise, exercise)
+            .Add(x => x.TestId, "exercise-1"));
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(LastColumn(cut), Is.EqualTo(new[] { $"Last time {last}" }));
+            Assert.That(cut.FindAll($"{SetMarkup.OpenRow} + .indent [data-testid=exercise-1-set-1-last]"), Is.Empty);
+            Assert.That(new[] { SetMarkup.Header, SetMarkup.OpenRow }.Select(row => cut.Find(row).GetAttribute("style")),
+                Has.All.Contains("var(--entry-grid-aside-width-wide)"));
+        });
+    }
+
+    [TestCase("102.25kg×12")]
+    [TestCase("157.25kg×10")]
     public void LastTime_TooLongForTheKitsAsideColumn_ShowsOnALineUnderTheRowWithNoLastHeader(string last)
     {
         var exercise = Strength(1);
@@ -1472,7 +1492,7 @@ public class ExerciseCardTests : ComponentTestBase
     public void LastTime_OneSetTooWideForTheColumn_ShowsEverySetBelowEvenWhenTheOpenSetsTextIsShort()
     {
         var exercise = Strength(2);
-        exercise.LastTime = new LastTime(["57.25kg×12", "60×8"]);
+        exercise.LastTime = new LastTime(["102.25kg×12", "60×8"]);
 
         var cut = Context.Render<ExerciseCard>(p => p
             .Add(x => x.Exercise, exercise)

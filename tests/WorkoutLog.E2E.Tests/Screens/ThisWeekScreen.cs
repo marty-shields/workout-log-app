@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Text.RegularExpressions;
 using OpenQA.Selenium;
 
@@ -39,12 +40,11 @@ public sealed partial class ThisWeekScreen(WebView web)
     public (string Value, string Change) Tile(string tile) =>
         (web.Find($"week-tiles-{tile}").FindElement(By.CssSelector(".value")).Text.Trim(), Content(web.Find($"week-tiles-{tile}-change")).Replace("—", "", StringComparison.Ordinal).Trim());
 
-    /// <summary>The weekdays the strip marks as trained, e.g. "Monday".</summary>
+    /// <summary>The weekdays the strip marks as trained, e.g. "Monday", worked out from each day's test id, <c>day-strip-{yyyy-MM-dd}</c>.</summary>
     public IReadOnlyList<string> TrainedDays() =>
         web.FindAll("li[data-testid^=\"day-strip-\"]")
             .Where(d => (d.GetDomAttribute("class") ?? "").Split(' ').Contains("done"))
-            .Select(d => d.GetDomAttribute("data-testid")!["day-strip-".Length..])
-            .Select(day => char.ToUpperInvariant(day[0]) + day[1..])
+            .Select(d => DateOnly.ParseExact(d.GetDomAttribute("data-testid")!["day-strip-".Length..], "yyyy-MM-dd", CultureInfo.InvariantCulture).DayOfWeek.ToString())
             .ToList();
 
     /// <summary>The streak, e.g. "6-week streak", or null when hidden.</summary>

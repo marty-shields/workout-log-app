@@ -1,6 +1,6 @@
 @using WorkoutLog.UI.Models.Fields
 <div class="summary">
-    <ListRow Text="@Text" Divider="false" TestId="@TestId">
+    <ListRow Text="@Text" Divider="false" HeadingLevel="3" TestId="@TestId" data-wrap-ok>
         <Leading>@Number</Leading>
         <Trailing>
             <IconButton @ref="edit" Icon="IconName.Edit" AriaLabel="@(Label("Edit"))" TestId="@($"{TestId}-edit")" Muted Compact OnClick="OnOpen" />

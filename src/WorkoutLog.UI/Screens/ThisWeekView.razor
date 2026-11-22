@@ -27,7 +27,7 @@
                         <Typography Variant="TextVariant.MutedSmall" TestId="this-week-streak">@Streak-week streak</Typography>
                     }
                 </div>
-                <DayStrip Monday="Monday" Today="Today" Trained="Trained" TestId="day-strip" />
+                <DayStrip Days="Week" Done="Trained" Today="Today" Label="Days this week" DoneText="trained" EmptyText="no workout" FutureText="coming up" TodayText="today" TestId="day-strip" />
                 <WeekTiles ThisWeek="ThisWeek" LastWeekToDate="LastWeekToDate" Today="Today.DayOfWeek" TestId="week-tiles" />
                 <WeekWorkoutsCard Workouts="Workouts" OnOpen="OnOpenWorkout" TestId="week-workouts" />
                 @if (Workouts.Count > 0)
@@ -59,6 +59,8 @@
     /// <summary>Days of this week with a workout.</summary>
     [Parameter]
     public IReadOnlyCollection<DateOnly> Trained { get; set; } = [];
+
+    private DateOnly[] Week => [.. Enumerable.Range(0, 7).Select(Monday.AddDays)];
 
     /// <summary>Consecutive weeks with a workout; hidden at 0.</summary>
     [Parameter]

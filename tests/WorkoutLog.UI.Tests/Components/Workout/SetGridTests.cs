@@ -1,3 +1,4 @@
+using Shields.UI.Components.Inputs;
 using WorkoutLog.Core.Domain.Exercises;
 using WorkoutLog.UI.Components.Workout;
 using WorkoutLog.UI.Models.Fields;
@@ -49,22 +50,37 @@ public class SetGridTests
 
     [TestCase("—", false)]
     [TestCase("60×8", false)]
-    [TestCase("888×8", false)]
     [TestCase("62.5×6", false)]
-    [TestCase("140×10", true)]
-    [TestCase("5kg×10", true)]
-    [TestCase("102.5×8", true)]
-    [TestCase("25kg×10", true)]
-    [TestCase("57.25kg×12", true)]
-    public void TooWideForColumn_IsTrueAbove5AndAHalfDigitWidths_SoThe56pxAsideNeverOverflows(string last, bool tooWide) =>
+    [TestCase("140×10", false)]
+    [TestCase("25kg×10", false)]
+    [TestCase("62.5kg×12", false)]
+    [TestCase("57.25kg×12", false)]
+    [TestCase("157.5kg×12", false)]
+    [TestCase("1000kg×100", true)]
+    [TestCase("102.25kg×12", true)]
+    [TestCase("157.25kg×10", true)]
+    public void TooWideForColumn_IsTrueAbove9AndAHalfDigitWidths_SoThe96pxAsideNeverOverflows(string last, bool tooWide) =>
         Assert.That(SetGrid.TooWideForColumn(last), Is.EqualTo(tooWide));
+
+    [Test]
+    public void AsideWidth_IsWideOnlyWhenATextIsWiderThanTheNormalColumn()
+    {
+        Assert.Multiple(() =>
+        {
+            Assert.That(SetGrid.AsideWidth(null), Is.EqualTo(EntryGridAsideWidth.Normal));
+            Assert.That(SetGrid.AsideWidth(new LastTime(["60×8", "62.5×6", "—"])), Is.EqualTo(EntryGridAsideWidth.Normal));
+            Assert.That(SetGrid.AsideWidth(new LastTime(["60×8", "140×10"])), Is.EqualTo(EntryGridAsideWidth.Wide));
+            Assert.That(SetGrid.AsideWidth(new LastTime(["25kg×10"])), Is.EqualTo(EntryGridAsideWidth.Wide));
+            Assert.That(SetGrid.AsideWidth(new LastTime(["57.25kg×12"])), Is.EqualTo(EntryGridAsideWidth.Wide));
+        });
+    }
 
     [Test]
     public void LastBelow_OneTooWideSetPutsEverySetBelow()
     {
         Assert.Multiple(() =>
         {
-            Assert.That(SetGrid.LastBelow([Reps, Weight], new LastTime(["60×8", "57.25kg×12"])), Is.True);
+            Assert.That(SetGrid.LastBelow([Reps, Weight], new LastTime(["60×8", "102.25kg×12"])), Is.True);
             Assert.That(SetGrid.LastBelow([Reps, Weight], new LastTime(["60×8", "62.5×6"])), Is.False);
         });
     }
@@ -77,7 +93,7 @@ public class SetGridTests
             Assert.That(SetGrid.LastColumn([Reps, Weight], new LastTime(["60×8"])), Is.True);
             Assert.That(SetGrid.LastColumn([Reps, Weight], null), Is.False);
             Assert.That(SetGrid.LastColumn([Time, Weight], new LastTime(["1:30"])), Is.False);
-            Assert.That(SetGrid.LastColumn([Reps, Weight], new LastTime(["60×8", "57.25kg×12"])), Is.False);
+            Assert.That(SetGrid.LastColumn([Reps, Weight], new LastTime(["60×8", "102.25kg×12"])), Is.False);
         });
     }
 }

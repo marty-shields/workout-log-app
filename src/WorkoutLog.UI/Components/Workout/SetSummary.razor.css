@@ -1,8 +1,3 @@
-/* With no aside the row's text would sit mid-row between the number and the buttons, so it takes the room and starts after the number. */
-.summary ::deep .texts {
-    flex: 1;
-}
-
 .record {
     margin-left: calc(var(--entry-grid-index-width) + var(--space-2));
 }

@@ -48,7 +48,6 @@ public class AppComponentAllowListTests
         // Components (WorkoutLog.UI)
         ["ExerciseList"] = "app-only: the rows of the add-exercise list (name, kind, last session) and its no-match text, built from kit ListRow",
         ["RecordsCard"] = "app-only: records list of this app's domain, built from kit Card and ListRow",
-        ["DayStrip"] = "kit gap: DateStrip steps one day and MonthCalendar is a month grid, so there is no read-only week strip with done, today and future days; meanwhile this seven-day strip",
         ["LastWeekCard"] = "app-only: last week's summary card of this app's domain, built from kit Card",
         ["MuscleSetsCard"] = "app-only: sets per muscle group, built from kit Card and BarList",
         ["WeekRecordsCard"] = "app-only: this week's records card, built from kit Card",

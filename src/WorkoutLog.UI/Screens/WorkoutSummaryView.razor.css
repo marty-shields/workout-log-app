@@ -21,8 +21,3 @@
     padding: 0;
     list-style: none;
 }
-
-/* A record row has no aside, so its text would sit against the right edge: it takes the room and starts after the icon. */
-.rows ::deep .texts {
-    flex: 1;
-}

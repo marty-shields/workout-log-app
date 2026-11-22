@@ -1,5 +1,5 @@
 @using WorkoutLog.UI.Models.Fields
-<EntryGridRow FieldCount="Fields.Count" Aside="@(Last is not null && !Below ? LastCell : null)" TestId="@TestId">
+<EntryGridRow FieldCount="Fields.Count" AsideWidth="AsideWidth" Aside="@(Last is not null && !Below ? LastCell : null)" TestId="@TestId">
     <Index>@Number</Index>
     <Fields>
         @foreach (var field in Fields)
@@ -64,6 +64,10 @@
     /// <summary>Shows <see cref="Last"/> under the row, not in the column, because some set's text is too wide for it (<see cref="SetGrid.LastBelow"/>). The card decides once for every set.</summary>
     [Parameter]
     public bool LastBelow { get; set; }
+
+    /// <summary>Width of the Last column (<see cref="SetGrid.AsideWidth"/>), the same as the header's. The card decides once for every set.</summary>
+    [Parameter]
+    public EntryGridAsideWidth AsideWidth { get; set; }
 
     /// <summary>Shows the Record badge under the row.</summary>
     [Parameter]
