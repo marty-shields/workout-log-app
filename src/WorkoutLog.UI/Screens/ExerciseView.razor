@@ -30,7 +30,7 @@
                     else
                     {
                         <div class="no-data">
-                            <Typography Variant="TextVariant.Muted" As="TextElement.P" TestId="exercise-chart-empty">@(Sessions.Count > 0 && NoDataMessage is not null ? NoDataMessage : NoSessionsMessage)</Typography>
+                            <Typography Variant="TextVariant.Muted" As="TextElement.P" TestId="exercise-chart-empty" data-wrap-ok>@(Sessions.Count > 0 && NoDataMessage is not null ? NoDataMessage : NoSessionsMessage)</Typography>
                         </div>
                     }
                     <SegmentedControl TValue="HistoryRange" Label="Range" Options="Ranges" Value="Range" ValueChanged="RangeChanged" TestId="exercise-range" />

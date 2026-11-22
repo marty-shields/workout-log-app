@@ -37,7 +37,7 @@
                 }
                 @if (Review.Skipped > 0)
                 {
-                    <p class="text" data-testid="review-skipped-text">@SkippedText</p>
+                    <p class="text" data-testid="review-skipped-text" data-wrap-ok>@SkippedText</p>
                 }
                 @if (NothingNew)
                 {
@@ -51,23 +51,25 @@
         </div>
     </ChildContent>
     <BottomBar>
-        <AppButton Variant="ButtonVariant.Secondary" FullWidth Disabled="Importing" TestId="review-cancel" OnClick="OnCancel">Cancel</AppButton>
-        @if (Review.Error != ImportError.None)
-        {
-            <AppButton FullWidth Busy="Reading" TestId="review-choose" OnClick="OnChooseAnother">@(Reading ? "Reading…" : "Choose another file")</AppButton>
-        }
-        else if (Mode == ImportMode.ReplaceAll)
-        {
-            <AppButton @ref="import" Variant="ButtonVariant.Danger" FullWidth Disabled="Importable == 0" Busy="Importing" TestId="review-import" OnClick="OnImport">
-                @(Importing ? "Importing…" : "Replace all")
-            </AppButton>
-        }
-        else
-        {
-            <AppButton @ref="import" FullWidth Disabled="NothingNew" Busy="Importing" TestId="review-import" OnClick="OnImport">
-                @(Importing ? "Importing…" : "Import")
-            </AppButton>
-        }
+        <div class="actions@(Review.Error != ImportError.None ? " stacked" : null)">
+            <AppButton Variant="ButtonVariant.Secondary" FullWidth Disabled="Importing" TestId="review-cancel" OnClick="OnCancel">Cancel</AppButton>
+            @if (Review.Error != ImportError.None)
+            {
+                <AppButton FullWidth Busy="Reading" TestId="review-choose" OnClick="OnChooseAnother">@(Reading ? "Reading…" : "Choose another file")</AppButton>
+            }
+            else if (Mode == ImportMode.ReplaceAll)
+            {
+                <AppButton @ref="import" Variant="ButtonVariant.Danger" FullWidth Disabled="Importable == 0" Busy="Importing" TestId="review-import" OnClick="OnImport">
+                    @(Importing ? "Importing…" : "Replace all")
+                </AppButton>
+            }
+            else
+            {
+                <AppButton @ref="import" FullWidth Disabled="NothingNew" Busy="Importing" TestId="review-import" OnClick="OnImport">
+                    @(Importing ? "Importing…" : "Import")
+                </AppButton>
+            }
+        </div>
     </BottomBar>
 </AppScreen>
 @if (Confirming)

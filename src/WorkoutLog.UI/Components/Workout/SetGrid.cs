@@ -17,12 +17,12 @@ internal static class SetGrid
     /// <summary>True when a header label has no room for its unit: the Last column or a duration beside another field leaves a field one narrow column at the narrowest card. The field's own label still names the unit.</summary>
     public static bool ShortHeaders(IReadOnlyList<FieldSpec> fields, bool hasLast) => hasLast || LastBelow(fields);
 
-    /// <summary>CSS grid-template-columns: set number, the Last column when <see cref="LastColumn"/>, one column per field, remove button.</summary>
+    /// <summary>CSS grid-template-columns: set number, the Last column when <see cref="LastColumn"/> (the kit's aside width plus a gap, so 25kg×10 fits at the narrowest card), one column per field, remove button.</summary>
     public static string Columns(IReadOnlyList<FieldSpec> fields, bool hasLast)
     {
         var lastColumn = LastColumn(fields, hasLast);
         var fieldColumns = fields.Select(_ => "minmax(0, 1fr)");
-        var last = lastColumn ? "var(--entry-grid-aside-width) " : null;
+        var last = lastColumn ? "calc(var(--entry-grid-aside-width) + var(--space-2)) " : null;
         return $"var(--entry-grid-index-width) {last}{string.Join(' ', fieldColumns)} var(--touch-target)";
     }
 }

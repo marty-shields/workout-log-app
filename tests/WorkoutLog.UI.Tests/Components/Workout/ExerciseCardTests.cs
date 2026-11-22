@@ -1445,7 +1445,7 @@ public class ExerciseCardTests : ComponentTestBase
             Assert.That(LastColumn(cut), Is.EqualTo(new[] { "Last time 62.5×6" }));
             Assert.That(cut.Find("[data-testid=exercise-1-set-3-last]").TextContent, Is.EqualTo("Last time 62.5×6"));
             Assert.That(cut.Find(".set-header").GetAttribute("style"),
-                Is.EqualTo("grid-template-columns: var(--entry-grid-index-width) var(--entry-grid-aside-width) minmax(0, 1fr) minmax(0, 1fr) var(--touch-target)"));
+                Is.EqualTo("grid-template-columns: var(--entry-grid-index-width) calc(var(--entry-grid-aside-width) + var(--space-2)) minmax(0, 1fr) minmax(0, 1fr) var(--touch-target)"));
         });
     }
 

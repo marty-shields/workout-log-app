@@ -19,7 +19,7 @@ Opened from Settings after a file is picked and read. View: `ImportReviewView`; 
 | Replace confirm | `ConfirmDialog` "Delete your 41 workouts and import 44?" with **Cancel** and Danger **Replace**, also with 0 on the phone. |
 | Importing | Import is busy: a spinner beside "Importing…". Cancel and the choices are disabled; taps and back are ignored. |
 | Import failed | "Couldn't import your workouts. Try again" above the bottom bar. Nothing is written. Focus moves to Import. |
-| File errors | Instead of the count and the choices: "This file isn't a Workout Log export"; "This file is from a newer version of Workout Log. Update the app to import it"; "This file has no workouts"; "This file is too large to import". The bottom bar has **Cancel** and Primary **Choose another file**. |
+| File errors | Instead of the count and the choices: "This file isn't a Workout Log export"; "This file is from a newer version of Workout Log. Update the app to import it"; "This file has no workouts"; "This file is too large to import". The bottom bar has **Cancel** and Primary **Choose another file**, stacked on their own rows. |
 | Reading another file | Choose another file is busy: "Reading…". Cancel and back still work. Cancelling the picker keeps the error. If the picker or the read fails, "Couldn't import your workouts. Try again" replaces the error. |
 
 Import writes in one transaction, then goes back to Settings with its message. Back and Cancel go back to Settings with no prompt. An open dialog closes on back.

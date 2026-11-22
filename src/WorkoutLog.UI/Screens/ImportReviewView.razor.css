@@ -23,3 +23,14 @@
     grid-template-columns: 1fr 1fr;
     gap: var(--space-3);
 }
+
+/* Two buttons side by side. In the file-error state they stack, because "Choose another file" doesn't fit beside Cancel at phone width. */
+.actions {
+    display: flex;
+    flex: 1;
+    gap: var(--space-3);
+}
+
+.stacked {
+    flex-direction: column;
+}
