@@ -119,7 +119,7 @@
 
     private RenderFragment Tools =>
         @<div class="tools">
-            <DateRangeField Dates="new DateRange(Dates.From, Dates.To)" Count="count" CountText="DisplayFormat.Workouts"
+            <DateRangeField Dates="new DateRange(Dates.From, Dates.To)" DateFormat="d MMM yyyy" Count="count" CountText="DisplayFormat.Workouts"
                             Min="History.Earliest" Max="History.Today" Today="History.Today" DayCounts="History.PerDay"
                             MarkedDayText="workout logged" ApplyLabel="Show workouts" Expanded="Expanded" ExpandedChanged="ExpandedChanged"
                             OpenOnMonths="OpenOnMonths" DatesChanged="Apply" TestId="workouts-dates" />

@@ -78,7 +78,7 @@
                         }
                         else
                         {
-                            var lastColumn = SetGrid.LastColumn(Exercise.Fields, Exercise.LastTime is not null, Exercise.LastTime?.EntryOrNull(number));
+                            var lastColumn = SetGrid.LastColumn(Exercise.Fields, Exercise.LastTime);
                             var shortHeaders = SetGrid.ShortHeaders(Exercise.Fields, lastColumn);
                             <EntryGridRow Header FieldCount="Exercise.Fields.Count" Aside="@(lastColumn ? LastHeading : null)">
                                 <Index>Set</Index>
@@ -97,6 +97,7 @@
                                     Fields="Exercise.Fields"
                                     Entry="entry"
                                     Last="@LastText(number)"
+                                    LastBelow="SetGrid.LastBelow(Exercise.Fields, Exercise.LastTime)"
                                     IsRecord="entry == Exercise.RecordEntry"
                                     OnChanged="() => EntryChanged(entry)"
                                     OnEnterLast="AddSetFromEnter"
@@ -393,7 +394,7 @@
     private string? LastText(int number)
     {
         var last = Exercise.LastTime?.EntryOrNull(number);
-        return SetGrid.LastBelow(Exercise.Fields, last) ? last : Exercise.LastTime?.Entry(number);
+        return SetGrid.LastBelow(Exercise.Fields, Exercise.LastTime) ? last : Exercise.LastTime?.Entry(number);
     }
 
     private bool HasNote => !string.IsNullOrWhiteSpace(Exercise.Note);

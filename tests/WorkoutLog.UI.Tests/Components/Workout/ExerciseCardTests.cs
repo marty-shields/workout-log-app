@@ -1469,6 +1469,36 @@ public class ExerciseCardTests : ComponentTestBase
     }
 
     [Test]
+    public void LastTime_OneSetTooWideForTheColumn_ShowsEverySetBelowEvenWhenTheOpenSetsTextIsShort()
+    {
+        var exercise = Strength(2);
+        exercise.LastTime = new LastTime(["57.25kg×12", "60×8"]);
+
+        var cut = Context.Render<ExerciseCard>(p => p
+            .Add(x => x.Exercise, exercise)
+            .Add(x => x.TestId, "exercise-1"));
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.FindAll($"{SetMarkup.Header} span").Select(s => s.TextContent), Is.EqualTo(new[] { "Set", "Reps\u00a0*", "Weight (kg)", "" }));
+            Assert.That(cut.FindAll(SetMarkup.RowLast), Is.Empty);
+            Assert.That(cut.Find($"{SetMarkup.OpenRow} + .indent [data-testid=exercise-1-set-2-last]").TextContent, Is.EqualTo("Last time 60×8"));
+        });
+    }
+
+    [Test]
+    public void LastTime_Hold_AnOpenSetWithNoLastTimeShowsNoLine()
+    {
+        var exercise = Hold(2);
+        exercise.LastTime = new LastTime(["1:30"]);
+        var cut = Context.Render<ExerciseCard>(p => p
+            .Add(x => x.Exercise, exercise)
+            .Add(x => x.TestId, "exercise-1"));
+
+        Assert.That(cut.FindAll("[data-testid=exercise-1-set-2-last]"), Is.Empty);
+    }
+
+    [Test]
     public void LastTime_HeaderDropsTheUnitToFitButTheFieldStillNamesIt()
     {
         var exercise = Strength(1);

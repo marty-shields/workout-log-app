@@ -97,6 +97,24 @@ public class SetRowTests : ComponentTestBase
     }
 
     [Test]
+    public void Last_WhenTheCardSaysBelow_ShowsALineUnderTheRowAndNoColumnOnARowWithoutADuration()
+    {
+        var cut = Context.Render<SetRow>(p => p
+            .Add(x => x.Number, 1)
+            .Add(x => x.Fields, Fields)
+            .Add(x => x.Entry, new EntryState())
+            .Add(x => x.Last, "60×8")
+            .Add(x => x.LastBelow, true)
+            .Add(x => x.TestId, "set-1"));
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.FindAll(".aside"), Is.Empty);
+            Assert.That(cut.Find($"{SetMarkup.OpenRow} + .indent [data-testid=set-1-last]").TextContent, Is.EqualTo("Last time 60×8"));
+        });
+    }
+
+    [Test]
     public void Last_OnADurationRow_Unset_ShowsNoLine()
     {
         var cut = Context.Render<SetRow>(p => p

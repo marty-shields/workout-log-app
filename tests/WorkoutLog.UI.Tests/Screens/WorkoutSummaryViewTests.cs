@@ -30,6 +30,19 @@ public class WorkoutSummaryViewTests : ComponentTestBase
     }
 
     [Test]
+    public void RecordsAndChanges_OnlyTheLastRowOfEachListHasNoDivider()
+    {
+        var cut = Render(SampleWorkoutSummary.RecordsAndChanges);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.FindAll("[data-testid^=summary-record-]").Select(r => r.ClassList.Contains("no-divider")), Is.EqualTo(new[] { false, true }));
+            Assert.That(cut.FindAll("[data-testid^=summary-change-]").Select(r => r.ClassList.Contains("no-divider")),
+                Is.EqualTo(new[] { false, false, false, false, false, true }));
+        });
+    }
+
+    [Test]
     public void Records_ShowTheRecordIconInSuccessTone()
     {
         var cut = Render(SampleWorkoutSummary.RecordsAndChanges);

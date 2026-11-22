@@ -1,5 +1,5 @@
 @using WorkoutLog.UI.Models.Fields
-<EntryGridRow FieldCount="Fields.Count" Aside="@(Last is not null && !SetGrid.LastBelow(Fields, Last) ? LastCell : null)" TestId="@TestId">
+<EntryGridRow FieldCount="Fields.Count" Aside="@(Last is not null && !Below ? LastCell : null)" TestId="@TestId">
     <Index>@Number</Index>
     <Fields>
         @foreach (var field in Fields)
@@ -21,7 +21,7 @@
         <IconButton Icon="IconName.Close" AriaLabel="@RemoveLabel" TestId="@($"{TestId}-remove")" Muted Size="IconSize.Small" OnClick="OnRemove" />
     </Actions>
 </EntryGridRow>
-@if (Last is not null && SetGrid.LastBelow(Fields, Last))
+@if (Last is not null && Below)
 {
     <div class="indent">
         <Typography Variant="TextVariant.MutedSmall" As="TextElement.P" TestId="@($"{TestId}-last")">Last time @Last</Typography>
@@ -57,9 +57,13 @@
     [Parameter, EditorRequired]
     public EntryState Entry { get; set; } = null!;
 
-    /// <summary>Last time's text for this set (<see cref="LastTime.Entry"/>), in a muted Last column after the number, or on a line under the row when it is too long for the column or the row has a duration (see <see cref="SetGrid.LastBelow"/>). Null leaves it out.</summary>
+    /// <summary>Last time's text for this set (<see cref="LastTime.Entry"/>), in a muted Last column after the number, or on a line under the row when <see cref="LastBelow"/> or the row has a duration. Null leaves it out.</summary>
     [Parameter]
     public string? Last { get; set; }
+
+    /// <summary>Shows <see cref="Last"/> under the row, not in the column, because some set's text is too wide for it (<see cref="SetGrid.LastBelow"/>). The card decides once for every set.</summary>
+    [Parameter]
+    public bool LastBelow { get; set; }
 
     /// <summary>Shows the Record badge under the row.</summary>
     [Parameter]
@@ -82,6 +86,8 @@
     public string? TestId { get; set; }
 
     private readonly Dictionary<string, ValueField> fields = new();
+
+    private bool Below => LastBelow || SetGrid.HasDuration(Fields);
 
     private RenderFragment LastCell =>
         @<span data-testid="@($"{TestId}-last")"><span class="visually-hidden">Last time </span>@Last</span>;

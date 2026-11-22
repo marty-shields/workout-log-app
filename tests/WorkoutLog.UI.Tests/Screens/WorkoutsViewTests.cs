@@ -1,3 +1,4 @@
+using Shields.UI.Components.Inputs;
 using WorkoutLog.Core.Domain;
 using WorkoutLog.UI.Models.Workouts;
 using WorkoutLog.UI.Screens;
@@ -152,6 +153,14 @@ public class WorkoutsViewTests : ComponentTestBase
             Assert.That(cut.FindAll("[data-testid=workouts-none] button"), Is.Empty);
             Assert.That(cut.FindAll(".rows"), Is.Empty);
         });
+    }
+
+    [Test]
+    public void DateField_FormatsEachEndAsDayMonthYear_WhateverTheKitsDefaultIs()
+    {
+        var cut = Render(ThreeMonths);
+
+        Assert.That(cut.FindComponent<DateRangeField>().Instance.DateFormat, Is.EqualTo("d MMM yyyy"));
     }
 
     [Test]

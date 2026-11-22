@@ -24,7 +24,7 @@ public sealed class WorkoutsScreen(WebView web)
 
     public string? EmptyText() => web.Exists("workouts-empty") ? web.Text("workouts-empty-message") : null;
 
-    /// <summary>The dates shown in the date field, e.g. "2 Nov – 8 Nov 2026".</summary>
+    /// <summary>The dates shown in the date field, e.g. "2 Nov 2026 – 8 Nov 2026".</summary>
     public string Dates() => web.Text("workouts-dates-dates");
 
     public void Back() => web.Tap("back");

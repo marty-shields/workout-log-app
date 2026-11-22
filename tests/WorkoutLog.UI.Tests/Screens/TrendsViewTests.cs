@@ -55,6 +55,40 @@ public class TrendsViewTests : ComponentTestBase
     }
 
     [Test]
+    public void Week_RecentWeeks_ListsTheWeeksOldestFirstWithStartAndEndLabels()
+    {
+        var cut = Render(SampleTrends.Week);
+
+        var values = cut.FindAll("[data-testid=trends-recent-weeks-chart-values] li").Select(li => li.TextContent).ToList();
+        Assert.Multiple(() =>
+        {
+            Assert.That(values, Has.Count.EqualTo(12));
+            Assert.That(values[0], Does.StartWith("11 weeks ago: "));
+            Assert.That(values[1], Does.StartWith("10 weeks ago: "));
+            Assert.That(values[^2], Does.StartWith("Last week: "));
+            Assert.That(values[^1], Does.StartWith("This week: "));
+            Assert.That(values[0], Is.EqualTo($"11 weeks ago: {DisplayFormat.Workouts(SampleTrends.RecentWeeks[0])}"));
+            Assert.That(values[^1], Is.EqualTo($"This week: {DisplayFormat.Workouts(SampleTrends.RecentWeeks[^1])}"));
+            Assert.That(cut.Find("[data-testid=trends-recent-weeks-chart] .axis").TextContent, Does.Contain("11 weeks ago").And.Contain("This week"));
+        });
+    }
+
+    [Test]
+    public void Week_RecentWeeks_AllZero_ShowsTheEmptyText()
+    {
+        var state = SampleTrends.Week.ToDictionary();
+        state[nameof(TrendsView.RecentWeeks)] = new int[12];
+
+        var cut = Render(state);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.Find("[data-testid=trends-recent-weeks-chart-none]").TextContent, Is.EqualTo("No workouts in the last 12 weeks"));
+            Assert.That(cut.FindAll("[data-testid=trends-recent-weeks-chart-values]"), Is.Empty);
+        });
+    }
+
+    [Test]
     public void Week_ShowsPairedDayBarsWithALegend()
     {
         var cut = Render(SampleTrends.Week);
