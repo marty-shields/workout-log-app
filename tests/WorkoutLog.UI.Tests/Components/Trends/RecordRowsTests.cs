@@ -35,6 +35,19 @@ public class RecordRowsTests : ComponentTestBase
     }
 
     [Test]
+    public void Dividers_SeparateTheRowsAndTheLastRowKeepsOneOnlyAboveAMoreLine()
+    {
+        var five = Render(SampleThisWeek.ManyRecords.Take(5).ToList());
+        var many = Render(SampleThisWeek.ManyRecords);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(five.FindAll("li .row").Select(r => r.ClassList.Contains("no-divider")), Is.EqualTo(new[] { false, false, false, false, true }));
+            Assert.That(many.FindAll("li .row").Select(r => r.ClassList.Contains("no-divider")), Is.All.False);
+        });
+    }
+
+    [Test]
     public void None_ShowsTheEmptyText() =>
         Assert.That(Render([]).Find("[data-testid=records-none]").TextContent, Is.EqualTo("No new records this month"));
 

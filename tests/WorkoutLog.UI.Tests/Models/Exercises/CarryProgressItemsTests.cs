@@ -1,8 +1,8 @@
+using Shields.UI.Components.Charts;
 using WorkoutLog.Core.Domain.Exercises;
 using WorkoutLog.Core.Domain.Exercises.Bests;
 using WorkoutLog.Core.Domain.Exercises.Progress;
 using WorkoutLog.Core.Domain.Workouts;
-using WorkoutLog.UI.Components.Charts;
 using WorkoutLog.UI.Components.Lists;
 using WorkoutLog.UI.Models.Exercises;
 
@@ -38,12 +38,12 @@ public class CarryProgressItemsTests
     [Test]
     public void Points_Weight_AreTheHeaviestLabelledWithTheirDistance_UnweightedHasNoValue() =>
         Assert.That(CarryProgressItems.Points(Progress(Unweighted, Weighted), CarryProgressItems.WeightTab, Carry, TimeZoneInfo.Utc, Now),
-            Is.EqualTo(new[] { new ChartPoint("15 Sep", null), new ChartPoint("8 Oct", 32m, "40m") }));
+            Is.EqualTo(new[] { new LineChartPoint("15 Sep", null), new LineChartPoint("8 Oct", 32m, "40m") }));
 
     [Test]
     public void Points_Distance_AreTheLongestLabelledWithTheirWeightWhenWeighted() =>
         Assert.That(CarryProgressItems.Points(Progress(Unweighted, Weighted), CarryProgressItems.DistanceTab, Carry, TimeZoneInfo.Utc, Now),
-            Is.EqualTo(new[] { new ChartPoint("15 Sep", 60m), new ChartPoint("8 Oct", 40m, "32kg") }));
+            Is.EqualTo(new[] { new LineChartPoint("15 Sep", 60m), new LineChartPoint("8 Oct", 40m, "32kg") }));
 
 
 

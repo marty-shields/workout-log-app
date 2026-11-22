@@ -1,11 +1,10 @@
 @using WorkoutLog.UI.Components.Weekly
 <Card TestId="@TestId">
-    <div class="single">
-        <ListRow Text="Last week"
-                 Detail="@($"{DisplayFormat.Workouts(Totals.Workouts)} · {DisplayFormat.Minutes((int)Totals.Time.TotalMinutes)} · {DisplayFormat.Sets(Totals.Sets)}")"
-                 OnClick="OnOpen"
-                 TestId="@($"{TestId}-row")" />
-    </div>
+    <ListRow Text="Last week"
+             Detail="@($"{DisplayFormat.Workouts(Totals.Workouts)} · {DisplayFormat.Minutes((int)Totals.Time.TotalMinutes)} · {DisplayFormat.Sets(Totals.Sets)}")"
+             Divider="false"
+             OnClick="OnOpen"
+             TestId="@($"{TestId}-row")" />
 </Card>
 
 @code {

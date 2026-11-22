@@ -78,6 +78,37 @@ public class AddExerciseViewTests : ComponentTestBase
         Assert.That(opened, Is.EqualTo(SampleExercises.All.Single(e => e.Id == 6)));
     }
 
+    [TestCase(0, "0 exercises")]
+    [TestCase(1, "1 exercise")]
+    [TestCase(2, "2 exercises")]
+    public void SearchField_AnnouncesHowManyExercisesMatch(int count, string text)
+    {
+        var cut = Context.Render<AddExerciseView>(p => p.Add(x => x.Items, SampleExercises.All.Take(count).ToList()));
+
+        var results = cut.Find("[data-testid=add-exercise-search-results]");
+        Assert.Multiple(() =>
+        {
+            Assert.That(results.TextContent, Is.EqualTo(text));
+            Assert.That(results.GetAttribute("role"), Is.EqualTo("status"));
+        });
+    }
+
+    [Test]
+    public void WhileLoading_TheResultLineIsEmpty()
+    {
+        var cut = Context.Render<AddExerciseView>(p => p.Add(x => x.Items, []).Add(x => x.Loading, true));
+
+        Assert.That(cut.Find("[data-testid=add-exercise-search-results]").TextContent, Is.Empty);
+    }
+
+    [Test]
+    public void Toolbar_HasTheKitsDividerUnderIt()
+    {
+        var cut = Context.Render<AddExerciseView>(p => p.Add(x => x.Items, SampleExercises.All));
+
+        Assert.That(cut.Find(".toolbar").ClassList, Does.Contain("divided"));
+    }
+
     [Test]
     public void WithOnPick_EveryRowIsTappable()
     {

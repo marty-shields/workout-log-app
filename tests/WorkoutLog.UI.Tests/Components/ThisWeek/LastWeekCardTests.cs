@@ -19,6 +19,14 @@ public class LastWeekCardTests : ComponentTestBase
     }
 
     [Test]
+    public void Row_HasNoDividerAsItIsTheCardsOnlyLine()
+    {
+        var cut = Context.Render<LastWeekCard>(p => p.Add(x => x.Totals, SampleThisWeek.LastWeek).Add(x => x.TestId, "last"));
+
+        Assert.That(cut.Find("[data-testid=last-row]").ClassList, Does.Contain("no-divider"));
+    }
+
+    [Test]
     public void IsAPlainKitCard_WithTheTestIdAndNoHeading()
     {
         var cut = Context.Render<LastWeekCard>(p => p.Add(x => x.Totals, SampleThisWeek.LastWeek).Add(x => x.TestId, "last"));

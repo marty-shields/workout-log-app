@@ -1,34 +1,8 @@
-.summary {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-1);
+/* With no aside the row's text would sit mid-row between the number and the buttons, so it takes the room and starts after the number. */
+.summary ::deep .texts {
+    flex: 1;
 }
 
-.line {
-    display: flex;
-    min-height: var(--touch-target-compact);
-    align-items: center;
-    justify-content: space-between;
-    gap: var(--space-2);
-}
-
-.heading {
-    min-width: 0;
-    margin: 0;
-    font-size: var(--font-size-md);
-    font-weight: var(--font-weight-regular);
-    font-variant-numeric: tabular-nums;
-}
-
-.number {
-    display: inline-block;
-    width: var(--entry-grid-index-width);
-    color: var(--color-text-muted);
-    text-align: center;
-}
-
-.actions {
-    display: flex;
-    align-items: center;
-    gap: var(--space-2);
+.record {
+    margin-left: calc(var(--entry-grid-index-width) + var(--space-2));
 }

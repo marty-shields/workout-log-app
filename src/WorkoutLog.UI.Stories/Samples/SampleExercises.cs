@@ -1,6 +1,6 @@
 using System.Globalization;
+using Shields.UI.Components.Charts;
 using Shields.UI.Components.Inputs;
-using WorkoutLog.UI.Components.Charts;
 using WorkoutLog.UI.Components.Lists;
 using WorkoutLog.UI.Models.Exercises;
 using WorkoutLog.UI.Models.Workout;
@@ -13,7 +13,7 @@ public sealed record SampleExercise(
     string Subtitle,
     IReadOnlyList<RadioOption<string>> Tabs,
     string? Tab,
-    IReadOnlyList<ChartPoint> Points,
+    IReadOnlyList<LineChartPoint> Points,
     Func<decimal, string> Format,
     IReadOnlyList<RecordRow> Records,
     IReadOnlyList<ExerciseSession> Sessions,
@@ -355,7 +355,7 @@ public static class SampleExercises
         [new(71, "Mon 5 Oct", "14kg × 10", "12×10 · 14×10 · 14×8")]);
 
     /// <summary>Twelve weekly top sets, for a chart with more points than it labels.</summary>
-    public static IReadOnlyList<ChartPoint> ManyPoints { get; } =
+    public static IReadOnlyList<LineChartPoint> ManyPoints { get; } =
     [
         P("4 Aug", 55, "×8"), P("11 Aug", 57.5m, "×8"), P("18 Aug", 60, "×6"), P("25 Aug", 60, "×8"),
         P("1 Sep", 62.5m, "×6"), P("8 Sep", 62.5m, "×8"), P("15 Sep", 60, "×8"), P("22 Sep", 65, "×5"),
@@ -364,7 +364,7 @@ public static class SampleExercises
 
     private static RadioOption<string> Tab(string key, string label) => new(key, label, $"exercise-tab-{key}");
 
-    private static ChartPoint P(string date, decimal value, string? label = null) => new(date, value, label);
+    private static LineChartPoint P(string date, decimal value, string? label = null) => new(date, value, label);
 
     private static string Number(decimal value) => value.ToString("0.##", CultureInfo.InvariantCulture);
 }

@@ -32,13 +32,25 @@ public class WorkoutsViewTests : ComponentTestBase
     }
 
     [Test]
+    public void Toolbar_HasTheKitsDividerAndTheMonthHeadersStick()
+    {
+        var cut = Render(ThreeMonths);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.Find(".toolbar").ClassList, Does.Contain("divided"));
+            Assert.That(cut.FindAll(".header.sticky[data-testid^=workouts-month-]"), Has.Count.EqualTo(2));
+        });
+    }
+
+    [Test]
     public void Rows_SitUnderAHeaderPerMonthWithItsCount()
     {
         var cut = Render(ThreeMonths);
 
         Assert.Multiple(() =>
         {
-            Assert.That(cut.FindAll("h2.month-title").Select(h => $"{h.Children[0].TextContent} · {h.Children[1].TextContent}"),
+            Assert.That(cut.FindAll(".header.sticky[data-testid^=workouts-month-]").Select(h => $"{h.QuerySelector(".title")!.TextContent} · {h.QuerySelector(".total")!.TextContent}"),
                 Is.EqualTo(new[] { "November 2026 · 2 workouts", "October 2026 · 1 workout" }));
             Assert.That(cut.FindAll("[data-testid=workouts-month-2026-11] ~ .rows [data-testid^=workouts-row-]").Select(r => r.GetAttribute("data-testid")),
                 Is.EqualTo(new[] { "workouts-row-5", "workouts-row-4" }));
@@ -122,7 +134,7 @@ public class WorkoutsViewTests : ComponentTestBase
 
         Assert.Multiple(() =>
         {
-            Assert.That(cut.Find("[data-testid=workouts-dates-dates]").TextContent, Is.EqualTo("6\u00A0Aug – 6\u00A0Nov\u00A02026"));
+            Assert.That(cut.Find("[data-testid=workouts-dates-dates]").TextContent, Is.EqualTo("6 Aug 2026 – 6 Nov 2026"));
             Assert.That(cut.Find("[data-testid=workouts-dates-count]").TextContent, Is.EqualTo("3"));
         });
     }
@@ -150,7 +162,7 @@ public class WorkoutsViewTests : ComponentTestBase
         Assert.Multiple(() =>
         {
             Assert.That(cut.Find("[data-testid=workouts-dates]").GetAttribute("aria-expanded"), Is.EqualTo("true"));
-            Assert.That(cut.FindAll("[data-testid=range]"), Has.Count.EqualTo(1));
+            Assert.That(cut.FindAll("[data-testid=workouts-dates-calendar]"), Has.Count.EqualTo(1));
             Assert.That(cut.FindAll("[data-testid=workouts-range]"), Is.Empty);
             Assert.That(cut.FindAll(".rows"), Is.Empty);
         });
@@ -216,7 +228,7 @@ public class WorkoutsViewTests : ComponentTestBase
         {
             Assert.That(cut.FindAll("[data-testid=workouts-loading]"), Has.Count.EqualTo(1));
             Assert.That(cut.FindAll(".rows"), Is.Empty);
-            Assert.That(cut.Find("[data-testid=workouts-dates-dates]").TextContent, Is.EqualTo("6\u00A0Aug – 6\u00A0Nov\u00A02026"));
+            Assert.That(cut.Find("[data-testid=workouts-dates-dates]").TextContent, Is.EqualTo("6 Aug 2026 – 6 Nov 2026"));
             Assert.That(cut.FindAll("[data-testid=workouts-range]"), Has.Count.EqualTo(1));
         });
     }

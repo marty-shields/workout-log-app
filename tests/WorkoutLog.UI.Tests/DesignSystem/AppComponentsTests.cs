@@ -27,7 +27,7 @@ public class AppComponentsTests
     [Test]
     public void Found_CoversBothProjectsAndBothKindsOfComponent()
     {
-        Assert.That(AppComponents.Names(), Is.SupersetOf(new[] { "Chart", "Routes", "SystemBarInsets" }));
+        Assert.That(AppComponents.Names(), Is.SupersetOf(new[] { "ExerciseCard", "Routes", "SystemBarInsets" }));
     }
 
     [Test]

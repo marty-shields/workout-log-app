@@ -16,56 +16,8 @@ public partial class LayoutOnlyCssTests
 
     private static readonly KeyValuePair<string, string>[] Listed =
     [
-        ..In("src/WorkoutLog.UI/Components/Charts/Chart.razor.css", "kit gap: no line chart or line-weight token; meanwhile this SVG chart paints its own strokes and text, and its 2px stroke borrows --focus-width, so it moves if the kit changes that token",
-            (".best", ["fill", "stroke", "stroke-width"]), (".grid", ["stroke", "stroke-width"]), (".label", ["font-weight"]), (".latest", ["fill"]), (".line", ["fill", "stroke", "stroke-linejoin", "stroke-width"]), (".plot", ["font-size", "font-variant-numeric"]), (".point", ["fill", "stroke", "stroke-width"]), (".tick, .date, .label", ["fill"])),
-        ..In("src/WorkoutLog.UI/Components/Inputs/DateRangeField.razor.css", "kit gap: no collapsed date-range field that opens a RangeCalendar; meanwhile this button draws the input box",
-            (".count", ["color", "font-size", "font-variant-numeric"]), (".dates", ["font-size", "font-variant-numeric"]), (".field", ["background-color", "border", "border-radius", "color"]), (".field[aria-expanded=\"true\"]", ["outline", "outline-offset"])),
-        ..In("src/WorkoutLog.UI/Components/Inputs/NoteField.razor.css", "kit gap: no multi-line note field with a count and error outline; meanwhile this component draws its own box and text",
-            (".count", ["font-variant-numeric"]), (".error", ["color", "font-size", "font-weight"]), (".heading", ["color", "font-size"]), (".input", ["background-color", "border", "border-radius", "color", "font"]), (".invalid", ["border"]), (".over", ["color", "font-weight"]), (".summary", ["background-color", "border", "color"]), (".summary.invalid", ["border", "border-radius"])),
-        ..In("src/WorkoutLog.UI/Components/Lists/AddExerciseSearch.razor.css", "kit gap: SearchField lacks the result-count line and Enter handling here; meanwhile a native search input draws the box",
-            (".search-input", ["background-color", "border", "border-radius"])),
-        ..In("src/WorkoutLog.UI/Components/Lists/RecordsCard.razor.css", "kit gap: ListRow cannot show a label, figure and unit on one line with a divider; meanwhile rows are drawn here",
-            (".date", ["color", "font-size"]), (".row", ["border-bottom"]), (".value", ["font-variant-numeric", "font-weight"])),
-        ..In("src/WorkoutLog.UI/Components/Lists/SessionRow.razor.css", "kit gap: ListRow has no date, headline and detail layout; meanwhile this row styles its own text and divider",
-            (".date, .headline", ["font-weight"]), (".detail", ["color", "font-size"]), (".row", ["border-bottom", "font-variant-numeric"])),
-        ..In("src/WorkoutLog.UI/Components/ThisWeek/DayStrip.razor.css", "kit gap: DateStrip is a picker, not a read-only week strip with done, today and future days; meanwhile this strip draws its dots",
+        ..In("src/WorkoutLog.UI/Components/ThisWeek/DayStrip.razor.css", "kit gap: the kit has no read-only week strip with done, today and future days (DateStrip steps one day, MonthCalendar is a month grid); meanwhile this strip draws its dots and day names",
             (".day", ["color", "font-size"]), (".done .dot", ["background-color", "border-color", "border-style", "color"]), (".dot", ["border", "border-radius", "font-variant-numeric"]), (".future .dot", ["opacity"]), (".today", ["color", "font-weight"]), (".today .dot", ["outline", "outline-offset"])),
-        ..In("src/WorkoutLog.UI/Components/ThisWeek/LastWeekCard.razor.css", "kit gap: ListRow has no option for a card with one row and no bottom divider; meanwhile the divider is removed here",
-            (".single ::deep .row", ["border-bottom"])),
-        ..In("src/WorkoutLog.UI/Components/ThisWeek/WeekRecordsCard.razor.css", "kit gap: ListRow has no record row with a change line and group dividers; meanwhile these rows are styled here",
-            (".more", ["border-top", "color", "font-size"]), (".none", ["color"]), (".rows li:last-child ::deep .row", ["border-bottom"])),
-        ..In("src/WorkoutLog.UI/Components/ThisWeek/WeekWorkoutsCard.razor.css", "kit gap: ListRow has no option to drop its divider or mute its detail; meanwhile it is styled here",
-            (".none", ["color"]), (".rows li:last-child ::deep .row", ["border-bottom"])),
-        ..In("src/WorkoutLog.UI/Components/Trends/LongestStreakCard.razor.css", "kit gap: ListRow has no option for a card with one row and no bottom divider; meanwhile the divider is removed here",
-            (".single ::deep .row", ["border-bottom"])),
-        ..In("src/WorkoutLog.UI/Components/Trends/MonthWeeks.razor.css", "kit gap: no list of week rows with a proportional bar; meanwhile this list draws its own bars and text",
-            (".none", ["color"]), (".tap", ["background-color", "border", "color", "font"]), (".tap:active", ["background-image"]), (".totals", ["color", "font-size"]), (".week", ["border-bottom", "font-variant-numeric"]), (".week:last-child", ["border-bottom"])),
-        ..In("src/WorkoutLog.UI/Components/Trends/RecordRows.razor.css", "kit gap: ListRow has no record row with an icon and change text; meanwhile these rows are styled here",
-            (".more", ["border-top", "color", "font-size"]), (".none", ["color"]), (".rows li:last-child ::deep .row", ["border-bottom"])),
-        ..In("src/WorkoutLog.UI/Components/Weekly/WeekBars.razor.css", "kit gap: TrendBarChart has no per-week count bars with a muted axis and this-week accent; meanwhile this SVG chart paints its own bars",
-            (".axis", ["color", "font-size"]), (".bar", ["fill"]), (".baseline", ["stroke", "stroke-width"]), (".none", ["color"]), (".this-week", ["fill"])),
-        ..In("src/WorkoutLog.UI/Components/Workout/EntryErrors.razor.css", "kit gap: InlineAlert is one boxed message, not several short field errors; meanwhile these lines are styled here",
-            (".error", ["color", "font-size", "font-weight"])),
-        ..In("src/WorkoutLog.UI/Components/Workout/ExerciseCard.razor.css", "kit gap: Typography has no variants for a small muted last-time line or an inline total; meanwhile this card styles them",
-            (".last-time", ["color", "font-size"]), (".note", ["color", "font-size"]), (".set-header", ["color", "font-size"]), (".weights", ["color", "font-size"])),
-        ..In("src/WorkoutLog.UI/Components/Workout/LastNote.razor.css", "kit gap: no collapsible one-line note with an icon; meanwhile this button draws its own surface and text",
-            (".last-note", ["background-color", "border", "color", "font-size"])),
-        ..In("src/WorkoutLog.UI/Components/Workout/RecordBadge.razor.css", "kit gap: no Record badge (success-coloured icon and bold small text); meanwhile this badge styles its text",
-            (".badge", ["color", "font-size", "font-weight"])),
-        ..In("src/WorkoutLog.UI/Components/Workout/SetPanel.razor.css", "kit gap: Card has no selected tone or heading level; meanwhile this h3 title is sized here inside a plain Card",
-            (".title", ["font-size", "font-weight"])),
-        ..In("src/WorkoutLog.UI/Components/Workout/SetRow.razor.css", "kit gap: no entry-grid row primitive (index, last-time cell, fields); meanwhile this row styles its number and Last cell",
-            (".last", ["color", "font-size", "font-variant-numeric"]), (".last-line", ["color", "font-size", "font-variant-numeric"]), (".number", ["color", "font-variant-numeric"])),
-        ..In("src/WorkoutLog.UI/Components/Workout/SetSummary.razor.css", "kit gap: ListRow has no numbered summary line with edit and delete actions; meanwhile this line styles its text",
-            (".heading", ["font-size", "font-variant-numeric", "font-weight"]), (".number", ["color"])),
-        ..In("src/WorkoutLog.UI/Screens/AddExerciseView.razor.css", "kit gap: AppScreen has no divider under a pinned tools area; meanwhile the divider is drawn here",
-            (".tools", ["border-bottom"])),
-        ..In("src/WorkoutLog.UI/Screens/ThisWeekView.razor.css", "kit gap: Typography has no large bold heading variant for the week range; meanwhile it is sized here",
-            (".range", ["font-size", "font-weight"])),
-        ..In("src/WorkoutLog.UI/Screens/WorkoutSummaryView.razor.css", "kit gap: ListRow and Typography lack the record and change lines of a summary; meanwhile these lines are styled here",
-            (".change", ["font-size"]), (".detail", ["color", "font-size"]), (".down", ["color"]), (".label", ["color", "font-size"]), (".none, .note", ["color"]), (".row", ["border-bottom"]), (".row:last-child", ["border-bottom"]), (".same", ["color"]), (".text, .detail, .change", ["font-variant-numeric"]), (".up", ["color"]), (".value", ["color", "font-size", "font-variant-numeric", "font-weight", "line-height"])),
-        ..In("src/WorkoutLog.UI/Screens/WorkoutsView.razor.css", "kit gap: no sticky month header with a count and divider, and no filter-tools divider; meanwhile they are styled here",
-            (".month-count", ["color", "font-variant-numeric", "font-weight"]), (".month-title", ["background-color", "border-bottom", "font-size", "font-weight"]), (".tools", ["border-bottom"])),
     ];
 
     /// <summary>Allowed visual declarations, keyed <c>file | selector | property</c>, each with its reason.</summary>
@@ -95,7 +47,7 @@ public partial class LayoutOnlyCssTests
     [Test]
     public void ANewVisualDeclaration_InAnExceptedFile_StillFails()
     {
-        var excepted = AppCss.InCss("src/WorkoutLog.UI/Components/Charts/Chart.razor.css", ".new { color: red; }");
+        var excepted = AppCss.InCss("src/WorkoutLog.UI/Components/ThisWeek/DayStrip.razor.css", ".new { color: red; }");
 
         Assert.That(Visual(excepted).Except(Exceptions.Keys), Is.Not.Empty);
     }

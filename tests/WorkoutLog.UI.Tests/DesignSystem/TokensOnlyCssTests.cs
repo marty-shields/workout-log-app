@@ -18,7 +18,7 @@ public class TokensOnlyCssTests
     {
         var css = RepoFiles.Find("*.css", "src", "WorkoutLog.UI").Select(f => Path.GetRelativePath(UiFolder, f).Replace('\\', '/')).ToList();
 
-        Assert.That(css, Does.Contain("Components/Charts/Chart.razor.css").And.Contain("Screens/ExerciseView.razor.css"));
+        Assert.That(css, Does.Contain("Components/Workout/ExerciseCard.razor.css").And.Contain("Screens/ExerciseView.razor.css"));
     }
 
     [Test]

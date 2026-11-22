@@ -1,10 +1,10 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Time.Testing;
+using Shields.UI.Components.Charts;
 using WorkoutLog.Core.Domain;
 using WorkoutLog.Core.Domain.Exercises.Progress;
 using WorkoutLog.Core.Domain.Workouts;
 using WorkoutLog.Core.Services;
-using WorkoutLog.UI.Components.Charts;
 using WorkoutLog.UI.Screens;
 
 namespace WorkoutLog.UI.Tests.Screens;
@@ -93,7 +93,7 @@ public class ExercisePageCardioTests : ComponentTestBase
             Assert.That(cut.FindAll("[data-testid=exercise-tabs] input[checked]").Select(i => i.GetAttribute("data-testid")), Is.EqualTo(new[] { "exercise-tab-distance" }));
             Assert.That(cut.FindAll("[data-testid=exercise-chart-values] li").Select(v => v.TextContent), Is.EqualTo(new[] { "4 Oct: 5km", "11 Oct: 5.2km" }));
             Assert.That(cut.FindAll("[data-testid=exercise-chart-caption]"), Is.Empty);
-            Assert.That((cut.FindComponent<Chart>().Instance.Flipped, cut.FindComponent<Chart>().Instance.TimeScale), Is.EqualTo((false, false)));
+            Assert.That((cut.FindComponent<LineChart>().Instance.LowerIsBetter, cut.FindComponent<LineChart>().Instance.TimeScale), Is.EqualTo((false, false)));
         });
     }
 
@@ -104,11 +104,11 @@ public class ExercisePageCardioTests : ComponentTestBase
 
         Assert.Multiple(() =>
         {
-            Assert.That(cut.FindAll("[data-testid=exercise-records] .value").Select(v => v.TextContent),
+            Assert.That(cut.FindAll("[data-testid=exercise-records] .row .aside").Select(v => v.TextContent),
                 Is.EqualTo(new[] { "5.2km", "30:00", "5:46/km", "410 calories" }));
             Assert.That(cut.FindAll("[data-testid^=exercise-session-]").Select(s => s.GetAttribute("data-testid")),
                 Is.EqualTo(new[] { "exercise-session-61", "exercise-session-60" }));
-            Assert.That(cut.FindAll("[data-testid=exercise-session-61] span").Select(s => s.TextContent),
+            Assert.That(new[] { ".text", ".aside", ".detail" }.Select(part => cut.Find($"[data-testid=exercise-session-61] {part}").TextContent),
                 Is.EqualTo(new[] { "Sun 11 Oct", "5.2km", "30:00 · 5:46/km · 410 calories" }));
         });
     }
@@ -125,7 +125,7 @@ public class ExercisePageCardioTests : ComponentTestBase
             Assert.That(progress.Loads, Has.Count.EqualTo(1));
             Assert.That(cut.FindAll("[data-testid=exercise-chart-values] li").Select(v => v.TextContent), Is.EqualTo(new[] { "4 Oct: 5:52", "11 Oct: 5:46" }));
             Assert.That(cut.Find("[data-testid=exercise-chart-caption]").TextContent, Is.EqualTo("Up = faster"));
-            Assert.That((cut.FindComponent<Chart>().Instance.Flipped, cut.FindComponent<Chart>().Instance.TimeScale), Is.EqualTo((true, true)));
+            Assert.That((cut.FindComponent<LineChart>().Instance.LowerIsBetter, cut.FindComponent<LineChart>().Instance.TimeScale), Is.EqualTo((true, true)));
         });
     }
 
@@ -139,7 +139,7 @@ public class ExercisePageCardioTests : ComponentTestBase
         Assert.Multiple(() =>
         {
             Assert.That(cut.FindAll("[data-testid=exercise-chart-values] li").Select(v => v.TextContent), Is.EqualTo(new[] { "4 Oct: 29:20", "11 Oct: 30:00" }));
-            Assert.That((cut.FindComponent<Chart>().Instance.Flipped, cut.FindComponent<Chart>().Instance.TimeScale), Is.EqualTo((false, true)));
+            Assert.That((cut.FindComponent<LineChart>().Instance.LowerIsBetter, cut.FindComponent<LineChart>().Instance.TimeScale), Is.EqualTo((false, true)));
         });
     }
 
@@ -168,7 +168,7 @@ public class ExercisePageCardioTests : ComponentTestBase
             Assert.That(progress.Loads, Has.Count.EqualTo(1));
             Assert.That(progress.Summaries.Select(s => s.Range), Is.EqualTo(new[] { HistoryRange.ThreeMonths, HistoryRange.All }));
             Assert.That(cut.Find("[data-testid=exercise-chart-empty]").TextContent, Is.EqualTo("No sessions yet"));
-            Assert.That(cut.FindAll("[data-testid=exercise-records] .value").Select(v => v.TextContent), Is.EqualTo(new[] { "—", "—", "—", "—" }));
+            Assert.That(cut.FindAll("[data-testid=exercise-records] .row .aside").Select(v => v.TextContent), Is.EqualTo(new[] { "—", "—", "—", "—" }));
         });
     }
 

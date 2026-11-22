@@ -1,16 +1,17 @@
 <Card Title="Records this week" Compact="@(Records.Count > 0)" TestId="@TestId">
     @if (Records.Count == 0)
     {
-        <p class="none" data-testid="@($"{TestId}-none")">No new records this week</p>
+        <Typography Variant="TextVariant.Muted" As="TextElement.P" TestId="@($"{TestId}-none")">No new records this week</Typography>
     }
     else
     {
         <ul class="rows">
-            @foreach (var record in Records.Take(MaxRows))
+            @foreach (var (record, index) in Records.Take(MaxRows).Select((record, index) => (record, index)))
             {
                 <li>
                     <ListRow Text="@($"{record.Exercise} · {record.Best}")"
                              Detail="@record.Day.ToString()"
+                             Divider="@(index < Math.Min(Records.Count, MaxRows) - 1 || Records.Count > MaxRows)"
                              OnClick="@(OnOpen.HasDelegate ? EventCallback.Factory.Create(this, () => OnOpen.InvokeAsync(record.ExerciseId)) : default)"
                              TestId="@($"{TestId}-row-{record.ExerciseId}")" />
                 </li>
@@ -18,7 +19,9 @@
         </ul>
         @if (Records.Count > MaxRows)
         {
-            <p class="more" data-testid="@($"{TestId}-more")">@(Records.Count - MaxRows) more</p>
+            <div class="more">
+                <Typography Variant="TextVariant.MutedSmall" As="TextElement.P" TestId="@($"{TestId}-more")">@(Records.Count - MaxRows) more</Typography>
+            </div>
         }
     }
 </Card>

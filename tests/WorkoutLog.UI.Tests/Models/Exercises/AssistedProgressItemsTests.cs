@@ -1,7 +1,7 @@
+using Shields.UI.Components.Charts;
 using WorkoutLog.Core.Domain.Exercises.Bests;
 using WorkoutLog.Core.Domain.Exercises.Progress;
 using WorkoutLog.Core.Domain.Workouts;
-using WorkoutLog.UI.Components.Charts;
 using WorkoutLog.UI.Components.Lists;
 using WorkoutLog.UI.Models.Exercises;
 
@@ -19,12 +19,12 @@ public class AssistedProgressItemsTests
     [Test]
     public void Points_AreTheLeastAssistLabelledWithReps() =>
         Assert.That(AssistedProgressItems.Points(Progress(Earlier, Latest), TimeZoneInfo.Utc, Now),
-            Is.EqualTo(new[] { new ChartPoint("13 Oct", 5m, "×6"), new ChartPoint("20 Oct", 0m, "×5") }));
+            Is.EqualTo(new[] { new LineChartPoint("13 Oct", 5m, "×6"), new LineChartPoint("20 Oct", 0m, "×5") }));
 
     [Test]
     public void Points_SessionWithoutSets_HasNoValue() =>
         Assert.That(AssistedProgressItems.Points(Progress(Session(1, Now, [], null), Latest), TimeZoneInfo.Utc, Now),
-            Is.EqualTo(new[] { new ChartPoint("28 Oct", null), new ChartPoint("20 Oct", 0m, "×5") }));
+            Is.EqualTo(new[] { new LineChartPoint("28 Oct", null), new LineChartPoint("20 Oct", 0m, "×5") }));
 
 
 

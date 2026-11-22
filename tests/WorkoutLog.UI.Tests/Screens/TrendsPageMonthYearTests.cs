@@ -142,9 +142,9 @@ public class TrendsPageMonthYearTests : ComponentTestBase
             Assert.That(cut.Find("[data-testid=trends-tiles-against]").TextContent, Is.EqualTo("Against October to the 18th"));
             Assert.That(cut.FindAll("[data-testid=trends-tiles] .value").Select(v => v.TextContent), Is.EqualTo(new[] { "11", "10h 55m", "172", "41,200 kg" }));
             Assert.That(cut.FindAll("[data-testid=trends-calendar-days] .marked").Count, Is.EqualTo(3));
-            Assert.That(cut.FindAll("[data-testid=trends-weeks-rows] .week .dates").Select(d => d.TextContent),
+            Assert.That(cut.FindAll("[data-testid=trends-weeks-rows] .item .name").Select(d => d.TextContent),
                 Is.EqualTo(new[] { "1 Nov", "2 – 8 Nov", "9 – 15 Nov", "16 – 18 Nov" }));
-            Assert.That(cut.FindAll("[data-testid=trends-weeks-rows] .totals").Select(d => d.TextContent),
+            Assert.That(cut.FindAll("[data-testid=trends-weeks-rows] .item .value").Select(d => d.TextContent),
                 Is.EqualTo(new[] { "1 workout · 30m", "4 workouts · 4h 10m", "4 workouts · 4h 10m", "2 workouts · 1h 30m" }));
             Assert.That(cut.Find("[data-testid=trends-records-aside]").TextContent, Is.EqualTo("2 this month"));
             Assert.That(cut.FindAll("[data-testid^=trends-records-row-]")
@@ -168,7 +168,7 @@ public class TrendsPageMonthYearTests : ComponentTestBase
             Assert.That(cut.Find("[data-testid=trends-stepper-label]").TextContent, Is.EqualTo("October 2026"));
             Assert.That(cut.Find("[data-testid=trends-tiles-against]").TextContent, Is.EqualTo("Against September"));
             Assert.That(cut.Find("[data-testid=trends-records-aside]").TextContent, Is.EqualTo("2 that month"));
-            Assert.That(cut.FindAll("[data-testid=trends-weeks-rows] .week"), Has.Count.EqualTo(6));
+            Assert.That(cut.FindAll("[data-testid=trends-weeks-rows] .item"), Has.Count.EqualTo(6));
             Assert.That(cut.Find("[data-testid=trends-stepper-next]").HasAttribute("disabled"), Is.False);
         });
     }
@@ -259,7 +259,7 @@ public class TrendsPageMonthYearTests : ComponentTestBase
         {
             Assert.That(cut.Find("[data-testid=trends-records-none]").TextContent, Is.EqualTo("No new records this month"));
             Assert.That(cut.FindAll("[data-testid=trends-most-trained-rows] li"), Has.Count.EqualTo(2));
-            Assert.That(cut.FindAll("[data-testid=trends-weeks-rows] .week"), Is.Not.Empty);
+            Assert.That(cut.FindAll("[data-testid=trends-weeks-rows] .item"), Is.Not.Empty);
             Assert.That(cut.FindAll("[data-testid=trends-error]"), Is.Empty);
             Assert.That(LoggedEvents.Of(logger), Is.EqualTo(new[] { (UiEvent.TrendsRecordsFailed, LogLevel.Warning, "Loading the records for Trends failed; the card is empty") }));
         });
@@ -388,7 +388,7 @@ public class TrendsPageMonthYearTests : ComponentTestBase
         var cut = Context.Render<TrendsPage>(p => p.Add(x => x.KindQuery, "month"));
 
         cut.WaitForAssertion(() => Assert.That(cut.FindAll("[data-testid=trends-tiles]"), Has.Count.EqualTo(1)));
-        Assert.That(cut.FindAll("[data-testid=trends-weeks-rows] .week .dates").Select(d => d.TextContent),
+        Assert.That(cut.FindAll("[data-testid=trends-weeks-rows] .item .name").Select(d => d.TextContent),
             Is.EqualTo(new[] { "1 Nov", "2 – 8 Nov", "9 – 15 Nov", "16 Nov" }));
     }
 
@@ -439,8 +439,8 @@ public class TrendsPageMonthYearTests : ComponentTestBase
         var cut = Context.Render<TrendsPage>(p => p.Add(x => x.KindQuery, "month").Add(x => x.OnOpenWorkouts, opened.Add));
 
         cut.WaitForElement("[data-testid=trends-calendar-days-day-2026-11-04]").Click();
-        cut.Find("[data-testid=trends-weeks-rows-2-open]").Click();
-        cut.Find("[data-testid=trends-weeks-rows-4-open]").Click();
+        cut.Find("[data-testid=trends-weeks-rows-select-1]").Click();
+        cut.Find("[data-testid=trends-weeks-rows-select-3]").Click();
 
         Assert.Multiple(() =>
         {

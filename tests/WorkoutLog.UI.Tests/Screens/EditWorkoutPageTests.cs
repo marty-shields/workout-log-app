@@ -327,7 +327,7 @@ public class EditWorkoutPageTests : ComponentTestBase
         {
             Assert.That(cut.FindAll("[data-testid=exercise-2-set-1-edit]"), Has.Count.EqualTo(1));
             Assert.That(cut.FindAll("[data-testid=exercise-2-set-2-edit]"), Has.Count.EqualTo(1));
-            Assert.That(cut.FindAll(".panel"), Is.Empty);
+            Assert.That(cut.FindAll(".card.selected"), Is.Empty);
         });
     }
 
@@ -1324,7 +1324,7 @@ public class EditWorkoutPageTests : ComponentTestBase
         Assert.Multiple(() =>
         {
             Assert.That(cut.FindAll("[data-testid$=-last]"), Is.Empty);
-            Assert.That(cut.FindAll(".set-header span").Select(h => h.TextContent), Does.Not.Contain("Last"));
+            Assert.That(cut.FindAll(".row.header span").Select(h => h.TextContent), Does.Not.Contain("Last"));
         });
     }
 

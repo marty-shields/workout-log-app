@@ -9,9 +9,9 @@ public sealed class SummaryScreen(WebView web)
     public void WaitUntilLoaded() =>
         web.WaitUntil(() => web.Exists("summary-stats") || web.Exists("summary-error"), "the Workout Summary didn't load");
 
-    public string Exercises() => web.Text("summary-exercises");
+    public string Exercises() => web.Text("summary-exercises-value");
 
-    public string Sets() => web.Text("summary-sets");
+    public string Sets() => web.Text("summary-sets-value");
 
     public bool HasFirstWorkoutNote() => web.Exists("summary-first-workout");
 

@@ -48,7 +48,7 @@ public class WorkoutViewTests : ComponentTestBase
             .Add(x => x.StartedAt, Started)
             .Add(x => x.Exercises, [Carry()]));
 
-        Assert.That(cut.FindAll(".panel").Count, Is.EqualTo(open ? 1 : 0));
+        Assert.That(cut.FindAll(".card.selected").Count, Is.EqualTo(open ? 1 : 0));
     }
 
     [TestCase(9, false)]
@@ -612,7 +612,7 @@ public class WorkoutViewTests : ComponentTestBase
         Assert.Multiple(() =>
         {
             Context.JSInterop.VerifyFocusAsyncInvoke().Arguments[0].ShouldBeElementReferenceTo(cut.Find("[data-testid=exercise-1-set-2-weight]"));
-            Assert.That(cut.FindAll(".panel").Select(p => p.GetAttribute("data-testid")), Is.EqualTo(new[] { "exercise-1-set-2" }));
+            Assert.That(cut.FindAll(".card.selected").Select(p => p.GetAttribute("data-testid")), Is.EqualTo(new[] { "exercise-1-set-2" }));
         });
     }
 

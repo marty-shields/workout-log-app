@@ -1,6 +1,5 @@
 @using Microsoft.Extensions.Logging
 @using WorkoutLog.Core.Domain.Workouts
-@using WorkoutLog.UI.Components.Inputs
 @using WorkoutLog.UI.Components.Workout
 @inject ILogger<WorkoutView> Logger
 <AppScreen Title="@DisplayFormat.Date(StartedAt)" Subtitle="@TimeText" OnBack="OnBack">
@@ -17,7 +16,7 @@
             {
                 <InlineAlert Message="@Error" TestId="workout-error" />
             }
-            <NoteField @ref="noteField" Label="Workout note" Value="@Note" ValueChanged="NoteChanged" @bind-Editing="editingNote" Error="@NoteError" TestId="workout-note" />
+            <NoteField @ref="noteField" Label="Workout note" Value="@Note" ValueChanged="NoteChanged" @bind-Editing="editingNote" MaxLength="WorkoutLimits.MaxNoteLength" Error="@NoteError" TestId="workout-note" />
             @if (Exercises.Count == 0)
             {
                 <EmptyState Message="No exercises yet" Hint="Tap Add exercise to start logging" TestId="no-exercises" />

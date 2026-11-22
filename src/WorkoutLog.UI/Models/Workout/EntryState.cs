@@ -11,4 +11,8 @@ public sealed class EntryState
 
     /// <summary>Re-check on each change. Set when a check fails; cleared when the set passes Add set or opening another set, or the workout passes Save.</summary>
     public bool CheckOnChange { get; set; }
+
+    /// <summary>The validation messages of <see cref="Errors"/> in the order of the fields.</summary>
+    public IEnumerable<string> ErrorMessages(IReadOnlyList<Fields.FieldSpec> fields) =>
+        fields.Select(field => Errors.GetValueOrDefault(field.Key)).OfType<string>();
 }

@@ -18,6 +18,10 @@ public class LongestStreakCardTests : ComponentTestBase
     }
 
     [Test]
+    public void Row_HasNoDividerAsItIsTheCardsOnlyLine() =>
+        Assert.That(Render(23, running: true).Find("[data-testid=streak-row]").ClassList, Does.Contain("no-divider"));
+
+    [Test]
     public void Ended_ShowsNoDetail()
     {
         var cut = Render(14, running: false);

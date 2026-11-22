@@ -1,7 +1,7 @@
+using Shields.UI.Components.Charts;
 using WorkoutLog.Core.Domain.Exercises.Bests;
 using WorkoutLog.Core.Domain.Exercises.Progress;
 using WorkoutLog.Core.Domain.Workouts;
-using WorkoutLog.UI.Components.Charts;
 using WorkoutLog.UI.Components.Lists;
 using WorkoutLog.UI.Models.Exercises;
 
@@ -31,12 +31,12 @@ public class HoldProgressItemsTests
     [Test]
     public void Points_Duration_AreTheLongestHoldsInSeconds() =>
         Assert.That(HoldProgressItems.Points(Progress(Unweighted, Weighted), HoldProgressItems.DurationTab, TimeZoneInfo.Utc, Now),
-            Is.EqualTo(new[] { new ChartPoint("8 Oct", 90m), new ChartPoint("15 Oct", 105m) }));
+            Is.EqualTo(new[] { new LineChartPoint("8 Oct", 90m), new LineChartPoint("15 Oct", 105m) }));
 
     [Test]
     public void Points_Weight_AreTheHeaviestLabelledWithTheirDuration_UnweightedHasNoValue() =>
         Assert.That(HoldProgressItems.Points(Progress(Unweighted, Weighted), HoldProgressItems.WeightTab, TimeZoneInfo.Utc, Now),
-            Is.EqualTo(new[] { new ChartPoint("8 Oct", null), new ChartPoint("15 Oct", 10m, "1:00") }));
+            Is.EqualTo(new[] { new LineChartPoint("8 Oct", null), new LineChartPoint("15 Oct", 10m, "1:00") }));
 
 
 

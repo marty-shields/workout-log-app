@@ -2,27 +2,29 @@ using WorkoutLog.UI.Models.Fields;
 
 namespace WorkoutLog.UI.Components.Workout;
 
-/// <summary>Set layout shared by the set header and set rows.</summary>
+/// <summary>Which set layout the exercise card uses: a panel or a row, and where last time shows.</summary>
 internal static class SetGrid
 {
     public static bool OpensAsPanel(IReadOnlyList<FieldSpec> fields) =>
         fields.Count > 2 && fields.Any(f => f.Kind == FieldKind.Duration);
 
-    /// <summary>True when last time shows on a line under the row: a duration beside another field leaves no room for a Last column.</summary>
-    public static bool LastBelow(IReadOnlyList<FieldSpec> fields) => fields.Any(f => f.Kind == FieldKind.Duration);
+    /// <summary>
+    /// Longest last-time text that fits the kit's aside column (<c>--entry-grid-aside-width</c>, 3.5rem) at the narrowest card without overflowing:
+    /// 62.5×6 fits, 25kg×10 does not. Measured in Chrome with the wide system font, so a phone's own font has room to spare.
+    /// </summary>
+    internal const int MaxColumnText = 6;
 
-    /// <summary>Whether the set header and rows have a Last column.</summary>
-    public static bool LastColumn(IReadOnlyList<FieldSpec> fields, bool hasLast) => hasLast && !LastBelow(fields);
+    /// <summary>
+    /// True when last time shows on a line under the row, not in the Last column: a duration beside another field leaves no room for the column,
+    /// and neither does a text longer than <see cref="MaxColumnText"/> (an assisted 57.25kg×12).
+    /// </summary>
+    public static bool LastBelow(IReadOnlyList<FieldSpec> fields, string? last) => HasDuration(fields) || last?.Length > MaxColumnText;
+
+    /// <summary>Whether the set header and rows have a Last column: there is last time and <see cref="LastBelow"/> is false.</summary>
+    public static bool LastColumn(IReadOnlyList<FieldSpec> fields, bool hasLast, string? last) => hasLast && !LastBelow(fields, last);
 
     /// <summary>True when a header label has no room for its unit: the Last column or a duration beside another field leaves a field one narrow column at the narrowest card. The field's own label still names the unit.</summary>
-    public static bool ShortHeaders(IReadOnlyList<FieldSpec> fields, bool hasLast) => hasLast || LastBelow(fields);
+    public static bool ShortHeaders(IReadOnlyList<FieldSpec> fields, bool lastColumn) => lastColumn || HasDuration(fields);
 
-    /// <summary>CSS grid-template-columns: set number, the Last column when <see cref="LastColumn"/> (the kit's aside width plus a gap, so 25kg×10 fits at the narrowest card), one column per field, remove button.</summary>
-    public static string Columns(IReadOnlyList<FieldSpec> fields, bool hasLast)
-    {
-        var lastColumn = LastColumn(fields, hasLast);
-        var fieldColumns = fields.Select(_ => "minmax(0, 1fr)");
-        var last = lastColumn ? "calc(var(--entry-grid-aside-width) + var(--space-2)) " : null;
-        return $"var(--entry-grid-index-width) {last}{string.Join(' ', fieldColumns)} var(--touch-target)";
-    }
+    private static bool HasDuration(IReadOnlyList<FieldSpec> fields) => fields.Any(f => f.Kind == FieldKind.Duration);
 }

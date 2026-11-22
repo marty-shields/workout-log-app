@@ -102,7 +102,7 @@ public class CardioProgressItemsTests
     [Test]
     public void Points_DatesAreInThePhonesTimeZone() =>
         Assert.That(CardioProgressItems.Points(Progress(Session(1, new DateTimeOffset(2026, 10, 10, 20, 0, 0, TimeSpan.Zero), Best(5m))), "distance", Brisbane, Now)
-            .Select(p => (p.Date, p.Label)), Is.EqualTo(new[] { ("11 Oct", (string?)null) }));
+            .Select(p => (p.XLabel, p.Label)), Is.EqualTo(new[] { ("11 Oct", (string?)null) }));
 
     [TestCase("distance", HistoryRange.ThreeMonths, "No distance logged in the last 3 months")]
     [TestCase("duration", HistoryRange.SixMonths, "No duration logged in the last 6 months")]

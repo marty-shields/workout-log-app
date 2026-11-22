@@ -21,7 +21,7 @@
         {
             <div class="cards">
                 <div class="dates">
-                    <h2 class="range" data-testid="this-week-dates">@DisplayFormat.WeekDates(Monday)</h2>
+                    <Typography Variant="TextVariant.Heading" As="TextElement.H2" TestId="this-week-dates">@DisplayFormat.WeekDates(Monday)</Typography>
                     @if (Streak > 0)
                     {
                         <Typography Variant="TextVariant.MutedSmall" TestId="this-week-streak">@Streak-week streak</Typography>
