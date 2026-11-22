@@ -26,6 +26,9 @@ public sealed class WorkoutHistory
     /// <summary>Day of the first saved workout, or <see cref="Today"/> when there are none. Earlier days can't be picked.</summary>
     public DateOnly Earliest { get; }
 
+    /// <summary>Workouts started on each day; days with none are left out.</summary>
+    public IReadOnlyDictionary<DateOnly, int> PerDay => perDay;
+
     /// <summary>True when no workout is saved.</summary>
     public bool IsEmpty { get; }
 

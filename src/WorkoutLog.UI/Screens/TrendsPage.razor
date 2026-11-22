@@ -6,7 +6,7 @@
 @using WorkoutLog.Core.Services
 @using WorkoutLog.UI.Components.ThisWeek
 @using WorkoutLog.UI.Components.Trends
-@using WorkoutLog.UI.Lifecycle
+@using Shields.UI.Lifecycle
 @using WorkoutLog.UI.Models.Muscles
 @using WorkoutLog.UI.Models.ThisWeek
 @using WorkoutLog.UI.Models.Workouts
@@ -76,11 +76,11 @@
     [Parameter]
     public EventCallback<Period> OnSettings { get; set; }
 
-    /// <summary>Raised by the New button in the tab bar with the period shown, so discarding can return to it.</summary>
+    /// <summary>Raised by the New button in the bottom nav with the period shown, so discarding can return to it.</summary>
     [Parameter]
     public EventCallback<Period> OnNew { get; set; }
 
-    /// <summary>Raised with the tab tapped in the tab bar.</summary>
+    /// <summary>Raised with the tab tapped in the bottom navigation bar.</summary>
     [Parameter]
     public EventCallback<MainTab> OnNavigate { get; set; }
 
@@ -320,22 +320,14 @@
 
     private static TrendTotals ToTotals(WeekTally tally, decimal volume) => new(tally.Workouts, tally.Time, tally.Sets, volume);
 
-    /// <summary>Monday to Sunday: minutes trained on each day beside the same day the week before.</summary>
+    /// <summary>Monday to Sunday: minutes trained on each day beside the same day the week before. A day with a workout under a minute counts as one, so its bar is drawn and can be opened.</summary>
     private List<TrendBar> Days(Period week, PeriodSeries series) =>
         [.. DayNames.Select((name, i) =>
         {
             var day = week.Start.AddDays(i);
-            var minutes = Minutes(series.Buckets, day);
+            var minutes = Math.Max(Minutes(series.Buckets, day), HasWorkouts(series.Buckets, day) ? 1 : 0);
             var before = Minutes(series.Earlier, day.AddDays(-7));
-            return new TrendBar(
-                name[..3],
-                name,
-                minutes,
-                minutes > 0 ? DisplayFormat.Minutes(minutes) : day > today ? "still to come" : "rest day",
-                before,
-                before > 0 ? DisplayFormat.Minutes(before) : "rest day",
-                Current: day == today,
-                Span: minutes > 0 || HasWorkouts(series.Buckets, day) ? new DateSpan(day, day) : null);
+            return new TrendBar(day, name[..3], minutes, before, Current: day == today, Span: minutes > 0 ? new DateSpan(day, day) : null);
         })];
 
     private static bool HasWorkouts(IReadOnlyList<PeriodBucket> buckets, DateOnly day) =>
@@ -369,10 +361,9 @@
             var name = b.Start.ToString("MMMM", CultureInfo.InvariantCulture);
             var current = b.Start <= today && today <= b.End;
             return new TrendBar(
+                b.Start,
                 name[..1],
-                name,
                 b.Workouts,
-                b.Workouts == 0 ? "no workouts" : DisplayFormat.Workouts(b.Workouts),
                 Current: current,
                 Labelled: current || (b.Workouts == highest && highest > 0),
                 Span: b.Workouts == 0 || b.Start > today ? null : new DateSpan(b.Start, b.End > today ? today : b.End));

@@ -1,4 +1,6 @@
-using WorkoutLog.UI.Components.Actions;
+using Shields.UI.Components.Actions;
+using Shields.UI.Components.Layout;
+using Shields.UI.Components.Lists;
 using WorkoutLog.UI.Models.Summary;
 using WorkoutLog.UI.Screens;
 using WorkoutLog.UI.Stories.Samples;
@@ -15,15 +17,28 @@ public class WorkoutSummaryViewTests : ComponentTestBase
         Assert.Multiple(() =>
         {
             Assert.That(cut.Find("[data-testid=screen-title]").TextContent, Is.EqualTo("Workout saved"));
-            Assert.That(cut.Find("[data-testid=summary-duration]").TextContent, Is.EqualTo("1:12:04"));
-            Assert.That(cut.Find("[data-testid=summary-exercises]").TextContent, Is.EqualTo("6"));
-            Assert.That(cut.Find("[data-testid=summary-sets]").TextContent, Is.EqualTo("17"));
+            Assert.That(cut.Find("[data-testid=summary-duration-value]").TextContent, Is.EqualTo("1:12:04"));
+            Assert.That(cut.Find("[data-testid=summary-exercises-value]").TextContent, Is.EqualTo("6"));
+            Assert.That(cut.Find("[data-testid=summary-sets-value]").TextContent, Is.EqualTo("17"));
             Assert.That(cut.Find("[data-testid=summary-records] h2").TextContent, Is.EqualTo("Records"));
             Assert.That(cut.FindAll("[data-testid^=summary-record-]").Select(r => TestText.Normalise(r.TextContent)),
                 Is.EqualTo(new[] { "Barbell Bench Press · 90kg × 5", "Deadlift · 160kg × 3" }));
             Assert.That(cut.Find("[data-testid=summary-changes] h2").TextContent, Is.EqualTo("Since last time"));
             Assert.That(cut.FindAll("[data-testid^=summary-change-]"), Has.Count.EqualTo(6));
             Assert.That(cut.FindAll("[data-testid=summary-records-none], [data-testid=summary-first-workout]"), Is.Empty);
+        });
+    }
+
+    [Test]
+    public void RecordsAndChanges_OnlyTheLastRowOfEachListHasNoDivider()
+    {
+        var cut = Render(SampleWorkoutSummary.RecordsAndChanges);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.FindAll("[data-testid^=summary-record-]").Select(r => r.ClassList.Contains("no-divider")), Is.EqualTo(new[] { false, true }));
+            Assert.That(cut.FindAll("[data-testid^=summary-change-]").Select(r => r.ClassList.Contains("no-divider")),
+                Is.EqualTo(new[] { false, false, false, false, false, true }));
         });
     }
 
@@ -68,7 +83,7 @@ public class WorkoutSummaryViewTests : ComponentTestBase
 
         Assert.Multiple(() =>
         {
-            Assert.That(TestText.Normalise(change.TextContent), Is.EqualTo("—no change"));
+            Assert.That(TestText.Normalise(change.TextContent), Is.EqualTo("— no change"));
             Assert.That(change.QuerySelector("[aria-hidden=true]")!.TextContent, Is.EqualTo("—"));
             Assert.That(change.QuerySelector("svg"), Is.Null);
         });
@@ -79,12 +94,12 @@ public class WorkoutSummaryViewTests : ComponentTestBase
     {
         var cut = Render(SampleWorkoutSummary.RecordsAndChanges);
 
-        var change = cut.Find("[data-testid=summary-change-258] .change");
+        var row = cut.Find("[data-testid=summary-change-258]");
 
         Assert.Multiple(() =>
         {
-            Assert.That(change.TextContent, Is.EqualTo("First time"));
-            Assert.That(change.QuerySelector("svg"), Is.Null);
+            Assert.That(row.QuerySelector(".aside")!.TextContent, Is.EqualTo("First time"));
+            Assert.That(row.QuerySelector(".change"), Is.Null);
         });
     }
 
@@ -107,6 +122,21 @@ public class WorkoutSummaryViewTests : ComponentTestBase
     }
 
     [Test]
+    public void ListCards_AreCompactExceptTheEmptyRecords()
+    {
+        var withBoth = Render(SampleWorkoutSummary.RecordsAndChanges);
+        var noRecords = Render(SampleWorkoutSummary.NoRecords);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(withBoth.FindComponents<Card>().Single(c => c.Instance.TestId == "summary-records").Instance.Compact, Is.True);
+            Assert.That(withBoth.FindComponents<Card>().Single(c => c.Instance.TestId == "summary-changes").Instance.Compact, Is.True);
+            Assert.That(noRecords.FindComponents<Card>().Single(c => c.Instance.TestId == "summary-records").Instance.Compact, Is.False);
+            Assert.That(withBoth.FindComponents<StatTile>().Select(t => t.Instance.Compact), Is.All.True);
+        });
+    }
+
+    [Test]
     public void NoRecords_SaysSoAndStillShowsChanges()
     {
         var cut = Render(SampleWorkoutSummary.NoRecords);
@@ -120,13 +150,34 @@ public class WorkoutSummaryViewTests : ComponentTestBase
     }
 
     [Test]
+    public void EverySection_IsTheKitsCard()
+    {
+        var cut = Render(SampleWorkoutSummary.RecordsAndChanges);
+        var first = Render(SampleWorkoutSummary.FirstWorkout);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.FindComponents<Card>().Select(c => (c.Instance.TestId, c.Instance.Title)), Is.EqualTo(new (string?, string?)[]
+            {
+                ("summary-records", "Records"), ("summary-changes", "Since last time"),
+            }));
+            Assert.That(first.FindComponents<Card>().Select(c => (c.Instance.TestId, c.Instance.Title)), Does.Contain(("summary-first-workout", (string?)null)));
+            Assert.That(cut.FindComponents<StatTile>().Select(t => t.Instance.Label), Is.EqualTo(new[] { "Duration", "Exercises", "Sets" }));
+            Assert.That(cut.FindAll("div.stats[data-testid=summary-stats] > .tile"), Has.Count.EqualTo(3));
+            Assert.That(cut.Find("section.card[data-testid=summary-records] h2.title").TextContent, Is.EqualTo("Records"));
+            Assert.That(cut.Find("section.card[data-testid=summary-changes] h2.title").TextContent, Is.EqualTo("Since last time"));
+            Assert.That(first.Find("div.card[data-testid=summary-first-workout] > p.text.muted"), Is.Not.Null);
+        });
+    }
+
+    [Test]
     public void FirstWorkout_ShowsTotalsAndANoteInPlaceOfRecordsAndChanges()
     {
         var cut = Render(SampleWorkoutSummary.FirstWorkout);
 
         Assert.Multiple(() =>
         {
-            Assert.That(cut.Find("[data-testid=summary-duration]").TextContent, Is.EqualTo("0:52:00"));
+            Assert.That(cut.Find("[data-testid=summary-duration-value]").TextContent, Is.EqualTo("0:52:00"));
             Assert.That(cut.Find("[data-testid=summary-first-workout]").TextContent, Is.EqualTo("Your first workout. Records and changes show from your next one."));
             Assert.That(cut.FindAll("[data-testid=summary-records], [data-testid=summary-changes]"), Is.Empty);
         });
@@ -139,7 +190,8 @@ public class WorkoutSummaryViewTests : ComponentTestBase
 
         Assert.Multiple(() =>
         {
-            Assert.That(cut.FindAll("[data-testid^=summary-change-] .change").Select(c => c.TextContent), Is.EqualTo(new[] { "First time", "First time", "First time" }));
+            Assert.That(cut.FindAll("[data-testid^=summary-change-] .aside").Select(c => c.TextContent), Is.EqualTo(new[] { "First time", "First time", "First time" }));
+            Assert.That(cut.FindAll("[data-testid^=summary-change-] .change"), Is.Empty);
             Assert.That(cut.Find("[data-testid=summary-records-none]"), Is.Not.Null);
             Assert.That(cut.FindAll("[data-testid=summary-first-workout]"), Is.Empty);
         });
@@ -172,7 +224,7 @@ public class WorkoutSummaryViewTests : ComponentTestBase
 
         Assert.Multiple(() =>
         {
-            Assert.That(cut.Find("[data-testid=summary-error]").TextContent, Is.EqualTo("Couldn't load the summary"));
+            Assert.That(cut.Find("[data-testid=summary-error]").TextContent.Trim(), Is.EqualTo("Couldn't load the summary"));
             Assert.That(cut.Find("[data-testid=summary-error]").GetAttribute("role"), Is.EqualTo("alert"));
             Assert.That(cut.Find("[data-testid=summary-retry]").TextContent.Trim(), Is.EqualTo("Try again"));
             Assert.That(cut.FindAll("[data-testid=summary-stats]"), Is.Empty);

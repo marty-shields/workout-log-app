@@ -1,5 +1,6 @@
+using Shields.UI.Components.Charts;
+using Shields.UI.Components.Layout;
 using WorkoutLog.Core.Domain;
-using WorkoutLog.UI.Components.Charts;
 using WorkoutLog.UI.Screens;
 using WorkoutLog.UI.Stories.Samples;
 using WorkoutLog.UI.Tests.Stories;
@@ -45,6 +46,21 @@ public class ExerciseViewTests : ComponentTestBase
     }
 
     [Test]
+    public void ChartCard_IsTheKitsCard_TitledWhenTheChartHasATitle()
+    {
+        var titled = Render(SampleExercises.Assisted);
+        var plain = Render(SampleExercises.LiftTopSet);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(titled.FindComponent<Card>().Instance.Title, Is.EqualTo("Least assist per session"));
+            Assert.That(plain.FindComponent<Card>().Instance.Title, Is.Null);
+            Assert.That(titled.Find("section.card[data-testid=exercise-chart-card] h2.title").TextContent, Is.EqualTo("Least assist per session"));
+            Assert.That(plain.Find("div.card[data-testid=exercise-chart-card]").QuerySelector("h2"), Is.Null);
+        });
+    }
+
+    [Test]
     public void TappingATab_RaisesTabChanged()
     {
         var changed = new List<string>();
@@ -60,13 +76,13 @@ public class ExerciseViewTests : ComponentTestBase
     {
         var cut = Render(SampleExercises.CardioPace);
 
-        var chart = cut.FindComponent<Chart>().Instance;
+        var chart = cut.FindComponent<LineChart>().Instance;
         Assert.Multiple(() =>
         {
             Assert.That(chart.Points, Is.SameAs(SampleExercises.CardioPace.Points));
-            Assert.That((chart.Flipped, chart.TimeScale), Is.EqualTo((true, true)));
+            Assert.That((chart.LowerIsBetter, chart.TimeScale), Is.EqualTo((true, true)));
             Assert.That(chart.Format, Is.SameAs(SampleExercises.Clock));
-            Assert.That(chart.Name, Is.EqualTo("Pace, last 3 months"));
+            Assert.That(chart.Label, Is.EqualTo("Pace, last 3 months"));
         });
     }
 
@@ -75,7 +91,7 @@ public class ExerciseViewTests : ComponentTestBase
     {
         var cut = Render(SampleExercises.Assisted, p => p.Add(x => x.Range, HistoryRange.Year));
 
-        Assert.That(cut.FindComponent<Chart>().Instance.Name, Is.EqualTo("Least assist per session, last year"));
+        Assert.That(cut.FindComponent<LineChart>().Instance.Label, Is.EqualTo("Least assist per session, last year"));
     }
 
     [Test]
@@ -125,15 +141,19 @@ public class ExerciseViewTests : ComponentTestBase
         Assert.That(changed, Is.EqualTo(new[] { HistoryRange.All }));
     }
 
-    [TestCase(HistoryRange.ThreeMonths, "Records · last 3 months")]
-    [TestCase(HistoryRange.SixMonths, "Records · last 6 months")]
-    [TestCase(HistoryRange.Year, "Records · last year")]
-    [TestCase(HistoryRange.All, "Records · all time")]
-    public void Records_AreTitledWithTheRange(HistoryRange range, string title)
+    [TestCase(HistoryRange.ThreeMonths, "last 3 months")]
+    [TestCase(HistoryRange.SixMonths, "last 6 months")]
+    [TestCase(HistoryRange.Year, "last year")]
+    [TestCase(HistoryRange.All, "all time")]
+    public void Records_ShowTheRangeBesideTheTitle(HistoryRange range, string title)
     {
         var cut = Render(SampleExercises.LiftTopSet, p => p.Add(x => x.Range, range));
 
-        Assert.That(TestText.Normalise(cut.Find("[data-testid=exercise-records] h2").TextContent), Is.EqualTo(title));
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.Find("[data-testid=exercise-records] h2").TextContent, Is.EqualTo("Records"));
+            Assert.That(cut.Find("[data-testid=exercise-records-aside]").TextContent, Is.EqualTo(title));
+        });
     }
 
     [Test]
@@ -146,7 +166,8 @@ public class ExerciseViewTests : ComponentTestBase
             Assert.That(cut.Find("h2.heading").TextContent, Is.EqualTo("Sessions"));
             Assert.That(cut.FindAll("[data-testid^=exercise-session-]").Select(s => s.GetAttribute("data-testid")),
                 Is.EqualTo(Enumerable.Range(1, 8).Reverse().Select(id => $"exercise-session-{id}")));
-            Assert.That(TestText.Normalise(cut.Find("[data-testid=exercise-session-8]").TextContent), Is.EqualTo("Tue 20 Oct 70kg × 3 60×8 · 62.5×8 · 70×3"));
+            Assert.That(new[] { ".text", ".aside", ".detail" }.Select(part => cut.Find($"[data-testid=exercise-session-8] {part}").TextContent),
+                Is.EqualTo(new[] { "Tue 20 Oct", "70kg × 3", "60×8 · 62.5×8 · 70×3" }));
         });
     }
 
@@ -158,7 +179,7 @@ public class ExerciseViewTests : ComponentTestBase
         Assert.Multiple(() =>
         {
             Assert.That(cut.Find("[data-testid=exercise-chart-empty]").TextContent, Is.EqualTo("No sets in the last 3 months"));
-            Assert.That(cut.FindComponents<Chart>(), Is.Empty);
+            Assert.That(cut.FindComponents<LineChart>(), Is.Empty);
             Assert.That(cut.FindAll("[data-testid=exercise-range]"), Has.Count.EqualTo(1));
             Assert.That(cut.FindAll("[data-testid^=exercise-session-]"), Has.Count.EqualTo(6));
         });
@@ -175,7 +196,7 @@ public class ExerciseViewTests : ComponentTestBase
         Assert.Multiple(() =>
         {
             Assert.That(cut.Find("[data-testid=exercise-chart-empty]").TextContent, Is.EqualTo(message));
-            Assert.That(cut.FindAll("[data-testid=exercise-records] .value").Select(v => v.TextContent), Is.EqualTo(new[] { "—", "—" }));
+            Assert.That(cut.FindAll("[data-testid=exercise-records] .row .aside").Select(v => v.TextContent), Is.EqualTo(new[] { "—", "—" }));
             Assert.That(cut.FindAll("h2.heading"), Is.Empty);
         });
     }
@@ -214,7 +235,7 @@ public class ExerciseViewTests : ComponentTestBase
         Assert.Multiple(() =>
         {
             Assert.That(cut.Find("[data-testid=screen-title]").TextContent, Is.EqualTo("Barbell Back Squat"));
-            Assert.That(cut.Find("[data-testid=exercise-error]").TextContent, Is.EqualTo("Couldn't load this exercise"));
+            Assert.That(cut.Find("[data-testid=exercise-error]").TextContent.Trim(), Is.EqualTo("Couldn't load this exercise"));
             Assert.That(cut.Find("[data-testid=exercise-retry]").TextContent.Trim(), Is.EqualTo("Try again"));
             Assert.That(cut.FindAll("[data-testid=exercise-chart-card]"), Is.Empty);
         });

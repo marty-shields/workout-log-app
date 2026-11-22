@@ -13,7 +13,8 @@ public class MuscleSetsCardTests : ComponentTestBase
 
         Assert.Multiple(() =>
         {
-            Assert.That(cut.Find(".title").TextContent, Is.EqualTo("Sets per muscle group"));
+            Assert.That(cut.Find("section.card").GetAttribute("data-testid"), Is.EqualTo("muscles"));
+            Assert.That(cut.Find("section.card h2.title").TextContent, Is.EqualTo("Sets per muscle group"));
             Assert.That(cut.Find(".aside").TextContent, Is.EqualTo("this week"));
         });
     }
@@ -23,7 +24,7 @@ public class MuscleSetsCardTests : ComponentTestBase
     {
         var cut = Render(SampleThisWeek.Muscles);
 
-        var rows = cut.FindAll(".group").Select(g => (g.QuerySelector(".name")!.TextContent, g.QuerySelector(".sets")!.TextContent));
+        var rows = cut.FindAll("li").Select(g => (g.QuerySelector(".name")!.TextContent, g.QuerySelector(".value")!.TextContent));
 
         Assert.That(rows, Is.EqualTo(new[]
         {
@@ -44,7 +45,7 @@ public class MuscleSetsCardTests : ComponentTestBase
     {
         var cut = Render([new("Back", 1)]);
 
-        Assert.That(cut.Find(".sets").TextContent, Is.EqualTo("1 set"));
+        Assert.That(cut.Find(".value").TextContent, Is.EqualTo("1 set"));
     }
 
     [Test]
@@ -54,7 +55,7 @@ public class MuscleSetsCardTests : ComponentTestBase
 
         var shares = cut.FindAll(".fill").Select(f => f.GetAttribute("style")!.Trim().TrimEnd(';'));
 
-        Assert.That(shares, Is.EqualTo(new[] { "--share: 1", "--share: 0.643", "--share: 0.429", "--share: 0.214", "--share: 0.143", "--share: 0" }));
+        Assert.That(shares, Is.EqualTo(new[] { "--fill: 1", "--fill: 0.6429", "--fill: 0.4286", "--fill: 0.2143", "--fill: 0.1429", "--fill: 0" }));
     }
 
     [Test]
@@ -64,8 +65,8 @@ public class MuscleSetsCardTests : ComponentTestBase
 
         Assert.Multiple(() =>
         {
-            Assert.That(cut.FindAll(".sets").Select(s => s.TextContent), Is.All.EqualTo("Not trained"));
-            Assert.That(cut.FindAll(".fill").Select(f => f.GetAttribute("style")!.Trim().TrimEnd(';')), Is.All.EqualTo("--share: 0"));
+            Assert.That(cut.FindAll(".value").Select(s => s.TextContent), Is.All.EqualTo("Not trained"));
+            Assert.That(cut.FindAll(".fill").Select(f => f.GetAttribute("style")!.Trim().TrimEnd(';')), Is.All.EqualTo("--fill: 0"));
         });
     }
 
@@ -78,9 +79,17 @@ public class MuscleSetsCardTests : ComponentTestBase
     }
 
     [Test]
-    public void Groups_HaveTestIds() =>
-        Assert.That(Render(SampleThisWeek.Muscles).FindAll(".group").Select(g => g.GetAttribute("data-testid")),
-            Is.EqualTo(new[] { "muscles-legs", "muscles-chest", "muscles-shoulders", "muscles-arms", "muscles-core", "muscles-back" }));
+    public void Groups_HaveSlugTestIds() =>
+        Assert.That(Render(SampleThisWeek.Muscles).FindAll("li").Select(g => g.GetAttribute("data-testid")),
+            Is.EqualTo(new[] { "legs", "chest", "shoulders", "arms", "core", "back" }.Select(slug => $"muscles-rows-row-{slug}")));
+
+    [Test]
+    public void Groups_AreNotTappable() =>
+        Assert.That(Render(SampleThisWeek.Muscles).FindAll("button"), Is.Empty);
+
+    [Test]
+    public void NoGroups_ShowsTheMessage() =>
+        Assert.That(Render([]).Find("[data-testid=muscles-rows-empty]").TextContent, Is.EqualTo("No sets yet"));
 
     [Test]
     public void Aside_SaysThisWeekUnlessGivenAPeriod()

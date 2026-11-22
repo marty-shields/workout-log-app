@@ -1,11 +1,11 @@
 using System.Globalization;
+using Shields.UI.Components.Charts;
+using Shields.UI.Components.Inputs;
 using WorkoutLog.Core.Domain;
 using WorkoutLog.Core.Domain.Exercises;
 using WorkoutLog.Core.Domain.Exercises.Bests;
 using WorkoutLog.Core.Domain.Exercises.Progress;
 using WorkoutLog.Core.Domain.Workouts;
-using WorkoutLog.UI.Components.Charts;
-using WorkoutLog.UI.Components.Inputs;
 using WorkoutLog.UI.Components.Lists;
 
 namespace WorkoutLog.UI.Models.Exercises;
@@ -51,10 +51,10 @@ public static class ExerciseProgressItems
     /// One point per session, oldest first: the top set's weight labelled ×reps, or the unrounded e1RM. A session with no value for
     /// <paramref name="tab"/> has a point with no value.
     /// </summary>
-    public static IReadOnlyList<ChartPoint> Points(LiftProgress progress, string tab, TimeZoneInfo zone, DateTimeOffset now) =>
+    public static IReadOnlyList<LineChartPoint> Points(LiftProgress progress, string tab, TimeZoneInfo zone, DateTimeOffset now) =>
         progress.Sessions
             .Select(s => tab == E1rmTab
-                ? new ChartPoint(Day(s.Session.StartedAt, zone, now), s.E1rmKg)
+                ? new LineChartPoint(Day(s.Session.StartedAt, zone, now), s.E1rmKg)
                 : Point(s.Session.StartedAt, s.TopSet, zone, now))
             .ToList();
 
@@ -87,7 +87,7 @@ public static class ExerciseProgressItems
         new(session.WorkoutId, DisplayFormat.ShortDate(Local(session.StartedAt, zone), Local(now, zone)), headline, detail);
 
     /// <summary>A point for a weight best: its weight labelled ×reps; no value when there is no best or it has no weight.</summary>
-    internal static ChartPoint Point(DateTimeOffset startedAt, ExerciseBest? best, TimeZoneInfo zone, DateTimeOffset now) =>
+    internal static LineChartPoint Point(DateTimeOffset startedAt, ExerciseBest? best, TimeZoneInfo zone, DateTimeOffset now) =>
         new(Day(startedAt, zone, now), best?.WeightKg, best?.Reps is { } reps ? $"×{reps}" : null);
 
     /// <summary>A top set, e.g. 70kg × 3.</summary>

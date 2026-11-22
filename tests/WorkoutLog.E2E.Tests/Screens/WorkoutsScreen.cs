@@ -24,7 +24,7 @@ public sealed class WorkoutsScreen(WebView web)
 
     public string? EmptyText() => web.Exists("workouts-empty") ? web.Text("workouts-empty-message") : null;
 
-    /// <summary>The dates shown in the date field, e.g. "2 Nov – 8 Nov 2026".</summary>
+    /// <summary>The dates shown in the date field, e.g. "2 – 8 Nov 2026" (no-break spaces inside each date).</summary>
     public string Dates() => web.Text("workouts-dates-dates");
 
     public void Back() => web.Tap("back");
@@ -38,16 +38,16 @@ public sealed class WorkoutsScreen(WebView web)
     public void PickDay(DateTime day)
     {
         web.Tap("workouts-dates");
-        web.Tap("range-month-name");
-        while (int.Parse(web.Text("range-year"), CultureInfo.InvariantCulture) > day.Year)
+        web.Tap("workouts-dates-calendar-month-name");
+        while (int.Parse(web.Text("workouts-dates-calendar-year"), CultureInfo.InvariantCulture) > day.Year)
         {
-            web.Tap("range-prev-year");
+            web.Tap("workouts-dates-calendar-prev-year");
         }
 
-        web.Tap($"range-month-{day:yyyy-MM}");
-        web.Tap($"range-day-{day:yyyy-MM-dd}");
-        web.Tap($"range-day-{day:yyyy-MM-dd}");
-        web.Tap("range-apply");
+        web.Tap($"workouts-dates-calendar-month-{day:yyyy-MM}");
+        web.Tap($"workouts-dates-calendar-day-{day:yyyy-MM-dd}");
+        web.Tap($"workouts-dates-calendar-day-{day:yyyy-MM-dd}");
+        web.Tap("workouts-dates-calendar-apply");
     }
 
     private const string RowSelector = "[data-testid^=\"workouts-row-\"]";

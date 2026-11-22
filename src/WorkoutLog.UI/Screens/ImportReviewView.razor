@@ -1,30 +1,31 @@
 @using System.Globalization
 @using Microsoft.Extensions.Logging
 @using WorkoutLog.Core.Services
-@using WorkoutLog.UI.Components.Inputs
-@using WorkoutLog.UI.Components.Overlays
+@using Shields.UI.Components.Overlays
 @inject ILogger<ImportReviewView> Logger
 <AppScreen Title="Import workouts" OnBack="OnBack">
     <ChildContent>
         <div class="content">
             <div class="file">
-                <p class="name" data-testid="review-file-name">@Review.FileName</p>
+                <div class="name">
+                    <Typography Variant="TextVariant.Strong" As="TextElement.P" TestId="review-file-name">@Review.FileName</Typography>
+                </div>
                 @if (Review.Error == ImportError.None)
                 {
-                    <p class="total" data-testid="review-total">@Workouts(Review.Total) in the file</p>
+                    <Typography Variant="TextVariant.Muted" As="TextElement.P" TestId="review-total">@Workouts(Review.Total) in the file</Typography>
                 }
             </div>
             @if (Review.Error != ImportError.None)
             {
-                <p class="error" role="alert" data-testid="review-error">@ErrorText</p>
+                <InlineAlert Message="@ErrorText" TestId="review-error" />
             }
             else
             {
                 <div class="tiles">
-                    <StatTile Label="New" Value="Review.New" TestId="review-new" />
-                    <StatTile Label="Already on this phone" Value="Review.Already" TestId="review-already" />
-                    <StatTile Label="Different on this phone" Value="Review.Different" TestId="review-different" />
-                    <StatTile Label="Can't be imported" Value="Review.Skipped" TestId="review-skipped" />
+                    <StatTile Label="New" Value="@Count(Review.New)" TestId="review-new" />
+                    <StatTile Label="Already on this phone" Value="@Count(Review.Already)" TestId="review-already" />
+                    <StatTile Label="Different on this phone" Value="@Count(Review.Different)" TestId="review-different" />
+                    <StatTile Label="Can't be imported" Value="@Count(Review.Skipped)" TestId="review-skipped" />
                 </div>
                 <RadioGroup TValue="ImportMode" Label="How to import" Options="ModeOptions" Value="Mode" ValueChanged="ModeChanged"
                             Disabled="Importing" TestId="review-mode" />
@@ -35,7 +36,7 @@
                 }
                 @if (Review.Skipped > 0)
                 {
-                    <p class="text" data-testid="review-skipped-text">@SkippedText</p>
+                    <p class="text" data-testid="review-skipped-text" data-wrap-ok>@SkippedText</p>
                 }
                 @if (NothingNew)
                 {
@@ -43,29 +44,31 @@
                 }
                 @if (Failed)
                 {
-                    <p class="error" role="alert" data-testid="review-failed">Couldn't import your workouts. Try again</p>
+                    <InlineAlert Message="Couldn't import your workouts. Try again" TestId="review-failed" />
                 }
             }
         </div>
     </ChildContent>
     <BottomBar>
-        <AppButton Variant="ButtonVariant.Secondary" FullWidth Disabled="Importing" TestId="review-cancel" OnClick="OnCancel">Cancel</AppButton>
-        @if (Review.Error != ImportError.None)
-        {
-            <AppButton FullWidth Busy="Reading" TestId="review-choose" OnClick="OnChooseAnother">@(Reading ? "Reading…" : "Choose another file")</AppButton>
-        }
-        else if (Mode == ImportMode.ReplaceAll)
-        {
-            <AppButton @ref="import" Variant="ButtonVariant.Danger" FullWidth Disabled="Importable == 0" Busy="Importing" TestId="review-import" OnClick="OnImport">
-                @(Importing ? "Importing…" : "Replace all")
-            </AppButton>
-        }
-        else
-        {
-            <AppButton @ref="import" FullWidth Disabled="NothingNew" Busy="Importing" TestId="review-import" OnClick="OnImport">
-                @(Importing ? "Importing…" : "Import")
-            </AppButton>
-        }
+        <div class="actions@(Review.Error != ImportError.None ? " stacked" : null)">
+            <AppButton Variant="ButtonVariant.Secondary" FullWidth Disabled="Importing" TestId="review-cancel" OnClick="OnCancel">Cancel</AppButton>
+            @if (Review.Error != ImportError.None)
+            {
+                <AppButton FullWidth Busy="Reading" TestId="review-choose" OnClick="OnChooseAnother">@(Reading ? "Reading…" : "Choose another file")</AppButton>
+            }
+            else if (Mode == ImportMode.ReplaceAll)
+            {
+                <AppButton @ref="import" Variant="ButtonVariant.Danger" FullWidth Disabled="Importable == 0" Busy="Importing" TestId="review-import" OnClick="OnImport">
+                    @(Importing ? "Importing…" : "Replace all")
+                </AppButton>
+            }
+            else
+            {
+                <AppButton @ref="import" FullWidth Disabled="NothingNew" Busy="Importing" TestId="review-import" OnClick="OnImport">
+                    @(Importing ? "Importing…" : "Import")
+                </AppButton>
+            }
+        </div>
     </BottomBar>
 </AppScreen>
 @if (Confirming)
@@ -178,6 +181,8 @@
             ImportError.TooLarge => "This file is too large to import",
             _ => "Couldn't import your workouts. Try again",
         };
+
+    private static string Count(int count) => count.ToString("N0", CultureInfo.InvariantCulture);
 
     private static string Workouts(int count) =>
         string.Create(CultureInfo.InvariantCulture, $"{count:N0} {(count == 1 ? "workout" : "workouts")}");

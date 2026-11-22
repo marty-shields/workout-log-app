@@ -1,8 +1,8 @@
+using Shields.UI.Components.Charts;
+using Shields.UI.Components.Inputs;
 using WorkoutLog.Core.Domain.Exercises.Bests;
 using WorkoutLog.Core.Domain.Exercises.Progress;
 using WorkoutLog.Core.Domain.Workouts;
-using WorkoutLog.UI.Components.Charts;
-using WorkoutLog.UI.Components.Inputs;
 using WorkoutLog.UI.Components.Lists;
 
 namespace WorkoutLog.UI.Models.Exercises;
@@ -27,11 +27,11 @@ public static class HoldProgressItems
     /// One point per session, oldest first: the longest hold in seconds, or the heaviest weight labelled with its duration.
     /// A session with no value for <paramref name="tab"/> has a point with no value.
     /// </summary>
-    public static IReadOnlyList<ChartPoint> Points(HoldProgress progress, string tab, TimeZoneInfo zone, DateTimeOffset now) =>
+    public static IReadOnlyList<LineChartPoint> Points(HoldProgress progress, string tab, TimeZoneInfo zone, DateTimeOffset now) =>
         progress.Sessions
             .Select(s => tab == WeightTab
-                ? new ChartPoint(ExerciseProgressItems.Day(s.Session.StartedAt, zone, now), s.Heaviest?.WeightKg, s.Heaviest?.Duration is { } d ? DisplayFormat.Clock(d) : null)
-                : new ChartPoint(ExerciseProgressItems.Day(s.Session.StartedAt, zone, now), s.Longest is { } longest ? (decimal)longest.TotalSeconds : null))
+                ? new LineChartPoint(ExerciseProgressItems.Day(s.Session.StartedAt, zone, now), s.Heaviest?.WeightKg, s.Heaviest?.Duration is { } d ? DisplayFormat.Clock(d) : null)
+                : new LineChartPoint(ExerciseProgressItems.Day(s.Session.StartedAt, zone, now), s.Longest is { } longest ? (decimal)longest.TotalSeconds : null))
             .ToList();
 
     /// <summary>Longest hold (e.g. 1:45) and Heaviest weight (e.g. 10kg · 1:00), each with its date; no value shows —.</summary>

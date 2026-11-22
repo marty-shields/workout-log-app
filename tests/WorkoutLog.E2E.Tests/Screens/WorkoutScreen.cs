@@ -86,7 +86,7 @@ public sealed partial class WorkoutScreen(WebView web, Native native)
     public IReadOnlyList<string> Errors(string name, int? set)
     {
         var testId = set is { } number ? $"{Card(name)}-set-{number}-error" : $"{Card(name)}-entry-error";
-        return web.FindAll($"[data-testid=\"{testId}\"] .error").Select(e => e.Text.Trim()).ToList();
+        return web.FindAll($"[data-testid=\"{testId}\"] li").Select(e => e.Text.Trim()).ToList();
     }
 
     /// <summary>The card's last and PB line as its text content, e.g. "Last 60kg · PB 70kg", or null when it has none.</summary>
@@ -170,8 +170,8 @@ public sealed partial class WorkoutScreen(WebView web, Native native)
         var root = set is { } number ? $"{Card(name)}-set-{number}" : Card(name);
         var script = $$"""
             const root = document.querySelector('[data-testid="{{root}}"]');
-            return [...root.querySelectorAll('label.field, div.field[role=group]')].map(f =>
-                f.getAttribute('role') === 'group' ? f.getAttribute('aria-label') : f.querySelector('.label').childNodes[0].textContent.trim());
+            return [...root.querySelectorAll('div.field[role=group], div.field:has(> label.label)')].map(f =>
+                f.getAttribute('role') === 'group' ? f.getAttribute('aria-label') : f.querySelector(':scope > label.label').childNodes[0].textContent.trim());
             """;
         return web.Strings(script);
     }
@@ -277,9 +277,9 @@ public sealed partial class WorkoutScreen(WebView web, Native native)
     /// <summary>The snackbar's message, or null when none shows.</summary>
     public string? Snackbar() => web.Exists("snackbar-message") ? web.Text("snackbar-message") : null;
 
-    public string UndoText() => web.Text("snackbar-undo");
+    public string UndoText() => web.Text("snackbar-action");
 
-    public void Undo() => TapButton("snackbar-undo");
+    public void Undo() => TapButton("snackbar-action");
 
     public bool HasRemove(string name) => web.Exists($"{Card(name)}-remove");
 
@@ -338,8 +338,8 @@ public sealed partial class WorkoutScreen(WebView web, Native native)
     private IEnumerable<(string TestId, string Name)> Cards()
     {
         const string script = """
-            return [...document.querySelectorAll('section.card[data-testid^="exercise-"]')]
-                .map(s => [s.getAttribute('data-testid'), s.querySelector('.name').textContent.trim()]);
+            return [...document.querySelectorAll('.card[data-testid^="exercise-"]:not(.selected)')]
+                .map(s => [s.getAttribute('data-testid'), s.querySelector('.header .title').textContent.trim()]);
             """;
         var cards = web.List(script);
         return cards.Cast<ReadOnlyCollection<object>>().Select(c => ((string)c[0], (string)c[1]));

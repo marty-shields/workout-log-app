@@ -14,27 +14,39 @@ Also: [Windows setup](dev-setup-windows.md), [Linux setup](dev-setup-linux.md), 
 The stories need only the .NET SDK.
 
 ## Stories (design system)
-`dotnet run --project src/WorkoutLog.UI.Stories`, then open http://localhost:5056. Story files are `*.stories.razor` in `src/WorkoutLog.UI.Stories/Stories/`. `main` is published at https://marty-shields.github.io/workout-log-app/.
+`dotnet run --project src/WorkoutLog.UI.Stories.Host`, then open http://localhost:5056. Story files are `*.stories.razor` in `src/WorkoutLog.UI.Stories/Stories/`; the host is `src/WorkoutLog.UI.Stories.Host`. The kit's own components and tokens are shown in the kit's story book (https://marty-shields.github.io/app-ui-kit/), not here. `main` is published at https://marty-shields.github.io/workout-log-app/.
+
+### No custom UI elements
+This repo holds no custom UI elements. Every general component, style and token comes from the shared kit, [app-ui-kit](https://github.com/marty-shields/app-ui-kit) (`Shields.UI`, `Shields.UI.Stories`, `Shields.UI.Testing`). The app holds screens and the few app-only components on the allow-list in `AppComponentAllowListTests`. A missing component, style or token is requested in the kit (open an issue in that repo), not built here. Three tests enforce it: `AppComponentAllowListTests` (a new `*.razor` file or `ComponentBase` class needs an allow-list entry with a one-line reason), `LayoutOnlyCssTests` (app CSS only lays out; no colour, background, border, shadow, outline or font) and `NoAppTokensTests` (no `tokens.css`, no `--x:` declaration).
+
+To try a kit change before it is released, clone app-ui-kit and build against its source: `dotnet build WorkoutLog.slnx -p:UseKitSource=true -p:KitPath=<absolute path of the clone>` (the same switch works for `dotnet test` and `dotnet run`). The packages are left alone and the lock files are not touched.
+
+### Story layout
+With the stories running, `node .github/scripts/check-story-layout.mjs http://localhost:5056 <chrome> [scope ...]` opens each story in headless Chrome and fails on content that clips, overflows, runs past the edge or wraps (text allowed to wrap carries `data-wrap-ok`). A scope is a story-title prefix; `Screens/` means `Workout Log/Screens/`. With no scope it checks `Components/Workout/`. CI's `story-layout` job runs two scopes:
+- **Default (`Components/Workout/`)**: a 424px page. The preview adds 96px around the card, so the card is 328px wide, the narrowest card (a 360dp phone less 16px side padding).
+- **`Screens/`**: screen stories show the kit's phone frame (a 412px viewport, 424px with its bezel) plus preview padding, which a 424px page cannot hold. The script loads these on a 480px page, sets the kit's `--stories-phone-width` to 360px, and measures only the content inside the phone, against the phone's width: a card there is 328px, the same as the default scope. A screen that clips, overflows or wraps at the narrowest phone fails even though it fits the 412px frame.
+
+The script fails too when the card is not 328px or the frame is not 360px, which means the kit's preview layout changed. The scope and measure rules are in `.github/scripts/story-layout-scopes.mjs`, tested by `story-layout-scopes-test.sh`.
 
 ### README screenshots
-`README.md` shows screen stories, light and dark, from `docs/images/readme/`. Run the stories, then `node .github/scripts/readme-screenshots.mjs http://localhost:5056 <chrome>` retakes every row below: it opens `iframe.html?id=<story id>` in each colour scheme and saves the `.phone` element to `<file>-light.png` and `<file>-dark.png`. With `--check` it writes nothing and fails when a committed screenshot differs from its story by more than 0.2% of its pixels (allowing for anti-aliasing). CI runs the check in `story-layout`; when it fails, the job's `readme-screenshots` artifact holds the retaken images. A screen that changes look retakes its screenshots in the same PR. To add a screenshot, add a row here and to the README; the script reads this table.
+`README.md` shows screen stories, light and dark, from `docs/images/readme/`. Run the stories, then `node .github/scripts/readme-screenshots.mjs http://localhost:5056 <chrome>` retakes every row below: it opens `iframe.html?id=<story id>` in each colour scheme and saves the `.phone` element to `<file>-light.png` and `<file>-dark.png`. With `--check` it writes nothing and fails when a committed screenshot differs from its story by more than 0.01% of its pixels (about 40 of the 398,000 in a 428x931 screen), counting a pixel only when its colour moved by more than 24 (the summed absolute difference of its red, green, blue and alpha values, each 0 to 255), so a uniform token shift of 24 or less passes and anything larger is counted. Measured locally with Chrome 1255: two runs of the same story differ by 0 pixels, and changing one letter of a header word ("Workout Log" to "Workout Lab") changes 252 pixels in the light screenshot and 253 in the dark one, so a one-word edit fails. CI's `google-chrome` may render differently from that build; the `story-layout` run on the PR is the cross-build check, and the threshold is tuned there if it flags an unchanged screen. The comparison is `.github/scripts/screenshot-diff.mjs`, tested by `screenshot-diff-test.sh`. CI runs the check in `story-layout`; when it fails, the job's `readme-screenshots` artifact holds the retaken images. A screen that changes look retakes its screenshots in the same PR. To add a screenshot, add a row here and to the README; the script reads this table.
 
 | File | Story id |
 |---|---|
-| `this-week` | `screens-this-week--mid-week` |
-| `workout-summary` | `screens-workout-summary--records-and-changes` |
-| `new-workout` | `screens-new-workout--strength` |
-| `cardio` | `screens-new-workout--cardio` |
-| `last-time` | `screens-new-workout--last-time` |
-| `notes` | `screens-new-workout--notes` |
-| `add-exercise` | `screens-add-exercise--results` |
-| `trends-week` | `screens-trends--week` |
-| `trends-month` | `screens-trends--month` |
-| `trends-year` | `screens-trends--year` |
-| `workouts` | `screens-workouts--with-workouts` |
-| `settings` | `screens-settings--with-workouts` |
-| `exercise-lift` | `screens-exercise--lift-top-set` |
-| `exercise-cardio` | `screens-exercise--cardio-distance` |
+| `this-week` | `workout-log-screens-this-week--mid-week` |
+| `workout-summary` | `workout-log-screens-workout-summary--records-and-changes` |
+| `new-workout` | `workout-log-screens-new-workout--strength` |
+| `cardio` | `workout-log-screens-new-workout--cardio` |
+| `last-time` | `workout-log-screens-new-workout--last-time` |
+| `notes` | `workout-log-screens-new-workout--notes` |
+| `add-exercise` | `workout-log-screens-add-exercise--results` |
+| `trends-week` | `workout-log-screens-trends--week` |
+| `trends-month` | `workout-log-screens-trends--month` |
+| `trends-year` | `workout-log-screens-trends--year` |
+| `workouts` | `workout-log-screens-workouts--with-workouts` |
+| `settings` | `workout-log-screens-settings--with-workouts` |
+| `exercise-lift` | `workout-log-screens-exercise--lift-top-set` |
+| `exercise-cardio` | `workout-log-screens-exercise--cardio-distance` |
 
 `icon.svg` is the Volt dumbbell and its shadow on the icon background, clipped to rounded corners. `node .github/scripts/app-icon.mjs` writes it with the rest of the icon and splash art ([App icon](../src/WorkoutLog.UI.Stories/Stories/Foundations/AppIcon.md)).
 

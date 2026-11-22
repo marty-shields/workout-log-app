@@ -1,3 +1,4 @@
+using Shields.UI.Components.Layout;
 using WorkoutLog.UI.Components.ThisWeek;
 using WorkoutLog.UI.Stories.Samples;
 
@@ -10,7 +11,11 @@ public class WeekWorkoutsCardTests : ComponentTestBase
     {
         var cut = Render(SampleThisWeek.Workouts);
 
-        Assert.That(cut.Find(".title").TextContent, Is.EqualTo("This week's workouts"));
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.Find("section.card").GetAttribute("data-testid"), Is.EqualTo("workouts"));
+            Assert.That(cut.Find("section.card h2.title").TextContent, Is.EqualTo("This week's workouts"));
+        });
     }
 
     [Test]
@@ -19,6 +24,14 @@ public class WeekWorkoutsCardTests : ComponentTestBase
         var cut = Render(SampleThisWeek.Workouts);
 
         Assert.That(cut.FindAll(".text").Select(t => t.TextContent), Is.EqualTo(new[] { "Wed 18 Nov · 07:10", "Tue 17 Nov · 18:30", "Mon 16 Nov · 18:05" }));
+    }
+
+    [Test]
+    public void OnlyTheLastRow_HasNoDivider()
+    {
+        var cut = Render(SampleThisWeek.Workouts);
+
+        Assert.That(cut.FindAll("li .row").Select(r => r.ClassList.Contains("no-divider")), Is.EqualTo(new[] { false, false, true }));
     }
 
     [Test]
@@ -42,6 +55,16 @@ public class WeekWorkoutsCardTests : ComponentTestBase
         var cut = Render([new WeekWorkout(1, new DateTime(2026, 11, 16, 9, 0, 0), ["Squat", "Press"], new TimeSpan(1, 5, 59))]);
 
         Assert.That(cut.Find(".aside").TextContent, Is.EqualTo("1:05"));
+    }
+
+    [Test]
+    public void Card_IsCompactWithRowsAndNormalWithThePrompt()
+    {
+        Assert.Multiple(() =>
+        {
+            Assert.That(Render(SampleThisWeek.Workouts).FindComponent<Card>().Instance.Compact, Is.True, "rows supply their own padding");
+            Assert.That(Render([]).FindComponent<Card>().Instance.Compact, Is.False, "the prompt needs the card's padding below it");
+        });
     }
 
     [Test]

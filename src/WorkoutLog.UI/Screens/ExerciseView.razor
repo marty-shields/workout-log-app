@@ -1,8 +1,6 @@
 @using System.Globalization
 @using WorkoutLog.Core.Domain
-@using WorkoutLog.UI.Components.Charts
-@using WorkoutLog.UI.Components.Feedback
-@using WorkoutLog.UI.Components.Inputs
+@using Shields.UI.Components.Charts
 @using WorkoutLog.UI.Models.Exercises
 <AppScreen Title="@Name" Subtitle="@Subtitle" OnBack="OnBack">
     @if (Loading)
@@ -13,7 +11,7 @@
     }
     else if (Failed)
     {
-        <LoadFailed Message="Couldn't load this exercise" OnRetry="OnRetry" TestId="exercise" />
+        <LoadFailed RetryVariant="ButtonVariant.Secondary" Message="Couldn't load this exercise" OnRetry="OnRetry" TestId="exercise" />
     }
     else
     {
@@ -22,35 +20,35 @@
             {
                 <SegmentedControl TValue="string" Label="Chart" Options="Tabs" Value="Tab" ValueChanged="TabChanged" TestId="exercise-tabs" />
             }
-            <section class="card" data-testid="exercise-chart-card">
-                @if (ChartTitle is not null)
-                {
-                    <h2 class="card-title">@ChartTitle</h2>
-                }
-                @if (Points.Any(p => p.Value is not null))
-                {
-                    <Chart Points="Points" Flipped="Flipped" Format="Format" TimeScale="TimeScale" Name="@ChartName" TestId="exercise-chart" />
-                }
-                else
-                {
-                    <p class="no-data" data-testid="exercise-chart-empty">@(Sessions.Count > 0 && NoDataMessage is not null ? NoDataMessage : NoSessionsMessage)</p>
-                }
-                <SegmentedControl TValue="HistoryRange" Label="Range" Options="Ranges" Value="Range" ValueChanged="RangeChanged" TestId="exercise-range" />
-                @if (Caption is not null)
-                {
-                    <p class="caption" data-testid="exercise-chart-caption">@Caption</p>
-                }
-            </section>
+            <Card Title="@ChartTitle" TestId="exercise-chart-card">
+                <div class="chart-card">
+                    @if (Points.Any(p => p.Value is not null))
+                    {
+                        <LineChart Points="Points" LowerIsBetter="Flipped" Format="Format" TimeScale="TimeScale" Label="@ChartName" TestId="exercise-chart" />
+                    }
+                    else
+                    {
+                        <div class="no-data">
+                            <Typography Variant="TextVariant.Muted" As="TextElement.P" TestId="exercise-chart-empty" data-wrap-ok>@(Sessions.Count > 0 && NoDataMessage is not null ? NoDataMessage : NoSessionsMessage)</Typography>
+                        </div>
+                    }
+                    <SegmentedControl TValue="HistoryRange" Label="Range" Options="Ranges" Value="Range" ValueChanged="RangeChanged" TestId="exercise-range" />
+                    @if (Caption is not null)
+                    {
+                        <Typography Variant="TextVariant.MutedSmall" As="TextElement.P" TestId="exercise-chart-caption">@Caption</Typography>
+                    }
+                </div>
+            </Card>
             <RecordsCard Range="@RangeText" Rows="Records" TestId="exercise-records" />
             @if (Sessions.Count > 0)
             {
                 <section>
-                    <h2 class="heading">Sessions</h2>
+                    <Typography Variant="TextVariant.Label" As="TextElement.H2" class="heading">Sessions</Typography>
                     <ul class="sessions">
                         @foreach (var session in Sessions)
                         {
                             <li>
-                                <SessionRow Date="@session.Date" Headline="@session.Headline" Detail="@session.Detail" TestId="@($"exercise-session-{session.WorkoutId}")" />
+                                <ListRow Layout="ListRowLayout.Headline" Text="@session.Date" Aside="@session.Headline" Detail="@session.Detail" TestId="@($"exercise-session-{session.WorkoutId}")" />
                             </li>
                         }
                     </ul>
@@ -95,7 +93,7 @@
 
     /// <summary>Chart points in the range, oldest first.</summary>
     [Parameter]
-    public IReadOnlyList<ChartPoint> Points { get; set; } = [];
+    public IReadOnlyList<LineChartPoint> Points { get; set; } = [];
 
     /// <summary>Lower is better on this chart.</summary>
     [Parameter]

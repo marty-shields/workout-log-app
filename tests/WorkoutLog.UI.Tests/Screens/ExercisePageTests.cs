@@ -98,7 +98,7 @@ public class ExercisePageTests : ComponentTestBase
         Assert.Multiple(() =>
         {
             Assert.That(cut.FindAll("[data-testid=exercise-chart-values] li").Select(v => v.TextContent), Is.EqualTo(new[] { "20 Oct: 70kg ×3" }));
-            Assert.That(cut.FindAll("[data-testid=exercise-records] .value").Select(v => v.TextContent), Is.EqualTo(new[] { "70kg × 3", "79.2kg" }));
+            Assert.That(cut.FindAll("[data-testid=exercise-records] .row .aside").Select(v => v.TextContent), Is.EqualTo(new[] { "70kg × 3", "79.2kg" }));
             Assert.That(cut.FindAll("[data-testid^=exercise-session-]").Select(s => s.GetAttribute("data-testid")), Is.EqualTo(new[] { "exercise-session-3" }));
         });
     }
@@ -129,11 +129,11 @@ public class ExercisePageTests : ComponentTestBase
 
         Assert.Multiple(() =>
         {
-            Assert.That(cut.FindAll("[data-testid=exercise-records] .value").Select(v => v.TextContent), Is.EqualTo(new[] { "70kg × 3", "79.2kg" }));
-            Assert.That(cut.FindAll("[data-testid=exercise-records] .date").Select(v => v.TextContent), Is.EqualTo(new[] { "20 Oct", "20 Oct" }));
+            Assert.That(cut.FindAll("[data-testid=exercise-records] .row .aside").Select(v => v.TextContent), Is.EqualTo(new[] { "70kg × 3", "79.2kg" }));
+            Assert.That(cut.FindAll("[data-testid=exercise-records] .row .detail").Select(v => v.TextContent), Is.EqualTo(new[] { "20 Oct", "20 Oct" }));
             Assert.That(cut.FindAll("[data-testid^=exercise-session-]").Select(s => s.GetAttribute("data-testid")),
                 Is.EqualTo(new[] { "exercise-session-3", "exercise-session-2" }));
-            Assert.That(cut.FindAll("[data-testid=exercise-session-2] span").Select(s => s.TextContent), Is.EqualTo(new[] { "Tue 13 Oct", "60kg × 5", "60×5 · 8 reps" }));
+            Assert.That(SessionParts(cut, 2), Is.EqualTo(new[] { "Tue 13 Oct", "60kg × 5", "60×5 · 8 reps" }));
         });
     }
 
@@ -165,7 +165,7 @@ public class ExercisePageTests : ComponentTestBase
             Assert.That(progress.LiftSummaries.Select(s => s.Range), Is.EqualTo(new[] { HistoryRange.ThreeMonths, HistoryRange.All }));
             Assert.That(progress.LiftSummaries[^1].Sessions, Is.SameAs(progress.Result.Loaded()));
             Assert.That(cut.Find("[data-testid=exercise-chart-empty]").TextContent, Is.EqualTo("No sessions yet"));
-            Assert.That(cut.FindAll("[data-testid=exercise-records] .value").Select(v => v.TextContent), Is.EqualTo(new[] { "—", "—" }));
+            Assert.That(cut.FindAll("[data-testid=exercise-records] .row .aside").Select(v => v.TextContent), Is.EqualTo(new[] { "—", "—" }));
             Assert.That(cut.FindAll("[data-testid^=exercise-session-]"), Is.Empty);
         });
     }
@@ -190,7 +190,7 @@ public class ExercisePageTests : ComponentTestBase
         Assert.Multiple(() =>
         {
             Assert.That(cut.Find("[data-testid=exercise-chart-empty]").TextContent, Is.EqualTo("No sets in the last 3 months"));
-            Assert.That(cut.FindAll("[data-testid=exercise-session-1] span").Select(s => s.TextContent), Is.EqualTo(new[] { "Wed 28 Oct", "8 reps", "8 reps" }));
+            Assert.That(SessionParts(cut, 1), Is.EqualTo(new[] { "Wed 28 Oct", "8 reps", "8 reps" }));
         });
     }
 
@@ -199,7 +199,7 @@ public class ExercisePageTests : ComponentTestBase
     {
         progress.Result = new ReadFailed();
         var cut = Render(Squat);
-        Assume.That(cut.Find("[data-testid=exercise-error]").TextContent, Is.EqualTo("Couldn't load this exercise"));
+        Assume.That(cut.Find("[data-testid=exercise-error]").TextContent.Trim(), Is.EqualTo("Couldn't load this exercise"));
         progress.Result = new ReadResult<IReadOnlyList<StrengthSession>>([Light, Heavy]);
 
         cut.Find("[data-testid=exercise-retry]").Click();
@@ -227,12 +227,12 @@ public class ExercisePageTests : ComponentTestBase
         {
             Assert.That(progress.AssistedSummaries.Select(s => s.Range), Is.EqualTo(new[] { HistoryRange.ThreeMonths }));
             Assert.That(cut.FindAll("[data-testid=exercise-tabs]"), Is.Empty);
-            Assert.That(cut.Find("[data-testid=exercise-chart-card] .card-title").TextContent, Is.EqualTo("Least assist per session"));
+            Assert.That(cut.Find("[data-testid=exercise-chart-card] .title").TextContent, Is.EqualTo("Least assist per session"));
             Assert.That(view.Flipped, Is.True);
             Assert.That(cut.FindAll("[data-testid=exercise-chart-values] li").Select(v => v.TextContent), Is.EqualTo(new[] { "20 Oct: 0kg ×5" }));
             Assert.That(cut.Find("[data-testid=exercise-chart-caption]").TextContent, Is.EqualTo("Up = less assist"));
-            Assert.That(cut.FindAll("[data-testid=exercise-records] .value").Select(v => v.TextContent), Is.EqualTo(new[] { "0kg × 5" }));
-            Assert.That(cut.FindAll("[data-testid=exercise-session-5] span").Select(s => s.TextContent), Is.EqualTo(new[] { "Tue 20 Oct", "0kg × 5", "5kg×8 · 0kg×5" }));
+            Assert.That(cut.FindAll("[data-testid=exercise-records] .row .aside").Select(v => v.TextContent), Is.EqualTo(new[] { "0kg × 5" }));
+            Assert.That(SessionParts(cut, 5), Is.EqualTo(new[] { "Tue 20 Oct", "0kg × 5", "5kg×8 · 0kg×5" }));
         });
     }
 
@@ -255,8 +255,8 @@ public class ExercisePageTests : ComponentTestBase
             Assert.That(progress.Loads, Has.Count.EqualTo(1));
             Assert.That(cut.FindComponent<ExerciseView>().Instance.TimeScale, Is.False);
             Assert.That(cut.FindAll("[data-testid=exercise-chart-values] li").Select(v => v.TextContent), Is.EqualTo(new[] { "20 Oct: 10kg 1:00" }));
-            Assert.That(cut.FindAll("[data-testid=exercise-records] .value").Select(v => v.TextContent), Is.EqualTo(new[] { "1:45", "10kg · 1:00" }));
-            Assert.That(cut.FindAll("[data-testid=exercise-session-6] span").Select(s => s.TextContent), Is.EqualTo(new[] { "Tue 20 Oct", "1:45", "1:45 · 10kg 1:00" }));
+            Assert.That(cut.FindAll("[data-testid=exercise-records] .row .aside").Select(v => v.TextContent), Is.EqualTo(new[] { "1:45", "10kg · 1:00" }));
+            Assert.That(SessionParts(cut, 6), Is.EqualTo(new[] { "Tue 20 Oct", "1:45", "1:45 · 10kg 1:00" }));
         });
     }
 
@@ -288,8 +288,8 @@ public class ExercisePageTests : ComponentTestBase
         {
             Assert.That(progress.Loads, Has.Count.EqualTo(1));
             Assert.That(cut.FindAll("[data-testid=exercise-chart-values] li").Select(v => v.TextContent), Is.EqualTo(new[] { "20 Oct: 40m 32kg" }));
-            Assert.That(cut.FindAll("[data-testid=exercise-records] .value").Select(v => v.TextContent), Is.EqualTo(new[] { "32kg · 40m", "40m · 32kg" }));
-            Assert.That(cut.FindAll("[data-testid=exercise-session-7] span").Select(s => s.TextContent), Is.EqualTo(new[] { "Tue 20 Oct", "32kg · 40m", "32kg 40m 0:45" }));
+            Assert.That(cut.FindAll("[data-testid=exercise-records] .row .aside").Select(v => v.TextContent), Is.EqualTo(new[] { "32kg · 40m", "40m · 32kg" }));
+            Assert.That(SessionParts(cut, 7), Is.EqualTo(new[] { "Tue 20 Oct", "32kg · 40m", "32kg 40m 0:45" }));
         });
     }
 
@@ -315,7 +315,7 @@ public class ExercisePageTests : ComponentTestBase
         {
             Assert.That(cut.Find("[data-testid=screen-title]").TextContent, Is.Empty);
             Assert.That(cut.FindAll("[data-testid=screen-subtitle]"), Is.Empty);
-            Assert.That(cut.Find("[data-testid=exercise-error]").TextContent, Is.EqualTo("Couldn't load this exercise"));
+            Assert.That(cut.Find("[data-testid=exercise-error]").TextContent.Trim(), Is.EqualTo("Couldn't load this exercise"));
         });
     }
 
@@ -346,9 +346,9 @@ public class ExercisePageTests : ComponentTestBase
             Assert.That(progress.BodyweightSummaries.Single().Sessions, Is.SameAs(progress.Result.Loaded()));
             Assert.That(progress.LiftSummaries, Is.Empty);
             Assert.That(cut.FindAll("[data-testid=exercise-chart-values] li").Select(v => v.TextContent), Is.EqualTo(new[] { "13 Oct: 25", "20 Oct: 20" }));
-            Assert.That(cut.FindAll("[data-testid=exercise-records] .value").Select(v => v.TextContent), Is.EqualTo(new[] { "25 reps", "63 reps", "16kg × 8" }));
-            Assert.That(cut.FindAll("[data-testid=exercise-session-6] span").Select(s => s.TextContent), Is.EqualTo(new[] { "Tue 20 Oct", "16kg × 8", "20 · 16×8" }));
-            Assert.That(cut.FindAll("[data-testid=exercise-session-5] span").Select(s => s.TextContent), Is.EqualTo(new[] { "Tue 13 Oct", "25 reps", "25 · 20 · 18" }));
+            Assert.That(cut.FindAll("[data-testid=exercise-records] .row .aside").Select(v => v.TextContent), Is.EqualTo(new[] { "25 reps", "63 reps", "16kg × 8" }));
+            Assert.That(SessionParts(cut, 6), Is.EqualTo(new[] { "Tue 20 Oct", "16kg × 8", "20 · 16×8" }));
+            Assert.That(SessionParts(cut, 5), Is.EqualTo(new[] { "Tue 13 Oct", "25 reps", "25 · 20 · 18" }));
         });
     }
 
@@ -383,7 +383,7 @@ public class ExercisePageTests : ComponentTestBase
                 Is.EqualTo(new[] { "exercise-tab-best-set", "exercise-tab-total", "exercise-tab-top-set", "exercise-tab-e1rm" }));
             Assert.That(cut.FindAll("[data-testid=exercise-chart-values] li").Select(v => v.TextContent), Is.EqualTo(new[] { "20 Oct: 20.3kg" }));
             Assert.That(cut.Find("[data-testid=exercise-chart-caption]").TextContent, Is.EqualTo("Estimated one-rep max"));
-            Assert.That(cut.FindAll("[data-testid=exercise-records] .value").Select(v => v.TextContent), Is.EqualTo(new[] { "25 reps", "63 reps", "16kg × 8", "20.3kg" }));
+            Assert.That(cut.FindAll("[data-testid=exercise-records] .row .aside").Select(v => v.TextContent), Is.EqualTo(new[] { "25 reps", "63 reps", "16kg × 8", "20.3kg" }));
         });
     }
 
@@ -402,7 +402,7 @@ public class ExercisePageTests : ComponentTestBase
         Assert.Multiple(() =>
         {
             Assert.That(cut.Find("[data-testid=exercise-chart-empty]").TextContent, Is.EqualTo("No sets in the last 3 months"));
-            Assert.That(cut.FindAll("[data-testid=exercise-records] .value").Select(v => v.TextContent), Is.EqualTo(new[] { "20 reps", "20 reps", "—" }));
+            Assert.That(cut.FindAll("[data-testid=exercise-records] .row .aside").Select(v => v.TextContent), Is.EqualTo(new[] { "20 reps", "20 reps", "—" }));
         });
     }
 
@@ -431,4 +431,11 @@ public class ExercisePageTests : ComponentTestBase
     private static StrengthSet Set(int? reps, decimal? weightKg) => new(reps, weightKg, null, null);
 
     private static ExerciseBest Top(decimal kg, int reps) => new(kg, reps, null, null);
+
+    /// <summary>A session row's date, headline and sets, in that order.</summary>
+    private static IEnumerable<string> SessionParts(IRenderedComponent<ExercisePage> cut, int workoutId)
+    {
+        var row = cut.Find($"[data-testid=exercise-session-{workoutId}]");
+        return new[] { ".text", ".aside", ".detail" }.Select(part => row.QuerySelector(part)!.TextContent);
+    }
 }

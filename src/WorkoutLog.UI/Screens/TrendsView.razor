@@ -1,13 +1,12 @@
 @using System.Globalization
 @using WorkoutLog.Core.Domain.Workouts.Periods
 @using WorkoutLog.UI.Components.Weekly
-@using WorkoutLog.UI.Components.Feedback
-@using WorkoutLog.UI.Components.Inputs
 @using WorkoutLog.UI.Components.ThisWeek
 @using WorkoutLog.UI.Components.Trends
 @using WorkoutLog.UI.Models.Muscles
 @using WorkoutLog.UI.Models.Workouts
-<AppScreen Title="Trends" Tab="MainTab.Trends" OnNavigate="OnNavigate" OnNew="OnNew" OnRefresh="OnRefresh">
+<AppScreen Title="Trends" NavItems="MainTabs.Items" Current="MainTabs.Item(MainTab.Trends)" OnNavigate="item => OnNavigate.InvokeAsync(MainTabs.Tab(item))"
+           AddLabel="@MainTabs.AddLabel" AddIcon="MainTabs.AddIcon" OnAdd="OnNew" OnRefresh="OnRefresh">
     <Actions>
         <IconButton Icon="IconName.Settings" AriaLabel="Settings" TestId="settings" OnClick="OnSettings" />
     </Actions>
@@ -17,8 +16,8 @@
             {
                 <SegmentedControl TValue="PeriodKind" Label="Period" Options="KindOptions" Value="Kind" ValueChanged="OnKindChanged" TestId="trends-kind" />
             }
-            <PeriodStepper Kind="Kind" Label="@Label" CanGoPrevious="CanGoPrevious" CanGoNext="CanGoNext"
-                           OnPrevious="OnPrevious" OnNext="OnNext" TestId="trends-stepper" />
+            <Shields.UI.Components.Navigation.PeriodStepper Kind="StepperKind" Label="@Label" CanGoPrevious="CanGoPrevious" CanGoNext="CanGoNext"
+                                                           OnPrevious="OnPrevious" OnNext="OnNext" TestId="trends-stepper" />
             @if (Loading)
             {
                 <div class="centre">
@@ -27,50 +26,61 @@
             }
             else if (Failed)
             {
-                <LoadFailed Message="Couldn't load Trends" OnRetry="OnRetry" TestId="trends" />
+                <LoadFailed RetryVariant="ButtonVariant.Secondary" Message="Couldn't load Trends" OnRetry="OnRetry" TestId="trends" />
             }
             else
             {
                 <TrendTiles Kind="Kind" Totals="Totals" Earlier="Earlier" Against="@Against" TestId="trends-tiles" />
                 @if (Kind == PeriodKind.Week)
                 {
-                    <TrendCard Title="Time trained by day" TestId="trends-days">
-                        <TrendBars Bars="Days" NowLabel="@(Past ? "That week" : "This week")" EarlierLabel="@(Past ? "The week before" : "Last week")"
-                                   AriaLabel="@($"Time trained each day {Name} beside the same day {(Past ? "the week before" : "last week")}")"
-                                   EmptyText="@($"No workouts {Name}")" OnOpen="OnOpenWorkouts" TestId="trends-days-chart" />
-                    </TrendCard>
+                    <Card Title="Time trained by day" TestId="trends-days">
+                        @if (Days.Any(day => day.Value > 0 || day.Earlier > 0))
+                        {
+                            <ChartLegend Items="DaysLegend" TestId="trends-days-chart-legend" />
+                        }
+                        <TrendBarChart Bars="Points(Days)" Style="TrendBarStyle.PastAndCurrent" Max="Top(Days)" Unit="min" EarlierLabel="@EarlierLabel"
+                                       Label="@($"Time trained each day {Name} beside the same day {EarlierLabel}")"
+                                       EmptyText="@($"No workouts {Name}")" OnSelect="Open(Days)" TestId="trends-days-chart" />
+                    </Card>
                     <MuscleSetsCard Groups="Muscles" Period="@Name" TestId="trends-muscles" />
-                    <TrendCard Title="Records" Aside="@($"{Records.Count} {Name}")" TestId="trends-records">
+                    <Card Title="Records" Aside="@($"{Records.Count} {Name}")" TestId="trends-records">
                         <RecordRows Records="Records" EmptyText="@($"No new records {Name}")" OnOpen="OnOpenRecord" TestId="trends-records" />
-                    </TrendCard>
-                    <TrendCard Title="Last 12 weeks" Aside="@(Streak > 0 ? $"{Streak}-week streak" : null)" TestId="trends-recent-weeks">
-                        <WeekBars Counts="RecentWeeks" TestId="trends-recent-weeks-chart" />
-                    </TrendCard>
+                    </Card>
+                    <Card Title="Last 12 weeks" Aside="@(Streak > 0 ? $"{Streak}-week streak" : null)" TestId="trends-recent-weeks">
+                        <CountBars Counts="RecentWeeks" Label="@($"Workouts per week, last {RecentWeeks.Count} weeks")" StartLabel="@(RecentWeeks.Count > 1 ? WeeksAgo(RecentWeeks.Count - 1) : null)" EndLabel="This week"
+                                   ValueText="WeekCountText" EmptyText="@($"No workouts in the last {RecentWeeks.Count} weeks")" TestId="trends-recent-weeks-chart" />
+                    </Card>
                 }
                 else if (Kind == PeriodKind.Month)
                 {
-                    <TrendCard Title="Each day" TestId="trends-calendar">
-                        <MonthCalendar Month="Start" Today="Today" Trained="Trained" OnOpenDay="OpenDay" TestId="trends-calendar-days" />
-                    </TrendCard>
-                    <TrendCard Title="Weeks" TestId="trends-weeks">
-                        <MonthWeeks Weeks="Weeks" OnOpen="OnOpenWorkouts" TestId="trends-weeks-rows" />
-                    </TrendCard>
-                    <TrendCard Title="Records" Aside="@($"{Records.Count} {Name}")" TestId="trends-records">
+                    <Card Title="Each day" TestId="trends-calendar">
+                        <MonthCalendar Month="Start" Today="Today" Days="TrainedDays" DayNames="DayInitials" Style="CalendarStyle.Marks" OnSelect="OpenDay" TestId="trends-calendar-days" />
+                        <ChartLegend Items="CalendarLegend" TestId="trends-calendar-days-legend" />
+                    </Card>
+                    <Card Title="Weeks" TestId="trends-weeks">
+                        <BarList Items="WeekItems" Label="Workouts and time for each week" EmptyText="No weeks yet" OnSelect="OpenWeek" TestId="trends-weeks-rows" />
+                    </Card>
+                    <Card Title="Records" Aside="@($"{Records.Count} {Name}")" TestId="trends-records">
                         <RecordRows Records="Records" EmptyText="@($"No new records {Name}")" OnOpen="OnOpenRecord" TestId="trends-records" />
-                    </TrendCard>
-                    <TrendCard Title="Most trained" Aside="sessions" TestId="trends-most-trained">
-                        <MeterRows Rows="MostTrained" Unit="sessions" AriaLabel="@($"Sessions of the most trained exercises {Name}")" Wide EmptyText="@($"No exercises {Name}")" OnOpen="OnOpenRecord" TestId="trends-most-trained-rows" />
-                    </TrendCard>
+                    </Card>
+                    <Card Title="Most trained" Aside="sessions" TestId="trends-most-trained">
+                        <BarList Items="Items(MostTrained)" Inline LabelWidth="BarListLabelWidth.Wide" ValueWidth="BarListValueWidth.Narrow" Unit="sessions"
+                                 Label="@($"Sessions of the most trained exercises {Name}")" EmptyText="@($"No exercises {Name}")" AllZeroText="@($"No exercises {Name}")"
+                                 OnSelect="OpenExercise" TestIdBy="BarListTestIdBy.Slug" TestId="trends-most-trained-rows" />
+                    </Card>
                 }
                 else
                 {
-                    <TrendCard Title="Workouts by month" Aside="@(PerWeek > 0 ? $"{PerWeek.ToString("0.#", CultureInfo.InvariantCulture)} a week" : null)" TestId="trends-months">
-                        <TrendBars Bars="Months" AriaLabel="@($"Workouts in each month of {Label}")" EmptyText="@($"No workouts {Name}")" OnOpen="OnOpenWorkouts" TestId="trends-months-chart" />
-                    </TrendCard>
+                    <Card Title="Workouts by month" Aside="@(PerWeek > 0 ? $"{PerWeek.ToString("0.#", CultureInfo.InvariantCulture)} a week" : null)" TestId="trends-months">
+                        <TrendBarChart Bars="Points(Months)" Style="TrendBarStyle.PastAndCurrent" Max="Top(Months)" Unit="workouts" DateFormat="MMMM yyyy"
+                                       Label="@($"Workouts in each month of {Label}")" EmptyText="@($"No workouts {Name}")" OnSelect="Open(Months)" TestId="trends-months-chart" />
+                    </Card>
                     <LongestStreakCard Weeks="LongestStreak" Running="StreakRunning" TestId="trends-streak" />
-                    <TrendCard Title="Records by month" Aside="@($"{RecordsByMonth.Sum(m => m.Value)} {Name}")" TestId="trends-records-by-month">
-                        <MeterRows Rows="RecordsByMonth" Unit="records" AriaLabel="@($"Records set in each month of {Label}")" EmptyText="@($"No records {Name}")" TestId="trends-records-by-month-rows" />
-                    </TrendCard>
+                    <Card Title="Records by month" Aside="@($"{RecordsByMonth.Sum(m => m.Value)} {Name}")" TestId="trends-records-by-month">
+                        <BarList Items="Items(RecordsByMonth)" Inline LabelWidth="BarListLabelWidth.Narrow" ValueWidth="BarListValueWidth.Narrow" Unit="records"
+                                 Label="@($"Records set in each month of {Label}")" EmptyText="@($"No records {Name}")" AllZeroText="@($"No records {Name}")"
+                                 TestIdBy="BarListTestIdBy.Slug" TestId="trends-records-by-month-rows" />
+                    </Card>
                 }
             }
         </div>
@@ -88,6 +98,14 @@
     /// <summary>The kinds offered, in the order of the control. The control is left out when there is only one.</summary>
     [Parameter]
     public IReadOnlyList<PeriodKind> Kinds { get; set; } = [PeriodKind.Week, PeriodKind.Month, PeriodKind.Year];
+
+    private Shields.UI.Components.Navigation.PeriodKind StepperKind => Kind switch
+    {
+        PeriodKind.Week => Shields.UI.Components.Navigation.PeriodKind.Week,
+        PeriodKind.Month => Shields.UI.Components.Navigation.PeriodKind.Month,
+        PeriodKind.Year => Shields.UI.Components.Navigation.PeriodKind.Year,
+        _ => throw new ArgumentOutOfRangeException(nameof(Kind), Kind, null),
+    };
 
     private IReadOnlyList<RadioOption<PeriodKind>> KindOptions => [.. AllKindOptions.Where(o => Kinds.Contains(o.Value))];
 
@@ -215,11 +233,11 @@
     [Parameter]
     public EventCallback OnSettings { get; set; }
 
-    /// <summary>Raised by the New button in the tab bar.</summary>
+    /// <summary>Raised by the New button in the bottom navigation bar.</summary>
     [Parameter]
     public EventCallback OnNew { get; set; }
 
-    /// <summary>Raised with the tab tapped in the tab bar.</summary>
+    /// <summary>Raised with the tab tapped in the bottom navigation bar.</summary>
     [Parameter]
     public EventCallback<MainTab> OnNavigate { get; set; }
 
@@ -234,8 +252,70 @@
     [Parameter]
     public EventCallback<int> OnOpenRecord { get; set; }
 
+    private static readonly IReadOnlyList<LegendItem> CalendarLegend =
+    [
+        new(LegendSwatch.Primary, "Trained"),
+        new(LegendSwatch.Outline, "No workout"),
+        new(LegendSwatch.Today, "Today"),
+    ];
+
+    /// <summary>Sunday first, as the kit's <c>DayNames</c> expects; the calendar starts on Monday.</summary>
+    private static readonly IReadOnlyList<string> DayInitials = ["S", "M", "T", "W", "T", "F", "S"];
+
+    private IReadOnlyList<CalendarDay> TrainedDays => Trained.Select(day => new CalendarDay(day, 1)).ToList();
+
     private EventCallback<DateOnly> OpenDay =>
         OnOpenWorkouts.HasDelegate ? EventCallback.Factory.Create<DateOnly>(this, day => OnOpenWorkouts.InvokeAsync(new DateSpan(day, day))) : default;
+
+    private IReadOnlyList<LegendItem> DaysLegend =>
+    [
+        new(LegendSwatch.Accent, Past ? "That week" : "This week"),
+        new(LegendSwatch.Past, Past ? "The week before" : "Last week"),
+    ];
+
+    private string EarlierLabel => Past ? "the week before" : "last week";
+
+    private static IReadOnlyList<TrendBarPoint> Points(IReadOnlyList<TrendBar> bars) =>
+        [.. bars.Select(bar => new TrendBarPoint(bar.Date, bar.Label, bar.Value, Current: bar.Current, Labelled: bar.Labelled, Earlier: bar.Earlier, Selectable: bar.Span is not null))];
+
+    /// <summary>The top of the chart's scale: the biggest value drawn, at least 1, so a period's bars fill the chart as before.</summary>
+    private static double Top(IReadOnlyList<TrendBar> bars) =>
+        Math.Max(1, bars.Select(bar => Math.Max(bar.Value, bar.Earlier)).DefaultIfEmpty(0).Max());
+
+    private EventCallback<DateOnly> Open(IReadOnlyList<TrendBar> bars) =>
+        OnOpenWorkouts.HasDelegate
+            ? EventCallback.Factory.Create<DateOnly>(this, async date =>
+            {
+                if (bars.First(bar => bar.Date == date).Span is { } span)
+                {
+                    await OnOpenWorkouts.InvokeAsync(span);
+                }
+            })
+            : default;
+
+    private static IReadOnlyList<BarListItem> Items(IReadOnlyList<MeterRow> rows) =>
+        [.. rows.Select(row => new BarListItem(row.Label, row.Value, Selectable: row.ExerciseId is not null))];
+
+    private IReadOnlyList<BarListItem> WeekItems =>
+        [.. Weeks.Select(week => new BarListItem(week.Dates, week.Workouts, $"{DisplayFormat.Workouts(week.Workouts)} · {DisplayFormat.Minutes((int)week.Time.TotalMinutes)}",
+            Selectable: week.Span is not null && week.Workouts > 0))];
+
+    private EventCallback<int> OpenWeek =>
+        OnOpenWorkouts.HasDelegate ? EventCallback.Factory.Create<int>(this, index => OnOpenWorkouts.InvokeAsync(Weeks[index].Span!.Value)) : default;
+
+    private string WeekCountText(int index, int count) => $"{WeeksAgo(RecentWeeks.Count - 1 - index)}: {DisplayFormat.Workouts(count)}";
+
+    private static string WeeksAgo(int weeksAgo) => weeksAgo switch
+    {
+        0 => "This week",
+        1 => "Last week",
+        _ => $"{weeksAgo} weeks ago",
+    };
+
+    private EventCallback<int> OpenExercise =>
+        OnOpenRecord.HasDelegate
+            ? EventCallback.Factory.Create<int>(this, index => OnOpenRecord.InvokeAsync(MostTrained[index].ExerciseId!.Value))
+            : default;
 
     /// <summary>The period as it reads in the cards: this week, or that week once it is over.</summary>
     private string Name => $"{(Past ? "that" : "this")} {Kind.ToString().ToLowerInvariant()}";

@@ -1,16 +1,9 @@
-<section class="card" data-testid="@TestId">
-    <h2 class="title">Records <span class="range">· @Range</span></h2>
-    <dl class="rows">
-        @foreach (var row in Rows)
-        {
-            <div class="row">
-                <dt class="label">@row.Label</dt>
-                <dd class="value">@(row.Value ?? "—")</dd>
-                <dd class="date">@(row.Value is null ? null : row.Date)</dd>
-            </div>
-        }
-    </dl>
-</section>
+<Card Title="Records" Aside="@Range" Compact TestId="@TestId">
+    @foreach (var (row, index) in Rows.Select((row, index) => (row, index)))
+    {
+        <ListRow Layout="ListRowLayout.Headline" Text="@row.Label" Aside="@(row.Value ?? "—")" Detail="@(row.Value is null ? null : row.Date)" Divider="@(index < Rows.Count - 1)" />
+    }
+</Card>
 
 @code {
     /// <summary>Range the records cover, e.g. last 3 months.</summary>

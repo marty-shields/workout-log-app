@@ -1462,6 +1462,7 @@
         "type": "Project",
         "dependencies": {
           "Microsoft.AspNetCore.Components.Web": "[11.0.0, )",
+          "Shields.UI": "[1.1.0, )",
           "WorkoutLog.Core": "[1.0.0, )"
         }
       },
@@ -1482,6 +1483,15 @@
         "requested": "[11.0.0, )",
         "resolved": "11.0.0",
         "contentHash": "KygQMITBDDPXw7+AAgdwQvVAaTXuDsc1iCAuvhO73ERxKX+d92cdbgZmpoYF7DIUq2hfs/yO2KD87uIreRy3MA=="
+      },
+      "Shields.UI": {
+        "type": "CentralTransitive",
+        "requested": "[1.1.0, )",
+        "resolved": "1.1.0",
+        "contentHash": "g/fDChPPgK904Fv59jv1Xfprm8T7NddhI6Vqytxr0a2Ph/hcu/QLdcLSrtkbcOsTL0yI0+U1YWMnUTwqLE7qXw==",
+        "dependencies": {
+          "Microsoft.AspNetCore.Components.Web": "11.0.0"
+        }
       },
       "sqlite-net-pcl": {
         "type": "CentralTransitive",

@@ -1,4 +1,3 @@
-@using WorkoutLog.UI.Components.Feedback
 <AppScreen Title="Workout" OnBack="OnBack">
     @if (NotFound)
     {
@@ -6,7 +5,7 @@
     }
     else if (Failed)
     {
-        <LoadFailed Message="Couldn't load the workout" OnRetry="OnRetry" TestId="workout-load" />
+        <LoadFailed RetryVariant="ButtonVariant.Secondary" Message="Couldn't load the workout" OnRetry="OnRetry" TestId="workout-load" />
     }
     else
     {

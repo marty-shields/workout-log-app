@@ -1,8 +1,8 @@
 @using WorkoutLog.UI.Components.Weekly
-@using WorkoutLog.UI.Components.Feedback
 @using WorkoutLog.UI.Components.ThisWeek
 @using WorkoutLog.UI.Models.Muscles
-<AppScreen Title="Workout Log" Tab="MainTab.ThisWeek" OnNavigate="OnNavigate" OnNew="OnNew" OnRefresh="OnRefresh">
+<AppScreen Title="Workout Log" NavItems="MainTabs.Items" Current="MainTabs.Item(MainTab.ThisWeek)" OnNavigate="item => OnNavigate.InvokeAsync(MainTabs.Tab(item))"
+           AddLabel="@MainTabs.AddLabel" AddIcon="MainTabs.AddIcon" OnAdd="OnNew" OnRefresh="OnRefresh">
     <Actions>
         <IconButton Icon="IconName.Settings" AriaLabel="Settings" TestId="settings" OnClick="OnSettings" />
     </Actions>
@@ -15,19 +15,19 @@
         }
         else if (Failed)
         {
-            <LoadFailed Message="Couldn't load This week" OnRetry="OnRetry" TestId="this-week" />
+            <LoadFailed RetryVariant="ButtonVariant.Secondary" Message="Couldn't load This week" OnRetry="OnRetry" TestId="this-week" />
         }
         else
         {
             <div class="cards">
                 <div class="dates">
-                    <h2 class="range" data-testid="this-week-dates">@DisplayFormat.WeekDates(Monday)</h2>
+                    <Typography Variant="TextVariant.Heading" As="TextElement.H2" TestId="this-week-dates">@DisplayFormat.WeekDates(Monday)</Typography>
                     @if (Streak > 0)
                     {
-                        <span class="streak" data-testid="this-week-streak">@Streak-week streak</span>
+                        <Typography Variant="TextVariant.MutedSmall" TestId="this-week-streak">@Streak-week streak</Typography>
                     }
                 </div>
-                <DayStrip Monday="Monday" Today="Today" Trained="Trained" TestId="day-strip" />
+                <DayStrip Days="Week" Done="Trained" Today="Today" Label="Days this week" DoneText="trained" EmptyText="no workout" FutureText="coming up" TodayText="today" TestId="day-strip" />
                 <WeekTiles ThisWeek="ThisWeek" LastWeekToDate="LastWeekToDate" Today="Today.DayOfWeek" TestId="week-tiles" />
                 <WeekWorkoutsCard Workouts="Workouts" OnOpen="OnOpenWorkout" TestId="week-workouts" />
                 @if (Workouts.Count > 0)
@@ -59,6 +59,8 @@
     /// <summary>Days of this week with a workout.</summary>
     [Parameter]
     public IReadOnlyCollection<DateOnly> Trained { get; set; } = [];
+
+    private DateOnly[] Week => [.. Enumerable.Range(0, 7).Select(Monday.AddDays)];
 
     /// <summary>Consecutive weeks with a workout; hidden at 0.</summary>
     [Parameter]
@@ -108,11 +110,11 @@
     [Parameter]
     public EventCallback OnSettings { get; set; }
 
-    /// <summary>Raised by the New button in the tab bar.</summary>
+    /// <summary>Raised by the New button in the bottom navigation bar.</summary>
     [Parameter]
     public EventCallback OnNew { get; set; }
 
-    /// <summary>Raised with the tab tapped in the tab bar.</summary>
+    /// <summary>Raised with the tab tapped in the bottom navigation bar.</summary>
     [Parameter]
     public EventCallback<MainTab> OnNavigate { get; set; }
 

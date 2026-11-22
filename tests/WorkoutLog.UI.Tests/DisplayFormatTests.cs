@@ -1,6 +1,5 @@
 using System.Globalization;
 using WorkoutLog.Core.Domain.Workouts.Periods;
-using WorkoutLog.UI.Models.Workouts;
 
 namespace WorkoutLog.UI.Tests;
 
@@ -65,19 +64,6 @@ public class DisplayFormatTests
     [TestCase(1, 2, 30, "1:02:30")]
     public void Clock_MinutesAndSecondsOrHoursFromAnHour(int hours, int minutes, int seconds, string expected) =>
         Assert.That(DisplayFormat.Clock(new TimeSpan(hours, minutes, seconds)), Is.EqualTo(expected));
-
-    [TestCase(2026, 8, 6, 2026, 11, 6, "6 Aug – 6 Nov 2026")]
-    [TestCase(2025, 3, 1, 2025, 3, 31, "1 Mar – 31 Mar 2025")]
-    [TestCase(2025, 11, 6, 2026, 11, 6, "6 Nov 2025 – 6 Nov 2026")]
-    [TestCase(2025, 3, 12, 2025, 3, 12, "Wed 12 Mar 2025")]
-    public void Dates_DropTheFirstYearWithinAYearAndShowTheDayForOneDay(int fromYear, int fromMonth, int fromDay, int toYear, int toMonth, int toDay, string expected) =>
-        Assert.That(DisplayFormat.Dates(new DateSpan(new(fromYear, fromMonth, fromDay), new(toYear, toMonth, toDay))), Is.EqualTo(expected));
-
-    [TestCase(2026, 8, 6, 2026, 11, 6, "6\u00A0Aug – 6\u00A0Nov\u00A02026")]
-    [TestCase(2025, 11, 6, 2026, 11, 6, "6\u00A0Nov\u00A02025 – 6\u00A0Nov\u00A02026")]
-    [TestCase(2025, 3, 12, 2025, 3, 12, "Wed\u00A012\u00A0Mar\u00A02025")]
-    public void DatesKeptWhole_BreaksOnlyAroundTheDash(int fromYear, int fromMonth, int fromDay, int toYear, int toMonth, int toDay, string expected) =>
-        Assert.That(DisplayFormat.DatesKeptWhole(new DateSpan(new(fromYear, fromMonth, fromDay), new(toYear, toMonth, toDay))), Is.EqualTo(expected));
 
     [Test]
     public void DayAndTime_HasNoYear() =>

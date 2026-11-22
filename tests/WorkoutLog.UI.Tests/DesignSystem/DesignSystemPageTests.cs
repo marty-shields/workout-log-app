@@ -47,6 +47,14 @@ public partial class DesignSystemPageTests
         Assert.That(named.Where(n => !names.Contains(n)), Is.Empty);
     }
 
+    [Test]
+    public void FoundationsPages_AreTheAppsOwn()
+    {
+        var pages = Directory.EnumerateFiles(Folder("Foundations")).Select(f => Path.GetFileName(f).Split('.')[0]).Distinct();
+
+        Assert.That(pages, Is.EquivalentTo(new[] { "Introduction", "Haptics", "Navigation", "AppIcon" }));
+    }
+
     private static string Folder(string folder) => RepoFiles.PathOf("src", "WorkoutLog.UI.Stories", "Stories", folder);
 
     private static IEnumerable<string> Pages(string folder) =>

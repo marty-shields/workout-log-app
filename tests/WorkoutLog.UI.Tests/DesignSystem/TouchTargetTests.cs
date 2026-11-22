@@ -1,75 +1,40 @@
 using System.Text.RegularExpressions;
+using Shields.UI.Testing;
 
 namespace WorkoutLog.UI.Tests.DesignSystem;
 
 public partial class TouchTargetTests
 {
-    private const string TouchTarget = "var(--touch-target)";
-
-    private static IEnumerable<TestCaseData> Controls() =>
-        RepoFiles.Find("*.razor", "src", "WorkoutLog.UI")
-            .SelectMany(file => Element().Matches(File.ReadAllText(file)).Select(m => (File: file, Tag: m.Groups[1].Value, Attributes: m.Groups[2].Value)))
-            .Select(c => (c.File, c.Tag, Class: FirstClass(c.Attributes), Icon: c.Tag == "button" && c.Attributes.Contains("aria-label=")))
-            .Distinct()
-            .Select(c => new TestCaseData(c.File, c.Class, c.Icon).SetArgDisplayNames($"{Path.GetFileName(c.File)} {c.Tag}.{c.Class}"));
-
-    [TestCaseSource(nameof(Controls))]
-    public void Control_IsAtLeastATouchTarget(string razorFile, string? cssClass, bool icon)
+    [Test]
+    public void Controls_AreAtLeastATouchTarget()
     {
-        Assert.That(cssClass, Is.Not.Null, "Buttons and inputs need a class that sizes them");
-        var declarations = Rules(File.ReadAllText(razorFile + ".css"))
-            .Where(r => r.Selectors.Contains($".{cssClass}"))
-            .SelectMany(r => r.Declarations)
-            .ToList();
+        Assert.That(TouchTargetCheck.ProblemsInFolder(TokensOnlyCssTests.UiFolder), Is.Empty);
+    }
 
+    [Test]
+    public void Kit_DefinesTheTouchTargets()
+    {
         Assert.Multiple(() =>
         {
-            Assert.That(declarations, Has.Member($"min-height: {TouchTarget}"));
-            if (icon)
-            {
-                Assert.That(declarations, Has.Member($"min-width: {TouchTarget}"));
-            }
+            Assert.That(DesignTokens.Value("--touch-target"), Is.EqualTo("48px"));
+            Assert.That(DesignTokens.Value("--touch-target-compact"), Is.EqualTo("40px"));
         });
     }
 
     [Test]
-    public void CompactIconButton_IsTheCompactTouchTargetAndNoSmaller()
+    public void KitCompactIconButton_IsTheCompactTouchTarget()
     {
-        var root = RepoFiles.Find("*.razor", "src", "WorkoutLog.UI").Single(f => f.EndsWith("IconButton.razor"));
-        var declarations = Rules(File.ReadAllText(root + ".css"))
-            .Where(r => r.Selectors.Contains(".compact"))
-            .SelectMany(r => r.Declarations)
-            .ToList();
-        var tokens = File.ReadAllText(RepoFiles.Find("tokens.css", "src", "WorkoutLog.UI").Single());
+        var css = KitCss.Bundle;
+        var rule = CompactRule().Match(css);
 
+        Assert.That(rule.Success, Is.True, "Kit IconButton has no .compact rule");
         Assert.Multiple(() =>
         {
-            Assert.That(declarations, Has.Member("min-width: var(--touch-target-compact)"));
-            Assert.That(declarations, Has.Member("min-height: var(--touch-target-compact)"));
-            Assert.That(tokens, Does.Contain("--touch-target-compact: 40px;"));
+            Assert.That(rule.Groups[1].Value, Does.Contain("min-width: var(--touch-target-compact)"));
+            Assert.That(rule.Groups[1].Value, Does.Contain("min-height: var(--touch-target-compact)"));
         });
     }
 
-    private static string? FirstClass(string attributes) =>
-        Class().Match(attributes) is { Success: true } m
-            ? m.Groups[1].Value.Split(' ', StringSplitOptions.RemoveEmptyEntries).FirstOrDefault(c => !c.StartsWith('@'))
-            : null;
-
-    private static IEnumerable<(string[] Selectors, string[] Declarations)> Rules(string css) =>
-        Rule().Matches(Comment().Replace(css, "")).Select(m => (
-            m.Groups[1].Value.Split(',', StringSplitOptions.TrimEntries),
-            m.Groups[2].Value.Split(';', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries)));
-
-    // Opening tag of a button or input; quoted attribute values may contain '>'.
-    [GeneratedRegex("""<(button|input)\b((?:[^>"]|"[^"]*")*)>""")]
-    private static partial Regex Element();
-
-    [GeneratedRegex("\\bclass=\"([^\"]*)\"")]
-    private static partial Regex Class();
-
-    [GeneratedRegex(@"([^{}]+)\{([^{}]*)\}")]
-    private static partial Regex Rule();
-
-    [GeneratedRegex(@"/\*.*?\*/", RegexOptions.Singleline)]
-    private static partial Regex Comment();
+    [GeneratedRegex(@"\.compact\[b-[a-z0-9]+\]\s*\{([^}]*)\}")]
+    private static partial Regex CompactRule();
 }

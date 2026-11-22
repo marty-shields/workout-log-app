@@ -10,6 +10,7 @@ import { readFileSync, writeFileSync, mkdtempSync, existsSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { compare, isStale, PIXEL_DISTANCE } from './screenshot-diff.mjs';
 
 const [baseUrl, chromePath, ...flags] = process.argv.slice(2);
 if (!baseUrl || !chromePath) {
@@ -20,8 +21,6 @@ const check = flags.includes('--check');
 const repo = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
 const imageDir = join(repo, 'docs/images/readme');
 const THEMES = ['light', 'dark'];
-// Share of pixels that may differ before --check calls a screenshot stale; absorbs anti-aliasing between Chrome builds.
-const STALE_RATIO = 0.002;
 
 function rows() {
   const doc = readFileSync(join(repo, 'docs/dev-setup-build.md'), 'utf8');
@@ -101,7 +100,7 @@ async function shoot(story, theme) {
   });
 }
 
-// Share of differing pixels, decoded by Chrome itself so no PNG library is needed.
+// Compares two PNGs with screenshot-diff.mjs; Chrome decodes them so no PNG library is needed. Returns the stats, or a size-mismatch message.
 async function difference(a, b) {
   return page(async (run) => {
     const expression = `(async () => {
@@ -110,13 +109,10 @@ async function difference(a, b) {
       if (x.width !== y.width || x.height !== y.height) return 'is ' + x.width + 'x' + x.height + ', the story ' + y.width + 'x' + y.height;
       const pixels = (img) => { const c = new OffscreenCanvas(img.width, img.height); const g = c.getContext('2d'); g.drawImage(img, 0, 0); return g.getImageData(0, 0, img.width, img.height).data; };
       const [p, q] = [pixels(x), pixels(y)];
-      let differing = 0;
-      for (let i = 0; i < p.length; i += 4) {
-        if (Math.abs(p[i] - q[i]) + Math.abs(p[i + 1] - q[i + 1]) + Math.abs(p[i + 2] - q[i + 2]) + Math.abs(p[i + 3] - q[i + 3]) > 24) differing++;
-      }
-      return differing / (p.length / 4);
+      return (${compare})(p, q, ${PIXEL_DISTANCE});
     })()`;
-    const { result } = await run('Runtime.evaluate', { expression, awaitPromise: true, returnByValue: true });
+    const { result, exceptionDetails } = await run('Runtime.evaluate', { expression, awaitPromise: true, returnByValue: true });
+    if (exceptionDetails) throw new Error(`Comparing screenshots failed: ${exceptionDetails.exception?.description ?? exceptionDetails.text}`);
     return result.value;
   });
 }
@@ -141,7 +137,7 @@ try {
       }
       const result = await difference(readFileSync(path), fresh);
       if (typeof result === 'string') stale.push(`${file}-${theme}.png ${result} (${story})`);
-      else if (result > STALE_RATIO) stale.push(`${file}-${theme}.png (${(result * 100).toFixed(1)}% of pixels differ from ${story})`);
+      else if (isStale(result)) stale.push(`${file}-${theme}.png (${result.differing} of ${result.total} pixels, ${(result.ratio * 100).toFixed(2)}%, max colour distance ${result.maxDistance}, differ from ${story})`);
     }
   }
 } catch (error) {

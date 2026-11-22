@@ -72,6 +72,12 @@
           "Microsoft.Testing.Platform.MSBuild": "2.4.1"
         }
       },
+      "Shields.UI.Testing": {
+        "type": "Direct",
+        "requested": "[1.1.0, )",
+        "resolved": "1.1.0",
+        "contentHash": "AhB2SWXbUiBtto9RrAyuYjUVJksa4kim9OooGAGF6t1r/ZwFsJFH+kRBP4Z/Or3Fl0bh9PFLO0srOuYl+xbiLw=="
+      },
       "AngleSharp": {
         "type": "Transitive",
         "resolved": "1.10.1",
@@ -442,6 +448,7 @@
         "type": "Project",
         "dependencies": {
           "Microsoft.AspNetCore.Components.Web": "[11.0.0, )",
+          "Shields.UI": "[1.1.0, )",
           "WorkoutLog.Core": "[1.0.0, )"
         }
       },
@@ -449,7 +456,7 @@
         "type": "Project",
         "dependencies": {
           "BlazingStory": "[1.0.0-preview.97, )",
-          "Microsoft.AspNetCore.Components.WebAssembly": "[11.0.0, )",
+          "Shields.UI.Stories": "[1.1.0, )",
           "WorkoutLog.UI": "[1.0.0, )"
         }
       },
@@ -501,6 +508,25 @@
         "requested": "[11.0.0, )",
         "resolved": "11.0.0",
         "contentHash": "KygQMITBDDPXw7+AAgdwQvVAaTXuDsc1iCAuvhO73ERxKX+d92cdbgZmpoYF7DIUq2hfs/yO2KD87uIreRy3MA=="
+      },
+      "Shields.UI": {
+        "type": "CentralTransitive",
+        "requested": "[1.1.0, )",
+        "resolved": "1.1.0",
+        "contentHash": "g/fDChPPgK904Fv59jv1Xfprm8T7NddhI6Vqytxr0a2Ph/hcu/QLdcLSrtkbcOsTL0yI0+U1YWMnUTwqLE7qXw==",
+        "dependencies": {
+          "Microsoft.AspNetCore.Components.Web": "11.0.0"
+        }
+      },
+      "Shields.UI.Stories": {
+        "type": "CentralTransitive",
+        "requested": "[1.1.0, )",
+        "resolved": "1.1.0",
+        "contentHash": "t8J3wmzLa2DxlgW5Il4FR4z64vag58tRhJGlbQPsANpJ6l+n/tAtP9lUmQUDXcAH5YDv4QK4VuKt/3oxTWnuYg==",
+        "dependencies": {
+          "BlazingStory": "1.0.0-preview.97",
+          "Shields.UI": "1.1.0"
+        }
       },
       "sqlite-net-pcl": {
         "type": "CentralTransitive",

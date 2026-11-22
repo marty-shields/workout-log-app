@@ -3,15 +3,17 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Testing;
 using Microsoft.Extensions.Time.Testing;
+using Shields.UI.Components.Feedback;
+using Shields.UI.Components.Layout;
+using Shields.UI.Logging;
 using WorkoutLog.Core.Domain.Exercises;
 using WorkoutLog.Core.Domain.Exercises.Progress;
 using WorkoutLog.Core.Domain.Workouts;
 using WorkoutLog.Core.Domain.Workouts.Validation;
 using WorkoutLog.Core.Services;
-using WorkoutLog.UI.Components.Feedback;
-using WorkoutLog.UI.Components.Layout;
 using WorkoutLog.UI.Haptics;
 using WorkoutLog.UI.Logging;
+using WorkoutLog.UI.Models.Workout;
 using WorkoutLog.UI.Screens;
 using WorkoutLog.UI.Stories.Samples;
 
@@ -428,7 +430,7 @@ public class NewWorkoutPageTests : ComponentTestBase
         Assert.Multiple(() =>
         {
             Assert.That(cut.FindAll("[data-testid=exercise-1-set-2-reps]"), Is.Empty);
-            Assert.That(cut.FindAll("[data-testid=exercise-1-set-1-error] p").Select(p => p.TextContent.Trim()), Is.EqualTo(new[] { "Enter weight", "Enter reps" }));
+            Assert.That(cut.FindAll("[data-testid=exercise-1-set-1-error] li").Select(p => p.TextContent.Trim()), Is.EqualTo(new[] { "Enter weight", "Enter reps" }));
         });
         cut.WaitForAssertion(() => Assert.That(((ElementReference)LastFocus().Arguments[0]!).Id, Is.EqualTo(weight)));
     }
@@ -476,6 +478,7 @@ public class NewWorkoutPageTests : ComponentTestBase
             Assert.That(Names(cut), Is.Empty);
             Assert.That(cut.FindAll("[data-testid=confirm-dialog]"), Is.Empty);
             Assert.That(cut.Find("[data-testid=snackbar-message]").TextContent, Is.EqualTo("Dumbbell Curl deleted"));
+            Assert.That(cut.Find("[data-testid=snackbar-action]").TextContent, Is.EqualTo("Undo"));
         });
     }
 
@@ -514,7 +517,7 @@ public class NewWorkoutPageTests : ComponentTestBase
         Add(cut, 6);
         cut.Find("[data-testid=exercise-2-remove]").Click();
 
-        cut.Find("[data-testid=snackbar-undo]").Click();
+        cut.Find("[data-testid=snackbar-action]").Click();
 
         Assert.That(Haptics.Played, Is.Empty);
     }
@@ -530,12 +533,12 @@ public class NewWorkoutPageTests : ComponentTestBase
         Add(cut, 6);
         cut.Find("[data-testid=exercise-2-remove]").Click();
 
-        cut.Find("[data-testid=snackbar-undo]").Click();
+        cut.Find("[data-testid=snackbar-action]").Click();
 
         cut.WaitForAssertion(() => Assert.Multiple(() =>
         {
             Assert.That(Names(cut), Is.EqualTo(new[] { "Barbell Back Squat", "Dumbbell Curl" }));
-            Assert.That(cut.Find("[data-testid=exercise-2]").ClassList, Does.Contain("done"));
+            Assert.That(cut.FindAll("[data-testid=exercise-2-edit]"), Has.Count.EqualTo(1));
             Assert.That(cut.FindAll("[data-testid=snackbar]"), Is.Empty);
         }));
     }
@@ -547,9 +550,9 @@ public class NewWorkoutPageTests : ComponentTestBase
         Add(cut, 132);
         Remove(cut, 1);
         cut.Find("[data-testid=save-workout]").Click();
-        var shown = cut.Find("[data-testid=workout-error]").TextContent;
+        var shown = cut.Find("[data-testid=workout-error]").TextContent.Trim();
 
-        cut.Find("[data-testid=snackbar-undo]").Click();
+        cut.Find("[data-testid=snackbar-action]").Click();
 
         Assert.Multiple(() =>
         {
@@ -567,9 +570,9 @@ public class NewWorkoutPageTests : ComponentTestBase
         cut.Find("[data-testid=exercise-1-set-2-remove]").Click();
         cut.Find("[data-testid=exercise-1-set-1-remove]").Click();
         cut.Find("[data-testid=save-workout]").Click();
-        var shown = cut.Find("[data-testid=exercise-1-error]").TextContent;
+        var shown = cut.Find("[data-testid=exercise-1-error]").TextContent.Trim();
 
-        cut.Find("[data-testid=snackbar-undo]").Click();
+        cut.Find("[data-testid=snackbar-action]").Click();
 
         Assert.Multiple(() =>
         {
@@ -587,7 +590,7 @@ public class NewWorkoutPageTests : ComponentTestBase
         Remove(cut, 1);
 
         Remove(cut, 1);
-        cut.Find("[data-testid=snackbar-undo]").Click();
+        cut.Find("[data-testid=snackbar-action]").Click();
 
         cut.WaitForAssertion(() => Assert.Multiple(() =>
         {
@@ -603,7 +606,7 @@ public class NewWorkoutPageTests : ComponentTestBase
         Add(cut, 132);
         Remove(cut, 1);
 
-        clock.Advance(Snackbar.Duration);
+        clock.Advance(Snackbar.DefaultDuration);
         await WaitForRendererAsync();
 
         Assert.Multiple(() =>
@@ -611,6 +614,37 @@ public class NewWorkoutPageTests : ComponentTestBase
             Assert.That(cut.FindAll("[data-testid=snackbar]"), Is.Empty);
             Assert.That(Names(cut), Is.Empty);
         });
+    }
+
+    [Test]
+    public async Task UndoTimeoutThrows_ReachesTheErrorBoundaryAndLogsTheKitsScreenError()
+    {
+        var boundaryLogger = new FakeLogger<AppErrorBoundary>();
+        Context.Services.AddSingleton<ILogger<AppErrorBoundary>>(boundaryLogger);
+        var exercises = SampleData.StrengthWorkoutWithWeights(Catalog);
+        var undo = SampleData.DeleteSet(exercises, 0, 1);
+        RenderFragment view = b =>
+        {
+            b.OpenComponent<WorkoutView>(0);
+            b.AddComponentParameter(1, nameof(WorkoutView.Mode), WorkoutMode.New);
+            b.AddComponentParameter(2, nameof(WorkoutView.Exercises), exercises);
+            b.AddComponentParameter(3, nameof(WorkoutView.Undo), undo);
+            b.AddComponentParameter(4, nameof(WorkoutView.OnUndoTimeout), EventCallback.Factory.Create<PendingUndo>(this, _ => throw new InvalidOperationException()));
+            b.CloseComponent();
+        };
+        var cut = Context.Render<AppErrorBoundary>(p => p
+            .Add(x => x.OnRestart, () => { })
+            .AddChildContent(view));
+
+        clock.Advance(Snackbar.DefaultDuration);
+        await WaitForRendererAsync();
+
+        cut.WaitForAssertion(() => Assert.Multiple(() =>
+        {
+            Assert.That(cut.FindAll("[data-testid=error-message]"), Has.Count.EqualTo(1));
+            Assert.That(boundaryLogger.Collector.GetSnapshot().Select(r => (r.Id.Id, r.Level, r.Message)),
+                Is.EqualTo(new[] { ((int)KitEvent.ScreenError, LogLevel.Error, "Unhandled error in a screen") }));
+        }));
     }
 
     [Test]
@@ -634,7 +668,7 @@ public class NewWorkoutPageTests : ComponentTestBase
 
         cut.Find("[data-testid=add-exercise]").Click();
         cut.Find("[data-testid=add-exercise-back]").Click();
-        cut.Find("[data-testid=snackbar-undo]").Click();
+        cut.Find("[data-testid=snackbar-action]").Click();
 
         Assert.That(Names(cut), Is.EqualTo(new[] { "Dumbbell Curl" }));
     }
@@ -686,7 +720,7 @@ public class NewWorkoutPageTests : ComponentTestBase
         Assert.Multiple(() =>
         {
             Assert.That(cut.FindAll("[data-testid=exercise-1-edit]"), Is.Empty);
-            Assert.That(cut.Find("[data-testid=exercise-1-set-1-error]").TextContent, Does.Contain("Enter reps"));
+            Assert.That(cut.Find("[data-testid=exercise-1-set-1-error]").TextContent.Trim(), Does.Contain("Enter reps"));
         });
     }
 
@@ -820,7 +854,7 @@ public class NewWorkoutPageTests : ComponentTestBase
         Assert.Multiple(() =>
         {
             Assert.That(cut.FindAll("[data-testid=exercise-1-set-2-reps]"), Is.Empty);
-            Assert.That(cut.FindAll("[data-testid=exercise-1-set-1-error] p").Select(p => p.TextContent.Trim()), Is.EqualTo(new[] { "Enter weight", "Enter reps" }));
+            Assert.That(cut.FindAll("[data-testid=exercise-1-set-1-error] li").Select(p => p.TextContent.Trim()), Is.EqualTo(new[] { "Enter weight", "Enter reps" }));
         });
     }
 
@@ -855,7 +889,7 @@ public class NewWorkoutPageTests : ComponentTestBase
         Assert.Multiple(() =>
         {
             Assert.That(cut.FindAll("[data-testid=exercise-1-set-2]"), Is.Empty);
-            Assert.That(cut.FindAll("[data-testid=exercise-1-set-1-error] p").Select(p => p.TextContent.Trim()),
+            Assert.That(cut.FindAll("[data-testid=exercise-1-set-1-error] li").Select(p => p.TextContent.Trim()),
                 Is.EqualTo(new[] { "Enter distance", "Duration minutes and seconds must be 00–59" }));
         });
     }
@@ -868,7 +902,7 @@ public class NewWorkoutPageTests : ComponentTestBase
 
         Add(cut, 305);
 
-        Assert.That(cut.FindAll("[data-testid=exercise-1-entry-error] p"), Is.Empty);
+        Assert.That(cut.FindAll("[data-testid=exercise-1-entry-error] li"), Is.Empty);
     }
 
     [Test]
@@ -879,7 +913,7 @@ public class NewWorkoutPageTests : ComponentTestBase
 
         cut.Find("[data-testid=save-workout]").Click();
 
-        Assert.That(cut.Find("[data-testid=workout-error]").TextContent, Is.EqualTo("Add at least one exercise"));
+        Assert.That(cut.Find("[data-testid=workout-error]").TextContent.Trim(), Is.EqualTo("Add at least one exercise"));
         cut.WaitForAssertion(() => Assert.That(((ElementReference)LastFocus().Arguments[0]!).Id, Is.EqualTo(addExercise)));
     }
 
@@ -1108,7 +1142,7 @@ public class NewWorkoutPageTests : ComponentTestBase
 
         cut.Find("[data-testid=exercise-1-set-1-remove]").Click();
 
-        LastFocus().Arguments[0].ShouldBeElementReferenceTo(cut.Find("[data-testid=snackbar-undo]"));
+        LastFocus().Arguments[0].ShouldBeElementReferenceTo(cut.Find("[data-testid=snackbar-action]"));
     }
 
     [Test]
@@ -1119,7 +1153,7 @@ public class NewWorkoutPageTests : ComponentTestBase
 
         Remove(cut, 1);
 
-        LastFocus().Arguments[0].ShouldBeElementReferenceTo(cut.Find("[data-testid=snackbar-undo]"));
+        LastFocus().Arguments[0].ShouldBeElementReferenceTo(cut.Find("[data-testid=snackbar-action]"));
     }
 
     [Test]
@@ -1131,7 +1165,7 @@ public class NewWorkoutPageTests : ComponentTestBase
         var before = cut.Find("[data-testid=exercise-1-set-1] .text").TextContent;
         cut.Find("[data-testid=exercise-1-set-1-remove]").Click();
 
-        cut.Find("[data-testid=snackbar-undo]").Click();
+        cut.Find("[data-testid=snackbar-action]").Click();
 
         Assert.Multiple(() =>
         {
@@ -1150,7 +1184,7 @@ public class NewWorkoutPageTests : ComponentTestBase
         AddSets(cut, 1, 3);
         cut.Find("[data-testid=exercise-1-set-2-remove]").Click();
 
-        cut.Find("[data-testid=snackbar-undo]").Click();
+        cut.Find("[data-testid=snackbar-action]").Click();
 
         cut.WaitForAssertion(() => LastFocus().Arguments[0].ShouldBeElementReferenceTo(cut.Find("[data-testid=exercise-1-set-2-edit]")));
     }
@@ -1163,7 +1197,7 @@ public class NewWorkoutPageTests : ComponentTestBase
         Add(cut, 6);
         Remove(cut, 2);
 
-        cut.Find("[data-testid=snackbar-undo]").Click();
+        cut.Find("[data-testid=snackbar-action]").Click();
 
         cut.WaitForAssertion(() => LastFocus().Arguments[0].ShouldBeElementReferenceTo(cut.Find("[data-testid=exercise-2-done]")));
     }
@@ -1179,7 +1213,7 @@ public class NewWorkoutPageTests : ComponentTestBase
         cut.Find("[data-testid=exercise-1-set-1-reps]").Input("5");
         cut.Find("[data-testid=exercise-1-done]").Click();
 
-        cut.Find("[data-testid=snackbar-undo]").Click();
+        cut.Find("[data-testid=snackbar-action]").Click();
 
         cut.WaitForAssertion(() => LastFocus().Arguments[0].ShouldBeElementReferenceTo(cut.Find("[data-testid=exercise-1-edit]")));
     }
@@ -1215,7 +1249,7 @@ public class NewWorkoutPageTests : ComponentTestBase
         Assert.Multiple(() =>
         {
             Assert.That(cut.FindAll("[data-testid$=-last]"), Is.Empty);
-            Assert.That(cut.FindAll(".set-header span").Select(h => h.TextContent), Does.Not.Contain("Last"));
+            Assert.That(cut.FindAll(".row.header span").Select(h => h.TextContent), Does.Not.Contain("Last"));
         });
     }
 
@@ -1227,7 +1261,7 @@ public class NewWorkoutPageTests : ComponentTestBase
 
         Add(cut, 6);
 
-        Assert.That(cut.FindAll(".set-header span").Select(h => h.TextContent), Does.Contain("Last"));
+        Assert.That(cut.FindAll(".row.header span").Select(h => h.TextContent), Does.Contain("Last"));
     }
 
     [Test]
@@ -1367,7 +1401,7 @@ public class NewWorkoutPageTests : ComponentTestBase
 
         cut.Find("[data-testid=save-workout]").Click();
 
-        Assert.That(cut.Find("[data-testid=exercise-1-error]").TextContent, Is.EqualTo("Add at least one set"));
+        Assert.That(cut.Find("[data-testid=exercise-1-error]").TextContent.Trim(), Is.EqualTo("Add at least one set"));
         cut.WaitForAssertion(() => Assert.That(((ElementReference)LastFocus().Arguments[0]!).Id, Is.EqualTo(addSet)));
     }
 
@@ -1384,9 +1418,9 @@ public class NewWorkoutPageTests : ComponentTestBase
 
         Assert.Multiple(() =>
         {
-            Assert.That(cut.FindAll("[data-testid=exercise-1-entry-error] p").Select(p => p.TextContent.Trim()),
+            Assert.That(cut.FindAll("[data-testid=exercise-1-entry-error] li").Select(p => p.TextContent.Trim()),
                 Is.EqualTo(new[] { "Enter duration", "Distance can have up to 2 decimal places" }));
-            Assert.That(cut.FindAll("[data-testid=exercise-2-set-1-error] p").Select(p => p.TextContent.Trim()), Is.EqualTo(new[] { "Enter weight", "Enter reps" }));
+            Assert.That(cut.FindAll("[data-testid=exercise-2-set-1-error] li").Select(p => p.TextContent.Trim()), Is.EqualTo(new[] { "Enter weight", "Enter reps" }));
         });
         cut.WaitForAssertion(() => Assert.That(((ElementReference)LastFocus().Arguments[0]!).Id, Is.EqualTo(hours)));
     }
@@ -1399,7 +1433,7 @@ public class NewWorkoutPageTests : ComponentTestBase
 
         cut.Find("[data-testid=exercise-1-incline]").Input("1.255");
 
-        Assert.That(cut.FindAll("[data-testid=exercise-1-entry-error] p"), Is.Empty);
+        Assert.That(cut.FindAll("[data-testid=exercise-1-entry-error] li"), Is.Empty);
     }
 
     [Test]
@@ -1411,7 +1445,7 @@ public class NewWorkoutPageTests : ComponentTestBase
 
         cut.Find("[data-testid=exercise-1-duration-mm]").Input("20");
         cut.Find("[data-testid=exercise-1-distance]").Input("3");
-        var clearedOnValid = cut.FindAll("[data-testid=exercise-1-entry-error] p").Count;
+        var clearedOnValid = cut.FindAll("[data-testid=exercise-1-entry-error] li").Count;
         foreach (var typed in new[] { "1", "1.", "1.2", "1.25", "1.255" })
         {
             cut.Find("[data-testid=exercise-1-incline]").Input(typed);
@@ -1420,7 +1454,7 @@ public class NewWorkoutPageTests : ComponentTestBase
         Assert.Multiple(() =>
         {
             Assert.That(clearedOnValid, Is.Zero);
-            Assert.That(cut.FindAll("[data-testid=exercise-1-entry-error] p").Select(p => p.TextContent.Trim()),
+            Assert.That(cut.FindAll("[data-testid=exercise-1-entry-error] li").Select(p => p.TextContent.Trim()),
                 Is.EqualTo(new[] { "Incline can have up to 2 decimal places" }));
         });
     }
@@ -1508,7 +1542,7 @@ public class NewWorkoutPageTests : ComponentTestBase
 
         Assert.Multiple(() =>
         {
-            Assert.That(cut.Find("[data-testid=workout-note-error]").TextContent, Is.EqualTo("Note must be 500 characters or less"));
+            Assert.That(cut.Find("[data-testid=workout-note-error]").TextContent.Trim(), Is.EqualTo("Note must be 500 characters or less"));
             Assert.That(cut.FindAll("[data-testid=workout-error]"), Is.Empty);
             Assert.That(workouts.Saves, Is.Empty);
         });
@@ -1533,7 +1567,7 @@ public class NewWorkoutPageTests : ComponentTestBase
 
         Assert.Multiple(() =>
         {
-            Assert.That(cut.Find("[data-testid=exercise-1-note-error]").TextContent, Is.EqualTo("Note must be 500 characters or less"));
+            Assert.That(cut.Find("[data-testid=exercise-1-note-error]").TextContent.Trim(), Is.EqualTo("Note must be 500 characters or less"));
             Assert.That(workouts.Saves, Is.Empty);
         });
 
@@ -1559,7 +1593,7 @@ public class NewWorkoutPageTests : ComponentTestBase
 
         Assert.Multiple(() =>
         {
-            Assert.That(cut.Find("[data-testid=workout-error]").TextContent, Is.EqualTo("Couldn't save the workout. Try again"));
+            Assert.That(cut.Find("[data-testid=workout-error]").TextContent.Trim(), Is.EqualTo("Couldn't save the workout. Try again"));
             Assert.That(cut.Find("[data-testid=workout-note-open] .text").TextContent, Is.EqualTo("Slept badly"));
             Assert.That(cut.Find("[data-testid=exercise-1-note-open] .text").TextContent, Is.EqualTo("Left knee twinge"));
             Assert.That(cut.FindAll("[data-testid$=-note-error]"), Is.Empty);
@@ -1597,7 +1631,7 @@ public class NewWorkoutPageTests : ComponentTestBase
 
         Assert.Multiple(() =>
         {
-            Assert.That(cut.Find("[data-testid=workout-error]").TextContent, Is.EqualTo("Couldn't save the workout. Try again"));
+            Assert.That(cut.Find("[data-testid=workout-error]").TextContent.Trim(), Is.EqualTo("Couldn't save the workout. Try again"));
             Assert.That(Names(cut), Is.EqualTo(new[] { "Dumbbell Curl" }));
             Assert.That(cut.Find("[data-testid=exercise-1-set-1-reps]").GetAttribute("value"), Is.EqualTo("8"));
             Assert.That(saved, Is.Zero);
@@ -1616,7 +1650,7 @@ public class NewWorkoutPageTests : ComponentTestBase
 
         cut.Find("[data-testid=save-workout]").Click();
 
-        Assert.That(cut.Find("[data-testid=workout-error]").TextContent, Is.EqualTo("Couldn't save the workout. Try again"));
+        Assert.That(cut.Find("[data-testid=workout-error]").TextContent.Trim(), Is.EqualTo("Couldn't save the workout. Try again"));
     }
 
     [Test]
@@ -1833,7 +1867,7 @@ public class NewWorkoutPageTests : ComponentTestBase
 
     private static string Subtitle(IRenderedComponent<NewWorkoutPage> cut) => cut.Find("[data-testid=screen-subtitle]").TextContent;
 
-    private static IEnumerable<string> Names(IRenderedComponent<NewWorkoutPage> cut) => cut.FindAll(".card .name").Select(n => n.TextContent);
+    private static IEnumerable<string> Names(IRenderedComponent<NewWorkoutPage> cut) => cut.FindAll(".card > .header > .title").Select(n => n.TextContent);
 
     /// <summary>The latest focus call; the list search and added exercises each take focus.</summary>
     private JSRuntimeInvocation LastFocus() => Context.JSInterop.Invocations["Blazor._internal.domWrapper.focus"][^1];

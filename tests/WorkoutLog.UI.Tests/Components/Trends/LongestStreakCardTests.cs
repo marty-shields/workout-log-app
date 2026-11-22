@@ -18,6 +18,10 @@ public class LongestStreakCardTests : ComponentTestBase
     }
 
     [Test]
+    public void Row_HasNoDividerAsItIsTheCardsOnlyLine() =>
+        Assert.That(Render(23, running: true).Find("[data-testid=streak-row]").ClassList, Does.Contain("no-divider"));
+
+    [Test]
     public void Ended_ShowsNoDetail()
     {
         var cut = Render(14, running: false);
@@ -40,6 +44,19 @@ public class LongestStreakCardTests : ComponentTestBase
     [Test]
     public void Row_IsNotTappable() =>
         Assert.That(Render(23, running: true).FindAll("button"), Is.Empty);
+
+    [Test]
+    public void IsAPlainKitCard_WithTheTestIdAndNoHeading()
+    {
+        var cut = Render(3, running: false);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.Find("div.card").GetAttribute("data-testid"), Is.EqualTo("streak"));
+            Assert.That(cut.Find("div.card").ClassList, Does.Not.Contain("compact"), "the single row keeps the kit's normal padding");
+            Assert.That(cut.FindAll("h2"), Is.Empty);
+        });
+    }
 
     private IRenderedComponent<LongestStreakCard> Render(int weeks, bool running) =>
         Context.Render<LongestStreakCard>(p => p.Add(x => x.Weeks, weeks).Add(x => x.Running, running).Add(x => x.TestId, "streak"));

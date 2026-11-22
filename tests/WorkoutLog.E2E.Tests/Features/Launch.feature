@@ -1,5 +1,5 @@
 Feature: Launch
-  The app opens on This week, with its content clear of the status bar and the navigation bar, and the tab bar showing This week, + and Trends.
+  The app opens on This week, with its content clear of the status bar and the navigation bar, and the bottom nav showing This week, + and Trends.
 
   @smoke @release
   Scenario: A fresh install opens on an empty This week
@@ -7,7 +7,7 @@ Feature: Launch
     And this week shows no workouts
     And this week shows 0 workouts
     And no streak is shown
-    And I can open Trends and start a New Workout from the tab bar
+    And I can open Trends and start a New Workout from the bottom nav
     And no startup error is shown
 
   Scenario: The title and the tabs clear the system bars

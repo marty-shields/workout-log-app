@@ -3,12 +3,12 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Testing;
 using Microsoft.JSInterop;
+using Shields.UI.Components.Inputs;
+using Shields.UI.Lifecycle;
+using Shields.UI.Theme;
 using WorkoutLog.Core.Services;
-using WorkoutLog.UI.Components.Inputs;
 using WorkoutLog.UI.Import;
-using WorkoutLog.UI.Lifecycle;
 using WorkoutLog.UI.Logging;
-using WorkoutLog.UI.Models.Settings;
 using WorkoutLog.UI.Screens;
 using WorkoutLog.UI.Sharing;
 
@@ -44,8 +44,8 @@ public class SettingsPageTests : ComponentTestBase
         session = new ImportSession();
         Context.Services.AddSingleton(session);
         savedTheme = "system";
-        Context.JSInterop.Setup<string>("workoutLogTheme.get", _ => true).SetResult(savedTheme);
-        Context.JSInterop.Setup<bool>("workoutLogTheme.set", _ => true).SetResult(true);
+        Context.JSInterop.Setup<string>("shieldsTheme.get", _ => true).SetResult(savedTheme);
+        Context.JSInterop.Setup<bool>("shieldsTheme.set", _ => true).SetResult(true);
     }
 
     [Test]
@@ -69,7 +69,7 @@ public class SettingsPageTests : ComponentTestBase
     [Test]
     public async Task Theme_ShowsTheSavedChoice()
     {
-        Context.JSInterop.Setup<string>("workoutLogTheme.get", _ => true).SetResult("dark");
+        Context.JSInterop.Setup<string>("shieldsTheme.get", _ => true).SetResult("dark");
         var cut = Context.Render<SettingsPage>();
         export.CompleteCount(new ReadResult<int>(0));
         await WaitForRendererAsync();
@@ -92,7 +92,7 @@ public class SettingsPageTests : ComponentTestBase
 
         Assert.Multiple(() =>
         {
-            Assert.That(Context.JSInterop.Invocations["workoutLogTheme.set"].Single().Arguments, Is.EqualTo(new object[] { "light" }));
+            Assert.That(Context.JSInterop.Invocations["shieldsTheme.set"].Single().Arguments, Is.EqualTo(new object[] { "light" }));
             Assert.That(cut.Find("[data-testid=settings-theme-light]").HasAttribute("checked"), Is.True);
         });
     }
@@ -100,7 +100,7 @@ public class SettingsPageTests : ComponentTestBase
     [Test]
     public async Task Theme_SlowToRead_StillShowsTheSpinnerAndLoadsTheCount()
     {
-        var get = Context.JSInterop.Setup<string>("workoutLogTheme.get", _ => true);
+        var get = Context.JSInterop.Setup<string>("shieldsTheme.get", _ => true);
         var cut = Context.Render<SettingsPage>();
 
         Assert.Multiple(() =>
@@ -125,7 +125,7 @@ public class SettingsPageTests : ComponentTestBase
     public async Task Theme_ReadFails_ShowsSystemAndLogsTheWarning()
     {
         var exception = new JSException("no storage");
-        Context.JSInterop.Setup<string>("workoutLogTheme.get", _ => true).SetException(exception);
+        Context.JSInterop.Setup<string>("shieldsTheme.get", _ => true).SetException(exception);
         var cut = Context.Render<SettingsPage>();
         export.CompleteCount(new ReadResult<int>(2));
         await WaitForRendererAsync();
@@ -143,7 +143,7 @@ public class SettingsPageTests : ComponentTestBase
     public async Task Theme_SaveFails_KeepsThePreviousChoiceAndLogsTheWarning()
     {
         var exception = new JSException("no storage");
-        Context.JSInterop.Setup<bool>("workoutLogTheme.set", _ => true).SetException(exception);
+        Context.JSInterop.Setup<bool>("shieldsTheme.set", _ => true).SetException(exception);
         var cut = Context.Render<SettingsPage>();
         export.CompleteCount(new ReadResult<int>(0));
         await WaitForRendererAsync();
@@ -165,7 +165,7 @@ public class SettingsPageTests : ComponentTestBase
     [Test]
     public async Task Theme_StorageRefusesTheSave_KeepsTheChoiceAndLogsTheWarning()
     {
-        Context.JSInterop.Setup<bool>("workoutLogTheme.set", _ => true).SetResult(false);
+        Context.JSInterop.Setup<bool>("shieldsTheme.set", _ => true).SetResult(false);
         var cut = Context.Render<SettingsPage>();
         export.CompleteCount(new ReadResult<int>(0));
         await WaitForRendererAsync();
@@ -185,7 +185,7 @@ public class SettingsPageTests : ComponentTestBase
 
         cut.Find("[data-testid=settings-theme-dark]").Change(true);
 
-        Assert.That(Context.JSInterop.Invocations["workoutLogTheme.set"].Single().Arguments, Is.EqualTo(new object[] { "dark" }));
+        Assert.That(Context.JSInterop.Invocations["shieldsTheme.set"].Single().Arguments, Is.EqualTo(new object[] { "dark" }));
     }
 
     [Test]
@@ -249,7 +249,7 @@ public class SettingsPageTests : ComponentTestBase
         var cut = Context.Render<SettingsPage>();
         export.CompleteCount(new ReadFailed());
         await WaitForRendererAsync();
-        cut.WaitForAssertion(() => Assert.That(cut.Find("[data-testid=settings-error]").TextContent, Is.EqualTo("Couldn't load your workouts")));
+        cut.WaitForAssertion(() => Assert.That(cut.Find("[data-testid=settings-error]").TextContent.Trim(), Is.EqualTo("Couldn't load your workouts")));
 
         cut.Find("[data-testid=settings-retry]").Click();
 
@@ -363,7 +363,7 @@ public class SettingsPageTests : ComponentTestBase
         export.CompleteExport(new ExportFailed());
         await WaitForRendererAsync();
 
-        cut.WaitForAssertion(() => Assert.That(cut.Find("[data-testid=export-error]").TextContent, Is.EqualTo("Couldn't export your workouts. Try again")));
+        cut.WaitForAssertion(() => Assert.That(cut.Find("[data-testid=export-error]").TextContent.Trim(), Is.EqualTo("Couldn't export your workouts. Try again")));
         Assert.Multiple(() =>
         {
             Assert.That(share.Calls, Is.Empty);
@@ -382,7 +382,7 @@ public class SettingsPageTests : ComponentTestBase
         export.CompleteExport(new ExportTooLarge());
         await WaitForRendererAsync();
 
-        cut.WaitForAssertion(() => Assert.That(cut.Find("[data-testid=export-error]").TextContent, Is.EqualTo("Too many workouts to export")));
+        cut.WaitForAssertion(() => Assert.That(cut.Find("[data-testid=export-error]").TextContent.Trim(), Is.EqualTo("Too many workouts to export")));
         Assert.That(share.Calls, Is.Empty);
     }
 
@@ -399,7 +399,7 @@ public class SettingsPageTests : ComponentTestBase
         share.Fail(exception);
         await WaitForRendererAsync();
 
-        cut.WaitForAssertion(() => Assert.That(cut.Find("[data-testid=export-error]").TextContent, Is.EqualTo("Couldn't export your workouts. Try again")));
+        cut.WaitForAssertion(() => Assert.That(cut.Find("[data-testid=export-error]").TextContent.Trim(), Is.EqualTo("Couldn't export your workouts. Try again")));
         Assert.Multiple(() =>
         {
             Assert.That(LoggedEvents.Of(logger), Is.EqualTo(new[] { (UiEvent.ShareFailed, LogLevel.Error, "Opening the share sheet failed") }));
@@ -513,7 +513,7 @@ public class SettingsPageTests : ComponentTestBase
         opener.Fail(exception);
         await WaitForRendererAsync();
 
-        cut.WaitForAssertion(() => Assert.That(cut.Find("[data-testid=import-error]").TextContent, Is.EqualTo("Couldn't import your workouts. Try again")));
+        cut.WaitForAssertion(() => Assert.That(cut.Find("[data-testid=import-error]").TextContent.Trim(), Is.EqualTo("Couldn't import your workouts. Try again")));
         Assert.Multiple(() =>
         {
             Assert.That(reviews, Is.Zero);
@@ -671,7 +671,7 @@ public class SettingsPageTests : ComponentTestBase
         var cut = Context.Render<SettingsPage>(p => p.Add(x => x.OnBack, () => { }).Add(x => x.OnImportReview, onImportReview ?? (() => { })));
         export.CompleteCount(new ReadResult<int>(count));
         await WaitForRendererAsync();
-        cut.WaitForAssertion(() => Assert.That(cut.FindAll("[data-testid=export]"), Has.Count.EqualTo(1)));
+        await WaitForSettledAsync(cut, () => Assert.That(cut.FindAll("[data-testid=export]"), Has.Count.EqualTo(1)));
         return cut;
     }
 
@@ -681,7 +681,7 @@ public class SettingsPageTests : ComponentTestBase
         cut.Find("[data-testid=export]").Click();
         export.CompleteExport(new ExportFailed());
         await WaitForRendererAsync();
-        cut.WaitForAssertion(() => Assert.That(cut.FindAll("[data-testid=export-error]"), Has.Count.EqualTo(1)));
+        await WaitForSettledAsync(cut, () => Assert.That(cut.FindAll("[data-testid=export-error]"), Has.Count.EqualTo(1)));
         return cut;
     }
 

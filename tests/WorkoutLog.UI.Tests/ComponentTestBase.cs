@@ -1,10 +1,11 @@
+using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Time.Testing;
+using Shields.UI.Navigation;
 using WorkoutLog.Core.Domain.Exercises;
 using WorkoutLog.Core.Services;
 using WorkoutLog.UI.Haptics;
-using WorkoutLog.UI.Navigation;
 using WorkoutLog.UI.Stories.Samples;
 
 namespace WorkoutLog.UI.Tests;
@@ -57,7 +58,35 @@ public abstract class ComponentTestBase
 
     /// <summary>
     /// Waits until the renderer has run the work queued so far, such as a component continuing after a fake call completes or
-    /// a timer ticks. bUnit's synchronous events (<c>Click()</c>, <c>Input()</c>) are queued, not run, while the renderer is busy.
+    /// a timer ticks, and is idle. bUnit's synchronous events (<c>Click()</c>, <c>Input()</c>) are queued, not run, while the renderer
+    /// is busy, and a queued call's task completes before the renderer has finished the work item that ran it. So this repeats
+    /// until a no-op runs straight away on the calling thread, which the renderer only does when nothing else holds it.
     /// </summary>
-    protected Task WaitForRendererAsync() => Context.Renderer.Dispatcher.InvokeAsync(() => { });
+    protected async Task WaitForRendererAsync()
+    {
+        while (true)
+        {
+            var caller = Environment.CurrentManagedThreadId;
+            var ranOn = 0;
+            var work = Context.Renderer.Dispatcher.InvokeAsync(() => ranOn = Environment.CurrentManagedThreadId);
+            if (ranOn == caller)
+            {
+                return;
+            }
+
+            await work;
+        }
+    }
+
+    /// <summary>
+    /// Waits until the assertion passes and then until the renderer is idle. bUnit checks the assertion inside the render that makes
+    /// it pass and lets the test go on while the renderer is still busy with the rest of that work, so a <c>Click()</c> made then is
+    /// queued and has not run by the next <c>Find</c>.
+    /// </summary>
+    protected async Task WaitForSettledAsync<TComponent>(IRenderedComponent<TComponent> cut, Action assertion)
+        where TComponent : IComponent
+    {
+        cut.WaitForAssertion(assertion);
+        await WaitForRendererAsync();
+    }
 }

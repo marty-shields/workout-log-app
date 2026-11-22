@@ -1,9 +1,9 @@
+using Shields.UI.Components.Charts;
 using WorkoutLog.Core.Domain;
 using WorkoutLog.Core.Domain.Exercises;
 using WorkoutLog.Core.Domain.Exercises.Bests;
 using WorkoutLog.Core.Domain.Exercises.Progress;
 using WorkoutLog.Core.Domain.Workouts;
-using WorkoutLog.UI.Components.Charts;
 using WorkoutLog.UI.Components.Lists;
 using WorkoutLog.UI.Models.Exercises;
 
@@ -67,23 +67,23 @@ public class ExerciseProgressItemsTests
     [Test]
     public void Points_TopSet_AreTheWeightsLabelledWithTheReps_NoWeightHasNoValue() =>
         Assert.That(ExerciseProgressItems.Points(Progress(LastYear, NoWeight, Heavy), "top-set", TimeZoneInfo.Utc, Now),
-            Is.EqualTo(new[] { new ChartPoint("15 Oct 2025", 40m, "×15"), new ChartPoint("13 Oct", null), new ChartPoint("20 Oct", 70m, "×3") }));
+            Is.EqualTo(new[] { new LineChartPoint("15 Oct 2025", 40m, "×15"), new LineChartPoint("13 Oct", null), new LineChartPoint("20 Oct", 70m, "×3") }));
 
     [Test]
     public void Points_E1rm_AreTheUnroundedEstimates_NoneHasNoValue() =>
         Assert.That(ExerciseProgressItems.Points(Progress(LastYear, NoWeight, Heavy), "e1rm", TimeZoneInfo.Utc, Now),
-            Is.EqualTo(new[] { new ChartPoint("15 Oct 2025", null), new ChartPoint("13 Oct", null), new ChartPoint("20 Oct", 62.5m * (1 + 8 / 30m)) }));
+            Is.EqualTo(new[] { new LineChartPoint("15 Oct 2025", null), new LineChartPoint("13 Oct", null), new LineChartPoint("20 Oct", 62.5m * (1 + 8 / 30m)) }));
 
     [Test]
     public void Points_DatesAreInThePhonesTimeZone() =>
         Assert.That(ExerciseProgressItems.Points(Progress(Session(1, new DateTimeOffset(2026, 10, 20, 15, 0, 0, TimeSpan.Zero), [Set(5, 60m)], Top(60m, 5), 70m)), "top-set", Brisbane, Now)
-            .Single().Date, Is.EqualTo("21 Oct"));
+            .Single().XLabel, Is.EqualTo("21 Oct"));
 
     [Test]
     public void Points_TwoSessionsOnOneDay_AreTwoPoints() =>
         Assert.That(ExerciseProgressItems.Points(
                 Progress(Session(1, Now.AddHours(-3), [Set(5, 60m)], Top(60m, 5), null), Session(2, Now, [Set(3, 70m)], Top(70m, 3), null)), "top-set", TimeZoneInfo.Utc, Now),
-            Is.EqualTo(new[] { new ChartPoint("28 Oct", 60m, "×5"), new ChartPoint("28 Oct", 70m, "×3") }));
+            Is.EqualTo(new[] { new LineChartPoint("28 Oct", 60m, "×5"), new LineChartPoint("28 Oct", 70m, "×3") }));
 
     [TestCase("e1rm", 82.25, "82.3kg")]
     [TestCase("e1rm", 82.249, "82.2kg")]

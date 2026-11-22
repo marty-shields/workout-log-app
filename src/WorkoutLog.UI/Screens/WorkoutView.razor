@@ -1,9 +1,7 @@
 @using Microsoft.Extensions.Logging
 @using WorkoutLog.Core.Domain.Workouts
-@using WorkoutLog.UI.Components.Inputs
 @using WorkoutLog.UI.Components.Workout
 @inject ILogger<WorkoutView> Logger
-@using WorkoutLog.UI.Components.Feedback
 <AppScreen Title="@DisplayFormat.Date(StartedAt)" Subtitle="@TimeText" OnBack="OnBack">
     <Actions>
         <IconButton Icon="IconName.Note" AriaLabel="@(HasNote ? "Edit note" : "Add note")" TestId="workout-note-add" OnClick="OpenNote" />
@@ -16,9 +14,9 @@
         <div class="exercises">
             @if (Error is not null)
             {
-                <p class="error" role="alert" data-testid="workout-error">@Error</p>
+                <InlineAlert Message="@Error" TestId="workout-error" />
             }
-            <NoteField @ref="noteField" Label="Workout note" Value="@Note" ValueChanged="NoteChanged" @bind-Editing="editingNote" Error="@NoteError" TestId="workout-note" />
+            <NoteField @ref="noteField" Label="Workout note" Value="@Note" ValueChanged="NoteChanged" @bind-Editing="editingNote" MaxLength="WorkoutLimits.MaxNoteLength" Error="@NoteError" TestId="workout-note" />
             @if (Exercises.Count == 0)
             {
                 <EmptyState Message="No exercises yet" Hint="Tap Add exercise to start logging" TestId="no-exercises" />
@@ -40,7 +38,9 @@
             }
             @if (ExercisesFull)
             {
-                <p class="note" data-testid="exercises-full">At most @WorkoutLimits.MaxExercises exercises</p>
+                <div class="note">
+                    <Typography Variant="TextVariant.MutedSmall" As="TextElement.P" TestId="exercises-full">At most @WorkoutLimits.MaxExercises exercises</Typography>
+                </div>
             }
         </div>
     </ChildContent>
@@ -51,7 +51,7 @@
     <Status>
         @if (Undo is { } undo)
         {
-            <Snackbar @key="undo" Message="@undo.Message" TakeFocus="@(!ReferenceEquals(undo, announced))" OnUndo="OnUndo" OnTimeout="() => OnUndoTimeout.InvokeAsync(undo)" />
+            <Snackbar @key="undo" Message="@undo.Message" TakeFocus="@(!ReferenceEquals(undo, announced))" ActionLabel="Undo" OnAction="OnUndo" OnTimeout="() => OnUndoTimeout.InvokeAsync(undo)" />
         }
     </Status>
 </AppScreen>

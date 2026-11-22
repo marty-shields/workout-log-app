@@ -3,9 +3,9 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Testing;
 using Microsoft.JSInterop;
+using Shields.UI.Components.Actions;
 using WorkoutLog.Core.Domain.Exercises;
 using WorkoutLog.Core.Domain.Workouts.Validation;
-using WorkoutLog.UI.Components.Actions;
 using WorkoutLog.UI.Logging;
 using WorkoutLog.UI.Models.Fields;
 using WorkoutLog.UI.Models.Workout;
@@ -48,7 +48,7 @@ public class WorkoutViewTests : ComponentTestBase
             .Add(x => x.StartedAt, Started)
             .Add(x => x.Exercises, [Carry()]));
 
-        Assert.That(cut.FindAll(".panel").Count, Is.EqualTo(open ? 1 : 0));
+        Assert.That(cut.FindAll(".card.selected").Count, Is.EqualTo(open ? 1 : 0));
     }
 
     [TestCase(9, false)]
@@ -164,7 +164,7 @@ public class WorkoutViewTests : ComponentTestBase
             .Add(x => x.StartedAt, Started)
             .Add(x => x.Exercises, [Curl(), new ExerciseState(258, "Plank", ExerciseKind.Strength, [])]));
 
-        Assert.That(cut.FindAll(".name").Select(n => n.TextContent), Is.EqualTo(new[] { "Dumbbell Curl", "Plank" }));
+        Assert.That(cut.FindAll(".card > .header > .title").Select(n => n.TextContent), Is.EqualTo(new[] { "Dumbbell Curl", "Plank" }));
     }
 
     [Test]
@@ -175,7 +175,7 @@ public class WorkoutViewTests : ComponentTestBase
             .Add(x => x.Exercises, [])
             .Add(x => x.Error, "Add at least one exercise"));
 
-        Assert.That(cut.Find("[data-testid=workout-error]").TextContent, Is.EqualTo("Add at least one exercise"));
+        Assert.That(cut.Find("[data-testid=workout-error]").TextContent.Trim(), Is.EqualTo("Add at least one exercise"));
     }
 
     [Test]
@@ -612,7 +612,7 @@ public class WorkoutViewTests : ComponentTestBase
         Assert.Multiple(() =>
         {
             Context.JSInterop.VerifyFocusAsyncInvoke().Arguments[0].ShouldBeElementReferenceTo(cut.Find("[data-testid=exercise-1-set-2-weight]"));
-            Assert.That(cut.FindAll(".panel").Select(p => p.GetAttribute("data-testid")), Is.EqualTo(new[] { "exercise-1-set-2" }));
+            Assert.That(cut.FindAll(".card.selected").Select(p => p.GetAttribute("data-testid")), Is.EqualTo(new[] { "exercise-1-set-2" }));
         });
     }
 
@@ -822,7 +822,7 @@ public class WorkoutViewTests : ComponentTestBase
 
         Assert.Multiple(() =>
         {
-            Assert.That(cut.Find("[data-testid=workout-note-error]").TextContent, Is.EqualTo("Note must be 500 characters or less"));
+            Assert.That(cut.Find("[data-testid=workout-note-error]").TextContent.Trim(), Is.EqualTo("Note must be 500 characters or less"));
             Assert.That(cut.Find("[data-testid=workout-note-open]").ClassList, Does.Contain("invalid"));
             Assert.That(cut.FindAll("[data-testid=workout-error]"), Is.Empty);
         });
@@ -878,7 +878,15 @@ public class WorkoutViewTests : ComponentTestBase
             .Add(x => x.Exercises, [fine, noted])
             .Add(x => x.ErrorFocus, new ErrorFocus()));
 
-        cut.WaitForAssertion(() => Context.JSInterop.VerifyFocusAsyncInvoke().Arguments[0].ShouldBeElementReferenceTo(cut.Find("[data-testid=exercise-2-note-input]")));
+        // bUnit leaves blazor:elementreference empty on markup that a child component renders inside the kit's Card's content, so
+        // ShouldBeElementReferenceTo cannot match; the focus call still carries the text box's own captured reference.
+        cut.WaitForAssertion(() =>
+        {
+            var focused = Context.JSInterop.VerifyFocusAsyncInvoke().Arguments[0];
+            Assert.That(focused, Is.TypeOf<ElementReference>());
+            Assert.That(((ElementReference)focused!).Id, Is.Not.Empty);
+            Assert.That(cut.FindAll("textarea").Select(t => t.GetAttribute("data-testid")), Is.EqualTo(new[] { "exercise-2-note-input" }));
+        });
     }
 
     [Test]

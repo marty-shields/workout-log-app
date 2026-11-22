@@ -2,6 +2,7 @@
   <Folder Name="/src/">
     <Project Path="src/WorkoutLog.App/WorkoutLog.App.csproj" />
     <Project Path="src/WorkoutLog.Core/WorkoutLog.Core.csproj" />
+    <Project Path="src/WorkoutLog.UI.Stories.Host/WorkoutLog.UI.Stories.Host.csproj" />
     <Project Path="src/WorkoutLog.UI.Stories/WorkoutLog.UI.Stories.csproj" />
     <Project Path="src/WorkoutLog.UI/WorkoutLog.UI.csproj" />
   </Folder>

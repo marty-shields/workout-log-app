@@ -1,26 +1,26 @@
 ---
-$attribute: CustomPage("Screens/Edit Workout/Overview")
+$attribute: CustomPage(StoryTitles.Prefix + "/Screens/Edit Workout/Overview")
 ---
 
 # Edit Workout
 
 Fix or delete a saved workout. View: `WorkoutView` with `Mode` Edit, after `WorkoutLoadView` while it loads; page: `EditWorkoutPage`.
 
-Same layout and behaviour as [New Workout](./?path=/custom/screens-new-workout-overview), except:
+Same layout and behaviour as [New Workout](./?path=/custom/workout-log-screens-new-workout-overview), except:
 
 | Part | Content |
 |---|---|
 | Top bar | "Total h:mm:ss" instead of the live timer; the note icon button and Delete (trash `IconButton`) on the right. |
 | Content | The saved workout opens newest first, every value as saved, 0 included. Every exercise starts done, as one line; the pencil opens its card, with every set closed unless the last is empty. No last and PB line. The workout note shows as saved. An open card shows last time's note, the note from the last saved workout with the exercise that started before this one, through `IWeightHistoryService.GetAsync`. An exercise picked from Add exercise gets its last note the same way. A failed read shows none. |
-| Last time | As on [New Workout](./?path=/custom/screens-new-workout-overview), from the last saved workout with the exercise that started before this one, so the workout itself never counts. `ILastSessionService.GetAsync` reads it for each exercise as the workout loads, and for an exercise added here. An exercise starts done, so its Last column and lines are hidden; the pencil opens the card with every set closed, and a set shows its last time once its own pencil opens it. Sets match by number, *—* in a Last column and no line elsewhere where last time had none, nothing when there is no earlier workout, and nothing when the load fails. Display only. |
-| Overlays | `AddExerciseView` in pick mode ([Add Exercise](./?path=/custom/screens-add-exercise-overview)); `ConfirmDialog` "Discard changes?" on back with changes; "Delete this workout?" on Delete. Deleting a closed set or an exercise shows the Undo snackbar, as on New Workout. |
+| Last time | As on [New Workout](./?path=/custom/workout-log-screens-new-workout-overview), from the last saved workout with the exercise that started before this one, so the workout itself never counts. `ILastSessionService.GetAsync` reads it for each exercise as the workout loads, and for an exercise added here. An exercise starts done, so its Last column and lines are hidden; the pencil opens the card with every set closed, and a set shows its last time once its own pencil opens it. Sets match by number, *—* in a Last column and no line elsewhere where last time had none, nothing when there is no earlier workout, and nothing when the load fails. Display only. |
+| Overlays | `AddExerciseView` in pick mode ([Add Exercise](./?path=/custom/workout-log-screens-add-exercise-overview)); `ConfirmDialog` "Discard changes?" on back with changes; "Delete this workout?" on Delete. Deleting a closed set or an exercise shows the Undo snackbar, as on New Workout. |
 | Loading | `WorkoutLoadView`: title "Workout", `Spinner` "Loading…" centred. |
-| Load failed | Error "Couldn't load the workout" and a Secondary **Try again** that reloads. Focus moves to Try again. An exercise missing from the list, or saved as the wrong kind, also shows this. |
+| Load failed | Error "Couldn't load the workout" and the kit's `LoadFailed` **Try again** button that reloads. Focus moves to Try again. An exercise missing from the list, or saved as the wrong kind, also shows this. |
 | Not found | "This workout no longer exists", no retry. |
 
 Save calls `IWorkoutService.SaveAsync` with the workout note and every exercise with its note, whether or not its card was opened, then the App goes back to where the workout was opened from (see Back). Save is also ignored while a delete runs and after one succeeds.
 
-Haptics are as on [New Workout](./?path=/custom/screens-new-workout-overview#haptics): Add set (or Enter in the last field), the tick and Save confirm, and a block by errors rejects. Delete, Discard and Undo don't buzz.
+Haptics are as on [New Workout](./?path=/custom/workout-log-screens-new-workout-overview#haptics): Add set (or Enter in the last field), the tick and Save confirm, and a block by errors rejects. Delete, Discard and Undo don't buzz.
 
 ## Back
 Back, Save and Delete all return to where the workout was opened from, carried in `?from=`: Workouts with the same dates (`workouts:…`), or This week (`this-week`, the default when it is missing). While loading, after a failed load and when not found: there. On a loaded workout with no changes: there, no prompt.
@@ -32,6 +32,6 @@ Delete opens `ConfirmDialog` "Delete this workout?", the same with or without ch
 
 Delete is ignored while a save runs, after one succeeds and after a discard. While a delete runs and after one succeeds, Back, Save and Delete are ignored, the prompt's Cancel and Android back do nothing, and Discard closes its prompt. Confirm runs once; while a save runs or after one succeeds it closes the prompt and does nothing else.
 
-States: [Loaded](./?path=/story/screens-edit-workout--loaded) · [Strength](./?path=/story/screens-edit-workout--strength) · [Carry](./?path=/story/screens-edit-workout--carry) · [Cardio](./?path=/story/screens-edit-workout--cardio) · [Last time](./?path=/story/screens-edit-workout--last-time) · [Notes](./?path=/story/screens-edit-workout--notes) · [Note over the limit](./?path=/story/screens-edit-workout--note-over-the-limit) · [Save errors](./?path=/story/screens-edit-workout--save-errors) · [Save failed](./?path=/story/screens-edit-workout--save-failed) · [Set deleted](./?path=/story/screens-edit-workout--set-deleted) · [Exercise deleted](./?path=/story/screens-edit-workout--exercise-deleted) · [Discard prompt](./?path=/story/screens-edit-workout--discard-prompt) · [Delete prompt](./?path=/story/screens-edit-workout--delete-prompt) · [Delete failed](./?path=/story/screens-edit-workout--delete-failed) · [Loading](./?path=/story/screens-edit-workout--loading) · [Load failed](./?path=/story/screens-edit-workout--load-failed) · [Not found](./?path=/story/screens-edit-workout--not-found)
+States: [Loaded](./?path=/story/workout-log-screens-edit-workout--loaded) · [Strength](./?path=/story/workout-log-screens-edit-workout--strength) · [Carry](./?path=/story/workout-log-screens-edit-workout--carry) · [Cardio](./?path=/story/workout-log-screens-edit-workout--cardio) · [Last time](./?path=/story/workout-log-screens-edit-workout--last-time) · [Notes](./?path=/story/workout-log-screens-edit-workout--notes) · [Note over the limit](./?path=/story/workout-log-screens-edit-workout--note-over-the-limit) · [Save errors](./?path=/story/workout-log-screens-edit-workout--save-errors) · [Save failed](./?path=/story/workout-log-screens-edit-workout--save-failed) · [Set deleted](./?path=/story/workout-log-screens-edit-workout--set-deleted) · [Exercise deleted](./?path=/story/workout-log-screens-edit-workout--exercise-deleted) · [Discard prompt](./?path=/story/workout-log-screens-edit-workout--discard-prompt) · [Delete prompt](./?path=/story/workout-log-screens-edit-workout--delete-prompt) · [Delete failed](./?path=/story/workout-log-screens-edit-workout--delete-failed) · [Loading](./?path=/story/workout-log-screens-edit-workout--loading) · [Load failed](./?path=/story/workout-log-screens-edit-workout--load-failed) · [Not found](./?path=/story/workout-log-screens-edit-workout--not-found)
 
 `data-testid`: as New Workout, plus `delete-workout`; while loading `back`, `workout-loading`, `workout-load-error`, `workout-load-retry`, `workout-not-found`.

@@ -18,10 +18,10 @@ public sealed class BackSteps(WebView web, Native native, Journeys journeys, Wor
     [When(@"^I press Android back$")]
     public void WhenIPressAndroidBack() => native.BackKey();
 
-    [When(@"^I tap (This week|Trends) in the tab bar$")]
+    [When(@"^I tap (This week|Trends) in the bottom nav$")]
     public void WhenITapInTheTabBar(string tab) => tabs.Open(tab);
 
-    [When(@"^I tap \+ in the tab bar$")]
+    [When(@"^I tap \+ in the bottom nav$")]
     public void WhenITapPlusInTheTabBar() => tabs.New();
 
     [Then(@"^the prompt ""(.*)"" shows (Discard|Delete) and Cancel$")]

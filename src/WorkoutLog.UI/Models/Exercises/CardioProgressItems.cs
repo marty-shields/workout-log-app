@@ -1,10 +1,10 @@
 using System.Globalization;
+using Shields.UI.Components.Charts;
+using Shields.UI.Components.Inputs;
 using WorkoutLog.Core.Domain;
 using WorkoutLog.Core.Domain.Exercises;
 using WorkoutLog.Core.Domain.Exercises.Progress;
 using WorkoutLog.Core.Domain.Workouts;
-using WorkoutLog.UI.Components.Charts;
-using WorkoutLog.UI.Components.Inputs;
 using WorkoutLog.UI.Components.Lists;
 using WorkoutLog.UI.Models.Workout;
 
@@ -72,8 +72,8 @@ public static class CardioProgressItems
     public static string? Caption(string tab) => tab == PaceTab ? "Up = faster" : null;
 
     /// <summary>One point per session, oldest first; times in seconds, unrounded. A session with no value for <paramref name="tab"/> has a point with no value.</summary>
-    public static IReadOnlyList<ChartPoint> Points(CardioProgress progress, string tab, TimeZoneInfo zone, DateTimeOffset now) =>
-        progress.Sessions.Select(s => new ChartPoint(ExerciseProgressItems.Day(s.Session.StartedAt, zone, now), Value(s.Best, tab))).ToList();
+    public static IReadOnlyList<LineChartPoint> Points(CardioProgress progress, string tab, TimeZoneInfo zone, DateTimeOffset now) =>
+        progress.Sessions.Select(s => new LineChartPoint(ExerciseProgressItems.Day(s.Session.StartedAt, zone, now), Value(s.Best, tab))).ToList();
 
     /// <summary>Text in place of a chart with no values for <paramref name="tab"/>: e.g. No calories logged in the last 3 months, or No calories logged yet on All.</summary>
     public static string NoValues(string tab, HistoryRange range)

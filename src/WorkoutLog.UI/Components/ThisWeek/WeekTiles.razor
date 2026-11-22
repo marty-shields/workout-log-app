@@ -5,14 +5,12 @@
         {
             var now = tile.Value(ThisWeek);
             var before = tile.Value(LastWeekToDate);
-            <div class="tile" data-testid="@($"{TestId}-{tile.Key}")">
-                <span class="label">@tile.Label</span>
-                <span class="value">@tile.Format(now)</span>
-                <span class="change" data-testid="@($"{TestId}-{tile.Key}-change")"><WeekChange Difference="now - before" Format="tile.Format" /></span>
-            </div>
+            <StatTile Compact Label="@tile.Label" Value="@tile.Format(now)" Change="WeekMetric.Change(now - before, tile.Format)" TestId="@($"{TestId}-{tile.Key}")" />
         }
     </div>
-    <p class="against" data-testid="@($"{TestId}-against")">@Against</p>
+    <div class="against">
+        <Typography Variant="TextVariant.MutedSmall" As="TextElement.P" TestId="@($"{TestId}-against")">@Against</Typography>
+    </div>
 </section>
 
 @code {

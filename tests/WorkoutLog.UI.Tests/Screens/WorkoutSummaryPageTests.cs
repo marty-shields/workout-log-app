@@ -37,9 +37,9 @@ public class WorkoutSummaryPageTests : ComponentTestBase
         Assert.Multiple(() =>
         {
             Assert.That(summaries.Loads, Is.EqualTo(new[] { 7 }));
-            Assert.That(cut.Find("[data-testid=summary-duration]").TextContent, Is.EqualTo("1:05:00"));
-            Assert.That(cut.Find("[data-testid=summary-exercises]").TextContent, Is.EqualTo("2"));
-            Assert.That(cut.Find("[data-testid=summary-sets]").TextContent, Is.EqualTo("4"));
+            Assert.That(cut.Find("[data-testid=summary-duration-value]").TextContent, Is.EqualTo("1:05:00"));
+            Assert.That(cut.Find("[data-testid=summary-exercises-value]").TextContent, Is.EqualTo("2"));
+            Assert.That(cut.Find("[data-testid=summary-sets-value]").TextContent, Is.EqualTo("4"));
             Assert.That(cut.FindAll("[data-testid^=summary-record-]").Select(r => TestText.Normalise(r.TextContent)), Is.EqualTo(new[] { "Barbell Back Squat · 102.5kg × 3" }));
             Assert.That(TestText.Normalise(cut.Find($"[data-testid=summary-change-{Squat}]").TextContent), Does.Contain("up 2.5kg"));
             Assert.That(TestText.Normalise(cut.Find($"[data-testid=summary-change-{Curl}]").TextContent), Does.Contain("no change"));

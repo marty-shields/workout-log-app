@@ -1,4 +1,5 @@
-using WorkoutLog.UI.Components.Actions;
+using Shields.UI.Components.Actions;
+using Shields.UI.Components.Lists;
 using WorkoutLog.UI.Components.ThisWeek;
 using WorkoutLog.UI.Components.Weekly;
 using WorkoutLog.UI.Stories.Samples;
@@ -12,13 +13,21 @@ public class WeekTilesTests : ComponentTestBase
     {
         var cut = Render(SampleThisWeek.ThisWeek, SampleThisWeek.LastWeekToDate, DayOfWeek.Wednesday);
 
-        var tiles = cut.FindAll(".tile").Select(t => (t.QuerySelector(".label")!.TextContent, t.QuerySelector(".value")!.TextContent));
+        var tiles = cut.FindComponents<StatTile>().Select(t => (t.Instance.Label, t.Instance.Value));
 
         Assert.That(tiles, Is.EqualTo(new[] { ("Workouts", "3"), ("Time", "2h 35m"), ("Sets", "34") }));
     }
 
     [Test]
-    public void Increase_ShowsTheUpIconInSuccessAndTheDifference()
+    public void Tiles_AreCompact()
+    {
+        var cut = Render(SampleThisWeek.ThisWeek, SampleThisWeek.LastWeekToDate, DayOfWeek.Wednesday);
+
+        Assert.That(cut.FindComponents<StatTile>().Select(t => t.Instance.Compact), Is.All.True);
+    }
+
+    [Test]
+    public void Increase_ShowsTheUpIconInGreenAndTheDifference()
     {
         var cut = Render(SampleThisWeek.ThisWeek, SampleThisWeek.LastWeekToDate, DayOfWeek.Wednesday);
 
@@ -28,13 +37,13 @@ public class WeekTilesTests : ComponentTestBase
         Assert.Multiple(() =>
         {
             Assert.That(TestText.Normalise(change.TextContent), Is.EqualTo("up 35m"));
-            Assert.That(change.QuerySelector(".diff")!.ClassList, Does.Contain("up"));
+            Assert.That(change.ClassList, Does.Contain("up"));
             Assert.That(icon.Tone, Is.EqualTo(IconTone.Success));
         });
     }
 
     [Test]
-    public void Decrease_ShowsTheDownIconInErrorAndTheDifference()
+    public void Decrease_ShowsTheDownIconInRedAndTheDifference()
     {
         var cut = Render(SampleThisWeek.LastWeekToDate, SampleThisWeek.ThisWeek, DayOfWeek.Wednesday);
 
@@ -44,7 +53,7 @@ public class WeekTilesTests : ComponentTestBase
         Assert.Multiple(() =>
         {
             Assert.That(TestText.Normalise(change.TextContent), Is.EqualTo("down 1"));
-            Assert.That(change.QuerySelector(".diff")!.ClassList, Does.Contain("down"));
+            Assert.That(change.ClassList, Does.Contain("down"));
             Assert.That(icon.Tone, Is.EqualTo(IconTone.Error));
         });
     }
@@ -56,7 +65,7 @@ public class WeekTilesTests : ComponentTestBase
 
         Assert.Multiple(() =>
         {
-            Assert.That(cut.FindAll(".change").Select(c => TestText.Normalise(c.TextContent)), Is.All.EqualTo("—no change"));
+            Assert.That(cut.FindAll(".change").Select(c => TestText.Normalise(c.TextContent)), Is.All.EqualTo("— no change"));
             Assert.That(cut.FindAll("svg"), Is.Empty);
             Assert.That(cut.FindAll(".same"), Has.Count.EqualTo(3));
         });
@@ -67,7 +76,7 @@ public class WeekTilesTests : ComponentTestBase
     {
         var cut = Render(new WeekTotals(1, new TimeSpan(0, 10, 59), 1), new WeekTotals(1, new TimeSpan(0, 10, 1), 1), DayOfWeek.Tuesday);
 
-        Assert.That(TestText.Normalise(cut.Find("[data-testid=tiles-time-change]").TextContent), Is.EqualTo("—no change"));
+        Assert.That(TestText.Normalise(cut.Find("[data-testid=tiles-time-change]").TextContent), Is.EqualTo("— no change"));
     }
 
     [TestCase(DayOfWeek.Wednesday, "Against Monday to Wednesday last week")]
@@ -85,7 +94,7 @@ public class WeekTilesTests : ComponentTestBase
     {
         var cut = Render(SampleThisWeek.Nothing, SampleThisWeek.Nothing, DayOfWeek.Monday);
 
-        Assert.That(cut.FindAll(".value").Select(v => v.TextContent), Is.EqualTo(new[] { "0", "0m", "0" }));
+        Assert.That(cut.FindAll("[data-testid$=-value]").Select(v => v.TextContent), Is.EqualTo(new[] { "0", "0m", "0" }));
     }
 
     private IRenderedComponent<WeekTiles> Render(WeekTotals thisWeek, WeekTotals last, DayOfWeek today) =>

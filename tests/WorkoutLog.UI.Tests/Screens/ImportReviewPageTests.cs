@@ -138,7 +138,7 @@ public class ImportReviewPageTests : ComponentTestBase
         import.Complete(new ImportFailed());
         await WaitForRendererAsync();
 
-        cut.WaitForAssertion(() => Assert.That(cut.Find("[data-testid=review-failed]").TextContent, Is.EqualTo("Couldn't import your workouts. Try again")));
+        cut.WaitForAssertion(() => Assert.That(cut.Find("[data-testid=review-failed]").TextContent.Trim(), Is.EqualTo("Couldn't import your workouts. Try again")));
         Assert.Multiple(() =>
         {
             Assert.That(cut.Find("[data-testid=review-import]").TextContent.Trim(), Is.EqualTo("Import"));
@@ -265,7 +265,7 @@ public class ImportReviewPageTests : ComponentTestBase
         await WaitForRendererAsync();
 
         cut.WaitForAssertion(() => Assert.That(cut.Find("[data-testid=review-choose]").TextContent.Trim(), Is.EqualTo("Choose another file")));
-        Assert.That(cut.Find("[data-testid=review-error]").TextContent, Is.EqualTo("This file isn't a Workout Log export"));
+        Assert.That(cut.Find("[data-testid=review-error]").TextContent.Trim(), Is.EqualTo("This file isn't a Workout Log export"));
     }
 
     [Test]
@@ -279,7 +279,7 @@ public class ImportReviewPageTests : ComponentTestBase
         opener.Fail(exception);
         await WaitForRendererAsync();
 
-        cut.WaitForAssertion(() => Assert.That(cut.Find("[data-testid=review-error]").TextContent, Is.EqualTo("Couldn't import your workouts. Try again")));
+        cut.WaitForAssertion(() => Assert.That(cut.Find("[data-testid=review-error]").TextContent.Trim(), Is.EqualTo("Couldn't import your workouts. Try again")));
         Assert.Multiple(() =>
         {
             Assert.That(LoggedEvents.Of(logger), Is.EqualTo(new[] { (UiEvent.ReviewPickFailed, LogLevel.Error, "Picking or opening another import file failed") }));
@@ -297,7 +297,7 @@ public class ImportReviewPageTests : ComponentTestBase
         opener.Complete(ImportReview.Rejected("next.json", ImportError.Failed));
         await WaitForRendererAsync();
 
-        cut.WaitForAssertion(() => Assert.That(cut.Find("[data-testid=review-error]").TextContent, Is.EqualTo("Couldn't import your workouts. Try again")));
+        cut.WaitForAssertion(() => Assert.That(cut.Find("[data-testid=review-error]").TextContent.Trim(), Is.EqualTo("Couldn't import your workouts. Try again")));
         Assert.That(cut.Find("[data-testid=review-file-name]").TextContent, Is.EqualTo("photo.json"));
     }
 
@@ -311,7 +311,7 @@ public class ImportReviewPageTests : ComponentTestBase
         opener.Complete(ImportReview.Rejected("big.json", ImportError.TooLarge));
         await WaitForRendererAsync();
 
-        cut.WaitForAssertion(() => Assert.That(cut.Find("[data-testid=review-error]").TextContent, Is.EqualTo("This file is too large to import")));
+        cut.WaitForAssertion(() => Assert.That(cut.Find("[data-testid=review-error]").TextContent.Trim(), Is.EqualTo("This file is too large to import")));
     }
 
     [Test]

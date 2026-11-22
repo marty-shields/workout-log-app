@@ -1,32 +1,40 @@
-@using WorkoutLog.UI.Components.Inputs
 @using WorkoutLog.UI.Models.Fields
-<section class="panel" data-testid="@TestId">
-    <header class="panel-header">
-        <div class="heading">
-            <h3 class="title">Set @Number</h3>
-            @if (IsRecord)
-            {
-                <RecordBadge TestId="@($"{TestId}-record")" />
-            }
-        </div>
-        <IconButton Icon="IconName.Close" AriaLabel="@RemoveLabel" TestId="@($"{TestId}-remove")" Muted Size="IconSize.Small" OnClick="OnRemove" />
-    </header>
-    @if (Last is not null)
-    {
-        <p class="last" data-testid="@($"{TestId}-last")">Last time @Last</p>
-    }
-    <div class="fields">
-        @foreach (var field in Fields)
+<Card Title="@($"Set {Number}")" HeadingLevel="3" Selected TestId="@TestId" ChildContent="Body">
+    <HeaderActions>
+        @if (IsRecord)
         {
-            <div class="@(field.Kind == FieldKind.Duration ? "wide" : null)">
-                <FieldInput @ref="fields[field.Key]" Field="field" Entry="Entry" OnChanged="OnChanged" OnEnter="@(field == Fields[^1] ? OnEnterLast : default)" TestId="@($"{TestId}-{field.Key}")" />
-            </div>
+            <SuccessBadge Text="Record" TestId="@($"{TestId}-record")" />
         }
-    </div>
-    <EntryErrors Fields="Fields" Entry="Entry" TestId="@($"{TestId}-error")" />
-</section>
+        <IconButton Icon="IconName.Close" AriaLabel="@RemoveLabel" TestId="@($"{TestId}-remove")" Muted Size="IconSize.Small" OnClick="OnRemove" />
+    </HeaderActions>
+</Card>
 
 @code {
+    private RenderFragment Body =>
+        @<div class="body">
+            @if (Last is not null)
+            {
+                <Typography Variant="TextVariant.MutedSmall" As="TextElement.P" TestId="@($"{TestId}-last")">Last time @Last</Typography>
+            }
+            <div class="fields">
+                @foreach (var spec in Fields)
+                {
+                    <div class="@(spec.Kind == FieldKind.Duration ? "wide" : null)">
+                        <ValueField @ref="fields[spec.Key]"
+                                    Kind="spec.ValueKind"
+                                    Label="@spec.DisplayLabel"
+                                    Required="spec.Required"
+                                    Invalid="Entry.Errors.ContainsKey(spec.Key)"
+                                    Value="@Entry.Values.GetValueOrDefault(spec.Key)"
+                                    ValueChanged="value => Change(spec, value)"
+                                    OnEnter="@(spec == Fields[^1] ? OnEnterLast : default)"
+                                    TestId="@($"{TestId}-{spec.Key}")" />
+                    </div>
+                }
+            </div>
+            <InlineAlert Messages="Entry.ErrorMessages(Fields)" TestId="@($"{TestId}-error")" />
+        </div>;
+
     /// <summary>Set number, from 1.</summary>
     [Parameter, EditorRequired]
     public int Number { get; set; }
@@ -67,13 +75,19 @@
     [Parameter]
     public string? TestId { get; set; }
 
-    private readonly Dictionary<string, FieldInput> fields = new();
+    private readonly Dictionary<string, ValueField> fields = new();
 
     /// <summary>Moves focus to the first field with an error, or the first field.</summary>
     public ValueTask FocusAsync() =>
         (Fields.FirstOrDefault(f => Entry.Errors.ContainsKey(f.Key)) ?? Fields.FirstOrDefault()) is { } field && fields.TryGetValue(field.Key, out var input)
             ? input.FocusAsync()
             : ValueTask.CompletedTask;
+
+    private Task Change(FieldSpec field, string? value)
+    {
+        Entry.Values[field.Key] = value;
+        return OnChanged.InvokeAsync();
+    }
 
     private string RemoveLabel => ExerciseName is null ? $"Remove set {Number}" : $"Remove {ExerciseName} set {Number}";
 }

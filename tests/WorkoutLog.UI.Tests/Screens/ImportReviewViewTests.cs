@@ -26,11 +26,28 @@ public class ImportReviewViewTests : ComponentTestBase
         });
     }
 
+    [Test]
+    public void FileName_IsInTheWrappingElement_SoALongNameBreaks()
+    {
+        var cut = Render(Review(3, 38, 2, 1));
+
+        Assert.That(cut.Find("[data-testid=review-file-name]").ParentElement!.ClassList, Does.Contain("name"));
+    }
+
     [TestCase(1, "1 workout in the file")]
     [TestCase(2, "2 workouts in the file")]
     [TestCase(1042, "1,042 workouts in the file")]
     public void Total_IsWorded(int total, string text) =>
         Assert.That(Render(Review(fresh: total)).Find("[data-testid=review-total]").TextContent, Is.EqualTo(text));
+
+    [Test]
+    public void Counts_ShowTheLabelBeforeTheValue()
+    {
+        var cut = Render(Review(3, 38, 2, 1));
+
+        Assert.That(cut.Find("[data-testid=review-new]").Children.Select(c => c.GetAttribute("data-testid")),
+            Is.EqualTo(new[] { "review-new-label", "review-new-value" }));
+    }
 
     [Test]
     public void Counts_ShowEachGroup()
@@ -297,7 +314,7 @@ public class ImportReviewViewTests : ComponentTestBase
         var failed = cut.Find("[data-testid=review-failed]");
         Assert.Multiple(() =>
         {
-            Assert.That(failed.TextContent, Is.EqualTo("Couldn't import your workouts. Try again"));
+            Assert.That(failed.TextContent.Trim(), Is.EqualTo("Couldn't import your workouts. Try again"));
             Assert.That(failed.GetAttribute("role"), Is.EqualTo("alert"));
         });
         cut.WaitForAssertion(() => Assert.That(((ElementReference)Focuses().Single().Arguments[0]!).Id, Is.EqualTo(import)));
@@ -342,7 +359,7 @@ public class ImportReviewViewTests : ComponentTestBase
         var shown = cut.Find("[data-testid=review-error]");
         Assert.Multiple(() =>
         {
-            Assert.That(shown.TextContent, Is.EqualTo(text));
+            Assert.That(shown.TextContent.Trim(), Is.EqualTo(text));
             Assert.That(shown.GetAttribute("role"), Is.EqualTo("alert"));
             Assert.That(cut.Find("[data-testid=review-file-name]").TextContent, Is.EqualTo("photo.json"));
             Assert.That(cut.FindAll("[data-testid=review-total]"), Is.Empty);
@@ -361,7 +378,7 @@ public class ImportReviewViewTests : ComponentTestBase
 
         Assert.Multiple(() =>
         {
-            Assert.That(cut.Find("[data-testid=review-error]").TextContent, Is.EqualTo("Couldn't import your workouts. Try again"));
+            Assert.That(cut.Find("[data-testid=review-error]").TextContent.Trim(), Is.EqualTo("Couldn't import your workouts. Try again"));
             Assert.That(cut.FindAll("[data-testid=review-failed]"), Is.Empty);
             Assert.That(Context.JSInterop.Invocations.Where(i => i.Identifier == "Blazor._internal.domWrapper.focus"), Is.Empty);
         });
@@ -404,7 +421,7 @@ public class ImportReviewViewTests : ComponentTestBase
         new(FileName, fresh + already + different + skipped, fresh, already, different, skipped, PhoneCount: 41);
 
     private static (string Value, string Label) Tile(IRenderedComponent<ImportReviewView> cut, string testId) =>
-        (cut.Find($"[data-testid={testId}] .value").TextContent, cut.Find($"[data-testid={testId}] .label").TextContent);
+        (cut.Find($"[data-testid={testId}-value]").TextContent, cut.Find($"[data-testid={testId}-label]").TextContent);
 
     private IRenderedComponent<ImportReviewView> Render(
         ImportReview review, ImportMode mode = ImportMode.Add, DifferentChoice different = DifferentChoice.KeepPhones, bool failed = false) =>

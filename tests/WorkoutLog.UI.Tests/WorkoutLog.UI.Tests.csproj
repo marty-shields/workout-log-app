@@ -11,6 +11,15 @@
     <ProjectReference Include="..\..\src\WorkoutLog.UI.Stories\WorkoutLog.UI.Stories.csproj" />
   </ItemGroup>
 
+  <!-- The kit's design checks come from NuGet; -p:UseKitSource=true builds against the kit's source at KitPath instead. -->
+  <ItemGroup Condition="'$(UseKitSource)' != 'true'">
+    <PackageReference Include="Shields.UI.Testing" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(UseKitSource)' == 'true'">
+    <ProjectReference Include="$(KitSourcePath)/src/Shields.UI.Testing/Shields.UI.Testing.csproj" />
+  </ItemGroup>
+
   <ItemGroup>
     <Using Include="Bunit" />
   </ItemGroup>

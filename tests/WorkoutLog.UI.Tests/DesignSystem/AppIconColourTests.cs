@@ -1,5 +1,6 @@
 using System.Text.Json;
 using System.Xml.Linq;
+using Shields.UI.Testing;
 
 namespace WorkoutLog.UI.Tests.DesignSystem;
 

@@ -125,7 +125,7 @@ public sealed class ThisWeekSteps(WebView web, ThisWeekScreen thisWeek, TabBar t
         web.Eventually(thisWeek.MuscleRows, Is.EqualTo(table.Rows.Select(r => (r["group"], r["sets"])).ToList()));
     }
 
-    [Then(@"^I can open Trends and start a New Workout from the tab bar$")]
+    [Then(@"^I can open Trends and start a New Workout from the bottom nav$")]
     public void ThenTrendsAndNewShow() => Assert.Multiple(() =>
     {
         Assert.That(tabs.Has("This week"), Is.True, "This week");

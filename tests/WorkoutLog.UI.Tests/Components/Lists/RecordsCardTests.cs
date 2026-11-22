@@ -5,11 +5,15 @@ namespace WorkoutLog.UI.Tests.Components.Lists;
 public class RecordsCardTests : ComponentTestBase
 {
     [Test]
-    public void Title_ShowsTheRange()
+    public void Title_IsRecords_WithTheRangeAsTheAside()
     {
         var cut = Render([]);
 
-        Assert.That(TestText.Normalise(cut.Find("h2").TextContent), Is.EqualTo("Records · last 3 months"));
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.Find("section.card h2.title").TextContent, Is.EqualTo("Records"));
+            Assert.That(cut.Find("section.card [data-testid=records-aside]").TextContent, Is.EqualTo("last 3 months"));
+        });
     }
 
     [Test]
@@ -29,16 +33,24 @@ public class RecordsCardTests : ComponentTestBase
     }
 
     [Test]
+    public void OnlyTheLastRow_HasNoDivider()
+    {
+        var cut = Render([new("Heaviest weight", "70kg × 3", "20 Oct"), new("Best e1RM", "82.3kg", "13 Oct")]);
+
+        Assert.That(cut.FindAll(".row").Select(r => r.ClassList.Contains("no-divider")), Is.EqualTo(new[] { false, true }));
+    }
+
+    [Test]
     public void TestId_IsOnTheCard()
     {
         var cut = Render([]);
 
-        Assert.That(cut.Find("section").GetAttribute("data-testid"), Is.EqualTo("records"));
+        Assert.That(cut.Find("section.card").GetAttribute("data-testid"), Is.EqualTo("records"));
     }
 
     private IRenderedComponent<RecordsCard> Render(IReadOnlyList<RecordRow> rows) =>
         Context.Render<RecordsCard>(p => p.Add(x => x.Range, "last 3 months").Add(x => x.Rows, rows).Add(x => x.TestId, "records"));
 
     private static IEnumerable<(string, string, string)> Rows(IRenderedComponent<RecordsCard> cut) =>
-        cut.FindAll(".row").Select(r => (r.QuerySelector(".label")!.TextContent, r.QuerySelector(".value")!.TextContent, r.QuerySelector(".date")!.TextContent));
+        cut.FindAll(".row").Select(r => (r.QuerySelector(".text")!.TextContent, r.QuerySelector(".aside")!.TextContent, r.QuerySelector(".detail")?.TextContent ?? ""));
 }

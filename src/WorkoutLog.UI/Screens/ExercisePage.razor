@@ -2,8 +2,7 @@
 @using WorkoutLog.Core.Domain.Exercises
 @using WorkoutLog.Core.Domain.Exercises.Progress
 @using WorkoutLog.Core.Services
-@using WorkoutLog.UI.Components.Charts
-@using WorkoutLog.UI.Components.Inputs
+@using Shields.UI.Components.Charts
 @using WorkoutLog.UI.Models.Exercises
 @inject IExerciseProgressService Progress
 @inject ICardioProgressService CardioProgress
@@ -50,7 +49,7 @@
     private Func<decimal, string> format = ExerciseProgressItems.Weight;
     private bool timeScale;
     private string? caption;
-    private IReadOnlyList<ChartPoint> points = [];
+    private IReadOnlyList<LineChartPoint> points = [];
     private string? noDataMessage;
     private IReadOnlyList<RecordRow> records = [];
     private IReadOnlyList<ExerciseSession> sessions = [];

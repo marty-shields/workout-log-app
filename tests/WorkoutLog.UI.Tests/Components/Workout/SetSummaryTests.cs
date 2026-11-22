@@ -1,5 +1,5 @@
+using Shields.UI.Components.Actions;
 using WorkoutLog.Core.Domain.Exercises;
-using WorkoutLog.UI.Components.Actions;
 using WorkoutLog.UI.Components.Workout;
 using WorkoutLog.UI.Models.Fields;
 using WorkoutLog.UI.Models.Workout;
@@ -27,6 +27,37 @@ public class SetSummaryTests : ComponentTestBase
     }
 
     [Test]
+    public void Text_IsALevel3HeadingThatMayWrap()
+    {
+        var cut = Context.Render<SetSummary>(p => p
+            .Add(x => x.Number, 2)
+            .Add(x => x.Fields, Carry)
+            .Add(x => x.Entry, Entry(("distance", "40"), ("weight", "32")))
+            .Add(x => x.TestId, "set-2"));
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.Find("[data-testid=set-2] [role=heading]").GetAttribute("aria-level"), Is.EqualTo("3"));
+            Assert.That(cut.Find("[data-testid=set-2] [role=heading]").TextContent.Trim(), Is.EqualTo("40m · 32kg"));
+            Assert.That(cut.Find("[data-testid=set-2]").HasAttribute("data-wrap-ok"), Is.True);
+        });
+    }
+
+    [Test]
+    public void EditAndDelete_AreMutedCompactIconButtons()
+    {
+        var cut = Context.Render<SetSummary>(p => p
+            .Add(x => x.Number, 1)
+            .Add(x => x.Fields, Carry)
+            .Add(x => x.Entry, Entry(("distance", "40")))
+            .Add(x => x.TestId, "set-1"));
+
+        var buttons = cut.FindComponents<IconButton>().Select(b => (b.Instance.TestId, b.Instance.Icon, b.Instance.Muted, b.Instance.Compact));
+
+        Assert.That(buttons, Is.EqualTo(new[] { ("set-1-edit", IconName.Edit, true, true), ("set-1-remove", IconName.Delete, true, true) }));
+    }
+
+    [Test]
     public void FilledSet_ShowsValuesWithUnitsAndDuration()
     {
         var cut = Context.Render<SetSummary>(p => p
@@ -36,7 +67,7 @@ public class SetSummaryTests : ComponentTestBase
 
         Assert.Multiple(() =>
         {
-            Assert.That(cut.Find(".number").TextContent, Is.EqualTo("1"));
+            Assert.That(cut.Find(".leading").TextContent, Is.EqualTo("1"));
             Assert.That(cut.Find(".text").TextContent, Is.EqualTo("40m · 32kg · 0:00:45"));
         });
     }
@@ -115,19 +146,19 @@ public class SetSummaryTests : ComponentTestBase
         Assert.Multiple(() =>
         {
             Assert.That(cut.FindAll("[data-testid=set-1-error]"), Is.Empty);
-            Assert.That(cut.Find(".line").ClassList, Does.Not.Contain("invalid"));
+            Assert.That(cut.Find("[data-testid=set-1]").ClassList, Does.Not.Contain("invalid"));
         });
     }
 
     [Test]
-    public void Heading_ReadsAsJustTheNumberAndValues()
+    public void Row_ReadsAsJustTheNumberAndValues()
     {
         var cut = Context.Render<SetSummary>(p => p
             .Add(x => x.Number, 2)
             .Add(x => x.Fields, Carry)
             .Add(x => x.Entry, Entry(("distance", "40"))));
 
-        Assert.That(TestText.Normalise(cut.Find(".heading").TextContent), Is.EqualTo("2 40m"));
+        Assert.That((cut.Find(".leading").TextContent, cut.Find(".text").TextContent), Is.EqualTo(("2", "40m")));
     }
 
     [Test]
@@ -195,7 +226,7 @@ public class SetSummaryTests : ComponentTestBase
         Assert.Multiple(() =>
         {
             Assert.That(cut.Find("[data-testid=set-1-record]").TextContent.Trim(), Is.EqualTo("Record"));
-            Assert.That(cut.Find(".line").QuerySelector("[data-testid=set-1-record]"), Is.Null);
+            Assert.That(cut.Find("[data-testid=set-1]").QuerySelector("[data-testid=set-1-record]"), Is.Null);
         });
     }
 

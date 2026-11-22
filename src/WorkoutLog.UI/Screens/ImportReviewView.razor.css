@@ -11,18 +11,11 @@
 }
 
 .name {
-    margin: 0;
-    font-weight: var(--font-weight-bold);
     overflow-wrap: anywhere;
 }
 
-.total,
 .text {
     margin: 0;
-}
-
-.total {
-    color: var(--color-text-muted);
 }
 
 .tiles {
@@ -31,11 +24,13 @@
     gap: var(--space-3);
 }
 
-.error {
-    margin: 0;
-    padding: var(--space-3);
-    border: var(--border-width-error) solid var(--color-error);
-    border-radius: var(--radius-md);
-    color: var(--color-error);
-    font-weight: var(--font-weight-bold);
+/* Two buttons side by side. In the file-error state they stack, because "Choose another file" doesn't fit beside Cancel at phone width. */
+.actions {
+    display: flex;
+    flex: 1;
+    gap: var(--space-3);
+}
+
+.stacked {
+    flex-direction: column;
 }
