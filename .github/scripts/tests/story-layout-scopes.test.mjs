@@ -2,7 +2,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  CARD_WIDTH, COMPONENT_WIDTH, PHONE_WIDTH, SCREEN_PAGE_WIDTH, defaultScopes, measureFor, qualifyScope, slug, storiesOf,
+  CARD_WIDTH, COMPONENT_WIDTH, PHONE_WIDTH, SCREEN_PAGE_WIDTH, defaultScopes, frameFindings, measureFor, qualifyScope, rightEdge, slug, storiesOf,
 } from '../story-layout-scopes.mjs';
 
 const prefix = 'Workout Log';
@@ -37,7 +37,8 @@ test('a screen story is measured inside a phone narrowed to the narrowest phone'
   const measure = measureFor('Workout Log/Screens/This Week', prefix);
   assert.equal(measure.kind, 'screen');
   assert.equal(measure.phoneWidth, PHONE_WIDTH);
-  assert.equal(PHONE_WIDTH - 32, CARD_WIDTH);
+  assert.equal(measure.label, `${PHONE_WIDTH}px phone`);
+  assert.equal(PHONE_WIDTH - 32, CARD_WIDTH, 'a card is the phone less 16px side padding');
   assert.ok(measure.pageWidth >= 6 * 2 + PHONE_WIDTH + 2 * 48, 'the page holds the phone frame and preview padding');
   assert.equal(measure.pageWidth, SCREEN_PAGE_WIDTH);
 });
@@ -47,4 +48,28 @@ test('a component story is measured on the whole page at the component width', (
   assert.equal(measure.kind, 'component');
   assert.equal(measure.phoneWidth, null);
   assert.equal(measure.pageWidth, COMPONENT_WIDTH);
+  assert.equal(measure.label, `${COMPONENT_WIDTH}px`);
+});
+
+test('only the Screens folder of the story prefix is measured as a screen', () => {
+  for (const title of ['Workout Log/ScreensX/Foo', 'Workout Log/Components/Screens/X', 'Other/Screens/X']) {
+    assert.equal(measureFor(title, prefix).kind, 'component', title);
+  }
+});
+
+test('an edge is measured from the left edge of the frame', () => {
+  assert.equal(rightEdge(400, 40), 360);
+  assert.equal(rightEdge(300, 0), 300);
+});
+
+test('a phone frame of another width replaces the findings with a kit-changed message', () => {
+  const screen = measureFor('Workout Log/Screens/X', prefix);
+  assert.deepEqual(frameFindings(screen, PHONE_WIDTH, ['a']), ['a']);
+  assert.deepEqual(frameFindings(screen, 412, ['a']), [`phone frame is 412px wide, not ${PHONE_WIDTH}px; the kit's --stories-phone-width changed`]);
+});
+
+test('a missing frame keeps the findings, and a component has no frame to check', () => {
+  const screen = measureFor('Workout Log/Screens/X', prefix);
+  assert.deepEqual(frameFindings(screen, undefined, ['no phone frame found']), ['no phone frame found']);
+  assert.deepEqual(frameFindings(measureFor('Workout Log/Components/X', prefix), 999, ['a']), ['a']);
 });

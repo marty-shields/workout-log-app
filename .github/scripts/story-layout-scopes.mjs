@@ -31,3 +31,13 @@ export function measureFor(title, storyPrefix) {
   }
   return { kind: 'component', pageWidth: COMPONENT_WIDTH, phoneWidth: null, label: `${COMPONENT_WIDTH}px` };
 }
+
+// Right edge of an element relative to the left edge of the frame it is measured in (0 for the whole page).
+export const rightEdge = (boxRight, frameLeft) => boxRight - frameLeft;
+
+// The findings to report for a story: the page's own findings, unless the phone frame is not as wide as the measure expects.
+// A missing frame is already a finding of the page check, so only a defined, different width replaces them.
+export function frameFindings(measure, frameWidth, findings) {
+  if (measure.phoneWidth === null || frameWidth === undefined || frameWidth === measure.phoneWidth) return findings;
+  return [`phone frame is ${frameWidth}px wide, not ${measure.phoneWidth}px; the kit's --stories-phone-width changed`];
+}

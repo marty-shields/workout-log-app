@@ -5,7 +5,7 @@ import { readFileSync, readdirSync, statSync, mkdtempSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { CARD_WIDTH, PHONE_WIDTH, defaultScopes, measureFor, qualifyScope, storiesOf } from './story-layout-scopes.mjs';
+import { CARD_WIDTH, defaultScopes, frameFindings, measureFor, qualifyScope, rightEdge, storiesOf } from './story-layout-scopes.mjs';
 
 const [baseUrl, chromePath, ...prefixes] = process.argv.slice(2);
 if (!baseUrl || !chromePath) {
@@ -35,7 +35,7 @@ function stories() {
 
 // Runs in the page. Returns one finding per problem. A component story is measured over the whole app against the page
 // width; a screen story (phone: true) over the content inside the kit's phone frame against that frame's width.
-function inspect(phone) {
+function inspect(phone, rightEdge) {
   const PROSE = 'h1, h2, h3, [role=alert], .note, .error, [data-wrap-ok]';
   const findings = [];
   const label = (el) => {
@@ -45,7 +45,9 @@ function inspect(phone) {
   const app = phone ? document.querySelector('[data-testid=phone] > .viewport') : document.querySelector('#app');
   if (!app) return ['no phone frame found'];
   const pageWidth = document.documentElement.clientWidth;
-  const viewport = phone ? app.getBoundingClientRect().width : pageWidth;
+  const frame = app.getBoundingClientRect();
+  const frameLeft = phone ? frame.left : 0;
+  const viewport = phone ? frame.width : pageWidth;
   if (document.documentElement.scrollWidth > pageWidth) {
     findings.push(`page scrolls sideways (${document.documentElement.scrollWidth}px > ${pageWidth}px)`);
   }
@@ -74,7 +76,7 @@ function inspect(phone) {
       const room = el.clientWidth - parseFloat(style.paddingLeft) - parseFloat(style.paddingRight);
       if (needed > room + 0.5) findings.push(`${label(el)} placeholder is cut off (${Math.round(needed)}px in ${Math.round(room)}px)`);
     }
-    const right = box.right - (phone ? app.getBoundingClientRect().left : 0);
+    const right = rightEdge(box.right, frameLeft);
     if (right > viewport + 1) {
       findings.push(`${label(el)} runs past the screen edge (${Math.round(right)}px > ${viewport}px)`);
     }
@@ -140,8 +142,7 @@ const send = (method, params = {}, sessionId) => new Promise((resolve, reject) =
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
-async function check(story) {
-  const measure = measureFor(story.title, storyPrefix);
+async function check(story, measure) {
   const phone = measure.kind === 'screen';
   const { targetId } = await send('Target.createTarget', { url: 'about:blank' });
   const { sessionId } = await send('Target.attachToTarget', { targetId, flatten: true });
@@ -158,18 +159,19 @@ async function check(story) {
     }
     if (phone) {
       // The kit frame is 412px wide; narrow it to the narrowest phone so the screen lays out as there.
-      await run('Runtime.evaluate', { expression: `document.documentElement.style.setProperty('--stories-phone-width', '${PHONE_WIDTH}px')` });
+      await run('Runtime.evaluate', { expression: `document.documentElement.style.setProperty('--stories-phone-width', '${measure.phoneWidth}px')` });
       await sleep(300);
     }
     if (FONT_SCALE !== 1) {
       await run('Runtime.evaluate', { expression: `document.documentElement.style.fontSize = '${FONT_SCALE * 100}%'` });
       await sleep(300);
     }
-    const { result, exceptionDetails } = await run('Runtime.evaluate', { expression: `(${inspect})(${phone})`, returnByValue: true });
+    const { result, exceptionDetails } = await run('Runtime.evaluate', { expression: `(${inspect})(${phone}, ${rightEdge})`, returnByValue: true });
     if (exceptionDetails) return { findings: [`checker failed: ${exceptionDetails.text}`] };
-    const cardWidth = (await run('Runtime.evaluate', { expression: `document.querySelector('.card')?.getBoundingClientRect().width`, returnByValue: true })).result.value;
-    const frameWidth = phone ? (await run('Runtime.evaluate', { expression: `document.querySelector('[data-testid=phone] > .viewport')?.getBoundingClientRect().width`, returnByValue: true })).result.value : PHONE_WIDTH;
-    const findings = frameWidth === PHONE_WIDTH ? result.value : [`phone frame is ${frameWidth}px wide, not ${PHONE_WIDTH}px; the kit's --stories-phone-width changed`];
+    const cardScope = phone ? `document.querySelector('[data-testid=phone] > .viewport')` : 'document';
+    const cardWidth = (await run('Runtime.evaluate', { expression: `Math.max(...[...${cardScope}.querySelectorAll('.card')].map((c) => c.getBoundingClientRect().width))`, returnByValue: true })).result.value;
+    const frameWidth = phone ? (await run('Runtime.evaluate', { expression: `document.querySelector('[data-testid=phone] > .viewport')?.getBoundingClientRect().width`, returnByValue: true })).result.value : undefined;
+    const findings = frameFindings(measure, frameWidth, result.value);
     return { findings, cardWidth, measure };
   } finally {
     await send('Target.closeTarget', { targetId }).catch(() => {});
@@ -189,10 +191,11 @@ try {
   await Promise.all(Array.from({ length: CONCURRENCY }, async () => {
     while (cursor < jobs.length) {
       const story = jobs[cursor++];
-      const result = await check(story);
-      measures.add(result.measure?.label ?? measureFor(story.title, storyPrefix).label);
+      const measure = measureFor(story.title, storyPrefix);
+      const result = await check(story, measure);
+      measures.add(measure.label);
       if (result.cardWidth !== undefined) cardWidths.push(result.cardWidth);
-      if (result.findings.length) failures.push({ story, findings: [...new Set(result.findings)], label: measureFor(story.title, storyPrefix).label });
+      if (result.findings.length) failures.push({ story, findings: [...new Set(result.findings)], label: measure.label });
     }
   }));
 
