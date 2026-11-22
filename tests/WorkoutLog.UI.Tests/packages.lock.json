@@ -74,9 +74,9 @@
       },
       "Shields.UI.Testing": {
         "type": "Direct",
-        "requested": "[1.0.0-pr.19.40, )",
-        "resolved": "1.0.0-pr.19.40",
-        "contentHash": "OI6AiJIpZip4m90LQbGbMPDHdOWbTLe+s2Wja4EoeU19D3O82TmxAwrv2/NeKtIL3JkD5dQ3vJAzBy/QbVgOPA=="
+        "requested": "[1.0.0-pr.19.41, )",
+        "resolved": "1.0.0-pr.19.41",
+        "contentHash": "GvUydsApPWYTCzihLgLhsoQtAEbn1pCPrezexr+cqCPyOlW3g4cFm9wd23o2sjxGYJqbyRSxXGCzBnX0m5KOWw=="
       },
       "AngleSharp": {
         "type": "Transitive",
@@ -448,7 +448,7 @@
         "type": "Project",
         "dependencies": {
           "Microsoft.AspNetCore.Components.Web": "[11.0.0, )",
-          "Shields.UI": "[1.0.0-pr.19.40, )",
+          "Shields.UI": "[1.0.0-pr.19.41, )",
           "WorkoutLog.Core": "[1.0.0, )"
         }
       },
@@ -456,7 +456,7 @@
         "type": "Project",
         "dependencies": {
           "BlazingStory": "[1.0.0-preview.97, )",
-          "Shields.UI.Stories": "[1.0.0-pr.19.40, )",
+          "Shields.UI.Stories": "[1.0.0-pr.19.41, )",
           "WorkoutLog.UI": "[1.0.0, )"
         }
       },
@@ -511,21 +511,21 @@
       },
       "Shields.UI": {
         "type": "CentralTransitive",
-        "requested": "[1.0.0-pr.19.40, )",
-        "resolved": "1.0.0-pr.19.40",
-        "contentHash": "wcZ/H+f6hfeTr2bAQH2cZFk9ZA/oHBxKMhj2M7vjZptzHVLemDtKHCTsmw8REzPEx4mWS3bfAzeA3qBC25ed6g==",
+        "requested": "[1.0.0-pr.19.41, )",
+        "resolved": "1.0.0-pr.19.41",
+        "contentHash": "61DMvCT/MnVvCMztqA09IKPi3RMeF52Ook3mQAkFO+UHjc8YMv/6ufcF1hFTTCWKzlIL4vkk1KvaWjT4Fostpg==",
         "dependencies": {
           "Microsoft.AspNetCore.Components.Web": "11.0.0"
         }
       },
       "Shields.UI.Stories": {
         "type": "CentralTransitive",
-        "requested": "[1.0.0-pr.19.40, )",
-        "resolved": "1.0.0-pr.19.40",
-        "contentHash": "ysPqnG0cuynzy33pVw9YJGZRPGp6KsHLaCEVGQ8RsqYQ/rXZ5GdotjEKPxkvecEl9WEtyrNymBoonnG6azHiuw==",
+        "requested": "[1.0.0-pr.19.41, )",
+        "resolved": "1.0.0-pr.19.41",
+        "contentHash": "ejxeJuYkwB9iMy9jweb542d6rqIRAnluqHC63DKMwLDTUUAgSK09sLn+8Ji9nsprGO250VwYQpWRAwPdnE7Yaw==",
         "dependencies": {
           "BlazingStory": "1.0.0-preview.97",
-          "Shields.UI": "1.0.0-pr.19.40"
+          "Shields.UI": "1.0.0-pr.19.41"
         }
       },
       "sqlite-net-pcl": {
