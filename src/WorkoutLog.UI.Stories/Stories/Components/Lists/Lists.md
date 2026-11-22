@@ -5,7 +5,7 @@ $attribute: CustomPage(StoryTitles.Prefix + "/Components/Lists/Overview")
 # Lists
 
 ## `RecordsCard`
-A kit `Card` titled "Records" with the range as its aside at the right, e.g. *last 3 months*. One row per `RecordRow`: label, value in bold and date, muted. A record with no value shows "—" and no date.
+A kit `Card` titled "Records" with the range as its aside at the right, e.g. *last 3 months*. One row per `RecordRow`: the label with the date muted under it, and the value in bold on the right. A record with no value shows "—" and no date.
 - `data-testid`: `TestId`.
 
 ## `SessionRow`

@@ -24,7 +24,7 @@
     gap: var(--space-3);
 }
 
-/* Two buttons side by side, or one above the other when the longer "Choose another file" doesn't fit beside Cancel. */
+/* Two buttons side by side. In the file-error state they stack, because "Choose another file" doesn't fit beside Cancel at phone width. */
 .actions {
     display: flex;
     flex: 1;
