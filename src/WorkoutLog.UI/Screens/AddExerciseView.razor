@@ -16,9 +16,9 @@
 </div>
 
 @code {
-    /// <summary>Exercises to list, already searched and filtered, in order.</summary>
+    /// <summary>Exercises to list, already searched and filtered, in order, in their groups.</summary>
     [Parameter, EditorRequired]
-    public IReadOnlyList<ExerciseListItem> Items { get; set; } = [];
+    public ExerciseListGroups Items { get; set; } = ExerciseListGroups.None;
 
     /// <summary>Search text.</summary>
     [Parameter]

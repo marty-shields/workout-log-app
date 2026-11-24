@@ -41,17 +41,17 @@ public static class SampleExercises
     /// <summary>Seconds as m:ss, e.g. 1:45.</summary>
     public static readonly Func<decimal, string> Clock = value => $"{(int)value / 60}:{(int)value % 60:00}";
 
-    /// <summary>Logged exercises, most recent first.</summary>
+    /// <summary>Logged exercises, most recent first; each with the time its last workout started.</summary>
     public static IReadOnlyList<ExerciseListItem> All { get; } =
     [
-        new(6, "Barbell Back Squat", ExerciseKind.Strength, "Tue 20 Oct · 70kg × 3"),
-        new(218, "Machine Assisted Pull-up", ExerciseKind.Strength, "Tue 20 Oct · 0kg × 5"),
-        new(258, "Plank", ExerciseKind.Strength, "Thu 15 Oct · 1:45"),
-        new(264, "Push-up", ExerciseKind.Strength, "Tue 13 Oct · 25 reps"),
-        new(311, "Outdoor Run", ExerciseKind.Cardio, "Sun 11 Oct · 5.2km"),
-        new(187, "Farmer's Walk", ExerciseKind.Strength, "Thu 8 Oct · 32kg · 40m"),
-        new(132, "Dumbbell Curl", ExerciseKind.Strength, "Mon 5 Oct · 14kg × 10"),
-        new(315, "Jump Rope", ExerciseKind.Cardio, "Sun 12 Oct 2025 · 10:00"),
+        new(6, "Barbell Back Squat", ExerciseKind.Strength, "Tue 20 Oct · 70kg × 3", new DateTimeOffset(2026, 10, 20, 9, 0, 0, TimeSpan.Zero)),
+        new(218, "Machine Assisted Pull-up", ExerciseKind.Strength, "Tue 20 Oct · 0kg × 5", new DateTimeOffset(2026, 10, 20, 9, 0, 0, TimeSpan.Zero)),
+        new(258, "Plank", ExerciseKind.Strength, "Thu 15 Oct · 1:45", new DateTimeOffset(2026, 10, 15, 9, 0, 0, TimeSpan.Zero)),
+        new(264, "Push-up", ExerciseKind.Strength, "Tue 13 Oct · 25 reps", new DateTimeOffset(2026, 10, 13, 9, 0, 0, TimeSpan.Zero)),
+        new(311, "Outdoor Run", ExerciseKind.Cardio, "Sun 11 Oct · 5.2km", new DateTimeOffset(2026, 10, 11, 9, 0, 0, TimeSpan.Zero)),
+        new(187, "Farmer's Walk", ExerciseKind.Strength, "Thu 8 Oct · 32kg · 40m", new DateTimeOffset(2026, 10, 8, 9, 0, 0, TimeSpan.Zero)),
+        new(132, "Dumbbell Curl", ExerciseKind.Strength, "Mon 5 Oct · 14kg × 10", new DateTimeOffset(2026, 10, 5, 9, 0, 0, TimeSpan.Zero)),
+        new(315, "Jump Rope", ExerciseKind.Cardio, "Sun 12 Oct 2025 · 10:00", new DateTimeOffset(2025, 10, 12, 9, 0, 0, TimeSpan.Zero)),
     ];
 
     /// <summary>The strength exercises in <see cref="All"/>.</summary>

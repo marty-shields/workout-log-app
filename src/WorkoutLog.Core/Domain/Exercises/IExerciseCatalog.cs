@@ -13,6 +13,12 @@ public interface IExerciseCatalog
     /// </summary>
     IReadOnlyList<ExerciseDefinition> Search(string? query);
 
+    /// <summary>
+    /// The matches of <see cref="Search"/>, in its order, each with its text rank: 0 name starts with the query words in order, 1 other name match, 2 nickname match.
+    /// An empty query returns every exercise in <see cref="Search"/>'s order, all rank 0.
+    /// </summary>
+    IReadOnlyList<(ExerciseDefinition Exercise, int Rank)> SearchRanked(string? query);
+
     /// <summary>True when <paramref name="query"/> has a word to search for, as <see cref="Search"/> reads it; false for none, spaces or punctuation only.</summary>
     bool HasSearchWords(string? query);
 

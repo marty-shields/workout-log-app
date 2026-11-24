@@ -5,28 +5,47 @@
         <Typography Variant="TextVariant.Muted" As="TextElement.P" TestId="@($"{TestId}-none")">No exercises match</Typography>
     </div>
 }
+else if (!Items.Grouped)
+{
+    @RenderRows(Items.Other)
+}
 else
 {
-    <ul class="rows">
-        @foreach (var item in Items)
-        {
-            @RenderItem(item)
-        }
-    </ul>
+    @RenderGroup("Recent Exercises", Items.Recent, "recent")
+    @RenderGroup("Other Exercises", Items.Other, "other")
 }
 
 @code {
-    /// <summary>Exercises to list, already searched and filtered, in order.</summary>
+    /// <summary>
+    /// Exercises to list, already searched and filtered, in order. A group with no rows is left out with its header;
+    /// with <see cref="ExerciseListGroups.Grouped"/> false there are no headers.
+    /// </summary>
     [Parameter, EditorRequired]
-    public IReadOnlyList<ExerciseListItem> Items { get; set; } = [];
+    public ExerciseListGroups Items { get; set; } = ExerciseListGroups.None;
 
     /// <summary>Raised when a row is tapped. Rows are not tappable when unset.</summary>
     [Parameter]
     public EventCallback<ExerciseListItem> OnPick { get; set; }
 
-    /// <summary>Prefix of the data-testid attributes, e.g. add-exercise gives add-exercise-row-{id} and add-exercise-none.</summary>
+    /// <summary>Prefix of the data-testid attributes, e.g. add-exercise gives add-exercise-row-{id}, add-exercise-group-recent and add-exercise-none.</summary>
     [Parameter, EditorRequired]
     public string TestId { get; set; } = "";
+
+    private RenderFragment RenderGroup(string title, IReadOnlyList<ExerciseListItem> rows, string key) =>
+        rows.Count == 0
+            ? @<text></text>
+            : @<section class="group">
+                  <SectionHeader Title="@title" Total="@rows.Count.ToString()" Sticky TestId="@($"{TestId}-group-{key}")" />
+                  @RenderRows(rows)
+              </section>;
+
+    private RenderFragment RenderRows(IReadOnlyList<ExerciseListItem> rows) =>
+        @<ul class="rows">
+            @foreach (var item in rows)
+            {
+                @RenderItem(item)
+            }
+        </ul>;
 
     private RenderFragment RenderItem(ExerciseListItem item) =>
         @<li>

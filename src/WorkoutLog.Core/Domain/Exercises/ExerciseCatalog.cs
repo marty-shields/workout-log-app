@@ -49,19 +49,22 @@ public sealed class ExerciseCatalog : IExerciseCatalog
     public bool HasSearchWords(string? query) => Words(query).Length > 0;
 
     /// <inheritdoc />
-    public IReadOnlyList<ExerciseDefinition> Search(string? query)
+    public IReadOnlyList<ExerciseDefinition> Search(string? query) => SearchRanked(query).Select(r => r.Exercise).ToList();
+
+    /// <inheritdoc />
+    public IReadOnlyList<(ExerciseDefinition Exercise, int Rank)> SearchRanked(string? query)
     {
         var words = Words(query);
         if (words.Length == 0)
         {
-            return entries.Value.OrderBy(e => e.Exercise.Type).Select(e => e.Exercise).ToList();
+            return entries.Value.OrderBy(e => e.Exercise.Type).Select(e => (e.Exercise, 0)).ToList();
         }
 
         return entries.Value
             .Select(e => (e.Exercise, Rank: Rank(e, words)))
             .Where(r => r.Rank is not null)
             .OrderBy(r => r.Rank)
-            .Select(r => r.Exercise)
+            .Select(r => (r.Exercise, r.Rank!.Value))
             .ToList();
     }
 

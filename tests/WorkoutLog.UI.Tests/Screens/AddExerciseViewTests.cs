@@ -31,7 +31,7 @@ public class AddExerciseViewTests : ComponentTestBase
     [TestCase(AddExerciseFilter.Cardio, "add-exercise-filter-cardio")]
     public void Filter_ChecksItsChip(AddExerciseFilter filter, string testId)
     {
-        var cut = Context.Render<AddExerciseView>(p => p.Add(x => x.Items, SampleExercises.All).Add(x => x.Filter, filter));
+        var cut = Context.Render<AddExerciseView>(p => p.Add(x => x.Items, ExerciseListGroups.Flat(SampleExercises.All)).Add(x => x.Filter, filter));
 
         Assert.That(cut.FindAll("[data-testid=add-exercise-filter] input[checked]").Select(i => i.GetAttribute("data-testid")), Is.EqualTo(new[] { testId }));
     }
@@ -40,7 +40,7 @@ public class AddExerciseViewTests : ComponentTestBase
     public void TappingAChip_RaisesFilterChanged()
     {
         var changed = new List<AddExerciseFilter>();
-        var cut = Context.Render<AddExerciseView>(p => p.Add(x => x.Items, SampleExercises.All).Add(x => x.FilterChanged, (AddExerciseFilter f) => changed.Add(f)));
+        var cut = Context.Render<AddExerciseView>(p => p.Add(x => x.Items, ExerciseListGroups.Flat(SampleExercises.All)).Add(x => x.FilterChanged, (AddExerciseFilter f) => changed.Add(f)));
 
         cut.Find("[data-testid=add-exercise-filter-cardio]").Change(true);
 
@@ -51,7 +51,7 @@ public class AddExerciseViewTests : ComponentTestBase
     public void Typing_RaisesQueryChangedCutToTheLimit()
     {
         var queries = new List<string>();
-        var cut = Context.Render<AddExerciseView>(p => p.Add(x => x.Items, SampleExercises.All).Add(x => x.QueryChanged, (string q) => queries.Add(q)));
+        var cut = Context.Render<AddExerciseView>(p => p.Add(x => x.Items, ExerciseListGroups.Flat(SampleExercises.All)).Add(x => x.QueryChanged, (string q) => queries.Add(q)));
 
         cut.Find("[data-testid=add-exercise-search]").Input("squat");
         cut.Find("[data-testid=add-exercise-search]").Input(new string('a', ExerciseCatalog.MaxQueryLength + 1));
@@ -62,7 +62,7 @@ public class AddExerciseViewTests : ComponentTestBase
     [Test]
     public void Query_FillsTheSearchBox()
     {
-        var cut = Context.Render<AddExerciseView>(p => p.Add(x => x.Items, []).Add(x => x.Query, "deadlift"));
+        var cut = Context.Render<AddExerciseView>(p => p.Add(x => x.Items, ExerciseListGroups.None).Add(x => x.Query, "deadlift"));
 
         Assert.That(cut.Find("[data-testid=add-exercise-search]").GetAttribute("value"), Is.EqualTo("deadlift"));
     }
@@ -71,7 +71,7 @@ public class AddExerciseViewTests : ComponentTestBase
     public void TappingALiftRow_RaisesOnPickWithIt()
     {
         ExerciseListItem? opened = null;
-        var cut = Context.Render<AddExerciseView>(p => p.Add(x => x.Items, SampleExercises.All).Add(x => x.OnPick, (ExerciseListItem item) => opened = item));
+        var cut = Context.Render<AddExerciseView>(p => p.Add(x => x.Items, ExerciseListGroups.Flat(SampleExercises.All)).Add(x => x.OnPick, (ExerciseListItem item) => opened = item));
 
         cut.Find("[data-testid=add-exercise-row-6]").Click();
 
@@ -83,7 +83,7 @@ public class AddExerciseViewTests : ComponentTestBase
     [TestCase(2, "2 exercises")]
     public void SearchField_AnnouncesHowManyExercisesMatch(int count, string text)
     {
-        var cut = Context.Render<AddExerciseView>(p => p.Add(x => x.Items, SampleExercises.All.Take(count).ToList()));
+        var cut = Context.Render<AddExerciseView>(p => p.Add(x => x.Items, ExerciseListGroups.Flat(SampleExercises.All.Take(count).ToList())));
 
         var results = cut.Find("[data-testid=add-exercise-search-results]");
         Assert.Multiple(() =>
@@ -96,7 +96,7 @@ public class AddExerciseViewTests : ComponentTestBase
     [Test]
     public void WhileLoading_TheResultLineIsEmpty()
     {
-        var cut = Context.Render<AddExerciseView>(p => p.Add(x => x.Items, []).Add(x => x.Loading, true));
+        var cut = Context.Render<AddExerciseView>(p => p.Add(x => x.Items, ExerciseListGroups.None).Add(x => x.Loading, true));
 
         Assert.That(cut.Find("[data-testid=add-exercise-search-results]").TextContent, Is.Empty);
     }
@@ -104,7 +104,7 @@ public class AddExerciseViewTests : ComponentTestBase
     [Test]
     public void Toolbar_HasTheKitsDividerUnderIt()
     {
-        var cut = Context.Render<AddExerciseView>(p => p.Add(x => x.Items, SampleExercises.All));
+        var cut = Context.Render<AddExerciseView>(p => p.Add(x => x.Items, ExerciseListGroups.Flat(SampleExercises.All)));
 
         Assert.That(cut.Find(".toolbar").ClassList, Does.Contain("divided"));
     }
@@ -112,7 +112,7 @@ public class AddExerciseViewTests : ComponentTestBase
     [Test]
     public void WithOnPick_EveryRowIsTappable()
     {
-        var cut = Context.Render<AddExerciseView>(p => p.Add(x => x.Items, SampleExercises.All).Add(x => x.OnPick, (ExerciseListItem _) => { }));
+        var cut = Context.Render<AddExerciseView>(p => p.Add(x => x.Items, ExerciseListGroups.Flat(SampleExercises.All)).Add(x => x.OnPick, (ExerciseListItem _) => { }));
 
         Assert.That(cut.FindAll("button[data-testid^=add-exercise-row-]").Select(r => r.GetAttribute("data-testid")),
             Is.EqualTo(SampleExercises.All.Select(e => $"add-exercise-row-{e.Id}")));
@@ -121,7 +121,7 @@ public class AddExerciseViewTests : ComponentTestBase
     [Test]
     public void NoOnPick_RowsAreNotTappableAndShowTheirKind()
     {
-        var cut = Context.Render<AddExerciseView>(p => p.Add(x => x.Items, SampleExercises.All));
+        var cut = Context.Render<AddExerciseView>(p => p.Add(x => x.Items, ExerciseListGroups.Flat(SampleExercises.All)));
 
         Assert.Multiple(() =>
         {
@@ -133,7 +133,7 @@ public class AddExerciseViewTests : ComponentTestBase
     [Test]
     public void NoItems_ShowsNoExercisesMatchUnderTheSearchAndChips()
     {
-        var cut = Context.Render<AddExerciseView>(p => p.Add(x => x.Items, []).Add(x => x.Query, "deadlift"));
+        var cut = Context.Render<AddExerciseView>(p => p.Add(x => x.Items, ExerciseListGroups.None).Add(x => x.Query, "deadlift"));
 
         Assert.Multiple(() =>
         {
@@ -147,7 +147,7 @@ public class AddExerciseViewTests : ComponentTestBase
     public void Reloading_KeepsTheSearchAndChipsInTheToolbarWithTheSpinnerInPlaceOfTheRows()
     {
         var cut = Context.Render<AddExerciseView>(p => p
-            .Add(x => x.Items, SampleExercises.Strength)
+            .Add(x => x.Items, ExerciseListGroups.Flat(SampleExercises.Strength))
             .Add(x => x.Query, "squat")
             .Add(x => x.Filter, AddExerciseFilter.Strength)
             .Add(x => x.Loading, true));
@@ -189,7 +189,7 @@ public class AddExerciseViewTests : ComponentTestBase
     [Test]
     public void PickingWhileLoading_ShowsTheSpinnerUnderTheSearchWhichHasFocus()
     {
-        var cut = Context.Render<AddExerciseView>(p => p.Add(x => x.Items, []).Add(x => x.Loading, true).Add(x => x.OnClose, () => { }));
+        var cut = Context.Render<AddExerciseView>(p => p.Add(x => x.Items, ExerciseListGroups.None).Add(x => x.Loading, true).Add(x => x.OnClose, () => { }));
 
         Assert.Multiple(() =>
         {
@@ -204,7 +204,7 @@ public class AddExerciseViewTests : ComponentTestBase
     public void PickingBackArrow_RaisesOnClose()
     {
         var closed = false;
-        var cut = Context.Render<AddExerciseView>(p => p.Add(x => x.Items, SampleExercises.All).Add(x => x.OnClose, () => closed = true));
+        var cut = Context.Render<AddExerciseView>(p => p.Add(x => x.Items, ExerciseListGroups.Flat(SampleExercises.All)).Add(x => x.OnClose, () => closed = true));
 
         cut.Find("[data-testid=add-exercise-back]").Click();
 
@@ -226,7 +226,7 @@ public class AddExerciseViewTests : ComponentTestBase
     {
         ExerciseListItem? picked = null;
         var cut = Context.Render<AddExerciseView>(p => p
-            .Add(x => x.Items, SampleExercises.All)
+            .Add(x => x.Items, ExerciseListGroups.Flat(SampleExercises.All))
             .Add(x => x.OnPick, (ExerciseListItem item) => picked = item)
             .Add(x => x.OnClose, () => { }));
 
@@ -243,7 +243,7 @@ public class AddExerciseViewTests : ComponentTestBase
         RenderFragment list = b =>
         {
             b.OpenComponent<AddExerciseView>(0);
-            b.AddComponentParameter(1, nameof(AddExerciseView.Items), SampleExercises.All);
+            b.AddComponentParameter(1, nameof(AddExerciseView.Items), ExerciseListGroups.Flat(SampleExercises.All));
             b.AddComponentParameter(2, nameof(AddExerciseView.OnClose), EventCallback.Factory.Create(this, () => closed++));
             b.CloseComponent();
         };
@@ -265,7 +265,7 @@ public class AddExerciseViewTests : ComponentTestBase
 
     private IRenderedComponent<AddExerciseView> RenderPicker(IReadOnlyList<ExerciseListItem>? items = null) =>
         Context.Render<AddExerciseView>(p => p
-            .Add(x => x.Items, items ?? SampleExercises.All)
+            .Add(x => x.Items, ExerciseListGroups.Flat(items ?? SampleExercises.All))
             .Add(x => x.OnPick, (ExerciseListItem _) => { })
             .Add(x => x.OnClose, () => { }));
 }
