@@ -93,7 +93,7 @@ public class NotesWithCoreTests : ComponentTestBase
         cut.WaitForState(() => cut.FindAll($"[data-testid={note}-input]").Count == 1, Timeout);
         var input = cut.Find($"[data-testid={note}-input]");
         input.Input(text);
-        input.Blur();
+        cut.Find($"[data-testid={addButton}]").Click();
     }
 
     private sealed class StubEnvironment : IExportEnvironment

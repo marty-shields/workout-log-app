@@ -1883,13 +1883,13 @@ public class NewWorkoutPageTests : ComponentTestBase
     /// <summary>Taps the exercise's trash.</summary>
     private static void Remove(IRenderedComponent<NewWorkoutPage> cut, int number) => cut.Find($"[data-testid=exercise-{number}-remove]").Click();
 
-    /// <summary>Taps Add note on the workout (<paramref name="number"/> null) or the numbered exercise, types the text and leaves the field, so it shows as one line.</summary>
+    /// <summary>Taps Add note on the workout (<paramref name="number"/> null) or the numbered exercise, types the text and taps the button again, so it shows as one line.</summary>
     private static void TypeNote(IRenderedComponent<NewWorkoutPage> cut, int? number, string text)
     {
         cut.Find(number is { } n ? $"[data-testid=exercise-{n}-add-note]" : "[data-testid=workout-note-add]").Click();
         var input = cut.Find(number is { } m ? $"[data-testid=exercise-{m}-note-input]" : "[data-testid=workout-note-input]");
         input.Input(text);
-        input.Blur();
+        cut.Find(number is { } k ? $"[data-testid=exercise-{k}-add-note]" : "[data-testid=workout-note-add]").Click();
     }
 
     /// <summary>Types over the note that shows an error, opening its field first when it is a one-line summary.</summary>

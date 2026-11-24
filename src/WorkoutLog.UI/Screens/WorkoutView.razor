@@ -4,7 +4,7 @@
 @inject ILogger<WorkoutView> Logger
 <AppScreen Title="@DisplayFormat.Date(StartedAt)" Subtitle="@TimeText" OnBack="OnBack">
     <Actions>
-        <IconButton Icon="IconName.Note" AriaLabel="@(HasNote ? "Edit note" : "Add note")" TestId="workout-note-add" OnClick="OpenNote" />
+        <IconButton Icon="IconName.Note" AriaLabel="@(HasNote ? "Edit note" : "Add note")" TestId="workout-note-add" Pressed="editingNote" OnClick="ToggleNote" />
         @if (Mode == WorkoutMode.Edit)
         {
             <IconButton @ref="delete" Icon="IconName.Delete" AriaLabel="Delete" TestId="delete-workout" OnClick="OnDelete" />
@@ -248,7 +248,7 @@
 
     private bool HasNote => !string.IsNullOrWhiteSpace(Note);
 
-    private void OpenNote() => editingNote = true;
+    private void ToggleNote() => editingNote = !editingNote;
 
     private string TimeText => Mode == WorkoutMode.New
         ? $"Elapsed {DisplayFormat.Duration(Time)}"
