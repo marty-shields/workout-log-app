@@ -74,28 +74,28 @@
       },
       "Shields.UI": {
         "type": "Direct",
-        "requested": "[1.1.1, )",
-        "resolved": "1.1.1",
-        "contentHash": "kgHNSCwKvAE+tZvKVyJBorSCjeCDaOlxf3QXfZJD+VHiu83dzRO+IB15FQSNRYBsVuUfittMgd/s6a87KKzXAQ==",
+        "requested": "[2.0.0, )",
+        "resolved": "2.0.0",
+        "contentHash": "b/zYCGFUZx0i7goYGTrpd7SneU91pfPzCSS5vk56c8VwkR4wQq98dpx4AdI8Cmu1Rm/kAJx3RhfdZz2t51Ef0Q==",
         "dependencies": {
           "Microsoft.AspNetCore.Components.Web": "11.0.0"
         }
       },
       "Shields.UI.Stories": {
         "type": "Direct",
-        "requested": "[1.1.1, )",
-        "resolved": "1.1.1",
-        "contentHash": "DtYLwcus27mAvk60D5w7bkMD9jY49rHvV6HwhJX9435baYvZsfMg7T6s5fx5lLy4kKEUHN2KTD6g4EJy+svn5Q==",
+        "requested": "[2.0.0, )",
+        "resolved": "2.0.0",
+        "contentHash": "Wa4a4AbLWBx0n3BXNXyMj/4KLGQsxQhOe3M2DQNFmHBoqhgM3xJCl1OgXSICw3IZGHTTClrGdCc0LCDwphhhvA==",
         "dependencies": {
           "BlazingStory": "1.0.0-preview.97",
-          "Shields.UI": "1.1.1"
+          "Shields.UI": "2.0.0"
         }
       },
       "Shields.UI.Testing": {
         "type": "Direct",
-        "requested": "[1.1.1, )",
-        "resolved": "1.1.1",
-        "contentHash": "QqBAlaRQXUs2WAEHv4Htivt7U8hJuthZV0qhLJ3LbcXBajZhqvA9KT8EJfvgGCZ27i2tUKIwuSglCwrtabTs7w=="
+        "requested": "[2.0.0, )",
+        "resolved": "2.0.0",
+        "contentHash": "L3jbnHUvU9ExGtbyQIzC31cRKkUOfWjOFZ+cSsd8CU/e+XuPTYnFR5dL/fTJnzDfxYny5Z3g6dGZPQvlP2Cyjw=="
       },
       "AngleSharp": {
         "type": "Transitive",
@@ -467,7 +467,7 @@
         "type": "Project",
         "dependencies": {
           "Microsoft.AspNetCore.Components.Web": "[11.0.0, )",
-          "Shields.UI": "[1.1.1, )",
+          "Shields.UI": "[2.0.0, )",
           "WorkoutLog.Core": "[1.0.0, )"
         }
       },
@@ -475,8 +475,8 @@
         "type": "Project",
         "dependencies": {
           "BlazingStory": "[1.0.0-preview.97, )",
-          "Shields.UI": "[1.1.1, )",
-          "Shields.UI.Stories": "[1.1.1, )",
+          "Shields.UI": "[2.0.0, )",
+          "Shields.UI.Stories": "[2.0.0, )",
           "WorkoutLog.UI": "[1.0.0, )"
         }
       },

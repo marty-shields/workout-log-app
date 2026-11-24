@@ -68,7 +68,7 @@ public class WorkoutDiscardTests(WorkoutMode mode) : ComponentTestBase
         var cut = Render(() => leaves++);
         cut.Find($"[data-testid={addNote}]").Click();
         cut.Find($"[data-testid={note}-input]").Input("Slept badly");
-        cut.Find($"[data-testid={note}-input]").Blur();
+        cut.Find($"[data-testid={addNote}]").Click();
 
         cut.Find("[data-testid=back]").Click();
         var asked = cut.FindAll("[data-testid=confirm-dialog]").Count;
@@ -90,7 +90,7 @@ public class WorkoutDiscardTests(WorkoutMode mode) : ComponentTestBase
         var cut = Render(() => leaves++);
         cut.Find($"[data-testid={addNote}]").Click();
         cut.Find($"[data-testid={note}-input]").Input("Slept badly");
-        cut.Find($"[data-testid={note}-input]").Blur();
+        cut.Find($"[data-testid={addNote}]").Click();
         cut.Find("[data-testid=back]").Click();
 
         cut.Find("[data-testid=confirm-dialog-confirm]").Click();
