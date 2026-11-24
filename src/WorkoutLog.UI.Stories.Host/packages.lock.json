@@ -59,9 +59,9 @@
       },
       "Shields.UI": {
         "type": "Direct",
-        "requested": "[1.1.1, )",
-        "resolved": "1.1.1",
-        "contentHash": "kgHNSCwKvAE+tZvKVyJBorSCjeCDaOlxf3QXfZJD+VHiu83dzRO+IB15FQSNRYBsVuUfittMgd/s6a87KKzXAQ==",
+        "requested": "[2.0.0, )",
+        "resolved": "2.0.0",
+        "contentHash": "b/zYCGFUZx0i7goYGTrpd7SneU91pfPzCSS5vk56c8VwkR4wQq98dpx4AdI8Cmu1Rm/kAJx3RhfdZz2t51Ef0Q==",
         "dependencies": {
           "Microsoft.AspNetCore.Components.Web": "11.0.0"
         }
@@ -305,7 +305,7 @@
         "type": "Project",
         "dependencies": {
           "Microsoft.AspNetCore.Components.Web": "[11.0.0, )",
-          "Shields.UI": "[1.1.1, )",
+          "Shields.UI": "[2.0.0, )",
           "WorkoutLog.Core": "[1.0.0, )"
         }
       },
@@ -313,7 +313,7 @@
         "type": "Project",
         "dependencies": {
           "BlazingStory": "[1.0.0-preview.97, )",
-          "Shields.UI": "[1.1.1, )",
+          "Shields.UI": "[2.0.0, )",
           "Shields.UI.Stories": "[1.1.1, )",
           "WorkoutLog.UI": "[1.0.0, )"
         }
