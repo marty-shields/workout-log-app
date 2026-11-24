@@ -1462,7 +1462,7 @@
         "type": "Project",
         "dependencies": {
           "Microsoft.AspNetCore.Components.Web": "[11.0.0, )",
-          "Shields.UI": "[1.1.0, )",
+          "Shields.UI": "[1.1.1, )",
           "WorkoutLog.Core": "[1.0.0, )"
         }
       },
@@ -1486,9 +1486,9 @@
       },
       "Shields.UI": {
         "type": "CentralTransitive",
-        "requested": "[1.1.0, )",
-        "resolved": "1.1.0",
-        "contentHash": "g/fDChPPgK904Fv59jv1Xfprm8T7NddhI6Vqytxr0a2Ph/hcu/QLdcLSrtkbcOsTL0yI0+U1YWMnUTwqLE7qXw==",
+        "requested": "[1.1.1, )",
+        "resolved": "1.1.1",
+        "contentHash": "kgHNSCwKvAE+tZvKVyJBorSCjeCDaOlxf3QXfZJD+VHiu83dzRO+IB15FQSNRYBsVuUfittMgd/s6a87KKzXAQ==",
         "dependencies": {
           "Microsoft.AspNetCore.Components.Web": "11.0.0"
         }
