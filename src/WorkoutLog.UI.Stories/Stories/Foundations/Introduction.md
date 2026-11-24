@@ -12,7 +12,7 @@ Screens and their behaviour for the Workout Log app.
 | Item | Location |
 |---|---|
 | Tokens | The Shields.UI kit's `css/tokens.css` (with its base styles and theme script). The app declares none |
-| Components | The general ones come from the Shields.UI kit and are documented in the kit's stories. `src/WorkoutLog.UI/Components/` holds the app-only ones (Razor components whose scoped `.razor.css` only lays out) |
+| Components | The general ones come from the Shields.UI kit and are documented under Components on the [combined stories site](https://marty-shields.github.io/app-ui-kit/). `src/WorkoutLog.UI/Components/` holds the app-only ones (Razor components whose scoped `.razor.css` only lays out) |
 | Screens | `src/WorkoutLog.UI/Screens/` (`*View` components, and `*Page` components that call services) |
 | Stories and these pages | `src/WorkoutLog.UI.Stories/Stories/`: `Foundations/`, `Components/<Group>/`, `Screens/` |
 
