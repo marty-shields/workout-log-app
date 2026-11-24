@@ -9,6 +9,10 @@ updates:
     commit-message:
       prefix: "chore(deps)"
     groups:
+      # KitPackages_ShareOneVersion needs the three on one version, so they move together, a major included.
+      # Listed first: a package joins the first group it matches.
+      kit:
+        patterns: ["Shields.UI", "Shields.UI.Stories", "Shields.UI.Testing"]
       nuget-minor-patch:
         update-types: ["minor", "patch"]
 
