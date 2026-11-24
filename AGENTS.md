@@ -4,7 +4,7 @@ Personal Android app (.NET 11 MAUI Blazor Hybrid). Setup: [docs/dev-setup-build.
 
 ## Commands
 - Build: `dotnet build WorkoutLog.slnx` (warnings fail the build)
-- Try a UI kit change locally: `dotnet build WorkoutLog.slnx -p:UseKitSource=true -p:KitPath=<kit clone>` builds every kit reference (`Shields.UI`, `Shields.UI.Stories`, `Shields.UI.Testing`) from the kit source instead of its package (`KitPath` defaults to `../app-ui-kit`; a relative `KitPath` is relative to the repo root, the folder holding `Directory.Build.props`, so pass an absolute one from a worktree under `.claude/worktrees`; the committed lock files are left alone then)
+- Try a UI kit change locally: `dotnet build WorkoutLog.slnx -p:UseKitSource=true -p:KitPath=<kit clone>` builds every kit reference (`Shields.UI`, `Shields.UI.Stories`, `Shields.UI.Testing`) from the kit source instead of its package (`KitPath` defaults to `../app-ui-kit`; a relative `KitPath` is relative to the repo root, the folder holding `Directory.Build.props`, so pass an absolute one from a worktree under `.claude/worktrees`)
 - Code style: `dotnet format WorkoutLog.slnx --verify-no-changes` (CI runs it; drop `--verify-no-changes` to apply the fixes)
 - Test: `dotnet test tests/WorkoutLog.Core.Tests` and `dotnet test tests/WorkoutLog.UI.Tests`
 - E2E (needs a device; a plain `dotnet test` skips them): build the App, then `dotnet test tests/WorkoutLog.E2E.Tests --filter "Category=smoke"`

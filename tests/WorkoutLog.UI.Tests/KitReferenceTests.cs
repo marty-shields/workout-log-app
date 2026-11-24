@@ -1,4 +1,3 @@
-using System.Text.Json;
 using System.Xml.Linq;
 
 namespace WorkoutLog.UI.Tests;
@@ -35,42 +34,6 @@ public class KitReferenceTests
             Is.EqualTo(1));
     }
 
-    // Dependabot rewrites a lock file only where the package is a direct reference, so a transitive entry goes stale.
-    [TestCase("src", "WorkoutLog.App", "Shields.UI")]
-    [TestCase("src", "WorkoutLog.UI", "Shields.UI")]
-    [TestCase("src", "WorkoutLog.UI.Stories", "Shields.UI")]
-    [TestCase("src", "WorkoutLog.UI.Stories", "Shields.UI.Stories")]
-    [TestCase("src", "WorkoutLog.UI.Stories.Host", "Shields.UI")]
-    [TestCase("src", "WorkoutLog.UI.Stories.Host", "Shields.UI.Stories")]
-    [TestCase("tests", "WorkoutLog.UI.Tests", "Shields.UI")]
-    [TestCase("tests", "WorkoutLog.UI.Tests", "Shields.UI.Stories")]
-    [TestCase("tests", "WorkoutLog.UI.Tests", "Shields.UI.Testing")]
-    public void KitPackage_IsADirectEntryInEveryLockFileThatUsesIt(string folder, string project, string package)
-    {
-        var lockFile = JsonDocument.Parse(RepoFiles.Read(folder, project, "packages.lock.json"));
-        var entry = lockFile.RootElement.GetProperty("dependencies").EnumerateObject().First().Value.GetProperty(package);
-
-        Assert.That(entry.GetProperty("type").GetString(), Is.EqualTo("Direct"));
-    }
-
-    [TestCase("Shields.UI", "src", "WorkoutLog.UI")]
-    [TestCase("Shields.UI.Stories", "src", "WorkoutLog.UI.Stories")]
-    [TestCase("Shields.UI.Testing", "tests", "WorkoutLog.UI.Tests")]
-    public void KitPackageVersion_IsPinnedCentrallyAndMatchesTheLockFile(string package, string folder, string project)
-    {
-        var props = XDocument.Parse(RepoFiles.Read("Directory.Packages.props"));
-        var version = props.Descendants("PackageVersion")
-            .Single(p => (string?)p.Attribute("Include") == package)
-            .Attribute("Version")?.Value;
-
-        var lockFile = JsonDocument.Parse(RepoFiles.Read(folder, project, "packages.lock.json"));
-        var locked = lockFile.RootElement.GetProperty("dependencies").EnumerateObject().First()
-            .Value.GetProperty(package).GetProperty("resolved").GetString();
-
-        Assert.That(version, Is.Not.Null.And.Not.Empty);
-        Assert.That(locked, Is.EqualTo(version));
-    }
-
     [Test]
     public void KitPackages_ShareOneVersion()
     {
@@ -80,27 +43,6 @@ public class KitReferenceTests
 
         Assert.That(Version("Shields.UI.Stories"), Is.EqualTo(Version("Shields.UI")));
         Assert.That(Version("Shields.UI.Testing"), Is.EqualTo(Version("Shields.UI")));
-    }
-
-    [Test]
-    public void KitSourceBuild_MovesTheLockFileToObjAndDoesNotEnforceIt()
-    {
-        var group = BuildPropsGroups().Single(g => (string?)g.Attribute("Condition") == SourceCondition);
-
-        Assert.That(group.Element("RestoreLockedMode")?.Value, Is.EqualTo("false"));
-        Assert.That(
-            group.Element("NuGetLockFilePath")?.Value,
-            Is.EqualTo("$(MSBuildProjectDirectory)/obj/kit-source.packages.lock.json"));
-    }
-
-    [Test]
-    public void RestoreLockedMode_IsNeverTurnedOffOutsideTheKitSourceGroup()
-    {
-        var others = BuildPropsGroups()
-            .Where(g => (string?)g.Attribute("Condition") != SourceCondition)
-            .SelectMany(g => g.Elements("RestoreLockedMode"));
-
-        Assert.That(others.Select(e => e.Value), Is.All.EqualTo("true"));
     }
 
     [Test]

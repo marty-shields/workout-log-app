@@ -20,23 +20,16 @@
     <MSBuildTreatWarningsAsErrors>true</MSBuildTreatWarningsAsErrors>
     <!-- NuGet audit covers transitive packages too; NU1901-NU1904 are warnings, so a vulnerable package fails the build. -->
     <NuGetAuditMode>all</NuGetAuditMode>
-    <!-- Each project commits a packages.lock.json; CI fails a restore that would change it. -->
-    <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
-    <RestoreLockedMode Condition="'$(CI)' != ''">true</RestoreLockedMode>
   </PropertyGroup>
 
-  <!-- Building against the kit's source (-p:UseKitSource=true, see AGENTS.md) changes the dependency graph, so the lock file moves to obj (ignored by git) and is not enforced, so the committed ones stay untouched; CI never sets it. -->
+  <!-- Building against the kit's source (-p:UseKitSource=true, see AGENTS.md) changes the dependency graph. -->
   <PropertyGroup>
     <KitPath Condition="'$(KitPath)' == ''">../app-ui-kit</KitPath>
     <!-- KitPath may be a command-line value, which props cannot change, so the resolved folder is a separate property: a relative KitPath is taken from this folder, an absolute one is kept. -->
     <KitSourcePath>$([System.IO.Path]::GetFullPath($([System.IO.Path]::Combine('$(MSBuildThisFileDirectory)', '$(KitPath)'))))</KitSourcePath>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(UseKitSource)' == 'true'">
-    <NuGetLockFilePath>$(MSBuildProjectDirectory)/obj/kit-source.packages.lock.json</NuGetLockFilePath>
-    <RestoreLockedMode>false</RestoreLockedMode>
-  </PropertyGroup>
 
-  <!-- The Shields UI kit is referenced directly by every project that uses it, however it reaches them (a project reference also brings it in). Dependabot rewrites a package's lock file only in projects that reference it directly, so a transitive entry left the App and Stories.Host lock files stale and locked restore failed. Versions are in Directory.Packages.props. -p:UseKitSource=true builds against the kit's source at KitPath instead of the packages. -->
+  <!-- The Shields UI kit is referenced directly by every project that uses it, however it reaches them (a project reference also brings it in). Versions are in Directory.Packages.props. -p:UseKitSource=true builds against the kit's source at KitPath instead of the packages. -->
   <PropertyGroup>
     <UsesKitUI Condition="'$(MSBuildProjectName)' == 'WorkoutLog.App' Or '$(MSBuildProjectName)' == 'WorkoutLog.UI' Or '$(MSBuildProjectName)' == 'WorkoutLog.UI.Stories' Or '$(MSBuildProjectName)' == 'WorkoutLog.UI.Stories.Host' Or '$(MSBuildProjectName)' == 'WorkoutLog.UI.Tests'">true</UsesKitUI>
     <UsesKitStories Condition="'$(MSBuildProjectName)' == 'WorkoutLog.UI.Stories' Or '$(MSBuildProjectName)' == 'WorkoutLog.UI.Stories.Host' Or '$(MSBuildProjectName)' == 'WorkoutLog.UI.Tests'">true</UsesKitStories>
