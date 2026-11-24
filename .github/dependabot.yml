@@ -20,6 +20,9 @@ updates:
     commit-message:
       prefix: "chore(deps)"
     groups:
+      # The driver's peer range names one Appium major, so the two move together, a major included.
+      appium:
+        patterns: ["appium", "appium-uiautomator2-driver"]
       npm-minor-patch:
         update-types: ["minor", "patch"]
 

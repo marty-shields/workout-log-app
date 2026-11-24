@@ -36,6 +36,23 @@
     <RestoreLockedMode>false</RestoreLockedMode>
   </PropertyGroup>
 
+  <!-- The Shields UI kit is referenced directly by every project that uses it, however it reaches them (a project reference also brings it in). Dependabot rewrites a package's lock file only in projects that reference it directly, so a transitive entry left the App and Stories.Host lock files stale and locked restore failed. Versions are in Directory.Packages.props. -p:UseKitSource=true builds against the kit's source at KitPath instead of the packages. -->
+  <PropertyGroup>
+    <UsesKitUI Condition="'$(MSBuildProjectName)' == 'WorkoutLog.App' Or '$(MSBuildProjectName)' == 'WorkoutLog.UI' Or '$(MSBuildProjectName)' == 'WorkoutLog.UI.Stories' Or '$(MSBuildProjectName)' == 'WorkoutLog.UI.Stories.Host' Or '$(MSBuildProjectName)' == 'WorkoutLog.UI.Tests'">true</UsesKitUI>
+    <UsesKitStories Condition="'$(MSBuildProjectName)' == 'WorkoutLog.UI.Stories' Or '$(MSBuildProjectName)' == 'WorkoutLog.UI.Stories.Host' Or '$(MSBuildProjectName)' == 'WorkoutLog.UI.Tests'">true</UsesKitStories>
+    <UsesKitTesting Condition="'$(MSBuildProjectName)' == 'WorkoutLog.UI.Tests'">true</UsesKitTesting>
+  </PropertyGroup>
+  <ItemGroup Condition="'$(UseKitSource)' != 'true'">
+    <PackageReference Include="Shields.UI" Condition="'$(UsesKitUI)' == 'true'" />
+    <PackageReference Include="Shields.UI.Stories" Condition="'$(UsesKitStories)' == 'true'" />
+    <PackageReference Include="Shields.UI.Testing" Condition="'$(UsesKitTesting)' == 'true'" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(UseKitSource)' == 'true'">
+    <ProjectReference Include="$(KitSourcePath)/src/Shields.UI/Shields.UI.csproj" Condition="'$(UsesKitUI)' == 'true'" />
+    <ProjectReference Include="$(KitSourcePath)/src/Shields.UI.Stories/Shields.UI.Stories.csproj" Condition="'$(UsesKitStories)' == 'true'" />
+    <ProjectReference Include="$(KitSourcePath)/src/Shields.UI.Testing/Shields.UI.Testing.csproj" Condition="'$(UsesKitTesting)' == 'true'" />
+  </ItemGroup>
+
   <!-- Test projects (*.Tests): NUnit. -->
   <ItemGroup Condition="$(MSBuildProjectName.EndsWith('.Tests'))">
     <PackageReference Include="Microsoft.NET.Test.Sdk" />
