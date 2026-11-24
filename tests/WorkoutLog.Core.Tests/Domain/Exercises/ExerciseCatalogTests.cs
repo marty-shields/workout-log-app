@@ -187,6 +187,36 @@ public class ExerciseCatalogTests
         Assert.That(Names("chest zumba"), Is.Empty);
 
     [Test]
+    public void SearchRanked_IsSearchsOrderWithEachRank()
+    {
+        var ranked = catalog.SearchRanked("bicep curl");
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(ranked.Select(r => r.Exercise), Is.EqualTo(catalog.Search("bicep curl")).And.Not.Empty);
+            Assert.That(ranked.Select(r => r.Rank), Is.Ordered.And.All.InRange(0, 2));
+            Assert.That(ranked.Single(r => r.Exercise.Name == "Machine Bicep Curl").Rank, Is.EqualTo(1));
+            Assert.That(ranked.Single(r => r.Exercise.Name == "Dumbbell Curl").Rank, Is.EqualTo(2));
+        });
+    }
+
+    [Test]
+    public void SearchRanked_NameStartingWithTheQuery_IsRankZero() =>
+        Assert.That(catalog.SearchRanked("dumbbell curl").First().Rank, Is.Zero);
+
+    [Test]
+    public void SearchRanked_NoText_IsEveryExerciseInSearchOrderAllRankZero()
+    {
+        var ranked = catalog.SearchRanked(null);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(ranked.Select(r => r.Exercise), Is.EqualTo(catalog.Search(null)));
+            Assert.That(ranked.Select(r => r.Rank), Is.All.Zero);
+        });
+    }
+
+    [Test]
     public void Search_NoMatch_ReturnsEmpty() =>
         Assert.That(catalog.Search("zumba"), Is.Empty);
 

@@ -13,7 +13,7 @@ public static class ExerciseListItems
     /// <param name="zone">The phone's time zone.</param>
     /// <param name="now">The current time.</param>
     public static ExerciseListItem Item(ExerciseDefinition exercise, LoggedExercise? logged, TimeZoneInfo zone, DateTimeOffset now) =>
-        new(exercise.Id, exercise.Name, ExerciseFields.Kind(exercise.Type), logged is null ? null : Last(exercise, logged, zone, now));
+        new(exercise.Id, exercise.Name, ExerciseFields.Kind(exercise.Type), logged is null ? null : Last(exercise, logged, zone, now), logged?.LastStartedAt);
 
     /// <summary>
     /// The last session's date in <paramref name="zone"/>, with the year only when it isn't this year, then its best:
@@ -37,24 +37,35 @@ public static class ExerciseListItems
     };
 
     /// <summary>
-    /// The rows for <paramref name="query"/> and <paramref name="filter"/>: with search words, ranked as <see cref="IExerciseCatalog.Search"/>;
-    /// otherwise in the order given.
+    /// The rows for <paramref name="query"/> and <paramref name="filter"/>, in two groups: exercises with a saved workout, then the rest.
+    /// No search words: the first group most recent first, then A–Z, the second in the order given. With search words: both by text rank as
+    /// <see cref="IExerciseCatalog.Search"/>, the first also most recent first within a rank. Search ties keep the catalog's order.
+    /// Grouped only when some item in <paramref name="items"/> was done, whatever the filter shows.
     /// </summary>
-    public static IReadOnlyList<ExerciseListItem> Find(IReadOnlyList<ExerciseListItem> items, IExerciseCatalog catalog, string? query, AddExerciseFilter filter)
+    public static ExerciseListGroups Find(IReadOnlyList<ExerciseListItem> items, IExerciseCatalog catalog, string? query, AddExerciseFilter filter)
     {
-        IEnumerable<ExerciseListItem> found = items;
-        if (catalog.HasSearchWords(query))
+        IEnumerable<(ExerciseListItem Item, int Rank)> found = items.Select(i => (i, 0));
+        var searching = catalog.HasSearchWords(query);
+        if (searching)
         {
             var byId = items.ToDictionary(i => i.Id);
-            found = catalog.Search(query).Where(e => byId.ContainsKey(e.Id)).Select(e => byId[e.Id]);
+            found = catalog.SearchRanked(query).Where(r => byId.ContainsKey(r.Exercise.Id)).Select(r => (byId[r.Exercise.Id], r.Rank));
         }
 
-        return found.Where(i => filter switch
+        var shown = found.Where(r => filter switch
             {
-                AddExerciseFilter.Strength => i.Kind == ExerciseKind.Strength,
-                AddExerciseFilter.Cardio => i.Kind == ExerciseKind.Cardio,
+                AddExerciseFilter.Strength => r.Item.Kind == ExerciseKind.Strength,
+                AddExerciseFilter.Cardio => r.Item.Kind == ExerciseKind.Cardio,
                 _ => true,
             })
             .ToList();
+        var recent = shown.Where(r => r.Item.LastStartedAt is not null)
+            .OrderBy(r => r.Rank)
+            .ThenByDescending(r => r.Item.LastStartedAt)
+            .ThenBy(r => searching ? "" : r.Item.Name, StringComparer.OrdinalIgnoreCase)
+            .Select(r => r.Item)
+            .ToList();
+        var other = shown.Where(r => r.Item.LastStartedAt is null).Select(r => r.Item).ToList();
+        return new ExerciseListGroups(recent, other, items.Any(i => i.LastStartedAt is not null));
     }
 }

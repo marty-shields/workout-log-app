@@ -5,19 +5,26 @@
 
     <Story Name="Logged">
         <Template>
-            <ExerciseList Items="SampleExercises.All.Take(4).ToList()" OnPick="(ExerciseListItem _) => { }" TestId="add-exercise" />
+            <ExerciseList Items="ExerciseListGroups.Flat(SampleExercises.All.Take(4).ToList())" OnPick="(ExerciseListItem _) => { }" TestId="add-exercise" />
+        </Template>
+    </Story>
+
+    <Story Name="Grouped">
+        <Description>Exercises with a saved workout first under Recent Exercises, most recent first; the rest under Other Exercises. The headers stick under the toolbar while their rows scroll.</Description>
+        <Template>
+            <ExerciseList Items="SampleData.AddExerciseItems(Catalog, null)" OnPick="(ExerciseListItem _) => { }" TestId="add-exercise" />
         </Template>
     </Story>
 
     <Story Name="Tappable">
         <Template>
-            <ExerciseList Items="SampleData.AddExerciseItems(Catalog, null).Where(i => i.Id is 6 or 132 or 311 or 315).ToList()" OnPick="(ExerciseListItem _) => { }" TestId="add-exercise" />
+            <ExerciseList Items="ExerciseListGroups.Flat(SampleData.AddExerciseItems(Catalog, null).Where(i => i.Id is 6 or 132 or 311 or 315).ToList())" OnPick="(ExerciseListItem _) => { }" TestId="add-exercise" />
         </Template>
     </Story>
 
     <Story Name="No match">
         <Template>
-            <ExerciseList Items="[]" TestId="add-exercise" />
+            <ExerciseList Items="ExerciseListGroups.None" TestId="add-exercise" />
         </Template>
     </Story>
 

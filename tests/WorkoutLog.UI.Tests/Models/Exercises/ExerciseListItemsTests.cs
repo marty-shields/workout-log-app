@@ -36,7 +36,7 @@ public class ExerciseListItemsTests
     [Test]
     public void Item_Logged_HasTheDateAndBest() =>
         Assert.That(ExerciseListItems.Item(Find(Squat), Logged(Squat, Now.AddDays(-8), new ExerciseBest(70m, 3, null, null)), TimeZoneInfo.Utc, Now),
-            Is.EqualTo(new ExerciseListItem(Squat, "Barbell Back Squat", ExerciseKind.Strength, "Tue 20 Oct · 70kg × 3")));
+            Is.EqualTo(new ExerciseListItem(Squat, "Barbell Back Squat", ExerciseKind.Strength, "Tue 20 Oct · 70kg × 3", Now.AddDays(-8))));
 
     [Test]
     public void Last_NoBest_IsTheDateOnly() =>
@@ -114,6 +114,129 @@ public class ExerciseListItemsTests
     public void Find_SearchAndFilter_Combine() =>
         Assert.That(ExerciseListItems.Find(Catalog.Search(null).Select(e => Item(e.Id)).ToList(), Catalog, "row", AddExerciseFilter.Strength).Select(i => i.Id),
             Is.EqualTo(Catalog.Search("row").Where(e => e.Type == ExerciseType.Strength).Select(e => e.Id)).And.Not.Empty);
+
+    [Test]
+    public void Find_NoSearch_PutsDoneExercisesFirstMostRecentFirstThenTheRestAsGiven()
+    {
+        ExerciseListItem[] items = [Item(Run), Item(Squat, 5), Item(Plank), Item(DumbbellCurl, 1), Item(Run + 1), Item(BarbellCurl, 9)];
+
+        var found = ExerciseListItems.Find(items, Catalog, null, AddExerciseFilter.All);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(found.Recent.Select(i => i.Id), Is.EqualTo(new[] { DumbbellCurl, Squat, BarbellCurl }));
+            Assert.That(found.Other.Select(i => i.Id), Is.EqualTo(new[] { Run, Plank, Run + 1 }));
+            Assert.That(found.Select(i => i.Id), Is.EqualTo(found.Recent.Concat(found.Other).Select(i => i.Id)));
+            Assert.That(found.Grouped, Is.True);
+        });
+    }
+
+    [Test]
+    public void Find_NoSearch_SameWorkoutTiesAreAToZ()
+    {
+        ExerciseListItem[] items = [Item(Run, 2), Item(Squat, 2), Item(Plank, 2)];
+
+        Assert.That(ExerciseListItems.Find(items, Catalog, null, AddExerciseFilter.All).Recent.Select(i => i.Name),
+            Is.EqualTo(new[] { "Barbell Back Squat", "Outdoor Run", "Plank" }));
+    }
+
+    [Test]
+    public void Find_NothingDone_IsOneFlatListWithNoHeaders()
+    {
+        ExerciseListItem[] items = [Item(Run), Item(Squat), Item(Plank)];
+
+        var found = ExerciseListItems.Find(items, Catalog, null, AddExerciseFilter.All);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(found.Grouped, Is.False);
+            Assert.That(found.Recent, Is.Empty);
+            Assert.That(found.Other, Is.EqualTo(items));
+        });
+    }
+
+    [Test]
+    public void Find_Search_DoneBeatsABetterTextMatchAndEachGroupKeepsTheTextRank()
+    {
+        var curls = Catalog.SearchRanked("curl").Select(r => r.Exercise.Id).ToList();
+        var worse = curls.Last();
+        var better = curls.First();
+        Assume.That(Catalog.SearchRanked("curl").First().Rank, Is.LessThan(Catalog.SearchRanked("curl").Last().Rank));
+        var items = Catalog.Search(null).Select(e => e.Id == worse ? Item(e.Id, 3) : Item(e.Id)).ToList();
+
+        var found = ExerciseListItems.Find(items, Catalog, "curl", AddExerciseFilter.All);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(found.Recent.Select(i => i.Id), Is.EqualTo(new[] { worse }));
+            Assert.That(found.Other.Select(i => i.Id), Is.EqualTo(curls.Where(id => id != worse)));
+            Assert.That(found.Other.First().Id, Is.EqualTo(better));
+        });
+    }
+
+    [Test]
+    public void Find_Search_DoneGroupIsByRankThenMostRecentFirst()
+    {
+        var ranked = Catalog.SearchRanked("curl");
+        var firstRank = ranked.First().Rank;
+        var top = ranked.Where(r => r.Rank == firstRank).Select(r => r.Exercise.Id).Take(2).ToList();
+        var last = ranked.Last();
+        Assume.That(last.Rank, Is.GreaterThan(firstRank));
+        Assume.That(top, Has.Count.EqualTo(2));
+        var items = Catalog.Search(null)
+            .Select(e => e.Id == last.Exercise.Id ? Item(e.Id, 1) : e.Id == top[0] ? Item(e.Id, 10) : e.Id == top[1] ? Item(e.Id, 4) : Item(e.Id))
+            .ToList();
+
+        Assert.That(ExerciseListItems.Find(items, Catalog, "curl", AddExerciseFilter.All).Recent.Select(i => i.Id),
+            Is.EqualTo(new[] { top[1], top[0], last.Exercise.Id }));
+    }
+
+    [Test]
+    public void Find_Search_SameRankAndSameWorkoutKeepTheCatalogOrder()
+    {
+        var ranked = Catalog.SearchRanked("curl");
+        var sameRank = ranked.Where(r => r.Rank == ranked.First().Rank).Select(r => r.Exercise.Id).Take(2).ToList();
+        Assume.That(sameRank, Has.Count.EqualTo(2));
+        var items = Catalog.Search(null).Select(e => sameRank.Contains(e.Id) ? Item(e.Id, 2) : Item(e.Id)).ToList();
+
+        Assert.That(ExerciseListItems.Find(items, Catalog, "curl", AddExerciseFilter.All).Recent.Select(i => i.Id), Is.EqualTo(sameRank));
+    }
+
+    [Test]
+    public void Find_Filter_AppliesToBothGroups()
+    {
+        ExerciseListItem[] items = [Item(Run, 1), Item(Squat, 2), Item(Plank), Item(Run + 1)];
+
+        var found = ExerciseListItems.Find(items, Catalog, null, AddExerciseFilter.Strength);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(found.Recent.Select(i => i.Id), Is.EqualTo(new[] { Squat }));
+            Assert.That(found.Other.Select(i => i.Id), Is.EqualTo(new[] { Plank }));
+        });
+    }
+
+    [Test]
+    public void Find_FilterHidesEveryDoneExercise_StillGroupedSoTheOtherHeaderStays()
+    {
+        ExerciseListItem[] items = [Item(Squat, 1), Item(Run), Item(Run + 1)];
+
+        var found = ExerciseListItems.Find(items, Catalog, null, AddExerciseFilter.Cardio);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(found.Recent, Is.Empty);
+            Assert.That(found.Other, Has.Count.EqualTo(2));
+            Assert.That(found.Grouped, Is.True);
+        });
+    }
+
+    [Test]
+    public void Find_NoMatch_IsEmpty() =>
+        Assert.That(ExerciseListItems.Find([Item(Squat, 1)], Catalog, "zumba", AddExerciseFilter.All), Is.Empty);
+
+    private static ExerciseListItem Item(int id, int daysAgo) =>
+        ExerciseListItems.Item(Find(id), Logged(id, Now.AddDays(-daysAgo), null), TimeZoneInfo.Utc, Now);
 
     private static ExerciseDefinition Find(int id) => Catalog.All.Single(e => e.Id == id);
 

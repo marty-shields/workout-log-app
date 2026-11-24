@@ -2005,6 +2005,8 @@ public class NewWorkoutPageTests : ComponentTestBase
             Searches++;
             return inner.Search(query);
         }
+
+        public IReadOnlyList<(ExerciseDefinition Exercise, int Rank)> SearchRanked(string? query) => inner.SearchRanked(query);
     }
 
     /// <summary>

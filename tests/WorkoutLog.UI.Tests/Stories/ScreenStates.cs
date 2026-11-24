@@ -120,6 +120,7 @@ public static class ScreenStates
         new("Screens/Add Exercise", "Cardio", c => AddExercise(c, null, AddExerciseFilter.Cardio)),
         new("Screens/Add Exercise", "Results", c => AddExercise(c, "run")),
         new("Screens/Add Exercise", "No match", c => AddExercise(c, "zumba")),
+        new("Screens/Add Exercise", "Search with done first", c => AddExercise(c, "curl")),
         new("Screens/Add Exercise", "Loading", c => AddExercise(c, null, loading: true)),
         new("Screens/Add Exercise", "Load failed", c => AddExercise(c, null, withLast: false)),
 
@@ -374,7 +375,7 @@ public static class ScreenStates
     private static IReadOnlyList<IElement> AddExercise(
         BunitContext context, string? query, AddExerciseFilter filter = AddExerciseFilter.All, bool loading = false, bool withLast = true) =>
         context.Render<AddExerciseView>(p => p
-            .Add(x => x.Items, loading ? [] : SampleData.AddExerciseItems(Catalog(context), query, filter, withLast))
+            .Add(x => x.Items, loading ? ExerciseListGroups.None : SampleData.AddExerciseItems(Catalog(context), query, filter, withLast))
             .Add(x => x.Query, query)
             .Add(x => x.Filter, filter)
             .Add(x => x.Loading, loading)

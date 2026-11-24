@@ -129,6 +129,29 @@ public sealed class AddExerciseSteps(WebView web, Native native, WorkoutScreen w
         Assert.That(list.Last(Exercises.Named(name).Id), Is.Null);
     }
 
+    [Then(@"^the add-exercise list shows no group headers$")]
+    public void ThenTheListShowsNoGroupHeaders()
+    {
+        web.Eventually(list.IsLoaded, Is.True, "list loaded");
+        Assert.That(list.Headers(), Is.Empty);
+    }
+
+    [Then(@"^the add-exercise list has the groups: (.+)$")]
+    public void ThenTheListHasTheGroups(string titles) =>
+        web.Eventually(list.Headers, Is.EqualTo(titles.Split(", ")));
+
+    [Then(@"^the Recent Exercises group starts with: (.+)$")]
+    public void ThenTheRecentGroupStartsWith(string names) =>
+        web.Eventually(() => list.GroupNames("recent").Take(names.Split(", ").Length).ToList(), Is.EqualTo(names.Split(", ")));
+
+    [Then(@"^the Other Exercises group starts with ""(.*)""$")]
+    public void ThenTheOtherGroupStartsWith(string name) =>
+        web.Eventually(() => list.GroupNames("other").FirstOrDefault(), Is.EqualTo(name));
+
+    [Then(@"^every exercise is listed once$")]
+    public void ThenEveryExerciseIsListedOnce() =>
+        Assert.That(list.Names(), Is.Unique);
+
     [Then(@"^the add-exercise list is closed$")]
     public void ThenTheListIsClosed() => web.Eventually(list.IsOpen, Is.False, "add-exercise list open");
 

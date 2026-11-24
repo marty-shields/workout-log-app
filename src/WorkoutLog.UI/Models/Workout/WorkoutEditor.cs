@@ -42,7 +42,7 @@ public sealed class WorkoutEditor(
     public AddExerciseFilter Filter { get; private set; }
 
     /// <summary>The add-exercise list's rows for <see cref="Query"/> and <see cref="Filter"/>.</summary>
-    public IReadOnlyList<ExerciseListItem> ListItems { get; private set; } = [];
+    public ExerciseListGroups ListItems { get; private set; } = ExerciseListGroups.None;
 
     /// <summary>The latest request to focus an exercise.</summary>
     public ExerciseFocus? Focus { get; private set; }
@@ -90,7 +90,7 @@ public sealed class WorkoutEditor(
         Query = "";
         Filter = AddExerciseFilter.All;
         listItems = [];
-        ListItems = [];
+        ListItems = ExerciseListGroups.None;
         Focus = null;
         ErrorFocus = null;
         pendingUndo = null;
@@ -144,7 +144,7 @@ public sealed class WorkoutEditor(
         var open = ++listOpens;
         ListOpen = true;
         ListLoading = true;
-        ListItems = [];
+        ListItems = ExerciseListGroups.None;
         Query = "";
         Filter = AddExerciseFilter.All;
         var result = await loggedExercises.GetAsync();

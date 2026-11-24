@@ -31,6 +31,15 @@ public sealed class AddExerciseScreen(WebView web)
     /// <summary>The kind shown at the right of each row, in order.</summary>
     public IReadOnlyList<string> Kinds() => Texts(".aside");
 
+    /// <summary>The group headers shown, in order, e.g. Recent Exercises; empty for the flat list.</summary>
+    public IReadOnlyList<string> Headers() =>
+        web.Strings($"return [...document.querySelectorAll('{Overlay} [data-testid^=\"add-exercise-group-\"][data-testid$=\"-title\"]')].map(e => e.textContent.trim());");
+
+    /// <summary>Names listed under the group's header, in order; empty when it isn't shown. <paramref name="group"/> is recent or other.</summary>
+    public IReadOnlyList<string> GroupNames(string group) =>
+        web.Strings($"const h = document.querySelector('{Overlay} [data-testid=\"add-exercise-group-{group}\"]'); "
+            + "return h ? [...h.parentElement.querySelectorAll('[data-testid^=\"add-exercise-row-\"] .text')].map(e => e.textContent.trim()) : [];");
+
     /// <summary>The "Last …" line of the exercise's row; null when it has none.</summary>
     public string? Last(int exerciseId) =>
         web.Strings($"return [...document.querySelectorAll('{Overlay} [data-testid=\"add-exercise-row-{exerciseId}\"] .detail')].map(e => e.textContent.trim());")
