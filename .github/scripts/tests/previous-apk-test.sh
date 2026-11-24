@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# previous-apk.sh in a throwaway repo with a stub dotnet: which tag it builds, and when its restore is locked.
+# previous-apk.sh in a throwaway repo with a stub dotnet: which tag it builds, and that its restore is never locked.
 set -uo pipefail
 here="$(cd "$(dirname "$0")" && pwd)"
 source "$here/lib.sh"
@@ -71,22 +71,11 @@ restore - unlocked
 publish net10.0-android unlocked"
 
 git_ tag v1.1.0; commit_net net11.0
-run "a tag on this commit's NetVersion builds Debug locked" Debug "v1.1.0
-exit=0
-apk
-build net11.0-android locked"
-run "a tag on this commit's NetVersion restores and publishes Release locked" Release "v1.1.0
-exit=0
-apk
-restore - locked
-publish net11.0-android locked"
-
-fresh; commit_net net11.0; git_ tag v1.11.0; sdk 11.0.101; commit_net net11.0
-run "a tag on this commit's NetVersion but another SDK builds Debug unlocked" Debug "v1.11.0
+run "a tag on this commit's NetVersion builds Debug unlocked too" Debug "v1.1.0
 exit=0
 apk
 build net11.0-android unlocked"
-run "a tag on this commit's NetVersion but another SDK restores and publishes Release unlocked" Release "v1.11.0
+run "a tag on this commit's NetVersion restores and publishes Release unlocked too" Release "v1.1.0
 exit=0
 apk
 restore - unlocked
