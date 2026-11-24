@@ -53,11 +53,22 @@
         </Template>
     </Story>
 
+    <Story Name="Search with done first">
+        <Description>Searching "curl": the done exercise sits in Recent Exercises above better text matches that have not been done.</Description>
+        <Template>
+            <WorkoutView Mode="WorkoutMode.New" StartedAt="SampleData.Started" Time="new TimeSpan(0, 34, 12)" Exercises="SampleData.StrengthWorkout(Catalog)" OnBack="() => { }">
+                <Overlay>
+                    <AddExerciseView Query="curl" Items="@SampleData.AddExerciseItems(Catalog, "curl")" OnPick="(ExerciseListItem _) => { }" OnClose="() => { }" />
+                </Overlay>
+            </WorkoutView>
+        </Template>
+    </Story>
+
     <Story Name="Loading">
         <Template>
             <WorkoutView Mode="WorkoutMode.New" StartedAt="SampleData.Started" Time="new TimeSpan(0, 34, 12)" Exercises="SampleData.StrengthWorkout(Catalog)" OnBack="() => { }">
                 <Overlay>
-                    <AddExerciseView Items="[]" Loading OnPick="(ExerciseListItem _) => { }" OnClose="() => { }" />
+                    <AddExerciseView Items="ExerciseListGroups.None" Loading OnPick="(ExerciseListItem _) => { }" OnClose="() => { }" />
                 </Overlay>
             </WorkoutView>
         </Template>

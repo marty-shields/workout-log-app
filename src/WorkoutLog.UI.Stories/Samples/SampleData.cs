@@ -24,10 +24,12 @@ public static class SampleData
         ]);
 
     /// <summary>Add-exercise list items from the catalog's search, filtered by the chip; logged ones carry their <see cref="SampleExercises.All"/> last session unless <paramref name="withLast"/> is false.</summary>
-    public static IReadOnlyList<ExerciseListItem> AddExerciseItems(IExerciseCatalog catalog, string? query, AddExerciseFilter filter = AddExerciseFilter.All, bool withLast = true) =>
+    public static ExerciseListGroups AddExerciseItems(IExerciseCatalog catalog, string? query, AddExerciseFilter filter = AddExerciseFilter.All, bool withLast = true) =>
         ExerciseListItems.Find(
             catalog.Search(null)
-                .Select(e => new ExerciseListItem(e.Id, e.Name, ExerciseFields.Kind(e.Type), withLast ? SampleExercises.All.FirstOrDefault(l => l.Id == e.Id)?.Last : null))
+                .Select(e => new ExerciseListItem(e.Id, e.Name, ExerciseFields.Kind(e.Type),
+                    withLast ? SampleExercises.All.FirstOrDefault(l => l.Id == e.Id)?.Last : null,
+                    withLast ? SampleExercises.All.FirstOrDefault(l => l.Id == e.Id)?.LastStartedAt : null))
                 .ToList(),
             catalog, query, filter);
 

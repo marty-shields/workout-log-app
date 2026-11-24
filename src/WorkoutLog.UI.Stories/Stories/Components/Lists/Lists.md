@@ -9,7 +9,7 @@ A compact kit `Card` titled "Records" with the range as its aside at the right, 
 - `data-testid`: `TestId`.
 
 ## `ExerciseList`
-One kit `ListRow` per exercise: its name, "Last" with the last session when it has one, and Strength or Cardio as its `Aside`. "No exercises match" when the list is empty. With `OnPick` the rows are tappable, with a chevron. Used under the search and chips of Add Exercise.
-- `data-testid`: `TestId` as the prefix: `{TestId}-row-{id}`, `{TestId}-none`.
+One kit `ListRow` per exercise: its name, "Last" with the last session when it has one, and Strength or Cardio as its `Aside`. When grouped, a sticky kit `SectionHeader` (title and row count) opens each group that has rows: "Recent Exercises", the exercises with a saved workout, then "Other Exercises"; a flat list has no headers. "No exercises match" when the list is empty. With `OnPick` the rows are tappable, with a chevron. Used under the search and chips of Add Exercise.
+- `data-testid`: `TestId` as the prefix: `{TestId}-row-{id}`, `{TestId}-group-recent`, `{TestId}-group-other`, `{TestId}-none`.
 
 Stories: [RecordsCard](./?path=/docs/workout-log-components-lists-recordscard--docs) · [ExerciseList](./?path=/docs/workout-log-components-lists-exerciselist--docs)

@@ -81,6 +81,34 @@ public class WorkoutEditorTests
     }
 
     [Test]
+    public async Task OpenListAsync_LoggedExercises_AreGroupedFirstMostRecentFirst()
+    {
+        loggedExercises.Result = new ReadResult<IReadOnlyList<LoggedExercise>>(
+        [
+            new LoggedExercise(Squat, Now.AddDays(-2), null),
+            new LoggedExercise(Catalog.All.First(e => e.Id != Squat).Id, Now.AddDays(-8), null),
+        ]);
+
+        await editor.OpenListAsync();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(editor.ListItems.Grouped, Is.True);
+            Assert.That(editor.ListItems.Recent.Select(i => i.Id).First(), Is.EqualTo(Squat));
+            Assert.That(editor.ListItems.Recent, Has.Count.EqualTo(2));
+            Assert.That(editor.ListItems.Other, Has.Count.EqualTo(Catalog.All.Count - 2));
+        });
+    }
+
+    [Test]
+    public async Task OpenListAsync_NothingLogged_IsNotGrouped()
+    {
+        await editor.OpenListAsync();
+
+        Assert.That(editor.ListItems.Grouped, Is.False);
+    }
+
+    [Test]
     public async Task OpenListAsync_LoadFailed_ListsTheCatalogWithNoLastSessions()
     {
         loggedExercises.Result = new ReadFailed();
@@ -91,6 +119,7 @@ public class WorkoutEditorTests
         {
             Assert.That(editor.ListLoading, Is.False);
             Assert.That(editor.ListItems, Has.Count.EqualTo(Catalog.All.Count));
+            Assert.That(editor.ListItems.Grouped, Is.False);
             Assert.That(editor.ListItems.Select(i => i.Last), Is.All.Null);
         });
     }
