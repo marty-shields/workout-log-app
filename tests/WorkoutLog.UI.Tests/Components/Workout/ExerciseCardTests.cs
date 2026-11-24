@@ -2181,7 +2181,7 @@ public class ExerciseCardTests : ComponentTestBase
     }
 
     [Test]
-    public void Done_WhileTheNoteIsOpen_KeepsTheTextAndOpensAgainWithIt()
+    public void Done_WhileTheNoteIsOpen_KeepsTheTextAndOpensAgainWithTheBoxClosed()
     {
         var exercise = Strength(1);
         var cut = Context.Render<ExerciseCard>(p => p
@@ -2193,7 +2193,13 @@ public class ExerciseCardTests : ComponentTestBase
         cut.Find("[data-testid=exercise-1-done]").Click();
         cut.Find("[data-testid=exercise-1-edit]").Click();
 
-        Assert.That(cut.Find("[data-testid=exercise-1-note-input]").GetAttribute("value"), Is.EqualTo("Left knee twinge"));
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.FindAll("textarea"), Is.Empty);
+            Assert.That(cut.Find("[data-testid=exercise-1-add-note]").GetAttribute("aria-pressed"), Is.EqualTo("false"));
+            Assert.That(cut.Find("[data-testid=exercise-1-note-open] .text").TextContent, Is.EqualTo("Left knee twinge"));
+            Assert.That(exercise.Note, Is.EqualTo("Left knee twinge"));
+        });
     }
 
     [Test]
