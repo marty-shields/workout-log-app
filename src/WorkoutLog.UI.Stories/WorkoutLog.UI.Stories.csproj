@@ -17,15 +17,6 @@
     <ProjectReference Include="..\WorkoutLog.UI\WorkoutLog.UI.csproj" />
   </ItemGroup>
 
-  <!-- The Shields.UI.Stories shell (phone frame, layouts, token and app icon sheets) comes from NuGet; -p:UseKitSource=true builds against the kit's source at KitPath instead. -->
-  <ItemGroup Condition="'$(UseKitSource)' != 'true'">
-    <PackageReference Include="Shields.UI.Stories" />
-  </ItemGroup>
-
-  <ItemGroup Condition="'$(UseKitSource)' == 'true'">
-    <ProjectReference Include="$(KitSourcePath)/src/Shields.UI.Stories/Shields.UI.Stories.csproj" />
-  </ItemGroup>
-
   <!-- The App's icon and splash, embedded as brand.<file>.svg for the App Icon stories. -->
   <ItemGroup>
     <EmbeddedResource Include="..\WorkoutLog.App\Resources\AppIcon\*.svg;..\WorkoutLog.App\Resources\Splash\*.svg" LogicalName="brand.%(Filename)%(Extension)" />
