@@ -1961,9 +1961,14 @@ public class ExerciseCardTests : ComponentTestBase
             .Add(x => x.TestId, "exercise-1"));
 
         cut.Find("[data-testid=exercise-1-add-note]").Click();
+        var opened = (cut.FindAll("textarea").Count, cut.Find("[data-testid=exercise-1-add-note]").GetAttribute("aria-pressed"));
         cut.Find("[data-testid=exercise-1-add-note]").Click();
 
-        Assert.That(cut.FindAll("textarea"), Is.Empty);
+        Assert.Multiple(() =>
+        {
+            Assert.That(opened, Is.EqualTo((1, "true")));
+            Assert.That(cut.FindAll("textarea"), Is.Empty);
+        });
     }
 
     [Test]
