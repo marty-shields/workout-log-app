@@ -10,15 +10,12 @@ public sealed class ExerciseListGroups : IReadOnlyList<ExerciseListItem>
     /// <summary>No rows, not grouped.</summary>
     public static readonly ExerciseListGroups None = new([], [], false);
 
-    private readonly IReadOnlyList<ExerciseListItem> all;
-
     /// <summary>The groups. <paramref name="grouped"/> is whether the list shows headers.</summary>
     public ExerciseListGroups(IReadOnlyList<ExerciseListItem> recent, IReadOnlyList<ExerciseListItem> other, bool grouped)
     {
         Recent = recent;
         Other = other;
         Grouped = grouped;
-        all = [.. recent, .. other];
     }
 
     /// <summary>Exercises with a saved workout, as they are listed.</summary>
@@ -34,16 +31,16 @@ public sealed class ExerciseListGroups : IReadOnlyList<ExerciseListItem>
     public bool Grouped { get; }
 
     /// <inheritdoc />
-    public int Count => all.Count;
+    public int Count => Recent.Count + Other.Count;
 
     /// <inheritdoc />
-    public ExerciseListItem this[int index] => all[index];
+    public ExerciseListItem this[int index] => index < Recent.Count ? Recent[index] : Other[index - Recent.Count];
 
     /// <summary>One flat list, with no headers, in the order given.</summary>
     public static ExerciseListGroups Flat(IReadOnlyList<ExerciseListItem> items) => new([], items, false);
 
     /// <inheritdoc />
-    public IEnumerator<ExerciseListItem> GetEnumerator() => all.GetEnumerator();
+    public IEnumerator<ExerciseListItem> GetEnumerator() => Recent.Concat(Other).GetEnumerator();
 
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }

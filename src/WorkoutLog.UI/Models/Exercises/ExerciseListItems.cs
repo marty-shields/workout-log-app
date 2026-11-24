@@ -58,11 +58,13 @@ public static class ExerciseListItems
                 AddExerciseFilter.Cardio => r.Item.Kind == ExerciseKind.Cardio,
                 _ => true,
             })
+            .Select((r, position) => (r.Item, r.Rank, Position: position))
             .ToList();
         var recent = shown.Where(r => r.Item.LastStartedAt is not null)
             .OrderBy(r => r.Rank)
             .ThenByDescending(r => r.Item.LastStartedAt)
             .ThenBy(r => searching ? "" : r.Item.Name, StringComparer.OrdinalIgnoreCase)
+            .ThenBy(r => r.Position)
             .Select(r => r.Item)
             .ToList();
         var other = shown.Where(r => r.Item.LastStartedAt is null).Select(r => r.Item).ToList();
