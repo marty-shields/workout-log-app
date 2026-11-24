@@ -24,6 +24,15 @@
         "resolved": "1.2.4",
         "contentHash": "ebZYlP8oGh2eBK6pmFcDmP8HrboEfU4Dda4ebBBtM6Uhqr0MXYwNBzw4cFhpWFLNk0CvhBFvPWyN6GtzHDaOBw=="
       },
+      "Shields.UI": {
+        "type": "Direct",
+        "requested": "[1.1.1, )",
+        "resolved": "1.1.1",
+        "contentHash": "kgHNSCwKvAE+tZvKVyJBorSCjeCDaOlxf3QXfZJD+VHiu83dzRO+IB15FQSNRYBsVuUfittMgd/s6a87KKzXAQ==",
+        "dependencies": {
+          "Microsoft.AspNetCore.Components.Web": "11.0.0"
+        }
+      },
       "Shields.UI.Stories": {
         "type": "Direct",
         "requested": "[1.1.1, )",
@@ -229,15 +238,6 @@
         "requested": "[11.0.0, )",
         "resolved": "11.0.0",
         "contentHash": "KygQMITBDDPXw7+AAgdwQvVAaTXuDsc1iCAuvhO73ERxKX+d92cdbgZmpoYF7DIUq2hfs/yO2KD87uIreRy3MA=="
-      },
-      "Shields.UI": {
-        "type": "CentralTransitive",
-        "requested": "[1.1.1, )",
-        "resolved": "1.1.1",
-        "contentHash": "kgHNSCwKvAE+tZvKVyJBorSCjeCDaOlxf3QXfZJD+VHiu83dzRO+IB15FQSNRYBsVuUfittMgd/s6a87KKzXAQ==",
-        "dependencies": {
-          "Microsoft.AspNetCore.Components.Web": "11.0.0"
-        }
       },
       "sqlite-net-pcl": {
         "type": "CentralTransitive",
