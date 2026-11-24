@@ -59,21 +59,21 @@
       },
       "Shields.UI": {
         "type": "Direct",
-        "requested": "[1.2.0-pr.83.53, )",
-        "resolved": "1.2.0-pr.83.53",
-        "contentHash": "KTJnzBuVgHh9D8N520lBqgHYQX0/jL8peq5VDvcX292en43LoRvhoci6uQuWYWJtv0uAL2TZL4em/Kh+SV/sAg==",
+        "requested": "[2.0.0, )",
+        "resolved": "2.0.0",
+        "contentHash": "b/zYCGFUZx0i7goYGTrpd7SneU91pfPzCSS5vk56c8VwkR4wQq98dpx4AdI8Cmu1Rm/kAJx3RhfdZz2t51Ef0Q==",
         "dependencies": {
           "Microsoft.AspNetCore.Components.Web": "11.0.0"
         }
       },
       "Shields.UI.Stories": {
         "type": "Direct",
-        "requested": "[1.2.0-pr.83.53, )",
-        "resolved": "1.2.0-pr.83.53",
-        "contentHash": "epxcAKNqmUVKPJaGJWfW495Nel2wCe4N4pLcDSTP77zzJck7jvcObtb4hSqEKHmRh/zK9STT1Nv9uiGAbljjaA==",
+        "requested": "[2.0.0, )",
+        "resolved": "2.0.0",
+        "contentHash": "Wa4a4AbLWBx0n3BXNXyMj/4KLGQsxQhOe3M2DQNFmHBoqhgM3xJCl1OgXSICw3IZGHTTClrGdCc0LCDwphhhvA==",
         "dependencies": {
           "BlazingStory": "1.0.0-preview.97",
-          "Shields.UI": "1.2.0-pr.83.53"
+          "Shields.UI": "2.0.0"
         }
       },
       "BlazingStory.Abstractions": {
@@ -305,7 +305,7 @@
         "type": "Project",
         "dependencies": {
           "Microsoft.AspNetCore.Components.Web": "[11.0.0, )",
-          "Shields.UI": "[1.2.0-pr.83.53, )",
+          "Shields.UI": "[2.0.0, )",
           "WorkoutLog.Core": "[1.0.0, )"
         }
       },
@@ -313,8 +313,8 @@
         "type": "Project",
         "dependencies": {
           "BlazingStory": "[1.0.0-preview.97, )",
-          "Shields.UI": "[1.2.0-pr.83.53, )",
-          "Shields.UI.Stories": "[1.2.0-pr.83.53, )",
+          "Shields.UI": "[2.0.0, )",
+          "Shields.UI.Stories": "[2.0.0, )",
           "WorkoutLog.UI": "[1.0.0, )"
         }
       },
