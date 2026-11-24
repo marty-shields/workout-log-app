@@ -796,7 +796,7 @@ public class WorkoutViewTests : ComponentTestBase
     }
 
     [Test]
-    public void WorkoutNote_LeavingTheField_RaisesNoteChangedWithTheTrimmedNote()
+    public void WorkoutNote_ClosingWithTheButton_RaisesNoNewChangeAndKeepsTheText()
     {
         var notes = new List<string?>();
         var cut = Context.Render<WorkoutView>(p => p
@@ -806,9 +806,35 @@ public class WorkoutViewTests : ComponentTestBase
         cut.Find("[data-testid=workout-note-add]").Click();
         cut.Find("[data-testid=workout-note-input]").Input(" Slept badly ");
 
-        cut.Find("[data-testid=workout-note-input]").Blur();
+        cut.Find("[data-testid=workout-note-add]").Click();
 
-        Assert.That(notes, Is.EqualTo(new[] { " Slept badly ", "Slept badly" }));
+        Assert.Multiple(() =>
+        {
+            Assert.That(notes, Is.EqualTo(new[] { " Slept badly " }));
+            Assert.That(cut.FindAll("[data-testid=workout-note-input]"), Is.Empty);
+        });
+    }
+
+    [Test]
+    public void WorkoutNote_Button_TogglesTheBoxAndAriaPressed()
+    {
+        var cut = Context.Render<WorkoutView>(p => p
+            .Add(x => x.StartedAt, Started)
+            .Add(x => x.Exercises, [Curl()]));
+        var button = "[data-testid=workout-note-add]";
+        var closed = cut.Find(button).GetAttribute("aria-pressed");
+
+        cut.Find(button).Click();
+        var opened = (cut.FindAll("[data-testid=workout-note-input]").Count, cut.Find(button).GetAttribute("aria-pressed"));
+        cut.Find(button).Click();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(closed, Is.EqualTo("false"));
+            Assert.That(opened, Is.EqualTo((1, "true")));
+            Assert.That(cut.FindAll("[data-testid=workout-note]"), Is.Empty);
+            Assert.That(cut.Find(button).GetAttribute("aria-pressed"), Is.EqualTo("false"));
+        });
     }
 
     [Test]

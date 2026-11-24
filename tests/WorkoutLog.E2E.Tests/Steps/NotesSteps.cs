@@ -20,6 +20,26 @@ public sealed class NotesSteps(WebView web, Journeys journeys, WorkoutScreen wor
     [When(@"^I open the note of (.+) and leave it$")]
     public void WhenIOpenTheNoteAndLeaveIt(string name) => workout.OpenNoteAndLeave(name);
 
+    [When(@"^I tap the workout note button$")]
+    public void WhenITapTheWorkoutNoteButton() => workout.TapNoteButton(null);
+
+    [When(@"^I tap the note button of (.+)$")]
+    public void WhenITapTheNoteButton(string name) => workout.TapNoteButton(name);
+
+    [Then(@"^the workout note box is (open|closed)$")]
+    public void ThenTheWorkoutNoteBoxIs(string state) =>
+        web.Eventually(() => workout.NoteBoxOpen(null), Is.EqualTo(state == "open"), "workout note box");
+
+    [Then(@"^the note box of (.+) is (open|closed)$")]
+    public void ThenTheNoteBoxIs(string name, string state) =>
+        web.Eventually(() => workout.NoteBoxOpen(name), Is.EqualTo(state == "open"), $"{name} note box");
+
+    [Then(@"^the workout note is gone$")]
+    public void ThenNothingShowsOfTheWorkoutNote() => web.Eventually(() => workout.NoteAbsent(null), Is.True, "workout note");
+
+    [Then(@"^the note of (.+) is gone$")]
+    public void ThenNothingShowsOfTheNote(string name) => web.Eventually(() => workout.NoteAbsent(name), Is.True, $"{name} note");
+
     [Then(@"^the workout note is ""(.*)""$")]
     public void ThenTheWorkoutNoteIs(string text) => web.Eventually(workout.WorkoutNote, Is.EqualTo(text), "workout note");
 

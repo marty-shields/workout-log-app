@@ -1633,9 +1633,9 @@ public class EditWorkoutPageTests : ComponentTestBase
         var backs = 0;
         var cut = await RenderOpenedAsync(onBack: () => backs++);
         cut.Find("[data-testid=workout-note-add]").Click();
-        cut.Find("[data-testid=workout-note-input]").Blur();
+        cut.Find("[data-testid=workout-note-add]").Click();
         cut.Find("[data-testid=exercise-2-add-note]").Click();
-        cut.Find("[data-testid=exercise-2-note-input]").Blur();
+        cut.Find("[data-testid=exercise-2-add-note]").Click();
 
         cut.Find("[data-testid=back]").Click();
 
@@ -1652,7 +1652,7 @@ public class EditWorkoutPageTests : ComponentTestBase
         var backs = 0;
         var cut = await RenderOpenedAsync(onBack: () => backs++, saved: SavedWithNotes);
         cut.Find("[data-testid=workout-note-open]").Click();
-        cut.Find("[data-testid=workout-note-input]").Blur();
+        cut.Find("[data-testid=workout-note-add]").Click();
 
         cut.Find("[data-testid=back]").Click();
 
@@ -1679,7 +1679,7 @@ public class EditWorkoutPageTests : ComponentTestBase
         cut.FindAll(".card > .header > .title").Select(n => n.TextContent).ToList();
 
     /// <summary>
-    /// Types the text into the note of the workout (<paramref name="number"/> null) or the numbered exercise and leaves the field. Opens the
+    /// Types the text into the note of the workout (<paramref name="number"/> null) or the numbered exercise and closes it with the button. Opens the
     /// field by Add note, or by the one-line note when it has text.
     /// </summary>
     private static void TypeNote(IRenderedComponent<EditWorkoutPage> cut, int? number, string text)
@@ -1688,7 +1688,7 @@ public class EditWorkoutPageTests : ComponentTestBase
         OpenNote(cut, prefix, number is { } m ? $"exercise-{m}-add-note" : "workout-note-add");
         var input = cut.Find($"[data-testid={prefix}-input]");
         input.Input(text);
-        input.Blur();
+        cut.Find(number is { } k ? $"[data-testid=exercise-{k}-add-note]" : "[data-testid=workout-note-add]").Click();
     }
 
     /// <summary>Types over the note that shows an error, opening its field first when it is a one-line summary.</summary>

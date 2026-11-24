@@ -74,28 +74,28 @@
       },
       "Shields.UI": {
         "type": "Direct",
-        "requested": "[1.1.1, )",
-        "resolved": "1.1.1",
-        "contentHash": "kgHNSCwKvAE+tZvKVyJBorSCjeCDaOlxf3QXfZJD+VHiu83dzRO+IB15FQSNRYBsVuUfittMgd/s6a87KKzXAQ==",
+        "requested": "[1.2.0-pr.83.53, )",
+        "resolved": "1.2.0-pr.83.53",
+        "contentHash": "KTJnzBuVgHh9D8N520lBqgHYQX0/jL8peq5VDvcX292en43LoRvhoci6uQuWYWJtv0uAL2TZL4em/Kh+SV/sAg==",
         "dependencies": {
           "Microsoft.AspNetCore.Components.Web": "11.0.0"
         }
       },
       "Shields.UI.Stories": {
         "type": "Direct",
-        "requested": "[1.1.1, )",
-        "resolved": "1.1.1",
-        "contentHash": "DtYLwcus27mAvk60D5w7bkMD9jY49rHvV6HwhJX9435baYvZsfMg7T6s5fx5lLy4kKEUHN2KTD6g4EJy+svn5Q==",
+        "requested": "[1.2.0-pr.83.53, )",
+        "resolved": "1.2.0-pr.83.53",
+        "contentHash": "epxcAKNqmUVKPJaGJWfW495Nel2wCe4N4pLcDSTP77zzJck7jvcObtb4hSqEKHmRh/zK9STT1Nv9uiGAbljjaA==",
         "dependencies": {
           "BlazingStory": "1.0.0-preview.97",
-          "Shields.UI": "1.1.1"
+          "Shields.UI": "1.2.0-pr.83.53"
         }
       },
       "Shields.UI.Testing": {
         "type": "Direct",
-        "requested": "[1.1.1, )",
-        "resolved": "1.1.1",
-        "contentHash": "QqBAlaRQXUs2WAEHv4Htivt7U8hJuthZV0qhLJ3LbcXBajZhqvA9KT8EJfvgGCZ27i2tUKIwuSglCwrtabTs7w=="
+        "requested": "[1.2.0-pr.83.53, )",
+        "resolved": "1.2.0-pr.83.53",
+        "contentHash": "Rj+jjvIu3n2tcWNdbwhA3cIgOvc7MdMEif3QG3PZ+DQlfHpTavGrm3lhL0evuny4jS+TtUl4Zb/KPgwo3xGGLg=="
       },
       "AngleSharp": {
         "type": "Transitive",
@@ -467,7 +467,7 @@
         "type": "Project",
         "dependencies": {
           "Microsoft.AspNetCore.Components.Web": "[11.0.0, )",
-          "Shields.UI": "[1.1.1, )",
+          "Shields.UI": "[1.2.0-pr.83.53, )",
           "WorkoutLog.Core": "[1.0.0, )"
         }
       },
@@ -475,8 +475,8 @@
         "type": "Project",
         "dependencies": {
           "BlazingStory": "[1.0.0-preview.97, )",
-          "Shields.UI": "[1.1.1, )",
-          "Shields.UI.Stories": "[1.1.1, )",
+          "Shields.UI": "[1.2.0-pr.83.53, )",
+          "Shields.UI.Stories": "[1.2.0-pr.83.53, )",
           "WorkoutLog.UI": "[1.0.0, )"
         }
       },

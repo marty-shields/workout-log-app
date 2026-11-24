@@ -1932,6 +1932,62 @@ public class ExerciseCardTests : ComponentTestBase
     }
 
     [Test]
+    public void NoteButton_Strength_TogglesTheBoxAndAriaPressed()
+    {
+        var cut = Context.Render<ExerciseCard>(p => p
+            .Add(x => x.Exercise, Strength(1))
+            .Add(x => x.TestId, "exercise-1"));
+        var button = "[data-testid=exercise-1-add-note]";
+        var closed = cut.Find(button).GetAttribute("aria-pressed");
+
+        cut.Find(button).Click();
+        var opened = (cut.FindAll("textarea").Count, cut.Find(button).GetAttribute("aria-pressed"));
+        cut.Find(button).Click();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(closed, Is.EqualTo("false"));
+            Assert.That(opened, Is.EqualTo((1, "true")));
+            Assert.That(cut.FindAll("[data-testid=exercise-1-note]"), Is.Empty, "a blank note shows nothing when closed");
+            Assert.That(cut.Find(button).GetAttribute("aria-pressed"), Is.EqualTo("false"));
+        });
+    }
+
+    [Test]
+    public void NoteButton_Cardio_TogglesTheBox()
+    {
+        var cut = Context.Render<ExerciseCard>(p => p
+            .Add(x => x.Exercise, Cardio())
+            .Add(x => x.TestId, "exercise-1"));
+
+        cut.Find("[data-testid=exercise-1-add-note]").Click();
+        cut.Find("[data-testid=exercise-1-add-note]").Click();
+
+        Assert.That(cut.FindAll("textarea"), Is.Empty);
+    }
+
+    [Test]
+    public void NoteButton_WithText_ClosesToTheOneLineNoteAndKeepsEditNote()
+    {
+        var exercise = Strength(1);
+        var cut = Context.Render<ExerciseCard>(p => p
+            .Add(x => x.Exercise, exercise)
+            .Add(x => x.TestId, "exercise-1"));
+        cut.Find("[data-testid=exercise-1-add-note]").Click();
+        cut.Find("textarea").Input("Left knee twinge");
+
+        cut.Find("[data-testid=exercise-1-add-note]").Click();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.FindAll("textarea"), Is.Empty);
+            Assert.That(cut.Find("[data-testid=exercise-1-note-open] .text").TextContent, Is.EqualTo("Left knee twinge"));
+            Assert.That(cut.Find("[data-testid=exercise-1-add-note]").GetAttribute("aria-label"), Is.EqualTo("Edit note"));
+            Assert.That(exercise.Note, Is.EqualTo("Left knee twinge"));
+        });
+    }
+
+    [Test]
     public void TypingANote_SetsItAndRaisesOnChanged()
     {
         var exercise = Strength(1);
@@ -1953,7 +2009,7 @@ public class ExerciseCardTests : ComponentTestBase
     }
 
     [Test]
-    public void LeavingTheNote_TrimsItRaisesOnChangedAndShowsOneLine()
+    public void ClosingTheNoteWithTheButton_KeepsTheTextAndShowsOneLine()
     {
         var exercise = Strength(1);
         var changed = 0;
@@ -1964,13 +2020,14 @@ public class ExerciseCardTests : ComponentTestBase
         cut.Find("[data-testid=exercise-1-add-note]").Click();
         cut.Find("textarea").Input("  Left knee twinge  ");
 
-        cut.Find("textarea").Blur();
+        cut.Find("[data-testid=exercise-1-add-note]").Click();
 
         Assert.Multiple(() =>
         {
-            Assert.That(exercise.Note, Is.EqualTo("Left knee twinge"));
-            Assert.That(changed, Is.EqualTo(2));
-            Assert.That(cut.Find("[data-testid=exercise-1-note-open] .text").TextContent, Is.EqualTo("Left knee twinge"));
+            Assert.That(exercise.Note, Is.EqualTo("  Left knee twinge  "));
+            Assert.That(changed, Is.EqualTo(1));
+            Assert.That(cut.FindAll("textarea"), Is.Empty);
+            Assert.That(cut.Find("[data-testid=exercise-1-note-open] .text").TextContent, Is.EqualTo("  Left knee twinge  "));
             Assert.That(cut.Find("[data-testid=exercise-1-add-note]").GetAttribute("aria-label"), Is.EqualTo("Edit note"));
         });
     }
@@ -1986,7 +2043,7 @@ public class ExerciseCardTests : ComponentTestBase
         cut.Find("[data-testid=exercise-1-note-open]").Click();
 
         cut.Find("textarea").Input("   ");
-        cut.Find("textarea").Blur();
+        cut.Find("[data-testid=exercise-1-add-note]").Click();
 
         var note = cut.Find("[data-testid=exercise-1-add-note]");
         Assert.Multiple(() =>
