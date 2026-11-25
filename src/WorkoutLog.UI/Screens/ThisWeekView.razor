@@ -15,7 +15,7 @@
                 <Banner TestId="unfinished">
                     <ChildContent>
                         <Typography Variant="TextVariant.Strong" As="TextElement.P" TestId="unfinished-title">Workout in progress</Typography>
-                        <Typography Variant="TextVariant.Body" As="TextElement.P" TestId="unfinished-details">@Unfinished.Started · @DisplayFormat.Exercises(Unfinished.Exercises)</Typography>
+                        <Typography Variant="TextVariant.Body" As="TextElement.P" TestId="unfinished-details" data-wrap-ok>@Unfinished.Started · @DisplayFormat.Exercises(Unfinished.Exercises)</Typography>
                     </ChildContent>
                     <Actions>
                         <AppButton TestId="unfinished-resume" OnClick="OnResume">Resume</AppButton>

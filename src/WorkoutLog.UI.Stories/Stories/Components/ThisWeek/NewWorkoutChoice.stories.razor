@@ -11,8 +11,25 @@
 
 </Stories>
 
+@using WorkoutLog.Core.Domain.Workouts
+@using WorkoutLog.Core.Services
+@inject IUnfinishedWorkoutService Service
+@inject IExerciseCatalog Catalog
+
 @code {
     private NewWorkoutChoice? choice;
+
+    protected override void OnInitialized()
+    {
+        if (Service is SampleUnfinishedWorkoutService sample)
+        {
+            sample.Stored = new UnfinishedWorkout(DateTimeOffset.UtcNow.AddDays(-1), null,
+            [
+                new UnfinishedExercise(Catalog.All.First(e => e.Type == ExerciseType.Strength).Id, null, false,
+                    [new UnfinishedEntry(new Dictionary<string, string?>()), new UnfinishedEntry(new Dictionary<string, string?>())]),
+            ]);
+        }
+    }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
