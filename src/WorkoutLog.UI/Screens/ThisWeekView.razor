@@ -68,18 +68,6 @@
     <ConfirmDialog Title="Discard this workout?" Message="@Unfinished.Lost" ConfirmText="Discard" Danger
                    OnConfirm="OnConfirmDiscard" OnCancel="OnCancelDiscard" TestId="confirm-dialog" />
 }
-<Sheet Open="Unfinished is not null && ChoosingNew" Title="Workout in progress" OnClose="OnCloseChoice" TestId="new-unfinished">
-    @if (Unfinished is not null)
-    {
-        <div class="choice">
-            <Typography Variant="TextVariant.Body" As="TextElement.P" TestId="new-unfinished-message">
-                You haven't finished the workout you started. Resume it, or discard it to start a new one: @Unfinished.Lost.
-            </Typography>
-            <AppButton FullWidth TestId="new-unfinished-resume" OnClick="OnResume">Resume</AppButton>
-            <AppButton Variant="ButtonVariant.Danger" FullWidth TestId="new-unfinished-discard" OnClick="OnDiscardAndStart">Discard and start new</AppButton>
-        </div>
-    }
-</Sheet>
 
 @code {
     /// <summary>The week's Monday. The title row shows the week's dates and the strip starts here.</summary>
@@ -132,11 +120,7 @@
     [Parameter]
     public bool ConfirmingDiscard { get; set; }
 
-    /// <summary>Shows the sheet that offers Resume or Discard and start new, for + tapped while there is an <see cref="Unfinished"/> workout.</summary>
-    [Parameter]
-    public bool ChoosingNew { get; set; }
-
-    /// <summary>Raised by Resume, on the banner and in the sheet.</summary>
+    /// <summary>Raised by Resume on the banner.</summary>
     [Parameter]
     public EventCallback OnResume { get; set; }
 
@@ -151,14 +135,6 @@
     /// <summary>Raised by Cancel in the confirm dialog and the Android back button.</summary>
     [Parameter]
     public EventCallback OnCancelDiscard { get; set; }
-
-    /// <summary>Raised by Discard and start new in the sheet.</summary>
-    [Parameter]
-    public EventCallback OnDiscardAndStart { get; set; }
-
-    /// <summary>Raised when the sheet is closed by its scrim or the Android back button; the unfinished workout stays.</summary>
-    [Parameter]
-    public EventCallback OnCloseChoice { get; set; }
 
     /// <summary>Shows a spinner instead of the week while it loads.</summary>
     [Parameter]

@@ -1,4 +1,3 @@
-using WorkoutLog.Core.Domain.Exercises;
 using WorkoutLog.Core.Domain.Workouts;
 using WorkoutLog.Core.Services;
 
@@ -8,7 +7,7 @@ namespace WorkoutLog.UI.Stories.Samples;
 /// <see cref="IUnfinishedWorkoutService"/> for the stories and the UI tests: keeps the workout in memory in <see cref="Stored"/>.
 /// <see cref="SaveAsync"/> and <see cref="DiscardAsync"/> fail while <see cref="FailWrites"/> is set; <see cref="GetSummaryAsync"/> and <see cref="GetAsync"/> return <see cref="ReadFailed"/> while <see cref="FailReads"/> is set.
 /// </summary>
-public sealed class SampleUnfinishedWorkoutService(IExerciseCatalog catalog) : IUnfinishedWorkoutService
+public sealed class SampleUnfinishedWorkoutService() : IUnfinishedWorkoutService
 {
     /// <summary>The stored workout; null when there is none. Set it to start with one.</summary>
     public UnfinishedWorkout? Stored { get; set; }
@@ -28,7 +27,7 @@ public sealed class SampleUnfinishedWorkoutService(IExerciseCatalog catalog) : I
         {
             (true, _) => new ReadFailed(),
             (_, null) => new NoUnfinishedWorkout(),
-            (_, var stored) => UnfinishedSummary.Of(stored, catalog),
+            (_, var stored) => UnfinishedSummary.Of(stored),
         });
 
     /// <inheritdoc />

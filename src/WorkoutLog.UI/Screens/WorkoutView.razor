@@ -32,6 +32,7 @@
                               ValidateSet="ValidateSet"
                               ValidateDone="ValidateDone"
                               OnChanged="OnChanged"
+                              OnEdited="OnEdited"
                               OnRemove="() => OnRemoveExercise.InvokeAsync(exercise)"
                               OnRemoveClosedSet="entry => OnRemoveSet.InvokeAsync(new SetRef(exercise, entry))"
                               TestId="@($"exercise-{number}")" />
@@ -93,6 +94,10 @@
     /// <summary>Raised after a value, set or entry changes.</summary>
     [Parameter]
     public EventCallback OnChanged { get; set; }
+
+    /// <summary>Raised after an exercise is marked done or opened again, which is not a change to save.</summary>
+    [Parameter]
+    public EventCallback OnEdited { get; set; }
 
     /// <summary>Checks a set or entry before moving on, and re-checks one showing errors; see <see cref="Components.Workout.ExerciseCard.ValidateSet"/>.</summary>
     [Parameter]

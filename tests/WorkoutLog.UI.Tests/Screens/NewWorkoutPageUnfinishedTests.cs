@@ -157,14 +157,38 @@ public class NewWorkoutPageUnfinishedTests : ComponentTestBase
     }
 
     [Test]
-    public void Resume_ReadFails_StartsANewWorkout()
+    public async Task Resume_ReadFails_LeavesWithoutStartingAndNeverOverwritesTheKeptWorkout()
+    {
+        var kept = Stored(Now.AddMinutes(-5));
+        UnfinishedWorkout.Stored = kept;
+        UnfinishedWorkout.FailReads = true;
+        var left = 0;
+
+        var cut = Render(resume: true, discarded: () => left++);
+        await Flush();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(left, Is.EqualTo(1));
+            Assert.That(cut.FindAll("[data-testid=screen-subtitle]"), Is.Empty, "no workout is started");
+            Assert.That(UnfinishedWorkout.Saves, Is.Zero);
+            Assert.That(UnfinishedWorkout.Stored, Is.SameAs(kept));
+        });
+    }
+
+    [Test]
+    public async Task MarkingAnExerciseDoneAndOpeningItAgain_IsKept()
     {
         UnfinishedWorkout.Stored = Stored(Now.AddMinutes(-5));
-        UnfinishedWorkout.FailReads = true;
-
         var cut = Render(resume: true);
 
-        Assert.That(cut.Find("[data-testid=screen-subtitle]").TextContent, Is.EqualTo("Elapsed 0:00:00"));
+        cut.Find("[data-testid=exercise-1-done]").Click();
+        await Flush();
+        var done = UnfinishedWorkout.Stored!.Exercises.Single().IsDone;
+        cut.Find("[data-testid=exercise-1-edit]").Click();
+        await Flush();
+
+        Assert.That((done, UnfinishedWorkout.Stored!.Exercises.Single().IsDone), Is.EqualTo((true, false)));
     }
 
     [Test]
@@ -215,6 +239,27 @@ public class NewWorkoutPageUnfinishedTests : ComponentTestBase
             Assert.That(UnfinishedWorkout.Saves, Is.Zero);
             Assert.That(discarded, Is.EqualTo(1));
         });
+    }
+
+    [Test]
+    public async Task Discard_Confirmed_DeleteFails_StaysAndKeepsTheWorkoutStored()
+    {
+        UnfinishedWorkout.Stored = Stored(Now.AddMinutes(-5));
+        var discarded = 0;
+        var cut = Render(resume: true, discarded: () => discarded++);
+        cut.Find("[data-testid=exercise-1-set-1-reps]").Input("9");
+        UnfinishedWorkout.FailWrites = true;
+
+        cut.Find("[data-testid=back]").Click();
+        cut.Find("[data-testid=confirm-dialog-confirm]").Click();
+        await Flush();
+
+        Assert.That(discarded, Is.Zero);
+        Assert.That(UnfinishedWorkout.Stored, Is.Not.Null);
+        UnfinishedWorkout.FailWrites = false;
+        cut.Find("[data-testid=confirm-dialog-confirm]").Click();
+        await Flush();
+        Assert.That((discarded, UnfinishedWorkout.Stored), Is.EqualTo((1, (UnfinishedWorkout?)null)), "the prompt can confirm again");
     }
 
     [Test]

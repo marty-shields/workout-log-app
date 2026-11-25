@@ -37,19 +37,6 @@
         </Template>
     </Story>
 
-    <Story Name="New with workout in progress">
-        <Description>+ while a workout is unfinished offers Resume or Discard and start new.</Description>
-        <Template>
-            <ThisWeekView Monday="SampleThisWeek.Monday" Today="SampleThisWeek.Wednesday" Trained="SampleThisWeek.TrainedDays" Streak="23"
-                          ThisWeek="SampleThisWeek.ThisWeek" LastWeekToDate="SampleThisWeek.LastWeekToDate"
-                          Workouts="SampleThisWeek.Workouts" Records="SampleThisWeek.Records" Muscles="SampleThisWeek.Muscles"
-                          Unfinished="SampleThisWeek.Unfinished" ChoosingNew OnResume="() => { }" OnDiscardUnfinished="() => { }"
-                          OnDiscardAndStart="() => { }" OnCloseChoice="() => { }"
-                          OnSettings="() => { }" OnNew="() => { }" OnNavigate="(MainTab _) => { }"
-                          OnOpenWorkout="(int _) => { }" OnOpenRecord="(int _) => { }" />
-        </Template>
-    </Story>
-
     <Story Name="New week">
         <Template>
             <ThisWeekView Monday="SampleThisWeek.Monday" Today="SampleThisWeek.Monday" Streak="22"

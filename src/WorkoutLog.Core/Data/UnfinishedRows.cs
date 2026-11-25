@@ -16,7 +16,6 @@ internal sealed class UnfinishedWorkoutRow
     public string? Note { get; set; }
 }
 
-/// <summary>Row in the UnfinishedExercise table.</summary>
 [Table("UnfinishedExercise")]
 internal sealed class UnfinishedExerciseRow
 {
@@ -33,7 +32,6 @@ internal sealed class UnfinishedExerciseRow
     public bool IsDone { get; set; }
 }
 
-/// <summary>Row in the UnfinishedEntry table.</summary>
 [Table("UnfinishedEntry")]
 internal sealed class UnfinishedEntryRow
 {

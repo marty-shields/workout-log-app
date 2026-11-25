@@ -617,7 +617,7 @@ public class ThisWeekPageTests : ComponentTestBase
         var cut = await LoadedWithUnfinishedAsync();
 
         cut.Find("[data-testid=unfinished-discard]").Click();
-        Assert.That(cut.Find("[data-testid=confirm-dialog] .message").TextContent, Is.EqualTo("2 exercises, 2 sets will be lost"));
+        Assert.That(cut.Find("[data-testid=confirm-dialog] .message").TextContent, Is.EqualTo("2 exercises, 3 sets will be lost"));
         cut.Find("[data-testid=confirm-dialog-cancel]").Click();
 
         Assert.Multiple(() =>
@@ -690,7 +690,7 @@ public class ThisWeekPageTests : ComponentTestBase
         Assert.Multiple(() =>
         {
             Assert.That(added, Is.Zero);
-            Assert.That(cut.Find("[data-testid=new-unfinished-message]").TextContent, Does.Contain("2 exercises, 2 sets will be lost"));
+            Assert.That(cut.Find("[data-testid=new-unfinished-message]").TextContent, Does.Contain("2 exercises, 3 sets will be lost"));
         });
     }
 
@@ -731,8 +731,36 @@ public class ThisWeekPageTests : ComponentTestBase
         {
             Assert.That(UnfinishedWorkout.Stored, Is.Null);
             Assert.That(added, Is.EqualTo(1));
-            Assert.That(cut.FindAll("[data-testid=unfinished]"), Is.Empty);
         });
+    }
+
+    [Test]
+    public void New_BeforeTheWeekHasLoaded_StillAsksWhenAWorkoutIsUnfinished()
+    {
+        Context.JSInterop.Mode = JSRuntimeMode.Loose;
+        Unfinished(Now.AddHours(-2));
+        var added = 0;
+        var cut = Context.Render<ThisWeekPage>(p => p.Add(x => x.OnNew, () => added++));
+
+        cut.Find("[data-testid=add-button]").Click();
+
+        Assert.That(added, Is.Zero);
+        Assert.That(cut.FindAll("[data-testid=new-unfinished]"), Has.Count.EqualTo(1));
+    }
+
+    [Test]
+    public void New_TheUnfinishedWorkoutCannotBeRead_StartsNothing()
+    {
+        Context.JSInterop.Mode = JSRuntimeMode.Loose;
+        Unfinished(Now.AddHours(-2));
+        UnfinishedWorkout.FailReads = true;
+        var added = 0;
+        var cut = Context.Render<ThisWeekPage>(p => p.Add(x => x.OnNew, () => added++));
+
+        cut.Find("[data-testid=add-button]").Click();
+
+        Assert.That(added, Is.Zero);
+        Assert.That(UnfinishedWorkout.Stored, Is.Not.Null);
     }
 
     [Test]

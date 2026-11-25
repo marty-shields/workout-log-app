@@ -34,6 +34,7 @@
                  ValidateSet="Checker.Check"
                  ValidateDone="WorkoutChecker.CheckExercise"
                  OnChanged="Editor.MarkChanged"
+                 OnEdited="Editor.MarkEdited"
                  OnSave="SaveAsync"
                  OnAddExercise="Editor.OpenListAsync"
                  OnRemoveExercise="Editor.Remove"
@@ -65,7 +66,7 @@
     [Parameter]
     public bool Resume { get; set; }
 
-    /// <summary>Raised after Discard is confirmed. Nothing is saved.</summary>
+    /// <summary>Raised after Discard is confirmed, and when <see cref="Resume"/> can't read the kept workout, which stays stored. Nothing is saved.</summary>
     [Parameter]
     public EventCallback OnDiscarded { get; set; }
 
@@ -78,10 +79,19 @@
     protected override async Task OnInitializedAsync()
     {
         Editor.Edited += Queue;
-        if (Resume && await Unfinished.GetAsync() is UnfinishedWorkout unfinished)
+        var kept = Resume ? await Unfinished.GetAsync() : new NoUnfinishedWorkout();
+        if (kept is ReadFailed)
+        {
+            // The kept workout is still stored. Starting a new one would overwrite it with the first edit, so leave without starting.
+            await OnDiscarded.InvokeAsync();
+            return;
+        }
+
+        if (kept is UnfinishedWorkout unfinished)
         {
             var exercises = UnfinishedWorkouts.ToExercises(unfinished, Catalog);
             draft = Workouts.Resume(unfinished.StartedAt);
+            Autosaver.Begin();
             Editor.Start(exercises, unfinished.Note);
             foreach (var exercise in exercises)
             {
@@ -91,9 +101,9 @@
         else
         {
             draft = Workouts.StartNew();
+            Autosaver.Begin();
         }
 
-        Autosaver.Begin();
         startedAt = TimeZoneInfo.ConvertTime(draft.StartedAt, Clock.LocalTimeZone).DateTime;
         timer = new PeriodicTimer(TimeSpan.FromSeconds(1), Clock);
         _ = TickAsync(timer);
@@ -146,7 +156,15 @@
         }
 
         await Autosaver.StopAsync();
-        await Unfinished.DiscardAsync();
+        if (await Unfinished.DiscardAsync() == UnfinishedWrite.Failed)
+        {
+            // The kept workout is still stored: stay, and keep it up to date, so it isn't offered back as if discarded.
+            Editor.DiscardFailed();
+            Autosaver.Begin();
+            Queue();
+            return;
+        }
+
         Log.Discarded(Logger, Editor.Exercises.Count);
         await OnDiscarded.InvokeAsync();
     }

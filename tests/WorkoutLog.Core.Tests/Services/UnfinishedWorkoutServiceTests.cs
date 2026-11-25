@@ -30,13 +30,13 @@ public class UnfinishedWorkoutServiceTests
     }
 
     [Test]
-    public async Task GetSummaryAsync_ReturnsTheStartAndCountsOfExercisesAndStrengthSets()
+    public async Task GetSummaryAsync_ReturnsTheStartAndCountsOfExercisesAndSetsIncludingCardioEntries()
     {
         repository.Setup(r => r.GetAsync()).ReturnsAsync(Stored());
 
         var result = await service.GetSummaryAsync();
 
-        Assert.That(result.Value, Is.EqualTo(new UnfinishedSummary(Start, 2, 2)));
+        Assert.That(result.Value, Is.EqualTo(new UnfinishedSummary(Start, 2, 3)));
     }
 
     [Test]
@@ -69,7 +69,7 @@ public class UnfinishedWorkoutServiceTests
         Assert.That((read.StartedAt, read.Note, read.Exercises), Is.EqualTo((stored.StartedAt, stored.Note, stored.Exercises)));
         Assert.That(LoggedEvents.Of(logger), Is.EqualTo(new[]
         {
-            (CoreEvent.UnfinishedRecovered, LogLevel.Information, "Unfinished workout recovered with 2 exercises and 2 sets"),
+            (CoreEvent.UnfinishedRecovered, LogLevel.Information, "Unfinished workout recovered with 2 exercises and 3 sets"),
         }));
     }
 
@@ -88,8 +88,10 @@ public class UnfinishedWorkoutServiceTests
     public async Task GetAsync_NoExerciseInTheList_ReturnsNoUnfinishedWorkout()
     {
         repository.Setup(r => r.GetAsync()).ReturnsAsync(new UnfinishedWorkout(Start, null, [Entry(9999, 1)]));
+        repository.Setup(r => r.DeleteAsync()).Returns(Task.CompletedTask);
 
         Assert.That((await service.GetAsync()).Value, Is.InstanceOf<NoUnfinishedWorkout>());
+        repository.Verify(r => r.DeleteAsync(), Times.Once);
     }
 
     [Test]
@@ -103,7 +105,7 @@ public class UnfinishedWorkoutServiceTests
         repository.Verify(r => r.ReplaceAsync(workout), Times.Once);
         Assert.That(LoggedEvents.Of(logger), Is.EqualTo(new[]
         {
-            (CoreEvent.UnfinishedSaved, LogLevel.Debug, "Unfinished workout stored with 2 exercises and 2 sets"),
+            (CoreEvent.UnfinishedSaved, LogLevel.Debug, "Unfinished workout stored with 2 exercises and 3 sets"),
         }));
     }
 

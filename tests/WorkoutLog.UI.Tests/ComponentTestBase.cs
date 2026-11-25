@@ -45,7 +45,7 @@ public abstract class ComponentTestBase
         LoggedExercises = new FakeLoggedExercisesService();
         LastSessions = new FakeLastSessionService();
         Haptics = new FakeHaptics();
-        UnfinishedWorkout = new SampleUnfinishedWorkoutService(Catalog);
+        UnfinishedWorkout = new SampleUnfinishedWorkoutService();
         Context.Services.AddUi();
         Context.Services.AddSingleton<IBackButton>(BackButton);
         Context.Services.AddSingleton<TimeProvider>(new FakeTimeProvider());

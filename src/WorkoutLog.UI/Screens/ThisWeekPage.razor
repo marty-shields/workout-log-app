@@ -21,11 +21,12 @@
 <ThisWeekView Monday="monday" Today="today" Trained="trained" Streak="streak"
               ThisWeek="thisWeek" LastWeekToDate="lastWeekToDate" Workouts="workouts" Records="records" Muscles="muscles" LastWeek="lastWeek"
               Loading="loading" Failed="failed" OnRetry="() => LoadAsync()" OnRefresh="() => LoadAsync(PullRefresh.MinimumSpinner)"
-              Unfinished="unfinished" ConfirmingDiscard="confirmingDiscard" ChoosingNew="choosingNew"
+              Unfinished="unfinished" ConfirmingDiscard="confirmingDiscard"
               OnResume="ResumeAsync" OnDiscardUnfinished="AskDiscard" OnConfirmDiscard="DiscardAsync" OnCancelDiscard="CancelDiscard"
-              OnDiscardAndStart="DiscardAndStartAsync" OnCloseChoice="CancelChoice"
-              OnSettings="OnSettings" OnNew="NewAsync" OnNavigate="OnNavigate" OnOpenWorkout="OnOpenWorkout" OnOpenRecord="OnOpenExercise"
+              OnSettings="OnSettings" OnNew="() => choice!.AskAsync()" OnNavigate="OnNavigate" OnOpenWorkout="OnOpenWorkout" OnOpenRecord="OnOpenExercise"
               OnOpenLastWeek="() => OnOpenLastWeek.InvokeAsync(Period.Containing(PeriodKind.Week, today).Previous())" />
+
+<NewWorkoutChoice @ref="choice" OnNew="OnNew" OnResume="OnResume" />
 
 @code {
     private static readonly WeekTotals NoTotals = new(0, TimeSpan.Zero, 0);
@@ -42,7 +43,7 @@
     private IReadOnlyList<MuscleGroupSets> muscles = [];
     private UnfinishedItem? unfinished;
     private bool confirmingDiscard;
-    private bool choosingNew;
+    private NewWorkoutChoice? choice;
     private bool loading;
     private bool failed;
     private IDisposable? registration;
@@ -164,29 +165,11 @@
         }
     }
 
-    /// <summary>The New button: opens the sheet that offers Resume or Discard and start new while there is an unfinished workout, otherwise raises <see cref="OnNew"/>.</summary>
-    private Task NewAsync()
-    {
-        if (unfinished is null)
-        {
-            return OnNew.InvokeAsync();
-        }
-
-        choosingNew = true;
-        return Task.CompletedTask;
-    }
-
-    private Task ResumeAsync()
-    {
-        choosingNew = false;
-        return OnResume.InvokeAsync();
-    }
+    private Task ResumeAsync() => OnResume.InvokeAsync();
 
     private void AskDiscard() => confirmingDiscard = true;
 
     private void CancelDiscard() => confirmingDiscard = false;
-
-    private void CancelChoice() => choosingNew = false;
 
     /// <summary>Discards the unfinished workout and hides the banner. A failed write keeps the banner; Core logs it.</summary>
     private async Task DiscardAsync()
@@ -195,17 +178,6 @@
         if (await UnfinishedWorkout.DiscardAsync() == UnfinishedWrite.Done)
         {
             unfinished = null;
-        }
-    }
-
-    /// <summary>Discards the unfinished workout, then starts a new one. A failed write keeps the unfinished workout and starts nothing.</summary>
-    private async Task DiscardAndStartAsync()
-    {
-        choosingNew = false;
-        if (await UnfinishedWorkout.DiscardAsync() == UnfinishedWrite.Done)
-        {
-            unfinished = null;
-            await OnNew.InvokeAsync();
         }
     }
 

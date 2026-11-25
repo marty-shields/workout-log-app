@@ -14,7 +14,6 @@
 @implements IDisposable
 @inject IPeriodTotalsService Periods
 @inject IPeriodTrainingService Training
-@inject IUnfinishedWorkoutService UnfinishedWorkout
 @inject IExerciseCatalog Catalog
 @inject TimeProvider Clock
 @inject IAppStart AppStart
@@ -26,8 +25,10 @@
             Months="months" PerWeek="perWeek" LongestStreak="longestStreak" StreakRunning="streakRunning" RecordsByMonth="recordsByMonth"
             Loading="loading" Failed="failed" OnRetry="() => LoadAsync()" OnRefresh="() => LoadAsync(PullRefresh.MinimumSpinner)"
             OnKindChanged="SwitchAsync" OnPrevious="() => StepAsync(period.Previous())" OnNext="() => StepAsync(period.Next())"
-            OnSettings="() => OnSettings.InvokeAsync(period)" OnNew="NewAsync" OnNavigate="OnNavigate"
+            OnSettings="() => OnSettings.InvokeAsync(period)" OnNew="() => choice!.AskAsync()" OnNavigate="OnNavigate"
             OnOpenWorkouts="OpenWorkoutsAsync" OnOpenRecord="OpenExerciseAsync" />
+
+<NewWorkoutChoice @ref="choice" OnNew="() => OnNew.InvokeAsync(period)" OnResume="() => OnResume.InvokeAsync(period)" />
 
 @code {
     private static readonly TrendTotals NoTotals = new(0, TimeSpan.Zero, 0, 0);
@@ -60,6 +61,7 @@
     private int generation;
     private IDisposable? registration;
     private bool disposed;
+    private NewWorkoutChoice? choice;
 
     /// <summary>The <c>period</c> query value: <c>week</c>, <c>month</c> or <c>year</c>. Missing or anything else, it shows the week.</summary>
     [Parameter]
@@ -77,14 +79,11 @@
     [Parameter]
     public EventCallback<Period> OnSettings { get; set; }
 
-    /// <summary>Raised by the New button in the bottom nav with the period shown, so discarding can return to it.</summary>
+    /// <summary>Raised with the period shown when there is no unfinished workout, and by Discard and start new once it is discarded, so discarding can return to it.</summary>
     [Parameter]
     public EventCallback<Period> OnNew { get; set; }
 
-    /// <summary>
-    /// Raised instead of <see cref="OnNew"/> when the New button is tapped while there is an unfinished workout, so a new workout can't replace it:
-    /// the host resumes it. This week asks Resume or Discard and start new.
-    /// </summary>
+    /// <summary>Raised with the period shown by Resume, in the sheet the New button opens while there is an unfinished workout.</summary>
     [Parameter]
     public EventCallback<Period> OnResume { get; set; }
 
@@ -99,9 +98,6 @@
     /// <summary>Raised when a record or a Most trained row is tapped, with its exercise and the period shown, so back can return to that period.</summary>
     [Parameter]
     public EventCallback<RecordOpened> OnOpenExercise { get; set; }
-
-    private async Task NewAsync() =>
-        await (await UnfinishedWorkout.GetSummaryAsync() is UnfinishedSummary ? OnResume : OnNew).InvokeAsync(period);
 
     private string Label => period.Kind switch
     {

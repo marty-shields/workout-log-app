@@ -176,6 +176,10 @@
     [Parameter]
     public EventCallback OnChanged { get; set; }
 
+    /// <summary>Raised after the exercise is marked done or opened again, or Done fills blank fields: things that change what is kept but not what is unsaved.</summary>
+    [Parameter]
+    public EventCallback OnEdited { get; set; }
+
     /// <summary>Raised by the trash button, open or done.</summary>
     [Parameter]
     public EventCallback OnRemove { get; set; }
@@ -424,7 +428,7 @@
         return valid;
     }
 
-    private void Done()
+    private Task Done()
     {
         if (ValidateDone is null || ValidateDone(Exercise))
         {
@@ -435,30 +439,33 @@
             addSet = null;
             editingNote = false;
             Haptics.Play(HapticCue.ExerciseDone);
-            return;
+            return OnEdited.InvokeAsync();
         }
 
         Haptics.Play(HapticCue.Rejected);
         OpenFirstFailingSetUnlessOpenFails();
         Request(new FocusRequest(FocusTarget.FirstError));
+        return OnEdited.InvokeAsync();
     }
 
-    private void Reopen()
+    private Task Reopen()
     {
         Exercise.IsDone = false;
         open = null;
         OpenFirstFailingSetUnlessOpenFails();
+        return OnEdited.InvokeAsync();
     }
 
-    private void OpenSet(EntryState entry)
+    private Task OpenSet(EntryState entry)
     {
         if (CanLeave(open))
         {
             open = entry;
-            return;
+            return OnEdited.InvokeAsync();
         }
 
         Request(new FocusRequest(FocusTarget.BlockedSet));
+        return Task.CompletedTask;
     }
 
     /// <summary>Plays <see cref="HapticCue.SetLogged"/> when a set was open and closed, or <see cref="HapticCue.Rejected"/> when it blocked.</summary>

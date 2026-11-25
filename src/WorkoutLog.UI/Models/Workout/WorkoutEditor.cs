@@ -27,8 +27,8 @@ public sealed class WorkoutEditor(
     private PendingUndo? pendingUndo;
 
     /// <summary>
-    /// Raised after a value, note, set or exercise is changed, added or removed, an Undo puts one back, or <see cref="MarkChanged"/> is called, for a page that keeps the
-    /// workout as it goes. The exercises are as they are then; a done state set on the card is not a change.
+    /// Raised after a value, note, set or exercise is changed, added or removed, an Undo puts one back, <see cref="MarkChanged"/> or <see cref="MarkEdited"/> is called, for a page that keeps the
+    /// workout as it goes. The exercises are as they are then.
     /// </summary>
     public event Action? Edited;
 
@@ -138,6 +138,9 @@ public sealed class WorkoutEditor(
         Discarded = true;
         return true;
     }
+
+    /// <summary>Takes back a confirmed Discard whose write failed, so the prompt, still open, can confirm it again or be cancelled.</summary>
+    public void DiscardFailed() => Discarded = false;
 
     /// <summary>
     /// Opens the add-exercise list with no search text and the All chip, loading while it reads the last sessions through
@@ -299,6 +302,9 @@ public sealed class WorkoutEditor(
         EndUndoThatNoLongerFits();
         Edited?.Invoke();
     }
+
+    /// <summary>Raises <see cref="Edited"/> for a change that is not a <see cref="Changed"/> one, such as an exercise marked done or open again.</summary>
+    public void MarkEdited() => Edited?.Invoke();
 
     /// <summary>Sets the workout's note, a change, and clears its error.</summary>
     public void SetNote(string? note)

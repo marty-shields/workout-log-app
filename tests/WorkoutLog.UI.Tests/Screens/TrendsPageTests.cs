@@ -597,11 +597,11 @@ public class TrendsPageTests : ComponentTestBase
     }
 
     [Test]
-    public void New_WithAnUnfinishedWorkout_RaisesOnResumeInsteadOfOnNew()
+    public void New_WithAnUnfinishedWorkout_AsksResumeOrDiscardAndStartNewInsteadOfStartingOne()
     {
+        Context.JSInterop.Mode = JSRuntimeMode.Loose;
         MidWeek();
-        UnfinishedWorkout.Stored = new UnfinishedWorkout(new DateTimeOffset(2026, 11, 9, 10, 0, 0, TimeSpan.Zero), null,
-            [new UnfinishedExercise(6, null, false, [new UnfinishedEntry(new Dictionary<string, string?>())])]);
+        Unfinished();
         var newWorkouts = new List<Period>();
         var resumed = new List<Period>();
         var cut = Context.Render<TrendsPage>(p => p
@@ -611,8 +611,62 @@ public class TrendsPageTests : ComponentTestBase
 
         cut.Find("[data-testid=add-button]").Click();
 
+        Assert.That((newWorkouts, resumed), Is.EqualTo((new List<Period>(), new List<Period>())));
+        Assert.That(cut.FindAll("[data-testid=new-unfinished]"), Has.Count.EqualTo(1));
+    }
+
+    [Test]
+    public void New_Resume_RaisesOnResumeWithThePeriodShown()
+    {
+        Context.JSInterop.Mode = JSRuntimeMode.Loose;
+        MidWeek();
+        Unfinished();
+        var newWorkouts = new List<Period>();
+        var resumed = new List<Period>();
+        var cut = Context.Render<TrendsPage>(p => p
+            .Add(x => x.DateQuery, "2026-11-11")
+            .Add(x => x.OnNew, newWorkouts.Add)
+            .Add(x => x.OnResume, resumed.Add));
+        cut.Find("[data-testid=add-button]").Click();
+
+        cut.Find("[data-testid=new-unfinished-resume]").Click();
+
         Assert.That((newWorkouts, resumed), Is.EqualTo((new List<Period>(), new List<Period> { Period.Containing(PeriodKind.Week, LastMonday) })));
     }
+
+    [Test]
+    public void New_DiscardAndStartNew_RaisesOnNewWithThePeriodShown()
+    {
+        Context.JSInterop.Mode = JSRuntimeMode.Loose;
+        MidWeek();
+        Unfinished();
+        var newWorkouts = new List<Period>();
+        var cut = Context.Render<TrendsPage>(p => p.Add(x => x.DateQuery, "2026-11-11").Add(x => x.OnNew, newWorkouts.Add));
+        cut.Find("[data-testid=add-button]").Click();
+
+        cut.Find("[data-testid=new-unfinished-discard]").Click();
+
+        Assert.That(newWorkouts, Is.EqualTo(new[] { Period.Containing(PeriodKind.Week, LastMonday) }));
+        Assert.That(UnfinishedWorkout.Stored, Is.Null);
+    }
+
+    [Test]
+    public void New_TheUnfinishedWorkoutCannotBeRead_StartsNothing()
+    {
+        MidWeek();
+        Unfinished();
+        UnfinishedWorkout.FailReads = true;
+        var newWorkouts = new List<Period>();
+        var cut = Context.Render<TrendsPage>(p => p.Add(x => x.DateQuery, "2026-11-11").Add(x => x.OnNew, newWorkouts.Add));
+
+        cut.Find("[data-testid=add-button]").Click();
+
+        Assert.That(newWorkouts, Is.Empty);
+    }
+
+    private void Unfinished() =>
+        UnfinishedWorkout.Stored = new UnfinishedWorkout(new DateTimeOffset(2026, 11, 9, 10, 0, 0, TimeSpan.Zero), null,
+            [new UnfinishedExercise(6, null, false, [new UnfinishedEntry(new Dictionary<string, string?>())])]);
 
     [Test]
     public void Buttons_RaiseTheirCallbacksWithThePeriodShown()

@@ -103,12 +103,4 @@ public class UnfinishedWorkoutsTests
 
         Assert.That(UnfinishedWorkouts.ToExercises(workout, Catalog).Single().Entries, Is.Empty);
     }
-
-    [Test]
-    public void ToExercises_ExerciseNotInTheList_IsLeftOut()
-    {
-        var workout = new UnfinishedWorkout(Start, null, [new UnfinishedExercise(99999, null, false, []), new UnfinishedExercise(Squat, null, false, [])]);
-
-        Assert.That(UnfinishedWorkouts.ToExercises(workout, Catalog).Select(e => e.ExerciseId), Is.EqualTo(new[] { Squat }));
-    }
 }

@@ -1,0 +1,25 @@
+@attribute [Stories(StoryTitles.Prefix + "/Components/ThisWeek/NewWorkoutChoice")]
+
+<Stories TComponent="NewWorkoutChoice" Layout="typeof(ThemeLayout)">
+
+    <Story Name="With workout in progress">
+        <Description>+ while a workout is unfinished offers Resume or Discard and start new, on every screen with a + button.</Description>
+        <Template>
+            <NewWorkoutChoice @ref="choice" OnNew="() => { }" OnResume="() => { }" />
+        </Template>
+    </Story>
+
+</Stories>
+
+@code {
+    private NewWorkoutChoice? choice;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender && choice is not null)
+        {
+            await choice.AskAsync();
+            StateHasChanged();
+        }
+    }
+}

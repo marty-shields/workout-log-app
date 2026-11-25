@@ -46,14 +46,6 @@ public static class ScreenStates
             .Add(x => x.ConfirmingDiscard, true)
             .Add(x => x.OnConfirmDiscard, () => { })
             .Add(x => x.OnCancelDiscard, () => { }))),
-        new("Screens/This week", "New with workout in progress", c =>
-        {
-            c.JSInterop.Mode = JSRuntimeMode.Loose;
-            return ThisWeek(c, p => UnfinishedWeek(p)
-                .Add(x => x.ChoosingNew, true)
-                .Add(x => x.OnDiscardAndStart, () => { })
-                .Add(x => x.OnCloseChoice, () => { }));
-        }),
         new("Screens/This week", "New week", c => ThisWeek(c, p => p
             .Add(x => x.Today, SampleThisWeek.Monday)
             .Add(x => x.Streak, 22)

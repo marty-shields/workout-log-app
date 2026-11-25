@@ -10,7 +10,6 @@ public sealed record UnfinishedWorkout(DateTimeOffset StartedAt, string? Note, I
 
 /// <summary>An exercise of an <see cref="UnfinishedWorkout"/>.</summary>
 /// <param name="Note">The exercise's note as typed; null when none.</param>
-/// <param name="IsDone">The exercise was marked done.</param>
 /// <param name="Entries">Sets (strength) or the entry (cardio), in order.</param>
 public sealed record UnfinishedExercise(int ExerciseId, string? Note, bool IsDone, IReadOnlyList<UnfinishedEntry> Entries);
 

@@ -15,7 +15,7 @@ internal sealed partial class UnfinishedWorkoutService(IUnfinishedWorkoutReposit
     {
         return await ReadAsync() switch
         {
-            UnfinishedWorkout workout => UnfinishedSummary.Of(workout, catalog),
+            UnfinishedWorkout workout => UnfinishedSummary.Of(workout),
             NoUnfinishedWorkout none => none,
             ReadFailed failed => failed,
         };
@@ -27,7 +27,7 @@ internal sealed partial class UnfinishedWorkoutService(IUnfinishedWorkoutReposit
         var read = await ReadAsync();
         if (read is UnfinishedWorkout workout)
         {
-            Log.Recovered(logger, workout.Exercises.Count, UnfinishedSummary.Of(workout, catalog).Sets);
+            Log.Recovered(logger, workout.Exercises.Count, UnfinishedSummary.Of(workout).Sets);
         }
 
         return read;
@@ -47,7 +47,7 @@ internal sealed partial class UnfinishedWorkoutService(IUnfinishedWorkoutReposit
             return UnfinishedWrite.Failed;
         }
 
-        Log.Saved(logger, workout.Exercises.Count, UnfinishedSummary.Of(workout, catalog).Sets);
+        Log.Saved(logger, workout.Exercises.Count, UnfinishedSummary.Of(workout).Sets);
         return UnfinishedWrite.Done;
     }
 
@@ -68,7 +68,7 @@ internal sealed partial class UnfinishedWorkoutService(IUnfinishedWorkoutReposit
         return UnfinishedWrite.Done;
     }
 
-    /// <summary>The workout without the exercises that aren't in the list, <see cref="NoUnfinishedWorkout"/>, or <see cref="ReadFailed"/>.</summary>
+    /// <summary>The workout without the exercises that aren't in the list, <see cref="NoUnfinishedWorkout"/> or <see cref="ReadFailed"/>. A workout with none left is deleted, as nothing in it can be resumed.</summary>
     private async Task<UnfinishedWorkoutResult> ReadAsync()
     {
         UnfinishedWorkout? stored;
@@ -93,7 +93,13 @@ internal sealed partial class UnfinishedWorkoutService(IUnfinishedWorkoutReposit
             Log.UnknownExercise(logger, unknown.ExerciseId);
         }
 
-        return known.Count == 0 ? new NoUnfinishedWorkout() : stored with { Exercises = known };
+        if (known.Count == 0)
+        {
+            await DiscardAsync();
+            return new NoUnfinishedWorkout();
+        }
+
+        return stored with { Exercises = known };
     }
 
     private static partial class Log

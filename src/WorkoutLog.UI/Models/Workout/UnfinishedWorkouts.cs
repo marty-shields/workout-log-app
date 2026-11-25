@@ -1,5 +1,6 @@
 using WorkoutLog.Core.Domain.Exercises;
 using WorkoutLog.Core.Domain.Workouts;
+using WorkoutLog.Core.Services;
 
 namespace WorkoutLog.UI.Models.Workout;
 
@@ -19,12 +20,9 @@ public static class UnfinishedWorkouts
             [.. e.Entries.Select(entry => new UnfinishedEntry(new Dictionary<string, string?>(entry.Values)))]))]);
 
     /// <summary>
-    /// The exercises of <paramref name="workout"/>, oldest first, as <see cref="WorkoutEditor.Start"/> takes them. An exercise that
-    /// isn't in the exercise list is left out.
+    /// The exercises of <paramref name="workout"/>, oldest first, as <see cref="WorkoutEditor.Start"/> takes them. Every exercise must be in the
+    /// exercise list, as <see cref="IUnfinishedWorkoutService"/> leaves out the ones that aren't.
     /// </summary>
     public static IReadOnlyList<ExerciseState> ToExercises(UnfinishedWorkout workout, IExerciseCatalog catalog) =>
-        [.. workout.Exercises
-            .Select(saved => (Saved: saved, Definition: catalog.All.FirstOrDefault(d => d.Id == saved.ExerciseId)))
-            .Where(e => e.Definition is not null)
-            .Select(e => ExerciseFields.Restored(e.Definition!, e.Saved))];
+        [.. workout.Exercises.Select(saved => ExerciseFields.Restored(catalog.All.Single(d => d.Id == saved.ExerciseId), saved))];
 }

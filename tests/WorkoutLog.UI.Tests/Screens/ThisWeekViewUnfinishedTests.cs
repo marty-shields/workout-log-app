@@ -4,7 +4,7 @@ using WorkoutLog.UI.Stories.Samples;
 
 namespace WorkoutLog.UI.Tests.Screens;
 
-/// <summary>The banner for a workout left unfinished, and the dialog and sheet that go with it.</summary>
+/// <summary>The banner for a workout left unfinished, and the dialog that goes with it.</summary>
 public class ThisWeekViewUnfinishedTests : ComponentTestBase
 {
     [Test]
@@ -88,56 +88,6 @@ public class ThisWeekViewUnfinishedTests : ComponentTestBase
         var cut = Render();
 
         Assert.That(cut.FindAll("[data-testid=confirm-dialog]"), Is.Empty);
-    }
-
-    [Test]
-    public void ChoosingNew_OffersResumeOrDiscardAndStartNewAndSaysWhatIsLost()
-    {
-        Context.JSInterop.Mode = JSRuntimeMode.Loose;
-        var resumed = 0;
-        var discarded = 0;
-        var closed = 0;
-        var cut = Render(p => p
-            .Add(x => x.ChoosingNew, true)
-            .Add(x => x.OnResume, () => resumed++)
-            .Add(x => x.OnDiscardAndStart, () => discarded++)
-            .Add(x => x.OnCloseChoice, () => closed++));
-
-        Assert.Multiple(() =>
-        {
-            Assert.That(cut.Find("[data-testid=new-unfinished] h2").TextContent, Is.EqualTo("Workout in progress"));
-            Assert.That(cut.Find("[data-testid=new-unfinished-message]").TextContent, Does.Contain("4 exercises, 12 sets will be lost"));
-            Assert.That(cut.Find("[data-testid=new-unfinished-resume]").TextContent.Trim(), Is.EqualTo("Resume"));
-            Assert.That(cut.Find("[data-testid=new-unfinished-discard]").TextContent.Trim(), Is.EqualTo("Discard and start new"));
-            Assert.That(cut.Find("[data-testid=new-unfinished-discard]").ClassList, Does.Contain("danger"));
-        });
-        cut.Find("[data-testid=new-unfinished-resume]").Click();
-        cut.Find("[data-testid=new-unfinished-discard]").Click();
-        cut.Find("[data-testid=new-unfinished-scrim]").Click();
-        Assert.That((resumed, discarded, closed), Is.EqualTo((1, 1, 1)));
-    }
-
-    [Test]
-    public void NotChoosingNew_ShowsNoSheet()
-    {
-        Context.JSInterop.Mode = JSRuntimeMode.Loose;
-
-        var cut = Render();
-
-        Assert.That(cut.FindAll("[data-testid=new-unfinished]"), Is.Empty);
-    }
-
-    [Test]
-    public void ChoosingNew_WithNothingUnfinished_ShowsNoSheet()
-    {
-        Context.JSInterop.Mode = JSRuntimeMode.Loose;
-
-        var cut = Context.Render<ThisWeekView>(p => p
-            .Add(x => x.Monday, SampleThisWeek.Monday)
-            .Add(x => x.Today, SampleThisWeek.Wednesday)
-            .Add(x => x.ChoosingNew, true));
-
-        Assert.That(cut.FindAll("[data-testid=new-unfinished]"), Is.Empty);
     }
 
     private IRenderedComponent<ThisWeekView> Render(Action<ComponentParameterCollectionBuilder<ThisWeekView>>? more = null) =>

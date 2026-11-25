@@ -48,6 +48,7 @@ public class UnfinishedAutosaverTests
         await WaitForDelayAsync();
         autosaver.Queue(Workout("b"));
         autosaver.Queue(Workout("c"));
+        Assert.That(time.Created, Is.EqualTo(1), "one window serves all three changes");
         time.Advance(UnfinishedAutosaver.Window);
         await service.WaitForWritesAsync(1);
         await autosaver.FlushAsync();
@@ -190,11 +191,19 @@ public class UnfinishedAutosaverTests
     /// <summary>Waits until <paramref name="timers"/> timers are waiting on the clock, so advancing it fires them.</summary>
     private async Task WaitForDelayAsync(int timers = 1)
     {
+        var deadline = Environment.TickCount64 + SpinLimitMilliseconds;
         while (time.Created < timers)
         {
+            if (Environment.TickCount64 > deadline)
+            {
+                Assert.Fail($"{timers} timer(s) were not created: {time.Created}");
+            }
+
             await Task.Yield();
         }
     }
+
+    private const int SpinLimitMilliseconds = 10_000;
 
     private static UnfinishedWorkout Workout(string note) => new(Start, note, [new UnfinishedExercise(6, null, false, [])]);
 
@@ -234,8 +243,14 @@ public class UnfinishedAutosaverTests
 
         public async Task WaitForWritesAsync(int count)
         {
+            var deadline = Environment.TickCount64 + SpinLimitMilliseconds;
             while (Written.Count < count)
             {
+                if (Environment.TickCount64 > deadline)
+                {
+                    Assert.Fail($"{count} write(s) were expected: {Written.Count}");
+                }
+
                 await Task.Yield();
             }
         }
