@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging.Abstractions;
 using Shields.UI.Lifecycle;
 using Shields.UI.Navigation;
 using Shields.UI.Theme;
+using WorkoutLog.UI.Components.ThisWeek;
 using WorkoutLog.UI.Import;
 using WorkoutLog.UI.Models.Workout;
 
@@ -26,7 +27,9 @@ public class UiServiceCollectionExtensionsTests
             (typeof(ISetChecker), typeof(SetChecker), ServiceLifetime.Singleton),
             (typeof(IWorkoutChecker), typeof(WorkoutChecker), ServiceLifetime.Singleton),
             (typeof(LastTimeLoader), typeof(LastTimeLoader), ServiceLifetime.Singleton),
+            (typeof(UnfinishedAutosaver), typeof(UnfinishedAutosaver), ServiceLifetime.Singleton),
             (typeof(WorkoutEditor), typeof(WorkoutEditor), ServiceLifetime.Transient),
+            (typeof(NewWorkoutChoice), typeof(NewWorkoutChoice), ServiceLifetime.Transient),
         }));
     }
 

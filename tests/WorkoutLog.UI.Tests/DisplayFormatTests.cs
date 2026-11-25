@@ -177,4 +177,17 @@ public class DisplayFormatTests
     [TestCase(2025, 12, 2026, "Against December 2025")]
     public void AgainstMonthBefore_AddsTheYearOnlyWhenItDiffers(int year, int month, int shownYear, string expected) =>
         Assert.That(DisplayFormat.AgainstMonthBefore(new DateOnly(year, month, 1), shownYear), Is.EqualTo(expected));
+
+    [TestCase(1, "1 exercise")]
+    [TestCase(0, "0 exercises")]
+    [TestCase(4, "4 exercises")]
+    public void Exercises_IsSingularOnlyForOne(int count, string expected) =>
+        Assert.That(DisplayFormat.Exercises(count), Is.EqualTo(expected));
+
+    [TestCase("2026-11-18 09:05", "Started today, 9:05 am")]
+    [TestCase("2026-11-17 18:12", "Started yesterday, 6:12 pm")]
+    [TestCase("2026-11-17 00:00", "Started yesterday, 12:00 am")]
+    [TestCase("2026-11-12 12:30", "Started Thu 12 Nov, 12:30 pm")]
+    public void Started_NamesTodayYesterdayOrTheDay(string started, string expected) =>
+        Assert.That(DisplayFormat.Started(DateTime.Parse(started, CultureInfo.InvariantCulture), new DateTime(2026, 11, 18, 10, 0, 0)), Is.EqualTo(expected));
 }

@@ -18,7 +18,7 @@ namespace WorkoutLog.Core;
 public static class CoreServiceCollectionExtensions
 {
     /// <summary>
-    /// Registers Core's services as singletons. The initializer, repository and unit of work are registered only as gated decorators
+    /// Registers Core's services as singletons. The initializer, repositories and unit of work are registered only as gated decorators
     /// that run each call through one <see cref="DatabaseGate"/>; the connection and exercise seeder are not registered.
     /// The host must register logging, <see cref="IExportEnvironment"/> and <see cref="IElapsedClock"/>.
     /// </summary>
@@ -42,6 +42,8 @@ public static class CoreServiceCollectionExtensions
                     ActivatorUtilities.CreateInstance<ExerciseSeeder>(provider, connection)))
             .AddDecoratedSingleton<IWorkoutRepository, GatedWorkoutRepository>(provider =>
                 ActivatorUtilities.CreateInstance<WorkoutRepository>(provider, connection))
+            .AddDecoratedSingleton<IUnfinishedWorkoutRepository, GatedUnfinishedWorkoutRepository>(provider =>
+                ActivatorUtilities.CreateInstance<UnfinishedWorkoutRepository>(provider, connection))
             .AddDecoratedSingleton<IUnitOfWork, GatedUnitOfWork>(provider =>
                 ActivatorUtilities.CreateInstance<UnitOfWork>(provider, connection));
     }
@@ -51,7 +53,8 @@ public static class CoreServiceCollectionExtensions
             .AddSingleton<ISchemaUpgrade, WorkoutStartedAtUniqueIndex>()
             .AddSingleton<ISchemaUpgrade, BlankAssistToZero>()
             .AddSingleton<ISchemaUpgrade, ValidationRulesSchema>()
-            .AddSingleton<ISchemaUpgrade, NotesSchema>();
+            .AddSingleton<ISchemaUpgrade, NotesSchema>()
+            .AddSingleton<ISchemaUpgrade, UnfinishedSchema>();
 
     private static IServiceCollection AddImport(this IServiceCollection services) =>
         services
@@ -122,6 +125,7 @@ public static class CoreServiceCollectionExtensions
             .AddBestRules()
             .AddProgressRules()
             .AddSingleton<IWorkoutService, WorkoutService>()
+            .AddSingleton<IUnfinishedWorkoutService, UnfinishedWorkoutService>()
             .AddSingleton<IWorkoutsService, WorkoutsService>()
             .AddSingleton<IWorkoutSummaryService, WorkoutSummaryService>()
             .AddConsistencyRules()

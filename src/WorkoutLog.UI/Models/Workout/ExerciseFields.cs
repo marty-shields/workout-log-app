@@ -56,6 +56,34 @@ public static class ExerciseFields
     }
 
     /// <summary>
+    /// An exercise of an unfinished workout, with its note, its done state and the text of each set or entry exactly as typed, whether valid or not.
+    /// A cardio exercise with no entry gets its empty one.
+    /// </summary>
+    public static ExerciseState Restored(ExerciseDefinition exercise, UnfinishedExercise saved)
+    {
+        var state = State(exercise);
+        state.Note = saved.Note;
+        state.IsDone = saved.IsDone;
+        foreach (var values in saved.Entries.Select(e => e.Values))
+        {
+            var entry = new EntryState();
+            foreach (var (key, text) in values)
+            {
+                entry.Values[key] = text;
+            }
+
+            state.Entries.Add(entry);
+        }
+
+        if (state.Kind == ExerciseKind.Cardio && state.Entries.Count == 0)
+        {
+            state.Entries.Add(new EntryState());
+        }
+
+        return state;
+    }
+
+    /// <summary>
     /// The entry's worked-out value as shown under its fields, e.g. Pace 5:46/km or Speed 10.4 km/h; Pace — or Speed — until distance and
     /// duration are both readable and more than 0. Null when the exercise has none.
     /// </summary>

@@ -38,7 +38,7 @@ public class NotesSchemaTests
 
         Assert.Multiple(async () =>
         {
-            Assert.That(await connection.ExecuteScalarAsync<int>("PRAGMA user_version"), Is.EqualTo(5));
+            Assert.That(await connection.ExecuteScalarAsync<int>("PRAGMA user_version"), Is.EqualTo(6));
             Assert.That(await connection.QueryScalarsAsync<string>("SELECT lower(type) FROM pragma_table_info('Workout') WHERE name = 'Note'"), Is.EqualTo(new[] { "varchar" }));
             Assert.That(await connection.QueryScalarsAsync<string>("SELECT lower(type) FROM pragma_table_info('WorkoutExercise') WHERE name = 'Note'"), Is.EqualTo(new[] { "varchar" }));
             Assert.That(await connection.QueryScalarsAsync<string>("SELECT StartedAt || ':' || FinishedAt || ':' || IFNULL(Note, 'null') FROM Workout"), Is.EqualTo(new[] { "100:200:null" }));
@@ -87,7 +87,7 @@ public class NotesSchemaTests
 
     private Task InitializeAsync() =>
         new DatabaseInitializer(connection,
-            [new WorkoutStartedAtUniqueIndex(), new BlankAssistToZero(Catalog), new ValidationRulesSchema(Catalog, NullLogger<ValidationRulesSchema>.Instance), new NotesSchema()],
+            [new WorkoutStartedAtUniqueIndex(), new BlankAssistToZero(Catalog), new ValidationRulesSchema(Catalog, NullLogger<ValidationRulesSchema>.Instance), new NotesSchema(), new UnfinishedSchema()],
             Mock.Of<IExerciseSeeder>(), NullLogger<DatabaseInitializer>.Instance).InitializeAsync();
 
     /// <summary>The version 4 schema with one workout of a strength set and a cardio entry.</summary>

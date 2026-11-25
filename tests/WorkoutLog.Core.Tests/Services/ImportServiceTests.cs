@@ -40,7 +40,11 @@ public class ImportServiceTests
     {
         databasePath = TempDatabase.NewPath();
         connection = new SQLiteAsyncConnection(databasePath);
-        await connection.RunInTransactionAsync(WorkoutTables.CreateMissing);
+        await connection.RunInTransactionAsync(db =>
+        {
+            WorkoutTables.CreateMissing(db);
+            UnfinishedTables.CreateMissing(db);
+        });
         repository = new WorkoutRepository(connection, new WorkoutWriterFactory());
         unitOfWork = new UnitOfWork(connection, new WorkoutWriterFactory());
         logger = new FakeLogger<ImportService>();

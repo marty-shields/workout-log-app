@@ -7,7 +7,7 @@ namespace WorkoutLog.Core.Data;
 /// <summary>Upgrades the schema version stored in SQLite <c>user_version</c>, creates missing tables, then seeds the exercise list.</summary>
 internal sealed partial class DatabaseInitializer : IDatabaseInitializer
 {
-    public const int CurrentVersion = 5;
+    public const int CurrentVersion = 6;
 
     private readonly SQLiteAsyncConnection connection;
     private readonly IReadOnlyList<ISchemaUpgrade> upgrades;
@@ -78,10 +78,14 @@ internal sealed partial class DatabaseInitializer : IDatabaseInitializer
         await seeder.SeedAsync();
     }
 
-    /// <summary>Creates the workout tables of <see cref="WorkoutTables"/> when missing, then lets sqlite-net add the Exercise table and any missing column or index.</summary>
+    /// <summary>Creates the workout tables of <see cref="WorkoutTables"/> and the <see cref="UnfinishedTables"/> when missing, then lets sqlite-net add the Exercise table and any missing column or index.</summary>
     private async Task CreateTablesAsync()
     {
-        await connection.RunInTransactionAsync(WorkoutTables.CreateMissing);
+        await connection.RunInTransactionAsync(db =>
+        {
+            WorkoutTables.CreateMissing(db);
+            UnfinishedTables.CreateMissing(db);
+        });
         await connection.CreateTablesAsync<Exercise, WorkoutRow, WorkoutExerciseRow, StrengthSetRow, CardioEntryRow>();
     }
 

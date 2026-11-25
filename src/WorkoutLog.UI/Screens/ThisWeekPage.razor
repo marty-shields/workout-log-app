@@ -6,22 +6,30 @@
 @using WorkoutLog.Core.Services
 @using WorkoutLog.UI.Components.Weekly
 @using WorkoutLog.UI.Components.ThisWeek
+@using Shields.UI.Components.Overlays
 @using Shields.UI.Lifecycle
 @using WorkoutLog.UI.Models.Muscles
 @using WorkoutLog.UI.Models.ThisWeek
 @implements IDisposable
 @inject IPeriodTotalsService Periods
 @inject IPeriodTrainingService Training
+@inject IUnfinishedWorkoutService UnfinishedWorkout
 @inject IExerciseCatalog Catalog
 @inject TimeProvider Clock
 @inject IAppStart AppStart
 @inject ILogger<ThisWeekPage> Logger
+@inject NewWorkoutChoice Choice
 
 <ThisWeekView Monday="monday" Today="today" Trained="trained" Streak="streak"
               ThisWeek="thisWeek" LastWeekToDate="lastWeekToDate" Workouts="workouts" Records="records" Muscles="muscles" LastWeek="lastWeek"
               Loading="loading" Failed="failed" OnRetry="() => LoadAsync()" OnRefresh="() => LoadAsync(PullRefresh.MinimumSpinner)"
-              OnSettings="OnSettings" OnNew="OnNew" OnNavigate="OnNavigate" OnOpenWorkout="OnOpenWorkout" OnOpenRecord="OnOpenExercise"
+              Unfinished="unfinished" ConfirmingDiscard="confirmingDiscard"
+              OnResume="ResumeAsync" OnDiscardUnfinished="AskDiscard" OnConfirmDiscard="DiscardAsync" OnCancelDiscard="CancelDiscard"
+              OnSettings="OnSettings" OnNew="() => Choice.AskAsync()" OnNavigate="OnNavigate" OnOpenWorkout="OnOpenWorkout" OnOpenRecord="OnOpenExercise"
               OnOpenLastWeek="() => OnOpenLastWeek.InvokeAsync(Period.Containing(PeriodKind.Week, today).Previous())" />
+
+<ChoiceSheet Open="Choice.IsOpen" Title="@NewWorkoutChoice.Title" Message="@Choice.Message" PrimaryText="@NewWorkoutChoice.ResumeText" DangerText="@NewWorkoutChoice.DiscardText"
+             OnPrimary="Choice.ResumeAsync" OnDanger="Choice.DiscardAndStartAsync" OnClose="Choice.Close" TestId="@NewWorkoutChoice.TestId" />
 
 @code {
     private static readonly WeekTotals NoTotals = new(0, TimeSpan.Zero, 0);
@@ -36,14 +44,20 @@
     private IReadOnlyList<WeekWorkout> workouts = [];
     private IReadOnlyList<WeekRecord>? records = [];
     private IReadOnlyList<MuscleGroupSets> muscles = [];
+    private UnfinishedItem? unfinished;
+    private bool confirmingDiscard;
     private bool loading;
     private bool failed;
     private IDisposable? registration;
     private bool disposed;
 
-    /// <summary>Raised by the New button in the bottom navigation bar.</summary>
+    /// <summary>Raised by the New button in the bottom navigation bar, when there is no unfinished workout, and by Discard and start new once it is discarded.</summary>
     [Parameter]
     public EventCallback OnNew { get; set; }
+
+    /// <summary>Raised by Resume, on the banner and in the sheet the New button opens while there is an unfinished workout.</summary>
+    [Parameter]
+    public EventCallback OnResume { get; set; }
 
     /// <summary>Raised with the tab tapped in the bottom navigation bar.</summary>
     [Parameter]
@@ -67,6 +81,8 @@
 
     protected override Task OnInitializedAsync()
     {
+        Choice.OnNew = () => OnNew.InvokeAsync();
+        Choice.OnResume = () => OnResume.InvokeAsync();
         SetToday();
         registration = AppStart.Register(() => InvokeAsync(ReloadAsync));
         return LoadAsync();
@@ -102,7 +118,8 @@
         var workoutsLoad = Training.GetWorkoutsAsync(week);
         var musclesLoad = Training.GetMuscleSetsAsync(week);
         var recordsLoad = Training.GetRecordsAsync(week);
-        await Task.WhenAll(comparisonLoad, lastWeekLoad, seriesLoad, streaksLoad, workoutsLoad, musclesLoad, recordsLoad);
+        var unfinishedLoad = UnfinishedWorkout.GetSummaryAsync();
+        await Task.WhenAll(comparisonLoad, lastWeekLoad, seriesLoad, streaksLoad, workoutsLoad, musclesLoad, recordsLoad, unfinishedLoad);
         var comparison = await comparisonLoad;
         var previous = await lastWeekLoad;
         var series = await seriesLoad;
@@ -110,6 +127,7 @@
         var outlines = await workoutsLoad;
         var counts = await musclesLoad;
         var recent = await recordsLoad;
+        var kept = await unfinishedLoad;
         if (disposed)
         {
             return;
@@ -124,6 +142,7 @@
             lastWeek = before.Totals.Workouts > 0 ? ToTotals(before.Totals) : null;
         }
 
+        unfinished = kept is UnfinishedSummary summary ? UnfinishedItem.From(summary, Clock.LocalTimeZone, Clock.GetUtcNow()) : null;
         trained = series is PeriodSeries daily ? daily.Buckets.Where(day => day.Workouts > 0).Select(day => day.Start).ToList() : [];
         streak = streaks is WeekStreaks read ? read.Current : 0;
         var names = Catalog.All.ToDictionary(e => e.Id, e => e.Name);
@@ -147,6 +166,22 @@
         if (!disposed)
         {
             loading = false;
+        }
+    }
+
+    private Task ResumeAsync() => OnResume.InvokeAsync();
+
+    private void AskDiscard() => confirmingDiscard = true;
+
+    private void CancelDiscard() => confirmingDiscard = false;
+
+    /// <summary>Discards the unfinished workout and hides the banner. A failed write keeps the banner; Core logs it.</summary>
+    private async Task DiscardAsync()
+    {
+        confirmingDiscard = false;
+        if (await UnfinishedWorkout.DiscardAsync() == UnfinishedWrite.Done)
+        {
+            unfinished = null;
         }
     }
 

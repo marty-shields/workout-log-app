@@ -10,7 +10,11 @@ internal sealed class WorkoutRepository(SQLiteAsyncConnection connection, Workou
     public async Task<int> AddAsync(NewWorkout workout)
     {
         var id = 0;
-        await connection.RunInTransactionAsync(db => id = writers.Create(db).Add(workout));
+        await connection.RunInTransactionAsync(db =>
+        {
+            id = writers.Create(db).Add(workout);
+            UnfinishedTables.Clear(db);
+        });
         return id;
     }
 

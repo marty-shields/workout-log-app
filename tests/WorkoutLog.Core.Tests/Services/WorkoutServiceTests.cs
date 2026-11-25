@@ -117,6 +117,26 @@ public class WorkoutServiceTests
     }
 
     [Test]
+    public void Resume_CountsTheElapsedTimeFromTheOriginalStart()
+    {
+        var draft = service.Resume(Start.AddHours(-26));
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(draft.StartedAt, Is.EqualTo(Start.AddHours(-26)));
+            Assert.That(service.Elapsed(draft), Is.EqualTo(TimeSpan.FromHours(26)));
+        });
+        elapsed.Advance(TimeSpan.FromSeconds(90));
+        Assert.That(service.Elapsed(draft), Is.EqualTo(TimeSpan.FromHours(26) + TimeSpan.FromSeconds(90)));
+    }
+
+    [Test]
+    public void Resume_StartInTheFuture_IsZero()
+    {
+        Assert.That(service.Elapsed(service.Resume(Start.AddMinutes(5))), Is.EqualTo(TimeSpan.Zero));
+    }
+
+    [Test]
     public void Elapsed_ReadingBelowTheStart_IsZero()
     {
         var draft = service.StartNew();

@@ -7,6 +7,7 @@
 <TrendsPage KindQuery="@Period" DateQuery="@Date"
             OnPeriodChanged="@(period => Navigation.GoTo(TrendsRoute.To(period)))"
             OnNew="@(period => Navigation.GoTo(Origin.Link("workout/new", Origin.Trends(period))))"
+            OnResume="@(period => Navigation.GoTo(Origin.Resume(Origin.Trends(period))))"
             OnNavigate="@(tab => Navigation.GoTo(tab))"
             OnSettings="@(period => Navigation.GoTo(Origin.Link("settings", Origin.Trends(period))))"
             OnOpenWorkouts="@(opened => Navigation.GoTo(WorkoutsRoute.To(opened.Dates, Origin.Trends(opened.Period))))"

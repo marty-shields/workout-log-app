@@ -274,17 +274,17 @@ public class ValidationRulesSchemaTests
     }
 
     [Test]
-    public async Task Initialize_Version3DatabaseToTheCurrentVersion_RunsSteps4And5AndKeepsEveryRow()
+    public async Task Initialize_Version3DatabaseToTheCurrentVersion_RunsSteps4To6AndKeepsEveryRow()
     {
         await AddWorkoutAsync(1, (Squat, Sets("(5, NULL, NULL, NULL)", "(5, 60, NULL, NULL)")), (Run, Entry($"({Minutes30}, 5.2, NULL, NULL, NULL, 0, NULL, NULL)")));
 
         await new DatabaseInitializer(connection,
-            [new WorkoutStartedAtUniqueIndex(), new BlankAssistToZero(Catalog), new ValidationRulesSchema(Catalog, logger), new NotesSchema()],
+            [new WorkoutStartedAtUniqueIndex(), new BlankAssistToZero(Catalog), new ValidationRulesSchema(Catalog, logger), new NotesSchema(), new UnfinishedSchema()],
             Mock.Of<IExerciseSeeder>(), NullLogger<DatabaseInitializer>.Instance).InitializeAsync();
 
         Assert.Multiple(async () =>
         {
-            Assert.That(await Version(), Is.EqualTo(5));
+            Assert.That(await Version(), Is.EqualTo(6));
             Assert.That(await connection.QueryScalarsAsync<double>("SELECT WeightKg FROM StrengthSet ORDER BY Id"), Is.EqualTo(new[] { 0d, 60 }));
             Assert.That(await connection.QueryScalarsAsync<int?>("SELECT Calories FROM CardioEntry"), Is.EqualTo(new int?[] { null }));
             Assert.That(await connection.QueryScalarsAsync<string>("SELECT Note FROM Workout UNION ALL SELECT Note FROM WorkoutExercise"),

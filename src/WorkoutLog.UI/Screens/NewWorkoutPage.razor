@@ -1,5 +1,6 @@
 @using Microsoft.Extensions.Logging
 @using WorkoutLog.Core.Domain.Exercises
+@using WorkoutLog.Core.Domain.Workouts
 @using WorkoutLog.Core.Services
 @using Shields.UI.Components.Overlays
 @using WorkoutLog.UI.Components.Workout
@@ -7,6 +8,9 @@
 @using WorkoutLog.UI.Models.Fields
 @implements IDisposable
 @inject IWorkoutService Workouts
+@inject IUnfinishedWorkoutService Unfinished
+@inject UnfinishedAutosaver Autosaver
+@inject IExerciseCatalog Catalog
 @inject IWeightHistoryService WeightHistory
 @inject LastTimeLoader LastTimes
 @inject TimeProvider Clock
@@ -15,46 +19,54 @@
 @inject WorkoutEditor Editor
 @inject ILogger<NewWorkoutPage> Logger
 
-<WorkoutView Mode="WorkoutMode.New"
-             StartedAt="startedAt"
-             Time="Elapsed"
-             Exercises="Editor.Exercises"
-             Error="@Editor.Error"
-             Note="@Editor.Note"
-             NoteChanged="Editor.SetNote"
-             NoteError="@Editor.NoteError"
-             Focus="Editor.Focus"
-             ErrorFocus="Editor.ErrorFocus"
-             ValidateSet="Checker.Check"
-             ValidateDone="WorkoutChecker.CheckExercise"
-             OnChanged="Editor.MarkChanged"
-             OnSave="SaveAsync"
-             OnAddExercise="Editor.OpenListAsync"
-             OnRemoveExercise="Editor.Remove"
-             OnRemoveSet="Editor.RemoveSet"
-             Undo="Editor.PendingUndo"
-             OnUndo="Editor.Undo"
-             OnUndoTimeout="Editor.DismissUndo"
-             OnBack="Editor.AskDiscard">
-    <Overlay>
-        @if (Editor.ListOpen)
-        {
-            <AddExerciseView Items="Editor.ListItems" Query="@Editor.Query" QueryChanged="Editor.Search" Filter="Editor.Filter" FilterChanged="Editor.FilterBy"
-                           Loading="Editor.ListLoading" OnPick="PickAsync" OnClose="Editor.CloseList" />
-        }
-        @if (Editor.DiscardOpen)
-        {
-            <ConfirmDialog Title="Discard this workout?" ConfirmText="Discard" Danger OnConfirm="DiscardAsync" OnCancel="Editor.CloseDiscard" />
-        }
-    </Overlay>
-</WorkoutView>
+@if (draft is not null)
+{
+    <WorkoutView Mode="WorkoutMode.New"
+                 StartedAt="startedAt"
+                 Time="Elapsed"
+                 Exercises="Editor.Exercises"
+                 Error="@Editor.Error"
+                 Note="@Editor.Note"
+                 NoteChanged="Editor.SetNote"
+                 NoteError="@Editor.NoteError"
+                 Focus="Editor.Focus"
+                 ErrorFocus="Editor.ErrorFocus"
+                 ValidateSet="Checker.Check"
+                 ValidateDone="WorkoutChecker.CheckExercise"
+                 OnChanged="Editor.MarkChanged"
+                 OnEdited="Editor.MarkEdited"
+                 OnSave="SaveAsync"
+                 OnAddExercise="Editor.OpenListAsync"
+                 OnRemoveExercise="Editor.Remove"
+                 OnRemoveSet="Editor.RemoveSet"
+                 Undo="Editor.PendingUndo"
+                 OnUndo="Editor.Undo"
+                 OnUndoTimeout="Editor.DismissUndo"
+                 OnBack="Editor.AskDiscard">
+        <Overlay>
+            @if (Editor.ListOpen)
+            {
+                <AddExerciseView Items="Editor.ListItems" Query="@Editor.Query" QueryChanged="Editor.Search" Filter="Editor.Filter" FilterChanged="Editor.FilterBy"
+                               Loading="Editor.ListLoading" OnPick="PickAsync" OnClose="Editor.CloseList" />
+            }
+            @if (Editor.DiscardOpen)
+            {
+                <ConfirmDialog Title="Discard this workout?" ConfirmText="Discard" Danger OnConfirm="DiscardAsync" OnCancel="Editor.CloseDiscard" />
+            }
+        </Overlay>
+    </WorkoutView>
+}
 
 @code {
-    private WorkoutDraft draft = null!;
+    private WorkoutDraft? draft;
     private DateTime startedAt;
     private PeriodicTimer? timer;
 
-    /// <summary>Raised after Discard is confirmed. Nothing is saved.</summary>
+    /// <summary>Starts from the unfinished workout the phone kept, with its start time, notes, exercises and sets as they were, if there is one; otherwise as a new workout.</summary>
+    [Parameter]
+    public bool Resume { get; set; }
+
+    /// <summary>Raised after Discard is confirmed, and when <see cref="Resume"/> can't read the kept workout, which stays stored. Nothing is saved.</summary>
     [Parameter]
     public EventCallback OnDiscarded { get; set; }
 
@@ -62,35 +74,71 @@
     [Parameter]
     public EventCallback<int> OnSaved { get; set; }
 
-    private TimeSpan Elapsed => Workouts.Elapsed(draft);
+    private TimeSpan Elapsed => Workouts.Elapsed(draft!);
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
-        draft = Workouts.StartNew();
+        Editor.Edited += Queue;
+        var kept = Resume ? await Unfinished.GetAsync() : new NoUnfinishedWorkout();
+        if (kept is ReadFailed)
+        {
+            // The kept workout is still stored. Starting a new one would overwrite it with the first edit, so leave without starting.
+            await OnDiscarded.InvokeAsync();
+            return;
+        }
+
+        if (kept is UnfinishedWorkout unfinished)
+        {
+            var exercises = UnfinishedWorkouts.ToExercises(unfinished, Catalog);
+            draft = Workouts.Resume(unfinished.StartedAt);
+            Autosaver.Begin();
+            Editor.Start(exercises, unfinished.Note);
+            foreach (var exercise in exercises)
+            {
+                await LoadContextAsync(exercise);
+            }
+        }
+        else
+        {
+            draft = Workouts.StartNew();
+            Autosaver.Begin();
+        }
+
         startedAt = TimeZoneInfo.ConvertTime(draft.StartedAt, Clock.LocalTimeZone).DateTime;
         timer = new PeriodicTimer(TimeSpan.FromSeconds(1), Clock);
         _ = TickAsync(timer);
     }
 
-    public void Dispose() => timer?.Dispose();
+    public void Dispose()
+    {
+        Editor.Edited -= Queue;
+        timer?.Dispose();
+    }
+
+    /// <summary>Queues the workout as it is for the autosave.</summary>
+    private void Queue() => Autosaver.Queue(UnfinishedWorkouts.From(draft!.StartedAt, Editor.Note, Editor.Exercises));
 
     private async Task PickAsync(ExerciseListItem item)
     {
         var added = Editor.Exercises.All(e => e.ExerciseId != item.Id);
         Editor.Pick(item);
-        if (!added || Editor.Exercises.FirstOrDefault(e => e.ExerciseId == item.Id) is not { } exercise)
+        if (added && Editor.Exercises.FirstOrDefault(e => e.ExerciseId == item.Id) is { } exercise)
         {
-            return;
+            await LoadContextAsync(exercise);
         }
+    }
 
+    /// <summary>Loads what the exercise shows from earlier workouts: the last time, the last note and, for strength, the last and best weight.</summary>
+    private async Task LoadContextAsync(ExerciseState exercise)
+    {
         await LastTimes.LoadAsync(exercise);
-        if (await WeightHistory.GetAsync(item.Id, null) is not ExerciseHistory history)
+        if (await WeightHistory.GetAsync(exercise.ExerciseId, null) is not ExerciseHistory history)
         {
             return;
         }
 
         exercise.LastNote = history.LastNote;
-        if (item.Kind != ExerciseKind.Strength)
+        if (exercise.Kind != ExerciseKind.Strength)
         {
             return;
         }
@@ -107,6 +155,16 @@
             return;
         }
 
+        await Autosaver.StopAsync();
+        if (await Unfinished.DiscardAsync() == UnfinishedWrite.Failed)
+        {
+            // The kept workout is still stored: stay, and keep it up to date, so it isn't offered back as if discarded.
+            Editor.DiscardFailed();
+            Autosaver.Begin();
+            Queue();
+            return;
+        }
+
         Log.Discarded(Logger, Editor.Exercises.Count);
         await OnDiscarded.InvokeAsync();
     }
@@ -116,7 +174,14 @@
         int? savedId = null;
         if (await Editor.SaveAsync(async (note, records) =>
             {
-                savedId = await Workouts.SaveNewAsync(draft, note, records) is Saved saved ? saved.WorkoutId : null;
+                await Autosaver.StopAsync();
+                savedId = await Workouts.SaveNewAsync(draft!, note, records) is Saved saved ? saved.WorkoutId : null;
+                if (savedId is null)
+                {
+                    Autosaver.Begin();
+                    Queue();
+                }
+
                 return savedId is not null;
             }))
         {

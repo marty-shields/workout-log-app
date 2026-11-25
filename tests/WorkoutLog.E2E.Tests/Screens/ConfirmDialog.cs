@@ -7,6 +7,9 @@ public sealed class ConfirmDialog(WebView web)
 
     public string Title() => web.Find("confirm-dialog").FindElement(OpenQA.Selenium.By.CssSelector(".title")).Text.Trim();
 
+    /// <summary>The text under the title; empty when there is none.</summary>
+    public string Message() => web.Find("confirm-dialog").FindElement(OpenQA.Selenium.By.CssSelector(".message")).Text.Trim();
+
     public string CancelText() => web.Text("confirm-dialog-cancel");
 
     public string ConfirmText() => web.Text("confirm-dialog-confirm");

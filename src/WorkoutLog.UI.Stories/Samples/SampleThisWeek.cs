@@ -1,6 +1,7 @@
 using WorkoutLog.UI.Components.ThisWeek;
 using WorkoutLog.UI.Components.Weekly;
 using WorkoutLog.UI.Models.Muscles;
+using WorkoutLog.UI.Models.ThisWeek;
 
 namespace WorkoutLog.UI.Stories.Samples;
 
@@ -32,6 +33,9 @@ public static class SampleThisWeek
         new(32, new DateTime(2026, 11, 17, 18, 30, 0), ["Treadmill run"], new TimeSpan(0, 35, 0)),
         new(33, new DateTime(2026, 11, 18, 7, 10, 0), ["Squat", "Leg press", "Leg curl"], new TimeSpan(0, 58, 0)),
     ];
+
+    /// <summary>A workout left unfinished yesterday evening: 4 exercises, 12 sets.</summary>
+    public static UnfinishedItem Unfinished { get; } = new("Started yesterday, 6:12 pm", 4, 12);
 
     /// <summary>One record.</summary>
     public static IReadOnlyList<WeekRecord> Records { get; } = [new(8, "Bench press", "82.5kg × 5", DayOfWeek.Monday)];

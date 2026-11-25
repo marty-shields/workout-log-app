@@ -38,6 +38,7 @@ It's built for one person and one phone: no accounts, no sign-up.
 - Saving a new workout opens a summary: how long it took, your exercises and sets, any records you set, and how each exercise compares with last time.
 - Saving checks every set and points to the field that's wrong.
 - A note on the workout and on each exercise, up to 500 characters each. Adding an exercise shows the note it had last time.
+- A workout you started survives a crash or a kill: This week shows it with Resume and Discard, and Resume puts back the start time, exercises, notes and sets as you typed them.
 
 <table align="center">
   <tr>

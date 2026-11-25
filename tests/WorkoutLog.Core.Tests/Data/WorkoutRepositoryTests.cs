@@ -18,7 +18,11 @@ public class WorkoutRepositoryTests
     {
         databasePath = TempDatabase.NewPath();
         connection = new SQLiteAsyncConnection(databasePath);
-        await connection.RunInTransactionAsync(WorkoutTables.CreateMissing);
+        await connection.RunInTransactionAsync(db =>
+        {
+            WorkoutTables.CreateMissing(db);
+            UnfinishedTables.CreateMissing(db);
+        });
         repository = new WorkoutRepository(connection, new WorkoutWriterFactory());
     }
 
@@ -38,6 +42,29 @@ public class WorkoutRepositoryTests
 
         Assert.That(await repository.GetAsync(id),
             Is.EqualTo(new Workout(id, Start, Finish, exercises)).UsingPropertiesComparer());
+    }
+
+    [Test]
+    public async Task AddAsync_DeletesTheUnfinishedWorkout()
+    {
+        var unfinished = new UnfinishedWorkoutRepository(connection);
+        await unfinished.ReplaceAsync(UnfinishedWorkoutRepositoryTests.Typed());
+
+        await repository.AddAsync(new NewWorkout(Start, Finish, Exercises()));
+
+        Assert.That(await unfinished.GetAsync(), Is.Null);
+    }
+
+    [Test]
+    public async Task AddAsync_WriteFails_KeepsTheUnfinishedWorkout()
+    {
+        await repository.AddAsync(new NewWorkout(Start, Finish, Exercises()));
+        var unfinished = new UnfinishedWorkoutRepository(connection);
+        await unfinished.ReplaceAsync(UnfinishedWorkoutRepositoryTests.Typed());
+
+        Assert.That(() => repository.AddAsync(new NewWorkout(Start, Finish, Exercises())), Throws.InstanceOf<SQLiteException>());
+
+        Assert.That((await unfinished.GetAsync())!.Exercises, Has.Count.EqualTo(3));
     }
 
     [Test]

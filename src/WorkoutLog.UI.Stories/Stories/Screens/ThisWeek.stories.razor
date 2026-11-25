@@ -12,6 +12,31 @@
         </Template>
     </Story>
 
+    <Story Name="Workout in progress">
+        <Description>A workout left unfinished by a crash or kill: the banner shows at the top with Resume and Discard.</Description>
+        <Template>
+            <ThisWeekView Monday="SampleThisWeek.Monday" Today="SampleThisWeek.Wednesday" Trained="SampleThisWeek.TrainedDays" Streak="23"
+                          ThisWeek="SampleThisWeek.ThisWeek" LastWeekToDate="SampleThisWeek.LastWeekToDate"
+                          Workouts="SampleThisWeek.Workouts" Records="SampleThisWeek.Records" Muscles="SampleThisWeek.Muscles"
+                          Unfinished="SampleThisWeek.Unfinished" OnResume="() => { }" OnDiscardUnfinished="() => { }"
+                          OnSettings="() => { }" OnNew="() => { }" OnNavigate="(MainTab _) => { }"
+                          OnOpenWorkout="(int _) => { }" OnOpenRecord="(int _) => { }" />
+        </Template>
+    </Story>
+
+    <Story Name="Discard prompt">
+        <Description>Discard on the banner asks first and says what is lost.</Description>
+        <Template>
+            <ThisWeekView Monday="SampleThisWeek.Monday" Today="SampleThisWeek.Wednesday" Trained="SampleThisWeek.TrainedDays" Streak="23"
+                          ThisWeek="SampleThisWeek.ThisWeek" LastWeekToDate="SampleThisWeek.LastWeekToDate"
+                          Workouts="SampleThisWeek.Workouts" Records="SampleThisWeek.Records" Muscles="SampleThisWeek.Muscles"
+                          Unfinished="SampleThisWeek.Unfinished" ConfirmingDiscard OnResume="() => { }" OnDiscardUnfinished="() => { }"
+                          OnConfirmDiscard="() => { }" OnCancelDiscard="() => { }"
+                          OnSettings="() => { }" OnNew="() => { }" OnNavigate="(MainTab _) => { }"
+                          OnOpenWorkout="(int _) => { }" OnOpenRecord="(int _) => { }" />
+        </Template>
+    </Story>
+
     <Story Name="New week">
         <Template>
             <ThisWeekView Monday="SampleThisWeek.Monday" Today="SampleThisWeek.Monday" Streak="22"

@@ -33,14 +33,17 @@ public class CoreServiceCollectionExtensionsTests
             (typeof(ISchemaUpgrade), typeof(BlankAssistToZero), ServiceLifetime.Singleton),
             (typeof(ISchemaUpgrade), typeof(ValidationRulesSchema), ServiceLifetime.Singleton),
             (typeof(ISchemaUpgrade), typeof(NotesSchema), ServiceLifetime.Singleton),
+            (typeof(ISchemaUpgrade), typeof(UnfinishedSchema), ServiceLifetime.Singleton),
             (typeof(IFormatUpgrade), typeof(ValidationRulesFormatUpgrade), ServiceLifetime.Singleton),
             (typeof(IFormatUpgrade), typeof(NotesFormatUpgrade), ServiceLifetime.Singleton),
             (typeof(IDatabaseInitializer), (Type?)null, ServiceLifetime.Singleton),
             (typeof(IWorkoutRepository), (Type?)null, ServiceLifetime.Singleton),
+            (typeof(IUnfinishedWorkoutRepository), (Type?)null, ServiceLifetime.Singleton),
             (typeof(TimeProvider), (Type?)null, ServiceLifetime.Singleton),
             (typeof(NoteLengthRule), typeof(NoteLengthRule), ServiceLifetime.Singleton),
             (typeof(IWorkoutValidator), typeof(WorkoutValidator), ServiceLifetime.Singleton),
             (typeof(IWorkoutService), typeof(WorkoutService), ServiceLifetime.Singleton),
+            (typeof(IUnfinishedWorkoutService), typeof(UnfinishedWorkoutService), ServiceLifetime.Singleton),
             (typeof(IWorkoutsService), typeof(WorkoutsService), ServiceLifetime.Singleton),
             (typeof(IWorkoutSummaryService), typeof(WorkoutSummaryService), ServiceLifetime.Singleton),
             (typeof(WeekComparisonRule), typeof(WeekComparisonRule), ServiceLifetime.Singleton),
@@ -121,7 +124,9 @@ public class CoreServiceCollectionExtensionsTests
         {
             Assert.That(provider.GetRequiredService<IDatabaseInitializer>(), Is.InstanceOf<GatedDatabaseInitializer>());
             Assert.That(provider.GetRequiredService<IWorkoutRepository>(), Is.InstanceOf<GatedWorkoutRepository>());
+            Assert.That(provider.GetRequiredService<IUnfinishedWorkoutRepository>(), Is.InstanceOf<GatedUnfinishedWorkoutRepository>());
             Assert.That(provider.GetRequiredService<IWorkoutService>(), Is.InstanceOf<WorkoutService>());
+            Assert.That(provider.GetRequiredService<IUnfinishedWorkoutService>(), Is.InstanceOf<UnfinishedWorkoutService>());
             Assert.That(provider.GetRequiredService<IWorkoutsService>(), Is.InstanceOf<WorkoutsService>());
             Assert.That(provider.GetRequiredService<IPeriodTotalsService>(), Is.InstanceOf<PeriodTotalsService>());
             Assert.That(provider.GetRequiredService<IPeriodTrainingService>(), Is.InstanceOf<PeriodTrainingService>());
@@ -146,6 +151,7 @@ public class CoreServiceCollectionExtensionsTests
             Assert.That(provider.GetService<SQLiteAsyncConnection>(), Is.Null);
             Assert.That(provider.GetService<DatabaseInitializer>(), Is.Null);
             Assert.That(provider.GetService<WorkoutRepository>(), Is.Null);
+            Assert.That(provider.GetService<UnfinishedWorkoutRepository>(), Is.Null);
             Assert.That(provider.GetService<UnitOfWork>(), Is.Null);
             Assert.That(provider.GetService<IExerciseSeeder>(), Is.Null);
             Assert.That(provider.GetService<ExerciseSeeder>(), Is.Null);

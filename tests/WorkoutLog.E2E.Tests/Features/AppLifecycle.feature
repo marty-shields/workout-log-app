@@ -8,7 +8,7 @@ Feature: App lifecycle
     Then this week's newest workout is from today
     And reopening the latest workout shows Barbell Back Squat set 1 at 5 reps, 60 kg
 
-  Scenario: A new workout is lost when the app is killed
+  Scenario: A new workout isn't saved as a workout when the app is killed
     Given I have started a new workout
     And I have added "Barbell Back Squat"
     And I have logged Barbell Back Squat set 1: 5 reps

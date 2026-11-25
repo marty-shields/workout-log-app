@@ -11,6 +11,7 @@ public static class StorySampleServices
     /// <summary>Registers the services the stories' screens resolve, backed by sample data.</summary>
     public static IServiceCollection AddWorkoutLogStorySamples(this IServiceCollection services) => services
         .AddSingleton<IWorkoutService, SampleWorkoutService>()
+        .AddSingleton<IUnfinishedWorkoutService, SampleUnfinishedWorkoutService>()
         .AddSingleton<IExerciseCatalog, ExerciseCatalog>()
         .AddSingleton<IImportService, SampleImportService>()
         .AddSingleton<ILoggedExercisesService, SampleLoggedExercisesService>()

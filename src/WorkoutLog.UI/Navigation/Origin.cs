@@ -25,6 +25,9 @@ public static class Origin
     /// <summary><paramref name="route"/> with <paramref name="from"/> as its <c>from</c> query value; just the route when <paramref name="from"/> is null.</summary>
     public static string Link(string route, string? from) => from is null ? route : $"{route}?from={Uri.EscapeDataString(from)}";
 
+    /// <summary>The link to the new workout screen that resumes the unfinished workout, with <paramref name="from"/> as its <c>from</c> query value when not null.</summary>
+    public static string Resume(string? from) => $"{Link("workout/new", from)}{(from is null ? "?" : "&")}resume=true";
+
     /// <summary>
     /// The route to return to: that Trends period's when <paramref name="from"/> is <see cref="Trends"/>, those Workouts dates' when it is
     /// <see cref="Workouts"/>, otherwise This week's (empty), also for <see cref="ThisWeek"/>, a missing value or one that doesn't parse.

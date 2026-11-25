@@ -26,6 +26,12 @@ public sealed class WorkoutEditor(
     private int listOpens;
     private PendingUndo? pendingUndo;
 
+    /// <summary>
+    /// Raised after a value, note, set or exercise is changed, added or removed, an Undo puts one back, <see cref="MarkChanged"/> or <see cref="MarkEdited"/> is called, for a page that keeps the
+    /// workout as it goes. The exercises are as they are then.
+    /// </summary>
+    public event Action? Edited;
+
     /// <summary>Exercises in screen order, newest first.</summary>
     public IReadOnlyList<ExerciseState> Exercises => exercises;
 
@@ -133,6 +139,9 @@ public sealed class WorkoutEditor(
         return true;
     }
 
+    /// <summary>Takes back a confirmed Discard whose write failed, so the prompt, still open, can confirm it again or be cancelled.</summary>
+    public void DiscardFailed() => Discarded = false;
+
     /// <summary>
     /// Opens the add-exercise list with no search text and the All chip, loading while it reads the last sessions through
     /// <see cref="ILoggedExercisesService.GetAsync"/>. Then lists the whole catalog, Strength then Cardio A–Z, each logged exercise
@@ -200,6 +209,7 @@ public sealed class WorkoutEditor(
         Error = null;
         ListOpen = false;
         EndUndoThatNoLongerFits();
+        Edited?.Invoke();
     }
 
     /// <summary>Takes the exercise out at once, a change, and offers Undo for it in place of any earlier deletion.</summary>
@@ -214,6 +224,7 @@ public sealed class WorkoutEditor(
         pendingUndo = new RemovedExercise(exercise, exercises[..index]);
         exercises.RemoveAt(index);
         Changed = true;
+        Edited?.Invoke();
     }
 
     /// <summary>Takes the closed set out at once, a change, and offers Undo for it in place of any earlier deletion.</summary>
@@ -228,6 +239,7 @@ public sealed class WorkoutEditor(
         pendingUndo = new RemovedSet(set.Exercise, set.Entry, set.Exercise.Entries[..index]);
         set.Exercise.Entries.RemoveAt(index);
         Changed = true;
+        Edited?.Invoke();
     }
 
     /// <summary>
@@ -264,7 +276,11 @@ public sealed class WorkoutEditor(
                 break;
         }
 
-        pendingUndo = null;
+        if (pendingUndo is not null)
+        {
+            pendingUndo = null;
+            Edited?.Invoke();
+        }
     }
 
     /// <summary>Keeps the deletion deleted and hides its snackbar, unless a later deletion has replaced it.</summary>
@@ -284,7 +300,11 @@ public sealed class WorkoutEditor(
     {
         Changed = true;
         EndUndoThatNoLongerFits();
+        Edited?.Invoke();
     }
+
+    /// <summary>Raises <see cref="Edited"/> for a change that is not a <see cref="Changed"/> one, such as an exercise marked done or open again.</summary>
+    public void MarkEdited() => Edited?.Invoke();
 
     /// <summary>Sets the workout's note, a change, and clears its error.</summary>
     public void SetNote(string? note)
@@ -292,6 +312,7 @@ public sealed class WorkoutEditor(
         Note = note;
         NoteError = null;
         Changed = true;
+        Edited?.Invoke();
     }
 
     /// <summary>
