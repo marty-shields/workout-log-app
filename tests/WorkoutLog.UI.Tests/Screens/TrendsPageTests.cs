@@ -629,7 +629,7 @@ public class TrendsPageTests : ComponentTestBase
             .Add(x => x.OnResume, resumed.Add));
         cut.Find("[data-testid=add-button]").Click();
 
-        cut.Find("[data-testid=new-unfinished-resume]").Click();
+        cut.Find("[data-testid=new-unfinished-primary]").Click();
 
         Assert.That((newWorkouts, resumed), Is.EqualTo((new List<Period>(), new List<Period> { Period.Containing(PeriodKind.Week, LastMonday) })));
     }
@@ -644,7 +644,7 @@ public class TrendsPageTests : ComponentTestBase
         var cut = Context.Render<TrendsPage>(p => p.Add(x => x.DateQuery, "2026-11-11").Add(x => x.OnNew, newWorkouts.Add));
         cut.Find("[data-testid=add-button]").Click();
 
-        cut.Find("[data-testid=new-unfinished-discard]").Click();
+        cut.Find("[data-testid=new-unfinished-danger]").Click();
 
         Assert.That(newWorkouts, Is.EqualTo(new[] { Period.Containing(PeriodKind.Week, LastMonday) }));
         Assert.That(UnfinishedWorkout.Stored, Is.Null);

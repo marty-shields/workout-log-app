@@ -6,6 +6,7 @@
 @using WorkoutLog.Core.Services
 @using WorkoutLog.UI.Components.Weekly
 @using WorkoutLog.UI.Components.ThisWeek
+@using Shields.UI.Components.Overlays
 @using Shields.UI.Lifecycle
 @using WorkoutLog.UI.Models.Muscles
 @using WorkoutLog.UI.Models.ThisWeek
@@ -17,16 +18,18 @@
 @inject TimeProvider Clock
 @inject IAppStart AppStart
 @inject ILogger<ThisWeekPage> Logger
+@inject NewWorkoutChoice Choice
 
 <ThisWeekView Monday="monday" Today="today" Trained="trained" Streak="streak"
               ThisWeek="thisWeek" LastWeekToDate="lastWeekToDate" Workouts="workouts" Records="records" Muscles="muscles" LastWeek="lastWeek"
               Loading="loading" Failed="failed" OnRetry="() => LoadAsync()" OnRefresh="() => LoadAsync(PullRefresh.MinimumSpinner)"
               Unfinished="unfinished" ConfirmingDiscard="confirmingDiscard"
               OnResume="ResumeAsync" OnDiscardUnfinished="AskDiscard" OnConfirmDiscard="DiscardAsync" OnCancelDiscard="CancelDiscard"
-              OnSettings="OnSettings" OnNew="() => choice!.AskAsync()" OnNavigate="OnNavigate" OnOpenWorkout="OnOpenWorkout" OnOpenRecord="OnOpenExercise"
+              OnSettings="OnSettings" OnNew="() => Choice.AskAsync()" OnNavigate="OnNavigate" OnOpenWorkout="OnOpenWorkout" OnOpenRecord="OnOpenExercise"
               OnOpenLastWeek="() => OnOpenLastWeek.InvokeAsync(Period.Containing(PeriodKind.Week, today).Previous())" />
 
-<NewWorkoutChoice @ref="choice" OnNew="OnNew" OnResume="OnResume" />
+<ChoiceSheet Open="Choice.IsOpen" Title="@NewWorkoutChoice.Title" Message="@Choice.Message" PrimaryText="@NewWorkoutChoice.ResumeText" DangerText="@NewWorkoutChoice.DiscardText"
+             OnPrimary="Choice.ResumeAsync" OnDanger="Choice.DiscardAndStartAsync" OnClose="Choice.Close" TestId="@NewWorkoutChoice.TestId" />
 
 @code {
     private static readonly WeekTotals NoTotals = new(0, TimeSpan.Zero, 0);
@@ -43,7 +46,6 @@
     private IReadOnlyList<MuscleGroupSets> muscles = [];
     private UnfinishedItem? unfinished;
     private bool confirmingDiscard;
-    private NewWorkoutChoice? choice;
     private bool loading;
     private bool failed;
     private IDisposable? registration;
@@ -79,6 +81,8 @@
 
     protected override Task OnInitializedAsync()
     {
+        Choice.OnNew = () => OnNew.InvokeAsync();
+        Choice.OnResume = () => OnResume.InvokeAsync();
         SetToday();
         registration = AppStart.Register(() => InvokeAsync(ReloadAsync));
         return LoadAsync();

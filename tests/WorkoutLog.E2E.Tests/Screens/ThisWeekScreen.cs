@@ -79,7 +79,7 @@ public sealed partial class ThisWeekScreen(WebView web)
     public bool HasNewSheet() => web.Exists("new-unfinished");
 
     /// <summary>Taps Resume or Discard and start new on the sheet that + opens while a workout is unfinished.</summary>
-    public void TapOnSheet(string button) => web.Tap(button == "Resume" ? "new-unfinished-resume" : "new-unfinished-discard");
+    public void TapOnSheet(string button) => web.Tap(button == "Resume" ? "new-unfinished-primary" : "new-unfinished-danger");
 
     public bool HasStartupError() => web.Exists("startup-failed");
 

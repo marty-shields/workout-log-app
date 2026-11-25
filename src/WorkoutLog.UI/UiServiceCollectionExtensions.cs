@@ -1,5 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 using Shields.UI;
+using WorkoutLog.UI.Components.ThisWeek;
 using WorkoutLog.UI.Import;
 using WorkoutLog.UI.Models.Workout;
 
@@ -17,5 +18,6 @@ public static class UiServiceCollectionExtensions
             .AddSingleton<IWorkoutChecker, WorkoutChecker>()
             .AddSingleton<LastTimeLoader>()
             .AddSingleton<UnfinishedAutosaver>()
-            .AddTransient<WorkoutEditor>();
+            .AddTransient<WorkoutEditor>()
+            .AddTransient<NewWorkoutChoice>();
 }

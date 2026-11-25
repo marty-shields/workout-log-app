@@ -53,7 +53,6 @@ public class AppComponentAllowListTests
         ["WeekRecordsCard"] = "app-only: this week's records card, built from kit Card",
         ["WeekTiles"] = "app-only: this week's stat tiles, built from kit StatTile",
         ["WeekWorkoutsCard"] = "app-only: this week's workouts card, built from kit Card and ListRow",
-        ["NewWorkoutChoice"] = "app-only: the sheet every + opens while a workout is unfinished (Resume or Discard and start new), built from kit Sheet",
         ["LongestStreakCard"] = "app-only: longest streak card, built from kit Card",
         ["RecordRows"] = "app-only: the records of a period (up to five rows, then n more), built from kit ListRow",
         ["TrendTiles"] = "app-only: trend stat tiles, built from kit StatTile",

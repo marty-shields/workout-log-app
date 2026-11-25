@@ -48,8 +48,8 @@ public sealed class UnfinishedSteps(WebView web, Native native, Journeys journey
         web.WaitUntil(thisWeek.HasNewSheet, "the Workout in progress sheet didn't open");
         Assert.Multiple(() =>
         {
-            Assert.That(web.Text("new-unfinished-resume"), Is.EqualTo("Resume"));
-            Assert.That(web.Text("new-unfinished-discard"), Is.EqualTo("Discard and start new"));
+            Assert.That(web.Text("new-unfinished-primary"), Is.EqualTo("Resume"));
+            Assert.That(web.Text("new-unfinished-danger"), Is.EqualTo("Discard and start new"));
         });
     }
 

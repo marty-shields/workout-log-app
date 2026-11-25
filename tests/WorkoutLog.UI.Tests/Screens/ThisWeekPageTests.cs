@@ -705,7 +705,7 @@ public class ThisWeekPageTests : ComponentTestBase
         await WaitForSettledAsync(cut, () => Assert.That(cut.FindAll("[data-testid=unfinished]"), Has.Count.EqualTo(1)));
         cut.Find("[data-testid=add-button]").Click();
 
-        cut.Find("[data-testid=new-unfinished-resume]").Click();
+        cut.Find("[data-testid=new-unfinished-primary]").Click();
 
         Assert.Multiple(() =>
         {
@@ -725,7 +725,7 @@ public class ThisWeekPageTests : ComponentTestBase
         await WaitForSettledAsync(cut, () => Assert.That(cut.FindAll("[data-testid=unfinished]"), Has.Count.EqualTo(1)));
         cut.Find("[data-testid=add-button]").Click();
 
-        cut.Find("[data-testid=new-unfinished-discard]").Click();
+        cut.Find("[data-testid=new-unfinished-danger]").Click();
 
         Assert.Multiple(() =>
         {
@@ -774,7 +774,7 @@ public class ThisWeekPageTests : ComponentTestBase
         cut.Find("[data-testid=add-button]").Click();
         UnfinishedWorkout.FailWrites = true;
 
-        cut.Find("[data-testid=new-unfinished-discard]").Click();
+        cut.Find("[data-testid=new-unfinished-danger]").Click();
 
         Assert.Multiple(() =>
         {

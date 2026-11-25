@@ -1,42 +1,50 @@
+using Microsoft.Extensions.DependencyInjection;
 using WorkoutLog.Core.Domain.Exercises;
 using WorkoutLog.Core.Domain.Workouts;
 using WorkoutLog.UI.Components.ThisWeek;
 
 namespace WorkoutLog.UI.Tests.Components.ThisWeek;
 
-/// <summary>The sheet every + button goes through: This week and Trends call <see cref="NewWorkoutChoice.AskAsync"/> and nothing else.</summary>
+/// <summary>What every + button goes through: This week and Trends call <see cref="NewWorkoutChoice.AskAsync"/> and render the kit sheet from its state.</summary>
 public class NewWorkoutChoiceTests : ComponentTestBase
 {
+    private List<string> raised = [];
+
     [SetUp]
-    public void Loose() => Context.JSInterop.Mode = JSRuntimeMode.Loose;
+    public void Reset() => raised = [];
 
-    [Test]
-    public async Task Ask_NothingUnfinished_RaisesOnNewAndOpensNoSheet()
+    private NewWorkoutChoice Choice()
     {
-        var (cut, raised) = Render();
-
-        await cut.InvokeAsync(() => cut.Instance.AskAsync());
-
-        Assert.That(raised, Is.EqualTo(new[] { "new" }));
-        Assert.That(cut.FindAll("[data-testid=new-unfinished]"), Is.Empty);
+        var choice = Context.Services.GetRequiredService<NewWorkoutChoice>();
+        choice.OnNew = () => { raised.Add("new"); return Task.CompletedTask; };
+        choice.OnResume = () => { raised.Add("resume"); return Task.CompletedTask; };
+        return choice;
     }
 
     [Test]
-    public async Task Ask_WithAnUnfinishedWorkout_OpensTheSheetSayingWhatIsLostAndRaisesNothing()
+    public async Task Ask_NothingUnfinished_RaisesOnNewAndOpensNothing()
+    {
+        var choice = Choice();
+
+        await choice.AskAsync();
+
+        Assert.That(raised, Is.EqualTo(new[] { "new" }));
+        Assert.That(choice.IsOpen, Is.False);
+    }
+
+    [Test]
+    public async Task Ask_WithAnUnfinishedWorkout_OpensSayingWhatIsLostAndRaisesNothing()
     {
         Unfinished();
-        var (cut, raised) = Render();
+        var choice = Choice();
 
-        await cut.InvokeAsync(() => cut.Instance.AskAsync());
+        await choice.AskAsync();
 
         Assert.Multiple(() =>
         {
             Assert.That(raised, Is.Empty);
-            Assert.That(cut.Find("[data-testid=new-unfinished] h2").TextContent, Is.EqualTo("Workout in progress"));
-            Assert.That(cut.Find("[data-testid=new-unfinished-message]").TextContent, Does.Contain("1 exercise, 2 sets will be lost"));
-            Assert.That(cut.Find("[data-testid=new-unfinished-resume]").TextContent.Trim(), Is.EqualTo("Resume"));
-            Assert.That(cut.Find("[data-testid=new-unfinished-discard]").TextContent.Trim(), Is.EqualTo("Discard and start new"));
-            Assert.That(cut.Find("[data-testid=new-unfinished-discard]").ClassList, Does.Contain("danger"));
+            Assert.That(choice.IsOpen, Is.True);
+            Assert.That(choice.Message, Does.Contain("1 exercise, 2 sets will be lost"));
         });
     }
 
@@ -45,98 +53,104 @@ public class NewWorkoutChoiceTests : ComponentTestBase
     {
         Unfinished();
         UnfinishedWorkout.FailReads = true;
-        var (cut, raised) = Render();
+        var choice = Choice();
 
-        await cut.InvokeAsync(() => cut.Instance.AskAsync());
+        await choice.AskAsync();
 
         Assert.That(raised, Is.Empty);
-        Assert.That(cut.FindAll("[data-testid=new-unfinished]"), Is.Empty);
+        Assert.That(choice.IsOpen, Is.False);
         Assert.That(UnfinishedWorkout.Stored, Is.Not.Null);
     }
 
     [Test]
     public async Task Ask_ReadsAfreshOnEveryTap()
     {
-        var (cut, raised) = Render();
-        await cut.InvokeAsync(() => cut.Instance.AskAsync());
+        var choice = Choice();
+        await choice.AskAsync();
         Unfinished();
 
-        await cut.InvokeAsync(() => cut.Instance.AskAsync());
+        await choice.AskAsync();
 
         Assert.That(raised, Is.EqualTo(new[] { "new" }), "the second tap opens the sheet instead");
-        Assert.That(cut.FindAll("[data-testid=new-unfinished]"), Has.Count.EqualTo(1));
+        Assert.That(choice.IsOpen, Is.True);
     }
 
     [Test]
-    public async Task Resume_RaisesOnResumeClosesTheSheetAndKeepsTheWorkout()
+    public async Task Ask_WhileAnotherAskIsReading_IsIgnored()
+    {
+        var choice = Choice();
+        var gate = new TaskCompletionSource();
+        choice.OnNew = async () => { raised.Add("new"); await gate.Task; };
+
+        var first = choice.AskAsync();
+        await choice.AskAsync();
+        gate.SetResult();
+        await first;
+
+        Assert.That(raised, Is.EqualTo(new[] { "new" }));
+    }
+
+    [Test]
+    public async Task Resume_RaisesOnResumeClosesAndKeepsTheWorkout()
     {
         Unfinished();
-        var (cut, raised) = Render();
-        await cut.InvokeAsync(() => cut.Instance.AskAsync());
+        var choice = Choice();
+        await choice.AskAsync();
 
-        cut.Find("[data-testid=new-unfinished-resume]").Click();
+        await choice.ResumeAsync();
 
         Assert.That(raised, Is.EqualTo(new[] { "resume" }));
-        Assert.That(cut.FindAll("[data-testid=new-unfinished]"), Is.Empty);
+        Assert.That(choice.IsOpen, Is.False);
         Assert.That(UnfinishedWorkout.Stored, Is.Not.Null);
     }
 
     [Test]
-    public async Task DiscardAndStartNew_DeletesTheWorkoutThenRaisesOnNew()
+    public async Task DiscardAndStart_DeletesTheWorkoutThenRaisesOnNew()
     {
         Unfinished();
-        var (cut, raised) = Render();
-        await cut.InvokeAsync(() => cut.Instance.AskAsync());
+        var choice = Choice();
+        await choice.AskAsync();
 
-        cut.Find("[data-testid=new-unfinished-discard]").Click();
+        await choice.DiscardAndStartAsync();
 
         Assert.That(UnfinishedWorkout.Stored, Is.Null);
         Assert.That(raised, Is.EqualTo(new[] { "new" }));
-        Assert.That(cut.FindAll("[data-testid=new-unfinished]"), Is.Empty);
+        Assert.That(choice.IsOpen, Is.False);
     }
 
     [Test]
-    public async Task DiscardAndStartNew_WriteFails_KeepsTheWorkoutAndStartsNothing()
+    public async Task DiscardAndStart_WriteFails_KeepsTheWorkoutAndStartsNothing()
     {
         Unfinished();
-        var (cut, raised) = Render();
-        await cut.InvokeAsync(() => cut.Instance.AskAsync());
+        var choice = Choice();
+        await choice.AskAsync();
         UnfinishedWorkout.FailWrites = true;
 
-        cut.Find("[data-testid=new-unfinished-discard]").Click();
+        await choice.DiscardAndStartAsync();
 
         Assert.That(UnfinishedWorkout.Stored, Is.Not.Null);
         Assert.That(raised, Is.Empty);
     }
 
     [Test]
-    public async Task SheetClosed_KeepsTheWorkoutAndStartsNothing()
+    public async Task Close_KeepsTheWorkoutAndStartsNothing()
     {
         Unfinished();
-        var (cut, raised) = Render();
-        await cut.InvokeAsync(() => cut.Instance.AskAsync());
+        var choice = Choice();
+        await choice.AskAsync();
 
-        cut.Find("[data-testid=new-unfinished-scrim]").Click();
+        choice.Close();
 
-        Assert.That(cut.FindAll("[data-testid=new-unfinished]"), Is.Empty);
+        Assert.That(choice.IsOpen, Is.False);
         Assert.That((raised, UnfinishedWorkout.Stored is not null), Is.EqualTo((new List<string>(), true)));
     }
 
     [Test]
-    public void NotAsked_ShowsNoSheet()
+    public void NotAsked_IsClosedWithNoMessage()
     {
-        var (cut, _) = Render();
+        var choice = Choice();
 
-        Assert.That(cut.FindAll("[data-testid=new-unfinished]"), Is.Empty);
-    }
-
-    private (IRenderedComponent<NewWorkoutChoice> Cut, List<string> Raised) Render()
-    {
-        var raised = new List<string>();
-        var cut = Context.Render<NewWorkoutChoice>(p => p
-            .Add(x => x.OnNew, () => raised.Add("new"))
-            .Add(x => x.OnResume, () => raised.Add("resume")));
-        return (cut, raised);
+        Assert.That((choice.IsOpen, choice.Message), Is.EqualTo((false, (string?)null)));
     }
 
     /// <summary>One strength exercise with two sets, started two hours ago.</summary>

@@ -6,6 +6,7 @@
 @using WorkoutLog.Core.Services
 @using WorkoutLog.UI.Components.ThisWeek
 @using WorkoutLog.UI.Components.Trends
+@using Shields.UI.Components.Overlays
 @using Shields.UI.Lifecycle
 @using WorkoutLog.UI.Models.Muscles
 @using WorkoutLog.UI.Models.ThisWeek
@@ -18,6 +19,7 @@
 @inject TimeProvider Clock
 @inject IAppStart AppStart
 @inject ILogger<TrendsPage> Logger
+@inject NewWorkoutChoice Choice
 
 <TrendsView Kind="period.Kind" Label="@Label" Past="Past" CanGoPrevious="CanGoPrevious" CanGoNext="CanGoNext"
             Totals="totals" Earlier="earlier" Against="@Against" Days="days" Muscles="muscles" Records="records" RecentWeeks="recentWeeks" Streak="streak"
@@ -25,10 +27,11 @@
             Months="months" PerWeek="perWeek" LongestStreak="longestStreak" StreakRunning="streakRunning" RecordsByMonth="recordsByMonth"
             Loading="loading" Failed="failed" OnRetry="() => LoadAsync()" OnRefresh="() => LoadAsync(PullRefresh.MinimumSpinner)"
             OnKindChanged="SwitchAsync" OnPrevious="() => StepAsync(period.Previous())" OnNext="() => StepAsync(period.Next())"
-            OnSettings="() => OnSettings.InvokeAsync(period)" OnNew="() => choice!.AskAsync()" OnNavigate="OnNavigate"
+            OnSettings="() => OnSettings.InvokeAsync(period)" OnNew="() => Choice.AskAsync()" OnNavigate="OnNavigate"
             OnOpenWorkouts="OpenWorkoutsAsync" OnOpenRecord="OpenExerciseAsync" />
 
-<NewWorkoutChoice @ref="choice" OnNew="() => OnNew.InvokeAsync(period)" OnResume="() => OnResume.InvokeAsync(period)" />
+<ChoiceSheet Open="Choice.IsOpen" Title="@NewWorkoutChoice.Title" Message="@Choice.Message" PrimaryText="@NewWorkoutChoice.ResumeText" DangerText="@NewWorkoutChoice.DiscardText"
+             OnPrimary="Choice.ResumeAsync" OnDanger="Choice.DiscardAndStartAsync" OnClose="Choice.Close" TestId="@NewWorkoutChoice.TestId" />
 
 @code {
     private static readonly TrendTotals NoTotals = new(0, TimeSpan.Zero, 0, 0);
@@ -61,7 +64,6 @@
     private int generation;
     private IDisposable? registration;
     private bool disposed;
-    private NewWorkoutChoice? choice;
 
     /// <summary>The <c>period</c> query value: <c>week</c>, <c>month</c> or <c>year</c>. Missing or anything else, it shows the week.</summary>
     [Parameter]
@@ -121,6 +123,8 @@
 
     protected override Task OnInitializedAsync()
     {
+        Choice.OnNew = () => OnNew.InvokeAsync(period);
+        Choice.OnResume = () => OnResume.InvokeAsync(period);
         SetToday();
         period = Requested();
         requested = (KindQuery, DateQuery);
