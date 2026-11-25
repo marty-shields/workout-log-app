@@ -26,6 +26,6 @@ internal interface IWorkoutWriter
     /// <summary>Deletes the workout and its exercises, sets and entries. Throws <see cref="KeyNotFoundException"/> if the workout doesn't exist.</summary>
     void Delete(int workoutId);
 
-    /// <summary>Deletes every workout with its exercises, sets and entries.</summary>
+    /// <summary>Deletes every workout with its exercises, sets and entries, and the unfinished workout.</summary>
     void DeleteAll();
 }

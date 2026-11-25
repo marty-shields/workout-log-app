@@ -54,6 +54,27 @@ internal enum CoreEvent
     /// <summary><see cref="Services.WorkoutService"/>: deleting a workout failed.</summary>
     WorkoutDeleteFailed = 1211,
 
+    /// <summary><see cref="Services.UnfinishedWorkoutService"/>: unfinished workout stored, as counts.</summary>
+    UnfinishedSaved = 1220,
+
+    /// <summary><see cref="Services.UnfinishedWorkoutService"/>: storing the unfinished workout failed.</summary>
+    UnfinishedSaveFailed = 1221,
+
+    /// <summary><see cref="Services.UnfinishedWorkoutService"/>: unfinished workout read to resume, as counts.</summary>
+    UnfinishedRecovered = 1222,
+
+    /// <summary><see cref="Services.UnfinishedWorkoutService"/>: reading the unfinished workout failed.</summary>
+    UnfinishedReadFailed = 1223,
+
+    /// <summary><see cref="Services.UnfinishedWorkoutService"/>: unfinished workout discarded.</summary>
+    UnfinishedDiscarded = 1224,
+
+    /// <summary><see cref="Services.UnfinishedWorkoutService"/>: discarding the unfinished workout failed.</summary>
+    UnfinishedDiscardFailed = 1225,
+
+    /// <summary><see cref="Services.UnfinishedWorkoutService"/>: the unfinished workout holds an exercise id that is not in the exercise list.</summary>
+    UnfinishedUnknownExercise = 1226,
+
     /// <summary><see cref="Services.WorkoutsService"/>: saved workouts read.</summary>
     WorkoutsLoaded = 1301,
 

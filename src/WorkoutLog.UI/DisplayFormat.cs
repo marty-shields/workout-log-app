@@ -40,6 +40,14 @@ internal static class DisplayFormat
     /// <summary>A number of workouts, e.g. 1 workout or 38 workouts.</summary>
     public static string Workouts(int count) => count == 1 ? "1 workout" : $"{count} workouts";
 
+    /// <summary>A number of exercises, e.g. 1 exercise or 4 exercises.</summary>
+    public static string Exercises(int count) => count == 1 ? "1 exercise" : $"{count} exercises";
+
+    /// <summary>When an unfinished workout started, e.g. "Started yesterday, 6:12 pm" or "Started Wed 18 Nov, 6:12 pm".</summary>
+    public static string Started(DateTime value, DateTime today) =>
+        $"Started {(value.Date == today.Date ? "today" : value.Date == today.Date.AddDays(-1) ? "yesterday" : value.ToString("ddd d MMM", CultureInfo.InvariantCulture))}, "
+        + value.ToString("h:mm tt", CultureInfo.InvariantCulture).ToLowerInvariant();
+
     /// <summary>A number of sets, e.g. 1 set or 12 sets.</summary>
     public static string Sets(int count) => count == 1 ? "1 set" : $"{count} sets";
 

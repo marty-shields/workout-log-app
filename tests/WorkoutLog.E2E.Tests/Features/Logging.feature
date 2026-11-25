@@ -55,6 +55,16 @@ Feature: Logging
     And I open the latest workout from Workouts and save it
     Then the log contains none of: 987.65, 876.54, 87.65, 76.54
 
+  Scenario: Recovering and discarding an unfinished workout are logged with counts only
+    Given I have started a new workout
+    And I have logged Barbell Back Squat set 1: 5 reps, 987.65 kg
+    When I kill the app and open it again
+    And I tap Resume on the banner
+    And I discard the workout
+    Then the log shows "Unfinished workout recovered with 1 exercises and 1 sets"
+    And the log shows "Unfinished workout discarded"
+    And the log contains none of: 987.65
+
   Scenario: Validation errors aren't logged
     Given I have started a new workout
     And I have added "Barbell Back Squat"

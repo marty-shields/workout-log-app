@@ -11,6 +11,16 @@
     gap: var(--space-2);
 }
 
+.unfinished {
+    margin-bottom: var(--space-4);
+}
+
+.choice {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+}
+
 .centre {
     display: grid;
     place-items: center;

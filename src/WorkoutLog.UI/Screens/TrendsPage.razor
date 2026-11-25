@@ -14,6 +14,7 @@
 @implements IDisposable
 @inject IPeriodTotalsService Periods
 @inject IPeriodTrainingService Training
+@inject IUnfinishedWorkoutService UnfinishedWorkout
 @inject IExerciseCatalog Catalog
 @inject TimeProvider Clock
 @inject IAppStart AppStart
@@ -25,7 +26,7 @@
             Months="months" PerWeek="perWeek" LongestStreak="longestStreak" StreakRunning="streakRunning" RecordsByMonth="recordsByMonth"
             Loading="loading" Failed="failed" OnRetry="() => LoadAsync()" OnRefresh="() => LoadAsync(PullRefresh.MinimumSpinner)"
             OnKindChanged="SwitchAsync" OnPrevious="() => StepAsync(period.Previous())" OnNext="() => StepAsync(period.Next())"
-            OnSettings="() => OnSettings.InvokeAsync(period)" OnNew="() => OnNew.InvokeAsync(period)" OnNavigate="OnNavigate"
+            OnSettings="() => OnSettings.InvokeAsync(period)" OnNew="NewAsync" OnNavigate="OnNavigate"
             OnOpenWorkouts="OpenWorkoutsAsync" OnOpenRecord="OpenExerciseAsync" />
 
 @code {
@@ -80,6 +81,13 @@
     [Parameter]
     public EventCallback<Period> OnNew { get; set; }
 
+    /// <summary>
+    /// Raised instead of <see cref="OnNew"/> when the New button is tapped while there is an unfinished workout, so a new workout can't replace it:
+    /// the host resumes it. This week asks Resume or Discard and start new.
+    /// </summary>
+    [Parameter]
+    public EventCallback<Period> OnResume { get; set; }
+
     /// <summary>Raised with the tab tapped in the bottom navigation bar.</summary>
     [Parameter]
     public EventCallback<MainTab> OnNavigate { get; set; }
@@ -91,6 +99,9 @@
     /// <summary>Raised when a record or a Most trained row is tapped, with its exercise and the period shown, so back can return to that period.</summary>
     [Parameter]
     public EventCallback<RecordOpened> OnOpenExercise { get; set; }
+
+    private async Task NewAsync() =>
+        await (await UnfinishedWorkout.GetSummaryAsync() is UnfinishedSummary ? OnResume : OnNew).InvokeAsync(period);
 
     private string Label => period.Kind switch
     {

@@ -19,7 +19,11 @@ public class GatedWorkoutRepositoryTests
     {
         databasePath = TempDatabase.NewPath();
         connection = new SQLiteAsyncConnection(databasePath);
-        await connection.RunInTransactionAsync(WorkoutTables.CreateMissing);
+        await connection.RunInTransactionAsync(db =>
+        {
+            WorkoutTables.CreateMissing(db);
+            UnfinishedTables.CreateMissing(db);
+        });
         gate = new DatabaseGate();
         repository = new GatedWorkoutRepository(new WorkoutRepository(connection, new WorkoutWriterFactory()), gate);
     }

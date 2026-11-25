@@ -6,6 +6,7 @@ using Shields.UI.Components.Layout;
 using Shields.UI.Lifecycle;
 using WorkoutLog.Core.Domain.Exercises;
 using WorkoutLog.Core.Domain.Exercises.Bests;
+using WorkoutLog.Core.Domain.Workouts;
 using WorkoutLog.Core.Domain.Workouts.Consistency;
 using WorkoutLog.Core.Domain.Workouts.Periods;
 using WorkoutLog.Core.Services;
@@ -593,6 +594,24 @@ public class TrendsPageTests : ComponentTestBase
         cut.WaitForElement("button[data-testid=trends-records-row-311]").Click();
 
         Assert.That(opened, Is.EqualTo(new[] { new RecordOpened(Run, Period.Containing(PeriodKind.Week, LastMonday)) }));
+    }
+
+    [Test]
+    public void New_WithAnUnfinishedWorkout_RaisesOnResumeInsteadOfOnNew()
+    {
+        MidWeek();
+        UnfinishedWorkout.Stored = new UnfinishedWorkout(new DateTimeOffset(2026, 11, 9, 10, 0, 0, TimeSpan.Zero), null,
+            [new UnfinishedExercise(6, null, false, [new UnfinishedEntry(new Dictionary<string, string?>())])]);
+        var newWorkouts = new List<Period>();
+        var resumed = new List<Period>();
+        var cut = Context.Render<TrendsPage>(p => p
+            .Add(x => x.DateQuery, "2026-11-11")
+            .Add(x => x.OnNew, newWorkouts.Add)
+            .Add(x => x.OnResume, resumed.Add));
+
+        cut.Find("[data-testid=add-button]").Click();
+
+        Assert.That((newWorkouts, resumed), Is.EqualTo((new List<Period>(), new List<Period> { Period.Containing(PeriodKind.Week, LastMonday) })));
     }
 
     [Test]

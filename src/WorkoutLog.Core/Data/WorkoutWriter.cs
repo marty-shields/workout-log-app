@@ -53,6 +53,7 @@ internal sealed class WorkoutWriter(SQLiteConnection db) : IWorkoutWriter
         db.DeleteAll<CardioEntryRow>();
         db.DeleteAll<WorkoutExerciseRow>();
         db.DeleteAll<WorkoutRow>();
+        UnfinishedTables.Clear(db);
     }
 
     private void EnsureExists(int workoutId)

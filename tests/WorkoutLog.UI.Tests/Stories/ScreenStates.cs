@@ -41,6 +41,19 @@ public static class ScreenStates
             .Add(x => x.Workouts, SampleThisWeek.Workouts)
             .Add(x => x.Records, SampleThisWeek.Records)
             .Add(x => x.Muscles, SampleThisWeek.Muscles))),
+        new("Screens/This week", "Workout in progress", c => ThisWeek(c, p => UnfinishedWeek(p))),
+        new("Screens/This week", "Discard prompt", c => ThisWeek(c, p => UnfinishedWeek(p)
+            .Add(x => x.ConfirmingDiscard, true)
+            .Add(x => x.OnConfirmDiscard, () => { })
+            .Add(x => x.OnCancelDiscard, () => { }))),
+        new("Screens/This week", "New with workout in progress", c =>
+        {
+            c.JSInterop.Mode = JSRuntimeMode.Loose;
+            return ThisWeek(c, p => UnfinishedWeek(p)
+                .Add(x => x.ChoosingNew, true)
+                .Add(x => x.OnDiscardAndStart, () => { })
+                .Add(x => x.OnCloseChoice, () => { }));
+        }),
         new("Screens/This week", "New week", c => ThisWeek(c, p => p
             .Add(x => x.Today, SampleThisWeek.Monday)
             .Add(x => x.Streak, 22)
@@ -227,6 +240,20 @@ public static class ScreenStates
                 .Add(x => x.OnOpenLastWeek, () => { });
             state(p);
         }).FindAll("*");
+
+    /// <summary>The Mid-week state with the unfinished workout's banner.</summary>
+    private static ComponentParameterCollectionBuilder<ThisWeekView> UnfinishedWeek(ComponentParameterCollectionBuilder<ThisWeekView> p) => p
+        .Add(x => x.Today, SampleThisWeek.Wednesday)
+        .Add(x => x.Trained, SampleThisWeek.TrainedDays)
+        .Add(x => x.Streak, 23)
+        .Add(x => x.ThisWeek, SampleThisWeek.ThisWeek)
+        .Add(x => x.LastWeekToDate, SampleThisWeek.LastWeekToDate)
+        .Add(x => x.Workouts, SampleThisWeek.Workouts)
+        .Add(x => x.Records, SampleThisWeek.Records)
+        .Add(x => x.Muscles, SampleThisWeek.Muscles)
+        .Add(x => x.Unfinished, SampleThisWeek.Unfinished)
+        .Add(x => x.OnResume, () => { })
+        .Add(x => x.OnDiscardUnfinished, () => { });
 
     private static IReadOnlyList<IElement> Trends(BunitContext context, IReadOnlyDictionary<string, object?> state) =>
         context.Render<TrendsView>(p => p.Sample(state)

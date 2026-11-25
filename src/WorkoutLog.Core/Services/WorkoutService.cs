@@ -22,6 +22,9 @@ internal sealed partial class WorkoutService(
     }
 
     /// <inheritdoc />
+    public WorkoutDraft Resume(DateTimeOffset startedAt) => new(startedAt, elapsedClock.Elapsed - (time.GetUtcNow() - startedAt));
+
+    /// <inheritdoc />
     public TimeSpan Elapsed(WorkoutDraft draft)
     {
         ArgumentNullException.ThrowIfNull(draft);

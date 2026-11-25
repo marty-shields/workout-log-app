@@ -6,8 +6,8 @@ namespace WorkoutLog.Core.Data;
 internal interface IWorkoutRepository
 {
     /// <summary>
-    /// Inserts the workout and its exercises, sets and entries. Returns the new workout id.
-    /// Throws <see cref="SQLite.SQLiteException"/> if a workout with the same start exists.
+    /// Inserts the workout and its exercises, sets and entries, and in the same transaction deletes the unfinished workout it ends.
+    /// Returns the new workout id. Throws <see cref="SQLite.SQLiteException"/> if a workout with the same start exists.
     /// </summary>
     Task<int> AddAsync(NewWorkout workout);
 

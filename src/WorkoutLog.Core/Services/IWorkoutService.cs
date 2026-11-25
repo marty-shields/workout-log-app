@@ -12,6 +12,9 @@ public interface IWorkoutService
     /// <summary>Starts a new workout with the current time as its start.</summary>
     WorkoutDraft StartNew();
 
+    /// <summary>Resumes an unfinished workout that started at <paramref name="startedAt"/>: its <see cref="Elapsed"/> counts from then.</summary>
+    WorkoutDraft Resume(DateTimeOffset startedAt);
+
     /// <summary>Time since <paramref name="draft"/> started, by <see cref="IElapsedClock"/>; never below 0.</summary>
     TimeSpan Elapsed(WorkoutDraft draft);
 

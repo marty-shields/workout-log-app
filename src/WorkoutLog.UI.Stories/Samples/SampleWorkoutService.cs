@@ -20,6 +20,9 @@ public sealed class SampleWorkoutService(TimeProvider time, IExerciseCatalog cat
     public WorkoutDraft StartNew() => new(time.GetUtcNow(), TimeSpan.Zero);
 
     /// <inheritdoc />
+    public WorkoutDraft Resume(DateTimeOffset startedAt) => new(startedAt, TimeSpan.Zero);
+
+    /// <inheritdoc />
     public TimeSpan Elapsed(WorkoutDraft draft) => TimeSpan.FromTicks(Math.Max(0, (time.GetUtcNow() - draft.StartedAt).Ticks));
 
     /// <inheritdoc />

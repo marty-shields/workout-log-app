@@ -12,7 +12,7 @@ namespace WorkoutLog.UI.Tests;
 
 /// <summary>
 /// Creates a fresh bUnit context for each test with the UI's services (<see cref="UiServiceCollectionExtensions.AddUi"/>),
-/// a <see cref="BackButton"/>, a <see cref="FakeTimeProvider"/> that never moves, the exercise catalog, a <see cref="SampleWorkoutService"/>, a <see cref="SampleWeightHistoryService"/>, a <see cref="FakeLoggedExercisesService"/>, a <see cref="FakeLastSessionService"/> and a <see cref="FakeHaptics"/>.
+/// a <see cref="BackButton"/>, a <see cref="FakeTimeProvider"/> that never moves, the exercise catalog, a <see cref="SampleWorkoutService"/>, a <see cref="SampleWeightHistoryService"/>, a <see cref="FakeLoggedExercisesService"/>, a <see cref="FakeLastSessionService"/>, a <see cref="SampleUnfinishedWorkoutService"/> and a <see cref="FakeHaptics"/>.
 /// Tests may register their own clock, workout and weight history services.
 /// </summary>
 public abstract class ComponentTestBase
@@ -31,6 +31,9 @@ public abstract class ComponentTestBase
     /// <summary>The last session service the rendered components read; no earlier workout unless a test sets one.</summary>
     protected FakeLastSessionService LastSessions { get; private set; } = null!;
 
+    /// <summary>The unfinished workout service the rendered components use; holds nothing unless a test sets <see cref="SampleUnfinishedWorkoutService.Stored"/>.</summary>
+    protected SampleUnfinishedWorkoutService UnfinishedWorkout { get; private set; } = null!;
+
     /// <summary>The haptics the rendered components play; records each cue.</summary>
     protected FakeHaptics Haptics { get; private set; } = null!;
 
@@ -42,6 +45,7 @@ public abstract class ComponentTestBase
         LoggedExercises = new FakeLoggedExercisesService();
         LastSessions = new FakeLastSessionService();
         Haptics = new FakeHaptics();
+        UnfinishedWorkout = new SampleUnfinishedWorkoutService(Catalog);
         Context.Services.AddUi();
         Context.Services.AddSingleton<IBackButton>(BackButton);
         Context.Services.AddSingleton<TimeProvider>(new FakeTimeProvider());
@@ -50,6 +54,7 @@ public abstract class ComponentTestBase
         Context.Services.AddSingleton<IWeightHistoryService>(new SampleWeightHistoryService());
         Context.Services.AddSingleton<ILoggedExercisesService>(LoggedExercises);
         Context.Services.AddSingleton<ILastSessionService>(LastSessions);
+        Context.Services.AddSingleton<IUnfinishedWorkoutService>(UnfinishedWorkout);
         Context.Services.AddSingleton<IHaptics>(Haptics);
     }
 

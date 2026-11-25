@@ -105,4 +105,16 @@ public class OriginTests
     [Test]
     public void Link_WithNoOrigin_IsTheRoute() =>
         Assert.That(Origin.Link("settings", null), Is.EqualTo("settings"));
+
+    [Test]
+    public void Resume_AddsTheResumeFlagAfterTheFromValue() =>
+        Assert.That(Origin.Resume(Origin.ThisWeek), Is.EqualTo("workout/new?from=this-week&resume=true"));
+
+    [Test]
+    public void Resume_WithNoFrom_IsJustTheFlag() =>
+        Assert.That(Origin.Resume(null), Is.EqualTo("workout/new?resume=true"));
+
+    [Test]
+    public void Resume_FromTrends_EscapesTheFromValue() =>
+        Assert.That(Origin.Resume("trends:month:2026-11-01"), Is.EqualTo("workout/new?from=trends%3Amonth%3A2026-11-01&resume=true"));
 }

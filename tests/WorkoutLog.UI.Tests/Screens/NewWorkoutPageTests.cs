@@ -2034,6 +2034,8 @@ public class NewWorkoutPageTests : ComponentTestBase
         /// <summary>When set, <see cref="Elapsed"/> returns it instead of the inner service's time.</summary>
         public TimeSpan? ElapsedTime { get; set; }
 
+        public WorkoutDraft Resume(DateTimeOffset startedAt) => inner.Resume(startedAt);
+
         public TimeSpan Elapsed(WorkoutDraft draft) => ElapsedTime ?? inner.Elapsed(draft);
 
         public WorkoutErrors Validate(string? note, IReadOnlyList<WorkoutExercise> exercises) => inner.Validate(note, exercises);

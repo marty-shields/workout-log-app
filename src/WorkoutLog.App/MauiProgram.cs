@@ -15,6 +15,7 @@ using WorkoutLog.Core.Services;
 using WorkoutLog.UI;
 using WorkoutLog.UI.Haptics;
 using WorkoutLog.UI.Import;
+using WorkoutLog.UI.Models.Workout;
 using WorkoutLog.UI.Sharing;
 
 namespace WorkoutLog.App;
@@ -42,6 +43,7 @@ public static class MauiProgram
         AddLogging(builder);
         AddDiagnostics(builder);
         AddKeyboardRestore(builder);
+        AddUnfinishedFlush(builder);
 
         return builder.Build();
     }
@@ -78,6 +80,31 @@ public static class MauiProgram
             .OnDestroy(activity => KeyboardRestore().Detach(activity))));
 
         static AndroidKeyboardRestore KeyboardRestore() => IPlatformApplication.Current!.Services.GetRequiredService<AndroidKeyboardRestore>();
+    }
+
+    /// <summary>
+    /// Writes the new workout's latest change when <see cref="MainActivity"/> pauses or stops, since Android may kill the process after that.
+    /// The handler doesn't wait: the write runs through <see cref="UnfinishedAutosaver"/>, resolved from the app's services.
+    /// </summary>
+    private static void AddUnfinishedFlush(MauiAppBuilder builder)
+    {
+        builder.ConfigureLifecycleEvents(events => events.AddAndroid(android => android
+            .OnPause(activity =>
+            {
+                if (activity is MainActivity)
+                {
+                    Flush();
+                }
+            })
+            .OnStop(activity =>
+            {
+                if (activity is MainActivity)
+                {
+                    Flush();
+                }
+            })));
+
+        static void Flush() => _ = IPlatformApplication.Current!.Services.GetRequiredService<UnfinishedAutosaver>().FlushAsync();
     }
 
     /// <summary>

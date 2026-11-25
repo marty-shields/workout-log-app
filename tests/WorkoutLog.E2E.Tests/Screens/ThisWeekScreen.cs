@@ -62,6 +62,25 @@ public sealed partial class ThisWeekScreen(WebView web)
             .ToList();
     }
 
+    /// <summary>Whether the Workout in progress banner shows, once the week has loaded.</summary>
+    public bool HasUnfinishedBanner()
+    {
+        WaitUntilLoaded();
+        return web.Exists("unfinished");
+    }
+
+    /// <summary>The banner's second line, e.g. "Started today, 6:12 pm · 1 exercise"; null while the banner isn't shown.</summary>
+    public string? UnfinishedDetails() => web.Exists("unfinished") ? web.Text("unfinished-details") : null;
+
+    /// <summary>Taps Resume or Discard on the banner.</summary>
+    public void TapOnBanner(string button) => web.Tap($"unfinished-{button.ToLowerInvariant()}");
+
+    /// <summary>Whether the sheet that + opens while a workout is unfinished shows.</summary>
+    public bool HasNewSheet() => web.Exists("new-unfinished");
+
+    /// <summary>Taps Resume or Discard and start new on the sheet that + opens while a workout is unfinished.</summary>
+    public void TapOnSheet(string button) => web.Tap(button == "Resume" ? "new-unfinished-resume" : "new-unfinished-discard");
+
     public bool HasStartupError() => web.Exists("startup-failed");
 
     public void OpenSettings() => web.Tap("settings");

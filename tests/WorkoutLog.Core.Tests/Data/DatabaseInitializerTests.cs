@@ -64,6 +64,18 @@ public class DatabaseInitializerTests
             ("StrengthSet", "WeightKg", "float"),
             ("StrengthSet", "Duration", "bigint"),
             ("StrengthSet", "Distance", "float"),
+            ("UnfinishedEntry", "Id", "integer"),
+            ("UnfinishedEntry", "UnfinishedExerciseId", "integer"),
+            ("UnfinishedEntry", "Position", "integer"),
+            ("UnfinishedEntry", "FieldValues", "varchar"),
+            ("UnfinishedExercise", "Id", "integer"),
+            ("UnfinishedExercise", "ExerciseId", "integer"),
+            ("UnfinishedExercise", "Position", "integer"),
+            ("UnfinishedExercise", "Note", "varchar"),
+            ("UnfinishedExercise", "IsDone", "integer"),
+            ("UnfinishedWorkout", "Id", "integer"),
+            ("UnfinishedWorkout", "StartedAt", "bigint"),
+            ("UnfinishedWorkout", "Note", "varchar"),
             ("Workout", "Id", "integer"),
             ("Workout", "StartedAt", "bigint"),
             ("Workout", "FinishedAt", "bigint"),
@@ -431,7 +443,7 @@ public class DatabaseInitializerTests
     }
 
     private static ISchemaUpgrade[] AppSteps() =>
-        [new WorkoutStartedAtUniqueIndex(), new BlankAssistToZero(Catalog), new ValidationRulesSchema(Catalog, NullLogger<ValidationRulesSchema>.Instance), new NotesSchema()];
+        [new WorkoutStartedAtUniqueIndex(), new BlankAssistToZero(Catalog), new ValidationRulesSchema(Catalog, NullLogger<ValidationRulesSchema>.Instance), new NotesSchema(), new UnfinishedSchema()];
 
     /// <summary>
     /// Creates the version 1 schema with two exercises and a workout at each of <paramref name="startedAt"/> (ticks);

@@ -267,6 +267,8 @@ public class WorkoutDiscardTests(WorkoutMode mode) : ComponentTestBase
 
         public WorkoutDraft StartNew() => inner.StartNew();
 
+        public WorkoutDraft Resume(DateTimeOffset startedAt) => inner.Resume(startedAt);
+
         public TimeSpan Elapsed(WorkoutDraft draft) => inner.Elapsed(draft);
 
         public WorkoutErrors Validate(string? note, IReadOnlyList<WorkoutExercise> exercises) => inner.Validate(note, exercises);

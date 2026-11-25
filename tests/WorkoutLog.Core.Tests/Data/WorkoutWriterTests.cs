@@ -29,7 +29,11 @@ public class WorkoutWriterTests
     {
         databasePath = TempDatabase.NewPath();
         connection = new SQLiteAsyncConnection(databasePath);
-        await connection.RunInTransactionAsync(WorkoutTables.CreateMissing);
+        await connection.RunInTransactionAsync(db =>
+        {
+            WorkoutTables.CreateMissing(db);
+            UnfinishedTables.CreateMissing(db);
+        });
         db = new SQLiteConnection(databasePath);
         writer = new WorkoutWriter(db);
         repository = new WorkoutRepository(connection, new WorkoutWriterFactory());
@@ -91,6 +95,17 @@ public class WorkoutWriterTests
         writer.DeleteAll();
 
         Assert.That(RowCounts(), Is.EqualTo((0, 0, 0, 0)));
+    }
+
+    [Test]
+    public async Task DeleteAll_AlsoRemovesTheUnfinishedWorkout()
+    {
+        writer.Add(new NewWorkout(Start, Finish, Exercises()));
+        await new UnfinishedWorkoutRepository(connection).ReplaceAsync(UnfinishedWorkoutRepositoryTests.Typed());
+
+        writer.DeleteAll();
+
+        Assert.That(await new UnfinishedWorkoutRepository(connection).GetAsync(), Is.Null);
     }
 
     [Test]

@@ -16,5 +16,6 @@ public static class UiServiceCollectionExtensions
             .AddSingleton<ISetChecker, SetChecker>()
             .AddSingleton<IWorkoutChecker, WorkoutChecker>()
             .AddSingleton<LastTimeLoader>()
+            .AddSingleton<UnfinishedAutosaver>()
             .AddTransient<WorkoutEditor>();
 }

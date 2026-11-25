@@ -5,6 +5,7 @@
 
 @* Back has no handler here, so it leaves the app. *@
 <ThisWeekPage OnNew="@(() => Navigation.GoTo(Origin.Link("workout/new", Origin.ThisWeek)))"
+              OnResume="@(() => Navigation.GoTo(Origin.Resume(Origin.ThisWeek)))"
               OnNavigate="@(tab => Navigation.GoTo(tab))"
               OnSettings="@(() => Navigation.GoTo("settings"))"
               OnOpenWorkout="@(id => Navigation.GoTo(Origin.Link($"workout/{id}", Origin.ThisWeek)))"

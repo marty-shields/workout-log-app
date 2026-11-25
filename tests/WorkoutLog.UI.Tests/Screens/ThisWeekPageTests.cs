@@ -555,6 +555,241 @@ public class ThisWeekPageTests : ComponentTestBase
         Assert.That(cut.FindAll("[data-testid=this-week-error]"), Has.Count.EqualTo(1));
     }
 
+    [Test]
+    public void Unfinished_ShowsTheBannerWithTheAgeAndExerciseCount()
+    {
+        Unfinished(Now.AddHours(-17));
+
+        var cut = Context.Render<ThisWeekPage>();
+
+        cut.WaitForAssertion(() => Assert.That(cut.Find("[data-testid=unfinished-details]").TextContent, Is.EqualTo("Started yesterday, 6:00 pm · 2 exercises")));
+    }
+
+    [Test]
+    public async Task NoUnfinished_ShowsNoBanner()
+    {
+        var cut = await LoadedAsync();
+
+        Assert.That(cut.FindAll("[data-testid=unfinished]"), Is.Empty);
+    }
+
+    [Test]
+    public async Task Unfinished_ReadFails_ShowsNoBannerAndTheWeek()
+    {
+        Unfinished(Now.AddHours(-2));
+        UnfinishedWorkout.FailReads = true;
+
+        var cut = await LoadedAsync();
+
+        Assert.That(cut.FindAll("[data-testid=unfinished]"), Is.Empty);
+    }
+
+    [Test]
+    public async Task Unfinished_IsReadAgainWhenTheAppComesBack()
+    {
+        var cut = await LoadedAsync();
+        Assert.That(cut.FindAll("[data-testid=unfinished]"), Is.Empty);
+
+        Unfinished(Now.AddHours(-2));
+        await lifecycle.NotifyStartedAsync();
+
+        cut.WaitForAssertion(() => Assert.That(cut.FindAll("[data-testid=unfinished]"), Has.Count.EqualTo(1)));
+    }
+
+    [Test]
+    public async Task Resume_RaisesOnResume()
+    {
+        Unfinished(Now.AddHours(-2));
+        var resumed = 0;
+        var cut = Context.Render<ThisWeekPage>(p => p.Add(x => x.OnResume, () => resumed++));
+        await WaitForSettledAsync(cut, () => Assert.That(cut.FindAll("[data-testid=unfinished-resume]"), Has.Count.EqualTo(1)));
+
+        cut.Find("[data-testid=unfinished-resume]").Click();
+
+        Assert.That(resumed, Is.EqualTo(1));
+        Assert.That(UnfinishedWorkout.Stored, Is.Not.Null);
+    }
+
+    [Test]
+    public async Task Discard_AsksWhatIsLostAndCancelKeepsTheWorkout()
+    {
+        Unfinished(Now.AddHours(-2));
+        var cut = await LoadedWithUnfinishedAsync();
+
+        cut.Find("[data-testid=unfinished-discard]").Click();
+        Assert.That(cut.Find("[data-testid=confirm-dialog] .message").TextContent, Is.EqualTo("2 exercises, 2 sets will be lost"));
+        cut.Find("[data-testid=confirm-dialog-cancel]").Click();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.FindAll("[data-testid=confirm-dialog]"), Is.Empty);
+            Assert.That(cut.FindAll("[data-testid=unfinished]"), Has.Count.EqualTo(1));
+            Assert.That(UnfinishedWorkout.Stored, Is.Not.Null);
+        });
+    }
+
+    [Test]
+    public async Task Discard_Confirmed_DeletesTheWorkoutAndRemovesTheBanner()
+    {
+        Unfinished(Now.AddHours(-2));
+        var cut = await LoadedWithUnfinishedAsync();
+
+        cut.Find("[data-testid=unfinished-discard]").Click();
+        cut.Find("[data-testid=confirm-dialog-confirm]").Click();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(UnfinishedWorkout.Stored, Is.Null);
+            Assert.That(cut.FindAll("[data-testid=unfinished]"), Is.Empty);
+            Assert.That(cut.FindAll("[data-testid=confirm-dialog]"), Is.Empty);
+        });
+    }
+
+    [Test]
+    public async Task Discard_Confirmed_WriteFails_KeepsTheBannerAndTheWorkout()
+    {
+        Unfinished(Now.AddHours(-2));
+        var cut = await LoadedWithUnfinishedAsync();
+        UnfinishedWorkout.FailWrites = true;
+
+        cut.Find("[data-testid=unfinished-discard]").Click();
+        cut.Find("[data-testid=confirm-dialog-confirm]").Click();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(UnfinishedWorkout.Stored, Is.Not.Null);
+            Assert.That(cut.FindAll("[data-testid=unfinished]"), Has.Count.EqualTo(1));
+            Assert.That(cut.FindAll("[data-testid=confirm-dialog]"), Is.Empty);
+        });
+    }
+
+    [Test]
+    public void New_NothingUnfinished_RaisesOnNewAndOpensNoSheet()
+    {
+        Context.JSInterop.Mode = JSRuntimeMode.Loose;
+        var added = 0;
+        var cut = Context.Render<ThisWeekPage>(p => p.Add(x => x.OnNew, () => added++));
+
+        cut.Find("[data-testid=add-button]").Click();
+
+        Assert.That(added, Is.EqualTo(1));
+        Assert.That(cut.FindAll("[data-testid=new-unfinished]"), Is.Empty);
+    }
+
+    [Test]
+    public async Task New_WithAnUnfinishedWorkout_OffersResumeOrDiscardAndStartNewInsteadOfStartingOne()
+    {
+        Context.JSInterop.Mode = JSRuntimeMode.Loose;
+        Unfinished(Now.AddHours(-2));
+        var added = 0;
+        var cut = Context.Render<ThisWeekPage>(p => p.Add(x => x.OnNew, () => added++));
+        await WaitForSettledAsync(cut, () => Assert.That(cut.FindAll("[data-testid=unfinished]"), Has.Count.EqualTo(1)));
+
+        cut.Find("[data-testid=add-button]").Click();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(added, Is.Zero);
+            Assert.That(cut.Find("[data-testid=new-unfinished-message]").TextContent, Does.Contain("2 exercises, 2 sets will be lost"));
+        });
+    }
+
+    [Test]
+    public async Task New_Resume_RaisesOnResumeAndCreatesNoSecondWorkout()
+    {
+        Context.JSInterop.Mode = JSRuntimeMode.Loose;
+        Unfinished(Now.AddHours(-2));
+        var resumed = 0;
+        var added = 0;
+        var cut = Context.Render<ThisWeekPage>(p => p.Add(x => x.OnNew, () => added++).Add(x => x.OnResume, () => resumed++));
+        await WaitForSettledAsync(cut, () => Assert.That(cut.FindAll("[data-testid=unfinished]"), Has.Count.EqualTo(1)));
+        cut.Find("[data-testid=add-button]").Click();
+
+        cut.Find("[data-testid=new-unfinished-resume]").Click();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That((resumed, added), Is.EqualTo((1, 0)));
+            Assert.That(cut.FindAll("[data-testid=new-unfinished]"), Is.Empty);
+            Assert.That(UnfinishedWorkout.Stored, Is.Not.Null);
+        });
+    }
+
+    [Test]
+    public async Task New_DiscardAndStartNew_DeletesTheWorkoutThenRaisesOnNew()
+    {
+        Context.JSInterop.Mode = JSRuntimeMode.Loose;
+        Unfinished(Now.AddHours(-2));
+        var added = 0;
+        var cut = Context.Render<ThisWeekPage>(p => p.Add(x => x.OnNew, () => added++));
+        await WaitForSettledAsync(cut, () => Assert.That(cut.FindAll("[data-testid=unfinished]"), Has.Count.EqualTo(1)));
+        cut.Find("[data-testid=add-button]").Click();
+
+        cut.Find("[data-testid=new-unfinished-discard]").Click();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(UnfinishedWorkout.Stored, Is.Null);
+            Assert.That(added, Is.EqualTo(1));
+            Assert.That(cut.FindAll("[data-testid=unfinished]"), Is.Empty);
+        });
+    }
+
+    [Test]
+    public async Task New_DiscardAndStartNew_WriteFails_KeepsTheWorkoutAndStartsNothing()
+    {
+        Context.JSInterop.Mode = JSRuntimeMode.Loose;
+        Unfinished(Now.AddHours(-2));
+        var added = 0;
+        var cut = Context.Render<ThisWeekPage>(p => p.Add(x => x.OnNew, () => added++));
+        await WaitForSettledAsync(cut, () => Assert.That(cut.FindAll("[data-testid=unfinished]"), Has.Count.EqualTo(1)));
+        cut.Find("[data-testid=add-button]").Click();
+        UnfinishedWorkout.FailWrites = true;
+
+        cut.Find("[data-testid=new-unfinished-discard]").Click();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(UnfinishedWorkout.Stored, Is.Not.Null);
+            Assert.That(added, Is.Zero);
+            Assert.That(cut.FindAll("[data-testid=unfinished]"), Has.Count.EqualTo(1));
+        });
+    }
+
+    [Test]
+    public async Task New_SheetClosed_KeepsTheWorkoutAndStartsNothing()
+    {
+        Context.JSInterop.Mode = JSRuntimeMode.Loose;
+        Unfinished(Now.AddHours(-2));
+        var added = 0;
+        var cut = Context.Render<ThisWeekPage>(p => p.Add(x => x.OnNew, () => added++));
+        await WaitForSettledAsync(cut, () => Assert.That(cut.FindAll("[data-testid=unfinished]"), Has.Count.EqualTo(1)));
+        cut.Find("[data-testid=add-button]").Click();
+
+        cut.Find("[data-testid=new-unfinished-scrim]").Click();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(cut.FindAll("[data-testid=new-unfinished]"), Is.Empty);
+            Assert.That((added, UnfinishedWorkout.Stored is not null), Is.EqualTo((0, true)));
+        });
+    }
+
+    /// <summary>A workout of a Squat with two sets and a Run, started at <paramref name="start"/>, left unfinished.</summary>
+    private void Unfinished(DateTimeOffset start) =>
+        UnfinishedWorkout.Stored = new UnfinishedWorkout(start, null,
+        [
+            new UnfinishedExercise(Squat, null, false, [new UnfinishedEntry(new Dictionary<string, string?>()), new UnfinishedEntry(new Dictionary<string, string?>())]),
+            new UnfinishedExercise(Run, null, false, [new UnfinishedEntry(new Dictionary<string, string?>())]),
+        ]);
+
+    private async Task<IRenderedComponent<ThisWeekPage>> LoadedWithUnfinishedAsync()
+    {
+        var cut = Context.Render<ThisWeekPage>();
+        await WaitForSettledAsync(cut, () => Assert.That(cut.FindAll("[data-testid=unfinished]"), Has.Count.EqualTo(1)));
+        return cut;
+    }
+
     private static ReadResult<PeriodComparison> Comparison(WeekTally totals, WeekTally earlier) => new PeriodComparison(Week, totals, earlier);
 
     private static ReadResult<WeekStreaks> Streaks(int current) => new WeekStreaks(current, new int[12], new LongestRun(current + 3, true));

@@ -12,7 +12,7 @@ using static WorkoutLog.Core.Tests.Import.ImportJson;
 
 namespace WorkoutLog.Core.Tests;
 
-/// <summary>Runs schema step 5, saves, edits, a failed save and an import with notes on one database, then reads every log record.</summary>
+/// <summary>Runs schema step 5, saves, edits, a failed save, an unfinished workout and an import with notes on one database, then reads every log record.</summary>
 public class NotesNotLoggedTests
 {
     private const string Sentinel = "sentinel-note-7f3a";
@@ -39,6 +39,12 @@ public class NotesNotLoggedTests
             await workouts.SaveAsync(id, $"{Sentinel} edited", exercises);
             var failed = await workouts.SaveNewAsync(draft, Sentinel, exercises);
             await workouts.GetAsync(id);
+            var unfinished = provider.GetRequiredService<IUnfinishedWorkoutService>();
+            await unfinished.SaveAsync(new UnfinishedWorkout(draft.StartedAt, Sentinel,
+                [new UnfinishedExercise(8, Sentinel, false, [new UnfinishedEntry(new Dictionary<string, string?> { ["reps"] = Sentinel, ["weight"] = "60" })])]));
+            await unfinished.GetSummaryAsync();
+            await unfinished.GetAsync();
+            await unfinished.DiscardAsync();
             await provider.GetRequiredService<IWeightHistoryService>().GetAsync(8, null);
             var totals = provider.GetRequiredService<IPeriodTotalsService>();
             var period = Period.Containing(PeriodKind.Week, DateOnly.FromDateTime(time.GetUtcNow().UtcDateTime));
@@ -68,6 +74,7 @@ public class NotesNotLoggedTests
                 Assert.That(records.Select(r => (CoreEvent)r.Id.Id), Is.SupersetOf(new[]
                 {
                     CoreEvent.SchemaStepApplied, CoreEvent.WorkoutAdded, CoreEvent.WorkoutUpdated, CoreEvent.WorkoutAddFailed,
+                    CoreEvent.UnfinishedRecovered, CoreEvent.UnfinishedDiscarded,
                     CoreEvent.ImportWorkoutSkipped, CoreEvent.ImportDone,
                     CoreEvent.PeriodComparisonLoaded, CoreEvent.PeriodVolumeLoaded, CoreEvent.PeriodSeriesLoaded, CoreEvent.PeriodStreaksLoaded, CoreEvent.PeriodLimitsLoaded,
                     CoreEvent.PeriodWorkoutsLoaded, CoreEvent.PeriodRecordsLoaded, CoreEvent.PeriodMuscleSetsLoaded, CoreEvent.PeriodMostTrainedLoaded,

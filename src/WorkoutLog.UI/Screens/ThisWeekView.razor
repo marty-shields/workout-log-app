@@ -1,12 +1,29 @@
 @using WorkoutLog.UI.Components.Weekly
 @using WorkoutLog.UI.Components.ThisWeek
+@using Shields.UI.Components.Overlays
 @using WorkoutLog.UI.Models.Muscles
+@using WorkoutLog.UI.Models.ThisWeek
 <AppScreen Title="Workout Log" NavItems="MainTabs.Items" Current="MainTabs.Item(MainTab.ThisWeek)" OnNavigate="item => OnNavigate.InvokeAsync(MainTabs.Tab(item))"
            AddLabel="@MainTabs.AddLabel" AddIcon="MainTabs.AddIcon" OnAdd="OnNew" OnRefresh="OnRefresh">
     <Actions>
         <IconButton Icon="IconName.Settings" AriaLabel="Settings" TestId="settings" OnClick="OnSettings" />
     </Actions>
     <ChildContent>
+        @if (Unfinished is not null && !Loading)
+        {
+            <div class="unfinished">
+                <Banner TestId="unfinished">
+                    <ChildContent>
+                        <Typography Variant="TextVariant.Strong" As="TextElement.P" TestId="unfinished-title">Workout in progress</Typography>
+                        <Typography Variant="TextVariant.Body" As="TextElement.P" TestId="unfinished-details">@Unfinished.Started · @DisplayFormat.Exercises(Unfinished.Exercises)</Typography>
+                    </ChildContent>
+                    <Actions>
+                        <AppButton TestId="unfinished-resume" OnClick="OnResume">Resume</AppButton>
+                        <AppButton Variant="ButtonVariant.Secondary" TestId="unfinished-discard" OnClick="OnDiscardUnfinished">Discard</AppButton>
+                    </Actions>
+                </Banner>
+            </div>
+        }
         @if (Loading)
         {
             <div class="centre">
@@ -46,6 +63,23 @@
         }
     </ChildContent>
 </AppScreen>
+@if (Unfinished is not null && ConfirmingDiscard)
+{
+    <ConfirmDialog Title="Discard this workout?" Message="@Unfinished.Lost" ConfirmText="Discard" Danger
+                   OnConfirm="OnConfirmDiscard" OnCancel="OnCancelDiscard" TestId="confirm-dialog" />
+}
+<Sheet Open="Unfinished is not null && ChoosingNew" Title="Workout in progress" OnClose="OnCloseChoice" TestId="new-unfinished">
+    @if (Unfinished is not null)
+    {
+        <div class="choice">
+            <Typography Variant="TextVariant.Body" As="TextElement.P" TestId="new-unfinished-message">
+                You haven't finished the workout you started. Resume it, or discard it to start a new one: @Unfinished.Lost.
+            </Typography>
+            <AppButton FullWidth TestId="new-unfinished-resume" OnClick="OnResume">Resume</AppButton>
+            <AppButton Variant="ButtonVariant.Danger" FullWidth TestId="new-unfinished-discard" OnClick="OnDiscardAndStart">Discard and start new</AppButton>
+        </div>
+    }
+</Sheet>
 
 @code {
     /// <summary>The week's Monday. The title row shows the week's dates and the strip starts here.</summary>
@@ -89,6 +123,42 @@
     /// <summary>Last week's whole-week totals, shown as a row while nothing is logged this week. Null when there was no last week to show.</summary>
     [Parameter]
     public WeekTotals? LastWeek { get; set; }
+
+    /// <summary>The workout left unfinished by a crash or kill, shown as a banner at the top with Resume and Discard. Null shows none.</summary>
+    [Parameter]
+    public UnfinishedItem? Unfinished { get; set; }
+
+    /// <summary>Shows the dialog that asks to confirm discarding <see cref="Unfinished"/>, naming what is lost.</summary>
+    [Parameter]
+    public bool ConfirmingDiscard { get; set; }
+
+    /// <summary>Shows the sheet that offers Resume or Discard and start new, for + tapped while there is an <see cref="Unfinished"/> workout.</summary>
+    [Parameter]
+    public bool ChoosingNew { get; set; }
+
+    /// <summary>Raised by Resume, on the banner and in the sheet.</summary>
+    [Parameter]
+    public EventCallback OnResume { get; set; }
+
+    /// <summary>Raised by the banner's Discard.</summary>
+    [Parameter]
+    public EventCallback OnDiscardUnfinished { get; set; }
+
+    /// <summary>Raised by Discard in the confirm dialog.</summary>
+    [Parameter]
+    public EventCallback OnConfirmDiscard { get; set; }
+
+    /// <summary>Raised by Cancel in the confirm dialog and the Android back button.</summary>
+    [Parameter]
+    public EventCallback OnCancelDiscard { get; set; }
+
+    /// <summary>Raised by Discard and start new in the sheet.</summary>
+    [Parameter]
+    public EventCallback OnDiscardAndStart { get; set; }
+
+    /// <summary>Raised when the sheet is closed by its scrim or the Android back button; the unfinished workout stays.</summary>
+    [Parameter]
+    public EventCallback OnCloseChoice { get; set; }
 
     /// <summary>Shows a spinner instead of the week while it loads.</summary>
     [Parameter]

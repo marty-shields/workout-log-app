@@ -1237,6 +1237,85 @@ public class WorkoutEditorTests
         });
     }
 
+    [Test]
+    public void Edited_IsRaisedByEachWayTheWorkoutChanges()
+    {
+        var raised = 0;
+        editor.Edited += () => raised++;
+
+        editor.Pick(Item(Squat));
+        var squat = editor.Exercises[0];
+        Assert.That(raised, Is.EqualTo(1), "Pick adds an exercise");
+
+        editor.MarkChanged();
+        Assert.That(raised, Is.EqualTo(2), "MarkChanged");
+
+        editor.SetNote("note");
+        Assert.That(raised, Is.EqualTo(3), "SetNote");
+
+        squat.Entries.Add(new EntryState());
+        editor.RemoveSet(new SetRef(squat, squat.Entries[1]));
+        Assert.That(raised, Is.EqualTo(4), "RemoveSet");
+
+        editor.Undo();
+        Assert.That(raised, Is.EqualTo(5), "Undo puts the set back");
+
+        editor.Remove(squat);
+        Assert.That(raised, Is.EqualTo(6), "Remove");
+
+        editor.Undo();
+        Assert.That(raised, Is.EqualTo(7), "Undo puts the exercise back");
+    }
+
+    [Test]
+    public void Edited_PickingAnExerciseAlreadyThere_IsRaised()
+    {
+        editor.Pick(Item(Squat));
+        var raised = 0;
+        editor.Edited += () => raised++;
+
+        editor.Pick(Item(Squat));
+
+        Assert.That(raised, Is.EqualTo(1));
+    }
+
+    [Test]
+    public void Edited_TheExercisesAreAsTheyAreWhenItIsRaised()
+    {
+        List<int> counts = [];
+        editor.Edited += () => counts.Add(editor.Exercises.Count);
+
+        editor.Pick(Item(Squat));
+        editor.Pick(Item(Treadmill));
+        editor.Remove(editor.Exercises[0]);
+
+        Assert.That(counts, Is.EqualTo(new[] { 1, 2, 1 }));
+    }
+
+    [Test]
+    public void Edited_NothingToUndo_IsNotRaised()
+    {
+        var raised = 0;
+        editor.Edited += () => raised++;
+
+        editor.Undo();
+
+        Assert.That(raised, Is.Zero);
+    }
+
+    [Test]
+    public void Edited_OpeningTheListAndDiscardPrompt_IsNotRaised()
+    {
+        var raised = 0;
+        editor.Edited += () => raised++;
+
+        editor.AskDiscard();
+        editor.CloseDiscard();
+        editor.CloseList();
+
+        Assert.That(raised, Is.Zero);
+    }
+
     private static ExerciseListItem Item(int exerciseId) =>
         ExerciseListItems.Item(Catalog.All.Single(e => e.Id == exerciseId), null, TimeZoneInfo.Utc, Now);
 }

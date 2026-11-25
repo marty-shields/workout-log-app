@@ -231,6 +231,16 @@ public sealed partial class Native(WebView web)
     /// <summary>Whether <see cref="Launch"/> has run in this scenario.</summary>
     public bool Launched { get; private set; }
 
+    /// <summary>
+    /// Kills the app's process with <c>adb shell am force-stop</c> as a crash or Android's own kill would, with no pause or stop to save anything, then starts the app
+    /// and switches to its WebView.
+    /// </summary>
+    public void Kill()
+    {
+        AppiumSetup.Adb.Shell("am", "force-stop", AppiumSetup.App.Package);
+        Launch();
+    }
+
     /// <summary>Stops the app, then starts it and switches to its WebView.</summary>
     public void Restart()
     {
