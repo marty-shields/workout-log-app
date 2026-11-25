@@ -177,6 +177,23 @@ public class NewWorkoutPageUnfinishedTests : ComponentTestBase
     }
 
     [Test]
+    public async Task Resume_AnEditWhileTheContextIsStillLoading_IsStillWritten()
+    {
+        UnfinishedWorkout.Stored = Stored(Now.AddMinutes(-5));
+        var slow = new BlockedLastSessionService();
+        Context.Services.AddSingleton<ILastSessionService>(slow);
+        var cut = Render(resume: true);
+        await slow.Requested.Task.WaitAsync(TimeSpan.FromSeconds(10));
+
+        cut.Find("[data-testid=exercise-1-set-1-reps]").Input("9");
+        await Flush();
+        var written = UnfinishedWorkout.Stored!.Exercises.Single().Entries.Single().Values["reps"];
+        slow.Release.SetResult();
+
+        Assert.That(written, Is.EqualTo("9"), "the autosave is on before the load, so the edit is not dropped");
+    }
+
+    [Test]
     public async Task MarkingAnExerciseDoneAndOpeningItAgain_IsKept()
     {
         UnfinishedWorkout.Stored = Stored(Now.AddMinutes(-5));
@@ -325,6 +342,21 @@ public class NewWorkoutPageUnfinishedTests : ComponentTestBase
         cut.Find(number is { } n ? $"[data-testid=exercise-{n}-add-note]" : "[data-testid=workout-note-add]").Click();
         cut.Find(number is { } m ? $"[data-testid=exercise-{m}-note-input]" : "[data-testid=workout-note-input]").Input(text);
         cut.Find(number is { } k ? $"[data-testid=exercise-{k}-add-note]" : "[data-testid=workout-note-add]").Click();
+    }
+
+    /// <summary>A last session service whose read waits until <see cref="Release"/> is set.</summary>
+    private sealed class BlockedLastSessionService : ILastSessionService
+    {
+        public TaskCompletionSource Requested { get; } = new(TaskCreationOptions.RunContinuationsAsynchronously);
+
+        public TaskCompletionSource Release { get; } = new(TaskCreationOptions.RunContinuationsAsynchronously);
+
+        public async Task<ReadResult<LastSessionExercise?>> GetAsync(int exerciseId, DateTimeOffset? before = null)
+        {
+            Requested.TrySetResult();
+            await Release.Task;
+            return new ReadFailed();
+        }
     }
 
     /// <summary>The sample workout service, whose <see cref="SaveNewAsync"/> fails while <see cref="Fail"/> is set.</summary>
